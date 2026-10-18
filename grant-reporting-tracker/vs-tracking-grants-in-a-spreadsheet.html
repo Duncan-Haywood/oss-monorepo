@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tracker vs. tracking grants in a spreadsheet | Grant Reporting Tracker</title>
+  <meta name="description" content="A spreadsheet can hold every award, its reporting interval, and its balance -- the risk is the month arithmetic and remembering to re-sort by urgency after…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html">
+  <meta property="og:title" content="This tracker vs. tracking grants in a spreadsheet">
+  <meta property="og:description" content="The arithmetic is the same either way: award date plus reporting interval is the next due date, and amount minus spend is the restricted balance.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a spreadsheet just as accurate as this tracker?","acceptedAnswer":{"@type":"Answer","text":"A carefully built one can be — next report due date is award date plus the reporting interval in months, and restricted balance is award amount minus spend, which is ordinary date and subtraction math. The risk is not that the math is hard, it's month-length edge cases (a report interval that lands on 31 January needs to become 28 February, not 3 March) and remembering to re-sort every row by urgency after each edit across several awards, rather than scrolling past the one that quietly became overdue."}},{"@type":"Question","name":"What does this tracker do that a spreadsheet doesn't do automatically?","acceptedAnswer":{"@type":"Answer","text":"It computes each award's next report date with calendar-correct month arithmetic, flags a row overdue or due soon against today's date without you checking, and keeps the whole list sorted by which report needs attention first — every time you open the page, not only the moment you last touched the spreadsheet. A spreadsheet does none of that unless you build the formulas and re-sort yourself, and the sort is the step most likely to be skipped when you're only adding one row."}},{"@type":"Question","name":"When is a spreadsheet the better choice?","acceptedAnswer":{"@type":"Answer","text":"When you need something this tracker doesn't do: a shared file several staff edit together, custom columns for your own workflow, or a permanent record kept somewhere other than your own browser. This tracker stores what you enter only in your browser and is built for the narrower job of not missing the next report on the awards you already hold."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem, 5vw, 2.6rem)/1.05 Georgia, serif; letter-spacing: -.04em; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fffdf8; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .note { font-size: .85rem; color: var(--muted); }
+    footer { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tracker vs. tracking grants in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../grant-reporting-tracker/">Grant Reporting Tracker for Small Nonprofits</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tracker vs. tracking grants in a spreadsheet</span></span></nav>
+<main>
+  <p><a href="./">&larr; Grant reporting tracker</a></p>
+  <h1>This tracker vs. tracking grants in a spreadsheet</h1>
+  <p>
+    <strong>A spreadsheet</strong> can do exactly what this tracker does --
+    hold every award's date, reporting interval, amount, and spend, and turn
+    that into a next report date and a restricted balance. Nothing about the
+    underlying math is exotic. What a blank spreadsheet does not give you is
+    calendar-correct month arithmetic built in (a 31 January award with a
+    one-month interval has to land on 28 February, not roll over into March),
+    or an automatic re-sort by urgency every time you open the file, rather
+    than however the rows happened to be ordered when a report was last added.
+  </p>
+  <p>
+    <strong>This tracker</strong> is that structure already built: enter an
+    award's date, reporting interval, amount, and spend, and it computes the
+    next due date with the month-length edge cases handled, flags it overdue
+    or due soon against today automatically, and keeps the whole list sorted
+    by which report needs attention first every time the page loads.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Can a spreadsheet track the same award date, interval, amount, and spend?</td>
+        <td>Yes -- the underlying fields are the same either way.</td>
+      </tr>
+      <tr>
+        <td>Does a one-month interval off a 31st-of-the-month award date land on the right day?</td>
+        <td>This tracker &mdash; <code>DATE()</code> formulas that don't clamp to the shorter month roll over instead of landing on the last day, a mistake that's easy to miss until a report looks a few days late for no reason.</td>
+      </tr>
+      <tr>
+        <td>Will the row that just became overdue actually sort to the top?</td>
+        <td>This tracker, automatically. In a spreadsheet, only if you remember to re-sort after every edit.</td>
+      </tr>
+      <tr>
+        <td>Do I need to build the formulas myself, or maintain them as awards are added?</td>
+        <td>This tracker: no formulas to write. A spreadsheet: yes, and they need to be copied correctly down every new row.</td>
+      </tr>
+      <tr>
+        <td>Do I need a shared file several staff can edit together, or custom columns for my own workflow?</td>
+        <td>A spreadsheet &mdash; this tracker has no accounts, no sharing, and a fixed set of fields.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Most of what a spreadsheet gets wrong here isn't the arithmetic, it's the
+    maintenance: a formula that doesn't clamp to a shorter month, or a sort
+    order that goes stale the moment one more award is added. This tracker
+    trades the spreadsheet's flexibility for a page that already gets both of
+    those right, with nothing typed here ever leaving your browser.
+  </p>
+  <p>
+    It needs no account and no sign-in: it is a static page, the arithmetic
+    runs in your browser, and once it has loaded it keeps working with the
+    connection off.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Isn't a spreadsheet just as accurate as this tracker?</h3>
+  <p>A carefully built one can be — next report due date is award date plus the reporting interval in months, and restricted balance is award amount minus spend, which is ordinary date and subtraction math. The risk is not that the math is hard, it's month-length edge cases (a report interval that lands on 31 January needs to become 28 February, not 3 March) and remembering to re-sort every row by urgency after each edit across several awards, rather than scrolling past the one that quietly became overdue.</p>
+  <h3>What does this tracker do that a spreadsheet doesn't do automatically?</h3>
+  <p>It computes each award's next report date with calendar-correct month arithmetic, flags a row overdue or due soon against today's date without you checking, and keeps the whole list sorted by which report needs attention first — every time you open the page, not only the moment you last touched the spreadsheet. A spreadsheet does none of that unless you build the formulas and re-sort yourself, and the sort is the step most likely to be skipped when you're only adding one row.</p>
+  <h3>When is a spreadsheet the better choice?</h3>
+  <p>When you need something this tracker doesn't do: a shared file several staff edit together, custom columns for your own workflow, or a permanent record kept somewhere other than your own browser. This tracker stores what you enter only in your browser and is built for the narrower job of not missing the next report on the awards you already hold.</p>
+  <p class="note">
+    Open the <a href="./">Grant Reporting Tracker</a> to add your own awards
+    and reporting intervals.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or tax advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../eu-einvoicing-mandate-checker/" data-pf-to="eu-einvoicing-mandate-checker">EU e-invoicing mandate checker: your receive and issue dates by country. Free, private</a></li>
+      <li><a href="../eu-espr-readiness-checker/" data-pf-to="eu-espr-readiness-checker">EU ESPR checker: unsold-clothes destruction ban, disclosure table, Digital Product Passport. Free, private</a></li>
+      <li><a href="../eu-green-claims-checker/" data-pf-to="eu-green-claims-checker">EU green claims checker: is your eco-friendly claim banned from 27 September 2026? Free, private</a></li>
+      <li><a href="../eu-green-claims-copy-scanner/" data-pf-to="eu-green-claims-copy-scanner">EU green claims checker: is your eco-friendly copy now illegal? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=grant-reporting-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="grant-reporting-tracker"></script>
+</body>
+</html>

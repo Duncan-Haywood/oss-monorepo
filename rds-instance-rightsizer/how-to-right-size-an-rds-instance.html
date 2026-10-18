@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Right-Size an RDS Instance</title>
+  <meta name="description" content="Which CloudWatch metrics decide an RDS or Aurora instance class, how to read CPU, freeable memory and connections, when Graviton and Multi-AZ change the math…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/how-to-right-size-an-rds-instance.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to move an RDS instance to a smaller class?", "acceptedAnswer": {"@type": "Answer", "text": "Often, but only after checking the busiest period. Look at the p95 of CPUUtilization, the minimum of FreeableMemory and the p95 of DatabaseConnections over at least two weeks, and confirm the smaller class keeps CPU under about 70% and a fifth of memory free at that peak. The change restarts the instance, so plan the window."}}, {"@type": "Question", "name": "Does Multi-AZ double the cost?", "acceptedAnswer": {"@type": "Answer", "text": "For RDS MySQL, PostgreSQL, MariaDB, Oracle and SQL Server, yes: the standby is billed at the same instance price, so every class change saves twice as much, and an unnecessary Multi-AZ on a dev database is its own saving. Aurora is different: readers are separate instances you list individually."}}, {"@type": "Question", "name": "Is moving to Graviton worth it?", "acceptedAnswer": {"@type": "Answer", "text": "Usually. The Graviton classes (t4g, m6g, m7g, r6g, r7g) list about 5 to 12% below the equivalent x86 class at the same vCPU and memory. It needs an engine version that supports Graviton and a restart, so test it on a copy; Oracle and SQL Server cannot use it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/how-to-right-size-an-rds-instance.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Right-Size an RDS Instance">
+<meta property="og:description" content="Which CloudWatch metrics decide an RDS or Aurora instance class, how to read CPU, freeable memory and connections, when Graviton and Multi-AZ change the math…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Right-Size an RDS Instance — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../rds-instance-rightsizer/">Is your RDS instance too big?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Right-Size an RDS Instance</span></span></nav>
+  <p><a href="./">← Back to RDS Instance Rightsizer</a></p>
+  <h1>How to right-size an RDS instance</h1>
+  <p>An RDS or Aurora instance is billed by the hour for its class whether the database is busy or idle, and the class is usually chosen once, at launch, with a margin nobody revisits. Four CloudWatch metrics are enough to find the instances that are too big, and the ones that are too small.</p>
+
+  <h2>The four numbers</h2>
+  <ul>
+    <li><strong>CPUUtilization, p95</strong> (and the average): sizes the vCPUs. Halving the vCPUs doubles the utilisation, so an instance at 20% p95 can lose half its vCPUs and sit near 40%.</li>
+    <li><strong>FreeableMemory, minimum</strong>: peak use is the class memory minus this. A smaller class should still keep about a fifth of its memory free at that peak.</li>
+    <li><strong>DatabaseConnections, p95</strong>: MySQL and PostgreSQL default <code>max_connections</code> to the instance memory divided by 9531392, so a smaller class has a lower ceiling.</li>
+    <li><strong>The instance class, engine and Multi-AZ flag</strong>, from <code>aws rds describe-db-instances</code>.</li>
+  </ul>
+  <pre>aws cloudwatch get-metric-statistics --namespace AWS/RDS --metric-name CPUUtilization \
+  --dimensions Name=DBInstanceIdentifier,Value=orders-prod --statistics Average \
+  --extended-statistics p95 --period 3600 --start-time ... --end-time ...</pre>
+  <p>Take a window that includes your busiest period. A quiet two weeks will recommend a class that fails at month-end.</p>
+
+  <h2>Pick the next class in the same family</h2>
+  <p>Within a family (m6g, r6g, t4g) each step doubles vCPU and memory and roughly doubles the price. The analyzer walks down the family and picks the smallest class that keeps p95 CPU under your target (70% by default), keeps the memory reserve, and still allows your connection peak. If CPU is idle but memory is the limit, it says so: a memory-optimised (r) class with the same memory may be the cheaper fit.</p>
+  <pre>node cli.mjs analyze instances.csv --commands</pre>
+
+  <h2>Burstable classes need the average, not the p95</h2>
+  <p>t3 and t4g instances earn CPU credits at a baseline (20% per vCPU-share on medium, 40% on xlarge) and throttle when they run out. An average above the baseline is a credit drain even if the p95 looks fine, so the tool checks the average against the baseline of the class it recommends.</p>
+
+  <h2>Graviton and Multi-AZ</h2>
+  <p>Graviton classes list a little below x86 at the same size, so an m5 to m6g move saves money before any downsizing. Multi-AZ keeps a standby billed at the same price, which doubles both the cost and the saving. Oracle and SQL Server cannot run on Graviton.</p>
+
+  <h2>Apply it safely</h2>
+  <pre>aws rds modify-db-instance --db-instance-identifier orders-prod --db-instance-class db.r6g.2xlarge</pre>
+  <p>Without <code>--apply-immediately</code> the change waits for the next maintenance window. Either way it restarts the instance: several minutes for single-AZ, a failover of about one to two minutes for Multi-AZ. Rehearse on a snapshot restore, and watch CPU, freeable memory and replica lag for a week.</p>
+
+  <h2>What this cannot see</h2>
+  <p>A pasted table is not your workload next quarter. Prices are approximate us-east-1 list prices for MySQL/PostgreSQL-style single-AZ instances; reserved instances, storage, provisioned IOPS and licences are not modelled, so the dollar figure is a rough size of the opportunity, not a bill.</p>
+
+  <h2>Common questions</h2>
+  <h3>Is it safe to move an RDS instance to a smaller class?</h3>
+  <p>Often, but only after checking the busiest period. Look at the p95 of CPUUtilization, the minimum of FreeableMemory and the p95 of DatabaseConnections over at least two weeks, and confirm the smaller class keeps CPU under about 70% and a fifth of memory free at that peak. The change restarts the instance, so plan the window.</p>
+  <h3>Does Multi-AZ double the cost?</h3>
+  <p>For RDS MySQL, PostgreSQL, MariaDB, Oracle and SQL Server, yes: the standby is billed at the same instance price, so every class change saves twice as much, and an unnecessary Multi-AZ on a dev database is its own saving. Aurora is different: readers are separate instances you list individually.</p>
+  <h3>Is moving to Graviton worth it?</h3>
+  <p>Usually. The Graviton classes (t4g, m6g, m7g, r6g, r7g) list about 5 to 12% below the equivalent x86 class at the same vCPU and memory. It needs an engine version that supports Graviton and a restart, so test it on a copy; Oracle and SQL Server cannot use it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice. It makes a recommendation from metrics, not a bill, metrics must be sampled over a representative period, prices are approximate, and you are responsible for verifying its output. AWS, Amazon RDS, Aurora and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../training-gpu-pricing-calculator/" data-pf-to="training-gpu-pricing-calculator">What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</a></li>
+      <li><a href="../upstash-redis-bill-estimator/" data-pf-to="upstash-redis-bill-estimator">What will your Upstash Redis bill be, and should you go fixed?</a></li>
+      <li><a href="../uptime-monitoring-pricing-calculator/" data-pf-to="uptime-monitoring-pricing-calculator">What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</a></li>
+      <li><a href="../vercel-bill-estimator/" data-pf-to="vercel-bill-estimator">What will your Vercel bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rds-instance-rightsizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="rds-instance-rightsizer"></script>
+</body>
+</html>

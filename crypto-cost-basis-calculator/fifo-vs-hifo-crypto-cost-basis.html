@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FIFO vs HIFO For Crypto Cost Basis, With A Worked Example</title>
+  <meta name="description" content="FIFO, LIFO and HIFO give different crypto gains from the same trades. A worked example: one set of sales taxed at an estimated $3,634 under FIFO and $2,475…">
+  <meta property="og:title" content="FIFO vs HIFO For Crypto Cost Basis, With A Worked Example">
+  <meta property="og:description" content="Same trades, three lot-matching rules, a $1,159 difference in estimated tax. Here is why, and how to run your own history privately.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/fifo-vs-hifo-crypto-cost-basis.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which method gives the smallest gain?", "acceptedAnswer": {"@type": "Answer", "text": "Usually HIFO, because it sells the coins you paid the most for first. But the holding period matters too: selling a higher-basis coin you have held under a year can cost more tax than selling a lower-basis coin held over a year, because short-term gains are taxed at ordinary rates. That is why the calculator compares tax, not just gain."}}, {"@type": "Question", "name": "Is FIFO the default?", "acceptedAnswer": {"@type": "Answer", "text": "In the United States, property sold without identifying specific units is generally treated as first in, first out. Using HIFO or another method generally relies on identifying the units at the time of sale and keeping records that prove it. Ask a tax professional what applies to you."}}, {"@type": "Question", "name": "Why do exchange reports and my own records disagree?", "acceptedAnswer": {"@type": "Answer", "text": "Exchanges often compute basis only from what happened on their own platform. Coins moved in from elsewhere arrive with no basis, and coins moved out take their history with them. Entering every purchase in one CSV, tagged by wallet, is how you find the gaps; the calculator flags any sale larger than the lots on record."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #2d4fa3; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #2d4fa3; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 40px; font-size: .86rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/fifo-vs-hifo-crypto-cost-basis.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FIFO vs HIFO For Crypto Cost Basis, With A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../crypto-cost-basis-calculator/">Crypto Cost Basis Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">FIFO vs HIFO For Crypto Cost Basis, With A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Crypto cost basis calculator</a></p>
+  <h1>FIFO vs HIFO for crypto cost basis, with a worked example</h1>
+  <p>If you bought the same coin at different prices and later sold some of it, your gain depends on which purchase the sale is matched to. The trades are identical; the matching rule is not, and it can move the estimated tax by thousands of dollars. This page walks one small example through each rule.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+
+  <h2>The example</h2>
+  <p>An invented investor, all in one account. They buy 0.5 BTC on 2023-01-10 for $10,000 plus a $10 fee, 0.5 BTC on 2023-06-15 for $15,000 plus $15, and 0.25 BTC on 2024-02-01 for $12,000 plus $12. On 2024-03-05 they receive 2 ETH from staking worth $5,000. In 2024 they sell 0.6 BTC on 2024-09-20 for $36,000 less a $36 fee, and 1 ETH on 2024-11-02 for $3,300 less a $3 fee. We assume a 24% short-term and 15% long-term rate.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Method</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Total gain</th><th class="n">Estimated tax</th></tr></thead>
+    <tbody>
+      <tr><td>FIFO</td><td class="n">$797</td><td class="n">$22,951</td><td class="n">$23,748</td><td class="n">$3,634</td></tr>
+      <tr><td>LIFO</td><td class="n">$3,770</td><td class="n">$10,469</td><td class="n">$14,239</td><td class="n">$2,475</td></tr>
+      <tr><td>HIFO</td><td class="n">$3,770</td><td class="n">$10,469</td><td class="n">$14,239</td><td class="n">$2,475</td></tr>
+      <tr><td>LOFO</td><td class="n">$797</td><td class="n">$22,951</td><td class="n">$23,748</td><td class="n">$3,634</td></tr>
+    </tbody>
+  </table></div>
+  <p>FIFO sells the two oldest lots: all 0.5 BTC bought in January 2023 (basis $10,010) and 0.1 BTC of the June lot (basis $3,003). Proceeds are $35,964, so the gain is $22,951, all long-term. HIFO sells the coins that cost the most per BTC, the February 2024 lot ($48,048 per BTC) and then part of the June 2023 lot ($30,030 per BTC), so basis rises to $22,522.50 and the gain falls to $13,441.50 across a short-term and a long-term piece. The ETH sale is short-term under every method, with a $797 gain on $2,500 of basis.</p>
+
+  <h2>Why the holding period complicates "just use HIFO"</h2>
+  <p>Gains on coins held for more than one year are taxed at long-term rates, which are lower; gains on coins held a year or less are taxed as ordinary income. A high-basis lot you bought recently is short-term, so selling it first can cut the gain but raise the rate. The calculator therefore compares estimated tax as well as gain, and offers a tax-aware rule that orders lots by the tax each coin would trigger at the two rates you enter. That rule picks one sale at a time, so it is a heuristic, not a guarantee of the best plan across a whole year.</p>
+
+  <h2>Checking your own history</h2>
+  <ol>
+    <li>Export every purchase, sale and reward from each exchange and wallet into one CSV with date, type, asset, quantity, USD total, fee and wallet.</li>
+    <li>Enter coin-for-coin swaps as a sale and a buy at their USD value on the day.</li>
+    <li>Run it. Fix any warning about a sale larger than the lots on record: that is usually a missing purchase or a transfer in from somewhere you did not export.</li>
+    <li>Compare the methods, then download the Form 8949 style rows for the method that applies to your records.</li>
+  </ol>
+  <p>Nothing is uploaded: the matching runs in your browser, which matters for a file listing everything you have ever bought.</p>
+
+  <h2>Common questions</h2>
+  <h3>Which method gives the smallest gain?</h3>
+  <p>Usually HIFO, because it sells the coins you paid the most for first. But the holding period matters too: selling a higher-basis coin you have held under a year can cost more tax than selling a lower-basis coin held over a year, because short-term gains are taxed at ordinary rates. That is why the calculator compares tax, not just gain.</p>
+  <h3>Is FIFO the default?</h3>
+  <p>In the United States, property sold without identifying specific units is generally treated as first in, first out. Using HIFO or another method generally relies on identifying the units at the time of sale and keeping records that prove it. Ask a tax professional what applies to you.</p>
+  <h3>Why do exchange reports and my own records disagree?</h3>
+  <p>Exchanges often compute basis only from what happened on their own platform. Coins moved in from elsewhere arrive with no basis, and coins moved out take their history with them. Entering every purchase in one CSV, tagged by wallet, is how you find the gaps; the calculator flags any sale larger than the lots on record.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or investment advice. The investor, trades and prices are invented. Tax rules, rates and which lot-identification methods you may use depend on your jurisdiction, your records and the date; confirm with a qualified tax professional.</p>
+    <p><a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../dependent-care-fsa-vs-credit-calculator/" data-pf-to="dependent-care-fsa-vs-credit-calculator">Dependent Care FSA vs Child Care Credit — free, private, in your browser</a></li>
+      <li><a href="../depreciation-recapture-calculator/" data-pf-to="depreciation-recapture-calculator">Depreciation Recapture Calculator — free, no sign-up</a></li>
+      <li><a href="../dog-grooming-day-planner/" data-pf-to="dog-grooming-day-planner">What should you charge for that groom, and which dogs should you book?</a></li>
+      <li><a href="../donor-acknowledgment-letter-generator/" data-pf-to="donor-acknowledgment-letter-generator">Year-end donor acknowledgment letters from a gift list — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=crypto-cost-basis-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="crypto-cost-basis-calculator"></script>
+</body>
+</html>

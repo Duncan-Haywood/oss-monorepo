@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What price keeps this Etsy profit after fees?</title>
+  <meta name="description" content="Solve for the Etsy item price that leaves a target leftover after listing, transaction, payment, shipping, and material costs.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/what-price-keeps-this-etsy-profit.html">
+  <meta property="og:title" content="What price keeps this Etsy profit after fees?">
+  <meta property="og:description" content="The order calculator shows leftover at the price you typed. This page solves the other direction: the list price that keeps a leftover you name.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What Etsy price keeps $20 after fees?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, and a $0.20 listing fee — leftover at $30 is $21.23. The item price that keeps $20 after those same fees is $28.65. $10 leftover is $17.60. $30 leftover is $39.70."}},{"@type":"Question","name":"Does this recommend a price?","acceptedAnswer":{"@type":"Answer","text":"No. It is the inverse of the order calculator: same fee stack, solved for item price instead of leftover. It does not publish Etsy's live schedule and does not say you should raise or lower a listing."}},{"@type":"Question","name":"Where is target profit on the main calculator?","acceptedAnswer":{"@type":"Answer","text":"The order calculator already has a Target profit per order field under Reprice for a goal. This page is the same arithmetic on its own landing so the keep-$X question is searchable and shareable without the rest of the fee stack."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.06em; } p { line-height: 1.5; }
+    a { color: #243d35; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+    .layout > * { min-width: 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/what-price-keeps-this-etsy-profit.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What price keeps this Etsy profit after fees? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What price keeps this Etsy profit after fees?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p><a href="./">← Etsy order profit</a></p>
+    <h1>What price keeps this leftover after Etsy fees?</h1>
+    <p>The <a href="./#target-profit">order calculator</a> shows leftover at the price you typed. This page solves the other direction: the item price that keeps a leftover you name, using the same fee stack. It does not recommend a price or publish Etsy’s live schedule.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Leftover goal and fee assumptions</h2>
+      <div class="fields">
+        <label>Target leftover per order <input id="targetProfit" type="number" min="0" step="0.01" value="20" inputmode="decimal"></label>
+        <label>Current item price <input id="price" type="number" min="0" step="0.01" value="30" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Listing fee <input id="listingFee" type="number" min="0" step="0.01" value="0.20" inputmode="decimal"></label>
+        <label>Transaction fee (%) <input id="transactionRate" type="number" min="0" step="0.1" value="6.5" inputmode="decimal"></label>
+        <label>Payment processing (%) <input id="paymentRate" type="number" min="0" step="0.1" value="3" inputmode="decimal"></label>
+        <label>Payment fixed fee <input id="paymentFixed" type="number" min="0" step="0.01" value="0.25" inputmode="decimal"></label>
+        <label>Offsite ad fee (%) <input id="offsiteAdRate" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+        <label>Shipping cost <input id="shippingCost" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4" inputmode="decimal"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Price that keeps that leftover</h2>
+      <div id="solved" class="hero-number">$28.65</div>
+      <div id="label">item price at the $20 leftover goal</div>
+      <dl>
+        <dt>Leftover at the current $30 price</dt><dd id="currentProfit"></dd>
+        <dt>Gap from the current price</dt><dd id="gap"></dd>
+        <dt>Leftover at the solved price</dt><dd id="checkedProfit"></dd>
+      </dl>
+      <hr>
+      <h2>Other leftover goals</h2>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Keep</th><th>Item price</th></tr></thead>
+        <tbody id="scenarios"></tbody>
+      </table></div>
+      <p id="insight" class="note"></p>
+      <div class="actions"><button id="reset" type="button">Reset to defaults</button></div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Your numbers stay in this browser. This is arithmetic from your inputs, not a recommended list price and not Etsy’s live fee schedule.</p>
+    </section>
+  </main>
+  <h2>Common questions</h2>
+  <h3>What Etsy price keeps $20 after fees?</h3>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, and a $0.20 listing fee — leftover at $30 is $21.23. The item price that keeps $20 after those same fees is $28.65. $10 leftover is $17.60. $30 leftover is $39.70.</p>
+  <h3>Does this recommend a price?</h3>
+  <p>No. It is the inverse of the order calculator: same fee stack, solved for item price instead of leftover. It does not publish Etsy's live schedule and does not say you should raise or lower a listing.</p>
+  <h3>Where is target profit on the main calculator?</h3>
+  <p>The order calculator already has a Target profit per order field under Reprice for a goal. This page is the same arithmetic on its own landing so the keep-$X question is searchable and shareable without the rest of the fee stack.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the calculator does.</p>
+  </footer>
+  <script type="module">
+    import { calculateOrder, priceForProfit } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'targetProfit', 'price', 'shippingCharged', 'listingFee',
+      'transactionRate', 'paymentRate', 'paymentFixed', 'offsiteAdRate',
+      'shippingCost', 'materialCost', 'otherCost',
+    ];
+    const DEFAULTS = {
+      targetProfit: 20, price: 30, shippingCharged: 5, listingFee: 0.20,
+      transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0,
+      shippingCost: 6, materialCost: 4, otherCost: 0,
+    };
+    const GOALS = [10, 20, 30];
+    const INPUTS_KEY = 'etsy-target-profit-inputs';
+    const field = id => document.getElementById(id);
+    const money = (value) => {
+      const format = (value) => `$${Number(value).toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const signed = value => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+    const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+    function apply(values) {
+      for (const id of FIELD_IDS) {
+        if (values[id] !== undefined) field(id).value = values[id];
+      }
+    }
+
+    function update() {
+      try {
+        const raw = currentInputs();
+        const target = Number(raw.targetProfit);
+        const solved = priceForProfit(raw, target);
+        const current = calculateOrder(raw);
+        const checked = calculateOrder({ ...raw, price: solved });
+        document.getElementById('solved').textContent = money(solved);
+        document.getElementById('solved').className = 'hero-number positive';
+        document.getElementById('label').textContent = `item price at the ${money(target)} leftover goal`;
+        document.getElementById('currentProfit').textContent = money(current.profit);
+        document.getElementById('gap').textContent = signed(solved - Number(raw.price));
+        document.getElementById('checkedProfit').textContent = money(checked.profit);
+        document.getElementById('insight').textContent =
+          `At the current ${money(raw.price)} listing, leftover is ${money(current.profit)}. The solved ${money(solved)} listing is the price that keeps ${money(target)} after the same fees.`;
+        document.getElementById('scenarios').replaceChildren(...GOALS.map((goal) => {
+          const tr = document.createElement('tr');
+          const price = priceForProfit(raw, goal);
+          tr.insertCell().textContent = money(goal);
+          tr.insertCell().textContent = money(price);
+          return tr;
+        }));
+      } catch (error) {
+        document.getElementById('solved').textContent = error.message;
+        document.getElementById('solved').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'fix the inputs to see a result';
+        document.getElementById('insight').textContent = '';
+        document.getElementById('scenarios').replaceChildren();
+      }
+    }
+
+    function persist() {
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(currentInputs())));
+    }
+
+    const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null'));
+    if (saved) apply(saved);
+
+    FIELD_IDS.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
+    FIELD_IDS.forEach(id => field(id).addEventListener('change', () => (
+      recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'target_profit_priced')
+    )));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+    document.getElementById('reset').addEventListener('click', () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      apply(DEFAULTS);
+      update();
+      flash('Reset to the default $20 leftover example.');
+    });
+
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="etsy-profit-calculator" data-pf-jobs-amount="#solved"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="etsy-profit-calculator" data-pf-link-amount="#solved"></script>
+</body>
+</html>

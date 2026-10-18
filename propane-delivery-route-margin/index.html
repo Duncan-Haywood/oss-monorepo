@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propane Delivery Route Margin Calculator — Price Each Customer</title>
+<meta name="description" content="Free calculator for independent propane (LP gas) delivery route operators: find real annual profit per customer after the retail/wholesale price spread…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Propane Delivery Route Margin Calculator">
+<meta property="og:description" content="Gallons delivered is not the same as profit. Find real annual profit per customer after the price spread, small-fill minimum-delivery fee…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Propane Delivery Route Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true annual and monthly profit for one propane (LP gas) delivery customer after the retail/wholesale price spread, a small-fill minimum-delivery fee, drive time and mileage, tank rental, and hazmat compliance cost, and rolls a list of customers up into monthly route profit."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does average fill size matter as much as annual gallons?","acceptedAnswer":{"@type":"Answer","text":"Because your annual gallon volume tells you the fuel margin, but the average fill size decides how many separate truck trips it takes to deliver that volume. A customer who takes the same annual gallons in fewer, larger fills costs you far less in drive time and mileage than one who takes it in many small top-offs — and a small enough average fill can also trigger a minimum-delivery fee, if you charge one."}},{"@type":"Question","name":"Why is tank rental a fixed cost instead of something charged per gallon?","acceptedAnswer":{"@type":"Answer","text":"Because that is how most company-owned tank placements actually work — you carry the tank's lease or amortized cost every month whether the customer takes one delivery a year or four. This calculator applies it as a flat monthly cost so it shows up next to the fuel margin it makes possible, rather than being folded invisibly into the price per gallon."}},{"@type":"Question","name":"Does this tool tell me how much propane a tank needs or when a customer will run out?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only prices the route economics of a delivery you have already scheduled, from numbers you supply. It does not size a tank, forecast degree-day usage, determine a safe fill level, or replace your own licensed propane supplier's delivery-scheduling and safety judgment."}},{"@type":"Question","name":"Does anything about my customers or pricing get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the customer list you type into the route section is never saved anywhere — it exists only in the page while it is open. The customer inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#0d2038;background:#eaf1fb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #c0d3ee;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a2a5c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d6e3f6;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1857a8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9c3e6;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0d3d7a;color:#fff;border-color:#0d3d7a;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5f7d}.result .note{color:#cddcf5}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1857a8}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9c3e6;background:#fff;cursor:pointer;color:#0d2038}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Propane Delivery Route Margin Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Propane Delivery Route Margin Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Propane Delivery Route Margin Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR INDEPENDENT PROPANE (LP GAS) DELIVERY ROUTE OPERATORS</p><h1>Gallons delivered isn't profit. Margin per customer is.</h1><p class="lede">A customer who "took 850 gallons this year" can still be barely worth the trip once the small-fill trips, tank rental, and hazmat compliance cost come out of the retail/wholesale spread. This free calculator finds real annual and monthly profit for one customer, then rolls your whole route up into a number you can check against your income goal.</p><p class="lede">Wondering whether a low-volume or small-fill customer is still worth keeping on the route? See <a href="is-a-small-propane-customer-worth-keeping.html">is a small propane customer worth keeping?</a> for a worked example of a minimum-delivery fee turning a losing account profitable. Tracking margins in a spreadsheet today instead? See <a href="vs-tracking-propane-delivery-margin-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>.</p></header>
+
+<main class="layout">
+<section><h2>Price one customer</h2>
+<fieldset><legend>Volume &amp; price spread</legend><div class="fields">
+<label>Annual gallons<input id="annualGallons" type="number" min="0" step="10" value="850" inputmode="numeric"></label>
+<label>Average gallons per fill<input id="avgGallonsPerFill" type="number" min="0" step="5" value="150" inputmode="numeric"></label>
+<label>Retail price ($/gallon)<input id="retailPricePerGallon" type="number" min="0" step="0.01" value="2.49" inputmode="decimal"></label>
+<label>Wholesale cost ($/gallon)<input id="wholesaleCostPerGallon" type="number" min="0" step="0.01" value="1.55" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Minimum delivery</legend><div class="fields">
+<label>Minimum delivery threshold (gal)<input id="minimumDeliveryGallons" type="number" min="0" step="5" value="100" inputmode="numeric"></label>
+<label>Minimum delivery fee ($)<input id="minimumDeliveryFee" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Drive time &amp; mileage</legend><div class="fields">
+<label>Round-trip miles per delivery<input id="milesPerDelivery" type="number" min="0" step="0.5" value="18" inputmode="decimal"></label>
+<label>Truck cost ($/mile)<input id="truckCostPerMile" type="number" min="0" step="0.01" value="0.95" inputmode="decimal"></label>
+<label>Minutes on-site per stop<input id="stopMinutes" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+<label>Round-trip drive minutes<input id="driveMinutesPerDelivery" type="number" min="0" step="1" value="22" inputmode="numeric"></label>
+<label>Driver hourly rate ($/hr)<input id="driverHourlyRate" type="number" min="0" step="0.5" value="28" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Fixed monthly cost per customer</legend><div class="fields">
+<label>Tank rental ($/month)<input id="tankRentalMonthlyCost" type="number" min="0" step="0.5" value="5" inputmode="decimal"></label>
+<label>Hazmat compliance ($/month)<input id="hazmatComplianceMonthlyCost" type="number" min="0" step="0.5" value="3.50" inputmode="decimal"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">Your customer inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your route list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this customer</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Deliveries per year</dt><dd id="deliveriesOut"></dd>
+<dt>Fuel margin revenue (annual)</dt><dd id="fuelMarginOut"></dd>
+<dt>Minimum-delivery fee revenue</dt><dd id="minFeeOut"></dd>
+<dt>Mileage cost (annual)</dt><dd id="mileageOut"></dd>
+<dt>Your labor (annual)</dt><dd id="laborOut"></dd>
+<dt>Tank rental + hazmat (annual)</dt><dd id="fixedOut"></dd>
+<dt>Net profit (annual)</dt><dd id="annualProfitOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Profit per gallon</dt><dd id="perGallonOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add fuel-price hedging, seasonal degree-day swings, delivery insurance, or bad-debt risk unless you fold those into your price spread or target rate yourself. It never sizes a tank, forecasts usage, or judges a safe fill level — that stays with your own licensed propane supply and delivery-scheduling judgment.</p>
+</section>
+</main>
+
+<section><h2>Your route this month</h2><p class="note">For each customer, run them through the calculator above and enter their projected monthly profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><div class="pf-table-scroll"><table><thead><tr><th>Customer</th><th>Monthly profit ($)</th></tr></thead><tbody id="customerRows">
+<tr><td>1</td><td><input class="customerProfit" data-row="1" aria-label="Customer 1 monthly profit in dollars" type="number" step="1" value="41" inputmode="numeric"></td></tr>
+<tr><td>2</td><td><input class="customerProfit" data-row="2" aria-label="Customer 2 monthly profit in dollars" type="number" step="1" value="11" inputmode="numeric"></td></tr>
+<tr><td>3</td><td><input class="customerProfit" data-row="3" aria-label="Customer 3 monthly profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>4</td><td><input class="customerProfit" data-row="4" aria-label="Customer 4 monthly profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>5</td><td><input class="customerProfit" data-row="5" aria-label="Customer 5 monthly profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>6</td><td><input class="customerProfit" data-row="6" aria-label="Customer 6 monthly profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+</tbody></table></div></div>
+<div class="fields" style="margin-top:14px">
+<label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="3000" inputmode="numeric"></label>
+</div>
+<p class="note">Target monthly income is saved on this device and carried in your shareable link, the same as the customer inputs above — only the customer rows are never saved.</p>
+<p id="routeErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Customers counted</dt><dd id="routeCustomers"></dd>
+<dt>Total monthly route profit</dt><dd id="routeTotal"></dd>
+<dt>Average profit / customer</dt><dd id="routeAverage"></dd>
+<dt>Gap to income goal</dt><dd id="routeGap"></dd>
+<dt>Additional customers to close it</dt><dd id="routeExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your customer inputs (annual gallons, fill size, price spread, minimum-delivery terms, drive time and mileage, tank rental and hazmat cost) and your target monthly income are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your customer rows in the route table are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>customer-priced</code>, <code>route-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no customers, prices, or gallon counts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does average fill size matter as much as annual gallons?</h3><p>Because your annual gallon volume tells you the fuel margin, but the average fill size decides how many separate truck trips it takes to deliver that volume. A customer who takes the same annual gallons in fewer, larger fills costs you far less in drive time and mileage than one who takes it in many small top-offs &mdash; and a small enough average fill can also trigger a minimum-delivery fee, if you charge one.</p>
+<h3>Why is tank rental a fixed cost instead of something charged per gallon?</h3><p>Because that is how most company-owned tank placements actually work &mdash; you carry the tank's lease or amortized cost every month whether the customer takes one delivery a year or four. This calculator applies it as a flat monthly cost so it shows up next to the fuel margin it makes possible, rather than being folded invisibly into the price per gallon.</p>
+<h3>Does this tool tell me how much propane a tank needs or when a customer will run out?</h3><p>No. This calculator only prices the route economics of a delivery you have already scheduled, from numbers you supply. It does not size a tank, forecast degree-day usage, determine a safe fill level, or replace your own licensed propane supplier's delivery-scheduling and safety judgment.</p>
+<h3>Does anything about my customers or pricing get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the customer list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. The customer inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not propane-supply, delivery-scheduling, or safety guidance of any kind — it never sizes a tank, forecasts usage, or judges a safe fill level, and it does not replace your own licensed propane supplier's judgment on any of that. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a customer contract, forecast propane usage, or replace your own accountant.</p><p>Pricing a different unattended or recurring-visit route instead? The <a href="../fire-extinguisher-inspection-route-margin/">fire extinguisher inspection route margin calculator</a> finds real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, and drive time &mdash; nothing uploaded. Pricing a machine placement route instead? The <a href="../vending-machine-route-margin/">vending machine route margin calculator</a> does the same for commission, card fees, shrink, and drive time.</p><p>MIT licensed. If it helped you decide which customers to keep, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const CUSTOMER_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'propane-delivery-route-margin-customer-draft';
+let counted = false;
+let routeCounted = false;
+
+function customerInputs() { return Object.fromEntries(CUSTOMER_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_CUSTOMER_INPUTS = customerInputs();
+
+function applyCustomerInputs(values) {
+  for (const id of CUSTOMER_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistCustomer() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(customerInputs())));
+}
+
+function updateCustomer(count = false) {
+  try {
+    const r = calculate(customerInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = `${money(r.netProfit)}/mo`;
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no drive/stop time entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr of driver time across ${r.laborHours.toFixed(2)} hrs this year`;
+    el('deliveriesOut').textContent = r.deliveriesPerYear.toFixed(2);
+    el('fuelMarginOut').textContent = money(r.fuelMarginRevenue);
+    el('minFeeOut').textContent = r.minimumFeeApplies ? money(r.minimumFeeRevenue) : 'not triggered';
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('laborOut').textContent = money(r.laborCost);
+    el('fixedOut').textContent = money(r.tankCost + r.hazmatCost);
+    el('annualProfitOut').textContent = money(r.netProfitAnnual);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('perGallonOut').textContent = r.profitPerGallon === null ? '—' : money(r.profitPerGallon);
+    if (count && !counted) { recordEvent('customer-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'deliveriesOut', 'fuelMarginOut', 'minFeeOut', 'mileageOut', 'laborOut', 'fixedOut', 'annualProfitOut', 'marginOut', 'perGallonOut']) el(id).textContent = '';
+  }
+}
+
+function updateRoute(count = false) {
+  try {
+    const customers = [];
+    for (let row = 1; row <= 6; row++) {
+      const profitEl = document.querySelector(`.customerProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      customers.push({ monthlyProfit: profit });
+    }
+    const route = computeRouteProfit(customers);
+    const targetMonthlyIncome = parseFloat(el('targetMonthlyIncome').value) || 0;
+    const gap = incomeGap(targetMonthlyIncome, route.totalMonthlyProfit, route.averageProfitPerCustomer);
+    el('routeErrors').hidden = true; el('routeErrors').textContent = '';
+    el('routeCustomers').textContent = String(route.customerCount);
+    el('routeTotal').textContent = money(route.totalMonthlyProfit);
+    el('routeAverage').textContent = money(route.averageProfitPerCustomer);
+    el('routeGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('routeExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalCustomersNeeded === null ? 'add a profitable customer' : String(gap.additionalCustomersNeeded));
+    if (count && !routeCounted) { recordEvent('route-check'); routeCounted = true; }
+  } catch (e) {
+    el('routeErrors').textContent = e.message; el('routeErrors').hidden = false;
+    for (const id of ['routeCustomers', 'routeTotal', 'routeAverage', 'routeGap', 'routeExtra']) el(id).textContent = '';
+  }
+}
+
+CUSTOMER_IDS.forEach(id => el(id).addEventListener('input', () => { updateCustomer(true); persistCustomer(); }));
+document.querySelectorAll('.customerProfit').forEach(input => input.addEventListener('input', () => updateRoute(true)));
+el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(customerInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyCustomerInputs(DEFAULT_CUSTOMER_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateCustomer(false);
+  updateRoute(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every customer field, so one the link omitted
+// is cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyCustomerInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyCustomerInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared customer. Review the numbers before you use it.'
+      : 'Restored your last customer from this browser. Your route list below is never saved.';
+  }
+})();
+
+updateCustomer(false);
+updateRoute(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../dog-walking-route-pricing/" data-pf-to="dog-walking-route-pricing">Dog Walking &amp; Pet Sitting Rate Calculator</a></li>
+      <li><a href="../driving-instructor-lesson-pricing-calculator/" data-pf-to="driving-instructor-lesson-pricing-calculator">Driving Instructor Lesson Pricing Calculator — what a lesson really earns, free</a></li>
+      <li><a href="../drone-mapping-job-calculator/" data-pf-to="drone-mapping-job-calculator">Drone Mapping Job Calculator</a></li>
+      <li><a href="../dumpster-rental-margin-calculator/" data-pf-to="dumpster-rental-margin-calculator">Dumpster Rental Margin Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=propane-delivery-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/?pfEmbed=1&quot; title=&quot;Propane Delivery Route Margin Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="propane-delivery-route-margin"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/" data-pf-embed-title="Propane Delivery Route Margin Calculator" data-pf-embed-slug="propane-delivery-route-margin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="propane-delivery-route-margin" data-pf-jobs-amount=""></script>
+</body></html>

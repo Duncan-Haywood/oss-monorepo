@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Translator Project Quote Calculator | Weighted Word Pricing</title>
+<meta name="description" content="Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Translator Project Quote Calculator">
+<meta property="og:description" content="Stop treating every translated word as full-price work. Build a transparent quote with weighted words and project add-ons.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Translator Project Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser calculator for freelance translation quotes.","featureList":"Weighted word counts with fuzzy-match discounting, QA and DTP add-ons, rush fees, minimum project price, target-margin pricing, any currency, saved draft that reopens on the next visit, shareable quote link, printable client quote with the project scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a fuzzy match not count as half a word?","acceptedAnswer":{"@type":"Answer","text":"Because a fuzzy percentage is a discount on effort, not a rounding rule you apply after the fact. The calculator multiplies fuzzy words by the fuzzy rate before adding them to new words: at the default 1,800 new words and 1,200 fuzzy words at 50%, that is 1,800 + (1,200 × 0.5) = 2,400 weighted words, not the raw 3,000 — and it is that 2,400 figure the hourly-rate math actually bills against."}},{"@type":"Question","name":"What's included in the quote besides translation time?","acceptedAnswer":{"@type":"Answer","text":"QA hours, desktop publishing, and a rush fee are added on top of translation labor, not folded into the per-word rate. At the defaults that is 2 QA hours × $45/hr = $90, plus a $75 DTP charge, for $165 of add-ons on top of the $270 translation labor — together the $435 direct cost the target price is built from."}},{"@type":"Question","name":"What's the difference between direct cost and target price?","acceptedAnswer":{"@type":"Answer","text":"Direct cost is what the project actually costs you to deliver: labor plus add-ons, no margin. Target price divides that by (1 − your target margin), so at the default 25% margin the $435 direct cost becomes a $580 target price — the number that leaves 25% of the invoice as margin rather than 25% added on top of cost."}},{"@type":"Question","name":"When does the minimum price actually take over?","acceptedAnswer":{"@type":"Answer","text":"Only when the direct cost of the work falls below it. At the defaults, direct cost is $435 against a $250 minimum, so the minimum changes nothing here; it exists to stop a very small job — a one-paragraph rush translation, say — from quoting below what it costs you to open the file at all."}},{"@type":"Question","name":"Is my rate card or client's word count uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Every figure stays in your browser; there is no account, server, or analytics vendor involved in the calculation itself. Anonymous feature counts (which buttons were used) can be turned off entirely with the button in the footer."}},{"@type":"Question","name":"Can I send the client a quote, not just a number?","acceptedAnswer":{"@type":"Answer","text":"Yes. Fill in your business details and the client’s, then “Print quote / Save as PDF” produces a one-page quote: what the project covers, the total in your own currency, the deposit split, how long the price stands, and a line to sign. Your hourly rate, direct cost, and target margin are not on it and are not printed — the client sees the price, not how you built it. Your business details are saved on this device so you type them once; the client’s details are never saved. The drafted scope is editable, and a line for work you priced at zero — no rush fee, no desktop publishing — does not appear at all."}},{"@type":"Question","name":"Are my numbers saved, and can I share them?","acceptedAnswer":{"@type":"Answer","text":"Your last entry is saved in this browser's local storage, so refreshing the page or coming back later restores it — nothing is uploaded. “Copy shareable link” puts the same eleven inputs in the page's URL fragment (after the #) instead, so sending that link to a client or colleague opens this page with the exact same project quoted, without either of you retyping anything. A link takes priority over a saved draft when you open one."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#18212b;background:#f5f1e8;--ink:#18212b;--muted:#5c6870;--line:#c9c2b5;--accent:#b34e2c;--panel:#fffdf8}
+*{box-sizing:border-box}body{margin:0;color:var(--ink)}
+main{max-width:850px;margin:auto;padding:36px 18px 60px}
+h1{font:clamp(2rem,5vw,3.5rem)/1.05 Georgia,serif;max-width:700px;margin:.2rem 0 1rem}
+h2{font:1.25rem Georgia,serif}p{max-width:720px}.lede{font-size:1.12rem;color:var(--muted)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin:24px 0;box-shadow:0 5px 0 #e6dfd2}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:grid;gap:5px;color:var(--muted);font-size:.9rem}
+input{width:100%;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font:inherit}
+input:focus,button:focus{outline:3px solid #e7a18e;outline-offset:2px}
+.result{border-left:5px solid var(--accent);padding:14px 16px;background:#fff3ed;margin-top:22px}
+/* Links inside this panel take its ink rather than the browser default, which on a fill this dark renders near-black-on-black. Inheriting cannot drift from the background the panel actually paints; the underline carries the affordance. */
+.result a { color: inherit; text-decoration: underline; }
+.result strong{font-size:1.5rem}
+.result dl{display:grid;grid-template-columns:1fr auto;gap:7px;margin:12px 0 0}
+.result dd{margin:0;font-weight:650}
+.actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+button{border:0;border-radius:7px;background:var(--accent);color:white;padding:11px 15px;font:inherit;cursor:pointer}
+button.secondary{background:var(--ink)}
+.privacy{color:var(--muted)}
+footer{border-top:1px solid var(--line);padding-top:20px;font-size:.9rem}
+@media(max-width:600px){.grid{grid-template-columns:1fr}main{padding-top:24px}}
+/* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5854; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #fff3ed; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Translator Project Quote Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Translator Project Quote Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Translator Project Quote Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<main>
+<p><strong>TRANSLATOR TOOLS / FREE</strong></p>
+<h1>Quote the project, not just the word count.</h1>
+<p class="lede">A private translation quote calculator for freelancers. Weight fuzzy matches, add QA and DTP work, then compare the result with your minimum and target margin before accepting the job.</p>
+<section>
+<h2>Project inputs</h2>
+<div class="grid">
+<label>Currency label<input id="currency" value="USD" maxlength="12"></label>
+<label>Source language (optional)<input id="source_lang" type="text" maxlength="40" placeholder="English"></label>
+<label>Target language (optional)<input id="target_lang" type="text" maxlength="40" placeholder="German"></label>
+<label>New words<input id="new_words" type="number" value="1800" min="0" step="1" inputmode="numeric"></label>
+<label>Fuzzy-match words<input id="fuzzy_words" type="number" value="1200" min="0" step="1" inputmode="numeric"></label>
+<label>Fuzzy-match rate (% of full word)<input id="fuzzy_rate" type="number" value="50" min="0" max="100" step="1" inputmode="numeric"></label>
+<label>Translation productivity (words/hour)<input id="words_per_hour" type="number" value="400" min="0" step="1" inputmode="numeric"></label>
+<label>Hourly rate<input id="hourly_rate" type="number" value="45" min="0" step="0.01" inputmode="decimal"></label>
+<label>QA / review hours<input id="qa_hours" type="number" value="2" min="0" step=".25" inputmode="decimal"></label>
+<label>DTP / file handling cost<input id="dtp_cost" type="number" value="75" min="0" step=".01" inputmode="decimal"></label>
+<label>Rush or weekend fee<input id="rush_fee" type="number" value="0" min="0" step=".01" inputmode="decimal"></label>
+<label>Your minimum project price<input id="minimum_price" type="number" value="250" min="0" step=".01" inputmode="decimal"></label>
+<label>Target margin (% after direct costs)<input id="target_margin" type="number" value="25" min="0" max="99.99" step=".1" inputmode="decimal"></label>
+</div>
+<div class="result" id="result" role="status" aria-live="polite"></div>
+<div class="actions"><button id="copy" type="button">Copy quote summary</button><button id="share" type="button">Copy shareable link</button><span id="status" class="privacy" role="status"></span></div>
+</section>
+<section>
+<h2>Why weighted words matter</h2>
+<p>New words, fuzzy matches, QA, and desktop publishing do not consume the same effort. This tool makes those assumptions visible so you can change them. It reports arithmetic, not a recommended rate or a promise that a project will be profitable. See the <a href="how-to-quote-a-translation-project.html">full quoting guide</a> with a worked example, how this compares to <a href="./vs-a-flat-per-word-rate.html">a flat per-word rate</a>, or to a CAT-tool platform like <a href="./vs-smartcat.html">Smartcat</a>.</p>
+</section>
+<section id="faq">
+<h2>Common questions</h2>
+
+<h3>Why does a fuzzy match not count as half a word?</h3>
+<p>Because a fuzzy percentage is a discount on effort, not a rounding rule you apply after the fact. The calculator multiplies fuzzy words by the fuzzy rate before adding them to new words: at the default 1,800 new words and 1,200 fuzzy words at 50%, that is 1,800 + (1,200 &times; 0.5) = 2,400 weighted words, not the raw 3,000 &mdash; and it is that 2,400 figure the hourly-rate math actually bills against.</p>
+
+<h3>What's included in the quote besides translation time?</h3>
+<p>QA hours, desktop publishing, and a rush fee are added on top of translation labor, not folded into the per-word rate. At the defaults that is 2 QA hours &times; $45/hr = $90, plus a $75 DTP charge, for $165 of add-ons on top of the $270 translation labor &mdash; together the $435 direct cost the target price is built from.</p>
+
+<h3>What's the difference between direct cost and target price?</h3>
+<p>Direct cost is what the project actually costs you to deliver: labor plus add-ons, no margin. Target price divides that by (1 &minus; your target margin), so at the default 25% margin the $435 direct cost becomes a $580 target price &mdash; the number that leaves 25% of the invoice as margin rather than 25% added on top of cost.</p>
+
+<h3>When does the minimum price actually take over?</h3>
+<p>Only when the direct cost of the work falls below it. At the defaults, direct cost is $435 against a $250 minimum, so the minimum changes nothing here; it exists to stop a very small job &mdash; a one-paragraph rush translation, say &mdash; from quoting below what it costs you to open the file at all.</p>
+
+<h3>Is my rate card or client's word count uploaded anywhere?</h3>
+<p>No. Every figure stays in your browser; there is no account, server, or analytics vendor involved in the calculation itself. Anonymous feature counts (which buttons were used) can be turned off entirely with the button in the footer.</p>
+
+<h3>Can I send the client a quote, not just a number?</h3>
+<p>Yes. Fill in your business details and the client&rsquo;s, then &ldquo;Print quote / Save as PDF&rdquo; produces a one-page quote: what the project covers, the total in your own currency, the deposit split, how long the price stands, and a line to sign. Your hourly rate, direct cost, and target margin are not on it and are not printed &mdash; the client sees the price, not how you built it. Your business details are saved on this device so you type them once; the client&rsquo;s details are never saved. The drafted scope is editable, and a line for work you priced at zero &mdash; no rush fee, no desktop publishing &mdash; does not appear at all.</p>
+
+<h3>Are my numbers saved, and can I share them?</h3>
+<p>Your last entry is saved in this browser's local storage, so refreshing the page or coming back later restores it &mdash; nothing is uploaded. &ldquo;Copy shareable link&rdquo; puts the same eleven inputs in the page's URL fragment (after the #) instead, so sending that link to a client or colleague opens this page with the exact same project quoted, without either of you retyping anything. A link takes priority over a saved draft when you open one.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your inputs are never uploaded; there are no accounts, cookies, or analytics vendors. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Anonymous feature counts stay in local storage only. <button class="secondary" id="privacy" type="button">Turn off local usage counting</button></p>
+<p>Quoting a mobile notary signing instead of a translation project? The <a href="../notary-trip-quote/">notary trip quote calculator</a> prices travel, printing, waiting, and after-hours work &mdash; nothing uploaded.</p>
+<p>Weighing a per-claim storm deployment instead of a per-project quote? The <a href="../cat-adjuster-fee-calculator/">CAT adjuster fee schedule &amp; deployment profit calculator</a> nets a fee schedule against daily field costs and unpaid travel days &mdash; nothing uploaded.</p>
+<p>Pricing a recorded script instead of a written translation? The <a href="../voiceover-project-rate-calculator/">voice-over project rate calculator</a> prices a commercial, e-learning, or audiobook project by usage/licensing term instead of by weighted word count &mdash; nothing uploaded.</p>
+<p>Several agency offers due the same week and not enough hours? The <a href="../translation-job-picker/">translation job picker</a> chooses which to accept and the rate each declined job would need &mdash; nothing uploaded.</p>
+<p>Pricing an editing or proofreading job instead of a translation? The <a href="../freelance-editor-quote-calculator/">freelance editor quote calculator</a> turns word count, level of edit and your hourly target into a flat fee and per-word rate.</p>
+<p>Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> support does not change what the calculator does.</p>
+</footer>
+<!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Send the client a quote</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and send the client — your details, theirs, what the project covers, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the client's details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Ines Delacroix Translations"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>VAT / tax ID or certification (optional) <input id="companyLicense" type="text" placeholder="ATA cert. / VAT DE123456789"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Client name <input id="clientName" type="text" placeholder="Brunner Medizintechnik GmbH"></label>
+          <label>Client company and address <input id="clientAddress" type="text" placeholder="Marketing dept., Sonnenstrasse 14, Munich"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30" inputmode="numeric"></label>
+          <label>Hold this quote for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>What the project covers — one line each, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Translation of 1,800 new words from English into German"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Certification or sworn translation&#10;Typesetting beyond the supplied file format"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="30% on acceptance, balance within 30 days of delivery."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Glossary and translation memory supplied by the client are used where available."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print quote / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+<script type="module">
+import {loadQuote, calculate} from "./calc.mjs";
+import {record, enabled, setEnabled} from "./usage.mjs";
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from "./proposal.mjs";
+// proposal:end
+import {encodeInputs, decodeInputs} from "./share.mjs";
+
+const ids = ["currency", "new_words", "fuzzy_words", "fuzzy_rate", "words_per_hour", "hourly_rate", "qa_hours", "dtp_cost", "rush_fee", "minimum_price", "target_margin"];
+// The language pair names the work on the printed quote and changes no figure,
+// so it is kept out of `ids` — `loadQuote` would coerce it to NaN — and out of
+// the shareable link, which carries only the eleven inputs that alter the
+// arithmetic. It is saved with the draft so a refresh does not lose it.
+const textIds = ["source_lang", "target_lang"];
+// The proposal panel's deposit, validity window and three prose terms
+// (`platform/proposal/adopt.mjs`, TERM_IDS below). Kept out of `ids` for the
+// same reason `textIds` is: `loadQuote` and `fieldValues()` build the
+// calculator's own input object, and neither belongs there. Carried in the
+// link separately -- see `termValues()` -- so a setter who priced a 50%
+// deposit held for 15 days and a recipient who opens the link under this
+// page's own 30%/30-day defaults are not looking at the same headline
+// price and different money on acceptance.
+const termIds = ["depositPercent", "validDays", "paymentTerms", "proposalNotes", "proposalExclusions"];
+function el(id) { return document.getElementById(id); }
+// `el()` and `count()` are the house spellings the shared proposal wiring in
+// platform/proposal/adopt.mjs detects and calls. `record` stays the transport;
+// this is a name, not a second counter.
+function count(event) { record(event); }
+const storageKey = "translator-project-quote-draft";
+
+/** The eleven fields as the calculator's raw input object. */
+function fieldValues() {
+  return Object.fromEntries(ids.map((id) => [id, id === "currency" ? el(id).value : Number(el(id).value)]));
+}
+/**
+ * The quote the form currently states, validated.
+ *
+ * Named for the convention the proposal wiring detects, and it is the reason
+ * the cached `last` result this file used to keep is gone: the proposal prices
+ * the job from the live form at print time, so a printed quote cannot carry a
+ * figure the translator has since edited.
+ */
+function readInput() {
+  return loadQuote(fieldValues());
+}
+// Read from the field rather than from the validated quote. Every caller runs
+// after `calculate(readInput())` has returned, by which point `loadQuote` has
+// accepted this label and trimmed it exactly this way.
+function money(n) {
+  return `${el("currency").value.trim()} ${n.toFixed(2)}`;
+}
+// A link wins over a saved draft: opening a link someone sent means seeing
+// their project, not the last one quoted on this device.
+const fromLink = decodeInputs(location.hash);
+let restored = fromLink;
+if (Object.keys(fromLink).length === 0) {
+  try { restored = JSON.parse(localStorage.getItem(storageKey) || "null") || {}; } catch { restored = {}; }
+}
+for (const id of [...ids, ...textIds, ...termIds]) {
+  if (Object.prototype.hasOwnProperty.call(restored, id)) el(id).value = restored[id];
+}
+/** The proposal terms as share.mjs's TERM_TEXT_FIELD_IDS/NUMBER_FIELD_IDS additions expect them. */
+function termValues() {
+  return Object.fromEntries(termIds.map((id) => [id, el(id).value]));
+}
+/** The draft: the priced inputs, plus the language pair the link cannot carry. */
+function draftValues() {
+  return { ...fieldValues(), ...Object.fromEntries(textIds.map((id) => [id, el(id).value])) };
+}
+function update() {
+  try {
+    const r = calculate(readInput());
+    el("result").innerHTML = `<strong>Recommended quote: ${money(r.recommended_price)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${money(r.direct_cost)}</dd><dt>Quote floor (minimum vs. cost)</dt><dd>${money(r.minimum_price)}</dd><dt>Target-margin price</dt><dd>${money(r.target_price)}</dd></dl><p>The recommended quote is the larger of the quote floor and the target-margin price, so a stated margin target still applies once a job is big enough that the flat minimum no longer binds. This is a modeled starting point from your inputs, not a promise of profitability — review your own assumptions before sending it.</p>`;
+    try { localStorage.setItem(storageKey, JSON.stringify(draftValues())); } catch {}
+    if (location.hash) history.replaceState(null, "", `${location.pathname}#${encodeInputs({ ...fieldValues(), ...termValues() })}`);
+  } catch (e) {
+    el("result").textContent = e.message;
+  }
+}
+[...ids, ...textIds].forEach((id) => el(id).addEventListener("input", update));
+el("copy").onclick = async () => {
+  let r;
+  // Priced here rather than read from a cache, for the same reason the
+  // proposal is: the summary a translator pastes into an email must be the
+  // one the form states at the moment they press the button.
+  try { r = calculate(readInput()); } catch (e) { el("status").textContent = e.message; return; }
+  const text = `Translation quote review\nWeighted words: ${r.weighted_words.toFixed(0)}\nTranslation hours: ${r.translation_hours.toFixed(1)}\nMinimum / floor: ${money(r.minimum_price)}\nTarget-margin price: ${money(r.target_price)}\nRecommended quote: ${money(r.recommended_price)}\nArithmetic only; review your assumptions before relying on it.`;
+  try {
+    await navigator.clipboard.writeText(text);
+    el("status").textContent = "Copied locally.";
+    count("quote_summary_copied");
+  } catch {
+    el("status").textContent = "Clipboard unavailable; select the figures above.";
+  }
+};
+el("share").onclick = async () => {
+  history.replaceState(null, "", `${location.pathname}#${encodeInputs({ ...fieldValues(), ...termValues() })}`);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el("status").textContent = "Link copied — it reopens this page with the same numbers.";
+    count("share_link_copied");
+  } catch {
+    el("status").textContent = "Link is in your address bar — copy it to share these numbers.";
+  }
+};
+const paintPrivacy = () => {
+  el("privacy").textContent = enabled() ? "Turn off local usage counting" : "Turn on local usage counting";
+};
+el("privacy").onclick = () => {
+  setEnabled(!enabled());
+  paintPrivacy();
+};
+// Say it on arrival too: `setEnabled` already persisted the choice, and the
+// button still came back offering to turn counting off.
+paintPrivacy();
+count("page_viewed");
+update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'translator-project-quote-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a certified or sworn translation, and it does not itself transfer copyright in the translated text.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        {
+          "line": "Translation from {sourceLang} into {targetLang}",
+          "when": "sourceLang"
+        },
+        "Translation of {newWords~0} new word{newWords+s} of source text",
+        {
+          "line": "{fuzzyWords~0} fuzzy-match word{fuzzyWords+s} reviewed and adapted at {fuzzyRate~0}% of the full word rate",
+          "when": "fuzzyWords"
+        },
+        "Weighted volume of {weighted_words~0} words, about {translation_hours~1} hours of translation",
+        {
+          "line": "{qaHours~2} hour{qaHours+s} of revision and quality assurance on the finished text",
+          "when": "qaHours"
+        },
+        {
+          "line": "Desktop publishing and file handling, delivered in the agreed format",
+          "when": "dtpCost"
+        },
+        {
+          "line": "Rush or weekend delivery, ahead of the standard turnaround",
+          "when": "rushFee"
+        },
+        "Source formatting preserved, and one round of corrections after delivery"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "sourceLang": el('source_lang')?.value?.trim(),
+        "targetLang": el('target_lang')?.value?.trim(),
+        "newWords": Number(el('new_words')?.value),
+        "fuzzyWords": Number(el('fuzzy_words')?.value),
+        "fuzzyRate": Number(el('fuzzy_rate')?.value),
+        "qaHours": Number(el('qa_hours')?.value),
+        "dtpCost": Number(el('dtp_cost')?.value),
+        "rushFee": Number(el('rush_fee')?.value),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.recommended_price,
+        jobTitle: scopeLines(['Translation project — {weighted_words~0} weighted words'], proposalFields(result))[0] || 'Translation project — weighted words',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculate(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER, currency: el('currency')?.value?.trim() || '$' });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculate(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../property-management-profit-calculator/" data-pf-to="property-management-profit-calculator">How many doors does my property management company need? Free calculator</a></li>
+      <li><a href="../provider-credentialing-delay-cost-calculator/" data-pf-to="provider-credentialing-delay-cost-calculator">Provider credentialing delay cost calculator</a></li>
+      <li><a href="../pte-tax-election-calculator/" data-pf-to="pte-tax-election-calculator">Is a PTET election worth it? Free calculator</a></li>
+      <li><a href="../pto-accrual-liability-calculator/" data-pf-to="pto-accrual-liability-calculator">PTO accrual liability calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=translator-project-quote">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/?pfEmbed=1&quot; title=&quot;Translator Project Quote Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="translator-project-quote"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/" data-pf-embed-title="Translator Project Quote Calculator" data-pf-embed-slug="translator-project-quote"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="translator-project-quote" data-pf-jobs-amount=""></script>
+</body>
+</html>

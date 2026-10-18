@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per square foot | Drywall Bid Calculator</title>
+<meta name="description" content="Drywall crews are shopped by the square foot. That rate cannot see the job: hanging is the cheap half, and finish level, texture, height…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per square foot">
+<meta property="og:description" content="Two rooms of the identical square footage can be different jobs. A fire-tape hang and a Level 5 skim under critical lighting cover the same area and take more…">
+<meta property="og:url" content="./vs-a-flat-price-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per square foot get a drywall bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because square footage only measures the area, not what it takes to finish it. A 1,954 sq ft hang-and-finish job at Level 1 (fire-tape, joints covered) takes about 46.4 hours. The identical 1,954 sq ft finished to Level 5 (a full skim for critical lighting) takes about 152.8 hours -- more than three times the labor on the same area, because hanging is the cheap half and finish level is where the hours actually go."}},{"@type":"Question","name":"What does a flat per-square-foot rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Finish level, texture, ceiling height, and openings. A flat rate has no line for the difference between a hang-only wall and a full Level 5 skim, no line for a textured ceiling versus a smooth one, no line for a 12-ft great room taking longer per foot than an 8-ft closet, and no line for a room dense with doors and windows netting out less billable board than an open wall of the same footage."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs on a 1,954 sq ft hang-and-finish job: Level 1 (fire-tape) takes 46.4 hours and prices at $5,473.07 for the job -- $2.80 per square foot. The identical 1,954 sq ft finished to Level 5 (full skim) takes 152.8 hours, costs $10,536.55 to run before a dollar of profit, and this calculator prices it at $14,238.58 -- $7.29 per square foot. Quoting the Level 5 job at the Level 1 job's learned rate of $2.80 per square foot reproduces the Level 1 price, $5,473.07, which is $5,063.48 below the Level 5 job's own break-even cost -- before counting the $8,765.51 it falls short of this calculator's price at a 26% target margin."}},{"@type":"Question","name":"Is a flat price per square foot ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- the same finish level, texture, and ceiling height as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a Level 5 skim, a textured ceiling, or a run of 12-ft walls the same way sight unseen, because the rate does not know the finish level, the texture, or the height until the crew is on site, and by then the per-foot number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's board and mud pricing. It takes each room's dimensions, finish level, texture, and openings, and your own wage, payroll burden, board and tape material, waste, travel, overhead, and target margin, and turns that into hang and finish hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c221c; background: #e8eee6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #3d6b2c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4d5b4a; }
+  section { background: #f6faf4; border: 1px solid #c5d3bf; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a1a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c5d3bf; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b4a; }
+  .fine, .note { font-size: .88rem; color: #4d5b4a; }
+  footer { color: #4d5b4a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../drywall-bid-calculator/">Drywall Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Drywall Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per square foot</h1>
+<p class="lede">Drywall crews are shopped by the square foot. That rate cannot see the job &mdash; hanging is the cheap half, and finish level, texture, height, and openings decide whether the same footage pays, and two rooms of identical area can differ by more than three times in labor.</p>
+</header>
+<section>
+<h2>What a flat price per square foot is</h2>
+<p>
+A price per square foot is the fastest number to quote over the phone: pace
+off the room, multiply by a rate, read back a total. It is also the unit
+customers already compare between competing bids.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given finish
+level, texture, and ceiling height &mdash; and then reused for the next
+square footage that calls in, whether or not that next job shares any of
+those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+room's length, width, and height, openings, waste, board type, finish
+level, texture, and whether you are tearing out existing board, plus your
+own wage, payroll burden, travel, dumpster, overhead, and target margin.
+It nets wall and ceiling area against openings, applies a height
+multiplier room by room, and prices hang, finish, and texture hours
+separately &mdash; for this job, not a rate carried over from the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-square-foot rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a hang-only wall and a full Level 5 skim of the identical area, even though finish level is where most of the labor lives.</td>
+<td>Prices hang and finish hours separately by Gypsum Association finish level 0&ndash;5, so a critical-lighting skim costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for texture &mdash; a smooth ceiling and a heavy knockdown get the same rate, even though texture is its own labor and material.</td>
+<td>Prices texture hours and material as their own line on top of the base hang and finish hours.</td>
+</tr>
+<tr>
+<td>Has no line for ceiling height &mdash; an 8-ft closet and a 12-ft great room of the same footage get the same rate.</td>
+<td>Applies a height multiplier room by room, so a taller room costs more without inflating the rest of the job.</td>
+</tr>
+<tr>
+<td>Bills openings inside the same blended per-foot number, if at all.</td>
+<td>Nets opening square footage out of billable wall area and prices opening labor and tape separately.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per square foot and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same 1,954 square feet, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $34 hourly wage,
+32% burden, a 1/2" regular board, 10% waste, 86 sq ft of openings across 7
+openings, $75 trip fee, 16% overhead, 26% target margin:
+</p>
+<p>
+A 1,954 sq ft hang-and-finish job at <strong>Level 1</strong> (fire-tape,
+joints covered) takes <strong>46.4 hours</strong> and prices at
+<strong>$5,473.07</strong> for the job &mdash; <strong>$2.80</strong> per
+square foot.
+</p>
+<p>
+Finish the identical 1,954 sq ft to <strong>Level 5</strong> instead
+&mdash; a full skim for critical lighting, same rooms, same waste, same
+openings &mdash; and it takes <strong>152.8 hours</strong>, costs
+<strong>$10,536.55</strong> to run before a dollar of profit, and this
+calculator prices it at <strong>$14,238.58</strong> &mdash;
+<strong>$7.29</strong> per square foot. Quoting the Level 5 job at the
+Level 1 job's learned rate of $2.80 per square foot reproduces the Level 1
+price, <strong>$5,473.07</strong>, which is
+<strong>$5,063.48 below the Level 5 job's own break-even cost</strong>
+&mdash; before counting the <strong>$8,765.51</strong> it falls short of
+this calculator's own price at a 26% target margin. Same square footage,
+same rate, one job that pays and one that loses money the moment the mud
+goes on.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per square foot get a drywall bid wrong?</h3>
+<p>Because square footage only measures the area, not what it takes to finish it. A 1,954 sq ft hang-and-finish job at Level 1 (fire-tape, joints covered) takes about 46.4 hours. The identical 1,954 sq ft finished to Level 5 (a full skim for critical lighting) takes about 152.8 hours -- more than three times the labor on the same area, because hanging is the cheap half and finish level is where the hours actually go.</p>
+<h3>What does a flat per-square-foot rate usually miss entirely?</h3>
+<p>Finish level, texture, ceiling height, and openings. A flat rate has no line for the difference between a hang-only wall and a full Level 5 skim, no line for a textured ceiling versus a smooth one, no line for a 12-ft great room taking longer per foot than an 8-ft closet, and no line for a room dense with doors and windows netting out less billable board than an open wall of the same footage.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs on a 1,954 sq ft hang-and-finish job: Level 1 (fire-tape) takes 46.4 hours and prices at $5,473.07 for the job -- $2.80 per square foot. The identical 1,954 sq ft finished to Level 5 (full skim) takes 152.8 hours, costs $10,536.55 to run before a dollar of profit, and this calculator prices it at $14,238.58 -- $7.29 per square foot. Quoting the Level 5 job at the Level 1 job's learned rate of $2.80 per square foot reproduces the Level 1 price, $5,473.07, which is $5,063.48 below the Level 5 job's own break-even cost -- before counting the $8,765.51 it falls short of this calculator's price at a 26% target margin.</p>
+<h3>Is a flat price per square foot ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar jobs -- the same finish level, texture, and ceiling height as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a Level 5 skim, a textured ceiling, or a run of 12-ft walls the same way sight unseen, because the rate does not know the finish level, the texture, or the height until the crew is on site, and by then the per-foot number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's board and mud pricing. It takes each room's dimensions, finish level, texture, and openings, and your own wage, payroll burden, board and tape material, waste, travel, overhead, and target margin, and turns that into hang and finish hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Drywall Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge.html">how much you should charge for drywall</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, material, and dumpster costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+      <li><a href="../hardwood-refinishing-bid-calculator/" data-pf-to="hardwood-refinishing-bid-calculator">Hardwood Refinishing Bid Calculator</a></li>
+      <li><a href="../home-elevator-bid-calculator/" data-pf-to="home-elevator-bid-calculator">Home Elevator Bid Calculator</a></li>
+      <li><a href="../home-staging-bid-calculator/" data-pf-to="home-staging-bid-calculator">Home Staging Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=drywall-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="drywall-bid-calculator"></script>
+</body></html>

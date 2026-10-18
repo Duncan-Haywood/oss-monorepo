@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Answer a Customer Security Questionnaire Faster</title>
+  <meta name="description" content="Customer security questionnaires repeat the same questions. How to build an answer library, what to check before reusing an answer…">
+  <meta property="og:title" content="How to Answer a Customer Security Questionnaire Faster">
+  <meta property="og:description" content="Build an answer library once, reuse it for every customer, and know which matches to double-check. Free matcher included.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/how-to-answer-a-security-questionnaire.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long should a security questionnaire take to answer?", "acceptedAnswer": {"@type": "Answer", "text": "The first one is slow because nothing is written down. After that most rows repeat: encryption, access control, incident response, backups, subprocessors, and compliance reports recur in nearly every customer's sheet. Keeping approved answers in one library and reusing them turns most of a questionnaire into review rather than writing."}}, {"@type": "Question", "name": "Who should approve security questionnaire answers?", "acceptedAnswer": {"@type": "Answer", "text": "One named owner, usually the security lead or the founder at a small company, so that answers do not contradict each other. Sales can draft, but a single person should confirm anything that makes a promise: notification windows, retention periods, certifications and insurance limits."}}, {"@type": "Question", "name": "Should I send my SOC 2 report instead of filling in the questionnaire?", "acceptedAnswer": {"@type": "Answer", "text": "Sometimes a report or a trust page answers most of it, and many customers accept that for the rows it covers. Ask which rows still need an answer. Whether they accept it is the customer's decision, so do not assume it."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    .cta { display: inline-block; padding: 10px 14px; border-radius: 8px; background: #0b5d7a; color: #fff; text-decoration: none; font-weight: 650; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { border: 1px solid #8884; padding: .35rem .5rem; text-align: left; }
+    footer { margin-top: 2.5em; border-top: 1px solid #8884; padding-top: 16px; font-size: .85rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/how-to-answer-a-security-questionnaire.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Answer a Customer Security Questionnaire Faster — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-questionnaire-matcher/">Security Questionnaire Answer Matcher</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Answer a Customer Security Questionnaire Faster</span></span></nav>
+  <p><a href="./">&larr; Security questionnaire answer matcher</a></p>
+  <h1>How to answer a customer security questionnaire faster</h1>
+  <p>Before a business buys software, its security team often sends a spreadsheet of a hundred or more questions. The questions differ in wording but cover the same ground, so the fastest approach is to write each answer once, keep it somewhere approved, and reuse it. The risk is reusing an answer that no longer fits the question. This guide covers both halves.</p>
+  <p><a class="cta" href="./">Match a questionnaire against your saved answers</a></p>
+
+  <h2>Build the library</h2>
+  <ul>
+    <li><strong>Start from the last questionnaire you answered.</strong> Save each question and the answer you gave, one row each, as a two-column CSV.</li>
+    <li><strong>Cover the recurring topics:</strong> access control and MFA, encryption at rest and in transit, incident response and notification windows, backups and restore tests, penetration testing, vulnerability management, subprocessors, employee screening and training, compliance reports, data retention and deletion.</li>
+    <li><strong>Put figures in the answer.</strong> "Within 72 hours" is checkable next time; "promptly" is not.</li>
+    <li><strong>Date each answer</strong> in a tags column so stale ones are easy to find.</li>
+  </ul>
+
+  <h2>Before you reuse an answer</h2>
+  <ul>
+    <li><strong>Compare the numbers.</strong> A question asking for a 24-hour notification and an answer promising 72 are close in wording and opposite in meaning.</li>
+    <li><strong>Watch negations.</strong> "Do you allow X?" and "Do you not allow X?" take opposite yes/no answers.</li>
+    <li><strong>Check scope.</strong> An answer about your production environment may not hold for support tooling or a customer-specific deployment.</li>
+    <li><strong>Check that it is still true.</strong> A pen test from two years ago is not "annual".</li>
+  </ul>
+
+  <h2>Mistakes that come back later</h2>
+  <ul>
+    <li>Answers that contradict a contract, a trust page or a previous customer's sheet.</li>
+    <li>Promising controls you plan to have rather than controls you have.</li>
+    <li>Several people answering the same topic differently.</li>
+    <li>Pasting a long policy where a one-line yes/no was asked.</li>
+  </ul>
+
+  <h2>Doing the first pass in seconds</h2>
+  <p>The <a href="./">free matcher</a> runs in your browser. It compares each incoming question with your saved questions, folds synonyms such as MFA and two-factor, shows a confidence level, flags changed figures and negations, and lists the questions you still have to write answers for. It is a heuristic: it suggests, you decide. Related tools: <a href="../soc2-readiness-checker/">SOC 2 readiness checker</a>, <a href="../security-headers-check/">security headers check</a> and <a href="../rfp-compliance-matrix/">RFP compliance matrix generator</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>How long should a security questionnaire take to answer?</h3>
+  <p>The first one is slow because nothing is written down. After that most rows repeat: encryption, access control, incident response, backups, subprocessors, and compliance reports recur in nearly every customer's sheet. Keeping approved answers in one library and reusing them turns most of a questionnaire into review rather than writing.</p>
+  <h3>Who should approve security questionnaire answers?</h3>
+  <p>One named owner, usually the security lead or the founder at a small company, so that answers do not contradict each other. Sales can draft, but a single person should confirm anything that makes a promise: notification windows, retention periods, certifications and insurance limits.</p>
+  <h3>Should I send my SOC 2 report instead of filling in the questionnaire?</h3>
+  <p>Sometimes a report or a trust page answers most of it, and many customers accept that for the rows it covers. Ask which rows still need an answer. Whether they accept it is the customer's decision, so do not assume it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and tool are provided free and as-is, without warranty of any kind. It is not legal, security or compliance advice; you are responsible for verifying every answer before you send it to a customer. <strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a> &mdash; optional. MIT licensed.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../surety-bond-capacity-calculator/" data-pf-to="surety-bond-capacity-calculator">Surety bond premium and bonding capacity calculator</a></li>
+      <li><a href="../tender-bid-readiness/" data-pf-to="tender-bid-readiness">Tender Bid Readiness Checker</a></li>
+      <li><a href="../tender-radar/" data-pf-to="tender-radar">Tender Radar | Public tender shortlist tool</a></li>
+      <li><a href="../timber-sale-offer-checker/" data-pf-to="timber-sale-offer-checker">Timber Sale Offer Checker — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-questionnaire-matcher">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-questionnaire-matcher"></script>
+</body>
+</html>

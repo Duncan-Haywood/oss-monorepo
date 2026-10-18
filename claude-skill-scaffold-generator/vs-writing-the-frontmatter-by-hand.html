@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Skill Scaffold Generator vs. writing the frontmatter by hand</title>
+<meta name="description" content="Copying a sibling skill's SKILL.md and editing it catches an obviously missing field. It reliably misses a first-person opening that slips in unnoticed…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Claude Skill Scaffold Generator vs. writing the frontmatter by hand">
+<meta property="og:description" content="Copying a sibling skill's frontmatter and editing it catches an obviously missing field. It cannot reliably catch a first-person opening…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just copy an existing skill's frontmatter and edit it?","acceptedAnswer":{"@type":"Answer","text":"For catching an obviously missing name or description field, yes -- that stands out on a read. What copying and editing an existing file does not reliably catch is a first-person opening left over from the source skill's own voice, a description that reads fine but carries no concrete trigger condition, YAML indentation or quoting that looks plausible but parses wrong, and a folder layout that no longer matches the scripts, references, or assets the body actually names once you've added or removed one. Those need the same fixed template and checks applied every time, not edited by hand from a starting point written for a different skill."}},{"@type":"Question","name":"Why is first-person phrasing easy to miss when you write it yourself?","acceptedAnswer":{"@type":"Answer","text":"Because a description written while thinking through what the skill does naturally slips into the skill's own voice -- \"I help with...\" reads as ordinary and even friendly to the person writing it. Claude's own documentation asks for third person specifically because the description is matched against a request, not read as the skill introducing itself, and that mismatch is invisible to the author precisely because it sounds fine out loud."}},{"@type":"Question","name":"Why does forgetting a trigger cue happen so easily?","acceptedAnswer":{"@type":"Answer","text":"Because a description that explains what a skill does -- \"formats a CSV into a PDF form\" -- already feels complete to the person who just built it; the missing half is when Claude should reach for it, which requires deliberately writing out the condition rather than the capability. Skipping that step produces a description that reads as informative and still fails to trigger reliably."}},{"@type":"Question","name":"What about the folder layout?","acceptedAnswer":{"@type":"Answer","text":"A SKILL.md written by hand and a folder built separately are two artifacts kept in sync by memory. Add a reference file after the frontmatter is already written, and it is easy to update one and forget the other -- the file exists but the SKILL.md never mentions it, or the body promises a script that was never added to the folder."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes the manual habit any Claude Skill author already has -- writing or copying a SKILL.md's frontmatter by hand. It names no competing product or company. The generator itself makes no network request of any kind: the browser page assembles the file from what you type in your own browser, and nothing you type is ever uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Claude Skill Scaffold Generator vs. writing the frontmatter by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../claude-skill-scaffold-generator/">Claude Skill Scaffold Generator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Claude Skill Scaffold Generator vs. writing the frontmatter by hand</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Claude Skill Scaffold Generator</a></p>
+<header>
+<h1>Claude Skill Scaffold Generator vs. writing the frontmatter by hand</h1>
+<p class="lede">Copying a sibling skill's SKILL.md and editing it catches an obviously missing field. It reliably misses a first-person opening left over from the source skill's own voice, a description with no concrete trigger condition, YAML that looks right but is subtly malformed, and a folder layout that drifts from what the body actually names &mdash; which is what this free, no-upload generator gets right by construction, in one pass.</p>
+</header>
+<section>
+<h2>Where copying and editing stops being enough</h2>
+<p>
+  Anyone building a new Claude Skill already does this: open a sibling skill's SKILL.md, copy its
+  frontmatter, and edit the fields for the new skill. For an obviously missing <code>name</code> or
+  <code>description</code>, that catches it. The problem is the other checks below are exactly the kind
+  of mistake that survives editing someone else's file, because the starting point was written in a
+  different voice for a different skill.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you're trying to get right</th><th scope="col">Copying and editing a sibling's frontmatter</th><th scope="col">This generator</th></tr></thead>
+<tbody>
+<tr><td>The <code>name</code> and <code>description</code> fields are present at all.</td><td>Works. This is the one case an edited copy reliably keeps.</td><td>Also guaranteed, in the same pass as everything below.</td></tr>
+<tr><td>The description is written in third person, not left in the source skill's own first-person voice.</td><td>"I help with..." reads as ordinary while writing it; the mismatch is invisible to the author.</td><td>Checked against a first-person pattern and flagged as a caution.</td></tr>
+<tr><td>The description states a concrete trigger condition, not just what the skill does.</td><td>A description that explains the capability already feels complete to the person who just built it.</td><td>Assembled from a separate "when Claude should use it" field, so the condition is always present.</td></tr>
+<tr><td>The YAML frontmatter parses correctly -- indentation, quoting, no stray colons.</td><td>Edited by hand from a working example; a small slip can still produce YAML that looks right and doesn't parse.</td><td>Assembled by a fixed template from the fields you type, so the shape is correct by construction.</td></tr>
+<tr><td>The <code>name</code> and description length stay within the practical limits this tool documents.</td><td>Easy to run long while explaining a more complex skill, with no length shown while writing.</td><td>Checked against dated limits and flagged if either runs long.</td></tr>
+<tr><td>The suggested folder layout matches every script, reference, and asset the body actually names.</td><td>The SKILL.md and the folder are two artifacts kept in sync by memory; adding one file later is easy to forget mentioning.</td><td>Both generated from the same list of files you typed, so they can't drift apart.</td></tr>
+<tr><td>Starting the next skill from a clean, correctly-shaped file instead of last time's edited copy.</td><td>Each new skill inherits whatever the previous one's frontmatter happened to get right or wrong.</td><td>One fill-in, a fresh correctly-shaped file, every time.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Copying a working sibling skill is still a reasonable way to see the expected shape, and this generator
+  is not doing anything a careful hand edit couldn't &mdash; it is producing the same frontmatter and folder
+  layout a careful author would, just assembling it from a fixed template automatically instead of
+  inheriting whatever the source file happened to get right.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page assembles your SKILL.md entirely in your own browser. It never sends what you type anywhere, and it never calls an AI model.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just copy an existing skill's frontmatter and edit it?</h3>
+<p>For catching an obviously missing name or description field, yes -- that stands out on a read. What copying and editing an existing file does not reliably catch is a first-person opening left over from the source skill's own voice, a description that reads fine but carries no concrete trigger condition, YAML indentation or quoting that looks plausible but parses wrong, and a folder layout that no longer matches the scripts, references, or assets the body actually names once you've added or removed one. Those need the same fixed template and checks applied every time, not edited by hand from a starting point written for a different skill.</p>
+<h3>Why is first-person phrasing easy to miss when you write it yourself?</h3>
+<p>Because a description written while thinking through what the skill does naturally slips into the skill's own voice -- "I help with..." reads as ordinary and even friendly to the person writing it. Claude's own documentation asks for third person specifically because the description is matched against a request, not read as the skill introducing itself, and that mismatch is invisible to the author precisely because it sounds fine out loud.</p>
+<h3>Why does forgetting a trigger cue happen so easily?</h3>
+<p>Because a description that explains what a skill does -- "formats a CSV into a PDF form" -- already feels complete to the person who just built it; the missing half is when Claude should reach for it, which requires deliberately writing out the condition rather than the capability. Skipping that step produces a description that reads as informative and still fails to trigger reliably.</p>
+<h3>What about the folder layout?</h3>
+<p>A SKILL.md written by hand and a folder built separately are two artifacts kept in sync by memory. Add a reference file after the frontmatter is already written, and it is easy to update one and forget the other -- the file exists but the SKILL.md never mentions it, or the body promises a script that was never added to the folder.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes the manual habit any Claude Skill author already has -- writing or copying a SKILL.md's frontmatter by hand. It names no competing product or company. The generator itself makes no network request of any kind: the browser page assembles the file from what you type in your own browser, and nothing you type is ever uploaded.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee that Claude will load or invoke the generated skill correctly at runtime, and it does not replace testing the skill in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking the frontmatter length guidance against Anthropic's current skill-authoring documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. What you type is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../caption-quality-check/" data-pf-to="caption-quality-check">Caption Quality Checker</a></li>
+      <li><a href="../cargo-audit-triage/" data-pf-to="cargo-audit-triage">Which cargo audit findings actually matter?</a></li>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=claude-skill-scaffold-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="claude-skill-scaffold-generator"></script>
+</body></html>

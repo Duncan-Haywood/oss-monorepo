@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Read an 835 ERA File and Find Payer Underpayments</title>
+  <meta name="description" content="A plain-language guide to the X12 835 remittance file: what the segments mean, how CO-45 and PR-1 adjustments work…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/how-to-read-an-835-era-file.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an 835 file?", "acceptedAnswer": {"@type": "Answer", "text": "The X12 835 is the electronic remittance advice (ERA): the machine-readable version of the explanation of benefits a payer sends a provider. It lists each claim the payer processed, what was billed and paid, every adjustment with a group code and a reason code, and the total that was deposited. It is a plain text file made of segments separated by a terminator character, usually a tilde."}}, {"@type": "Question", "name": "Where do I get the 835 for a payment?", "acceptedAnswer": {"@type": "Answer", "text": "From your clearinghouse or the payer's provider portal, usually under ERA or remittance downloads. Many practice management systems also keep the raw file. The PDF explanation of benefits is not an 835 and cannot be read this way."}}, {"@type": "Question", "name": "What do CO-45 and PR-1 mean?", "acceptedAnswer": {"@type": "Answer", "text": "The first part is the group: CO is a contractual obligation the practice writes off, PR is patient responsibility, OA is other adjustments and PI is a payer-initiated reduction. The number is the Claim Adjustment Reason Code. CO-45 is the charge exceeding the fee schedule, which is the normal contractual write-off, and PR-1 is the patient deductible."}}, {"@type": "Question", "name": "Why is CO-45 the one that hides underpayments?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is expected on every line. A practice posting the payment writes the CO-45 amount off without looking at it, so a payer that allowed less than the contract rate produces a larger CO-45 that looks exactly like a correct one. The only way to see it is to compare the allowed amount per line with the rate in your own contract."}}, {"@type": "Question", "name": "How do I work out the allowed amount from an 835?", "acceptedAnswer": {"@type": "Answer", "text": "Use the AMT segment with qualifier B6 when the payer sends it. When it is absent, the allowed amount is the line payment plus the patient responsibility adjustments, plus any sequestration reduction added back. Coordination of benefits and withholds make that inexact, so a flagged line is a question for the payer, not a proven breach."}}, {"@type": "Question", "name": "What is a PLB segment?", "acceptedAnswer": {"@type": "Answer", "text": "A provider-level balance adjustment: an amount that sits outside every claim, such as an overpayment recovery, interest, a rebate or a late-charge fee, with a reason code. It changes the deposit without appearing on any claim, which is why a file can look correct claim by claim and still not match the money that arrived."}}, {"@type": "Question", "name": "Is it safe to open an 835 in a web tool?", "acceptedAnswer": {"@type": "Answer", "text": "An 835 can contain protected health information. This tool reads the file in your browser, sends nothing anywhere and never reads patient names or member IDs into the page, but this is not a HIPAA compliance assessment. Follow your own policies about where PHI may be opened."}}, {"@type": "Question", "name": "Is this billing, coding or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the file and the rates you provide. Check any finding against the payer's own records and your contract before disputing a payment."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 30px 0 8px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2a6b8e; margin: 0 0 6px; }
+    .cta { display: inline-block; margin: 18px 0; background: #2a6b8e; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    pre { background: #fff; border: 1px solid #d9dfe6; border-radius: 10px; padding: 14px; overflow-x: auto; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d9dfe6; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    .caption { font-size: .82rem; color: #4c5a68; }
+    footer { margin-top: 34px; font-size: .82rem; color: #4c5a68; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    footer a, main a { color: #2a6b8e; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/how-to-read-an-835-era-file.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Read an 835 ERA File and Find Payer Underpayments">
+<meta property="og:description" content="A plain-language guide to the X12 835 remittance file: what the segments mean, how CO-45 and PR-1 adjustments work…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Read an 835 ERA File and Find Payer Underpayments — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../era-835-underpayment-finder/">835 ERA Underpayment Finder — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Read an 835 ERA File and Find Payer Underpayments</span></span></nav>
+  <main>
+    <p class="eyebrow">MEDICAL BILLING</p>
+    <h1>How to read an 835 ERA file, and find the lines a payer underpaid</h1>
+    <p>The 835 is the electronic remittance advice: the file a payer sends to say what it paid, what it adjusted and why. Most practices never open it. Their system posts it, writes off the difference as a contractual adjustment, and moves on. That is exactly where a payer paying below your contract rate goes unnoticed.</p>
+    <a class="cta" href="./">Open the free 835 underpayment finder</a>
+
+    <h2>What is in the file</h2>
+    <p>An 835 is plain text. It is a list of segments, each ending in a terminator (usually <code>~</code>) with fields separated by another character (usually <code>*</code>). The segments that matter for a practice:</p>
+    <div class="pf-table-scroll"><table>
+      <tr><th>Segment</th><th>What it tells you</th></tr>
+      <tr><td><code>BPR</code></td><td>The payment: total amount, method, and date. This is the deposit.</td></tr>
+      <tr><td><code>TRN</code></td><td>The trace or check number that ties the file to the bank deposit.</td></tr>
+      <tr><td><code>N1</code></td><td>Who the payer is and who the payee is.</td></tr>
+      <tr><td><code>CLP</code></td><td>One claim: your patient control number, status, billed amount, paid amount and patient responsibility.</td></tr>
+      <tr><td><code>CAS</code></td><td>An adjustment: a group code, a reason code and an amount.</td></tr>
+      <tr><td><code>SVC</code></td><td>One service line: procedure code, billed, paid and units.</td></tr>
+      <tr><td><code>AMT</code></td><td>Extra amounts on a line, including the allowed amount when the payer sends it.</td></tr>
+      <tr><td><code>PLB</code></td><td>Provider-level adjustments outside any claim: recoupments, interest, rebates.</td></tr>
+    </table></div>
+    <p class="caption">A simplified layout for orientation. Payers vary, and not every payer sends every segment.</p>
+
+    <h2>Reading the adjustments: CO, PR and the reason code</h2>
+    <p>Each <code>CAS</code> carries a group and a reason. <strong>CO</strong> is a contractual obligation the practice writes off, <strong>PR</strong> is patient responsibility, <strong>OA</strong> is other, and <strong>PI</strong> is a payer-initiated reduction. The number after it is the Claim Adjustment Reason Code. A few that come up constantly:</p>
+    <pre>CO-45  Charge exceeds the fee schedule (contractual write-off)
+PR-1   Deductible
+PR-2   Coinsurance
+PR-3   Co-payment
+CO-97  Bundled into another service
+CO-50  Not medically necessary
+CO-16  Missing information or billing error
+CO-253 Sequestration reduction</pre>
+
+    <h2>Why CO-45 is where underpayments hide</h2>
+    <p>CO-45 is expected on nearly every line, so it gets posted without a second look. But the size of it is the payer's decision. If your contract says a service pays $120 and the payer allowed $108, the write-off is $12 larger than it should be and looks exactly like a correct one. Nothing in a posting screen flags it, because nothing compares the allowed amount with your rate.</p>
+
+    <h2>Working out the allowed amount for a line</h2>
+    <p>When the payer sends an <code>AMT</code> with the allowed qualifier, use it. When it does not, the allowed amount is the line payment plus the patient responsibility, with any sequestration reduction added back. Then multiply your contract rate by the units and compare. A line that paid something and carries no adjustment other than the contractual write-off, patient responsibility or sequestration is a clean test. A line reduced for bundling or medical necessity is not, because its lower payment may be legitimate.</p>
+
+    <h2>Denials, takebacks and whether the file adds up</h2>
+    <p>Beyond underpayments, an 835 shows denied claims with a reason code you can act on: some are fixable and resubmittable, some need an appeal, some belong to another payer or the patient. It also shows provider-level adjustments in <code>PLB</code>, which change the deposit without appearing on any claim, and the totals should balance: charge less payment equals the adjustments on each claim, and the deposit equals claim payments less provider-level adjustments. A file that does not balance has usually been misread or is missing something.</p>
+
+    <h2>Do it without doing the arithmetic</h2>
+    <p>The <a href="./">835 underpayment finder</a> does all of the above in your browser: drop in the file, paste your contract rates (one line per code and rate), and it lists the lines allowed below contract, the denials with a usual next step, any takebacks, and whether the file balances, with an appeal worksheet you can download as CSV. With no fee schedule it compares each payer to its own usual amount for the same code and says plainly that this finds inconsistency, not a breach.</p>
+    <a class="cta" href="./">Check a remittance file</a>
+
+    <h2>Common questions</h2>
+    <h3>What is an 835 file?</h3>
+    <p>The X12 835 is the electronic remittance advice (ERA): the machine-readable version of the explanation of benefits a payer sends a provider. It lists each claim the payer processed, what was billed and paid, every adjustment with a group code and a reason code, and the total that was deposited. It is a plain text file made of segments separated by a terminator character, usually a tilde.</p>
+    <h3>Where do I get the 835 for a payment?</h3>
+    <p>From your clearinghouse or the payer's provider portal, usually under ERA or remittance downloads. Many practice management systems also keep the raw file. The PDF explanation of benefits is not an 835 and cannot be read this way.</p>
+    <h3>What do CO-45 and PR-1 mean?</h3>
+    <p>The first part is the group: CO is a contractual obligation the practice writes off, PR is patient responsibility, OA is other adjustments and PI is a payer-initiated reduction. The number is the Claim Adjustment Reason Code. CO-45 is the charge exceeding the fee schedule, which is the normal contractual write-off, and PR-1 is the patient deductible.</p>
+    <h3>Why is CO-45 the one that hides underpayments?</h3>
+    <p>Because it is expected on every line. A practice posting the payment writes the CO-45 amount off without looking at it, so a payer that allowed less than the contract rate produces a larger CO-45 that looks exactly like a correct one. The only way to see it is to compare the allowed amount per line with the rate in your own contract.</p>
+    <h3>How do I work out the allowed amount from an 835?</h3>
+    <p>Use the AMT segment with qualifier B6 when the payer sends it. When it is absent, the allowed amount is the line payment plus the patient responsibility adjustments, plus any sequestration reduction added back. Coordination of benefits and withholds make that inexact, so a flagged line is a question for the payer, not a proven breach.</p>
+    <h3>What is a PLB segment?</h3>
+    <p>A provider-level balance adjustment: an amount that sits outside every claim, such as an overpayment recovery, interest, a rebate or a late-charge fee, with a reason code. It changes the deposit without appearing on any claim, which is why a file can look correct claim by claim and still not match the money that arrived.</p>
+    <h3>Is it safe to open an 835 in a web tool?</h3>
+    <p>An 835 can contain protected health information. This tool reads the file in your browser, sends nothing anywhere and never reads patient names or member IDs into the page, but this is not a HIPAA compliance assessment. Follow your own policies about where PHI may be opened.</p>
+    <h3>Is this billing, coding or legal advice?</h3>
+    <p>No. It is arithmetic on the file and the rates you provide. Check any finding against the payer's own records and your contract before disputing a payment.</p>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free guide and tool are not legal, tax, billing, coding, compliance, or financial advice, and do not replace a qualified professional. The 835 layout and reason-code text are described from memory of the standard and may not match every payer's file. Verify any finding against the payer's own records and your contract before disputing a payment. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Not affiliated with any payer or clearinghouse.</strong> X12 is a trademark of its owner. No affiliation with, endorsement by, or sponsorship from any named company or standards body is implied.</p>
+    <p><strong>Protected health information.</strong> Remittance files can contain PHI. The tool runs in your browser and sends nothing anywhere. This is not a HIPAA compliance assessment.</p>
+    <p><a href="./">835 ERA underpayment finder</a> &mdash; free, private, and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../rd-tax-credit-calculator/" data-pf-to="rd-tax-credit-calculator">R&amp;D Tax Credit Calculator — free, private</a></li>
+      <li><a href="../renewal-rent-optimizer/" data-pf-to="renewal-rent-optimizer">Renewal Rent Optimizer — free, private, in your browser</a></li>
+      <li><a href="../rent-roll-delinquency-analyzer/" data-pf-to="rent-roll-delinquency-analyzer">Rent Roll Delinquency Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=era-835-underpayment-finder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="era-835-underpayment-finder"></script>
+</body>
+</html>

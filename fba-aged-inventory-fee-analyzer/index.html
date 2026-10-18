@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FBA Aged Inventory &amp; Storage Fee Analyzer — Hold, Mark Down or Remove, SKU by SKU</title>
+  <meta name="description" content="Free tool for Amazon FBA sellers: load your Inventory Age report and see, per SKU, the storage fees and aged-inventory surcharge you will pay and whether…">
+  <meta property="og:title" content="FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser">
+  <meta property="og:description" content="Which FBA units should you remove or mark down before storage fees and the aged surcharge eat the margin? Per-SKU comparison with the numbers.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "FBA Aged Inventory & Storage Fee Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads the Amazon FBA Inventory Age report and compares holding, marking down, removing aged units and removing everything per SKU, with projected storage fees and aged surcharge. Runs entirely in your browser; the file is never uploaded.", "featureList": "Storage fee and aged surcharge projection per SKU, hold vs markdown vs removal, oldest-first sell-through, peak-season rates, editable fee tables, copyable action list, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know which FBA inventory to remove or mark down?", "acceptedAnswer": {"@type": "Answer", "text": "Download the Inventory Age report, drop it here, and the tool simulates the next months of storage fees and aged-inventory surcharges for each SKU under four choices: hold, mark down, remove the aged units, or remove everything. It names the one with the best projected profit and how much better it is than holding."}}, {"@type": "Question", "name": "Which report do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Seller Central \u2192 Inventory \u2192 Inventory Planning \u2192 Inventory age (or Reports \u2192 Fulfillment \u2192 Inventory Age). The columns used are sku, the inv-age buckets, units-shipped-t7/t30/t60/t90, your-price and item-volume. Unit cost is not in the report, so type a default or add a unit cost column."}}, {"@type": "Question", "name": "What is the aged inventory surcharge?", "acceptedAnswer": {"@type": "Answer", "text": "A monthly fee per cubic foot that Amazon has charged on units that have been in a fulfilment centre for a long time, rising with age. The surcharge table on this page is an editable default typed from memory of public fee pages; Amazon changes it, so check the current one in Seller Central before acting."}}, {"@type": "Question", "name": "When does removing units beat holding them?", "acceptedAnswer": {"@type": "Answer", "text": "When the fees the units would keep accruing until they sell, or for as long as the model runs if they never do, are larger than the removal fee plus the profit you would lose on the units you remove. Slow SKUs with old stock and a thin margin are the usual cases; the tool shows the numbers per option."}}, {"@type": "Question", "name": "How is a markdown modelled?", "acceptedAnswer": {"@type": "Answer", "text": "A price cut lowers the margin per unit and raises sales speed by the elasticity you set: with the default of 2, a 10% cut sells 20% faster. That is an assumption, not a measurement of your listing, and a SKU with no recent sales is never lifted by a markdown in the model."}}, {"@type": "Question", "name": "Is my seller data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"FBA Aged Inventory \u0026 Storage Fee Analyzer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">FBA AGED INVENTORY &amp; STORAGE FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which FBA stock should you remove or mark down before the fees eat it?</h1>
+    <p>Load your <strong>Inventory Age report</strong> and get, per SKU, the <strong>storage fees and aged-inventory surcharge you will pay</strong> if you do nothing, and a comparison of <strong>holding, marking down, removing the aged units and removing everything</strong>, each simulated month by month with the oldest units selling first. The best option per SKU is named with the dollar difference against holding.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Amazon: not affiliated with or endorsed by it. Fee tables are typed defaults, the results are estimates, and Amazon's bill is what counts.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Inventory Age report</h2>
+    <p class="note">Seller Central → Inventory → Inventory Planning → Inventory age (or Reports → Fulfillment → Inventory Age). Needs <strong>sku</strong> and the <strong>inv-age</strong> columns; <strong>units-shipped-t30/t90</strong>, <strong>your-price</strong>, <strong>item-volume</strong> and <strong>volume-unit-measurement</strong> are used when present. Add a <strong>unit cost</strong> column if you want per-SKU costs; otherwise the default below is used for every SKU.</p>
+    <label for="file">Inventory Age CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" placeholder="sku,product-name,inv-age-0-to-90-days,inv-age-91-to-180-days,...,units-shipped-t30,units-shipped-t90,your-price"></textarea>
+    <h2 style="margin-top:20px">2. Your costs and the fee tables (edit these)</h2>
+    <div class="grid">
+      <div><label for="unit-cost">Default unit cost, $</label><input type="number" id="unit-cost" value="8" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="fulfilment">Fulfilment fee per unit, $</label><input type="number" id="fulfilment" value="4" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="referral">Referral fee, %</label><input type="number" id="referral" value="15" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="cuft">Cubic feet per unit (when the report has none)</label><input type="number" id="cuft" value="0.1" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="storage">Storage fee, $ per cubic foot per month (Jan–Sep)</label><input type="number" id="storage" value="0.87" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="peak">Storage fee, Oct–Dec</label><input type="number" id="peak" value="2.4" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="removal">Removal fee per unit, $</label><input type="number" id="removal" value="0.8" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="remove-age">“Aged” means at least this many days</label><input type="number" id="remove-age" value="271" min="0" step="any" step="1" inputmode="decimal"></div>
+      <div><label for="horizon">Fees shown for the next, months</label><input type="number" id="horizon" value="6" min="0" step="any" min="1" max="24" step="1" inputmode="decimal"></div>
+      <div><label for="elasticity">Markdown elasticity (10% off = +10×this % sales)</label><input type="number" id="elasticity" value="2" min="0" step="any" inputmode="decimal" ></div>
+      <div><label for="salvage">Salvage value of removed units, % of cost</label><input type="number" id="salvage" value="0" min="0" step="any" inputmode="decimal" ></div>
+    </div>
+    <label for="ais">Aged-inventory surcharge, $ per cubic foot per month by age in days</label>
+    <input type="text" id="ais" value="181-210:0.5, 211-240:1, 241-270:1.5, 271-300:3.8, 301-330:4, 331-365:4.2, 366+:4.2">
+    <p class="note">These defaults were typed from memory of public fee pages and are <strong>not verified against a live account</strong>. Amazon changes them; replace them with the current figures from Seller Central before acting.</p>
+    <p>
+      <button type="button" id="analyze">Compare options</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the report file or paste it, then click Compare options.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By SKU, biggest gain first</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">SKU</th><th class="n" scope="col">Units</th><th class="n" scope="col">Aged 181+</th><th class="n" scope="col">Sold / mo</th><th class="n" scope="col">Margin / unit</th><th class="n" scope="col">Fees if held</th><th class="n" scope="col">Best option</th><th class="n" scope="col">Gain vs hold</th></tr></thead><tbody id="by-sku"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="action-sku">Every option for the SKU you pick</label>
+    <select id="action-sku"></select>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Option</th><th class="n" scope="col">Fees in horizon</th><th class="n" scope="col">Profit to sell-through</th></tr></thead><tbody id="options"></tbody></table></div></div>
+    <label for="summary">Copyable action list</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy action list</button> <button type="button" class="secondary" id="download">Download SKU table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Units by age</strong> come from the report's age buckets, dated at each bucket's midpoint. Sales take the oldest units first, at the pace of the units shipped in the last 90 days (or 30, 60 or 7 if that is all there is).</li>
+      <li><strong>Fees</strong> are charged each 30-day step on the average units held: storage at your per-cubic-foot rate (the Oct–Dec rate is used for those calendar months) plus the aged surcharge for the age each lot has reached.</li>
+      <li><strong>Options.</strong> Hold; mark down 10, 20 or 30% (less margin per unit, more sales by your elasticity); remove the units at or beyond the aged threshold now (you pay the removal fee, they stop costing storage); remove everything. Each is simulated to sell-through, capped at 36 months, and the best projected profit is named.</li>
+      <li><strong>Reconciles.</strong> Fees in the horizon are storage plus surcharge, and the by-SKU rows add up to the totals at the top.</li>
+      <li><strong>Not modelled:</strong> the per-unit minimum on the oldest surcharge tier, inbound placement and low-inventory-level fees, seasonality, restocking (new units reset nothing here), the time value of money, returns, disposal versus liquidation prices, tax, and how a price change affects your ranking or ads. Salvage defaults to zero.</li>
+      <li><strong>Unverified:</strong> the fee defaults are typed from memory and no real Seller Central export was available when this was written. Column names are matched by alias; if a file is not read the page lists the rows skipped and why.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know which FBA inventory to remove or mark down?</h3>
+    <p>Download the Inventory Age report, drop it here, and the tool simulates the next months of storage fees and aged-inventory surcharges for each SKU under four choices: hold, mark down, remove the aged units, or remove everything. It names the one with the best projected profit and how much better it is than holding.</p>
+    <h3>Which report do I need?</h3>
+    <p>Seller Central → Inventory → Inventory Planning → Inventory age (or Reports → Fulfillment → Inventory Age). The columns used are sku, the inv-age buckets, units-shipped-t7/t30/t60/t90, your-price and item-volume. Unit cost is not in the report, so type a default or add a unit cost column.</p>
+    <h3>What is the aged inventory surcharge?</h3>
+    <p>A monthly fee per cubic foot that Amazon has charged on units that have been in a fulfilment centre for a long time, rising with age. The surcharge table on this page is an editable default typed from memory of public fee pages; Amazon changes it, so check the current one in Seller Central before acting.</p>
+    <h3>When does removing units beat holding them?</h3>
+    <p>When the fees the units would keep accruing until they sell, or for as long as the model runs if they never do, are larger than the removal fee plus the profit you would lose on the units you remove. Slow SKUs with old stock and a thin margin are the usual cases; the tool shows the numbers per option.</p>
+    <h3>How is a markdown modelled?</h3>
+    <p>A price cut lowers the margin per unit and raises sales speed by the elasticity you set: with the default of 2, a 10% cut sells 20% faster. That is an assumption, not a measurement of your listing, and a SKU with no recent sales is never lifted by a markdown in the model.</p>
+    <h3>Is my seller data uploaded?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> or creating any removal order or price change.</p>
+    <p><strong>Not affiliated with Amazon.</strong> Amazon, Fulfillment by Amazon, Seller Central and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Amazon's fees and policies change; check the current ones.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling on Amazon? See the <a href="../amazon-seller-profit-analyzer/">Amazon seller profit analyzer</a> for profit per SKU, the <a href="../fba-reimbursement-claim-finder/">FBA reimbursement claim finder</a> for lost units, and the <a href="../amazon-fba-calculator/">Amazon FBA calculator</a> for a single product.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeAge, analyze, summaryText, sampleCsv, actionLine, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };
+
+    function run(text) {
+      const d = detectDelimiter(text);
+      const n = normalizeAge(parseCsv(text, d), { decimalComma: d === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const a = analyze(n.items, { asOf: Date.now(), unitCost: num("#unit-cost", 8), fulfilmentFee: num("#fulfilment", 4), referralPct: num("#referral", 15), cubicFeetPerUnit: num("#cuft", 0.1), storageRate: num("#storage", 0.87), storageRatePeak: num("#peak", 2.4), removalFee: num("#removal", 0.8), removeAgeDays: num("#remove-age", 271), horizonMonths: num("#horizon", 6), elasticity: num("#elasticity", 2), salvagePct: num("#salvage", 0), ais: $("#ais").value });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      const s = a.summary;
+      $("#report-stats").innerHTML = `${s.skus} SKU(s), ${s.units} unit(s), ${s.aged} of them 181+ days old. Holding everything costs about <strong>$${money(s.holdFees)}</strong> in fees over ${s.horizonMonths} month(s) ($${money(s.holdStorage)} storage, $${money(s.holdSurcharge)} aged surcharge). Following the best option per SKU improves projected profit by about <strong>$${money(s.gain)}</strong> across ${s.actions} SKU(s).`;
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-sku").innerHTML = a.rows.map((x) => `<tr><th scope="row">${esc(x.sku)}${x.title ? `<br><span class="note">${esc(x.title)}</span>` : ""}</th><td class="n">${x.units}</td><td class="n">${x.aged}</td><td class="n">${x.velocity}</td><td class="n">${money(x.margin)}</td><td class="n">${money(x.holdFees)}</td><td class="n">${esc(x.bestLabel)}</td><td class="n">${money(x.gain)}</td></tr>`).join("");
+      $("#action-sku").innerHTML = a.rows.map((x) => `<option value="${esc(x.sku)}">${esc(x.sku)}</option>`).join("");
+      const showOptions = () => { const x = a.rows.find((q) => q.sku === $("#action-sku").value); $("#options").innerHTML = x ? x.options.map((o) => `<tr><th scope="row">${esc(o.label)}${o.label === x.bestLabel ? " ✓" : ""}</th><td class="n">${money(o.fees)}</td><td class="n">${money(o.profit)}</td></tr>`).join("") : ""; };
+      $("#action-sku").onchange = showOptions;
+      showOptions();
+      const notes = n.notes.slice();
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} SKU row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the report file or paste it first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleCsv();
+      $("#paste").value = s; $("#file").value = "";
+      if (run(s)) { record("example_loaded"); status.textContent = "Worked example: synthetic report for an invented seller. Not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the report file or paste it, then click Compare options."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Action list copied."; }
+      catch { box.select(); status.textContent = "Select the action list text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const rows = ["sku,title,units,aged_181_plus,sold_per_month,margin_per_unit,fees_if_held,best_option,gain_vs_hold,new_price,units_to_remove"].concat(last.rows.map((x) => [q(x.sku), q(x.title), x.units, x.aged, x.velocity, x.margin.toFixed(2), x.holdFees.toFixed(2), q(x.bestLabel), x.gain.toFixed(2), x.newPrice.toFixed(2), x.removeUnits].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "fba-aged-inventory-actions.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../shopify-customer-csv-check/" data-pf-to="shopify-customer-csv-check">Shopify Customer CSV Check — free, private, in your browser</a></li>
+      <li><a href="../shopify-discount-leakage-analyzer/" data-pf-to="shopify-discount-leakage-analyzer">Shopify Discount Leakage Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../shopify-fee-calculator/" data-pf-to="shopify-fee-calculator">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a></li>
+      <li><a href="../shopify-inventory-csv-check/" data-pf-to="shopify-inventory-csv-check">Shopify Inventory CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fba-aged-inventory-fee-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/?pfEmbed=1&quot; title=&quot;FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="fba-aged-inventory-fee-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/" data-pf-embed-title="FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser" data-pf-embed-slug="fba-aged-inventory-fee-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="fba-aged-inventory-fee-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="fba-aged-inventory-fee-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

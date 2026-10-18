@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Email List CSV Check — Clean a Contact List Before You Import</title>
+  <meta name="description" content="Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails…">
+  <meta property="og:title" content="Email List CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch bad addresses, duplicates and Excel damage in a contact list before you import it. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Email List CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an email or contact list CSV before import into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact: invalid and duplicate emails, domain typos, role and disposable addresses, Excel damage and heading names, with a safe-fixes copy and a rejected-rows file. Runs entirely in your browser; the list is never uploaded.", "featureList": "email list validator, duplicate email finder, gmail alias duplicate check, domain typo fixer, role account detector, disposable email detector, Excel scientific notation finder, Mailchimp import checker, HubSpot import checker, Klaviyo import checker, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my Mailchimp or HubSpot contact import fail or skip rows?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are an email column the importer does not recognise (a heading that is not exactly what the platform expects), addresses with a space, a comma or a missing dot in the domain, blank email cells, a semicolon-separated file saved by Excel, and rows with the wrong number of cells that shift every column after them. Paste the file here to see each one with its line number."}}, {"@type": "Question", "name": "How do I check an email list for typos like gmial.com before importing?", "acceptedAnswer": {"@type": "Answer", "text": "The checker compares every domain with a list of common provider typos (gmial.com, gmal.com, hotmial.com, yahooo.com, outlok.com, .con and .coom endings) and shows the likely fix next to each address. It is a guess, so the cleaned file only applies the fixes if you tick the box, and every change is listed."}}, {"@type": "Question", "name": "Does this verify that an email address exists or will not bounce?", "acceptedAnswer": {"@type": "Answer", "text": "No. It checks spelling and structure only. It does not contact any mail server, so it cannot tell whether a mailbox exists, whether a domain accepts mail, or whether an address will bounce. Use your email platform's own validation or a verification service for that."}}, {"@type": "Question", "name": "Does it tell me whether I am allowed to email these people?", "acceptedAnswer": {"@type": "Answer", "text": "No. Nothing in a CSV proves anyone agreed to be emailed. CAN-SPAM, GDPR, CASL and similar rules, and each platform's terms, are your responsibility. The tool only points out a consent or unsubscribed column if there is one, and warns when rows are marked unsubscribed or bounced so that you do not re-import them as subscribed by accident."}}, {"@type": "Question", "name": "What are role accounts and why flag them?", "acceptedAnswer": {"@type": "Answer", "text": "Addresses like info@, admin@, support@, sales@ and noreply@ usually reach a shared inbox or nobody. They tend to produce more complaints and fewer opens, and some platforms suppress or reject them. They are flagged, not removed: whether to keep one is your decision."}}, {"@type": "Question", "name": "Why did Excel change my phone numbers and ZIP codes?", "acceptedAnswer": {"@type": "Answer", "text": "Excel stores long digit strings as numbers: 5555550101 can become 5.56E+09 with the lost digits gone for good, and 02108 becomes 2108. This tool flags both, but it cannot restore digits Excel threw away, so it never rewrites those cells. Re-export from the source with the column formatted as text."}}, {"@type": "Question", "name": "Is it safe to put my customer list into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own privacy policy and data-handling rules still decide what you may open on a given computer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: end; }
+    .plat td, .plat th { font-size: .9rem; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Email List CSV Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Email List CSV Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Email List CSV Check — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">EMAIL LIST CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is my email list safe to import?</h1>
+    <p>Paste or drop your <strong>contact list CSV</strong> and see every problem <strong>with its line number</strong> before it goes into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact: <strong>invalid and duplicate emails</strong>, domain typos like <code>gmial.com</code> and <code>.con</code>, <strong>role</strong> and <strong>disposable</strong> addresses, phone numbers Excel turned into <code>5.56E+09</code>, ZIP codes that lost their zero, garbled accents, and headings the platform will not recognise. Then download a <strong>safe-fixes copy</strong> and a separate <strong>rejected rows</strong> file.</p>
+    <p class="note">The list is read in this browser tab and never leaves your device. Independent of every email platform named here. Heading names are read from memory of each platform's public import help; no import was tried when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your list</h2>
+    <p class="note">A CSV exported from a spreadsheet, CRM, shop or another email platform.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Email Address,First Name,Last Name&#10;maria@example.com,Maria,Lopez"></textarea>
+    <div class="opts">
+      <div><label for="platform">Importing into</label>
+        <select id="platform"><option value="">Any (just check the list)</option><option value="mailchimp">Mailchimp</option><option value="hubspot">HubSpot</option><option value="klaviyo">Klaviyo</option><option value="brevo">Brevo</option><option value="constantcontact">Constant Contact</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" id="fixtypos"><label for="fixtypos">Also fix typo domains in the cleaned file (a guess; I have read the list)</label></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check list</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check list.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Heading names by platform</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table class="plat"><thead><tr><th scope="col">Platform</th><th scope="col">Expects for email</th><th scope="col">Your file</th><th scope="col">Other headings that would match if renamed</th></tr></thead><tbody id="platforms"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-rejected">Download rejected rows</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What it checks, and what it leaves out</h2>
+    <ul>
+      <li><strong>Email syntax:</strong> missing or doubled @, spaces, "Name &lt;address&gt;" form, several addresses in one cell, bad characters, a domain with no dot or an impossible ending. Blank emails and stray whitespace are listed too.</li>
+      <li><strong>Duplicates:</strong> the same address ignoring capitals is a duplicate. Gmail ignores dots and "+" tags, and a few other providers ignore "+" tags, so those are flagged as <em>likely</em> duplicates for you to review, never removed for you.</li>
+      <li><strong>Typos:</strong> common misspellings of gmail, hotmail, yahoo, outlook, icloud and similar, and endings like .con, .coom and .cmo, each with a suggested fix.</li>
+      <li><strong>Role and disposable addresses:</strong> info@, admin@, support@, sales@, noreply@ and similar; and a small built-in list of throwaway-inbox domains (it is short and will miss many).</li>
+      <li><strong>Excel damage:</strong> a byte order mark, scientific notation, phone and ZIP columns that lost digits, <code>.0</code> endings, <code>#NAME?</code> values, mojibake, semicolon or mixed separators, and rows with the wrong number of cells.</li>
+      <li><strong>Consent hints:</strong> it looks for a subscription, opt-in or unsubscribed column and counts rows marked unsubscribed or bounced, so they are not re-imported as subscribed.</li>
+      <li><strong>Safe fixes</strong> trim spaces, lowercase emails, drop the BOM, use commas, optionally rename headings to the platform's names, keep the first of exact duplicates, and (only if you opt in) fix typo domains. Rows with a blank or invalid email, the wrong cell count, or an exact duplicate go to the rejected file with the reason; nothing is silently dropped. Names, phones and other values are never rewritten.</li>
+      <li><strong>Not checked:</strong> whether an address exists or will bounce (no mail server is contacted), whether anyone agreed to be emailed, whether a role or disposable address is acceptable for you, and anything a platform changes in its importer.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my Mailchimp or HubSpot contact import fail or skip rows?</h3>
+    <p>The usual causes are an email column the importer does not recognise (a heading that is not exactly what the platform expects), addresses with a space, a comma or a missing dot in the domain, blank email cells, a semicolon-separated file saved by Excel, and rows with the wrong number of cells that shift every column after them. Paste the file here to see each one with its line number.</p>
+    <h3>How do I check an email list for typos like gmial.com before importing?</h3>
+    <p>The checker compares every domain with a list of common provider typos (gmial.com, gmal.com, hotmial.com, yahooo.com, outlok.com, .con and .coom endings) and shows the likely fix next to each address. It is a guess, so the cleaned file only applies the fixes if you tick the box, and every change is listed.</p>
+    <h3>Does this verify that an email address exists or will not bounce?</h3>
+    <p>No. It checks spelling and structure only. It does not contact any mail server, so it cannot tell whether a mailbox exists, whether a domain accepts mail, or whether an address will bounce. Use your email platform's own validation or a verification service for that.</p>
+    <h3>Does it tell me whether I am allowed to email these people?</h3>
+    <p>No. Nothing in a CSV proves anyone agreed to be emailed. CAN-SPAM, GDPR, CASL and similar rules, and each platform's terms, are your responsibility. The tool only points out a consent or unsubscribed column if there is one, and warns when rows are marked unsubscribed or bounced so that you do not re-import them as subscribed by accident.</p>
+    <h3>What are role accounts and why flag them?</h3>
+    <p>Addresses like info@, admin@, support@, sales@ and noreply@ usually reach a shared inbox or nobody. They tend to produce more complaints and fewer opens, and some platforms suppress or reject them. They are flagged, not removed: whether to keep one is your decision.</p>
+    <h3>Why did Excel change my phone numbers and ZIP codes?</h3>
+    <p>Excel stores long digit strings as numbers: 5555550101 can become 5.56E+09 with the lost digits gone for good, and 02108 becomes 2108. This tool flags both, but it cannot restore digits Excel threw away, so it never rewrites those cells. Re-export from the source with the column formatted as text.</p>
+    <h3>Is it safe to put my customer list into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own privacy policy and data-handling rules still decide what you may open on a given computer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. It does not verify that any email address is deliverable, and it does not establish that anyone consented to receive email: compliance with CAN-SPAM, GDPR, CASL and your email platform's terms is your responsibility. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that an import will succeed or that mail will arrive.</p>
+    <p><strong>Not affiliated with Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact.</strong> This tool is independent and is not sponsored, endorsed or connected to any email, CRM or marketing vendor. Those names are trademarks of their owners, used here only to say which import formats the tool reads. The heading names and rules are read from memory of public sources and may be out of date or miss a variant; check them against each platform's current import documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../mailchimp-audience-csv-check/">Mailchimp audience CSV check</a> prepares the same list for Mailchimp, the <a href="../gbp-bulk-location-check/">Google Business Profile bulk-location check</a> does the same for a multi-location spreadsheet, the <a href="../email-auth-check/">email auth check</a> looks at the SPF, DKIM and DMARC records that decide whether your sending domain's mail is trusted, the <a href="../substack-subscriber-export-analyzer/">Substack subscriber export analyzer</a> reads a subscriber export for churn and growth, the <a href="../email-api-pricing-calculator/">email API pricing calculator</a> prices the sending side, the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> does the same pre-flight for invoice import files, and the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> covers a contacts or companies list going into HubSpot, and the <a href="../ics-calendar-check/">ICS calendar check</a> finds why a calendar file will not import.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fix = null, lastText = "";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      lastText = text;
+      const platform = $("#platform").value;
+      const r = validate(text, { platform });
+      lastResult = r;
+      const s = r.summary, c = s.counts;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#platforms").innerHTML = s.platforms.map((p) => `<tr><td>${esc(p.name)}</td><td><code>${esc(p.emailHeader)}</code></td><td>${p.emailExact ? "matches" : p.emailFound ? "found under another name" : "no email column found"}</td><td>${p.renames.filter((x) => x.concept !== "email").map((x) => `${esc(x.from)} → ${esc(x.to)}`).join(", ") || "none"}</td></tr>`).join("");
+      fix = repair(text, { platform, fixTypos: $("#fixtypos").checked });
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text;
+      $("#download-rejected").hidden = !fix.rejectedText;
+      $("#fix-note").textContent = fix.error ? fix.error : `${fix.kept} row${fix.kept === 1 ? "" : "s"} kept, ${fix.rejected} moved to the rejected file. Names, phones and other values are left exactly as they are.`;
+      $("#fix-list").innerHTML = fix.changes.slice(0, 100).map((x) => `<li>${esc(x)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    for (const id of ["#platform", "#fixtypos"]) $(id).addEventListener("change", () => { if (lastText) run(lastText); });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: made-up contacts after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fix = null; lastText = ""; status.textContent = "Choose a file or paste the text, then click Check list."; });
+    $("#download-fixed").addEventListener("click", () => { if (fix && fix.text) { record("fixes_applied"); download("email-list-cleaned.csv", fix.text, "text/csv"); } });
+    $("#download-rejected").addEventListener("click", () => { if (fix && fix.rejectedText) { record("rejected_downloaded"); download("email-list-rejected.csv", fix.rejectedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("email-list-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../online-business-valuation-calculator/" data-pf-to="online-business-valuation-calculator">Online Business Valuation Calculator — free, private, in your browser</a></li>
+      <li><a href="../payment-reconciliation-workbench/" data-pf-to="payment-reconciliation-workbench">Payment Reconciliation Workbench</a></li>
+      <li><a href="../payroll-tax-deposit-penalty-calculator/" data-pf-to="payroll-tax-deposit-penalty-calculator">Payroll Tax Deposit Penalty Calculator — due dates and late-deposit cost</a></li>
+      <li><a href="../physician-wrvu-compensation-calculator/" data-pf-to="physician-wrvu-compensation-calculator">Physician wRVU Compensation Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=email-list-csv-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/?pfEmbed=1&quot; title=&quot;Email List CSV Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="email-list-csv-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/" data-pf-embed-title="Email List CSV Check — free, private, in your browser" data-pf-embed-slug="email-list-csv-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="email-list-csv-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="email-list-csv-check" data-pf-link-amount=""></script>
+</body>
+</html>

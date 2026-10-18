@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Source Map Leak Checker — Is Your Production JS Exposing Original Source?</title>
+<meta name="description" content="Free tool: paste your site's URL (or a list of JS file URLs), and it finds every script's sourceMappingURL comment, fetches the map…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Source Map Leak Checker">
+<meta property="og:description" content="Paste your site's URL to see which production JavaScript files have a publicly readable source map -- and whether it exposes full original source text…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Source Map Leak Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser when the target allows a cross-origin read); a Node.js CLI is also included and has no such restriction",
+  "description": "Finds every script's own sourceMappingURL comment, fetches the referenced map, and names which scripts' production source maps are publicly readable -- and whether they embed full original source text (sourcesContent) or only file/folder paths.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Reads a page's own <script src> tags, or an explicit list of JS URLs you paste",
+    "Reads each script's own trailing sourceMappingURL comment -- no guessing at filenames",
+    "Fetches the referenced map (or decodes an inline data: URI map) and checks whether it is publicly readable",
+    "Distinguishes a map that only exposes file paths from one that embeds full original source text",
+    "Never writes, submits, or modifies anything on the target -- every request is a plain GET",
+    "A Node.js CLI performs the identical check for CI, with no browser CORS restriction"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a source map, and why would it be a problem?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A source map is a file (usually named <script>.js.map) that maps a minified, bundled production script back to its original, unminified source files -- so a browser's devtools can show you readable code and real file names while debugging a live site. Most bundlers (webpack, esbuild, Vite, Rollup) can generate one automatically. The problem is that a source map with sourcesContent set doesn't just map locations back to file names -- it embeds the entire original, unminified source text of every file, including comments, internal variable and function names, and anything that was only removed by minification rather than deliberately kept out of the client bundle." }
+    },
+    {
+      "@type": "Question",
+      "name": "Isn't this exactly what source maps are for -- readable code in devtools?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, for a developer working on their own local build. The exposure is specifically about a production deployment: if the .map file is left publicly reachable on the live site, anyone who opens devtools (or just requests the .map URL directly, whether or not they open devtools) can read it -- not just the site's own developers. Bundler docs generally recommend either omitting the sourceMappingURL comment in production, restricting access to the map file at the server/CDN level, or using a 'hidden' source map mode that uploads the map to an error-tracking service (for real stack traces) without ever referencing it from the shipped script." }
+    },
+    {
+      "@type": "Question",
+      "name": "What can someone actually learn from an exposed map?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It depends on whether the map carries sourcesContent. Without it, an exposed map still reveals the original file and folder structure of the app -- useful reconnaissance about what framework and internal module layout is in use. With sourcesContent present, it hands over the complete original source: internal comments, business logic, API endpoint paths that were only referenced by variable name in the minified bundle, and occasionally a hardcoded value (a test key, an internal URL) a developer never meant to ship in readable form." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to point this at a URL?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends only ordinary GET requests to the page and script/map URLs you name -- the same requests your own browser already makes when you load the page, and it never writes or submits anything. It does not upload the URL, the scripts, or anything they contain to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you would apply to any request tool aimed at someone else's server." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my site is safe?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It means the scripts this run could check either had no source map reference or had one that was not publicly readable at the time of the check. It does not check CSS source maps, inline (non-external) scripts, JS loaded by dynamic import after the initial page load, or anything not reachable from the page or script list you gave it. Treat a clean report as evidence about the scripts this run actually saw, not a full audit of the site." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  input[type="text"], textarea { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; margin: 0.3rem 0 0.8rem; }
+  textarea { min-height: 4.5rem; resize: vertical; }
+  label { font-weight: 600; font-size: 0.9rem; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; word-break: break-all; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Source Map Leak Checker","item":"https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Source Map Leak Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Source Map Leak Checker</span></span></nav>
+<h1>Source Map Leak Checker</h1>
+<p>
+  Paste your site's URL, or a list of specific JS file URLs. This reads each script's own
+  <code>sourceMappingURL</code> comment, fetches the map it points at, and names which ones are
+  <strong>publicly readable</strong> — and whether the map embeds <strong>full original source
+  text</strong> or only file paths. See
+  <a href="how-source-maps-leak-in-production.html">how source maps leak in production</a> for
+  background. Only run this against a site you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>Run the check</h2>
+  <label for="pageUrl">Page URL (reads its &lt;script src&gt; tags)</label>
+  <input type="text" id="pageUrl" placeholder="https://example.com/" autocomplete="off" spellcheck="false">
+  <label for="scriptUrls">Or paste specific JS file URLs, one per line (skips the page fetch)</label>
+  <textarea id="scriptUrls" placeholder="https://example.com/static/main.abc123.js" spellcheck="false"></textarea>
+  <p>
+    <button type="button" class="primary" id="run">Check this site</button>
+    <button type="button" id="load-example">Load worked example (exposed)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter a page URL or one or more script URLs, then click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Every script checked</h3>
+  <div class="pf-table-scroll"><table id="script-table"><thead><tr><th>Script</th><th>Result</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<div class="card">
+  <h2>Prefer a CLI, or hit a CORS wall in the browser?</h2>
+  <p>
+    Most sites don't send permissive CORS headers on their main HTML document, so a browser tab
+    often <strong>cannot</strong> read a cross-origin page's HTML at all — you'll see a generic
+    network error with no HTTP status. Static JS/CSS assets on many CDNs and static hosts are more
+    often served with permissive CORS, so pasting explicit script URLs above has better odds than a
+    bare page URL. The CLI has no such restriction and is the one path guaranteed to complete:
+  </p>
+  <pre class="cmd"><code>node check.mjs https://example.com/ --json
+node check.mjs --script https://example.com/static/main.js --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/source-map-leak-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
+    exit code 1 if any script's map is exposed, so you can gate a deploy on it.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What is a source map, and why would it be a problem?</h3>
+  <p>A source map is a file (usually named <code>&lt;script&gt;.js.map</code>) that maps a minified, bundled production script back to its original, unminified source files -- so a browser's devtools can show you readable code and real file names while debugging a live site. Most bundlers (webpack, esbuild, Vite, Rollup) can generate one automatically. The problem is that a source map with <code>sourcesContent</code> set doesn't just map locations back to file names -- it embeds the entire original, unminified source text of every file, including comments, internal variable and function names, and anything that was only removed by minification rather than deliberately kept out of the client bundle.</p>
+  <h3>Isn't this exactly what source maps are for -- readable code in devtools?</h3>
+  <p>Yes, for a developer working on their own local build. The exposure is specifically about a production deployment: if the <code>.map</code> file is left publicly reachable on the live site, anyone who opens devtools (or just requests the .map URL directly, whether or not they open devtools) can read it -- not just the site's own developers. Bundler docs generally recommend either omitting the sourceMappingURL comment in production, restricting access to the map file at the server/CDN level, or using a 'hidden' source map mode that uploads the map to an error-tracking service (for real stack traces) without ever referencing it from the shipped script. See <a href="how-source-maps-leak-in-production.html">how source maps leak in production</a> for the common ways this happens and how to fix each one.</p>
+  <h3>What can someone actually learn from an exposed map?</h3>
+  <p>It depends on whether the map carries <code>sourcesContent</code>. Without it, an exposed map still reveals the original file and folder structure of the app -- useful reconnaissance about what framework and internal module layout is in use. With <code>sourcesContent</code> present, it hands over the complete original source: internal comments, business logic, API endpoint paths that were only referenced by variable name in the minified bundle, and occasionally a hardcoded value (a test key, an internal URL) a developer never meant to ship in readable form.</p>
+  <h3>Is it safe to point this at a URL?</h3>
+  <p>This tool sends only ordinary GET requests to the page and script/map URLs you name -- the same requests your own browser already makes when you load the page, and it never writes or submits anything. It does not upload the URL, the scripts, or anything they contain to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you would apply to any request tool aimed at someone else's server.</p>
+  <h3>Does a clean report mean my site is safe?</h3>
+  <p>It means the scripts this run could check either had no source map reference or had one that was not publicly readable at the time of the check. It does not check CSS source maps, inline (non-external) scripts, JS loaded by dynamic import after the initial page load, or anything not reachable from the page or script list you gave it. Treat a clean report as evidence about the scripts this run actually saw, not a full audit of the site. See <a href="vs-checking-devtools-by-hand.html">how this compares to checking devtools by hand</a>.</p>
+</section>
+
+<script type="module">
+  import { checkPage } from './probe.mjs';
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    pageUrl: $('#pageUrl'), scriptUrls: $('#scriptUrls'), status: $('#status'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    scriptTable: $('#script-table tbody'), run: $('#run'),
+  };
+
+  const EXAMPLE_REPORT = buildReport('https://demo-shop.invalid/', [
+    {
+      scriptUrl: 'https://demo-shop.invalid/static/main.a1b2c3.js', hasReference: true,
+      mapUrl: 'https://demo-shop.invalid/static/main.a1b2c3.js.map', mapFetchable: true,
+      sourcesCount: 214, hasSourcesContent: true,
+      sampleSources: ['webpack:///src/checkout/PaymentForm.jsx', 'webpack:///src/api/internalClient.js'],
+      status: 200, error: null,
+    },
+    {
+      scriptUrl: 'https://demo-shop.invalid/static/vendor.d4e5f6.js', hasReference: true,
+      mapUrl: 'https://demo-shop.invalid/static/vendor.d4e5f6.js.map', mapFetchable: false,
+      sourcesCount: 0, hasSourcesContent: false, sampleSources: [], status: 404, error: null,
+    },
+    {
+      scriptUrl: 'https://demo-shop.invalid/static/analytics.js', hasReference: false,
+      mapUrl: null, mapFetchable: false, sourcesCount: 0, hasSourcesContent: false,
+      sampleSources: [], status: null, error: null,
+    },
+  ]);
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function rowFor(c) {
+    if (c.category === 'exposed') {
+      return c.hasSourcesContent
+        ? { label: 'EXPOSED (full source)', detail: `${c.sourcesCount} source file(s) readable in full` }
+        : { label: 'EXPOSED (paths only)', detail: `${c.sourcesCount} path(s) readable, no source text` };
+    }
+    if (c.category === 'blocked') return { label: 'not served (good)', detail: `map referenced but HTTP ${c.status}` };
+    if (c.category === 'clean') return { label: 'clean', detail: 'no sourceMappingURL comment' };
+    return { label: 'error', detail: c.error ?? 'request did not complete' };
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.pageError) {
+      els.verdict.textContent = `Could not read the page: ${report.pageError}`;
+    } else if (report.dangerCount + report.noticeCount > 0) {
+      els.verdict.textContent = `${report.dangerCount + report.noticeCount} of ${report.scriptsChecked} script(s) have a publicly readable source map.`;
+    } else {
+      els.verdict.textContent = `No exposed source map found (${report.scriptsChecked} script(s) checked).`;
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No exposed source maps found.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${escapeHtml(f.severity)})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">map: ${escapeHtml(f.mapUrl)} — ${escapeHtml(f.evidenceStatus)}</p>
+        </div>`).join('');
+
+    els.scriptTable.innerHTML = report.classified.map((c) => {
+      const r = rowFor(c);
+      return `<tr><td>${escapeHtml(c.scriptUrl)}</td><td>${escapeHtml(r.label)}</td><td>${escapeHtml(r.detail)}</td></tr>`;
+    }).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function parseScriptUrls() {
+    return els.scriptUrls.value.split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+
+  async function runLiveCheck() {
+    const pageUrl = els.pageUrl.value.trim();
+    const scriptUrls = parseScriptUrls();
+    if (!pageUrl && scriptUrls.length === 0) {
+      els.status.innerHTML = '<span class="error">Enter a page URL or at least one script URL.</span>';
+      return;
+    }
+    els.status.textContent = 'Checking… this sends real requests to the URL(s) above.';
+    els.run.disabled = true;
+    try {
+      const { scripts, pageError, truncated } = await checkPage(pageUrl || null, { scriptUrls: scriptUrls.length ? scriptUrls : undefined });
+      const report = buildReport(pageUrl || null, scripts, { pageError, truncated });
+      render(report);
+      if (pageError) {
+        els.status.innerHTML = `<span class="error">Could not read the page — ${escapeHtml(pageError)}. This is often a CORS block on the HTML document itself; try pasting specific script URLs instead, or use the CLI.</span>`;
+      } else {
+        els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
+      }
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
+    } finally {
+      els.run.disabled = false;
+    }
+  }
+
+  els.run.addEventListener('click', runLiveCheck);
+
+  $('#load-example').addEventListener('click', () => {
+    render(EXAMPLE_REPORT);
+    els.status.textContent = 'Worked example: one script with a fully exposed map (danger), one whose map reference 404s (blocked, good), one clean.';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.pageUrl.value = '';
+    els.scriptUrls.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter a page URL or one or more script URLs, then click Check.';
+  });
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks only the scripts a run could reach
+  from the page or list you gave it, using one GET request per script and (when referenced) one per
+  map. It never writes, submits, or modifies anything, does not check CSS source maps, inline
+  scripts, or dynamically-imported JS, and cannot see an exposure it never fetched. A clean report
+  describes what this run found, not a guarantee the site has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any site you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Every request goes straight from your browser
+  to the URL(s) you name — never through this site, and never logged or stored by us. The only
+  thing stored is an anonymous local count of which features were used and the day — no page URLs,
+  no script URLs, no source code, no account, no tracking cookies, no analytics vendor. Turn it off
+  with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your stack: <a href="../cors-misconfig-check/">CORS misconfiguration
+  checker</a> and <a href="../security-headers-check/">Security Headers checker</a> cover other
+  response-evidence classes in the same "read what's actually there, name the exact evidence"
+  shape as this tool, and <a href="../docker-build-secrets-check/">Docker build-secrets checker</a>
+  covers a leaked-credential exposure at build time instead of at runtime.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+      <li><a href="../terraform-plan-secret-exposure-check/" data-pf-to="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=source-map-leak-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/?pfEmbed=1&quot; title=&quot;Source Map Leak Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="source-map-leak-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/" data-pf-embed-title="Source Map Leak Checker" data-pf-embed-slug="source-map-leak-check"></script>
+</body>
+</html>

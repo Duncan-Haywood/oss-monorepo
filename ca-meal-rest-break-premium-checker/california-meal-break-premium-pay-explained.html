@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How California Meal and Rest Break Premium Pay Works: A Worked Example</title>
+  <meta name="description" content="How California meal and rest break premium pay works under Labor Code 226.7: when a meal must start, what counts as short or late, rest break counts, waivers…">
+  <meta property="og:title" content="How California Meal and Rest Break Premium Pay Works: A Worked Example">
+  <meta property="og:description" content="Late, short and missed meals, rest break shortfalls and the one-hour premium, worked through on five timecards. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/california-meal-break-premium-pay-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a California meal and rest break premium?", "acceptedAnswer": {"@type": "Answer", "text": "When an employer does not provide a required meal period or rest break, California Labor Code section 226.7 requires it to pay the employee one additional hour of pay at the employee's regular rate of compensation for each workday on which a meal period was not provided, and one more hour for each workday on which a rest break was not provided. That is at most two premium hours per employee per workday."}}, {"@type": "Question", "name": "When must a California meal break start?", "acceptedAnswer": {"@type": "Answer", "text": "A 30-minute uninterrupted meal period must begin before the end of the fifth hour of work, and a second one before the end of the tenth hour. A shift of six hours or less can have the first meal waived by mutual consent, and a shift of twelve hours or less can have the second waived if the first was taken. A meal that starts late, runs short or is interrupted counts as a missed meal period."}}, {"@type": "Question", "name": "How many rest breaks does an employee get in California?", "acceptedAnswer": {"@type": "Answer", "text": "Ten paid minutes for every four hours worked or major fraction of four hours. In practice that is none under three and a half hours, one up to six hours, two over six and up to ten, and three over ten and up to fourteen. The page counts the rest breaks you record and flags a shortfall; if you leave the column blank it only notes what was owed."}}, {"@type": "Question", "name": "How do I audit timecards for meal break violations?", "acceptedAnswer": {"@type": "Answer", "text": "Paste one line per shift with the clock-in, clock-out, meal start and end, the rest breaks taken and the hourly rate. The page flags every late, short or missing meal, every rest break shortfall, and totals the premium pay owed with at most one meal premium and one rest premium per employee per workday."}}, {"@type": "Question", "name": "Is the premium calculated on the base wage or the regular rate?", "acceptedAnswer": {"@type": "Answer", "text": "The statute says regular rate of compensation, which can be higher than the base hourly wage when the employee also earns shift differentials or non-discretionary bonuses. The page uses the rate you type for each line, so enter the regular rate of compensation if it differs from base pay and confirm the figure with your payroll provider."}}, {"@type": "Question", "name": "Is my timecard data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d3f8f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d3d9e6; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d3f8f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #46506a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/california-meal-break-premium-pay-explained.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How California Meal and Rest Break Premium Pay Works: A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ca-meal-rest-break-premium-checker/">California Meal &amp; Rest Break Premium Checker — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How California Meal and Rest Break Premium Pay Works: A Worked Example</span></span></nav>
+  <p><a href="./">&larr; California meal and rest break premium checker</a></p>
+  <h1>How California meal and rest break premium pay works</h1>
+  <p>In California an employer owes more than a wage for a shift. It owes a 30-minute meal period that begins on time and paid ten-minute rest breaks, and when it does not provide them it owes one extra hour of pay per workday for each kind. The premium never shows on a schedule or a timecard summary, which is why it is found in payroll audits and class claims rather than in the week it accrues. The timecards usually already show it.</p>
+  <p><a class="cta" href="./">Open the free checker</a></p>
+  <h2>The rules in one place</h2>
+  <p><strong>First meal.</strong> Required when an employee works more than five hours. It must be at least 30 minutes, and it must begin before the end of the fifth hour of work. A six-hour shift or shorter can waive it by mutual consent.</p>
+  <p><strong>Second meal.</strong> Required after ten hours of work, beginning before the end of the tenth hour. Waivable on a shift of twelve hours or less if the first meal was not waived.</p>
+  <p><strong>Rest breaks.</strong> Ten paid minutes per four hours or major fraction: none under three and a half hours, one up to six, two up to ten, three up to fourteen.</p>
+  <p><strong>Premium.</strong> One hour of pay at the regular rate of compensation, once per workday for meals and once per workday for rest.</p>
+  <h2>Worked example</h2>
+  <p>Five timecards from the checker's example. All employees are invented.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Employee</th><th>What happened</th><th>Premium</th></tr></thead>
+    <tbody>
+      <tr><td>Ana Reyes</td><td>8h 30m shift, meal 12:45-13:10 is 25 minutes (at $20)</td><td>$20.00</td></tr>
+      <tr><td>Ben Okoye</td><td>Meal 13:30-14:00 starts 4h 30m in, 30 minutes, two rests</td><td>$0.00</td></tr>
+      <tr><td>Cy Dahl</td><td>06:00-17:00, one meal, so 10h 30m of work and no second meal; 2 of 3 rest breaks (at $14)</td><td>$28.00</td></tr>
+      <tr><td>Dee Park, Oct 21</td><td>5h 30m with no meal, signed waiver on file</td><td>$0.00</td></tr>
+      <tr><td>Dee Park, Oct 22</td><td>5h 30m with no meal and no waiver (at $16)</td><td>$16.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>Total premium: <strong>$64.00</strong>. Cy Dahl's day costs two hours because meal and rest are separate premiums; Ana's costs one even though the meal was both short and late.</p>
+  <h2>Common questions</h2>
+    <h3>What is a California meal and rest break premium?</h3>
+    <p>When an employer does not provide a required meal period or rest break, California Labor Code section 226.7 requires it to pay the employee one additional hour of pay at the employee's regular rate of compensation for each workday on which a meal period was not provided, and one more hour for each workday on which a rest break was not provided. That is at most two premium hours per employee per workday.</p>
+    <h3>When must a California meal break start?</h3>
+    <p>A 30-minute uninterrupted meal period must begin before the end of the fifth hour of work, and a second one before the end of the tenth hour. A shift of six hours or less can have the first meal waived by mutual consent, and a shift of twelve hours or less can have the second waived if the first was taken. A meal that starts late, runs short or is interrupted counts as a missed meal period.</p>
+    <h3>How many rest breaks does an employee get in California?</h3>
+    <p>Ten paid minutes for every four hours worked or major fraction of four hours. In practice that is none under three and a half hours, one up to six hours, two over six and up to ten, and three over ten and up to fourteen. The page counts the rest breaks you record and flags a shortfall; if you leave the column blank it only notes what was owed.</p>
+    <h3>How do I audit timecards for meal break violations?</h3>
+    <p>Paste one line per shift with the clock-in, clock-out, meal start and end, the rest breaks taken and the hourly rate. The page flags every late, short or missing meal, every rest break shortfall, and totals the premium pay owed with at most one meal premium and one rest premium per employee per workday.</p>
+    <h3>Is the premium calculated on the base wage or the regular rate?</h3>
+    <p>The statute says regular rate of compensation, which can be higher than the base hourly wage when the employee also earns shift differentials or non-discretionary bonuses. The page uses the rate you type for each line, so enter the regular rate of compensation if it differs from base pay and confirm the figure with your payroll provider.</p>
+    <h3>Is my timecard data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device.</p>
+  <h2>Try it on your own timecards</h2>
+  <p><a class="cta" href="./">Open the free checker</a></p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is; this is not legal advice. The numbers summarise public law and may be incomplete or out of date. Verify them against your wage order and with an employment attorney before you rely on them. Not affiliated with any state agency or software company.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../boba-tea-shop-profit-calculator/" data-pf-to="boba-tea-shop-profit-calculator">Boba Tea Shop Profit Calculator — free, private</a></li>
+      <li><a href="../brewery-excise-tax-calculator/" data-pf-to="brewery-excise-tax-calculator">Brewery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../brewery-tank-schedule-optimizer/" data-pf-to="brewery-tank-schedule-optimizer">Brewery tank schedule optimizer</a></li>
+      <li><a href="../cafe-drink-margin-calculator/" data-pf-to="cafe-drink-margin-calculator">Cafe drink margin calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ca-meal-rest-break-premium-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ca-meal-rest-break-premium-checker"></script>
+</body>
+</html>

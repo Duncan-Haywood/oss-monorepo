@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PPF and Ceramic Coating Bid Calculator — Price Per Job and Per Bay Day</title>
+  <meta name="description" content="Free PPF and ceramic coating bid calculator: enter vehicle size, film coverage, roll cost and waste, paint correction, bay days and redo rate…">
+  <meta property="og:title" content="PPF and Ceramic Coating Bid Calculator — free, private">
+  <meta property="og:description" content="Bid paint protection film and ceramic coating from the film, labour and bay days it really costs.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PPF and Ceramic Coating Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free PPF and ceramic coating bid calculator: turn vehicle size, film coverage, waste, correction, bay days and redo risk into a price and profit per bay day."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price paint protection film?", "acceptedAnswer": {"@type": "Answer", "text": "Price the film you buy, not the film you cut: linear feet for the coverage and vehicle, plus waste for offcuts and a ruined panel, times your roll cost per foot. Add installer hours at your labour rate, any paint correction, bay overhead for every day the car occupies the bay, and the expected cost of redos, then divide by one minus your margin."}}, {"@type": "Question", "name": "How much film does a full front PPF install need?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly 24 linear feet of a 60 inch roll on a compact car for hood, fenders, bumper, mirrors and headlights, more on larger vehicles. The tool scales by vehicle size and lets you change the waste percentage. Use your pattern software's real cut figures when you have them."}}, {"@type": "Question", "name": "Why does the bay day matter more than the hours?", "acceptedAnswer": {"@type": "Answer", "text": "A car on a cure day or waiting for film earns nothing while it holds the bay. Profit per bay day shows which package to sell first when the bay is booked solid, and which package looks big on price but is small per day."}}, {"@type": "Question", "name": "Should I charge for paint correction?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Film and coating over uncorrected paint locks the defects in, and a two-step correction can add a day. The tool adds correction hours by stage and vehicle size so the price reflects them."}}, {"@type": "Question", "name": "How do I price ceramic coating on top of PPF?", "acceptedAnswer": {"@type": "Answer", "text": "Add the coating material, its application hours and the cure days the bay is blocked. The package table shows every film coverage with the coating on or off, so you can quote both."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, insurance, shop supplies beyond the consumables you type, film brand warranty terms, headlight and chrome-delete extras, and travel. It is a bidding aid, not a quote."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"PPF and Ceramic Coating Bid Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PPF and Ceramic Coating Bid Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">PPF and Ceramic Coating Bid Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">PPF AND CERAMIC COATING BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge for this PPF and ceramic coating job?</h1>
+    <p>Enter the car, the package and your costs. You get <strong>a price, the film to buy with waste, the bay days the car occupies, and which package earns the most per bay day</strong>. A rate card by vehicle class loses money on big vehicles, on correction-heavy paint and on cure days that block the bay.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The job</h2>
+    <div class="grid">
+      <div><label for="size">Vehicle size</label><select id="size"><option value="compact">Compact</option><option value="sedan" selected>Sedan</option><option value="suv">SUV</option><option value="truck">Truck / large SUV</option></select></div>
+      <div><label for="pkg">Film package</label><select id="pkg"><option value="none">Coating only (no film)</option><option value="partial">Partial front</option><option value="full_front" selected>Full front</option><option value="track">Track pack</option><option value="full_body">Full body</option></select></div>
+      <div><label for="coating">Add ceramic coating</label><select id="coating"><option value="yes" selected>Yes</option><option value="no">No</option></select></div>
+      <div><label for="correction">Paint correction stage (0, 1 or 2)</label><input type="number" id="correction" min="0" max="2" step="1" value="1" inputmode="numeric"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Materials</h2>
+    <div class="grid">
+      <div><label for="filmCostPerFt">Film cost ($ per linear foot of roll)</label><input type="number" id="filmCostPerFt" min="0" step="any" value="24" inputmode="decimal"></div>
+      <div><label for="wastePct">Film waste (%)</label><input type="number" id="wastePct" min="0" step="any" value="15" inputmode="decimal"></div>
+      <div><label for="coatingCost">Coating material ($ per vehicle)</label><input type="number" id="coatingCost" min="0" step="any" value="90" inputmode="decimal"></div>
+      <div><label for="consumables">Tape, solution, pads ($ per job)</label><input type="number" id="consumables" min="0" step="any" value="40" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Time and bay</h2>
+    <div class="grid">
+      <div><label for="coatingHrs">Coating application, compact car (hours)</label><input type="number" id="coatingHrs" min="0" step="any" value="3" inputmode="decimal"></div>
+      <div><label for="laborRate">Labour ($ per tech hour)</label><input type="number" id="laborRate" min="0" step="any" value="35" inputmode="decimal"></div>
+      <div><label for="techs">Techs on the car</label><input type="number" id="techs" min="0" step="any" value="1" inputmode="decimal"></div>
+      <div><label for="hoursPerDay">Productive hours per tech per day</label><input type="number" id="hoursPerDay" min="0" step="any" value="8" inputmode="decimal"></div>
+      <div><label for="cureDays">Cure days with the bay blocked</label><input type="number" id="cureDays" min="0" step="any" value="1" inputmode="decimal"></div>
+      <div><label for="bayOverheadPerDay">Bay overhead ($ per day: rent, power, tools)</label><input type="number" id="bayOverheadPerDay" min="0" step="any" value="120" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Risk and margin</h2>
+    <div class="grid">
+      <div><label for="redoPct">Jobs that need a redo (%)</label><input type="number" id="redoPct" min="0" step="any" value="6" inputmode="decimal"></div>
+      <div><label for="redoCost">Cost of one redo ($)</label><input type="number" id="redoCost" min="0" step="any" value="450" inputmode="decimal"></div>
+      <div><label for="marginPct">Margin wanted (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="40" inputmode="decimal"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="500" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price this job</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the car and your costs, or load the example, then click Price this job.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Every package on this car</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Package</th><th scope="col">Bay days</th><th scope="col">Cost</th><th scope="col">Price</th><th scope="col">Profit per bay day</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>The price as redos change</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Redos</th><th scope="col">Cost</th><th scope="col">Price</th></tr></thead><tbody id="sens"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Film is a linear-foot figure for a compact car (partial front 14, full front 24, track pack 36, full body 70) scaled by vehicle size (1.0, 1.15, 1.35, 1.5), plus your waste percentage, times your roll cost.</li>
+      <li>Install hours scale the same way (8, 14, 22, 40 for a compact car). Correction adds 0, 4 or 9 hours by stage; coating adds the hours you type. Labour is tech hours times your rate.</li>
+      <li>Bay days are tech hours over techs times productive hours, rounded up, plus cure days when a coating is applied. Overhead is bay days times your daily figure. The redo allowance is the redo rate times its cost.</li>
+      <li>Price is cost divided by one minus your margin, never below your minimum charge. The starting hours are rules of thumb: replace them with your own times.</li>
+      <li><strong>Not modelled:</strong> sales tax, insurance, film brand warranty terms, headlight tint, chrome delete and other extras, travel, and the pattern-software cut figures for a specific vehicle.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price paint protection film?</h3>
+    <p>Price the film you buy, not the film you cut: linear feet for the coverage and vehicle, plus waste for offcuts and a ruined panel, times your roll cost per foot. Add installer hours at your labour rate, any paint correction, bay overhead for every day the car occupies the bay, and the expected cost of redos, then divide by one minus your margin.</p>
+    <h3>How much film does a full front PPF install need?</h3>
+    <p>Roughly 24 linear feet of a 60 inch roll on a compact car for hood, fenders, bumper, mirrors and headlights, more on larger vehicles. The tool scales by vehicle size and lets you change the waste percentage. Use your pattern software's real cut figures when you have them.</p>
+    <h3>Why does the bay day matter more than the hours?</h3>
+    <p>A car on a cure day or waiting for film earns nothing while it holds the bay. Profit per bay day shows which package to sell first when the bay is booked solid, and which package looks big on price but is small per day.</p>
+    <h3>Should I charge for paint correction?</h3>
+    <p>Yes. Film and coating over uncorrected paint locks the defects in, and a two-step correction can add a day. The tool adds correction hours by stage and vehicle size so the price reflects them.</p>
+    <h3>How do I price ceramic coating on top of PPF?</h3>
+    <p>Add the coating material, its application hours and the cure days the bay is blocked. The package table shows every film coverage with the coating on or off, so you can quote both.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, insurance, shop supplies beyond the consumables you type, film brand warranty terms, headlight and chrome-delete extras, and travel. It is a bidding aid, not a quote.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written quote, the film maker's installation requirements or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../vehicle-wrap-bid-calculator/">vehicle wrap bid</a>, <a href="../window-tinting-bid-calculator/">window tint bid</a>, <a href="../mobile-detailing-bid-calculator/">mobile detailing bid</a>, <a href="../shop-rate-calculator/">shop rate</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["pkg", "size", "coating", "correction", "filmCostPerFt", "wastePct", "coatingCost", "coatingHrs", "consumables", "laborRate", "techs", "hoursPerDay", "cureDays", "bayOverheadPerDay", "redoPct", "redoCost", "marginPct", "minCharge"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.packages.map((x) => `<tr class="${x.pkg === r.input.pkg ? "drive" : ""}"><th scope="row">${esc(x.label.split(" (")[0])}${x.pkg === r.input.pkg ? " (your input)" : ""}</th><td>${x.bayDays}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.profitPerBayDay)}</td></tr>`).join("");
+      $("#sens").innerHTML = r.redos.map((x) => `<tr><th scope="row">${x.redoPct}%</th><td>${usd(x.cost)}</td><td>${usd(x.price)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Quote ${usd(r.job.price)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("job_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "ppf-ceramic-coating-price.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../car-wash-membership-calculator/" data-pf-to="car-wash-membership-calculator">Car Wash Membership Calculator — free, private, in your browser</a></li>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+      <li><a href="../childcare-enrollment-mix-optimizer/" data-pf-to="childcare-enrollment-mix-optimizer">Childcare enrollment mix optimizer</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ppf-ceramic-coating-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/?pfEmbed=1&quot; title=&quot;PPF and Ceramic Coating Bid Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ppf-ceramic-coating-price-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/" data-pf-embed-title="PPF and Ceramic Coating Bid Calculator — free, private" data-pf-embed-slug="ppf-ceramic-coating-price-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ppf-ceramic-coating-price-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dog Walking Route Pricing vs. a Flat Per-Walk Rate | Worked Comparison</title>
+  <meta name="description" content="You already quote a flat $20-a-walk rate. Here is exactly what that flat number hides: drive time, mileage, and how the same $20 pays a shrinking…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/vs-a-flat-per-walk-rate.html">
+  <meta property="og:title" content="Dog Walking Route Pricing vs. a Flat Per-Walk Rate">
+  <meta property="og:description" content="The flat $20 walk is fine for a website. Here is what it hides once the stop is real: drive time, mileage, and an hourly rate that falls…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat per-walk rate wrong?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not go away. A website, a flyer, or a quick text back to a lead needs one number, and \"$20 a walk\" is a fine headline price. The point of this page is not that the flat rate is wrong — it is that the flat rate is the same number whether the stop is five minutes from your last one or twenty-five, and only one of those two stops actually covers what the visit costs."}},{"@type":"Question","name":"How much does drive time actually cost on a route stop?","acceptedAnswer":{"@type":"Answer","text":"Two things a flat rate shows neither of: the mileage cost of reaching the stop, and the clock minutes it occupies that could otherwise go to another visit. On this calculator's own defaults, a nearby stop (10 drive minutes, 4 round-trip miles) costs $2.68 in mileage alone on top of 40 total billed minutes. Move the same $20 walk to a stop with 25 drive minutes and 12 round-trip miles and the mileage cost alone triples to $8.04, before the extra 15 minutes of driving is even counted."}},{"@type":"Question","name":"Why does the same $20 walk lose money on some stops and not others?","acceptedAnswer":{"@type":"Answer","text":"Because the flat price is fixed but the drive behind it is not. At the nearby stop, this calculator's own break-even cost (labor at $24/hr, mileage, and allocated overhead) is $19.43 — so the flat $20 still clears it, by 57 cents, well under the 15% target margin the calculator is priced to. At the farther stop the same $20 walk faces a break-even cost of $30.79 — the flat rate is now $10.79 short of covering the visit at all, a loss on a route that looked identical from the price sheet."}},{"@type":"Question","name":"Does the calculator replace the flat rate?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The flat rate is what you advertise before you know the route. This calculator is what you run once you know which stops are actually on today's route, to check whether that day's version of \"the $20 walk\" still covers the drive — and, on a stop far enough out, whether it needs a distance surcharge or a decline instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2b1d12; background: #fdf3e7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a3d1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #edd9bb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #8a5a20; }
+    .note { font-size: .9rem; color: #6b563f; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #8a3d1f; color: #fdf3e7; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 32px; font-size: .85rem; color: #6b563f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/vs-a-flat-per-walk-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dog Walking Route Pricing vs. a Flat Per-Walk Rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dog-walking-route-pricing/">Dog Walking &amp; Pet Sitting Rate Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Dog Walking Route Pricing vs. a Flat Per-Walk Rate</span></span></nav>
+  <p><a href="index.html">&larr; Dog walking &amp; pet sitting rate calculator</a></p>
+  <h1>This calculator vs. a flat per-walk rate</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic
+    method every independent walker already has: one flat price &mdash; commonly $20 a walk &mdash;
+    quoted the same regardless of where the stop is.</p>
+
+  <h2>First &mdash; the flat rate is right, and you should have one</h2>
+  <p>A website, a flyer, or a quick text back to a lead needs a number before you know the address.
+    "$20 a walk" is a perfectly fine headline price, and no calculator replaces having one. What
+    follows is not an argument that the flat rate is wrong. It is what that same number stops
+    showing you the moment a stop is real and you know how far it is from the last one.</p>
+
+  <h2>The worked example</h2>
+  <p>Both rows below quote the identical $20 walk from this calculator's own starting numbers: 30
+    on-site minutes, a $24 target hourly rate, $0.67/mile, and $45 of monthly overhead spread across
+    60 visits. The only thing that changes between them is the drive to reach the stop.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Nearby stop &mdash; 10 drive min, 4 mi round trip</th><th>Farther stop &mdash; 25 drive min, 12 mi round trip</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What the flat rate charges</strong></td>
+          <td>$20 &mdash; the walk</td>
+          <td>$20 &mdash; the walk, unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Round-trip mileage cost</strong></td>
+          <td>$2.68 (4 mi &times; $0.67)</td>
+          <td>$8.04 (12 mi &times; $0.67) &mdash; the flat rate never separates this out</td>
+        </tr>
+        <tr>
+          <td><strong>Total minutes the stop occupies</strong></td>
+          <td>40 min (30 on-site + 10 drive)</td>
+          <td>55 min (30 on-site + 25 drive)</td>
+        </tr>
+        <tr>
+          <td><strong>Overhead allocated to this visit</strong></td>
+          <td>$0.75 ($45 &divide; 60 visits)</td>
+          <td>$0.75 ($45 &divide; 60 visits) &mdash; same either way</td>
+        </tr>
+        <tr>
+          <td><strong>Break-even cost for this stop</strong></td>
+          <td>$19.43 &mdash; just under the $20 flat rate</td>
+          <td>$30.79 &mdash; well above the $20 flat rate</td>
+        </tr>
+        <tr>
+          <td><strong>What the $20 flat rate actually nets</strong></td>
+          <td>$0.57 above cost &mdash; a 2.9% margin, far under a 15% target</td>
+          <td>&minus;$10.79 &mdash; a loss on a route stop that looked identical on the price sheet</td>
+        </tr>
+        <tr>
+          <td><strong>This calculator's price at a 15% target margin</strong></td>
+          <td>$22.34</td>
+          <td>$35.41 &mdash; $13.07 more than the nearby stop, for the same walk</td>
+        </tr>
+        <tr>
+          <td><strong>Effective hourly rate the $20 flat rate actually pays</strong></td>
+          <td>$30.00/hr (40 billed minutes)</td>
+          <td>$21.82/hr &mdash; a 27% cut from the nearby stop, at the identical price</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The two places the flat rate goes quiet</h2>
+
+  <h3>1. Drive time and mileage never separate from the walk</h3>
+  <p>A flat rate answers "what do I charge for a walk," not "what does it cost me to reach this
+    stop." Both live inside the same $20 either way. The calculator splits them out &mdash; $2.68 of
+    mileage on the nearby stop, $8.04 on the farther one &mdash; so the drive, the overhead, and the
+    labor are three visible numbers instead of one flat guess that happened to work out.</p>
+
+  <h3>2. The same price can turn from a thin margin into a loss</h3>
+  <p>This is the one that costs real money over a full route. The flat rate charges $20 whether the
+    stop is five minutes off your last one or twenty-five, but the break-even cost is not the same,
+    so a $20 walk that barely clears cost nearby (by 57 cents) becomes a $10.79 loss once the drive
+    grows &mdash; with nothing on the price sheet to say so. A walker filling a day off the flat rate
+    alone can run "the same $20 walk" all afternoon and end the day having lost money on the stops
+    that happened to be spread out.</p>
+
+  <h2>When the flat rate is still the better tool</h2>
+  <p>For advertising, it plainly is. A website or a flyer cannot show a live calculator, and a new
+    lead calling for a price wants one number, not a form. The sensible arrangement is both: quote
+    the flat rate to get the booking, then run this calculator once you know which stops are on
+    today's route, to check whether that day's version of "the $20 walk" still covers the drive
+    &mdash; and, on a stop far enough out, whether it is worth a distance surcharge or a decline
+    instead.</p>
+
+  <p class="note">Every figure on this page is this calculator's own worked example, computed from
+    its own default inputs, not a claim about any real walker's business or an industry benchmark.
+    Your rates, mileage, and overhead will produce different numbers &mdash; the point is which
+    numbers to produce, not what they should come out to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Is a flat per-walk rate wrong?</h3>
+  <p>No, and it should not go away. A website, a flyer, or a quick text back to a lead needs one
+    number, and "$20 a walk" is a fine headline price. The point of this page is not that the flat
+    rate is wrong &mdash; it is that the flat rate is the same number whether the stop is five
+    minutes from your last one or twenty-five, and only one of those two stops actually covers what
+    the visit costs.</p>
+
+  <h3>How much does drive time actually cost on a route stop?</h3>
+  <p>Two things a flat rate shows neither of: the mileage cost of reaching the stop, and the clock
+    minutes it occupies that could otherwise go to another visit. On this calculator's own defaults,
+    a nearby stop (10 drive minutes, 4 round-trip miles) costs $2.68 in mileage alone on top of 40
+    total billed minutes. Move the same $20 walk to a stop with 25 drive minutes and 12 round-trip
+    miles and the mileage cost alone triples to $8.04, before the extra 15 minutes of driving is even
+    counted.</p>
+
+  <h3>Why does the same $20 walk lose money on some stops and not others?</h3>
+  <p>Because the flat price is fixed but the drive behind it is not. At the nearby stop, this
+    calculator's own break-even cost (labor at $24/hr, mileage, and allocated overhead) is $19.43
+    &mdash; so the flat $20 still clears it, by 57 cents, well under the 15% target margin the
+    calculator is priced to. At the farther stop the same $20 walk faces a break-even cost of $30.79
+    &mdash; the flat rate is now $10.79 short of covering the visit at all, a loss on a route that
+    looked identical from the price sheet.</p>
+
+  <h3>Does the calculator replace the flat rate?</h3>
+  <p>No, and it is not trying to. The flat rate is what you advertise before you know the route.
+    This calculator is what you run once you know which stops are actually on today's route, to
+    check whether that day's version of "the $20 walk" still covers the drive &mdash; and, on a stop
+    far enough out, whether it needs a distance surcharge or a decline instead.</p>
+
+  <p>
+    <a class="cta" href="index.html">Price your own visit and route &rarr;</a><br>
+    <a href="how-much-to-charge-for-a-dog-walk.html">How much to charge for a dog walk &rarr;</a>
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../nanny-tax-calculator/" data-pf-to="nanny-tax-calculator">Nanny tax calculator</a></li>
+      <li><a href="../niit-calculator/" data-pf-to="niit-calculator">NIIT calculator</a></li>
+      <li><a href="../notary-trip-quote/" data-pf-to="notary-trip-quote">Mobile Notary &amp; Loan Signing Fee Calculator</a></li>
+      <li><a href="../nua-employer-stock-calculator/" data-pf-to="nua-employer-stock-calculator">NUA or IRA rollover? Work out the tax on your employer stock — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dog-walking-route-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dog-walking-route-pricing"></script>
+</body>
+</html>

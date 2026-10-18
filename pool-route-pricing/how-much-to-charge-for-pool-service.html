@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much to Charge for Monthly Pool Service</title>
+  <meta name="description" content="Drive time between stops is real route cost and most monthly pool prices ignore it. Price a route from service minutes, drive minutes, chemicals, and overhead…">
+  <meta property="og:title" content="How Much to Charge for Monthly Pool Service">
+  <meta property="og:description" content="A route priced per pool hides the drive. Costed per hour on the route, the monthly floor is usually higher than the going rate.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/how-much-to-charge-for-pool-service.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge per month for pool service?","acceptedAnswer":{"@type":"Answer","text":"Work out the route's monthly cost first, then divide. Add up service minutes and drive minutes per visit across every account and every visit in the month to get route hours, cost those hours at your loaded labour rate, add chemicals per visit and overhead per account, and that is what the route costs to run. Divide by your accounts for cost per account, then divide by one minus your target margin to get the monthly price each account has to carry. Pricing per pool without costing the drive is what makes a full route unprofitable."}},{"@type":"Question","name":"Should drive time be included in pool route pricing?","acceptedAnswer":{"@type":"Answer","text":"Yes — it is paid time on the clock and often a third of the route. At 35 minutes of service and 12 minutes of driving per stop, roughly a quarter of every visit is spent getting there, so a price built only from service time under-recovers labour by that much on every account, every visit, all year. Drive time is also the figure that improves when a route tightens geographically, which is why it belongs in the model as its own input rather than buried in an hourly rate."}},{"@type":"Question","name":"Why is my pool route busy but not profitable?","acceptedAnswer":{"@type":"Answer","text":"Usually because the price was set per pool against what competitors charge, while the cost is incurred per hour on the route. Adding an account that is fifteen minutes off the line adds far more cost than one on it, but both get quoted the same monthly rate, so a route can grow, fill the week, and earn less per hour than it did when it was smaller. Costing the whole route and dividing back out shows which accounts are carrying their drive and which are not."}},{"@type":"Question","name":"How do I set a target margin on a service route?","acceptedAnswer":{"@type":"Answer","text":"Treat margin as a share of price, not a markup on cost: divide the cost per account by one minus the margin. At 35 percent, a cost of $171.73 needs a price of $264.21, not $231.84 — marking cost up by 35 percent yields about 26 percent margin, which is the most common arithmetic error in route pricing. Set the margin to cover what the cost lines do not: equipment replacement, callbacks, unpaid admin time, and the accounts that cancel."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #18212b; background: #eef6f4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #125b50; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #125b50; color: #f2fbf8; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #52606d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/how-much-to-charge-for-pool-service.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much to Charge for Monthly Pool Service — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pool-route-pricing/">Pool Service Route Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much to Charge for Monthly Pool Service</span></span></nav>
+  <p><a href="./">← Pool route pricing</a></p>
+  <h1>How much to charge for monthly pool service</h1>
+  <p>Pool service is priced per pool and costed per hour, and that mismatch is why a full route can stay busy without making money. The monthly rate a customer sees covers a visit; what the business actually spends is labour on the route — including every minute spent driving between stops, which no customer is billed for directly and most pricing leaves out entirely.</p>
+  <p><a class="cta" href="./">Open the free pool route pricing calculator</a></p>
+
+  <h2>Price the route, then divide</h2>
+  <ol>
+    <li>Route hours: accounts × visits per month × (service minutes + drive minutes) ÷ 60.</li>
+    <li>Labour: route hours at your loaded hourly rate — the rate that includes payroll burden, not the wage.</li>
+    <li>Chemicals per visit and overhead per account, added on top.</li>
+    <li>Divide the route's total cost by accounts for cost per account, then by (1 − target margin) for the monthly price it has to carry.</li>
+  </ol>
+
+  <h2>Worked example</h2>
+  <p>Forty accounts, four visits a month, 35 minutes of service and 12 minutes of driving per visit is <strong>125.33 route hours</strong> a month. At $28 an hour that is <strong>$3,509.33</strong> of labour; $18 of chemicals per visit adds <strong>$2,880.00</strong> and $12 of overhead per account adds <strong>$480.00</strong>, for a route cost of <strong>$6,869.33</strong> — about $171.73 per account. At a 35% target margin the route needs <strong>$10,568.21</strong> a month, or <strong>$264.21</strong> per account. Two figures are worth sitting with: the drive alone is 32 of those 125 hours, and marking the same cost up by 35% instead would have priced each account at $231.84 and quietly delivered 26% margin.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge per month for pool service?</h3>
+  <p>Work out the route's monthly cost first, then divide. Add up service minutes and drive minutes per visit across every account and every visit in the month to get route hours, cost those hours at your loaded labour rate, add chemicals per visit and overhead per account, and that is what the route costs to run. Divide by your accounts for cost per account, then divide by one minus your target margin to get the monthly price each account has to carry. Pricing per pool without costing the drive is what makes a full route unprofitable.</p>
+  <h3>Should drive time be included in pool route pricing?</h3>
+  <p>Yes — it is paid time on the clock and often a third of the route. At 35 minutes of service and 12 minutes of driving per stop, roughly a quarter of every visit is spent getting there, so a price built only from service time under-recovers labour by that much on every account, every visit, all year. Drive time is also the figure that improves when a route tightens geographically, which is why it belongs in the model as its own input rather than buried in an hourly rate.</p>
+  <h3>Why is my pool route busy but not profitable?</h3>
+  <p>Usually because the price was set per pool against what competitors charge, while the cost is incurred per hour on the route. Adding an account that is fifteen minutes off the line adds far more cost than one on it, but both get quoted the same monthly rate, so a route can grow, fill the week, and earn less per hour than it did when it was smaller. Costing the whole route and dividing back out shows which accounts are carrying their drive and which are not.</p>
+  <h3>How do I set a target margin on a service route?</h3>
+  <p>Treat margin as a share of price, not a markup on cost: divide the cost per account by one minus the margin. At 35 percent, a cost of $171.73 needs a price of $264.21, not $231.84 — marking cost up by 35 percent yields about 26 percent margin, which is the most common arithmetic error in route pricing. Set the margin to cover what the cost lines do not: equipment replacement, callbacks, unpaid admin time, and the accounts that cancel.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. This calculator provides arithmetic observations from figures you enter; everything stays in your browser.</p>
+    <p><a href="./">Use the calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bike-shop-repair-profit-calculator/" data-pf-to="bike-shop-repair-profit-calculator">Bike Shop Repair Profit Calculator — free, private</a></li>
+      <li><a href="../birth-doula-package-pricing-calculator/" data-pf-to="birth-doula-package-pricing-calculator">Birth doula package pricing calculator</a></li>
+      <li><a href="../boat-rental-fleet-profit-calculator/" data-pf-to="boat-rental-fleet-profit-calculator">Boat Rental Fleet Profit Calculator — free, private</a></li>
+      <li><a href="../bonus-take-home-gross-up-calculator/" data-pf-to="bonus-take-home-gross-up-calculator">How much of my bonus do I keep? Free take-home and gross-up calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pool-route-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pool-route-pricing"></script>
+</body>
+</html>

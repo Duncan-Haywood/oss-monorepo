@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caption Quality Checker vs. a Paid Captioning Vendor's QC Pass</title>
+  <meta name="description" content="A managed captioning vendor bundles a human QC pass into the price of the whole job -- it catches transcription accuracy, speaker labels…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/vs-professional-caption-qc-review.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Caption Quality Checker vs. a Paid Captioning Vendor's QC Pass">
+  <meta property="og:description" content="A paid vendor's QC pass is a human catching accuracy and translation problems, bundled into the cost of a managed captioning job.">
+  <meta property="og:url" content="./vs-professional-caption-qc-review.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool instead of paying for a professional captioning QC pass?","acceptedAnswer":{"@type":"Answer","text":"Different jobs, and they are often used together. A paid captioning vendor's QC pass is a human review bundled into the cost of a managed captioning job — checking whether the transcription is accurate, whether speaker labels and sound descriptions are used correctly, and whether a translation reads naturally. This tool checks a narrower, purely mechanical set of properties — reading speed, line length, on-screen duration, overlaps, and timing — instantly and for free, on a file you already have. It does not replace a human accuracy review; it catches the pacing and formatting problems a human reviewer would otherwise have to check by eye."}},{"@type":"Question","name":"What can a paid vendor's QC pass catch that this tool can't?","acceptedAnswer":{"@type":"Answer","text":"Anything that requires understanding meaning rather than measuring timestamps and character counts: whether the transcription is actually correct, whether a speaker change is labelled, whether a sound description is accurate, or whether a translated subtitle reads naturally in the target language. This tool has no model of meaning at all — it only measures mechanically verifiable properties of the cues you give it."}},{"@type":"Question","name":"What can this tool catch that a general QC pass might not guarantee?","acceptedAnswer":{"@type":"Answer","text":"A specific, numeric, repeatable answer to whether every cue meets a stated reading-speed cap, line-length limit, and duration range — the kind of check that is tedious and error-prone for a human to do cue-by-cue by eye, and that a vendor's QC process may or may not check against the same numbers you care about. Because it is deterministic arithmetic, running it twice on the same file always gives the same answer, and you can wire it into your own CI so it runs on every caption file before a human ever sees it."}},{"@type":"Question","name":"Is my caption file uploaded anywhere when I use this tool?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses whatever text you paste in your own browser and never sends it anywhere; the CLI reads a local file directly from your own disk. A managed captioning vendor's QC pass, by contrast, necessarily involves sending your media or caption file to that vendor's platform for a human to review — that upload is a normal and unavoidable part of how a human review works, and it is one difference this free, local tool is specifically built to avoid for the mechanical checks it does run."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Caption Quality Checker vs. a Paid Captioning Vendor's QC Pass — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../caption-quality-check/">Caption Quality Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Caption Quality Checker vs. a Paid Captioning Vendor's QC Pass</span></span></nav>
+  <p><a href="./">&larr; Caption Quality Checker</a></p>
+  <h1>This checker vs. a paid captioning vendor's QC pass</h1>
+  <p>
+    <strong>A managed captioning vendor's QC pass</strong> is a human reviewer bundled into the
+    price of a captioning job: they check whether the transcription is accurate, whether speaker
+    labels and sound descriptions are used correctly, and whether a translated subtitle reads
+    naturally. That review is valuable and this tool does not attempt to replace it &mdash; but it
+    costs money per project, is not instant, and needs your media or caption file uploaded to that
+    vendor's platform.
+  </p>
+  <p>
+    <strong>This tool</strong> checks a narrower, purely mechanical slice of caption quality &mdash;
+    reading speed, line length, lines per cue, on-screen duration, overlapping cues, and timing
+    &mdash; against commonly-used caption style-guide thresholds. It runs instantly, for free, from
+    pasted text in your browser or a local file on the CLI, and nothing you check is ever uploaded
+    anywhere.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Is this caption file's transcription actually accurate?</td>
+        <td>A human review, such as a captioning vendor's QC pass &mdash; this tool has no model of meaning and cannot judge accuracy.</td>
+      </tr>
+      <tr>
+        <td>Does every cue meet a stated reading-speed cap, line-length limit, and duration range?</td>
+        <td>This checker &mdash; a deterministic, repeatable answer in seconds, free.</td>
+      </tr>
+      <tr>
+        <td>Are speaker labels, sound descriptions, or a translation's wording correct?</td>
+        <td>A human reviewer &mdash; outside what mechanical checks can verify.</td>
+      </tr>
+      <tr>
+        <td>I want this run automatically on every caption file before a human ever reviews it.</td>
+        <td>This checker's CLI &mdash; wireable into your own CI, exits non-zero on a danger-severity finding.</td>
+      </tr>
+      <tr>
+        <td>I'd rather not upload my caption file to a third party for a quick pacing check.</td>
+        <td>This checker &mdash; runs entirely in your browser or on your own machine; nothing is uploaded.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither replaces the other. A vendor's QC pass is what catches whether the words are right.
+    This tool is what catches whether the timing and formatting are right &mdash; cheaply, instantly,
+    and as many times as you want, before or instead of paying for a human pass on the mechanical
+    half of the job.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of paying for a professional captioning QC pass?</h3>
+  <p>Different jobs, and they are often used together. A paid captioning vendor's QC pass is a human review bundled into the cost of a managed captioning job &mdash; checking whether the transcription is accurate, whether speaker labels and sound descriptions are used correctly, and whether a translation reads naturally. This tool checks a narrower, purely mechanical set of properties &mdash; reading speed, line length, on-screen duration, overlaps, and timing &mdash; instantly and for free, on a file you already have. It does not replace a human accuracy review; it catches the pacing and formatting problems a human reviewer would otherwise have to check by eye.</p>
+  <h3>What can a paid vendor's QC pass catch that this tool can't?</h3>
+  <p>Anything that requires understanding meaning rather than measuring timestamps and character counts: whether the transcription is actually correct, whether a speaker change is labelled, whether a sound description is accurate, or whether a translated subtitle reads naturally in the target language. This tool has no model of meaning at all &mdash; it only measures mechanically verifiable properties of the cues you give it.</p>
+  <h3>What can this tool catch that a general QC pass might not guarantee?</h3>
+  <p>A specific, numeric, repeatable answer to whether every cue meets a stated reading-speed cap, line-length limit, and duration range &mdash; the kind of check that is tedious and error-prone for a human to do cue-by-cue by eye, and that a vendor's QC process may or may not check against the same numbers you care about. Because it is deterministic arithmetic, running it twice on the same file always gives the same answer, and you can wire it into your own CI so it runs on every caption file before a human ever sees it.</p>
+  <h3>Is my caption file uploaded anywhere when I use this tool?</h3>
+  <p>No. The browser page parses whatever text you paste in your own browser and never sends it anywhere; the CLI reads a local file directly from your own disk. A managed captioning vendor's QC pass, by contrast, necessarily involves sending your media or caption file to that vendor's platform for a human to review &mdash; that upload is a normal and unavoidable part of how a human review works, and it is one difference this free, local tool is specifically built to avoid for the mechanical checks it does run.</p>
+  <p class="note">More: <a href="why-caption-quality-matters.html">why caption quality is a different question from caption presence</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, accessibility-compliance, or broadcast-standards advice, and it does not replace a qualified professional or a human caption review. It reports whether the caption file you provided satisfies specific, mechanically checkable, commonly-used thresholds &mdash; nothing more, and not a certification of WCAG, FCC, or any other standard's compliance. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>This page describes managed captioning vendors and their QC processes in general terms; it is not affiliated with, endorsed by, or sponsored by any specific captioning vendor, and it does not claim to reproduce any vendor's proprietary QC process.</p>
+    <p class="support">Free and open source. If this caught a caption problem before your viewers did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+      <li><a href="../terraform-plan-secret-exposure-check/" data-pf-to="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+      <li><a href="../training-gpu-pricing-calculator/" data-pf-to="training-gpu-pricing-calculator">What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=caption-quality-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="caption-quality-check"></script>
+</body>
+</html>

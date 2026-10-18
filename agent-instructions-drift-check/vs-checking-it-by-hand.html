@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agent Instructions Drift Check vs. checking it by hand</title>
+  <meta name="description" content="Manually clicking every link in AGENTS.md or CLAUDE.md and running every referenced script once catches drift on the day you happen to check -- it does not…">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/vs-checking-it-by-hand.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Agent Instructions Drift Check vs. checking it by hand">
+  <meta property="og:description" content="Clicking every link once catches drift for that one moment. It does not repeat itself the next time an unrelated commit renames a file or a script…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just opening the file and clicking every link myself?","acceptedAnswer":{"@type":"Answer","text":"Nothing, for a short file, checked once. It stops scaling the way these files actually grow: a CLAUDE.md or AGENTS.md that accumulates dozens of file references and npm-script mentions over months means clicking through all of them, correctly, every time anything else in the repo moves -- and nobody re-checks a paragraph they didn't just edit. This tool resolves every reference in the file the same way, every time you run it, in the time it takes to paste the file in."}},{"@type":"Question","name":"I can just run each referenced npm script once to see if it exists -- isn't that enough?","acceptedAnswer":{"@type":"Answer","text":"It confirms the scripts that exist today. It does not get re-run the next time a script gets renamed in an unrelated PR, so the instructions file drifts again as soon as you stop checking -- which is exactly when an agent following it hits the stale name. This tool checks every npm run reference against package.json's scripts map in one pass, so re-checking after any change costs nothing extra."}},{"@type":"Question","name":"Wouldn't a human reviewer just notice a bare pytest in a code review?","acceptedAnswer":{"@type":"Answer","text":"Only if the reviewer already knows the specific footgun exists -- that an isolated tool install (a uv tool install, a pipx install) can put pytest or mypy on PATH pointed at a different interpreter than the repo's own dependencies. Without that context, pytest tests -q and python3 -m pytest tests -q read as interchangeable phrasing, not a real difference, and the one-word gap is easy to skim past even for someone looking. This tool applies the same two rules every time, so it does not depend on the reviewer already knowing the failure mode."}},{"@type":"Question","name":"Is anything I check here uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste and the file names it reads from a folder you pick entirely in your own browser, and never sends any of it anywhere -- exactly like the rest of this tool. The CLI reads only local files, with no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    .lede { font-size: 1.05rem; color: #333c46; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/vs-checking-it-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Agent Instructions Drift Check vs. checking it by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../agent-instructions-drift-check/">Does your AI coding agent's instruction file still match your repo?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Agent Instructions Drift Check vs. checking it by hand</span></span></nav>
+<p class="note"><a href="./">&larr; back to Agent Instructions Drift Check</a></p>
+<h1>This checker vs. checking it by hand</h1>
+<p class="lede">Reading an instructions file and clicking through its links is a normal way to catch drift once, and it works fine for a short file checked right after you edit it. It is a different job from confirming the file is still accurate <em>today</em>, after every commit that touched anything the file names -- most of which nobody thinks to re-check, because they didn't touch the instructions file itself.</p>
+
+<section class="card">
+<h2>Where checking by hand usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common gap by hand</th><th scope="col">What this checker does</th></tr></thead>
+<tbody>
+<tr><td>Confirming every file reference still resolves</td><td>Click through the links you remember are there; a file that grew over months has references nobody has looked at in a while, and a rename elsewhere in the repo doesn't prompt anyone to go back and check them.</td><td>Resolves every markdown link and inline-code path reference against your actual repo in one pass, every time you run it.</td></tr>
+<tr><td>Confirming every npm script reference is still defined</td><td>Run the ones you remember to test; a script renamed in an unrelated refactor a month later silently makes an older reference stale with nothing prompting a re-check.</td><td>Checks every <code>npm run</code>, <code>npm test</code>, and <code>npm start</code> reference against <code>package.json</code>'s scripts map in the same pass.</td></tr>
+<tr><td>Spotting a bare <code>pytest</code> or <code>mypy</code></td><td>Requires already knowing the specific interpreter-mismatch footgun exists; without that context, a bare tool name and a <code>python3 -m</code>-prefixed one read as interchangeable phrasing during a skim.</td><td>Flags a bare <code>pytest</code> or <code>mypy</code> in a fenced code block by rule, every time, regardless of whether the reader already knows why it matters.</td></tr>
+<tr><td>Re-checking after later, unrelated changes</td><td>Nothing prompts a re-check of a paragraph you didn't just edit -- drift accumulates silently between the checks that do happen.</td><td>Costs nothing to re-run; wiring the CLI into CI on every PR makes the re-check automatic rather than something to remember.</td></tr>
+<tr><td>Is anything I check uploaded anywhere?</td><td>N/A</td><td>No. Runs entirely in your browser; the CLI makes no network call.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's wrong with just opening the file and clicking every link myself?</h3>
+<p>Nothing, for a short file, checked once. It stops scaling the way these files actually grow: a CLAUDE.md or AGENTS.md that accumulates dozens of file references and npm-script mentions over months means clicking through all of them, correctly, every time anything else in the repo moves -- and nobody re-checks a paragraph they didn't just edit. This tool resolves every reference in the file the same way, every time you run it, in the time it takes to paste the file in.</p>
+<h3>I can just run each referenced npm script once to see if it exists -- isn't that enough?</h3>
+<p>It confirms the scripts that exist today. It does not get re-run the next time a script gets renamed in an unrelated PR, so the instructions file drifts again as soon as you stop checking -- which is exactly when an agent following it hits the stale name. This tool checks every <code>npm run</code> reference against <code>package.json</code>'s scripts map in one pass, so re-checking after any change costs nothing extra.</p>
+<h3>Wouldn't a human reviewer just notice a bare pytest in a code review?</h3>
+<p>Only if the reviewer already knows the specific footgun exists -- that an isolated tool install (a <code>uv tool install</code>, a <code>pipx</code> install) can put <code>pytest</code> or <code>mypy</code> on <code>PATH</code> pointed at a different interpreter than the repo's own dependencies. Without that context, <code>pytest tests -q</code> and <code>python3 -m pytest tests -q</code> read as interchangeable phrasing, not a real difference, and the one-word gap is easy to skim past even for someone looking. This tool applies the same two rules every time, so it does not depend on the reviewer already knowing the failure mode.</p>
+<h3>Is anything I check here uploaded anywhere?</h3>
+<p>No. The browser page parses the text you paste and the file names it reads from a folder you pick entirely in your own browser, and never sends any of it anywhere -- exactly like the rest of this tool. The CLI reads only local files, with no network call, ever.</p>
+</section>
+
+<div class="card">
+  <h2>Try it</h2>
+  <pre class="cmd"><code>node cli.mjs check AGENTS.md
+node cli.mjs check CLAUDE.md --package package.json</code></pre>
+  <p class="note">Exits 1 if anything is found, so it works as a CI gate on the same PR that renames a file or a script. See <a href="why-ai-agent-instruction-files-rot.html">why these files rot, and this checker's own named limits</a>.</p>
+</div>
+
+<footer>
+<p><strong>No warranty.</strong> This tool reports whether a referenced path, script, or known shell pattern matches what it was told about your repo -- nothing more, and a clean result is not a guarantee that your instructions are correct or complete. It is not legal, security, or engineering advice, and it does not replace a qualified professional or a careful read of your own instruction file. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; the text you paste and the file names read from a chosen folder are never uploaded anywhere. The CLI makes no network call either.</p>
+<p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=agent-instructions-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="agent-instructions-drift-check"></script>
+</body>
+</html>

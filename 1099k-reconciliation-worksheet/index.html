@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers</title>
+  <meta name="description" content="Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot…">
+  <meta property="og:title" content="1099-K Reconciliation Worksheet — free, no sign-up">
+  <meta property="og:description" content="Why is your 1099-K higher than what you actually made? Reconcile each platform's Box 1a down to an estimated net profit, across every marketplace at once.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"1099-K Reconciliation Worksheet","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reconciles one or more Form 1099-K Box 1a gross-payment totals down to an estimated net taxable profit, by backing out refunds, marketplace-remitted sales tax, platform fees, cost of goods sold, and shipping paid, per platform and combined across every marketplace a seller uses. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my 1099-K higher than what I actually made?","acceptedAnswer":{"@type":"Answer","text":"Form 1099-K Box 1a reports the gross amount of payment-card and third-party network transactions before any adjustment for refunds, fees, discounts, or credits — that is how the IRS's own instructions for the form define it. Many marketplaces also collect and remit sales tax on your behalf as a \"marketplace facilitator,\" and that tax often passes through the same payout and lands in Box 1a too, even though it was never your money. None of that is your taxable income; this worksheet backs it out."}},{"@type":"Question","name":"Do I have to report the full Box 1a amount as income?","acceptedAnswer":{"@type":"Answer","text":"No — Box 1a is a gross reporting figure, not a determination of your taxable income. What you actually owe tax on is your net profit: gross receipts (after backing out amounts that were never yours, like refunds and marketplace-remitted sales tax) minus your costs, such as cost of goods sold, platform fees, and shipping you paid. This worksheet estimates that net figure; your own records and your tax preparer confirm it."}},{"@type":"Question","name":"I sell on more than one platform and got more than one 1099-K — do I add them together?","acceptedAnswer":{"@type":"Answer","text":"Generally your total gross receipts across all platforms and payment methods count toward your business income, whether or not each individual platform issued a 1099-K. This worksheet lets you enter every platform's 1099-K as its own row and totals the reconciled result across all of them, so you have one combined figure instead of several separate ones."}},{"@type":"Question","name":"Is this worksheet tax advice or a substitute for filing?","acceptedAnswer":{"@type":"Answer","text":"No. It performs arithmetic on the numbers you enter — it does not know your other income, does not determine your actual tax liability, and does not file anything with the IRS or any platform. Verify every figure against the platform's own 1099-K and payout statements, and treat the result as a worksheet for your own records or your tax preparer, not a conclusion."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f1f4; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #3a2a6b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3a2a6b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514f5c; }
+    .card { background: #fff; border: 1px solid #ddd8e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3a2a6b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .92rem; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c3bdd1; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .row-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: end; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a2a6b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e7e3f0; color: #3a2a6b; }
+    button.danger { background: #fff; color: #9a3412; border: 1px solid #9a3412; padding: 6px 10px; font-size: .85rem; margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eeecf3; }
+    th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #514f5c; }
+    tfoot td { font-weight: 800; border-top: 2px solid #ddd8e6; border-bottom: none; }
+    .amount { font-weight: 700; }
+    .loss { color: #9a3412; }
+    .finding { border-bottom: 1px solid #eeecf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .96rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e7e3f0; color: #3a2a6b; }
+    .stats { font-size: .94rem; color: #333; }
+    .empty { color: #514f5c; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8e6; padding-top: 16px; }
+    @media (max-width: 700px) { table { font-size: .82rem; } th:nth-child(n+5), td:nth-child(n+5) { display: none; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"1099-K Reconciliation Worksheet — free, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="1099-K Reconciliation Worksheet — free, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">1099-K Reconciliation Worksheet — free, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">1099-K RECONCILIATION WORKSHEET · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why is your 1099-K higher than what you actually made?</h1>
+    <p>Add one row per Form 1099-K you received this year — Etsy, eBay,
+    Poshmark, Mercari, Depop, Whatnot, StockX, or any other marketplace or
+    payment app — with the Box 1a amount it reports, then back out refunds,
+    the sales tax the marketplace collected and remitted for you, and your
+    own costs. See a reconciled estimate per platform and combined across all
+    of them.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer. See <a href="why-is-my-1099-k-higher-than-what-i-actually-made.html">why
+    the gap exists</a> for the two-minute explanation of what Box 1a legally
+    represents, or <a href="vs-spreadsheet-comparison.html">how this compares
+    to reconciling it yourself in a spreadsheet</a>.</p>
+    <p class="note">Still owe quarterly estimated tax on this income as the
+    year goes? The <a href="../quarterly-estimated-tax-calendar/">quarterly
+    estimated tax calendar</a> is the other end of the same tax year — that
+    page sets aside payments as you go, this one reconciles what the
+    marketplace actually reported once the year is over.</p>
+    <p class="note">Paying someone else on 1099-K income instead — a
+    contractor, freelancer, or vendor of your own? The
+    <a href="../1099-vendor-tracker/">1099-NEC vendor tracker</a> flags which
+    of them cross the 2026 $2,000 reporting threshold and whose W-9 is still
+    missing — nothing uploaded there either.</p>
+    <p class="note">Not sure a 1099-K is coming at all this year? The
+    <a href="../1099-k-threshold-checker/">1099-K threshold checker</a>
+    estimates whether a platform is likely to issue one, per platform and
+    per tax year, against the federal threshold's four changes since 2022
+    plus four states' own stricter rule — this page is for the form once
+    you already have it.</p>
+  </header>
+
+  <section class="card">
+    <h2>Add a platform's 1099-K</h2>
+    <form id="row-form">
+      <div class="row-form">
+        <div><label for="f-platform">Platform</label><input id="f-platform" name="platform" placeholder="e.g. Etsy" required></div>
+        <div><label for="f-box1a">Box 1a — gross amount ($)</label><input id="f-box1a" name="box1a" type="number" min="0" step="0.01" placeholder="from the 1099-K" required inputmode="decimal"></div>
+        <div><label for="f-refunds">Refunds/returns you issued ($)</label><input id="f-refunds" name="refunds" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+        <div><label for="f-salesTax">Marketplace-remitted sales tax included ($)</label><input id="f-salesTax" name="salesTax" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+        <div><label for="f-fees">Platform/payment fees ($)</label><input id="f-fees" name="fees" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+        <div><label for="f-cogs">Cost of goods sold ($)</label><input id="f-cogs" name="cogs" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+        <div><label for="f-shipping">Shipping you paid ($)</label><input id="f-shipping" name="shipping" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="submit">Add platform</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear all</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Reconciled worksheet</h2>
+    <p class="note" id="restore-note" hidden></p>
+    <p class="stats" id="stats"></p>
+    <p class="empty" id="empty">No platforms added yet — add one above, or load the example.</p>
+    <div style="overflow:auto">
+    <div class="pf-table-scroll"><table id="results-table" hidden>
+      <thead><tr><th>Platform</th><th>Box 1a</th><th>Non-income adj.</th><th>Adjusted receipts</th><th>Costs</th><th>Est. net profit</th><th></th></tr></thead>
+      <tbody id="results-body"></tbody>
+      <tfoot id="results-foot"></tfoot>
+    </table></div>
+    </div>
+    <p><button type="button" class="secondary" id="export-csv">Export CSV</button> <button type="button" class="secondary" id="copy-link">Copy share link</button> <span id="share-status" class="note" role="status" aria-live="polite"></span></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>Box 1a of each 1099-K is a <strong>gross</strong> figure — before
+    refunds, fees, discounts, or any sales tax the marketplace itself
+    collected and remitted for you are backed out, per the IRS's own General
+    Instructions for Forms 1099-K. This worksheet backs those out, then
+    subtracts the costs you enter (fees, cost of goods sold, shipping) to
+    estimate net profit. It does <strong>not</strong> know about your
+    1099-NEC, W-2, or other income, does <strong>not</strong> determine your
+    actual tax liability, and does <strong>not</strong> file anything.
+    Verify every figure against the platform's own 1099-K and payout
+    statements before relying on it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is my 1099-K higher than what I actually made?</h3>
+    <p>Form 1099-K Box 1a reports the gross amount of payment-card and third-party network transactions before any adjustment for refunds, fees, discounts, or credits — that is how the IRS's own instructions for the form define it. Many marketplaces also collect and remit sales tax on your behalf as a "marketplace facilitator," and that tax often passes through the same payout and lands in Box 1a too, even though it was never your money. None of that is your taxable income; this worksheet backs it out.</p>
+    <h3>Do I have to report the full Box 1a amount as income?</h3>
+    <p>No — Box 1a is a gross reporting figure, not a determination of your taxable income. What you actually owe tax on is your net profit: gross receipts (after backing out amounts that were never yours, like refunds and marketplace-remitted sales tax) minus your costs, such as cost of goods sold, platform fees, and shipping you paid. This worksheet estimates that net figure; your own records and your tax preparer confirm it.</p>
+    <h3>I sell on more than one platform and got more than one 1099-K — do I add them together?</h3>
+    <p>Generally your total gross receipts across all platforms and payment methods count toward your business income, whether or not each individual platform issued a 1099-K. This worksheet lets you enter every platform's 1099-K as its own row and totals the reconciled result across all of them, so you have one combined figure instead of several separate ones.</p>
+    <h3>Is this worksheet tax advice or a substitute for filing?</h3>
+    <p>No. It performs arithmetic on the numbers you enter — it does not know your other income, does not determine your actual tax liability, and does not file anything with the IRS or any platform. Verify every figure against the platform's own 1099-K and payout statements, and treat the result as a worksheet for your own records or your tax preparer, not a conclusion.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting your actual filing obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. &ldquo;Copy share link&rdquo; encodes your rows into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it. Anonymous feature events (<code>row_added</code>, <code>row_removed</code>, <code>csv_exported</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Self-employed and paying quarterly on this income too? The <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> estimates the Section 199A deduction on it.</p>
+    <p>Computing after-tax 401(k) headroom instead of reconciling a 1099-K? See the <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { reconcileAll, toCsv, sampleRows } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeRows, decodeRows } from "./share.mjs";
+
+    const STORAGE_KEY = "1099k-reconciliation-worksheet-rows";
+    const $ = (sel) => document.querySelector(sel);
+    const form = $("#row-form");
+    const empty = $("#empty");
+    const table = $("#results-table");
+    const stats = $("#stats");
+    const body = $("#results-body");
+    const foot = $("#results-foot");
+    const findingsEl = $("#findings");
+    const restoreNote = $("#restore-note");
+    const shareStatus = $("#share-status");
+
+    function loadRows() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    function saveRows(rows) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+      } catch {
+        /* storage is optional */
+      }
+    }
+
+    // A shared link wins over whatever this browser already has saved -- the
+    // recipient of a link is opening someone else's worksheet, not resuming
+    // their own, and a link that quietly deferred to local storage would
+    // show the wrong figures with no indication anything was ignored.
+    const linkedRows = decodeRows(location.hash);
+    let rows = linkedRows.length > 0 ? linkedRows : loadRows();
+    if (linkedRows.length > 0) {
+      saveRows(rows);
+      restoreNote.hidden = false;
+      restoreNote.textContent = "Opened from a shared link — these are the sender's figures, replacing anything saved in this browser.";
+    }
+    let lastResult = null;
+
+    function money(n) {
+      const sign = n < 0 ? "-" : "";
+      return `${sign}$${Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function render() {
+      const result = reconcileAll(rows);
+      lastResult = result;
+
+      const has = result.rows.length > 0;
+      table.hidden = !has;
+      empty.hidden = has;
+
+      stats.textContent = has
+        ? `${result.rows.length} platform${result.rows.length === 1 ? "" : "s"} · combined Box 1a ${money(result.totals.box1a)} · estimated combined net profit ${money(result.totals.estimatedNetProfit)}`
+        : "";
+
+      body.innerHTML = result.rows.map((r, i) => `
+        <tr>
+          <td>${escapeHtml(r.platform)}</td>
+          <td>${money(r.box1a)}</td>
+          <td>${money(r.nonIncomeAdjustments)}</td>
+          <td>${money(r.adjustedGrossReceipts)}</td>
+          <td>${money(r.totalExpenses)}</td>
+          <td class="amount ${r.estimatedNetProfit < 0 ? "loss" : ""}">${money(r.estimatedNetProfit)}</td>
+          <td><button type="button" class="danger" data-remove="${i}">Remove</button></td>
+        </tr>`).join("");
+
+      foot.innerHTML = result.rows.length > 1 ? `
+        <tr>
+          <td>Total</td>
+          <td>${money(result.totals.box1a)}</td>
+          <td>${money(result.totals.nonIncomeAdjustments)}</td>
+          <td>${money(result.totals.adjustedGrossReceipts)}</td>
+          <td>${money(result.totals.totalExpenses)}</td>
+          <td class="amount ${result.totals.estimatedNetProfit < 0 ? "loss" : ""}">${money(result.totals.estimatedNetProfit)}</td>
+          <td></td>
+        </tr>` : "";
+
+      findingsEl.innerHTML = result.findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${escapeHtml(f.title)}</h4>
+          <p>${escapeHtml(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      rows.push(data);
+      saveRows(rows);
+      form.reset();
+      render();
+      record("row_added");
+    });
+
+    body.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove]");
+      if (!button) return;
+      rows.splice(Number(button.dataset.remove), 1);
+      saveRows(rows);
+      render();
+      record("row_removed");
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      if (rows.length) {
+        if (!confirm("This replaces the platforms you've already entered with the worked example. Continue?")) return;
+      }
+      rows = sampleRows();
+      saveRows(rows);
+      render();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      rows = [];
+      saveRows(rows);
+      render();
+    });
+
+    $("#export-csv").addEventListener("click", () => {
+      const csv = toCsv(lastResult ?? reconcileAll(rows));
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "1099k-reconciliation-worksheet.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      record("csv_exported");
+    });
+
+    async function copyShareLink() {
+      const fragment = encodeRows(rows);
+      const url = `${location.origin}${location.pathname}${fragment ? `#${fragment}` : ""}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = url;
+        fallback.setAttribute("readonly", "");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand("copy");
+        fallback.remove();
+      }
+      shareStatus.textContent = fragment
+        ? "Link copied — it reopens with every platform row included."
+        : "Nothing entered yet — the link would open blank.";
+      setTimeout(() => { shareStatus.textContent = ""; }, 3000);
+      record("link_copied");
+    }
+
+    $("#copy-link").addEventListener("click", () => {
+      copyShareLink().catch(() => { shareStatus.textContent = "Copy failed; copy the address bar instead."; });
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    render();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../amazon-seller-profit-analyzer/" data-pf-to="amazon-seller-profit-analyzer">Amazon Seller Profit Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../amazon-settlement-to-journal/" data-pf-to="amazon-settlement-to-journal">Amazon settlement report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../app-review-insights/" data-pf-to="app-review-insights">App Review Insights — free, private, CSV in your browser</a></li>
+      <li><a href="../app-subscription-proceeds-calculator/" data-pf-to="app-subscription-proceeds-calculator">What does an app subscriber really leave you after store fees?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099k-reconciliation-worksheet">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/?pfEmbed=1&quot; title=&quot;1099-K Reconciliation Worksheet — free, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="1099k-reconciliation-worksheet"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/" data-pf-embed-title="1099-K Reconciliation Worksheet — free, no sign-up" data-pf-embed-slug="1099k-reconciliation-worksheet"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="1099k-reconciliation-worksheet" data-pf-jobs-amount=""></script>
+</body>
+</html>

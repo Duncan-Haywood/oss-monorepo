@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>gp2 vs gp3: EBS Volume Cost and How to Migrate</title>
+  <meta name="description" content="What each EBS volume type costs, why gp3 is cheaper than gp2 for almost every volume, when io1 and io2 provisioned IOPS are wasted…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebs-volume-cost-advisor/gp2-vs-gp3-ebs-cost-and-how-to-migrate.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is gp3 cheaper than gp2?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for nearly every volume: gp3 costs $0.08 per GB-month against $0.10 for gp2 and includes 3,000 IOPS and 125 MiB/s, which gp2 only reaches at 1,000 GB. Extra gp3 IOPS cost $0.005 per IOPS-month and extra throughput $0.04 per MiB/s-month."}}, {"@type": "Question", "name": "Can I switch gp2 to gp3 without downtime?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Elastic Volumes changes type, IOPS and throughput on an attached volume. Run aws ec2 modify-volume --volume-id vol-xxxx --volume-type gp3 --iops 3000 --throughput 125; the volume is usable while it optimizes, and you can modify a volume roughly once every six hours."}}, {"@type": "Question", "name": "Why is my io1 volume so expensive?", "acceptedAnswer": {"@type": "Answer", "text": "io1 and io2 charge $0.065 per provisioned IOPS-month on top of $0.125 per GB. A volume provisioned at 20,000 IOPS but peaking at 6,000 pays for 14,000 IOPS it never uses. If the peak fits gp3's 16,000 IOPS and 1,000 MiB/s ceiling, gp3 costs a small fraction of that."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebs-volume-cost-advisor/gp2-vs-gp3-ebs-cost-and-how-to-migrate.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="gp2 vs gp3: EBS Volume Cost and How to Migrate">
+<meta property="og:description" content="What each EBS volume type costs, why gp3 is cheaper than gp2 for almost every volume, when io1 and io2 provisioned IOPS are wasted…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebs-volume-cost-advisor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="gp2 vs gp3: EBS Volume Cost and How to Migrate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebs-volume-cost-advisor/">Are your EBS volumes the wrong type?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">gp2 vs gp3: EBS Volume Cost and How to Migrate</span></span></nav>
+  <p class="note"><a href="./">EBS Volume Cost Advisor</a> · guide</p>
+  <h1>gp2 vs gp3: EBS volume cost and how to migrate</h1>
+  <p>Short answer: for almost every general-purpose volume, <strong>gp3 is 20% cheaper than gp2</strong> and faster by default, and you can switch live. The savings that matter most are elsewhere: provisioned-IOPS volumes billing for IOPS they never use, and volumes nobody has attached for months.</p>
+
+  <h2>What each type costs (us-east-1 list prices, illustrative)</h2>
+  <ul>
+    <li><strong>gp2:</strong> $0.10 per GB-month. Performance is tied to size: 3 IOPS per GB (100 minimum, 16,000 maximum), bursting to 3,000 IOPS below 1,000 GB until burst credits run out.</li>
+    <li><strong>gp3:</strong> $0.08 per GB-month with 3,000 IOPS and 125 MiB/s included; $0.005 per extra IOPS-month (up to 16,000) and $0.04 per extra MiB/s-month (up to 1,000).</li>
+    <li><strong>io1 / io2:</strong> $0.125 per GB-month plus $0.065 per provisioned IOPS-month. io2 is the same price as io1 with higher durability.</li>
+    <li><strong>st1 / sc1:</strong> $0.045 / $0.015 per GB-month, throughput-optimised HDD, capped at 500 / 250 IOPS.</li>
+  </ul>
+
+  <h2>Where the money is</h2>
+  <ul>
+    <li><strong>gp2 to gp3:</strong> $0.02 per GB-month on every volume. A fleet of 50 TB of gp2 is about $1,000 a month.</li>
+    <li><strong>io1 to gp3:</strong> a 1,000 GB io1 at 20,000 IOPS costs $1,425 a month; if the observed peak is 6,000 IOPS, gp3 at 7,200 IOPS costs about $103.</li>
+    <li><strong>Over-provisioned gp3:</strong> volumes set to 6,000 IOPS and 250 MiB/s that peak at 800 IOPS pay $20 a month each for nothing.</li>
+    <li><strong>Unattached volumes:</strong> a volume in the <code>available</code> state bills the full price for no work.</li>
+  </ul>
+
+  <h2>Measure and migrate</h2>
+  <ol>
+    <li>List volumes: <code>aws ec2 describe-volumes --query 'Volumes[].[VolumeId,VolumeType,Size,Iops,Throughput,State]' --output text</code>.</li>
+    <li>For each, take the busiest week's peak of <code>VolumeReadOps + VolumeWriteOps</code> divided by the period in seconds (use a 1 or 5 minute period), and of <code>VolumeReadBytes + VolumeWriteBytes</code> in MiB/s.</li>
+    <li>Paste rows into the <a href="./">advisor</a>, or run <code>node cli.mjs analyze volumes.csv</code>. It prints a <code>modify-volume</code> command per volume.</li>
+    <li>Change one non-critical volume first; the type change is live but the volume spends time in the optimizing state.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>Is gp3 cheaper than gp2?</h3>
+  <p>Yes for nearly every volume: gp3 costs $0.08 per GB-month against $0.10 for gp2 and includes 3,000 IOPS and 125 MiB/s, which gp2 only reaches at 1,000 GB. Extra gp3 IOPS cost $0.005 per IOPS-month and extra throughput $0.04 per MiB/s-month.</p>
+  <h3>Can I switch gp2 to gp3 without downtime?</h3>
+  <p>Yes. Elastic Volumes changes type, IOPS and throughput on an attached volume. Run aws ec2 modify-volume --volume-id vol-xxxx --volume-type gp3 --iops 3000 --throughput 125; the volume is usable while it optimizes, and you can modify a volume roughly once every six hours.</p>
+  <h3>Why is my io1 volume so expensive?</h3>
+  <p>io1 and io2 charge $0.065 per provisioned IOPS-month on top of $0.125 per GB. A volume provisioned at 20,000 IOPS but peaking at 6,000 pays for 14,000 IOPS it never uses. If the peak fits gp3's 16,000 IOPS and 1,000 MiB/s ceiling, gp3 costs a small fraction of that.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../subpath-robots-check/" data-pf-to="subpath-robots-check">Your GitHub Pages sitemap is probably never read</a></li>
+      <li><a href="../supabase-bill-estimator/" data-pf-to="supabase-bill-estimator">What will your Supabase bill be, and what cuts it most?</a></li>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebs-volume-cost-advisor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebs-volume-cost-advisor"></script>
+</body>
+</html>

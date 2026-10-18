@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Usage Log Analyzer — where your Claude and GPT API spend goes</title>
+  <meta name="description" content="Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching…">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/">
+  <meta property="og:title" content="LLM Usage Log Analyzer">
+  <meta property="og:description" content="Find where your LLM API bill goes from your own usage log. Private, in-browser, bring your own rates.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "LLM Usage Log Analyzer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A private browser tool that reads an LLM API usage log (JSONL, JSON or CSV), prices it at the rates you enter, and shows spend by model, feature and day, cache hit rate, run rate and the levers that would have saved money.", "featureList": "Anthropic and OpenAI usage formats; spend by model, label and day; cache read share; 30-day run rate; cache, batch and model-switch what-ifs; runaway-context outliers; copyable summary, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do I get a usage log to paste in?", "acceptedAnswer": {"@type": "Answer", "text": "Anything with one record per API call that carries the model name and the usage object the API returned. That can be your own request logging (one JSON object per line), a proxy or gateway export, or a CSV with columns such as model, input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens, created_at and an optional label. Anthropic-style and OpenAI-style usage objects are both understood."}}, {"@type": "Question", "name": "Does my log leave my browser?", "acceptedAnswer": {"@type": "Answer", "text": "No. Parsing and every calculation run in your browser; there is no server call. An optional anonymous local counter records which buttons get used, never the log or the rates, and it can be turned off."}}, {"@type": "Question", "name": "Why do I have to type the rates?", "acceptedAnswer": {"@type": "Answer", "text": "Because a wrong price is worse than no price, and API pricing changes often. This page multiplies the tokens your log reports by the rates you paste in from each provider's own pricing page. It never fetches or asserts a vendor price."}}, {"@type": "Question", "name": "How does it treat cached tokens?", "acceptedAnswer": {"@type": "Answer", "text": "It follows each API's own accounting. In an Anthropic-style usage object, input_tokens excludes cache reads and cache writes, which are separate buckets. In an OpenAI-style usage object, prompt_tokens includes the cached tokens, so the fresh part is the difference. Mixing these up double-counts cached tokens, which is the most common mistake in hand-built cost spreadsheets."}}, {"@type": "Question", "name": "How trustworthy are the savings estimates?", "acceptedAnswer": {"@type": "Answer", "text": "They are upper bounds under stated assumptions, not forecasts. The cache estimate assumes your repeated prefix is long and stable enough to cache and ignores cache-write cost. The model-switch estimate reprices the same tokens and says nothing about whether the cheaper model is good enough for the task. Test any change on real traffic before relying on the number."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#4a586d;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}
+    p{color:var(--muted)}.lede{max-width:720px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    input,textarea,select{display:block;width:100%;padding:9px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px;background:#fff}
+    textarea{min-height:160px;font-family:ui-monospace,monospace;font-size:.82rem}
+    input:focus,button:focus,textarea:focus,select:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:#1f4fc0;color:#fff;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin:8px 8px 0 0}
+    button.secondary{background:#fff;color:#1f4f8a;border:1px solid #b9c5d7}
+    table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px}
+    th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+    td input{margin:0;padding:6px}
+    .small{font-size:.85rem}.notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900}
+    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.kpi div{background:#f4f7ff;border-radius:8px;padding:12px}
+    .kpi strong{display:block;font-size:1.4rem;color:var(--ink)}
+    .finding{border-left:4px solid #127a4a;background:#eefdf3;padding:10px 13px;margin:10px 0;border-radius:0 8px 8px 0}
+    .finding h3{margin:0 0 4px;font-size:1rem}.finding p{margin:0;color:#33413b}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline;margin:0}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}.err{color:#8a1c1c;font-weight:600}
+    @media(max-width:800px){.grid,.kpi{grid-template-columns:1fr}}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"LLM Usage Log Analyzer","item":"https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="LLM Usage Log Analyzer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">LLM Usage Log Analyzer</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<main>
+  <h1>LLM Usage Log Analyzer</h1>
+  <p class="lede">Paste the usage log your app already produces -- one record per API call -- and see where the money went: spend by model, feature and day, your real cache hit rate, a 30-day run rate, and which levers would have saved something.</p>
+  <p class="notice"><strong>Bring your own rates.</strong> This tool does not fetch or assert any provider's price. Copy the per-million-token rates from each provider's own pricing page into the table below. Your log and rates are processed in this browser and are never uploaded.</p>
+  <p class="small">Sizing a workload you have not run yet? Use the <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a>. Comparing a flat-rate coding plan against the API? See the <a href="../ai-coding-plan-cost-calculator/">AI Coding Plan vs. API Cost Calculator</a>.</p>
+
+  <section class="panel">
+    <h2>1. Your usage log</h2>
+    <p class="small">JSONL (one JSON object per line), a JSON array, or CSV with a header. Each record needs a model name and token counts. Understood: Anthropic-style <code>usage</code> (<code>input_tokens</code>, <code>cache_read_input_tokens</code>, <code>cache_creation_input_tokens</code>, <code>output_tokens</code>), OpenAI-style (<code>prompt_tokens</code>, <code>completion_tokens</code>, <code>prompt_tokens_details.cached_tokens</code>), and flat CSV columns of the same names. Optional: <code>created_at</code> or <code>timestamp</code>, and <code>label</code> or <code>feature</code> to group by feature.</p>
+    <label for="log">Paste log</label>
+    <textarea id="log" spellcheck="false" placeholder='{"model":"your-model","created_at":"2026-09-01T10:00:00Z","label":"chat","usage":{"input_tokens":1200,"cache_read_input_tokens":8000,"output_tokens":300}}'></textarea>
+    <label for="file">...or load a file from this device</label>
+    <input id="file" type="file" accept=".jsonl,.json,.csv,.txt,.log">
+    <button id="sample" type="button" class="secondary">Fill with sample data</button>
+    <p id="parseOut" class="small" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel">
+    <h2>2. Rates ($ per million tokens)</h2>
+    <p class="small">One row per model found in the log. A rate row matches any model id that starts with the name, so <code>my-model</code> covers <code>my-model-20260101</code>. Leave cached-input and cache-write blank to bill them at the input rate. Models without a rate are listed but not priced.</p>
+    <div class="pf-table-scroll"><table id="rates"><thead><tr><th>Model</th><th>Input</th><th>Cached input</th><th>Cache write</th><th>Output</th></tr></thead><tbody></tbody></table></div>
+    <div class="grid">
+      <label>Target cache-read share of input (%)<input id="cacheTarget" type="number" min="1" max="99" value="70" inputmode="decimal"></label>
+      <label>Share of traffic that could be batched (%)<input id="batchShare" type="number" min="0" max="100" value="0" inputmode="decimal"></label>
+      <label>Batch discount you would get (%)<input id="batchDiscount" type="number" min="0" max="100" value="50" inputmode="decimal"></label>
+    </div>
+    <button id="run" type="button">Analyze</button>
+  </section>
+
+  <section class="panel" aria-labelledby="res">
+    <h2 id="res">Results</h2>
+    <div id="results" role="status" aria-live="polite"><p class="small">Paste a log and enter rates, then press Analyze.</p></div>
+    <button id="copy" type="button" class="secondary">Copy summary</button><span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel">
+    <h2>What if a share of one model's traffic ran on another?</h2>
+    <div class="grid">
+      <label>From model<select id="swFrom"></select></label>
+      <label>To model<select id="swTo"></select></label>
+      <label>Share moved (%)<input id="swShare" type="number" min="0" max="100" value="50" inputmode="decimal"></label>
+    </div>
+    <p id="swOut" class="small" role="status" aria-live="polite">Same tokens, repriced. It says nothing about whether the cheaper model is good enough for the task.</p>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous analysis events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only analyses and copied summaries. No log contents, rates, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Where do I get a usage log to paste in?</h3>
+  <p>Anything with one record per API call that carries the model name and the usage object the API returned. That can be your own request logging (one JSON object per line), a proxy or gateway export, or a CSV with columns such as model, input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens, created_at and an optional label. Anthropic-style and OpenAI-style usage objects are both understood.</p>
+  <h3>Does my log leave my browser?</h3>
+  <p>No. Parsing and every calculation run in your browser; there is no server call. An optional anonymous local counter records which buttons get used, never the log or the rates, and it can be turned off.</p>
+  <h3>Why do I have to type the rates?</h3>
+  <p>Because a wrong price is worse than no price, and API pricing changes often. This page multiplies the tokens your log reports by the rates you paste in from each provider's own pricing page. It never fetches or asserts a vendor price.</p>
+  <h3>How does it treat cached tokens?</h3>
+  <p>It follows each API's own accounting. In an Anthropic-style usage object, input_tokens excludes cache reads and cache writes, which are separate buckets. In an OpenAI-style usage object, prompt_tokens includes the cached tokens, so the fresh part is the difference. Mixing these up double-counts cached tokens, which is the most common mistake in hand-built cost spreadsheets.</p>
+  <h3>How trustworthy are the savings estimates?</h3>
+  <p>They are upper bounds under stated assumptions, not forecasts. The cache estimate assumes your repeated prefix is long and stable enough to cache and ignores cache-write cost. The model-switch estimate reprices the same tokens and says nothing about whether the cheaper model is good enough for the task. Test any change on real traffic before relying on the number.</p>
+
+    <p class="note">Switching models or editing a prompt rather than costing it? <a href="../llm-output-regression-diff/">Diff saved outputs before and after to catch broken JSON, new refusals and truncation</a>.</p>
+<footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, procurement, or vendor-pricing advice, and does not replace your provider's own invoice or usage dashboard, which remain the record of what you owe. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { parseUsageLog, analyze, modelSwitchSavings, reportText } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const usd = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let last = null;
+  let parsed = { records: [], skipped: 0 };
+  let usageTimer;
+
+  const SAMPLE = [
+    ["sample-large", "chat", 900, 1200, 0, 350], ["sample-large", "chat", 700, 1500, 0, 280],
+    ["sample-large", "agent", 5200, 26000, 900, 1400], ["sample-large", "agent", 4800, 3000, 0, 1200],
+    ["sample-large", "summarize", 42000, 0, 0, 900], ["sample-small", "classify", 300, 0, 0, 12],
+    ["sample-small", "classify", 310, 0, 0, 10], ["sample-small", "classify", 290, 0, 0, 14],
+  ].map(([model, label, input, read, write, out], i) => JSON.stringify({
+    model, label, created_at: `2026-09-0${1 + (i % 3)}T12:00:00Z`,
+    usage: { input_tokens: input, cache_read_input_tokens: read, cache_creation_input_tokens: write, output_tokens: out },
+  })).join("\n");
+
+  function rateRows() {
+    const rates = {};
+    for (const tr of document.querySelectorAll("#rates tbody tr")) {
+      const [name, input, cached, write, output] = tr.querySelectorAll("input");
+      const key = name.value.trim();
+      if (!key || input.value === "" || output.value === "") continue;
+      rates[key] = { input: +input.value, output: +output.value };
+      if (cached.value !== "") rates[key].cachedInput = +cached.value;
+      if (write.value !== "") rates[key].cacheWrite = +write.value;
+    }
+    return rates;
+  }
+
+  function syncRateTable() {
+    const existing = new Map();
+    for (const tr of document.querySelectorAll("#rates tbody tr")) {
+      const ins = tr.querySelectorAll("input");
+      existing.set(ins[0].value, [...ins].map((i) => i.value));
+    }
+    const models = [...new Set(parsed.records.map((r) => r.model))].sort();
+    const body = document.querySelector("#rates tbody");
+    body.innerHTML = "";
+    for (const m of models) {
+      const vals = existing.get(m) ?? [m, "", "", "", ""];
+      const tr = document.createElement("tr");
+      tr.innerHTML = vals.map((v, i) => `<td><input ${i === 0 ? "" : 'type="number" min="0" step="any"'} aria-label="${esc(m)} ${["model", "input", "cached input", "cache write", "output"][i]} rate" value="${esc(v)}" inputmode="decimal"></td>`).join("");
+      body.appendChild(tr);
+    }
+    for (const id of ["swFrom", "swTo"]) {
+      const sel = $(id);
+      sel.innerHTML = models.map((m) => `<option>${esc(m)}</option>`).join("");
+    }
+    if (models.length > 1) $("swTo").selectedIndex = 1;
+  }
+
+  function onLog() {
+    parsed = parseUsageLog($("log").value);
+    $("parseOut").textContent = $("log").value.trim()
+      ? `Read ${parsed.records.length.toLocaleString()} request${parsed.records.length === 1 ? "" : "s"}${parsed.skipped ? `; skipped ${parsed.skipped} line${parsed.skipped === 1 ? "" : "s"} with no model or no tokens` : ""}.`
+      : "";
+    syncRateTable();
+  }
+
+  function run(track) {
+    const rates = rateRows();
+    if (!parsed.records.length) { $("results").innerHTML = '<p class="err">No usable records found in the log.</p>'; return; }
+    const a = analyze(parsed.records, rates, {
+      cacheTarget: +$("cacheTarget").value / 100,
+      batchShare: +$("batchShare").value / 100,
+      batchDiscount: +$("batchDiscount").value / 100,
+    });
+    last = a;
+    const hit = a.byModel.reduce((s, g) => s + g.cacheRead, 0) / Math.max(1, a.byModel.reduce((s, g) => s + g.fresh + g.cacheRead, 0));
+    let html = `<div class="kpi"><div><span class="small">Total at these rates</span><strong>${usd(a.totalCost)}</strong></div>` +
+      `<div><span class="small">30-day run rate</span><strong>${a.forecast ? usd(a.forecast.projected30Days) : "n/a"}</strong></div>` +
+      `<div><span class="small">Input served from cache</span><strong>${(hit * 100).toFixed(0)}%</strong></div></div>`;
+    if (!a.forecast) html += '<p class="small">Add a created_at or timestamp field, spanning at least two days, for a run rate.</p>';
+    if (a.unpricedRequests) html += `<p class="notice small">${a.unpricedRequests} request(s) not priced -- no rate entered for: ${a.unpricedModels.map(esc).join(", ")}.</p>`;
+    html += "<h3>Spend by model</h3><table><thead><tr><th>Model</th><th>Requests</th><th>Cache-read share</th><th>Cost</th></tr></thead><tbody>" +
+      a.byModel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString()}</td><td>${g.cacheHitRate === null ? "n/a" : (g.cacheHitRate * 100).toFixed(0) + "%"}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
+    if (a.byLabel.length) html += "<h3>Spend by feature</h3><table><thead><tr><th>Label</th><th>Requests</th><th>Cost</th></tr></thead><tbody>" +
+      a.byLabel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString()}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
+    if (a.totalCost > 0) html += `<p class="small">The most expensive 1% of requests account for ${(a.concentration.top1pct * 100).toFixed(0)}% of spend; the top 5% for ${(a.concentration.top5pct * 100).toFixed(0)}%.</p>`;
+    html += "<h3>Where it could have been cheaper</h3>" + (a.findings.length
+      ? a.findings.map((f) => `<div class="finding"><h3>${esc(f.title)}${f.savings ? ` -- up to ${usd(f.savings)}` : ""}</h3><p>${esc(f.detail)}</p></div>`).join("")
+      : '<p class="small">Nothing flagged at these settings.</p>');
+    $("results").innerHTML = html;
+    clearTimeout(usageTimer);
+    if (track) usageTimer = setTimeout(() => countUsage("analyze_run"), 300);
+  }
+
+  function switchWhatIf() {
+    try {
+      const r = modelSwitchSavings(parsed.records, rateRows(), $("swFrom").value, $("swTo").value, +$("swShare").value / 100);
+      $("swOut").textContent = `Those requests cost ${usd(r.current)} now and would cost ${usd(r.after)} on ${$("swTo").value} -- ${usd(r.savings)} difference. Same tokens, repriced; quality is not modelled.`;
+    } catch (e) { $("swOut").textContent = e.message; }
+  }
+
+  $("log").addEventListener("input", onLog);
+  $("file").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    $("log").value = await f.text();
+    onLog();
+  });
+  $("sample").addEventListener("click", () => { $("log").value = SAMPLE; onLog(); });
+  $("run").addEventListener("click", () => run(true));
+  for (const id of ["swFrom", "swTo", "swShare"]) $(id).addEventListener("input", switchWhatIf);
+  $("rates").addEventListener("input", switchWhatIf);
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (e) => setUsageEnabled(e.target.checked));
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try { await navigator.clipboard.writeText(text); return; } catch { /* file:// or denied */ }
+    }
+    fallbackCopy(text);
+  }
+  $("copy").addEventListener("click", async () => {
+    try {
+      if (!last) throw new Error("Run an analysis first.");
+      await copyText(reportText(last));
+      $("copyStatus").textContent = "Copied";
+      countUsage("summary_copied");
+    } catch (e) { $("copyStatus").textContent = e?.message || "Clipboard unavailable."; }
+  });
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../package-exports-drift-check/" data-pf-to="package-exports-drift-check">Does your package.json &quot;exports&quot; map point at files that actually exist?</a></li>
+      <li><a href="../pg-stat-statements-analyzer/" data-pf-to="pg-stat-statements-analyzer">pg_stat_statements Analyzer — free, private, paste-the-output</a></li>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+      <li><a href="../pip-audit-triage/" data-pf-to="pip-audit-triage">Which pip-audit findings actually matter?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llm-usage-log-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/?pfEmbed=1&quot; title=&quot;LLM Usage Log Analyzer — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="llm-usage-log-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/" data-pf-embed-title="LLM Usage Log Analyzer" data-pf-embed-slug="llm-usage-log-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="llm-usage-log-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="llm-usage-log-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

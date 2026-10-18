@@ -1,0 +1,6 @@
+query_group,runs_per_month,gb_billed_per_run,slot_hours_per_run
+dashboard-revenue-refresh,4300,180,6
+nightly-events-rollup,30,6200,300
+adhoc-analyst-exploration,600,95,2
+ml-feature-export,8,40000,4200
+tiny-lookup,20000,0.4,0.01

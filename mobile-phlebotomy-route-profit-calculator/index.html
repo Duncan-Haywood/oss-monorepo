@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Phlebotomy Route Profit Calculator — Price per Draw, Batching, Solo vs Agency</title>
+  <meta name="description" content="Free mobile phlebotomy calculator: enter draws per week by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs…">
+  <meta property="og:title" content="Mobile Phlebotomy Route Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a mobile blood draw really earns after the drive, the supplies and the trips that fail at the door, and whether solo…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mobile Phlebotomy Route Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free mobile phlebotomy calculator: turn fees per draw, on-site and drive minutes, supplies, failed trips and fixed costs into profit per draw, profit per working hour, break-even draws per week, the fee needed for a target margin, the effect of batching stops, and a solo versus agency contractor versus employed comparison."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a mobile phlebotomist charge per draw?", "acceptedAnswer": {"@type": "Answer", "text": "Add the on-site minutes at what your time is worth, the drive to and from the stop at the same rate plus mileage, the tubes, needles and kit, and the draw's share of insurance and certification, then spread the cost of trips that fail at the door over the draws that happen, and divide by one minus the margin you want. Type your own drive, fee and failure rate and read the fee for each draw type off the table."}}, {"@type": "Question", "name": "Is it better to batch draws into multi-patient visits?", "acceptedAnswer": {"@type": "Answer", "text": "Usually, because the drive is paid once per stop however many patients you draw. The calculator holds your weekly draws fixed and shows profit per working hour when home or office draws are grouped two, three, four or six to a stop. A facility visit with several patients is the same idea at larger size. A failed visit loses every draw at that stop, so batching raises the cost of each failure."}}, {"@type": "Question", "name": "How many draws a week does a mobile phlebotomy route need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The weekly fixed costs (insurance, certification renewal spread over 52 weeks, other fixed cost and your lab drop-off and paperwork hours at your hourly value) divided by what each draw leaves after supplies, mileage, and your own drive and on-site time, at your current mix of draw types. The result is the scheduled draws per week, with the completed draws and stops that implies."}}, {"@type": "Question", "name": "What do cancelled-at-the-door trips cost?", "acceptedAnswer": {"@type": "Answer", "text": "You still drive to the stop and spend a few minutes there, so the trip costs mileage and your time, plus the margin of the draw that did not happen, less whatever share of the fee you collect on a failed trip. The calculator prints the cost per week and per year, and shows what collecting part of the fee would recover."}}, {"@type": "Question", "name": "Should I work solo, contract through an agency, or take a job as an employed phlebotomist?", "acceptedAnswer": {"@type": "Answer", "text": "The calculator works out the same route three ways: solo (you keep every fee and pay every cost), an agency contractor (the agency keeps a percent, may send more draws, and you may still buy supplies and pay mileage), and an employee (an hourly wage plus a mileage rate, with the employer paying supplies, insurance and certification). It prints the take per working hour for each, the agency take at which contracting matches solo, and the hourly wage at which a job matches solo."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Licensure, certification rules, CLIA and state or payer requirements, which it does not model at all and which decide whether and how you may draw blood. It also leaves out tips, sales and income tax, billing delays and bad debt, vehicle purchase and depreciation beyond the per-mile figure, overnight on-call time and the cost of owner's time beyond the hourly figure you type. It is arithmetic on numbers you type, not medical, legal, tax or financial advice, and not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Mobile Phlebotomy Route Profit Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mobile Phlebotomy Route Profit Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mobile Phlebotomy Route Profit Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">MOBILE PHLEBOTOMY ROUTE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a mobile blood draw really earn once you count the drive, and is solo, an agency or a job the better way to run the route?</h1>
+    <p>Enter your weekly draws by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs. You get <strong>profit per draw and per working hour including drive time, break-even draws per week, the fee each draw type needs for your target margin, what failed trips cost, what batching stops does to your hourly profit, and solo against an agency contractor against an employed job</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Arithmetic only: it does not model licensure, certification rules, CLIA or any state or payer rule, and it is not medical advice. A planning estimate, not an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Draws you schedule in a typical week</h2>
+    <div class="grid">
+      <div><label for="routineQty">Routine home or office draws scheduled per week</label><input type="number" id="routineQty" min="0" step="1" value="20" inputmode="numeric"></div>
+      <div><label for="routinePrice">Routine fee per draw ($)</label><input type="number" id="routinePrice" min="0" step="any" value="45" inputmode="decimal"></div>
+      <div><label for="routineMin">Routine minutes on site per draw</label><input type="number" id="routineMin" min="0" step="any" value="15" inputmode="decimal"></div>
+      <div><label for="routineMat">Routine supplies per draw ($: tubes, needles, kit)</label><input type="number" id="routineMat" min="0" step="any" value="4" inputmode="decimal"></div>
+      <div><label for="routineBatch">Routine draws per home or office stop (1 if every draw is its own stop)</label><input type="number" id="routineBatch" min="0" step="1" value="1" inputmode="numeric"></div>
+      <div><label for="statQty">STAT or priority draws scheduled per week</label><input type="number" id="statQty" min="0" step="1" value="5" inputmode="numeric"></div>
+      <div><label for="statPrice">STAT base fee per draw ($)</label><input type="number" id="statPrice" min="0" step="any" value="45" inputmode="decimal"></div>
+      <div><label for="statPremium">STAT premium added to the fee ($ per draw)</label><input type="number" id="statPremium" min="0" step="any" value="25" inputmode="decimal"></div>
+      <div><label for="statMin">STAT minutes on site per draw</label><input type="number" id="statMin" min="0" step="any" value="20" inputmode="decimal"></div>
+      <div><label for="statMat">STAT supplies per draw ($)</label><input type="number" id="statMat" min="0" step="any" value="4" inputmode="decimal"></div>
+      <div><label for="facilityVisits">Facility or batch visits per week (a nursing facility, clinic or office, several patients in one trip)</label><input type="number" id="facilityVisits" min="0" step="1" value="3" inputmode="numeric"></div>
+      <div><label for="facilityDraws">Draws per facility visit</label><input type="number" id="facilityDraws" min="0" step="1" value="6" inputmode="numeric"></div>
+      <div><label for="facilityPrice">Facility fee per draw ($)</label><input type="number" id="facilityPrice" min="0" step="any" value="28" inputmode="decimal"></div>
+      <div><label for="facilityMin">Facility minutes on site per draw</label><input type="number" id="facilityMin" min="0" step="any" value="8" inputmode="decimal"></div>
+      <div><label for="facilityMat">Facility supplies per draw ($)</label><input type="number" id="facilityMat" min="0" step="any" value="3" inputmode="decimal"></div>
+      <div><label for="tripFee">Flat trip fee per stop on top of the draw fees ($, 0 if the lab pays per draw only)</label><input type="number" id="tripFee" min="0" step="any" value="0" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">2. The route, and trips that fail at the door</h2>
+    <div class="grid">
+      <div><label for="driveMiles">Average drive miles per stop (between stops, including the way back)</label><input type="number" id="driveMiles" min="0" step="any" value="9" inputmode="decimal"></div>
+      <div><label for="driveMin">Average drive minutes per stop</label><input type="number" id="driveMin" min="0" step="any" value="18" inputmode="decimal"></div>
+      <div><label for="mileCost">Mileage cost per mile ($: fuel, wear, insurance)</label><input type="number" id="mileCost" min="0" step="any" value="0.70" inputmode="decimal"></div>
+      <div><label for="failedPct">Trips that fail or cancel at the door (% of stops)</label><input type="number" id="failedPct" min="0" step="any" value="8" inputmode="decimal"></div>
+      <div><label for="failedPayPct">Share of the fee you still collect on a failed trip (%, 0 if unpaid)</label><input type="number" id="failedPayPct" min="0" step="any" value="0" inputmode="decimal"></div>
+      <div><label for="failedMin">Minutes spent at the door on a failed trip</label><input type="number" id="failedMin" min="0" step="any" value="10" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Fixed costs, your time and your target</h2>
+    <div class="grid">
+      <div><label for="insuranceMonth">Liability and other insurance ($ per month)</label><input type="number" id="insuranceMonth" min="0" step="any" value="85" inputmode="decimal"></div>
+      <div><label for="certYear">Certification renewal and training ($ per year)</label><input type="number" id="certYear" min="0" step="any" value="150" inputmode="decimal"></div>
+      <div><label for="otherFixedMonth">Other fixed cost: phone, software, cooler ($ per month)</label><input type="number" id="otherFixedMonth" min="0" step="any" value="40" inputmode="decimal"></div>
+      <div><label for="labRunHours">Lab drop-off, paperwork and scheduling (hours per week)</label><input type="number" id="labRunHours" min="0" step="any" value="3" inputmode="decimal"></div>
+      <div><label for="ownerRate">What an hour of your own time should be worth ($)</label><input type="number" id="ownerRate" min="0" step="any" value="30" inputmode="decimal"></div>
+      <div><label for="hoursAvailable">Hours you are willing to work per week</label><input type="number" id="hoursAvailable" min="0" step="any" value="40" inputmode="decimal"></div>
+      <div><label for="targetMarginPct">Target margin on each draw (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="30" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Contract through an agency, or take a job</h2>
+    <div class="grid">
+      <div><label for="agencyTakePct">Agency's take (% of what it bills for your draws)</label><input type="number" id="agencyTakePct" min="0" step="any" value="30" inputmode="decimal"></div>
+      <div><label for="agencyVolumePct">Extra draws the agency would send (% change in weekly draws)</label><input type="number" id="agencyVolumePct" min="0" step="any" value="25" inputmode="decimal"></div>
+      <div><label for="agencySupplies">Does the agency supply tubes and kits? (0 = you buy them, 1 = it does)</label><input type="number" id="agencySupplies" min="0" step="1" value="0" inputmode="numeric"></div>
+      <div><label for="employedWage">Employed hourly wage ($, paid for drive time too)</label><input type="number" id="employedWage" min="0" step="any" value="24" inputmode="decimal"></div>
+      <div><label for="employedMileReimb">Employer mileage reimbursement ($ per mile)</label><input type="number" id="employedMileReimb" min="0" step="any" value="0.60" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the route</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the route.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each kind of draw</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Draw type</th><th scope="col">Fee per draw</th><th scope="col">Cost per draw</th><th scope="col">Profit per draw</th><th scope="col">Margin</th><th scope="col">Per working hour</th><th scope="col">Fee for target</th></tr></thead><tbody id="lines"></tbody></table></div></div>
+    <h3>Batching: the same weekly draws grouped into fewer home or office stops</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Draws per stop</th><th scope="col">Stops</th><th scope="col">Drive hours</th><th scope="col">Working hours</th><th scope="col">Kept per week</th><th scope="col">Per working hour</th></tr></thead><tbody id="batch"></tbody></table></div></div>
+    <h3>The week at different volumes: what you keep after your own time, three ways</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Draws</th><th scope="col">Working hours</th><th scope="col">Hours used</th><th scope="col">Solo</th><th scope="col">Agency contractor</th><th scope="col">Employed</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Every stop costs a drive (minutes at your hourly value, plus miles at your mileage cost) whether or not the patient is there. A trip that fails at the door also costs the minutes you spend there, and collects only the share of the fee you set.</li>
+      <li>A completed draw earns its fee (a STAT draw adds the premium) and costs its supplies and its on-site minutes. Grouping draws into one stop pays the drive once, which is why batching and facility visits raise profit per working hour.</li>
+      <li>Profit per working hour is cash kept per hour worked, including driving and lab drop-off, before valuing your own time. Profit per draw is what is left per completed draw after your time is valued and the fixed costs are spread over them.</li>
+      <li>An agency contractor keeps the fees the agency bills less its take, and in this model still drives, pays mileage, insurance and certification and, unless you say otherwise, buys supplies. An employee earns the hourly wage for all hours including driving plus the mileage rate, and the employer pays supplies, insurance and certification.</li>
+      <li><strong>Not modelled:</strong> licensure, certification rules, CLIA and any state or payer requirement; tips; sales and income tax; billing delays and unpaid claims; vehicle purchase beyond the per-mile cost; overnight on-call time; any pay to you beyond the hourly figure you type; and an agency or employer that sends a different route from yours.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a mobile phlebotomist charge per draw?</h3>
+    <p>Add the on-site minutes at what your time is worth, the drive to and from the stop at the same rate plus mileage, the tubes, needles and kit, and the draw's share of insurance and certification, then spread the cost of trips that fail at the door over the draws that happen, and divide by one minus the margin you want. Type your own drive, fee and failure rate and read the fee for each draw type off the table.</p>
+    <h3>Is it better to batch draws into multi-patient visits?</h3>
+    <p>Usually, because the drive is paid once per stop however many patients you draw. The calculator holds your weekly draws fixed and shows profit per working hour when home or office draws are grouped two, three, four or six to a stop. A facility visit with several patients is the same idea at larger size. A failed visit loses every draw at that stop, so batching raises the cost of each failure.</p>
+    <h3>How many draws a week does a mobile phlebotomy route need to break even?</h3>
+    <p>The weekly fixed costs (insurance, certification renewal spread over 52 weeks, other fixed cost and your lab drop-off and paperwork hours at your hourly value) divided by what each draw leaves after supplies, mileage, and your own drive and on-site time, at your current mix of draw types. The result is the scheduled draws per week, with the completed draws and stops that implies.</p>
+    <h3>What do cancelled-at-the-door trips cost?</h3>
+    <p>You still drive to the stop and spend a few minutes there, so the trip costs mileage and your time, plus the margin of the draw that did not happen, less whatever share of the fee you collect on a failed trip. The calculator prints the cost per week and per year, and shows what collecting part of the fee would recover.</p>
+    <h3>Should I work solo, contract through an agency, or take a job as an employed phlebotomist?</h3>
+    <p>The calculator works out the same route three ways: solo (you keep every fee and pay every cost), an agency contractor (the agency keeps a percent, may send more draws, and you may still buy supplies and pay mileage), and an employee (an hourly wage plus a mileage rate, with the employer paying supplies, insurance and certification). It prints the take per working hour for each, the agency take at which contracting matches solo, and the hourly wage at which a job matches solo.</p>
+    <h3>What does this leave out?</h3>
+    <p>Licensure, certification rules, CLIA and state or payer requirements, which it does not model at all and which decide whether and how you may draw blood. It also leaves out tips, sales and income tax, billing delays and bad debt, vehicle purchase and depreciation beyond the per-mile figure, overnight on-call time and the cost of owner's time beyond the hourly figure you type. It is arithmetic on numbers you type, not medical, legal, tax or financial advice, and not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not medical advice; it does not replace your own books, a written agreement, your licensing body or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the fees you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>route_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mobile-vet-house-call-fee-calculator/">mobile vet house-call fee</a>, <a href="../notary-trip-quote/">notary trip quote</a>, <a href="../mobile-signing-agent-day-picker/">mobile signing agent day picker</a>, <a href="../medical-courier-route-margin/">medical courier route margin</a>, <a href="../mobile-mechanic-visit-pricing-calculator/">mobile mechanic visit pricing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["routineQty", "routinePrice", "routineMin", "routineMat", "routineBatch", "statQty", "statPrice", "statPremium", "statMin", "statMat", "facilityVisits", "facilityDraws", "facilityPrice", "facilityMin", "facilityMat", "tripFee", "driveMiles", "driveMin", "mileCost", "failedPct", "failedPayPct", "failedMin", "insuranceMonth", "certYear", "otherFixedMonth", "labRunHours", "ownerRate", "hoursAvailable", "targetMarginPct", "agencyTakePct", "agencyVolumePct", "agencySupplies", "employedWage", "employedMileReimb"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.fee)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perHour)}</td><td>${usd(l.targetFee)}</td></tr>`).join("");
+      $("#batch").innerHTML = r.batchTable.map((x) => `<tr><th scope="row">${x.batch}</th><td>${x.stops}</td><td>${x.driveHours}</td><td>${x.hours}</td><td>${usd(x.net)}</td><td>${usd(x.perHour)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.scheduled}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.solo)}</td><td>${usd(x.agency)}</td><td>${usd(x.employed)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result working solo: ${usd(r.season.soloAfterPay)} after your time, ${usd(r.season.profitPerHour)} per working hour.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("route_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "mobile-phlebotomy-route-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../league-schedule-generator/" data-pf-to="league-schedule-generator">League Schedule Generator — free, private, in your browser</a></li>
+      <li><a href="../lien-waiver-checker/" data-pf-to="lien-waiver-checker">Check a lien waiver before you sign it — free, private</a></li>
+      <li><a href="../massage-therapist-profit-calculator/" data-pf-to="massage-therapist-profit-calculator">Massage Therapist Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../medicaid-lookback-penalty-calculator/" data-pf-to="medicaid-lookback-penalty-calculator">Medicaid look-back penalty calculator: what do your gifts cost? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mobile-phlebotomy-route-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/?pfEmbed=1&quot; title=&quot;Mobile Phlebotomy Route Profit Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="mobile-phlebotomy-route-profit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/" data-pf-embed-title="Mobile Phlebotomy Route Profit Calculator — free, private" data-pf-embed-slug="mobile-phlebotomy-route-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="mobile-phlebotomy-route-profit-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

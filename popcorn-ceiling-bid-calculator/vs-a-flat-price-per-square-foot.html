@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per square foot | Popcorn Ceiling Bid Calculator</title>
+<meta name="description" content="A published $1.50/sq ft popcorn removal special prices a light ranch scrape and a painted-over two-story Level 5 skim-and-paint job the same…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/popcorn-ceiling-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per square foot">
+<meta property="og:description" content="Two ceilings of the identical square footage can be different jobs. A light ranch scrape-and-prime and a painted-over two-story Level 5 skim-and-paint cover…">
+<meta property="og:url" content="./vs-a-flat-price-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per square foot get a popcorn ceiling bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because square footage only measures the area, not what it takes to finish it. A 1,008 sq ft ceiling scraped and primed only (the cheap special) takes about 64.7 hours. The identical 1,008 sq ft, painted-over and heavy, scraped to a Level 5 skim with two coats of paint, takes about 105.1 hours -- 1.6 times the labor on the same area, because scrape-and-prime is the cheap half and skim, paint, height, and texture are where the hours actually go."}},{"@type":"Question","name":"What does a flat per-square-foot rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Scope, ceiling height, texture, and extras. A flat rate has no line for the difference between a scrape-and-prime and a full Level 5 skim with two coats, no line for a two-story stairwell needing interior scaffolding versus a walkable 8-foot first floor, no line for painted-over popcorn scraping slower than a light acoustic spray, and no line for an asbestos test, plastic containment, or furniture moves the special was never priced to cover."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs on a 1,008 sq ft ceiling (36 ft x 28 ft): scrape-and-prime only takes 64.7 hours and prices at $5,369.58 for the job -- $5.33 per square foot. The identical 1,008 sq ft, two-story and painted-over, finished to a Level 5 skim with two coats plus an asbestos test, containment, and a furniture move, takes 105.1 hours, costs $7,314.22 to run before a dollar of profit, and this calculator prices it at $9,142.77 -- $9.07 per square foot. Quoting the heavy job at the cheap special's learned rate of $5.33 per square foot reproduces the cheap price, $5,369.58, which is $1,944.64 below the heavy job's own break-even cost -- before counting the $3,773.20 it falls short of this calculator's price at a 20% target margin."}},{"@type":"Question","name":"Is a flat price per square foot ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- the same scope, height, and texture as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a Level 5 skim-and-paint job, a two-story stairwell, or a painted-over heavy texture the same way sight unseen, because the rate does not know the scope, the height, or the texture until the crew is on the ladder, and by then the per-foot number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's mud, primer, and paint pricing. It takes the ceiling's dimensions, scope, height, texture, closet ceilings, stain repairs, asbestos test, containment, and furniture move, and your own wage, payroll burden, travel, dump bags, and target margin, and turns that into scrape, skim, and paint hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #221c1c; background: #eeeae6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #6b4a2c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5b544d; }
+  section { background: #faf6f4; border: 1px solid #d3c5bf; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a1a1a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3c5bf; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5b544d; }
+  .fine, .note { font-size: .88rem; color: #5b544d; }
+  footer { color: #5b544d; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/popcorn-ceiling-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../popcorn-ceiling-bid-calculator/">Popcorn Ceiling Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Popcorn Ceiling Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per square foot</h1>
+<p class="lede">Popcorn ceiling removal is shopped on a published price per square foot. That rate cannot see the job &mdash; scrape-and-prime is the cheap half, and scope, height, texture, and extras decide whether the same footage pays, and two ceilings of identical area can differ by 1.6 times in labor.</p>
+</header>
+<section>
+<h2>What a flat price per square foot is</h2>
+<p>
+A price per square foot is the fastest number to advertise on a postcard or
+quote over the phone: pace off the ceiling, multiply by a rate, read back a
+total. It is also the unit homeowners already compare between competing
+bids.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given scope,
+height, and texture &mdash; and then reused for the next square footage
+that calls in, whether or not that next job shares any of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+ceiling's length and width, scope (scrape-and-prime, Level 4 skim, or Level
+5 skim with two coats), height (8-foot, vaulted, or two-story), texture
+(light, heavy, or painted-over), closet ceilings, stain repairs, whether an
+asbestos test, containment, or furniture move is included, plus your own
+wage, payroll burden, travel, overhead, and target margin. It prices
+scrape, skim, and paint hours separately by scope, applies a height
+premium for lifts and scaffolding, and prices texture as its own labor and
+material line &mdash; for this job, not a rate carried over from the last
+one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-square-foot rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a scrape-and-prime special and a full Level 5 skim with two coats of the identical area, even though scope is where most of the labor lives.</td>
+<td>Prices scrape, skim, and paint hours separately by scope, so a skim-and-paint job costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for height &mdash; an 8-ft walkable ceiling and a two-story stairwell needing interior scaffolding get the same rate.</td>
+<td>Applies an access premium and a scaffold or lift invoice by height, so a two-story job costs more without inflating the rest of the job.</td>
+</tr>
+<tr>
+<td>Has no line for texture &mdash; a light acoustic spray and a painted-over heavy cottage-cheese scrape at the same rate, even though painted-over popcorn scrapes slower.</td>
+<td>Prices a texture premium and dump-bag material as their own line on top of the base scrape hours.</td>
+</tr>
+<tr>
+<td>Bills an asbestos test, plastic containment, or a furniture move inside the same blended per-foot number, if at all.</td>
+<td>Prices asbestos testing, containment, and furniture moves as their own hours and invoice lines, only when the box is checked.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per square foot and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same 1,008 square feet, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $32 hourly wage,
+30% burden, 15% overhead, 20% target margin, no other cost:
+</p>
+<p>
+A 1,008 sq ft ceiling (36 ft &times; 28 ft) <strong>scraped and primed
+only</strong> &mdash; the cheap special &mdash; takes <strong>64.7
+hours</strong> and prices at <strong>$5,369.58</strong> for the job
+&mdash; <strong>$5.33</strong> per square foot.
+</p>
+<p>
+Finish the identical 1,008 sq ft instead as a <strong>two-story,
+painted-over, heavy</strong> ceiling to a <strong>Level 5 skim with two
+coats</strong>, plus an asbestos test, plastic containment, and a
+furniture move &mdash; same footage, same wage, same margin &mdash; and it
+takes <strong>105.1 hours</strong>, costs <strong>$7,314.22</strong> to
+run before a dollar of profit, and this calculator prices it at
+<strong>$9,142.77</strong> &mdash; <strong>$9.07</strong> per square
+foot. Quoting the heavy job at the cheap special's learned rate of $5.33
+per square foot reproduces the cheap price, <strong>$5,369.58</strong>,
+which is <strong>$1,944.64 below the heavy job's own break-even
+cost</strong> &mdash; before counting the <strong>$3,773.20</strong> it
+falls short of this calculator's own price at a 20% target margin. Same
+square footage, same rate, one job that pays and one that loses money the
+moment the ladder goes up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per square foot get a popcorn ceiling bid wrong?</h3>
+<p>Because square footage only measures the area, not what it takes to finish it. A 1,008 sq ft ceiling scraped and primed only (the cheap special) takes about 64.7 hours. The identical 1,008 sq ft, painted-over and heavy, scraped to a Level 5 skim with two coats of paint, takes about 105.1 hours -- 1.6 times the labor on the same area, because scrape-and-prime is the cheap half and skim, paint, height, and texture are where the hours actually go.</p>
+<h3>What does a flat per-square-foot rate usually miss entirely?</h3>
+<p>Scope, ceiling height, texture, and extras. A flat rate has no line for the difference between a scrape-and-prime and a full Level 5 skim with two coats, no line for a two-story stairwell needing interior scaffolding versus a walkable 8-foot first floor, no line for painted-over popcorn scraping slower than a light acoustic spray, and no line for an asbestos test, plastic containment, or furniture moves the special was never priced to cover.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs on a 1,008 sq ft ceiling (36 ft x 28 ft): scrape-and-prime only takes 64.7 hours and prices at $5,369.58 for the job -- $5.33 per square foot. The identical 1,008 sq ft, two-story and painted-over, finished to a Level 5 skim with two coats plus an asbestos test, containment, and a furniture move, takes 105.1 hours, costs $7,314.22 to run before a dollar of profit, and this calculator prices it at $9,142.77 -- $9.07 per square foot. Quoting the heavy job at the cheap special's learned rate of $5.33 per square foot reproduces the cheap price, $5,369.58, which is $1,944.64 below the heavy job's own break-even cost -- before counting the $3,773.20 it falls short of this calculator's price at a 20% target margin.</p>
+<h3>Is a flat price per square foot ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar jobs -- the same scope, height, and texture as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a Level 5 skim-and-paint job, a two-story stairwell, or a painted-over heavy texture the same way sight unseen, because the rate does not know the scope, the height, or the texture until the crew is on the ladder, and by then the per-foot number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's mud, primer, and paint pricing. It takes the ceiling's dimensions, scope, height, texture, closet ceilings, stain repairs, asbestos test, containment, and furniture move, and your own wage, payroll burden, travel, dump bags, and target margin, and turns that into scrape, skim, and paint hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Popcorn Ceiling Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-to-remove-popcorn-ceiling.html">how much to charge to remove popcorn ceiling</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not drywall, painting, asbestos, lead, building-code, legal, tax, or financial advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, material, and dump costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cut-list-optimizer/" data-pf-to="cut-list-optimizer">Cut List Optimizer — compare sheet sizes and board lengths before you buy</a></li>
+      <li><a href="../drywall-bid-calculator/" data-pf-to="drywall-bid-calculator">Drywall Bid Calculator</a></li>
+      <li><a href="../fireplace-insert-bid-calculator/" data-pf-to="fireplace-insert-bid-calculator">Fireplace Insert Bid Calculator</a></li>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=popcorn-ceiling-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="popcorn-ceiling-bid-calculator"></script>
+</body></html>

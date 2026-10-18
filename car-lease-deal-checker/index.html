@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Car Lease Deal Checker — money factor to APR, markup and lease vs buy</title>
+  <meta name="description" content="Free car lease calculator. Turn a money factor into APR, find the money factor hiding in a quoted payment, price dealer markup in dollars…">
+  <meta property="og:title" content="Car Lease Deal Checker — money factor to APR and lease vs buy">
+  <meta property="og:description" content="Find the interest rate inside a lease quote, spot money factor markup and compare with buying. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Car Lease Deal Checker","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free car lease calculator. Turns a money factor into APR, works the money factor out of a quoted payment, finds dealer markup, and compares leasing with buying. Runs in your browser; nothing is uploaded.","featureList":"money factor to APR calculator, find money factor from payment, car lease calculator, lease vs buy comparison, lease markup check, effective lease APR, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a money factor on a car lease?","acceptedAnswer":{"@type":"Answer","text":"The money factor is the lease's interest rate written as a small decimal, such as 0.00125. Multiply it by 2,400 to get an approximate APR, so 0.00125 is about 3.0 percent. Dealers quote the money factor, not the APR, which makes it hard to compare against a loan rate."}},{"@type":"Question","name":"How do I find the money factor if the dealer will not tell me?","acceptedAnswer":{"@type":"Answer","text":"Enter the monthly payment you were quoted along with the price, residual, term and fees. The tool works backwards through the standard lease formula and shows the money factor and APR hiding in the payment. If it is much higher than the manufacturer's base rate, the dealer may have marked it up."}},{"@type":"Question","name":"What is a good money factor?","acceptedAnswer":{"@type":"Answer","text":"The best money factor is the manufacturer's base rate for your credit tier, which you can ask for in writing or find on car-buying enthusiast forums. Dealers are allowed to add a markup on top. Enter the base rate in the optional field and the tool prices the markup in dollars per month and over the whole lease."}},{"@type":"Question","name":"Is the lease APR the real cost of the lease?","acceptedAnswer":{"@type":"Answer","text":"Not quite. The rate sheet APR ignores the acquisition fee, any money paid up front and the disposition fee at the end. The tool also shows an effective APR that counts those fees, which is the rate you are really paying to use the car's value."}},{"@type":"Question","name":"Is leasing cheaper than buying?","acceptedAnswer":{"@type":"Answer","text":"Over a short window it often looks cheaper because you pay only for the depreciation you use. The comparison here counts everything you pay during the lease, then compares it with buying the same car on a loan, keeping it for the same months and selling it for its expected market value. Whichever is lower is shown, with the gap in dollars."}},{"@type":"Question","name":"What does the 1 percent rule mean?","acceptedAnswer":{"@type":"Answer","text":"A common rule of thumb says a good lease payment before tax is no more than about 1 percent of the sticker price per month with little or nothing down. It is a screen, not a verdict, and the tool shows where your quote falls."}},{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server."}},{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type, using the standard lease payment formula. Your lease contract controls what you owe, and taxes and fees vary by state."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .tabs { display:flex; gap:8px; margin:6px 0 0; } .tabs label { font-weight:600; display:flex; gap:6px; align-items:center; margin:0 }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Car Lease Deal Checker — money factor to APR and lease vs buy","item":"https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Car Lease Deal Checker — money factor to APR and lease vs buy — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Car Lease Deal Checker — money factor to APR and lease vs buy</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CAR LEASE DEAL CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What interest rate is really inside your car lease quote?</h1>
+    <p>Dealers quote a monthly payment and a <strong>money factor</strong> but rarely the rate. Enter the quote and this tool shows the <strong>APR</strong> behind it, the money factor hiding in a payment when the dealer will not say, any <strong>markup</strong> over the base rate in dollars, and whether leasing beats buying the same car.</p>
+    <p class="note">New to the jargon? <a href="./what-is-a-money-factor.html">What a money factor is, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The car</h2>
+    <div class="row3">
+      <div><label for="msrp">MSRP / sticker price ($)</label><input type="number" id="msrp" min="1" step="0.01" max="10000000" value="35000" inputmode="decimal"></div>
+      <div><label for="price">Negotiated price, the capitalized cost ($)</label><input type="number" id="price" min="1" step="0.01" max="10000000" value="33000" inputmode="decimal"></div>
+      <div><label for="residual">Residual value (% of MSRP)</label><input type="number" id="residual" min="1" step="0.1" max="10000000" value="60" max="99" inputmode="decimal"></div>
+      <div><label for="term">Term (months)</label><input type="number" id="term" min="6" step="1" max="10000000" value="36" inputmode="numeric"></div>
+      <div><label for="rebates">Rebates and incentives ($)</label><input type="number" id="rebates" min="0" step="0.01" max="10000000" value="0" inputmode="decimal"></div>
+      <div><label for="down">Cash down / cap cost reduction ($)</label><input type="number" id="down" min="0" step="0.01" max="10000000" value="0" inputmode="decimal"></div>
+    </div>
+
+    <h2 style="margin-top:20px">2. The rate</h2>
+    <div class="tabs" role="radiogroup" aria-label="What do you know?">
+      <label><input type="radio" name="mode" value="mf" checked style="width:auto"> I know the money factor</label>
+      <label><input type="radio" name="mode" value="payment" style="width:auto"> I only know the quoted payment</label>
+    </div>
+    <div class="row3">
+      <div id="mf-wrap"><label for="mf">Money factor (e.g. 0.00125)</label><input type="number" id="mf" min="0" step="0.00001" max="10000000" value="0.00125" inputmode="decimal"></div>
+      <div id="pay-wrap" hidden><label for="pay">Quoted monthly payment before tax ($)</label><input type="number" id="pay" min="0" step="0.01" max="10000000" value="427" inputmode="decimal"></div>
+      <div><label for="basemf">Base money factor from the manufacturer (optional)</label><input type="number" id="basemf" min="0" step="0.00001" max="10000000" value="0.00085" inputmode="decimal"></div>
+    </div>
+
+    <h2 style="margin-top:20px">3. Fees, tax and miles</h2>
+    <div class="row3">
+      <div><label for="acq">Acquisition / bank fee ($)</label><input type="number" id="acq" min="0" step="0.01" max="10000000" value="895" inputmode="decimal"></div>
+      <div><label for="other">Other due at signing: registration, doc fee ($)</label><input type="number" id="other" min="0" step="0.01" max="10000000" value="300" inputmode="decimal"></div>
+      <div><label for="disp">Disposition fee at lease end ($)</label><input type="number" id="disp" min="0" step="0.01" max="10000000" value="395" inputmode="decimal"></div>
+      <div><label for="tax">Sales tax on the payment (%)</label><input type="number" id="tax" min="0" step="0.01" max="10000000" value="7" inputmode="decimal"></div>
+      <div><label for="allow">Mileage allowance per year</label><input type="number" id="allow" min="0" step="1" max="10000000" value="12000" inputmode="numeric"></div>
+      <div><label for="miles">Miles you will really drive per year</label><input type="number" id="miles" min="0" step="1" max="10000000" value="14000" inputmode="numeric"></div>
+      <div><label for="over">Overage charge (cents per mile)</label><input type="number" id="over" min="0" step="0.1" max="10000000" value="25" inputmode="decimal"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="capfee" checked style="width:auto"> The acquisition fee is rolled into the lease (capitalized) rather than paid up front</label>
+
+    <h2 style="margin-top:20px">4. If you bought it instead</h2>
+    <div class="row3">
+      <div><label for="buyapr">Loan APR (%)</label><input type="number" id="buyapr" min="0" step="0.01" max="10000000" value="6.5" inputmode="decimal"></div>
+      <div><label for="buyterm">Loan term (months)</label><input type="number" id="buyterm" min="12" step="1" max="10000000" value="60" inputmode="numeric"></div>
+      <div><label for="mkt">Expected market value when the lease would end ($, optional)</label><input type="number" id="mkt" min="0" step="1" max="10000000" value="" inputmode="numeric"></div>
+    </div>
+    <p class="note">Left blank, the car is assumed to be worth its residual value at the end. Check a used-car listing for the same model and age for a better figure.</p>
+    <button type="button" id="solve">Check this lease</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved check</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved lease check file">
+    <p id="form-status" role="status" class="note">Fill in the quote, then click Check this lease.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>What the quote really says</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Amount</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Lease or buy over the same months</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cmp"><thead><tr><th></th><th class="num">Lease</th><th class="num">Buy</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="verdict"></p>
+    <h3>What to negotiate</h3>
+    <p class="note" id="levers"></p>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save check</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Payment:</strong> the standard lease formula. Depreciation is (capitalized cost − residual) ÷ term, rent charge is (capitalized cost + residual) × money factor, and the payment is their sum. Run in reverse, the same formula gives the money factor inside any quoted payment.</p>
+    <p><strong>Effective APR:</strong> the rate at which the car's price equals your payments, any money up front, the residual and the disposition fee, solved by bisection. Taxes and registration are left out because buying has them too.</p>
+    <p><strong>Lease vs buy:</strong> everything you pay in the lease term, against a standard amortizing loan for the same car, kept for the same months and valued at the market value you enter.</p>
+    <p><strong>Checked:</strong> the test suite recomputes the worked example by hand and runs hundreds of random leases, confirming that the payment formula and its inverse agree to nine decimal places.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a money factor on a car lease?</h3>
+    <p>The money factor is the lease's interest rate written as a small decimal, such as 0.00125. Multiply it by 2,400 to get an approximate APR, so 0.00125 is about 3.0 percent. Dealers quote the money factor, not the APR, which makes it hard to compare against a loan rate.</p>
+    <h3>How do I find the money factor if the dealer will not tell me?</h3>
+    <p>Enter the monthly payment you were quoted along with the price, residual, term and fees. The tool works backwards through the standard lease formula and shows the money factor and APR hiding in the payment. If it is much higher than the manufacturer's base rate, the dealer may have marked it up.</p>
+    <h3>What is a good money factor?</h3>
+    <p>The best money factor is the manufacturer's base rate for your credit tier, which you can ask for in writing or find on car-buying enthusiast forums. Dealers are allowed to add a markup on top. Enter the base rate in the optional field and the tool prices the markup in dollars per month and over the whole lease.</p>
+    <h3>Is the lease APR the real cost of the lease?</h3>
+    <p>Not quite. The rate sheet APR ignores the acquisition fee, any money paid up front and the disposition fee at the end. The tool also shows an effective APR that counts those fees, which is the rate you are really paying to use the car's value.</p>
+    <h3>Is leasing cheaper than buying?</h3>
+    <p>Over a short window it often looks cheaper because you pay only for the depreciation you use. The comparison here counts everything you pay during the lease, then compares it with buying the same car on a loan, keeping it for the same months and selling it for its expected market value. Whichever is lower is shown, with the gap in dollars.</p>
+    <h3>What does the 1 percent rule mean?</h3>
+    <p>A common rule of thumb says a good lease payment before tax is no more than about 1 percent of the sticker price per month with little or nothing down. It is a screen, not a verdict, and the tool shows where your quote falls.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type, using the standard lease payment formula. Your lease contract controls what you owe, and taxes and fees vary by state.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type using the standard lease formula, not financial, legal, tax or consumer-credit advice. <strong>Your lease contract controls what you owe</strong>; taxes, fees and rules differ by state and by lender. Read the contract before you sign. To the maximum extent permitted by law the authors are not liable for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any automaker, dealership, lender or leasing company, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save check and keep the file.</p>
+    <p>Everything runs in your browser. Prices and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted only in local storage on your device, never with any of your inputs, and are never sent anywhere. Switching them off below removes them and stays off on your next visit.</p>
+    <p>Related tools: the <a href="../auto-loan-interest-deduction-calculator/">auto loan interest deduction calculator</a> and the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy break-even calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solve, money, resultText, resultCsv, serializeState, parseState, sampleInput } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = { msrp: "msrp", price: "price", residualPct: "residual", term: "term", rebates: "rebates", down: "down", moneyFactor: "mf", quotedPayment: "pay", baseMoneyFactor: "basemf", acqFee: "acq", otherDue: "other", dispositionFee: "disp", taxRate: "tax", allowanceMiles: "allow", expectedMiles: "miles", overageCents: "over", buyApr: "buyapr", buyTerm: "buyterm", marketValue: "mkt" };
+    let R = null, INPUT = null;
+
+    function mode() { return document.querySelector('input[name="mode"]:checked').value; }
+    function syncMode() { const p = mode() === "payment"; $("#mf-wrap").hidden = p; $("#pay-wrap").hidden = !p; }
+
+    function read() {
+      const o = { mode: mode(), acqCapitalized: $("#capfee").checked };
+      for (const [k, id] of Object.entries(IDS)) o[k] = $("#" + id).value;
+      return o;
+    }
+
+    function fill(s) {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = s[k] ?? "";
+      $("#capfee").checked = Boolean(s.acqCapitalized);
+      document.querySelector('input[name="mode"][value="' + (s.mode === "payment" ? "payment" : "mf") + '"]').checked = true;
+      syncMode();
+    }
+
+    function run() {
+      INPUT = read();
+      const res = solve(INPUT);
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res;
+      status.textContent = "Done. Scroll down.";
+      render();
+      return true;
+    }
+
+    const row = (a, b, strong) => "<tr><td>" + a + '</td><td class="num">' + (strong ? "<strong>" + b + "</strong>" : b) + "</td></tr>";
+
+    function render() {
+      const i = R.input;
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const apr = R.apr === null ? "n/a" : R.apr.toFixed(2) + "%";
+      $("#big").innerHTML = [[money(R.monthly), "monthly with tax"], [R.mf.toFixed(5), "money factor"], [R.stated.toFixed(2) + "%", "APR on the rate sheet"], [apr, "APR with fees counted"], [money(R.driveOff), "due at signing"]].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + b + "</div>").join("");
+      $("#out tbody").innerHTML =
+        row("Capitalized cost (after rebates, down and capitalized fee)", money(R.adjCap)) + row("Residual value", money(R.residual)) +
+        row("Depreciation per month", money(R.dep)) + row("Rent charge per month", money(R.fin)) + row("Payment before tax", money(R.pmt), true) +
+        row("Tax per month", money(R.tax)) + row("Payment with tax", money(R.monthly), true) +
+        row("Payment as a share of MSRP (the 1% rule of thumb)", R.onePercent.toFixed(2) + "%") +
+        (R.markup ? row("Markup over base money factor", (R.markup.aprPoints >= 0 ? "+" : "") + R.markup.aprPoints.toFixed(2) + " APR points, " + money(R.markup.perMonth) + "/mo, " + money(R.markup.overTerm) + " over the term") : "") +
+        (R.overage > 0 ? row("Expected mileage overage", money(R.overage) + " (" + Math.round(R.overMiles).toLocaleString() + " miles over)") : "");
+      $("#cmp tbody").innerHTML =
+        row("Paid up front and in payments", "") .replace('<td class="num"></td>', '<td class="num">' + money(R.leaseTotal - i.dispositionFee - R.overage) + '</td><td class="num">' + money(R.buy.cashOut) + "</td>") +
+        row("Fees and mileage at the end", "").replace('<td class="num"></td>', '<td class="num">' + money(i.dispositionFee + R.overage) + '</td><td class="num">' + money(R.buy.balance) + " loan payoff</td>") +
+        row("Value of the car at the end", "").replace('<td class="num"></td>', '<td class="num">returned</td><td class="num">-' + money(R.buy.marketValue) + "</td>") +
+        row("Net cost over " + i.term + " months", "").replace('<td class="num"></td>', '<td class="num"><strong>' + money(R.leaseTotal) + '</strong></td><td class="num"><strong>' + money(R.buy.net) + "</strong></td>") +
+        row("Per month", "").replace('<td class="num"></td>', '<td class="num">' + money(R.leasePerMonth) + '</td><td class="num">' + money(R.buy.perMonth) + "</td>");
+      $("#verdict").textContent = "Over this window " + R.cheaper + "ing is cheaper by " + money(R.difference) + ", assuming the car sells for " + money(R.buy.marketValue) + ". Buying also leaves you a car you can keep driving; leasing gives you a new one at the end.";
+      $("#levers").textContent = R.levers
+        ? "Each $1,000 off the price saves about " + money(R.levers.per1000Price) + " a month. Each 0.0001 off the money factor saves about " + money(R.levers.perMfPoint) + ". One more point of residual saves about " + money(R.levers.perResidualPoint) + ". (All with tax.)"
+        : "Switch to \u201cI know the money factor\u201d to see what each lever is worth.";
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", syncMode));
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("check_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example with invented numbers. Enter your own quote above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!R) return;
+      try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("lease-check.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("lease-check.json", serializeState(INPUT), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      fill(out.state);
+      run();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../structured-settlement-buyout-calculator/" data-pf-to="structured-settlement-buyout-calculator">What rate is the settlement buyer charging you? Free calculator</a></li>
+      <li><a href="../student-loan-rap-ibr-standard-calculator/" data-pf-to="student-loan-rap-ibr-standard-calculator">Student loan RAP vs IBR vs Standard calculator</a></li>
+      <li><a href="../studio-class-slot-optimizer/" data-pf-to="studio-class-slot-optimizer">Studio Class Slot Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tax-lien-certificate-yield-calculator/" data-pf-to="tax-lien-certificate-yield-calculator">What does a tax lien certificate really yield? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=car-lease-deal-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/?pfEmbed=1&quot; title=&quot;Car Lease Deal Checker — money factor to APR and lease vs buy — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="car-lease-deal-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/" data-pf-embed-title="Car Lease Deal Checker — money factor to APR and lease vs buy" data-pf-embed-slug="car-lease-deal-checker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="car-lease-deal-checker" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="car-lease-deal-checker" data-pf-link-amount=""></script>
+</body>
+</html>

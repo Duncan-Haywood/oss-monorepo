@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merchant Feed Check vs. Eyeballing the Feed in a Spreadsheet</title>
+<meta name="description" content="Scanning a product feed in a spreadsheet catches the obvious -- a screaming all-caps title, a repeated SKU.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Merchant Feed Check vs. eyeballing the feed in a spreadsheet">
+<meta property="og:description" content="A spreadsheet scan catches a screaming promotional title and a duplicate SKU. It does not catch a GTIN with a single transposed digit…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't scanning the feed by eye catch a bad GTIN?","acceptedAnswer":{"@type":"Answer","text":"A GTIN is a 13-digit (or 8/12/14-digit) number, and a transposed or mistyped digit produces another number of the exact same length made entirely of digits -- it looks identical to a valid one sitting in the next cell. Telling the two apart means running the GS1 check-digit calculation (weight each digit 3/1 alternating from the right, sum, and the check digit must equal (10 - sum mod 10) mod 10), which nobody does by eye on a 2,000-row feed. Google and Meta both run this calculation and reject the mismatch as a bad or missing product identifier."}},{"@type":"Question","name":"Why doesn't scanning the feed by eye catch a missing currency code?","acceptedAnswer":{"@type":"Answer","text":"The published price format is \"NUMBER CURRENCY\", e.g. \"19.99 USD\" -- but a bare \"19.99\" reads as a completely ordinary price to anyone scanning the column, especially in a spreadsheet where every other price cell is formatted as currency by the spreadsheet software itself, hiding that the underlying feed value never carries the required currency code. The rejection only shows up once the feed is parsed against the spec's exact regular-expression shape, not from looking at the rendered column."}},{"@type":"Question","name":"What does a spreadsheet scan catch that this checker doesn't add much to?","acceptedAnswer":{"@type":"Answer","text":"A title in all caps with \"50% OFF\" and \"FREE SHIPPING\" in it, or the same SKU appearing on two rows, both look wrong on sight -- this checker flags the same two rows for the same reasons, so a careful reviewer scanning for those specific shapes was already going to catch them. The value here is narrow: two specific, well-documented rejection reasons that are constructed to look like ordinary data on a visual scan, checked mechanically on every row instead of on however many rows get a close look."}},{"@type":"Question","name":"Does this replace reviewing the feed before it syncs?","acceptedAnswer":{"@type":"Answer","text":"No. It is a deterministic, row-by-row check against Google's and Meta's own published product-data specification, not a review of whether the products, pricing, or category placement make business sense. A reviewer scanning the feed still catches the obviously wrong-looking rows and anything domain-specific this tool has no rule for; this checker adds the two specific, quiet failure modes a visual scan is structurally unlikely to catch."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#17604a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:28ch;letter-spacing:-.03em;color:#17324a}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#17324a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}code{font-size:.92em}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Merchant Feed Check vs. eyeballing the feed in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../merchant-feed-check/">Will this product feed get items disapproved?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Merchant Feed Check vs. eyeballing the feed in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Merchant Feed Check</a></p>
+<header>
+<h1>Merchant Feed Check vs. eyeballing the feed in a spreadsheet</h1>
+<p class="lede">Opening the feed in a spreadsheet and scanning it row by row is the normal first check before a sync, and it works well for the obvious case &mdash; a screaming promotional title, a repeated SKU. Two of the most common documented disapproval reasons are specifically the kind that look like ordinary data on a visual scan, because the value that fails is the same length and shape as every valid value around it.</p>
+</header>
+
+<section>
+<h2>A four-row feed, checked both ways</h2>
+<p>Take a feed with one clean row and three rows each carrying a different problem. This is the exact feed this page's own test runs through <code>checkFeed()</code> &mdash; nothing below is invented.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Row</th><th scope="col">What a spreadsheet scan sees</th><th scope="col">What <code>checkFeed()</code> reports</th></tr></thead>
+<tbody>
+<tr><td><code>sku-1</code></td><td>A normal-looking row: real title, real description, a 13-digit GTIN, a priced-and-in-stock item.</td><td>0 errors, 0 warnings &mdash; correctly passes.</td></tr>
+<tr><td><code>sku-2</code></td><td><strong>Looks wrong immediately:</strong> <code>GREAT DEAL Red Hoodie 50% off Free Shipping</code>, a 5-character description, <code>not-a-url</code> for the link, <code>maybe</code> for availability, <code>cheap</code> for a price.</td><td>5 errors, 4 warnings &mdash; the checker catches the same row a careful reviewer already flags on sight.</td></tr>
+<tr><td><code>sku-3</code></td><td><strong>Looks identical to <code>sku-1</code>.</strong> Same title shape, same description length, a 13-digit all-numeric GTIN sitting in the same column as every other valid one.</td><td>Exactly 1 error: <code>invalid-gtin-checksum</code>. The GTIN is <code>4006381339931</code> against <code>sku-1</code>'s <code>4006381333931</code> &mdash; two digits transposed, same length, same shape, fails the GS1 check-digit calculation.</td></tr>
+<tr><td><code>sku-4</code></td><td><strong>Looks identical to <code>sku-1</code>.</strong> Price column reads <code>19.99</code>, which is what every price in the sheet looks like once the spreadsheet software applies its own currency formatting.</td><td>Exactly 1 error: <code>invalid-price-format</code>. The underlying value is <code>19.99</code> with no currency code, and the required shape is <code>NUMBER CURRENCY</code>, e.g. <code>19.99 USD</code>.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Feed-level total, from the same test: 4 items, 3 with at least one error, 7 errors and 4 warnings overall. Two of those three flagged rows (<code>sku-3</code> and <code>sku-4</code>) would not draw a second look in a spreadsheet &mdash; nothing about them differs visually from the row directly above.</p>
+</section>
+
+<section>
+<h2>Why the checksum and the format rule are the quiet ones</h2>
+<p>
+  A GTIN is 8, 12, 13, or 14 digits. A single mistyped or transposed digit
+  produces another number of the exact same length, made entirely of digits
+  &mdash; it does not look different from a valid one in the next cell.
+  Telling them apart means running the GS1 check-digit calculation on every
+  row: weight each digit of the payload 3 and 1 alternating from the digit
+  immediately left of the check digit, sum the weighted digits, and the
+  check digit must equal <code>(10 - sum mod 10) mod 10</code>. That is not
+  a check anyone runs by hand across a feed of any real size.
+</p>
+<p>
+  The price format rule is quieter still, because the failure is an
+  <em>absence</em> rather than a wrong value. Google's and Meta's shared spec
+  requires <code>NUMBER CURRENCY</code> &mdash; <code>19.99 USD</code>, not
+  <code>19.99</code> or <code>$19.99</code>. A spreadsheet applying its own
+  currency number format renders <code>19.99</code>, <code>$19.99</code>, and
+  <code>19.99 USD</code> as visually similar cells; nothing on screen signals
+  that the underlying string never carried the required three-letter code.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Why doesn't scanning the feed by eye catch a bad GTIN?</h3>
+<p>A GTIN is a 13-digit (or 8/12/14-digit) number, and a transposed or mistyped digit produces another number of the exact same length made entirely of digits -- it looks identical to a valid one sitting in the next cell. Telling the two apart means running the GS1 check-digit calculation (weight each digit 3/1 alternating from the right, sum, and the check digit must equal (10 - sum mod 10) mod 10), which nobody does by eye on a 2,000-row feed. Google and Meta both run this calculation and reject the mismatch as a bad or missing product identifier.</p>
+<h3>Why doesn't scanning the feed by eye catch a missing currency code?</h3>
+<p>The published price format is "NUMBER CURRENCY", e.g. "19.99 USD" -- but a bare "19.99" reads as a completely ordinary price to anyone scanning the column, especially in a spreadsheet where every other price cell is formatted as currency by the spreadsheet software itself, hiding that the underlying feed value never carries the required currency code. The rejection only shows up once the feed is parsed against the spec's exact regular-expression shape, not from looking at the rendered column.</p>
+<h3>What does a spreadsheet scan catch that this checker doesn't add much to?</h3>
+<p>A title in all caps with "50% OFF" and "FREE SHIPPING" in it, or the same SKU appearing on two rows, both look wrong on sight -- this checker flags the same two rows for the same reasons, so a careful reviewer scanning for those specific shapes was already going to catch them. The value here is narrow: two specific, well-documented rejection reasons that are constructed to look like ordinary data on a visual scan, checked mechanically on every row instead of on however many rows get a close look.</p>
+<h3>Does this replace reviewing the feed before it syncs?</h3>
+<p>No. It is a deterministic, row-by-row check against Google's and Meta's own published product-data specification, not a review of whether the products, pricing, or category placement make business sense. A reviewer scanning the feed still catches the obviously wrong-looking rows and anything domain-specific this tool has no rule for; this checker adds the two specific, quiet failure modes a visual scan is structurally unlikely to catch.</p>
+<p class="note">Nothing here says a spreadsheet review is a bad first check &mdash; it is exactly right for the case it is good at. This page describes two specific, narrow failure modes that are constructed to look like ordinary data, not a fault in reviewers.</p>
+</section>
+
+<section>
+<h2>Check your own feed</h2>
+<p>Paste or load your feed &mdash; CSV, TSV, or JSON &mdash; and get the same per-row report, including the GTIN checksum and price-format checks a visual scan cannot run.</p>
+<p><a href="./">Open Merchant Feed Check</a></p>
+<p class="note">Also worth a pass if you route the same feed to many channels: <a href="./vs-datafeedwatch.html">this checker vs. DataFeedWatch</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not advice about Shopping Ads policy, account-level compliance, or whether Google or Meta will approve any specific listing. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p>Everything runs in your browser. Your feed is never uploaded, and this page names no specific spreadsheet product. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=merchant-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="merchant-feed-check"></script>
+</body></html>

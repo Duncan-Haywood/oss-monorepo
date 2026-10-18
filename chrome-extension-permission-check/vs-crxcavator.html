@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. CRXcavator | Chrome Extension Permission Checker</title>
+<meta name="description" content="CRXcavator, from Cisco/Duo Security, scores already-published Chrome extensions for risk from their packaged .crx and Chrome Web Store metadata.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/vs-crxcavator.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. CRXcavator">
+<meta property="og:description" content="Two different moments: CRXcavator scores a published extension from the outside, for someone deciding whether to trust it.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/vs-crxcavator.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or CRXcavator?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They look at extensions from opposite sides. CRXcavator, built by Duo Security (now part of Cisco), takes a Chrome Web Store extension ID or an uploaded .crx and produces a risk score from its packaged code, requested permissions, Content Security Policy, and webstore metadata -- it is built for a security or IT team deciding whether to trust an extension someone else published. This checker takes your own extension's source tree and manifest.json, before you have published anything, and cross-checks the chrome.* APIs your code actually calls against the permissions you declared. Reach for CRXcavator when you are vetting a third-party extension you did not write. Reach for this when you are the one writing the extension and want to catch a 'Purple Potassium' unused-permission rejection, or a missing permission that would fail at runtime, before you submit." }
+    },
+    {
+      "@type": "Question",
+      "name": "CRXcavator is free too. What does this add?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Being free is not the difference, and this page does not claim it is: CRXcavator is a free tool. The difference is what each one needs and what it can see. CRXcavator needs a published extension -- it scans the packaged .crx and the Chrome Web Store listing, so it cannot run against an extension that only exists on your disk. This checker needs your source and your manifest, and nothing else: no upload, no Chrome Web Store listing, no publish step first. It is built for the moment before you have anything to submit, which is exactly the moment a risk-scoring tool for already-listed extensions cannot help with." }
+    },
+    {
+      "@type": "Question",
+      "name": "If CRXcavator already scores permissions, why run a permission-only checker?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because they answer different questions about permissions. CRXcavator's score tells a reviewer or an IT team how much access an already-published extension is asking for, weighed against its other signals -- useful for deciding whether to allow it. This checker tells the developer of an unpublished extension which specific declared permission has no matching chrome.* call in their own code (the exact shape of Chrome's most-cited rejection reason) and, in the other direction, which API call has no permission declared for it at all, which is a runtime failure waiting to happen. A risk score is a verdict about trustworthiness; this is a line-by-line reconciliation between a manifest and the code behind it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Cisco or Duo Security?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Cisco Systems or Duo Security, and CRXcavator is named here only to describe what this checker is and is not. The description of CRXcavator on this page is drawn from its own public site; check it there for what it currently scores and how." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. CRXcavator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. CRXcavator</span></span></nav>
+<p><a href="index.html">&larr; Chrome extension permission checker</a></p>
+
+<h1>This checker vs. CRXcavator</h1>
+
+<p>
+  <strong>CRXcavator</strong>, from
+  <a href="https://crxcavator.io/" rel="nofollow noopener">Duo Security</a> (now part of Cisco), takes a
+  Chrome Web Store extension ID -- or an uploaded <code>.crx</code> file -- and produces a risk score
+  from the packaged extension's requested permissions, Content Security Policy, retire.js findings, and
+  webstore listing metadata. It is aimed at a security or IT team deciding whether an extension someone
+  else built and published is safe to allow.
+</p>
+
+<p>
+  This checker is a different job entirely. It is a free, zero-dependency tool -- usable in the browser
+  with no upload, or as a Node CLI -- that reads <strong>your own extension's source tree</strong> and
+  its <code>manifest.json</code>, before you have submitted anything to the Chrome Web Store. It scans
+  for <code>chrome.*</code> API calls in your JavaScript/TypeScript and cross-checks them against the
+  permissions, <code>optional_permissions</code>, and <code>host_permissions</code> your manifest
+  declares, naming any declared-but-unused permission (Google's documentation cites this as the most
+  common review rejection, "Purple Potassium") and any API call whose permission was never declared
+  (a runtime failure, not just a review problem).
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Decide whether to trust an already-published extension you did not write, for your own use or your organization's.</td>
+      <td>CRXcavator -- it scans the published <code>.crx</code> and webstore listing and returns a risk score, no source access needed.</td>
+    </tr>
+    <tr>
+      <td>Find out why your own unpublished extension might get rejected for an unused permission, or fail at runtime on a missing one.</td>
+      <td>This checker -- it reads your source and manifest directly, before you submit anything.</td>
+    </tr>
+    <tr>
+      <td>Score an extension's Content Security Policy, webstore rating, or third-party library versions.</td>
+      <td>CRXcavator -- none of that is something this checker looks at; it is permissions only.</td>
+    </tr>
+    <tr>
+      <td>Reconcile a manifest against the code behind it, line by line, with no publish step and nothing uploaded.</td>
+      <td>This checker -- the browser tool reads local files with the File API and never sends them anywhere; the CLI makes no network call.</td>
+    </tr>
+    <tr>
+      <td>Vet a list of extensions already installed across an organization's browsers.</td>
+      <td>CRXcavator -- it is built for exactly that fleet-review use case; this checker has no fleet or inventory feature.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These fit different points in an extension's life rather than competing for the same one. A team
+  building its own extension can run this checker before every submission to catch a permission
+  mismatch early, and separately run something like CRXcavator over the third-party extensions it is
+  deciding whether to trust. Neither replaces the other.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or CRXcavator?</h3>
+<p>They look at extensions from opposite sides. CRXcavator, built by Duo Security (now part of Cisco), takes a Chrome Web Store extension ID or an uploaded .crx and produces a risk score from its packaged code, requested permissions, Content Security Policy, and webstore metadata -- it is built for a security or IT team deciding whether to trust an extension someone else published. This checker takes your own extension's source tree and manifest.json, before you have published anything, and cross-checks the chrome.* APIs your code actually calls against the permissions you declared. Reach for CRXcavator when you are vetting a third-party extension you did not write. Reach for this when you are the one writing the extension and want to catch a 'Purple Potassium' unused-permission rejection, or a missing permission that would fail at runtime, before you submit.</p>
+
+<h3>CRXcavator is free too. What does this add?</h3>
+<p>Being free is not the difference, and this page does not claim it is: CRXcavator is a free tool. The difference is what each one needs and what it can see. CRXcavator needs a published extension -- it scans the packaged .crx and the Chrome Web Store listing, so it cannot run against an extension that only exists on your disk. This checker needs your source and your manifest, and nothing else: no upload, no Chrome Web Store listing, no publish step first. It is built for the moment before you have anything to submit, which is exactly the moment a risk-scoring tool for already-listed extensions cannot help with.</p>
+
+<h3>If CRXcavator already scores permissions, why run a permission-only checker?</h3>
+<p>Because they answer different questions about permissions. CRXcavator's score tells a reviewer or an IT team how much access an already-published extension is asking for, weighed against its other signals -- useful for deciding whether to allow it. This checker tells the developer of an unpublished extension which specific declared permission has no matching chrome.* call in their own code (the exact shape of Chrome's most-cited rejection reason) and, in the other direction, which API call has no permission declared for it at all, which is a runtime failure waiting to happen. A risk score is a verdict about trustworthiness; this is a line-by-line reconciliation between a manifest and the code behind it.</p>
+
+<h3>Is this page affiliated with Cisco or Duo Security?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Cisco Systems or Duo Security, and CRXcavator is named here only to describe what this checker is and is not. The description of CRXcavator on this page is drawn from its own public site; check it there for what it currently scores and how.</p>
+
+<p><a href="index.html">&larr; Back to the Chrome extension permission checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker reports what pattern-matching found
+  in the files you selected and what your manifest declares. It cannot see a permission used only
+  inside a bundled third-party library's minified code, a dynamic import, or a permission with no code
+  signature this tool maps. A clean report is not a guarantee Chrome Web Store review will pass.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace a qualified professional or Chrome
+  Web Store's own review process. <strong>You are responsible for reviewing and verifying its output
+  before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum
+  extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow,
+  broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=chrome-extension-permission-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="chrome-extension-permission-check"></script>
+</body>
+</html>

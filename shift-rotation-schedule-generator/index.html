@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rotating Shift Schedule Generator — Pitman, 4-on-4-off, DuPont, 24/48 Calendar</title>
+  <meta name="description" content="Generate a rotating shift schedule for Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont and 24/48 patterns: see hours per week, weekends off and days off per year…">
+  <meta property="og:title" content="Rotating shift schedule to calendar, in your browser">
+  <meta property="og:description" content="Pitman, DuPont, 4-on-4-off and 24/48 schedules with hours, weekends off and a calendar file. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shift Rotation Schedule Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Generate Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont and 24/48 rotating shift calendars, compare hours and weekends off, find your crew from dates you remember, and export an .ics calendar file. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Pitman (2-2-3) schedule?", "acceptedAnswer": {"@type": "Answer", "text": "Work two days, off two, work three, off two, work two, off three, repeating every 14 days with four crews covering days and nights. It averages 42 hours a week on 12-hour shifts, gives every other weekend off and never needs more than three shifts in a row, but some weeks contain five shifts (60 hours)."}}, {"@type": "Question", "name": "How do I put a rotating shift schedule into Google or Apple Calendar?", "acceptedAnswer": {"@type": "Answer", "text": "Pick the pattern and your crew, enter the date you are on day 1 of the cycle, choose how many days to cover and download the .ics file. Import it into Google Calendar, Apple Calendar or Outlook. Events use local wall-clock time, so a 07:00 shift stays at 07:00 across daylight saving changes."}}, {"@type": "Question", "name": "I do not know which crew or cycle day I am on. What now?", "acceptedAnswer": {"@type": "Answer", "text": "Use the Find my crew box: list a few dates you remember working a day shift, a night shift or being off. The tool shows every crew position that fits. If more than one fits, add another remembered date until only one is left."}}, {"@type": "Question", "name": "Does the tool check overtime law?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reports the average hours per week and the most hours in any 7-day window, which are the numbers people ask about. Overtime rules differ by country, state, industry and agreement (for example 7(k) work periods for fire and police in the United States), so confirm with your employer or union."}}, {"@type": "Question", "name": "Is my schedule uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page and the calendar file is built in your browser. The page makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    
+    
+    .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+    .cal div { padding: 6px 2px; text-align: center; border-radius: 6px; font-size: .8rem; background: #f7f9fb; min-height: 2.6em; }
+    .cal .h { font-weight: 700; color: #55606f; background: none; min-height: 0; }
+    .cal .D { background: #fde9a8; color: #5a3d00; font-weight: 700; }
+    .cal .N { background: #c8d7f5; color: #12285a; font-weight: 700; }
+    .cal .pad { background: none; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .stat { background: #f7f9fb; border-radius: 8px; padding: 10px; } .stat b { display: block; font-size: 1.25rem; color: #17324a; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Rotating shift schedule to calendar, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rotating shift schedule to calendar, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Rotating shift schedule to calendar, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SHIFT ROTATION SCHEDULE GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Your rotating shift schedule, as a calendar</h1>
+    <p>Pick <strong>Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont or 24/48</strong>, enter your crew and cycle start, and get the dates, the real <strong>hours per week and weekends off</strong>, and an <strong>.ics file</strong> for Google, Apple or Outlook. Not sure which crew you are? List a few dates you remember and the tool finds it.</p>
+    <p class="note">Nothing is uploaded. The page makes no network calls.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your schedule</h2>
+    <p>
+      <label for="pattern">Pattern: </label><select id="pattern"></select>
+      <label for="crew">Crew: </label><select id="crew"></select>
+    </p>
+    <p id="blurb" class="note"></p>
+    <p>
+      <label for="anchor">Date your crew is on cycle day 1: </label><input type="text" id="anchor" size="11" placeholder="2026-10-12">
+      <label for="from">Show from: </label><input type="text" id="from" size="11" placeholder="2026-10-12">
+      <label for="count">Days: </label><input type="text" id="count" size="4" value="56">
+    </p>
+    <p>
+      <label for="dayStart">Day shift starts: </label><input type="text" id="dayStart" size="6" value="07:00">
+      <label for="nightStart">Night shift starts: </label><input type="text" id="nightStart" size="6" value="19:00">
+    </p>
+    <p>
+      <button type="button" id="generate">Show schedule</button>
+      <button type="button" class="secondary" id="ics">Download .ics calendar</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+    </p>
+    <p class="note" id="status">Choose a pattern and click Show schedule.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2 id="result-title">Schedule</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="stats" id="stats"></div>
+    <div class="cal" id="cal"></div>
+    <p class="note">Yellow = day shift, blue = night shift, blank = off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Find my crew</h2>
+    <p class="note">One date per line: <code>2026-10-14 D</code> (worked a day shift), <code>2026-10-20 N</code> (night shift) or <code>2026-10-22 -</code> (off). More dates narrow it down.</p>
+    <textarea id="obs" class="short" spellcheck="false" placeholder="2026-10-14 D&#10;2026-10-15 D&#10;2026-10-16 -"></textarea>
+    <p><button type="button" id="fit">Find my crew</button></p>
+    <div id="fit-out"></div>
+  </section>
+
+  <section class="card">
+    <h2>Compare the patterns (crew A)</h2>
+    <div class="tableWrap"><div class="pf-table-scroll"><table id="compare"><thead><tr><th>Pattern</th><th>Shift</th><th>Hours / week</th><th>Worst 7 days</th><th>Days off / yr</th><th>Weekends off / yr</th><th>Longest run</th><th>Longest break</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">Hours per week is the cycle average. "Worst 7 days" is the most hours in any 7-day window, which is what overtime rules usually look at; check yours.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs --pattern pitman --crew B --anchor 2026-10-12 --days 90
+node cli.mjs --pattern dupont --crew A --anchor 2026-10-12 --ics shifts.ics
+node cli.mjs --compare</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="rotation.mjs" rel="noopener">rotation.mjs</a> from the repo. Node 18+, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a Pitman (2-2-3) schedule?</h3>
+    <p>Work two days, off two, work three, off two, work two, off three, repeating every 14 days with four crews covering days and nights. It averages 42 hours a week on 12-hour shifts, gives every other weekend off and never needs more than three shifts in a row, but some weeks contain five shifts (60 hours).</p>
+    <h3>How do I put a rotating shift schedule into Google or Apple Calendar?</h3>
+    <p>Pick the pattern and your crew, enter the date you are on day 1 of the cycle, choose how many days to cover and download the .ics file. Import it into Google Calendar, Apple Calendar or Outlook. Events use local wall-clock time, so a 07:00 shift stays at 07:00 across daylight saving changes.</p>
+    <h3>I do not know which crew or cycle day I am on. What now?</h3>
+    <p>Use the Find my crew box: list a few dates you remember working a day shift, a night shift or being off. The tool shows every crew position that fits. If more than one fits, add another remembered date until only one is left.</p>
+    <h3>Does the tool check overtime law?</h3>
+    <p>No. It reports the average hours per week and the most hours in any 7-day window, which are the numbers people ask about. Overtime rules differ by country, state, industry and agreement (for example 7(k) work periods for fire and police in the United States), so confirm with your employer or union.</p>
+    <h3>Is my schedule uploaded anywhere?</h3>
+    <p>No. Everything runs in this page and the calendar file is built in your browser. The page makes no network calls.</p>
+    <p>More: <a href="rotating-shift-schedules-compared.html">Pitman vs DuPont vs 4-on-4-off vs 24/48: which rotating shift pattern is best?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Schedules are generated from standard published patterns; your employer's roster is authoritative. This is not legal, labour or payroll advice, and overtime rules vary by jurisdiction and agreement. <strong>You are responsible for confirming your schedule with your employer before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The dates you enter are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>schedule_shown</code>, <code>ics_downloaded</code>, <code>crew_fitted</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../volunteer-shift-scheduler/">Volunteer Shift Scheduler</a> and <a href="../shift-roster-builder/">Shift Roster Builder</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { PATTERNS, PATTERN_KEYS, buildDays, stats, compare, fitSchedule, toIcs } from "./rotation.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const today = new Date().toISOString().slice(0, 10);
+
+    for (const k of PATTERN_KEYS) $("#pattern").insertAdjacentHTML("beforeend", `<option value="${k}">${escapeHtml(PATTERNS[k].name)}</option>`);
+    function fillCrews() {
+      const p = PATTERNS[$("#pattern").value];
+      $("#crew").innerHTML = p.crews.map(([n]) => `<option>${n}</option>`).join("");
+      $("#blurb").textContent = p.blurb;
+    }
+    $("#pattern").addEventListener("change", fillCrews);
+    fillCrews();
+
+    function current() {
+      const key = $("#pattern").value, crew = $("#crew").value;
+      const anchor = $("#anchor").value.trim() || today;
+      const from = $("#from").value.trim() || anchor;
+      const count = Math.min(Math.max(parseInt($("#count").value, 10) || 56, 1), 730);
+      return { key, crew, anchor, from, count };
+    }
+
+    function show() {
+      try {
+        const c = current();
+        const days = buildDays(c.key, c.crew, c.anchor, c.from, c.count);
+        const s = stats(c.key, c.crew);
+        $("#result-title").textContent = `${s.pattern} · crew ${s.crew}`;
+        $("#verdict").textContent = `${s.hoursPerWeek} hours a week on average · ${s.fullWeekendsOffPerYear} full weekends off a year`;
+        $("#stats").innerHTML = [
+          [s.shiftsPerYear, "shifts a year"], [s.daysOffPerYear, "days off a year"], [s.maxHoursIn7Days + " h", "most in any 7 days"],
+          [s.longestRun, "longest run of shifts"], [s.longestBreak, "longest break (days)"], [s.nightShare + "%", "of shifts are nights"],
+        ].map(([v, l]) => `<div class="stat"><b>${v}</b>${l}</div>`).join("");
+        const heads = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => `<div class="h">${d}</div>`).join("");
+        const pad = Array(days[0].dow).fill('<div class="pad"></div>').join("");
+        const cells = days.map((d) => `<div class="${d.shift === "-" ? "" : d.shift}" title="${d.date}">${d.date.slice(5)}<br>${d.shift === "-" ? "" : d.shift === "D" ? "Day" : "Night"}</div>`).join("");
+        $("#cal").innerHTML = heads + pad + cells;
+        $("#result-card").hidden = false;
+        $("#status").textContent = "";
+        record("schedule_shown");
+        return { c, days };
+      } catch (e) {
+        $("#status").textContent = e.message;
+        $("#status").className = "note error";
+        return null;
+      }
+    }
+
+    $("#generate").addEventListener("click", () => { $("#status").className = "note"; show(); });
+    $("#ics").addEventListener("click", () => {
+      $("#status").className = "note";
+      const r = show();
+      if (!r) return;
+      try {
+        const text = toIcs(r.days, { patternKey: r.c.key, crewName: r.c.crew, dayStart: $("#dayStart").value, nightStart: $("#nightStart").value });
+        const url = URL.createObjectURL(new Blob([text], { type: "text/calendar" }));
+        const a = document.createElement("a");
+        a.href = url; a.download = `shifts-${r.c.key}-${r.c.crew}.ics`; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        $("#status").textContent = "Calendar file created. Import it into Google Calendar, Apple Calendar or Outlook.";
+        record("ics_downloaded");
+      } catch (e) { $("#status").textContent = e.message; $("#status").className = "note error"; }
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#pattern").value = "pitman"; fillCrews(); $("#crew").value = "A";
+      $("#anchor").value = today; $("#from").value = today; $("#count").value = "56";
+      show(); record("example_loaded");
+    });
+    $("#fit").addEventListener("click", () => {
+      const out = $("#fit-out");
+      try {
+        const obs = $("#obs").value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+          const m = /^(\d{4}-\d{2}-\d{2})\s+([DNdn-])$/.exec(l);
+          if (!m) throw new Error(`Could not read "${l}". Use: 2026-10-14 D`);
+          return { date: m[1], shift: m[2].toUpperCase() };
+        });
+        const matches = fitSchedule($("#pattern").value, obs);
+        record("crew_fitted");
+        out.innerHTML = matches.length
+          ? `<p><strong>${matches.length} fit${matches.length === 1 ? "s" : ""}.</strong>${matches.length > 1 ? " Add another remembered date to narrow it down." : ""}</p><ul>` +
+            matches.map((m) => `<li>Crew ${m.crew}, cycle day 1 on ${m.anchor}</li>`).join("") + "</ul>"
+          : '<p class="error">No crew in this pattern matches those dates. Check the pattern, or a date or shift letter.</p>';
+        if (matches.length === 1) { $("#crew").value = matches[0].crew; $("#anchor").value = matches[0].anchor; $("#from").value = today; }
+      } catch (e) { out.innerHTML = `<p class="error">${escapeHtml(e.message)}</p>`; }
+    });
+
+    $("#compare tbody").innerHTML = compare(0).map((r) => `<tr><td>${escapeHtml(r.pattern)}</td><td>${r.shiftHours} h</td><td>${r.hoursPerWeek}</td><td>${r.maxHoursIn7Days}</td><td>${r.daysOffPerYear}</td><td>${r.fullWeekendsOffPerYear}</td><td>${r.longestRun}</td><td>${r.longestBreak}</td></tr>`).join("");
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dining-room-table-mix-optimizer/" data-pf-to="dining-room-table-mix-optimizer">Dining room table mix optimizer</a></li>
+      <li><a href="../distillery-excise-tax-calculator/" data-pf-to="distillery-excise-tax-calculator">Distillery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../dry-cleaner-profit-calculator/" data-pf-to="dry-cleaner-profit-calculator">Dry cleaner calculator: how many pieces a month do you need to break even? Free, private</a></li>
+      <li><a href="../fair-workweek-schedule-checker/" data-pf-to="fair-workweek-schedule-checker">Fair Workweek Schedule Checker — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shift-rotation-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/?pfEmbed=1&quot; title=&quot;Rotating shift schedule to calendar, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="shift-rotation-schedule-generator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/" data-pf-embed-title="Rotating shift schedule to calendar, in your browser" data-pf-embed-slug="shift-rotation-schedule-generator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="shift-rotation-schedule-generator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="shift-rotation-schedule-generator" data-pf-link-amount=""></script>
+</body>
+</html>

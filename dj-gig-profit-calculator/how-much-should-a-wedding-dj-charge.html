@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much Should a Wedding DJ Charge: Worked Numbers</title>
+  <meta name="description" content="A worked example of wedding DJ pricing: unpaid hours, gear wear, mileage and fees, the break-even price, a good, better, best ladder…">
+  <meta property="og:title" content="How Much Should a Wedding DJ Charge: Worked Numbers">
+  <meta property="og:description" content="Unpaid hours, gear wear, fees, break-even price, a tier ladder and an annual income target, worked on invented numbers.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should a wedding DJ charge?","acceptedAnswer":{"@type":"Answer","text":"Work from the hours you really spend. On the example numbers a 5-hour reception costs 10 hours of work once 5 unpaid hours of load-in, planning and driving are added, so a $1,200 quote is $240.00 per playing hour but $107.10 per hour worked. Local prices differ; enter your own figures in the calculator."}},{"@type":"Question","name":"What is the break-even price for a DJ gig?","acceptedAnswer":{"@type":"Answer","text":"The price at which take-home profit is zero: your gig costs divided by one minus the fees. On the example it is $96, and the price that pays $60 per hour worked is $714."}},{"@type":"Question","name":"How do I price a year, not a gig?","acceptedAnswer":{"@type":"Answer","text":"Pick the take-home you want, then solve for the price. To take home $60,000 over 60 gigs (35 peak, 25 off-season, peak 20% higher) the example needs about $1,009 off-season and $1,211 at peak."}},{"@type":"Question","name":"Is this advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type, not tax, legal or financial advice, and it does not know what weddings cost in your town."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { color: #4c5a68; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dj-gig-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Should a Wedding DJ Charge: Worked Numbers — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dj-gig-profit-calculator/">DJ Gig Profit Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Should a Wedding DJ Charge: Worked Numbers</span></span></nav>
+  <header>
+    <p class="note"><a href="./">DJ Gig Profit Calculator</a> · GUIDE</p>
+    <h1>How much should a wedding DJ charge?</h1>
+    <p>Worked on invented numbers; put yours into <a href="./#quote-builder">the quote builder</a>. Nothing here is a market price.</p>
+  </header>
+  <section class="card">
+    <h2>One reception, priced from the bottom up</h2>
+    <p>A 5-hour reception quoted at $1,200. Around it: 2 hours of load-in and load-out, 2 hours of planning and music prep, 1 hour of driving. That is 5 unpaid hours on top of 5 playing hours, 10 hours of work, and 50% of it is not on the dance floor.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Amount</th></tr></thead><tbody>
+    <tr><td>Quote price</td><td>$1,200.00</td></tr>
+    <tr><td>Card fee (3%)</td><td>$36.00</td></tr>
+    <tr><td>Gear wear ($6,000 over 150 gigs)</td><td>$40.00</td></tr>
+    <tr><td>Insurance share ($600 over 60 gigs)</td><td>$10.00</td></tr>
+    <tr><td>Software share ($900 over 60 gigs)</td><td>$15.00</td></tr>
+    <tr><td>Mileage (40 miles at $0.70)</td><td>$28.00</td></tr>
+    <tr><td>Take-home profit</td><td>$1,071.00</td></tr>
+    </tbody></table></div></div>
+    <p>Profit divided by 10 hours is $107.10 per hour worked, against $240.00 per playing hour on the quote. The break-even price, where profit is zero and your 10 hours are unpaid, is $96; the price that pays $60 per hour worked is $714. Overtime should be billed at no less than $61.86 per hour to cover the same target.</p>
+    <h3>Deposit schedule</h3>
+    <p>Deposit at booking: $360.00; Balance due 14 days before the event: $840.00.</p>
+  </section>
+  <section class="card">
+    <h2>Good, better, best</h2>
+    <p>Each tier is priced from its own hours and costs at the same $60 per hour target, rounded up to $25. Add-ons: ceremony sound (good), cocktail hour and uplighting (better), photo booth and MC (best).</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Tier</th><th>Hours worked</th><th>Price</th><th>Profit</th><th>Per hour</th></tr></thead><tbody>
+    <tr><td>good</td><td>10.5</td><td>$775</td><td>$644</td><td>$61.31</td></tr>
+    <tr><td>better</td><td>12</td><td>$925</td><td>$739</td><td>$61.60</td></tr>
+    <tr><td>best</td><td>12.5</td><td>$1,100</td><td>$759</td><td>$60.72</td></tr>
+    </tbody></table></div></div>
+  </section>
+  <section class="card">
+    <h2>Pricing a year</h2>
+    <p>To take home $60,000 over 60 gigs, 35 in peak season and 25 off-season with peak priced 20% higher, the base package needs about $1,009 off-season and $1,211 at peak. That is 600 hours of work a year and $100.00 per hour worked.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a wedding DJ charge?</h3>
+    <p>Work from the hours you really spend. On the example numbers a 5-hour reception costs 10 hours of work once 5 unpaid hours of load-in, planning and driving are added, so a $1,200 quote is $240.00 per playing hour but $107.10 per hour worked. Local prices differ; enter your own figures in the calculator.</p>
+    <h3>What is the break-even price for a DJ gig?</h3>
+    <p>The price at which take-home profit is zero: your gig costs divided by one minus the fees. On the example it is $96, and the price that pays $60 per hour worked is $714.</p>
+    <h3>How do I price a year, not a gig?</h3>
+    <p>Pick the take-home you want, then solve for the price. To take home $60,000 over 60 gigs (35 peak, 25 off-season, peak 20% higher) the example needs about $1,009 off-season and $1,211 at peak.</p>
+    <h3>Is this advice?</h3>
+    <p>No. It is arithmetic on the numbers you type, not tax, legal or financial advice, and it does not know what weddings cost in your town.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with any DJ booking platform, agency, payment processor or trade association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p>Back to <a href="./">the calculator</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../medical-billing-pricing-calculator/" data-pf-to="medical-billing-pricing-calculator">Medical billing pricing calculator: percent vs per-claim vs flat</a></li>
+      <li><a href="../mini-golf-course-profit-calculator/" data-pf-to="mini-golf-course-profit-calculator">Mini-golf course profit calculator: does the course pay for itself? Free, private</a></li>
+      <li><a href="../mobile-detailing-day-planner/" data-pf-to="mobile-detailing-day-planner">Which detailing jobs should you take today? Free day planner</a></li>
+      <li><a href="../mobile-mechanic-visit-pricing-calculator/" data-pf-to="mobile-mechanic-visit-pricing-calculator">Mobile mechanic pricing calculator: what to charge per job and per stop. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dj-gig-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dj-gig-profit-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per house square foot | Roofing Bid Calculator</title>
+<meta name="description" content="A flat 'X dollars a square foot of house' price cannot see pitch or tear-off layers. This free, private browser calculator converts each section's footprint…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per house square foot">
+<meta property="og:description" content="A 2,200 sq ft house with a simple 6/12 main and a 4/12 garage, single-layer tear-off, and the same 2,200 sq ft footprint at 12/12 and 10/12 with a two-layer…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per house square foot get a reroof wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the roof's actual surface area and how many layers are coming off, not the house's footprint. A 1,800 sq ft main house at a 6/12 pitch has about 20.1 squares of roof surface, not 18; the same footprint at 12/12 has about 25.5 squares -- 41% more material and cutting for the identical footprint. Add a second tear-off layer and the crew is stripping twice the material before a single shingle goes down. A flat price per house square foot charges by the footprint because that is the only number it has, not because the footprint is what the job actually costs."}},{"@type":"Question","name":"What does a flat price per house square foot usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Pitch and tear-off layers. A flat price has no line for a steep section's extra roof surface from the pitch factor, no line for the steep-labor multiplier a crew working a 12/12 actually needs versus a 6/12, and no separate line for a second or third tear-off layer, which doubles or triples the tear-off hours and dump weight on the same footprint. It also has no line that separates a low, simple main from a steep, multi-layer garage or dormer, since the flat number was set on the house's total footprint alone."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting example: a 2,200 sq ft footprint -- a 1,800 sq ft main at a 6/12 pitch and a 400 sq ft attached garage at 4/12, both single-layer tear-off -- prices at $13,857.34, on a job that costs $11,085.87 to run: $6.30 per footprint square foot. Take the identical 2,200 sq ft footprint and make the main 12/12 and the garage 10/12, both with a two-layer tear-off, and the job costs $19,652.96 to run before a dollar of profit, and this calculator prices it at $24,566.20 -- $11.17 per footprint square foot, 1.77 times the easy job's price, on the identical footprint. Quoting the steep job at the easy job's flat $13,857.34 price prices it $5,795.62 below its own break-even cost, before counting the $10,708.86 it falls short of this calculator's own price at a 20% target margin. Same footprint, same flat price, one roof that pays and one that loses money the moment the pitch and the tear-off layers show up."}},{"@type":"Question","name":"Is a flat price per house square foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- a low-slope house with a single covering layer to tear off and no unusual sections -- a flat per-footprint-square-foot number can land close, because that is probably the job the price was set on. The risk is quoting a steep pitch, multiple tear-off layers, or a mix of sections (a main, a garage, a porch, a dormer) sight unseen, because the price does not know the pitch or the layer count until someone measures the roof, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your supplier's pricing, or your material costs. It takes each section's footprint, pitch, and tear-off layers, a material preset, waste, install and tear-off hours, your own wage, burden, dump, permit, overhead, and target margin, and turns that into a price for this roof -- the arithmetic a flat price per house square foot skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#241c16;background:#f3eee6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a3d14;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#5c5146}section{background:#fff;border:1px solid #d9cbb8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e6dccb;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d9cbb8;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5146}.fine,.note{font-size:.88rem;color:#5c5146}footer{color:#5c5146;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per house square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../roofing-bid-calculator/">Roofing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per house square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Roofing Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per house square foot</h1>
+<p class="lede">&ldquo;$7 a square foot, done&rdquo; is not a price for a reroof &mdash; it is a price for one pitch and one tear-off layer, quietly applied to every house that calls in with a different footprint.</p>
+</header>
+<section>
+<h2>What a flat price per house square foot is</h2>
+<p>
+A flat price per house square foot is the fastest way to quote a reroof
+over the phone: multiply the house's footprint square footage by a number
+and read it back. Customers shop it because it is easy to compare between
+bids, and it is the number a customer holding a competitor's quote will
+ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of roof &mdash; usually a
+simple, low-slope main with one covering layer to tear off &mdash; and
+then reused for every house afterward, whether or not the next one is
+steep, carries a second or third layer underneath, or adds a garage,
+porch, or dormer at a different pitch.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+section's footprint and pitch, how many layers are coming off, waste, a
+material preset, install and tear-off hours, and your own wage, payroll
+burden, dump, permit, overhead, and target margin. It converts each
+section's footprint to actual roof surface using its pitch, prices
+material and labor by the square with a steep-labor multiplier, prices
+tear-off by the layer, and returns the job price, the price per square,
+the effective hourly rate, and the walk-away price &mdash; for this roof
+and this pitch, not a flat number for every house.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price per house square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same fee whether a section is a flat 4/12 or a steep 12/12, even though the steeper section has 41% more actual roof surface on the identical footprint.</td>
+<td>Converts each section's footprint to surface area with its own pitch factor (surface = footprint &times; &radic;(1 + (rise/12)&sup2;)), then prices material and covers-per-square from the real surface, not the footprint.</td>
+</tr>
+<tr>
+<td>Has no line for how steep a crew has to work &mdash; a 12/12 tear-off and install gets the same labor rate as a 4/12.</td>
+<td>Applies a steep-labor multiplier by pitch (up to double the normal rate above a 12/12) to both install and tear-off hours, so a harder-to-walk roof costs more to crew.</td>
+</tr>
+<tr>
+<td>Quotes the same number for a single-layer tear-off and a two- or three-layer tear-off, with no separate line for the extra strip-off and dump.</td>
+<td>Prices tear-off surface as squares &times; layers, so a house with two layers of old shingles tears off, dumps, and bills for twice the material a single-layer house does.</td>
+</tr>
+<tr>
+<td>Has no per-section breakdown &mdash; a steep garage or dormer eating a third of the labor on a fraction of the footprint disappears into one house-wide number.</td>
+<td>Prices every section &mdash; main, garage, porch, dormer, addition &mdash; on its own footprint, pitch, and tear-off layers, and reports each section's share of total labor hours.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the price per square, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two 2,200 sq ft footprints, one flat price</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+A 2,200 sq ft footprint &mdash; a 1,800 sq ft main house at a 6/12 pitch
+and a 400 sq ft attached garage at 4/12, both a single-layer tear-off
+&mdash; prices at <strong>$13,857.34</strong> &mdash;
+<strong>$6.30 per footprint square foot</strong> &mdash; on a job that
+costs $11,085.87 to run.
+</p>
+<p>
+Take the identical 2,200 sq ft footprint and make it a steeper roof
+instead &mdash; the main house at a 12/12 pitch and the garage at 10/12,
+both with a two-layer tear-off coming off first &mdash; and the job
+costs <strong>$19,652.96</strong> to run before a dollar of profit, and
+this calculator prices it at <strong>$24,566.20</strong>:
+<strong>$11.17 per footprint square foot</strong>, 1.77 times the easy
+job's price, on the identical footprint. Quoting the steep job at the
+easy job's flat <strong>$13,857.34</strong> price prices it
+<strong>$5,795.62 below its own break-even cost</strong> &mdash; before
+counting the $10,708.86 it falls short of this calculator's own price at
+a 20% target margin. Same footprint, same flat price, one roof that pays
+and one that loses money the moment the pitch and the tear-off layers
+show up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per house square foot get a reroof wrong?</h3>
+<p>Because the cost driver is the roof's actual surface area and how many layers are coming off, not the house's footprint. A 1,800 sq ft main house at a 6/12 pitch has about 20.1 squares of roof surface, not 18; the same footprint at 12/12 has about 25.5 squares -- 41% more material and cutting for the identical footprint. Add a second tear-off layer and the crew is stripping twice the material before a single shingle goes down. A flat price per house square foot charges by the footprint because that is the only number it has, not because the footprint is what the job actually costs.</p>
+<h3>What does a flat price per house square foot usually leave out entirely?</h3>
+<p>Pitch and tear-off layers. A flat price has no line for a steep section's extra roof surface from the pitch factor, no line for the steep-labor multiplier a crew working a 12/12 actually needs versus a 6/12, and no separate line for a second or third tear-off layer, which doubles or triples the tear-off hours and dump weight on the same footprint. It also has no line that separates a low, simple main from a steep, multi-layer garage or dormer, since the flat number was set on the house's total footprint alone.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting example: a 2,200 sq ft footprint -- a 1,800 sq ft main at a 6/12 pitch and a 400 sq ft attached garage at 4/12, both single-layer tear-off -- prices at $13,857.34, on a job that costs $11,085.87 to run: $6.30 per footprint square foot. Take the identical 2,200 sq ft footprint and make the main 12/12 and the garage 10/12, both with a two-layer tear-off, and the job costs $19,652.96 to run before a dollar of profit, and this calculator prices it at $24,566.20 -- $11.17 per footprint square foot, 1.77 times the easy job's price, on the identical footprint. Quoting the steep job at the easy job's flat $13,857.34 price prices it $5,795.62 below its own break-even cost, before counting the $10,708.86 it falls short of this calculator's own price at a 20% target margin. Same footprint, same flat price, one roof that pays and one that loses money the moment the pitch and the tear-off layers show up.</p>
+<h3>Is a flat price per house square foot ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- a low-slope house with a single covering layer to tear off and no unusual sections -- a flat per-footprint-square-foot number can land close, because that is probably the job the price was set on. The risk is quoting a steep pitch, multiple tear-off layers, or a mix of sections (a main, a garage, a porch, a dormer) sight unseen, because the price does not know the pitch or the layer count until someone measures the roof, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market, your supplier's pricing, or your material costs. It takes each section's footprint, pitch, and tear-off layers, a material preset, waste, install and tear-off hours, your own wage, burden, dump, permit, overhead, and target margin, and turns that into a price for this roof -- the arithmetic a flat price per house square foot skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Roofing Bid Calculator</a> to price your own reroof, or read the <a href="how-to-price-a-roof-by-the-square.html">squares-by-pitch walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a structural, code, or safety determination. Verify every figure against your own payroll, insurance, supplier invoices, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it won you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../metal-roof-bid-calculator/" data-pf-to="metal-roof-bid-calculator">Metal Roof Bid Calculator</a></li>
+      <li><a href="../roofing-insurance-supplement-finder/" data-pf-to="roofing-insurance-supplement-finder">What did the adjuster's roof estimate leave out? Free supplement finder</a></li>
+      <li><a href="../siding-bid-calculator/" data-pf-to="siding-bid-calculator">Siding Bid Calculator</a></li>
+      <li><a href="../skylight-install-bid-calculator/" data-pf-to="skylight-install-bid-calculator">Skylight Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=roofing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="roofing-bid-calculator"></script>
+</body></html>

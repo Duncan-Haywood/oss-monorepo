@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Form 5500 Late Filing Calculator — DFVC Cost vs IRS and DOL Penalties</title>
+  <meta name="description" content="Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late…">
+  <meta property="og:title" content="Form 5500 Late Filing Calculator — free, private, in your browser">
+  <meta property="og:description" content="See the due date, how late you are, and what the DOL DFVC programme costs against the IRS and DOL penalty exposure. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Form 5500 Late Filing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Finds the Form 5500 due date (with weekend and holiday rollover and the Form 5558 extension), days late, the DOL DFVC programme cost, and the IRS and DOL penalty exposure side by side. Runs entirely in your browser; nothing is uploaded.", "featureList": "Form 5500 due date, Form 5558 extension, DFVC penalty cost, IRS late filing penalty exposure, DOL civil penalty ceiling, one-participant plan exemption, EFAST2 filing steps, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When is Form 5500 due?", "acceptedAnswer": {"@type": "Answer", "text": "The Form 5500 series is due on the last day of the seventh month after the plan year ends: July 31 for a calendar-year plan. If that day is a Saturday, Sunday or federal holiday it moves to the next business day. Filing Form 5558 by the original due date extends it by two and a half months, to October 15 for a calendar-year plan."}}, {"@type": "Question", "name": "What happens if I miss the Form 5500 deadline?", "acceptedAnswer": {"@type": "Answer", "text": "Two agencies can assess penalties: the IRS up to $250 a day to a maximum of $150,000 per return, and the DOL a civil penalty with a much higher per-day statutory maximum that is adjusted for inflation each year. Neither is automatic, but the exposure is real, and the DOL's Delinquent Filer Voluntary Compliance (DFVC) programme exists to let a filer pay a small fixed amount instead."}}, {"@type": "Question", "name": "How much does the DFVC programme cost?", "acceptedAnswer": {"@type": "Answer", "text": "As published, $10 a day with a cap of $750 per late annual report and $1,500 per plan for a small plan (fewer than 100 participants), and $2,000 per report and $4,000 per plan for a large plan. These are the figures this page starts with; they are editable, and you should verify them against current DOL guidance."}}, {"@type": "Question", "name": "Does the DFVC programme remove IRS penalties?", "acceptedAnswer": {"@type": "Answer", "text": "Not by itself. DFVC resolves DOL civil penalties for the reports it covers; the IRS assesses its own late-filing penalty separately, and often abates it for reasonable cause. The combined saving on this page assumes no relief of any kind, so it is a ceiling and not a forecast."}}, {"@type": "Question", "name": "Does a one-participant plan have to file?", "acceptedAnswer": {"@type": "Answer", "text": "A one-participant plan files Form 5500-EZ only when its assets are more than $250,000 at the end of the plan year (or it is in its final year). At or under that, no return is due for that year. Check current IRS instructions for the threshold and the final-year rule."}}, {"@type": "Question", "name": "What do I file and where?", "acceptedAnswer": {"@type": "Answer", "text": "Small plans usually file the short Form 5500-SF and large plans the full Form 5500 with schedules, both electronically through EFAST2, which needs a filing credential. A DFVC filing is made through EFAST2 with the programme's online penalty payment. A one-participant plan can file Form 5500-EZ on paper with the IRS or use the electronic 5500-SF."}}, {"@type": "Question", "name": "Is this tax or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the dates and rates in the editable list, with no estimate of whether any agency would assess a penalty. Confirm with the plan's adviser or the agency guidance before filing or paying anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  
+    .big { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; margin: 4px 0; }
+    .warn { background: #fdf0d5; border-radius: 8px; padding: 10px 12px; }
+    .hidden { display: none; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Form 5500 Late Filing Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Form 5500 Late Filing Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Form 5500 Late Filing Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">FORM 5500 LATE FILING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Missed the Form 5500 deadline? See what it costs to fix it.</h1>
+    <p>Enter the plan year end and the date you plan to file. You get the <strong>due date</strong> (with the Form 5558 extension and weekend or holiday rollover), <strong>days late</strong>, and a side-by-side of the <strong>DOL DFVC programme cost</strong> against <strong>IRS and DOL penalty exposure</strong>, plus the steps to file.</p>
+    <p class="note">Everything runs in this browser tab and nothing is sent anywhere. Independent of the IRS, the DOL and every plan provider. The penalty figures are from memory of the published programme and statute figures, are editable below and change over time: verify them against current DOL and IRS guidance before relying on any output.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your plan</h2>
+    <div class="grid">
+      <div><label for="pye">Plan year end</label><input type="date" id="pye" value="2024-12-31"></div>
+      <div><label for="ptype">Plan type</label>
+        <select id="ptype">
+          <option value="small">Small plan (fewer than 100 participants)</option>
+          <option value="large">Large plan (100 or more participants)</option>
+          <option value="one">One-participant plan (owner and spouse only)</option>
+        </select></div>
+      <div><label for="assets">Total plan assets at plan year end ($)</label><input type="number" id="assets" min="0" step="1000" value="410000" inputmode="numeric"></div>
+      <div><label for="participants">Participants</label><input type="number" id="participants" min="0" step="1" value="14" inputmode="numeric"></div>
+      <div><label for="filing">Date you intend to file</label><input type="date" id="filing"></div>
+      <div><label for="years">Unfiled annual reports (this plan year plus earlier ones)</label><input type="number" id="years" min="1" max="10" step="1" value="1" inputmode="numeric"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="ext"><label for="ext">Form 5558 extension was filed for this plan year</label></div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="load-multi">Load a two-year example</button>
+    </p>
+    <p class="note" id="form-status">Fill in the plan, then click Calculate. If the filing date is blank, today is used.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="due-line"></p>
+    <p class="big" id="late-line"></p>
+    <div id="notes"></div>
+    <div id="compare-box">
+      <h3>Side by side</h3>
+      <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Route</th><th class="n" scope="col">Amount</th><th scope="col">What it is</th></tr></thead><tbody id="compare"></tbody></table></div></div>
+    </div>
+    <h3>By plan year</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Plan year end</th><th scope="col">Due</th><th class="n" scope="col">Days late</th><th class="n" scope="col">DFVC</th><th class="n" scope="col">IRS (up to)</th><th class="n" scope="col">DOL (up to)</th></tr></thead><tbody id="years-body"></tbody></table></div></div>
+    <h3>Steps to file</h3>
+    <ol id="steps"></ol>
+    <p><button type="button" class="secondary" id="download-csv">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>2. The figures (editable)</h2>
+    <p class="note">Written from memory of the published DFVC programme and the statute, not read from a live source. The DOL maximum is inflation-adjusted every year, so the number here may be out of date. Change any value and click Calculate again.</p>
+    <div class="grid">
+      <div><label for="c-dfvc-day">DFVC per day ($)</label><input type="number" id="c-dfvc-day" value="10" inputmode="decimal"></div>
+      <div><label for="c-small-report">Small plan cap per report ($)</label><input type="number" id="c-small-report" value="750" inputmode="decimal"></div>
+      <div><label for="c-small-plan">Small plan cap per plan ($)</label><input type="number" id="c-small-plan" value="1500" inputmode="decimal"></div>
+      <div><label for="c-large-report">Large plan cap per report ($)</label><input type="number" id="c-large-report" value="2000" inputmode="decimal"></div>
+      <div><label for="c-large-plan">Large plan cap per plan ($)</label><input type="number" id="c-large-plan" value="4000" inputmode="decimal"></div>
+      <div><label for="c-irs-day">IRS penalty per day ($)</label><input type="number" id="c-irs-day" value="250" inputmode="decimal"></div>
+      <div><label for="c-irs-max">IRS maximum per return ($)</label><input type="number" id="c-irs-max" value="150000" inputmode="decimal"></div>
+      <div><label for="c-dol-day">DOL statutory maximum per day ($, inflation-adjusted)</label><input type="number" id="c-dol-day" value="2739" inputmode="decimal"></div>
+      <div><label for="c-one">One-participant plan asset line ($)</label><input type="number" id="c-one" value="250000" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Due date</strong> is the last day of the seventh month after the plan year ends. Form 5558, filed by that date, extends it to the 15th of the tenth month. A date on a Saturday, Sunday or federal holiday moves to the next business day. A holiday on a Saturday is not moved to Friday.</li>
+      <li><strong>Days late</strong> are calendar days from the due date to the date you intend to file.</li>
+      <li><strong>DFVC</strong> is the per-day amount, capped per report, then capped per plan across all reports. Earlier unfiled years use their own normal due dates and no extension.</li>
+      <li><strong>IRS</strong> and <strong>DOL</strong> figures are statutory ceilings: the IRS per-day amount to its maximum per return, and the DOL per-day maximum with no overall cap. They are not predictions that any agency would assess them, and nothing here estimates that chance. Both are often reduced or waived on reasonable cause.</li>
+      <li><strong>Savings</strong> from DFVC are the exposure minus the DFVC cost. DFVC resolves DOL civil penalties; IRS penalties are separate, so the combined figure assumes no relief of any kind.</li>
+      <li><strong>Not checked:</strong> whether you already received an IRS or DOL notice (which can close the programme), late audit reports, late-filed Form 5558, the 80-120 participant rule, the exact participant and asset counts, state rules, and whether a plan is even covered by ERISA.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>When is Form 5500 due?</h3>
+    <p>The Form 5500 series is due on the last day of the seventh month after the plan year ends: July 31 for a calendar-year plan. If that day is a Saturday, Sunday or federal holiday it moves to the next business day. Filing Form 5558 by the original due date extends it by two and a half months, to October 15 for a calendar-year plan.</p>
+    <h3>What happens if I miss the Form 5500 deadline?</h3>
+    <p>Two agencies can assess penalties: the IRS up to $250 a day to a maximum of $150,000 per return, and the DOL a civil penalty with a much higher per-day statutory maximum that is adjusted for inflation each year. Neither is automatic, but the exposure is real, and the DOL's Delinquent Filer Voluntary Compliance (DFVC) programme exists to let a filer pay a small fixed amount instead.</p>
+    <h3>How much does the DFVC programme cost?</h3>
+    <p>As published, $10 a day with a cap of $750 per late annual report and $1,500 per plan for a small plan (fewer than 100 participants), and $2,000 per report and $4,000 per plan for a large plan. These are the figures this page starts with; they are editable, and you should verify them against current DOL guidance.</p>
+    <h3>Does the DFVC programme remove IRS penalties?</h3>
+    <p>Not by itself. DFVC resolves DOL civil penalties for the reports it covers; the IRS assesses its own late-filing penalty separately, and often abates it for reasonable cause. The combined saving on this page assumes no relief of any kind, so it is a ceiling and not a forecast.</p>
+    <h3>Does a one-participant plan have to file?</h3>
+    <p>A one-participant plan files Form 5500-EZ only when its assets are more than $250,000 at the end of the plan year (or it is in its final year). At or under that, no return is due for that year. Check current IRS instructions for the threshold and the final-year rule.</p>
+    <h3>What do I file and where?</h3>
+    <p>Small plans usually file the short Form 5500-SF and large plans the full Form 5500 with schedules, both electronically through EFAST2, which needs a filing credential. A DFVC filing is made through EFAST2 with the programme's online penalty payment. A one-participant plan can file Form 5500-EZ on paper with the IRS or use the electronic 5500-SF.</p>
+    <h3>Is this tax or legal advice?</h3>
+    <p>No. It is arithmetic on the dates and rates in the editable list, with no estimate of whether any agency would assess a penalty. Confirm with the plan's adviser or the agency guidance before filing or paying anything.</p>
+    <p><a href="./when-is-form-5500-due.html">When is Form 5500 due, and what if you missed it?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, retirement-plan, ERISA, compliance, or financial advice, and it does not replace a qualified professional or the agencies' own guidance. Results depend entirely on the figures you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including the penalty figures, which may be out of date.</p>
+    <p><strong>Not affiliated with the IRS, the DOL or any plan provider.</strong> Form 5500, EFAST2 and DFVC are names used by the agencies. This tool is independent and is not sponsored, endorsed or connected to the Internal Revenue Service, the U.S. Department of Labor, or any recordkeeper or plan administrator.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a> for the plan itself, the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a> for another late-filing penalty, and the <a href="../employee-cost-calculator/">employee cost calculator</a> for what a plan adds to payroll.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculate, usd, sampleInput, sampleMultiYearInput, resultCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    $("#filing").value = todayISO();
+
+    function constants() {
+      const n = (id) => Number($(id).value);
+      return {
+        dfvcPerDay: n("#c-dfvc-day"),
+        dfvcCaps: {
+          small: { perReport: n("#c-small-report"), perPlan: n("#c-small-plan") },
+          large: { perReport: n("#c-large-report"), perPlan: n("#c-large-plan") },
+        },
+        irsPerDay: n("#c-irs-day"), irsMaxPerReturn: n("#c-irs-max"),
+        dolMaxPerDay: n("#c-dol-day"), onePlanAssetThreshold: n("#c-one"),
+      };
+    }
+
+    function load(i) {
+      $("#pye").value = i.planYearEnd; $("#ptype").value = i.planType; $("#assets").value = i.assets;
+      $("#participants").value = i.participants; $("#filing").value = i.filingDate; $("#years").value = i.yearsLate;
+      $("#ext").checked = i.extensionFiled;
+    }
+
+    function run() {
+      const input = {
+        planYearEnd: $("#pye").value, planType: $("#ptype").value, assets: $("#assets").value,
+        participants: $("#participants").value, filingDate: $("#filing").value || todayISO(),
+        yearsLate: $("#years").value, extensionFiled: $("#ext").checked,
+      };
+      const c = constants();
+      const bad = Object.entries({ dfvcPerDay: c.dfvcPerDay, irsPerDay: c.irsPerDay, irsMaxPerReturn: c.irsMaxPerReturn, dolMaxPerDay: c.dolMaxPerDay, onePlanAssetThreshold: c.onePlanAssetThreshold }).some(([, v]) => !Number.isFinite(v) || v < 0)
+        || [c.dfvcCaps.small.perReport, c.dfvcCaps.small.perPlan, c.dfvcCaps.large.perReport, c.dfvcCaps.large.perPlan].some((v) => !Number.isFinite(v) || v < 0);
+      if (bad) { status.textContent = "Each figure in section 2 must be a number, zero or more."; return false; }
+      const r = calculate(input, c);
+      if (!r.ok) { status.textContent = r.errors.join(" "); return false; }
+      last = r;
+      $("#due-line").innerHTML = `Original due date: <strong>${esc(r.due.normalDue)}</strong>` +
+        (r.due.raw !== r.due.normalRaw ? ` · with Form 5558: <strong>${esc(r.due.due)}</strong>` : "") +
+        (r.due.rolled ? ` · rolled from ${esc(r.due.raw)} (${esc(r.due.rolledReason)})` : "");
+      $("#late-line").textContent = r.isLate ? `Late by ${r.daysLate} day${r.daysLate === 1 ? "" : "s"} on the entered plan year.` : (r.exempt ? "No annual return is due for this plan year." : "Not late for the entered plan year.");
+      $("#notes").innerHTML = r.notes.map((n) => `<p class="note warn">${esc(n)}</p>`).join("");
+      const rows = [];
+      if (r.dfvc) {
+        rows.push(`<tr><td>(a) DOL DFVC programme</td><td class="n">${usd(r.dfvc.total)}</td><td>$${r.dfvc.perDay} a day, capped at ${usd(r.dfvc.perReportCap)} per report and ${usd(r.dfvc.perPlanCap)} per plan${r.dfvc.planCapApplied ? " (plan cap applied)" : ""}</td></tr>`);
+      }
+      rows.push(`<tr><td>(b) IRS penalty exposure</td><td class="n">up to ${usd(r.irs.total)}</td><td>${usd(r.constants.irsPerDay)} a day, maximum ${usd(r.constants.irsMaxPerReturn)} per return; a ceiling, not a prediction</td></tr>`);
+      if (!r.exempt) rows.push(`<tr><td>(b) DOL civil penalty exposure</td><td class="n">up to ${usd(r.dol.total)}</td><td>statutory maximum ${usd(r.constants.dolMaxPerDay)} a day, adjusted for inflation each year; a ceiling, not a prediction</td></tr>`);
+      if (r.dfvc) {
+        rows.push(`<tr><td>Saving from DFVC vs DOL exposure</td><td class="n">${usd(r.dfvc.savingsVsDol)}</td><td>DOL ceiling minus the DFVC cost</td></tr>`);
+        rows.push(`<tr><td>Saving vs IRS plus DOL exposure</td><td class="n">${usd(r.dfvc.savingsVsCombined)}</td><td>assumes no relief of any kind and that DFVC does not end IRS exposure; a ceiling</td></tr>`);
+      }
+      $("#compare").innerHTML = rows.join("");
+      $("#years-body").innerHTML = r.reports.map((x) => `<tr><td>${esc(x.planYearEnd)}</td><td>${esc(x.dueDate)}</td><td class="n">${x.daysLate}</td><td class="n">${x.dfvc === null ? "n/a" : usd(x.dfvc)}</td><td class="n">${usd(x.irs)}</td><td class="n">${usd(x.dolUpTo)}</td></tr>`).join("") || `<tr><td colspan="6">No return due.</td></tr>`;
+      $("#steps").innerHTML = r.steps.map((s) => `<li>${esc(s)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = r.isLate ? `Late by ${r.daysLate} day(s).` : "Not late on the entered dates.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) record("plan_calculated"); });
+    $("#load-example").addEventListener("click", () => { load(sampleInput()); if (run()) record("example_loaded"); });
+    $("#load-multi").addEventListener("click", () => { load(sampleMultiYearInput()); if (run()) record("example_loaded"); });
+    $("#download-csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([resultCsv(last)], { type: "text/csv" }));
+      a.download = "form-5500-late-filing.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../au-sole-trader-tax-set-aside-calculator/" data-pf-to="au-sole-trader-tax-set-aside-calculator">Australia Sole Trader Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../augusta-rule-calculator/" data-pf-to="augusta-rule-calculator">Augusta Rule Calculator — free, private, in your browser</a></li>
+      <li><a href="../auto-loan-interest-deduction-calculator/" data-pf-to="auto-loan-interest-deduction-calculator">Auto Loan Interest Deduction Calculator — free 2026 estimator</a></li>
+      <li><a href="../backdoor-roth-pro-rata-calculator/" data-pf-to="backdoor-roth-pro-rata-calculator">Backdoor Roth Pro-Rata Calculator — free, Form 8606</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=form-5500-late-filing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/?pfEmbed=1&quot; title=&quot;Form 5500 Late Filing Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="form-5500-late-filing-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/" data-pf-embed-title="Form 5500 Late Filing Calculator — free, private, in your browser" data-pf-embed-slug="form-5500-late-filing-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="form-5500-late-filing-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="form-5500-late-filing-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

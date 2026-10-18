@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-foot rate card | Ice Dam Removal Bid Calculator</title>
+<meta name="description" content="A $7/ft rate card quotes the same $560 whether a job is a scheduled Tuesday afternoon or a midnight storm dispatch…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat per-foot rate card | Ice Dam Removal Bid Calculator">
+<meta property="og:description" content="A flat per-foot rate card charges the same number for a scheduled call and a storm-night emergency dispatch…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a flat per-foot rate card charge more for an emergency call?","acceptedAnswer":{"@type":"Answer","text":"Not unless the operator remembers to mark it up by hand. A rate card is just feet times a number, so an 80-foot job prices at the same $560 whether it is a scheduled Tuesday afternoon appointment or a midnight dispatch during a storm. This calculator applies the entered emergency premium to labor and travel time -- never to fuel or equipment, which cost the same at 2am as at 2pm -- so the real cost of a storm call shows up before the quote goes out."}},{"@type":"Question","name":"How much does an unpriced emergency call actually cost in margin?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default 80-foot job -- a two-person crew at $34/hr each, 2.5 estimated on-site hours, 1 hour of travel, 35 round-trip miles, $20 of steamer fuel, $15 of equipment cost, 12% overhead, a 30% target margin, and a 35% emergency premium -- a scheduled call costs about $332.02 to run and the $560 rate-card quote leaves roughly $227.98 profit, a 40.71% margin. The identical job dispatched as a storm-night emergency costs about $425.32 to run once the premium hits labor and travel; the same $560 quote now leaves about $134.68, a 24.05% margin -- about $47.60 short of the price that would actually hold the 30% target margin."}},{"@type":"Question","name":"Does a rate card check itself against the hours the crew actually worked?","acceptedAnswer":{"@type":"Answer","text":"No -- a rate card is set from the phone-estimate footage before the truck rolls and never revisited. This calculator does: on the same default job, if the ice turns out thicker than the phone estimate and the crew's 2.5 estimated on-site hours become 4.5 actual hours, the $560 quote does not change but the real cost rises to about $484.34, cutting profit from about $227.98 down to about $75.66 without the operator ever being told the margin moved."}},{"@type":"Question","name":"Is a flat per-foot rate card ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a run of similar, scheduled, daytime jobs with dependable ice thickness, a flat rate card can land close enough. The risk is the two things it cannot see by itself: whether a specific call is an emergency dispatch, and whether the hours actually spent match what the phone estimate assumed. Neither shows up in a per-foot number until the invoice is already written."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competitors charge. It takes the footage, crew, travel, fuel, equipment cost, emergency premium, overhead, and target margin you enter, plus the actual on-site hours once the job is done, and turns that into a price, a break-even rate per foot, and a real profit and margin -- the arithmetic a flat rate card skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#0e1f2b;background:#eef5f8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0a6b8f;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#43606d}section{background:#fff;border:1px solid #c7dde6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #0e1f2b08;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c7dde6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#43606d}.fine,.note{font-size:.88rem;color:#43606d}footer{color:#43606d;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-foot rate card | Ice Dam Removal Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ice-dam-removal-bid-calculator/">Ice Dam Removal Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-foot rate card | Ice Dam Removal Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Ice Dam Removal Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-foot rate card</h1>
+<p class="lede">$7/ft &times; 80 feet is $560 whether the dispatch is a scheduled Tuesday afternoon or a midnight call during a storm, and whether the crew is back down the ladder in 2.5 hours or 4.5. A rate card cannot see either difference; this calculator prices both.</p>
+</header>
+<section>
+<h2>What a flat per-foot rate card is</h2>
+<p>
+A per-foot rate card is the fastest way to quote over the phone: multiply
+the footage a customer describes by a number and read off a price. It is
+easy to compare between competing bids, and it is the number a prospect
+holding a competitor's flyer will ask you to match.
+</p>
+<p>
+The number was set once, for an ordinary scheduled job, and then reused for
+every call afterward &mdash; including the ones that are not ordinary: a
+storm-night dispatch with an after-hours premium, or a job where the ice
+turns out thicker than the phone estimate assumed.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+footage, crew size and hourly pay, travel hours and miles, steamer fuel and
+equipment cost, whether the call is an emergency dispatch, overhead, target
+margin, and a minimum service charge. It turns the actual cost into a price,
+a break-even rate per foot for that footage, and &mdash; once the crew is
+back down the ladder &mdash; a check of the real profit against the actual
+on-site hours, not the estimate the quote was built on.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-foot rate card does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $560 for an 80-foot job whether it is a scheduled daytime call or a storm-night emergency dispatch &mdash; a labor and travel premium the per-foot number never sees.</td>
+<td>Applies the entered emergency premium to labor and travel time only, never to fuel or equipment, so a storm call's real cost is priced in before the quote goes out.</td>
+</tr>
+<tr>
+<td>On the calculator's own default 80-foot job, the $560 rate-card quote leaves about $227.98 profit (a 40.71% margin) on a scheduled call.</td>
+<td>Reports that the identical job dispatched as an emergency costs about $425.32 to run &mdash; the same $560 quote now leaves about $134.68, a 24.05% margin, about $47.60 short of the price that would hold the 30% target margin.</td>
+</tr>
+<tr>
+<td>Locks in a price from the phone-estimate footage and hours, with no way to check it once the crew has actually been on the roof.</td>
+<td>Recomputes cost from the actual on-site hours once the job is done: the same job estimated at 2.5 hours per tech but running 4.5 (thicker ice than expected) drops profit from about $227.98 to about $75.66 without the quoted price ever changing.</td>
+</tr>
+<tr>
+<td>Bakes overhead into a round per-foot number nobody re-derives.</td>
+<td>Loads the entered overhead percentage onto direct cost every time, so overhead tracks the actual job rather than a memorized rate.</td>
+</tr>
+<tr>
+<td>Gives a number to quote, not a number to check a quote against.</td>
+<td>Reports the break-even rate per foot and the real profit and margin, so a rate card can be scored against real cost instead of assumed to be fine.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat per-foot rate card is not wrong because it is simple &mdash; it is
+wrong when a call turns out to be an emergency dispatch or the hours run
+past the estimate, and nothing about a per-foot number tells you when
+either has happened. This calculator does not replace judgment about your
+market; it replaces the arithmetic a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Does a flat per-foot rate card charge more for an emergency call?</h3>
+<p>Not unless the operator remembers to mark it up by hand. A rate card is just feet times a number, so an 80-foot job prices at the same $560 whether it is a scheduled Tuesday afternoon appointment or a midnight dispatch during a storm. This calculator applies the entered emergency premium to labor and travel time -- never to fuel or equipment, which cost the same at 2am as at 2pm -- so the real cost of a storm call shows up before the quote goes out.</p>
+<h3>How much does an unpriced emergency call actually cost in margin?</h3>
+<p>On this calculator's own default 80-foot job -- a two-person crew at $34/hr each, 2.5 estimated on-site hours, 1 hour of travel, 35 round-trip miles, $20 of steamer fuel, $15 of equipment cost, 12% overhead, a 30% target margin, and a 35% emergency premium -- a scheduled call costs about $332.02 to run and the $560 rate-card quote leaves roughly $227.98 profit, a 40.71% margin. The identical job dispatched as a storm-night emergency costs about $425.32 to run once the premium hits labor and travel; the same $560 quote now leaves about $134.68, a 24.05% margin -- about $47.60 short of the price that would actually hold the 30% target margin.</p>
+<h3>Does a rate card check itself against the hours the crew actually worked?</h3>
+<p>No -- a rate card is set from the phone-estimate footage before the truck rolls and never revisited. This calculator does: on the same default job, if the ice turns out thicker than the phone estimate and the crew's 2.5 estimated on-site hours become 4.5 actual hours, the $560 quote does not change but the real cost rises to about $484.34, cutting profit from about $227.98 down to about $75.66 without the operator ever being told the margin moved.</p>
+<h3>Is a flat per-foot rate card ever the right way to quote?</h3>
+<p>For a run of similar, scheduled, daytime jobs with dependable ice thickness, a flat rate card can land close enough. The risk is the two things it cannot see by itself: whether a specific call is an emergency dispatch, and whether the hours actually spent match what the phone estimate assumed. Neither shows up in a per-foot number until the invoice is already written.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competitors charge. It takes the footage, crew, travel, fuel, equipment cost, emergency premium, overhead, and target margin you enter, plus the actual on-site hours once the job is done, and turns that into a price, a break-even rate per foot, and a real profit and margin -- the arithmetic a flat rate card skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat per-foot rate card is a bad-faith practice &mdash; it is a common, honest shortcut that works until a call turns out to be an emergency dispatch or the hours run past the estimate. This page describes where that shortcut breaks down, not a fault in anyone who uses it. The $332.02, $560.00, $227.98, $425.32, $134.68, $47.60, $484.34, and $75.66 figures above are this calculator's own arithmetic on its own default example job, not a claim about any specific contractor's real costs.</p>
+</section>
+<p class="note">
+  Open the <a href="./">Ice Dam Removal Bid Calculator</a> to price your own job, or see <a href="why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html">why a flat rate card can lose money on a short job</a> and <a href="vs-jobber.html">this calculator vs. Jobber</a>.
+</p>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. It is not a roofing or ice-condition assessment. Verify every figure against your own payroll, insurance, fuel, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../siding-bid-calculator/" data-pf-to="siding-bid-calculator">Siding Bid Calculator</a></li>
+      <li><a href="../skylight-install-bid-calculator/" data-pf-to="skylight-install-bid-calculator">Skylight Install Bid Calculator</a></li>
+      <li><a href="../soffit-fascia-bid-calculator/" data-pf-to="soffit-fascia-bid-calculator">Soffit and Fascia Bid Calculator</a></li>
+      <li><a href="../stucco-repair-bid-calculator/" data-pf-to="stucco-repair-bid-calculator">Stucco / EIFS Repair Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ice-dam-removal-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ice-dam-removal-bid-calculator"></script>
+</body>
+</html>

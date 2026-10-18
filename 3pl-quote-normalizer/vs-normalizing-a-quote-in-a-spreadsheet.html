@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet</title>
+<meta name="description" content="A spreadsheet can add up the same rate-card lines as this calculator. The difference is remembering every line a 3PL quote can hide a cost in…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet">
+<meta property="og:description" content="The arithmetic is the same either way. The difference is whether the sheet already prompts for the monthly minimum, aged storage, kitting…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a spreadsheet just as accurate as this calculator?","acceptedAnswer":{"@type":"Answer","text":"A correctly built one is — turning a rate card into a monthly total, a cost per order, and a break-even volume is ordinary arithmetic. The risk is not the math, it is remembering every line that can move the real number: whether the monthly minimum, not the per-order lines, is actually setting the bill; whether a leftover pallet has aged into long-term storage at a different rate than the fresh-storage line quoted; and how kitting fees and return disposition change the total once they apply. A spreadsheet built under deadline, comparing three quotes at once, is exactly where one of those gets left out."}},{"@type":"Question","name":"When is a spreadsheet actually the better choice?","acceptedAnswer":{"@type":"Answer","text":"When your rate card has a shape this calculator does not model — a per-SKU tiered rate, a currency other than dollars, or a fee structure that does not map to receiving, storage, pick and pack, packaging, shipping, returns, restocking, fixed fees, and a monthly minimum. A spreadsheet you build yourself can represent any structure you can describe. This calculator trades that flexibility for a form that already has the right fields, and the sub-calculators, for the common case: comparing a 3PL's rate card against doing it in-house."}},{"@type":"Question","name":"What does a blank spreadsheet not remind you to do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Check whether the monthly minimum, not the per-order lines you priced, is what actually sets the bill below a certain volume — and run the same rate card through the dedicated aged-storage, kitting, and return-disposition comparisons, each of which uses the exact totals from the quote you already typed. A spreadsheet built from scratch has no built-in prompt for any of the three; this calculator raises each one as its own numbered result rather than leaving it for you to remember to model."}},{"@type":"Question","name":"Does this replace a signed contract or a fulfillment operations audit?","acceptedAnswer":{"@type":"Answer","text":"No, and neither does a spreadsheet. Both stop at estimating a comparable monthly total and cost per order from the rate-card figures you supply. Neither one audits the 3PL's actual operations, verifies the contract language, or accounts for a fee not listed on the card you were quoted. That review still belongs to you before you sign anything."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#17212b;background:#f4f1ea}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#a8431f;overflow-wrap:anywhere}.eyebrow{font-weight:700;color:#a8431f;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#123b36}.lede{font-size:1.05rem;max-width:64ch;color:#52605d}section{background:#fff;border:1px solid #d8d3c9;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #123b3610;margin:1rem 0}h2{margin-top:0;color:#123b36}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6e2da;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#52605d}.fine,.note{font-size:.88rem;color:#52605d}footer{color:#52605d;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3pl-quote-normalizer/">3PL Quote Normalizer</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; 3PL Quote Normalizer</a></p>
+<header>
+<h1>3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet</h1>
+<p class="lede">The arithmetic is the same either way: a rate card's receiving, storage, pick and pack, packaging, shipping, returns, and fixed-fee lines add up to a monthly total, a cost per order, and a break-even volume. The difference is whether the sheet already prompts you to check the monthly minimum, aged storage, kitting, and return disposition, or whether you have to remember all four yourself while comparing three quotes under a deadline.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet</strong> can produce exactly the same normalized
+  monthly total as this calculator &mdash; summing rate-card lines and
+  comparing the result to an in-house estimate is not exotic math. What a
+  blank spreadsheet does not give you is a structure that already checks
+  whether the monthly minimum, rather than the per-order lines you priced,
+  is the number actually setting the bill, or a place that re-runs the same
+  quote through aged long-term storage, kitting, and return-disposition
+  comparisons without you having to build each one from scratch.
+</p>
+<p>
+  <strong>This calculator</strong> is that structure already built. Type
+  the rate-card lines once and it computes the monthly total, true cost per
+  order, and break-even order volume, then reuses the same figures in
+  dedicated sub-calculators for the fine print a flat total usually hides:
+  <a href="does-long-term-storage-flip-a-3pl-quote.html">aged long-term
+  storage</a>, <a href="should-i-pay-the-3pl-to-kit.html">kitting</a>, and
+  <a href="should-i-restock-or-let-the-customer-keep-a-3pl-return.html">return
+  disposition</a>. It runs free in any browser, keeps no account, and
+  uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is the quote I just received actually cheaper than doing it in-house?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>Is the monthly minimum, not my per-order lines, what's really setting the bill?</td><td>This calculator's &ldquo;Minimum charge applied?&rdquo; row, checked automatically on every quote you type.</td></tr>
+<tr><td>Does a leftover pallet aging into long-term storage change a quote that looked cheap on the fresh-storage line?</td><td>This calculator's <a href="does-long-term-storage-flip-a-3pl-quote.html">long-term storage</a> comparison, reusing the same quote.</td></tr>
+<tr><td>My rate card has a shape this calculator doesn't model (per-SKU tiers, a currency other than dollars).</td><td>A spreadsheet you build yourself &mdash; it can represent any structure you can describe.</td></tr>
+<tr><td>Is my rate-card data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, your quote is saved to this browser's local storage only, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't a spreadsheet just as accurate as this calculator?</h3>
+<p>A correctly built one is &mdash; turning a rate card into a monthly total, a cost per order, and a break-even volume is ordinary arithmetic. The risk is not the math, it is remembering every line that can move the real number: whether the monthly minimum, not the per-order lines, is actually setting the bill; whether a leftover pallet has aged into long-term storage at a different rate than the fresh-storage line quoted; and how kitting fees and return disposition change the total once they apply. A spreadsheet built under deadline, comparing three quotes at once, is exactly where one of those gets left out.</p>
+<h3>When is a spreadsheet actually the better choice?</h3>
+<p>When your rate card has a shape this calculator does not model &mdash; a per-SKU tiered rate, a currency other than dollars, or a fee structure that does not map to receiving, storage, pick and pack, packaging, shipping, returns, restocking, fixed fees, and a monthly minimum. A spreadsheet you build yourself can represent any structure you can describe. This calculator trades that flexibility for a form that already has the right fields, and the sub-calculators, for the common case: comparing a 3PL's rate card against doing it in-house.</p>
+<h3>What does a blank spreadsheet not remind you to do that this calculator does?</h3>
+<p>Check whether the monthly minimum, not the per-order lines you priced, is what actually sets the bill below a certain volume &mdash; and run the same rate card through the dedicated aged-storage, kitting, and return-disposition comparisons, each of which uses the exact totals from the quote you already typed. A spreadsheet built from scratch has no built-in prompt for any of the three; this calculator raises each one as its own numbered result rather than leaving it for you to remember to model.</p>
+<h3>Does this replace a signed contract or a fulfillment operations audit?</h3>
+<p>No, and neither does a spreadsheet. Both stop at estimating a comparable monthly total and cost per order from the rate-card figures you supply. Neither one audits the 3PL's actual operations, verifies the contract language, or accounts for a fee not listed on the card you were quoted. That review still belongs to you before you sign anything.</p>
+<p class="note">
+  Open the <a href="./">3PL Quote Normalizer</a> to check your own quote, or see <a href="./vs-extensiv.html">this calculator vs. Extensiv</a> if you already run warehouse software.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or the contract you are about to sign. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>.</p>
+<p><strong>Private by design.</strong> Everything runs in your browser. No data is uploaded, and there are no accounts, cookies, or analytics vendors.</p>
+<p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-quote-normalizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3pl-quote-normalizer"></script>
+</body></html>

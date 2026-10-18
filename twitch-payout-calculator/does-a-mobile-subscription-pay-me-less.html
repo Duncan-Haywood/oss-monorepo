@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Does a Mobile Twitch Subscription Pay Me Less? | Payout Guide</title>
+<meta name="description" content="Apple and Google take 30% of an in-app purchase, so it's easy to assume a mobile Twitch sub pays a streamer less.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Does a Mobile Twitch Subscription Pay Me Less?">
+<meta property="og:description" content="The app store fee is real, but it doesn't reach your payout. Here's what Twitch actually does about it, and the two things that do change what you keep.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/does-a-mobile-subscription-pay-me-less.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a mobile Twitch subscription pay the streamer less than a desktop one?","acceptedAnswer":{"@type":"Answer","text":"No. Since Twitch's October 2024 pricing change, a Tier 1 subscription costs more on the iOS or Android app (about $7.99) than on the web ($5.99) specifically so that the extra covers Apple's and Google's in-app-purchase fee before it ever reaches the revenue split. Twitch has stated that a streamer earns the same amount from a subscription whether it's bought on desktop or mobile."}},{"@type":"Question","name":"So what actually changes how much I get paid per sub?","acceptedAnswer":{"@type":"Answer","text":"Two things: your revenue split (50% default, or 60%/70% under Twitch's Plus Program) and the subscription tier itself. Purchase platform is not one of them, as of the pricing change described above."}},{"@type":"Question","name":"Does the same logic apply to Bits bought in the mobile app?","acceptedAnswer":{"@type":"Answer","text":"Bits are priced with Twitch's own margin already built into what a viewer pays for a Bits bundle, and a cheered Bit is worth a flat one cent to the streamer regardless of platform or split. This calculator treats Bits the same way whichever platform they were bought on."}},{"@type":"Question","name":"Could this change again?","acceptedAnswer":{"@type":"Answer","text":"Yes. Twitch has changed subscription pricing and platform-fee handling before, and it publishes no live feed a static page could read. Treat this explainer as current as of the date on this page and verify anything material against your own Twitch dashboard and Twitch's own current help documentation."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#1d1233;background:#f3edfb}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#4b1d9a}
+h2{color:#4b1d9a;font-size:1.15rem;margin-top:1.7em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #d9c8f5}
+a{color:#4b1d9a}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#4b1d9a;color:#fff;text-decoration:none;font-weight:700}
+footer{border-top:1px solid #d9c8f5;padding-top:18px;margin-top:2em;font-size:.85rem;color:#5b4b78}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/does-a-mobile-subscription-pay-me-less.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does a Mobile Twitch Subscription Pay Me Less? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../twitch-payout-calculator/">Twitch Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does a Mobile Twitch Subscription Pay Me Less?</span></span></nav>
+<p><a href="./">← Twitch payout calculator</a></p>
+<h1>Does a mobile subscription pay me less?</h1>
+<p>Apple and Google take roughly 30% of an in-app purchase, so it's a reasonable guess that a subscription bought in Twitch's iOS or Android app pays the streamer less than the same tier bought on the web. As of Twitch's October 2024 pricing change, that guess is wrong — and getting it right matters if you're deciding whether to steer viewers toward one platform or the other.</p>
+<p><a class="cta" href="./">Open the free payout calculator</a></p>
+
+<h2>What Twitch actually does about the app store cut</h2>
+<p>Twitch charges more for a Tier 1 subscription bought in the mobile app (about $7.99 in the US) than for the same tier bought on the web (about $5.99). The gap exists specifically to cover the app store's cut, so that the amount left over for Twitch and the streamer to split is the same either way. Twitch has stated plainly that a streamer earns the same amount from a subscription whether it's desktop or mobile.</p>
+<p>Twitch does not publish the exact intermediate accounting between the mobile price and the split, and this page does not invent one. What matters for your own math is the confirmed outcome, not the plumbing behind it:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Web subscription</th><th>Mobile (iOS/Android) subscription</th></tr></thead>
+<tbody>
+<tr><td>Price the viewer pays (Tier 1, approx.)</td><td>$5.99</td><td>$7.99</td></tr>
+<tr><td>Extra above the web price</td><td>—</td><td>~$2.00, sized to cover the app store's cut</td></tr>
+<tr><td>Your payout at a 50% split</td><td>$2.995</td><td>$2.995</td></tr>
+</tbody>
+</table></div>
+<p>Same payout, same tier, different platform. So when you use the calculator, enter your subscriber counts by tier without worrying about which platform each one bought on — one Tier 1 sub is one Tier 1 sub for payout purposes.</p>
+
+<h2>What actually does change your payout</h2>
+<p><strong>Your revenue split.</strong> Everyone starts at 50% of subscription revenue. Sustaining 100 Plus Points for three consecutive months moves you to 60% under Twitch's Plus Program, and 300 Plus Points moves you to 70%. Moving from 50% to 60% or 70% is a real, large change to what you keep on identical sub numbers — re-run the calculator at each split to see the size of that gap for your own month.</p>
+<p><strong>The tier itself.</strong> A Tier 2 sub pays roughly twice a Tier 1 sub before the split, and Tier 3 roughly five times — obvious once stated, but easy to lose track of when subs of different tiers are lumped into one "sub count" in your head.</p>
+
+<h2>Common questions</h2>
+<h3>Does a mobile Twitch subscription pay the streamer less than a desktop one?</h3><p>No. Since Twitch's October 2024 pricing change, a Tier 1 subscription costs more on the iOS or Android app (about $7.99) than on the web ($5.99) specifically so that the extra covers Apple's and Google's in-app-purchase fee before it ever reaches the revenue split. Twitch has stated that a streamer earns the same amount from a subscription whether it's bought on desktop or mobile.</p>
+<h3>So what actually changes how much I get paid per sub?</h3><p>Two things: your revenue split (50% default, or 60%/70% under Twitch's Plus Program) and the subscription tier itself. Purchase platform is not one of them, as of the pricing change described above.</p>
+<h3>Does the same logic apply to Bits bought in the mobile app?</h3><p>Bits are priced with Twitch's own margin already built into what a viewer pays for a Bits bundle, and a cheered Bit is worth a flat one cent to the streamer regardless of platform or split. This calculator treats Bits the same way whichever platform they were bought on.</p>
+<h3>Could this change again?</h3><p>Yes. Twitch has changed subscription pricing and platform-fee handling before, and it publishes no live feed a static page could read. Treat this explainer as current as of the date on this page and verify anything material against your own Twitch dashboard and Twitch's own current help documentation.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the calculator it explains are provided free and as-is, without warranty of any kind, express or implied. They are not tax, financial, or business advice, and do not replace a qualified professional. This is also not an ad-revenue estimator or a substitute for your own Twitch dashboard and payout statements. You are responsible for reviewing and verifying anything here before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Twitch is a trademark of Twitch Interactive, Inc., named here only to describe what this page explains; this page is not affiliated with, endorsed by, or sponsored by Twitch, and its pricing and split terms change over time — verify against your own current Twitch dashboard and Twitch's own help documentation. Everything on the linked calculator runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bail-bond-agency-exposure-calculator/" data-pf-to="bail-bond-agency-exposure-calculator">Bail Bond Agency Exposure Calculator — free</a></li>
+      <li><a href="../barbershop-chair-profit-calculator/" data-pf-to="barbershop-chair-profit-calculator">Barbershop Chair Profit Calculator — free, private</a></li>
+      <li><a href="../bigcommerce-product-csv-check/" data-pf-to="bigcommerce-product-csv-check">BigCommerce Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../braiding-studio-profit-calculator/" data-pf-to="braiding-studio-profit-calculator">Braiding Studio Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=twitch-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="twitch-payout-calculator"></script>
+</body>
+</html>

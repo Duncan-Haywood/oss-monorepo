@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publish-endpoint reachability: what &quot;denied&quot; actually means, per endpoint | Development analyses</title>
+<meta name="description" content="Added 2026-08-19 by the eighteenth firing of the screening brief.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>Publish-endpoint reachability: what &quot;denied&quot; actually means, per endpoint</h1>
+<p class="meta">Study · 2026-08-19 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/publish-endpoint-reachability/README.md">portfolio/research/publish-endpoint-reachability/README.md</a></p>
+<article class="doc">
+<p>Added 2026-08-19 by the eighteenth firing of the screening brief.</p>
+<p><strong>No candidate added, no score changed, nothing in <code>portfolio/pipeline/</code> touched.</strong> The <code>CLAUDE.md</code> intake gate applies to this run and was obeyed. This is step one of the gate&#39;s own list of useful moves — <em>advance a probe that is already specified</em> — applied to <strong>Ask 0</strong>, the demand measurement six cycles have escalated to the account owner.</p>
+<p>Nothing here was published, registered, or signed up for. Read-only requests only; no credential was sent anywhere.</p>
+<h3>The claim this tests</h3>
+<p>Ask 0 (tracked in <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a>, narrowed by <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/155">#155</a>) asks the owner for one free account signup and a scoped publish token on <strong>Packagist or RubyGems</strong> — preferred over crates.io and Hex, with Docker Hub struck off — on the stated basis that it needs <strong>no egress change</strong>.</p>
+<p>That &quot;no egress change&quot; is a load-bearing assumption and it had never been tested against the endpoints a publish actually uses. Every reachability measurement in the chain so far probed <em>read</em> surfaces: registry search APIs, package metadata, download counts. A registry can serve its search API from a CDN that policy allows while its upload host sits behind a different name that policy does not — which is exactly what PyPI turns out to do here.</p>
+<h3>Method: three outcomes, not two</h3>
+<p>The chain&#39;s earlier probes recorded a binary — reachable or <code>EGRESS_DENIED</code>. There are three distinguishable states, and the difference decides who can fix what:</p>
+<div class="scroll"><table><thead><tr><th>Verdict</th><th>How it presents</th><th>Who can change it</th></tr></thead><tbody><tr><td><code>BLOCKED_PROXY_CONNECT</code></td><td><code>curl</code> reports <code>CONNECT tunnel failed, response 403</code>; no origin response exists</td><td>Account owner, via the environment&#39;s network egress policy</td></tr><tr><td><code>BLOCKED_EGRESS_FILTER</code></td><td>An HTTP 403 carrying <code>x-deny-reason: host_not_allowed</code></td><td>Account owner, same setting — these are hosts in the proxy&#39;s <code>noProxy</code> list, so they bypass the proxy and meet the filter directly</td></tr><tr><td><code>REACHED</code></td><td>The origin answered. <code>200</code>, <code>401</code>, <code>403</code>, <code>404</code>, <code>405</code>, <code>410</code> are all the <em>origin&#39;s</em> opinion</td><td>Nobody — the network path is already open</td></tr></tbody></table></div>
+<p>The two blocked forms look identical if you only record a status code, and <code>REACHED 403</code> looks identical to a denial if you only record a status code. Conflating them is what produced the chain&#39;s &quot;npm account uncreatable&quot; and &quot;crates.io blocked&quot; readings, both of which are corrected below.</p>
+<p><strong>A cheap oracle nobody had used.</strong> The proxy publishes its own configuration:</p>
+<pre><code>curl -sS &quot;$HTTPS_PROXY/__agentproxy/status&quot;</code></pre>
+<p>Its <code>noProxy</code> field lists the hosts exempted from policy — on this environment: <code>registry.npmjs.org</code>, <code>jsr.io</code>, <code>npm.jsr.io</code>, <code>pypi.org</code>, <code>files.pythonhosted.org</code>, <code>index.crates.io</code>, <code>proxy.golang.org</code>. That is the dependency-installation allowlist, and reading it costs one call rather than probing hosts one at a time. Note that exemption from the <em>proxy</em> is not the same as reachable: <code>jsr.io</code> is in <code>noProxy</code> and is still refused, by the filter behind it.</p>
+<p><code>probe.py</code> in this directory implements the classification. It re-derives its summary offline from saved output:</p>
+<pre><code>python3 probe.py                                  # probe live, write results.json
+python3 probe.py --recompute-from results.json    # offline, no network</code></pre>
+<h3>Result</h3>
+<p>32 endpoints across 13 channels. Raw output: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/publish-endpoint-reachability/results.json">results.json</a>.</p>
+<h4>Ask 0&#39;s menu, at the endpoint a publish would use</h4>
+<div class="scroll"><table><thead><tr><th>Menu item</th><th>Write/auth endpoint</th><th>Verdict</th><th>Reading</th></tr></thead><tbody><tr><td><strong>Packagist</strong></td><td><code>packagist.org/api/create-package</code></td><td><code>REACHED 405</code></td><td>Endpoint exists and rejects <code>GET</code> on a <code>POST</code>-only route. Network path open</td></tr><tr><td><strong>RubyGems</strong></td><td><code>rubygems.org/api/v1/gems</code></td><td><code>REACHED 401</code></td><td>Origin answers <em>&quot;Access Denied. Please sign up for an account at https://rubygems.org&quot;</em>. A missing credential is the only thing in the way</td></tr><tr><td><strong>crates.io</strong></td><td><code>crates.io/api/v1/crates/new</code></td><td><code>REACHED 404</code></td><td><code>404</code> is <code>GET</code> on a <code>PUT</code> route. Open — see the correction below</td></tr><tr><td><strong>Hex</strong></td><td><code>hex.pm/api/packages</code></td><td><code>REACHED 200</code></td><td>API open, <strong>but <code>repo.hex.pm</code> is <code>BLOCKED_PROXY_CONNECT</code></strong></td></tr></tbody></table></div>
+<p><strong>Ask 0&#39;s two preferred targets are confirmed at the layer that matters.</strong> The &quot;no egress change&quot; claim holds for Packagist and RubyGems. That is the finding this run was after: the ask in front of the owner is correctly specified and does not need widening.</p>
+<h4>Two corrections to readings on the record</h4>
+<p><strong>crates.io was never network-blocked.</strong> A request without a descriptive <code>User-Agent</code> gets <code>403 {&quot;errors&quot;:[{&quot;detail&quot;:&quot;We are unable to process your request at this time...&quot;}]}</code> — crates.io&#39;s documented crawler policy. The same request with a <code>User-Agent</code> set returns <code>404</code>, the ordinary method mismatch. Any probe that read the bare <code>403</code> as an egress denial misattributed it. <code>probe.py</code> sets a <code>User-Agent</code> for this reason.</p>
+<p><strong>Hex belongs on the menu with a caveat.</strong> <code>hex.pm</code>&#39;s API is reachable, but the tarball host <code>repo.hex.pm</code> is proxy-blocked, so a package published to Hex could not be fetched back and verified from this environment. That is a weaker problem than Docker Hub&#39;s closed namespace (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/155">#155</a>) — it does not corrupt the measurement, it only means the publish could not be self-verified from here. Prefer Packagist or RubyGems, which have neither issue.</p>
+<h4>PyPI: install allowed, publish denied, and the fix is named in the response</h4>
+<p><code>pypi.org</code> and <code>files.pythonhosted.org</code> are both exempted and reachable. <code>upload.pypi.org</code> is not, and the filter says so in as many words:</p>
+<blockquote><p><code>Host not in allowlist: upload.pypi.org. Add this host to your network egress settings to allow access.</code></p></blockquote>
+<p>This is the concrete form of the chain&#39;s inference that <em>&quot;24 of 31 hosts are one allowlist entry away.&quot;</em> The enforcement layer names the remedy and the setting. The asymmetry is not an accident: this environment is provisioned to <strong>install</strong> dependencies, not to <strong>publish</strong> them, and PyPI is the clearest case because it splits those two functions across different hostnames.</p>
+<h4>npm: write path open, audience question untouched</h4>
+<p><code>registry.npmjs.org</code> is in <code>noProxy</code> and answers its authenticated surface — <code>/-/whoami</code> and <code>/-/npm/v1/user</code> both return <code>401 {&quot;error&quot;:&quot;Unauthorized&quot;}</code> from npm itself. That is the same host <code>npm publish</code> writes to. So npm&#39;s publish path is open from here and would need only a token, no egress change.</p>
+<p>Recording this as a fact, <strong>not</strong> as a proposal to add npm to Ask 0&#39;s menu. npm is off that menu for a separate, measured reason — <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/111">#111</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/126">#126</a> and <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/155">#155</a> found the category thinnest on npm and crates.io, which is an audience-match argument this run did not re-measure and does not contest. Reachability is necessary, not sufficient, and the two objections are independent.</p>
+<p>Separately: <code>www.npmjs.com/signup</code> returns <code>REACHED 403</code> — the origin&#39;s bot protection, not a network denial. The practical consequence is unchanged (an agent cannot self-serve an npm account from here, and should not), but the earlier reading that this was an egress block is wrong, and the distinction matters because one is the owner&#39;s setting and the other is npm&#39;s.</p>
+<h4>Channels confirmed blocked, no change</h4>
+<p><code>wordpress.org</code>, <code>plugins.svn.wordpress.org</code>, <code>login.wordpress.org</code>, <code>open-vsx.org</code>, <code>api.open-vsx.org</code>, <code>marketplace.visualstudio.com</code> — all <code>BLOCKED_PROXY_CONNECT</code>. This <strong>reproduces</strong> the refutation in <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/126">#126</a>/#137/#166 of <code>channel-inventory.md</code>&#39;s &quot;free, agent-listable: Yes&quot; ratings, by a different method. Those three channels remain unreachable, and they are unreachable by owner-controlled policy rather than by anything structural.</p>
+<h3>What this does and does not establish</h3>
+<p><strong>Does:</strong> the network path to Packagist&#39;s and RubyGems&#39; publish endpoints is open, so Ask 0 as currently written is executable the moment a token exists, and needs no egress change bundled with it.</p>
+<p><strong>Does not:</strong> a reachable endpoint is not a completed publish. A real publish sends a token and an artifact and can still fail on account age, publish-time 2FA, name policy, or rate limits — none of which can be tested without an account, and testing them is not this session&#39;s to do. Treat this as <em>&quot;the network is not the blocker&quot;</em>, which is the specific thing that was uncertain, and nothing more.</p>
+<p>Also unaddressed here: whether a listing on Packagist or RubyGems would draw enough traffic to separate demand from noise. That is <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/155">#155</a>&#39;s question, its answer favours these same two registries, and this run adds nothing to it.</p>
+<h3>Net effect on the owner&#39;s queue</h3>
+<p><strong>No new ask. Ask 0 is unchanged and now better evidenced.</strong> The one substantive change is to a caveat: Hex should carry the <code>repo.hex.pm</code> note if it is ever chosen, and crates.io&#39;s earlier &quot;blocked&quot; reading should not count against it.</p>
+<p>If the owner would rather spend an egress change than an account signup, the <code>upload.pypi.org</code> allowlist entry is the single cheapest one on the board — but that is strictly worse than Ask 0, because PyPI publishing would still need a PyPI account and token on top of it. Noted only so the option is visible, not recommended.</p>
+<h3>Status of the claims</h3>
+<p>Measured from this environment on 2026-08-19, against live hosts, with raw output saved in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/publish-endpoint-reachability/results.json">results.json</a>. Two limits:</p>
+<ul><li><strong>Every verdict is environment-scoped and time-scoped.</strong> Egress policy is a per-environment setting the owner controls and can change at any time; a future session may measure differently without anything having &quot;broken.&quot; Re-run <code>probe.py</code> rather than trusting this table.</li><li><strong>Origin-side status codes drift.</strong> Bot-protection rules, retired endpoints, and CDN behaviour change without notice. <code>rubygems.org/api/v1/api_key</code> already answers <code>410 This endpoint has been retired</code>, which is a reminder that the endpoint inventory ages faster than the verdicts do.</li></ul>
+<h3>Ledger</h3>
+<p>Deliberately <strong>no <code>portfolio/ledger/2026-08.yaml</code> hunk</strong>, per <code>CLAUDE.md</code> — a bundled ledger entry is what made five consecutive decision-pending PRs un-mergeable within the hour. Following <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/155">#155</a>&#39;s precedent, this session is constrained to a single designated branch and so cannot ship the entry on a second branch; <strong>this run&#39;s ledger entry is therefore not recorded anywhere.</strong> Flagged rather than bundled, so the gap is visible instead of being paid for with this document&#39;s mergeability.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

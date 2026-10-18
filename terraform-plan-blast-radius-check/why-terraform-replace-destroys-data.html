@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why a Terraform Replace Destroys Data — and Why the Plan Won't Always Say Which Attribute Forced It</title>
+  <meta name="description" content="What ForceNew actually does, why terraform plan counts a replaced database in the same columns as a moved firewall rule…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/why-terraform-replace-destroys-data.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is ForceNew and why does it destroy my data?","acceptedAnswer":{"@type":"Answer","text":"ForceNew is a flag a provider author sets on a schema attribute to say that the underlying cloud API offers no way to change that field on an existing object. When such an attribute changes, Terraform's only route to your desired state is to destroy the object and create a new one. For a virtual machine that is an outage; for a database, a disk, or a bucket it is the data as well, because the new object is empty and nothing in the plan restores it."}},{"@type":"Question","name":"Why doesn't the plan always show the attribute that forced the replacement?","acceptedAnswer":{"@type":"Answer","text":"Because an attribute a provider marked RequiresReplace whose own value did not change is folded into the (N unchanged attributes hidden) summary, so the plan can say a resource must be replaced without showing which field caused it. This was reported upstream as hashicorp/terraform#36097 and closed as working as designed. The structured plan JSON does not hide it — change.replace_paths carries the exact attribute paths whether or not their values changed."}},{"@type":"Question","name":"Isn't prevent_destroy enough?","acceptedAnswer":{"@type":"Answer","text":"It is the right backstop and it is not a substitute for reading the plan. prevent_destroy makes the apply fail rather than proceed, which is valuable, but it has to have been added to the resource in advance, it stops the whole apply rather than telling you what to change, and it does nothing for a resource somebody forgot to annotate. A public GitLab corrective action after an incident that lost roughly 30 minutes of data on three nodes asked for exactly the missing half: an apply should fail if multiple critical resources containing data are being deleted."}},{"@type":"Question","name":"Why read the JSON plan instead of the text output?","acceptedAnswer":{"@type":"Answer","text":"Because the text output is designed for a human reading it top to bottom at the moment it is produced, and the two facts that matter most — which resources are replaced and why — are scattered through it and summarised at the end in columns that conflate a replacement with a creation and a deletion. The structured plan is the same information as data: one array of resource changes, each with an actions list, a replace_paths list, and an action_reason code. Anything can read it, including a CI gate that runs before the apply step."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 30px; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    p, li { line-height: 1.6; }
+    code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; }
+    a { color: #17604a; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/why-terraform-replace-destroys-data.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why a Terraform Replace Destroys Data — and Why the Plan Won't Always Say Which Attribute Forced It">
+<meta property="og:description" content="What ForceNew actually does, why terraform plan counts a replaced database in the same columns as a moved firewall rule…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a Terraform Replace Destroys Data — and Why the Plan Won't Always Say Which Attribute Forced It — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../terraform-plan-blast-radius-check/">Which of these resources is your terraform apply about to destroy?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a Terraform Replace Destroys Data — and Why the Plan Won't Always Say Which Attribute Forced It</span></span></nav>
+  <p><a href="./">&larr; Back to Terraform Plan Blast Radius Check</a></p>
+  <h1>Why a Terraform replace destroys data, and why the plan won't always say which attribute forced it</h1>
+
+  <div class="card">
+    <h2>The mechanism, in one paragraph</h2>
+    <p>Every attribute in a Terraform provider's schema can be marked <code>ForceNew</code> (the modern plugin framework calls the same thing <code>RequiresReplace</code>). The flag means one thing: the cloud API behind this resource offers no way to change this field on an existing object. So when that field's value moves, Terraform has exactly one route from the current state to your desired state — destroy the object and create a new one. It reports this as <em>must be replaced</em>, and it is not a bug or a provider mistake. It is the honest consequence of an API that has no update path for that field.</p>
+    <p>For a virtual machine, a replacement is an outage you can plan around. For a database, a disk, a bucket, a queue, or a KMS key, the new object is <strong>empty</strong>, and nothing in the plan puts the old contents back. The restore, if a restore is even possible, is a separate thing you do by hand afterwards — assuming a snapshot exists and assuming the retention window has not already expired.</p>
+  </div>
+
+  <div class="card">
+    <h2>Why the summary line cannot warn you</h2>
+    <p>A plan ends with one line:</p>
+    <pre><code>Plan: 3 to add, 1 to change, 2 to destroy.</code></pre>
+    <p>A replacement is counted in <em>both</em> the add column and the destroy column. So a plan that recreates one production database and deletes one abandoned log group produces the same trailing line as a plan that creates two scratch resources and deletes two others. The information that separates them exists — it is in the <code>-/+ resource "aws_db_instance" "primary"</code> header hundreds of lines up, next to the <code># forces replacement</code> comment — and it is in the part of the output that a reviewer skims, a CI log truncates, and a pull-request bot collapses behind a "show more" toggle.</p>
+    <p>This is a presentation problem, not a data problem. Terraform knows precisely which resources are being replaced and which attributes forced each one. It is simply not the thing it puts at the end.</p>
+  </div>
+
+  <div class="card">
+    <h2>The part that is hidden on purpose</h2>
+    <p>There is a sharper version of this, and it is worth knowing because no amount of careful reading of the text output fixes it. An attribute a provider marked <code>RequiresReplace</code> whose <em>own value did not change</em> is folded into the <code>(N unchanged attributes hidden)</code> summary — so the plan tells you the resource must be replaced and does not show you the field responsible.</p>
+    <p>This was reported upstream as <a href="https://github.com/hashicorp/terraform/issues/36097" rel="noopener nofollow">hashicorp/terraform#36097</a>, <em>"<code>terraform plan</code> hides unchanged <code>forces replacement</code> attributes"</em>, and closed as working as designed. The reporter's example was a TLS certificate being replaced because of <code>ready_for_renewal</code>, an attribute that never appeared anywhere in the plan output.</p>
+    <p>The structured plan does not hide it. <code>terraform show -json</code> emits, per resource change, a <code>replace_paths</code> array carrying the exact attribute paths that forced the replacement, regardless of whether their values changed — the field was added for precisely this reason, so that consumers of the format can determine which paths caused a replacement.</p>
+  </div>
+
+  <div class="card">
+    <h2>The three fields that answer the question</h2>
+    <p>Everything this tool reports comes out of <code>resource_changes[]</code> in the structured plan:</p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Field</th><th>What it settles</th></tr></thead>
+      <tbody>
+        <tr><td><code>change.actions</code></td><td>The action, as an array. <code>["delete","create"]</code> and <code>["create","delete"]</code> are both replacements — the second is the <code>create_before_destroy</code> form, which avoids the gap in service but not the loss of anything stored on the old object.</td></tr>
+        <tr><td><code>change.replace_paths</code></td><td>The attribute paths that forced the replacement, including the ones the text output hides.</td></tr>
+        <tr><td><code>action_reason</code></td><td>Why this action rather than an update: <code>replace_because_cannot_update</code> (the ForceNew case), <code>replace_because_tainted</code>, <code>replace_by_request</code> (you passed <code>-replace=</code>), <code>delete_because_no_resource_config</code>, <code>delete_because_count_index</code>, and others. Terraform documents these as display hints whose set can change, and tells consumers to expect codes they do not recognise — so this tool prints an unknown code rather than dropping it.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">A replacement can legitimately have no <code>replace_paths</code> at all: a tainted resource and an explicit <code>-replace=ADDRESS</code> are replaced for reasons that are not any attribute. In those cases <code>action_reason</code> is the whole answer, which is why the report shows both columns.</p>
+  </div>
+
+  <div class="card">
+    <h2>A "true deletion" is not the same as a destroy count</h2>
+    <p>The destroy count in a plan includes the destroy half of every replacement. What a reviewer usually wants to know is narrower: <strong>what is going away and not coming back?</strong> That is a resource whose actions are exactly <code>["delete"]</code> and which nothing else in the plan re-creates at the same address.</p>
+    <p>The qualifier matters. A <code>create_before_destroy</code> replacement of a <em>deposed</em> object arrives in the plan as two separate entries at the same address — one <code>["create"]</code>, and one <code>["delete"]</code> carrying a <code>deposed</code> key. Counting that delete as a resource going away would be a false alarm on a perfectly ordinary rolling replacement, and a list that cries wolf is a list nobody reads by the third week.</p>
+  </div>
+
+  <div class="card">
+    <h2>Where <code>prevent_destroy</code> stops helping</h2>
+    <p><code>lifecycle { prevent_destroy = true }</code> is the right backstop and you should use it on anything that holds data. It is not a substitute for reading the plan, for three reasons: it has to have been added to the resource in advance, so it does nothing for the resource somebody forgot; it fails the whole apply rather than telling you which attribute to change; and it says nothing at review time, which is the moment a replacement is cheapest to catch.</p>
+    <p>The gap is not hypothetical. GitLab's own infrastructure team published a corrective action — <a href="https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/24078" rel="noopener nofollow">"Improve safety around Terraform destroy operations (disks)"</a> — after an accidental deletion of three recently created Gitaly nodes cost roughly 30 minutes of data loss on each. The action they asked for is exactly the missing half: <em>an apply should fail if multiple critical resources containing data (disks) are being deleted</em>. That is a check on the plan, before the apply, on resources identified by what they hold.</p>
+  </div>
+
+  <div class="card">
+    <h2>What this is not</h2>
+    <p>This is not a policy engine like Sentinel, OPA, or Conftest, and it is not a cost estimator. It writes no rules for you, evaluates no expressions, and makes no judgement about whether a change should be allowed — it reads exactly one file, the structured plan JSON you already have from your own <code>terraform show -json</code>, and reports what that file says is being destroyed and replaced. It makes no claim about your state file, your provider's source code, or whether a resource it does <em>not</em> flag is safe to lose.</p>
+  </div>
+
+  <div class="card">
+    <h2>Common questions</h2>
+    <h3>What is ForceNew and why does it destroy my data?</h3>
+    <p>ForceNew is a flag a provider author sets on a schema attribute to say that the underlying cloud API offers no way to change that field on an existing object. When such an attribute changes, Terraform's only route to your desired state is to destroy the object and create a new one. For a virtual machine that is an outage; for a database, a disk, or a bucket it is the data as well, because the new object is empty and nothing in the plan restores it.</p>
+    <h3>Why doesn't the plan always show the attribute that forced the replacement?</h3>
+    <p>Because an attribute a provider marked RequiresReplace whose own value did not change is folded into the (N unchanged attributes hidden) summary, so the plan can say a resource must be replaced without showing which field caused it. This was reported upstream as hashicorp/terraform#36097 and closed as working as designed. The structured plan JSON does not hide it — change.replace_paths carries the exact attribute paths whether or not their values changed.</p>
+    <h3>Isn't prevent_destroy enough?</h3>
+    <p>It is the right backstop and it is not a substitute for reading the plan. prevent_destroy makes the apply fail rather than proceed, which is valuable, but it has to have been added to the resource in advance, it stops the whole apply rather than telling you what to change, and it does nothing for a resource somebody forgot to annotate. A public GitLab corrective action after an incident that lost roughly 30 minutes of data on three nodes asked for exactly the missing half: an apply should fail if multiple critical resources containing data are being deleted.</p>
+    <h3>Why read the JSON plan instead of the text output?</h3>
+    <p>Because the text output is designed for a human reading it top to bottom at the moment it is produced, and the two facts that matter most — which resources are replaced and why — are scattered through it and summarised at the end in columns that conflate a replacement with a creation and a deletion. The structured plan is the same information as data: one array of resource changes, each with an actions list, a replace_paths list, and an action_reason code. Anything can read it, including a CI gate that runs before the apply step.</p>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational only and is not legal, security, or other professional advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+    <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, GitLab, or any cloud provider.</strong> Terraform is a trademark of HashiCorp. Issues and incident reports are linked as public evidence of the failure being described, not as endorsements.</p>
+    <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../dmarc-report-reader/" data-pf-to="dmarc-report-reader">DMARC Report Reader — read rua reports without a SaaS</a></li>
+      <li><a href="../docker-base-image-eol-check/" data-pf-to="docker-base-image-eol-check">Is your Dockerfile's base image still supported?</a></li>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=terraform-plan-blast-radius-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="terraform-plan-blast-radius-check"></script>
+</body>
+</html>

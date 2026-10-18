@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much to Charge to Install Solar Panels | Price the Roof, Not Just the Watts</title>
+  <meta name="description" content="How solar installers should price a rooftop PV job: dollars per watt hides tile roofs, steep pitch, and 100-to-200 amp panel upgrades.">
+  <meta property="og:title" content="How Much to Charge to Install Solar Panels">
+  <meta property="og:description" content="A per-watt rule cannot see the roof or the service. Price those extras, then check the walk-away number.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/solar-pv-bid-calculator/how-much-to-charge-to-install-solar-panels.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to install solar panels?","acceptedAnswer":{"@type":"Answer","text":"Charge from your own cost: modules, inverter, racking, BOS, crew hours times a roof-difficulty factor, electrical extras, permits, overhead, and the margin you intend to keep. Convert that price to dollars per watt at the end for comparison, not as the bid method."}},{"@type":"Question","name":"Why is a dollars-per-watt quote dangerous?","acceptedAnswer":{"@type":"Answer","text":"Equipment scales with watts. Tile hooks, steep pitch, multiple arrays, and a 100 A to 200 A panel upgrade do not. Those extras can erase the margin on a quote that looked fine on a composition-roof job of the same size."}},{"@type":"Question","name":"Does this include tax credits or utility incentives?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator prices the install. Incentives, rebates, and tax credits are the customer's, the accountant's, or the program administrator's to apply. Do not treat the tool as a net-cost or payback determination."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1c2430; background: #f3efe6; }
+    body { max-width: 740px; margin: 0 auto; padding: 36px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { margin-top: 2rem; }
+    a { color: #ac4f09; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #1d3a2f; color: #f4f8f4; text-decoration: none; border-radius: 8px; font-weight: 700; }
+    footer { margin-top: 2.5rem; font-size: .86rem; color: #5a5246; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/solar-pv-bid-calculator/how-much-to-charge-to-install-solar-panels.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/solar-pv-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much to Charge to Install Solar Panels — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../solar-pv-bid-calculator/">Solar PV Install Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much to Charge to Install Solar Panels</span></span></nav>
+  <p><a href="./index.html">← Solar PV install bid calculator</a></p>
+  <h1>How much to charge to install solar panels</h1>
+  <p>Price the job from cost, then convert to dollars per watt. Do not start from a published $/W and work backwards. Two 10 kW residential arrays can differ by several thousand dollars once the roof and the electrical service are in the bid.</p>
+  <a class="cta" href="./index.html">Open the free bid calculator</a>
+
+  <h2>What a per-watt quote cannot see</h2>
+  <p>Modules, inverters, and racking mostly scale with watts. These do not:</p>
+  <ul>
+    <li>Steep pitch, tile or slate, hips and valleys, or a second array</li>
+    <li>A 100 A &rarr; 200 A (or 200 A &rarr; 400 A) service upgrade</li>
+    <li>A long AC/DC run, a trench to a detached structure, or a ground-mount pier field</li>
+    <li>Permit, interconnection, and utility fees that are a trip and a check, not a watt</li>
+    <li>A battery or backup adder sold on the same visit</li>
+  </ul>
+  <p>If you match a cheaper $/W quote that was written for an easy composition roof and a clean 200 A panel, you are matching someone else's job, not yours.</p>
+
+  <h2>A bid that holds together</h2>
+  <ol>
+    <li>Size the array from module count × watts, not a rounded marketing kW.</li>
+    <li>Time array labor as hours per kW on an easy roof, then multiply by a roof factor.</li>
+    <li>Add electrical extras as their own hours and material. They do not shrink when the array is smaller.</li>
+    <li>Load the wage (taxes, workers' compensation, insurance, PTO). Price from loaded labor, not take-home.</li>
+    <li>Add permits, design, travel, dumpster, and lift.</li>
+    <li>Recover overhead as a percent of direct cost, then set margin as a share of the customer's price.</li>
+    <li>Only then look at $/W — and at the walk-away price if a closer asks you to sharpen it.</li>
+  </ol>
+
+  <h2>What this is not</h2>
+  <p>This is not a structural stamp, an interconnection approval, a code inspection, a payback model, or tax or incentive advice. It is arithmetic on numbers you enter. Confirm layout, AHJ and utility requirements, and every invoice before you send a price.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge to install solar panels?</h3>
+  <p>Charge from your own cost: modules, inverter, racking, BOS, crew hours times a roof-difficulty factor, electrical extras, permits, overhead, and the margin you intend to keep. Convert that price to dollars per watt at the end for comparison, not as the bid method.</p>
+  <h3>Why is a dollars-per-watt quote dangerous?</h3>
+  <p>Equipment scales with watts. Tile hooks, steep pitch, multiple arrays, and a 100 A to 200 A panel upgrade do not. Those extras can erase the margin on a quote that looked fine on a composition-roof job of the same size.</p>
+  <h3>Does this include tax credits or utility incentives?</h3>
+  <p>No. The calculator prices the install. Incentives, rebates, and tax credits are the customer's, the accountant's, or the program administrator's to apply. Do not treat the tool as a net-cost or payback determination.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator are free and as-is. They are not legal, tax, financial, engineering, or electrical-code advice. You are responsible for reviewing and verifying output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sewer-hydrojet-bid-calculator/" data-pf-to="sewer-hydrojet-bid-calculator">Hydro-Jet and Sewer Camera Bid Calculator</a></li>
+      <li><a href="../sewer-line-replace-bid-calculator/" data-pf-to="sewer-line-replace-bid-calculator">Sewer Line Replacement Bid Calculator</a></li>
+      <li><a href="../standby-generator-bid-calculator/" data-pf-to="standby-generator-bid-calculator">Standby Generator Installation Bid Calculator</a></li>
+      <li><a href="../standby-generator-install-price-calculator/" data-pf-to="standby-generator-install-price-calculator">Standby Generator Install Price Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=solar-pv-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="solar-pv-bid-calculator"></script>
+</body>
+</html>

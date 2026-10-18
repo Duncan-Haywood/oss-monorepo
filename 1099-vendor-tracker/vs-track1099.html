@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tracker vs. Track1099 | 1099-NEC Vendor Tracker</title>
+  <meta name="description" content="Track1099 (Avalara) is a paid W-9 collection and IRS e-filing service. This is a free, private, browser-only tracker that tells you which vendors need a…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/vs-track1099.html">
+  <meta property="og:title" content="This tracker vs. Track1099">
+  <meta property="og:description" content="Two different jobs: Track1099 collects W-9s and e-files with the IRS for a fee. This is a free, instant check of which vendors cross the 2026 threshold and…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tracker or Track1099?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. Track1099, an Avalara product, collects W-9s from vendors and e-files 1099s with the IRS and states for a per-form fee, described on Avalara's own site. This tracker does not file anything and never will — it exists for the step before that: figuring out, from what you already know about each vendor, who actually crosses the 2026 $2,000 threshold, who is exempt as a corporation, and whose paperwork is still missing. A business that already knows its full 1099 list and wants to e-file it should use Track1099 or a comparable service; a bookkeeper still working out who is even on that list is in the right place here first."}},{"@type":"Question","name":"Is this page affiliated with Avalara or Track1099?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Avalara, Inc. or Track1099. Track1099 is named here only to describe what this tracker is and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem, 5vw, 2.6rem)/1.05 Georgia, serif; letter-spacing: -.04em; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fffdf8; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .note { font-size: .85rem; color: var(--muted); }
+    footer { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/vs-track1099.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tracker vs. Track1099 — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../1099-vendor-tracker/">1099-NEC Vendor Tracker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tracker vs. Track1099</span></span></nav>
+<main>
+  <p><a href="./">&larr; 1099-NEC Vendor Tracker</a></p>
+  <h1>This tracker vs. Track1099</h1>
+  <p>
+    <strong>Track1099</strong>, an <strong>Avalara</strong> product, is a
+    well-known paid service for the back half of 1099 season: collecting W-9s
+    from vendors electronically and e-filing 1099-NEC and 1099-MISC forms with
+    the IRS and participating states, priced per form, described on
+    <a href="https://www.track1099.com/" rel="nofollow noopener">track1099.com</a>.
+    It is the tool a business reaches for once it already knows its full
+    vendor list and is ready to file.
+  </p>
+  <p>
+    That is a different job from the one this page does. This tracker has no
+    W-9 collection portal, no e-filing, and no per-form fee. It exists for the
+    step <em>before</em> that: working out, from what you already know about
+    each vendor, <strong>who actually needs a 1099-NEC under the 2026 $2,000
+    threshold, who is exempt as a corporation, and whose W-9 is still
+    missing</strong> — with nothing to sign up for.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have my full 1099 list finalized — how do I collect any outstanding W-9s electronically and e-file everything with the IRS and states?</td>
+        <td>Track1099 or a comparable paid e-filing service — collection and e-filing are jobs this page does not attempt.</td>
+      </tr>
+      <tr>
+        <td>Which of my vendors actually crosses the 2026 $2,000 threshold, and which ones are exempt because they're a corporation?</td>
+        <td>This tracker — enter each vendor's entity type, category, and year-to-date total, and get the threshold and exemption applied with no signup.</td>
+      </tr>
+      <tr>
+        <td>Which vendors on my list still don't have a W-9 on file, so I know who to chase before the deadline?</td>
+        <td>This tracker — the review queue sorts a missing W-9 above everything else and marks it done the moment you record one received.</td>
+      </tr>
+      <tr>
+        <td>I need audit-trail e-filing confirmations and state-by-state submission.</td>
+        <td>Track1099 or a comparable paid service — this page has no accounts and files nothing; it produces a CSV you can hand to whichever service you use.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    This tracker is deliberately the opposite shape from an e-filing
+    subscription: nothing to sign up for, nothing billed per form, and nothing
+    typed here ever leaves your browser. That makes it useful for narrowing
+    down a vendor list before you pay anyone to file it — and the wrong tool
+    for the actual e-filing step, which is exactly the job a service like
+    Track1099 is built for.
+  </p>
+  <p>
+    It needs no account and no sign-in: it is a static page, the arithmetic
+    runs in your browser, and once it has loaded it keeps working with the
+    connection off.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tracker or Track1099?</h3>
+  <p>They answer different questions. Track1099, an Avalara product, collects W-9s from vendors and e-files 1099s with the IRS and states for a per-form fee, described on Avalara's own site. This tracker does not file anything and never will — it exists for the step before that: figuring out, from what you already know about each vendor, who actually crosses the 2026 $2,000 threshold, who is exempt as a corporation, and whose paperwork is still missing. A business that already knows its full 1099 list and wants to e-file it should use Track1099 or a comparable service; a bookkeeper still working out who is even on that list is in the right place here first.</p>
+  <h3>Is this page affiliated with Avalara or Track1099?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Avalara, Inc. or Track1099. Track1099 is named here only to describe what this tracker is and is not.</p>
+  <p class="note">
+    Open the <a href="./">1099-NEC Vendor Tracker</a> to add your own vendors.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, or tax advice, and it does not replace a qualified tax preparer. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any filing obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. A review queue is not a filing, an IRS TIN match, or a compliance determination.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+      <li><a href="../bai2-to-ofx-converter/" data-pf-to="bai2-to-ofx-converter">BAI2 to OFX, QBO, QIF and Xero CSV — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099-vendor-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="1099-vendor-tracker"></script>
+</body>
+</html>

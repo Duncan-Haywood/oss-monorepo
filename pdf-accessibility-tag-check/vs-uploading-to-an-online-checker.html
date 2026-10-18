@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF/UA Checker: In-Browser vs. Uploading to an Online Checker</title>
+<meta name="description" content="Most free PDF accessibility checkers -- PDFix, PDF Audit, freepdfchecker.com, axesCheck -- read your document by first uploading it to their server.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/vs-uploading-to-an-online-checker.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do free online PDF accessibility checkers upload my file to a server?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The ones surveyed here do -- PDFix, PDF Audit, freepdfchecker.com, and axesCheck all ask you to choose or drop a file that is then sent to their server to be scanned. This checker reads the file with the browser's own File and DecompressionStream APIs entirely in your tab, so a government form, a permit, or an HR document never has to leave your machine to be checked." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I check a whole folder of PDFs at once instead of one at a time?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, with the CLI: node cli/check.mjs ./document-library/ --json walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the PDF is fully PDF/UA or Section 508 compliant?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This is evidence, not a determination -- specific, automatable structural checks (tagging, title, language, alt-text coverage, text layer, form labels), not a full PDF/UA or Section 508 conformance audit and not a substitute for a manual or assistive-technology review. A clean report means these checks found nothing, not that the document is compliant." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does this check that a visual read-through of the PDF would not catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It reads the file's internal structure rather than how it renders: whether the document catalog declares /MarkInfo /Marked true and a /StructTreeRoot, a non-empty /Title and a well-formed /Lang tag, whether image elements in the structure tree carry non-empty /Alt text, whether a page has an extractable text layer or is likely an un-OCR'd scan, and whether interactive form fields have an accessible name. None of that is visible just by looking at the rendered page." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4.2vw, 2.2rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/vs-uploading-to-an-online-checker.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="PDF/UA Checker: In-Browser vs. Uploading to an Online Checker">
+<meta property="og:description" content="Most free PDF accessibility checkers -- PDFix, PDF Audit, freepdfchecker.com, axesCheck -- read your document by first uploading it to their server.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PDF/UA Checker: In-Browser vs. Uploading to an Online Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pdf-accessibility-tag-check/">PDF Accessibility Tag Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">PDF/UA Checker: In-Browser vs. Uploading to an Online Checker</span></span></nav>
+<p><a href="index.html">&larr; Back to the PDF Accessibility Tag Checker</a></p>
+<h1>PDF/UA checker: in-browser vs. uploading to an online checker</h1>
+
+<p>
+  Several free PDF/UA and Section 508 checkers already exist online -- PDFix, PDF Audit,
+  freepdfchecker.com, and axesCheck among them -- and there is a well-known free desktop tool, PAC.
+  The question worth asking before choosing one is not which finds the most issues; the structural
+  checks in this class of tool are largely the same checks. It is what happens to the file you hand it,
+  and whether you can check more than one at a time.
+</p>
+
+<h2>What actually differs</h2>
+
+<div class="pf-table-scroll"><table>
+  <tbody>
+    <tr>
+      <th>Where the file goes</th>
+      <td>The surveyed free online checkers (PDFix, PDF Audit, freepdfchecker.com, axesCheck) read your
+      PDF by first uploading it to their server. This checker's browser page reads the file with the
+      browser's own <code>File</code> and <code>DecompressionStream</code> APIs, entirely in your tab --
+      nothing is sent anywhere. For a government form, a permit, meeting minutes, or an HR document, that
+      is often the reason to be reluctant to hand a file to an unfamiliar site in the first place.</td>
+    </tr>
+    <tr>
+      <th>One file or a folder</th>
+      <td>PAC, the classic free desktop tool, checks one file at a time. None of the surveyed free online
+      checkers offer a batch or folder mode either. This tool's CLI, <code>cli/check.mjs</code>, walks a whole
+      folder recursively (<code>node cli/check.mjs ./document-library/ --json</code>) and exits non-zero if any
+      file has a finding -- so a document library of hundreds of PDFs is one command, and the same command
+      can gate a CI job on newly published documents.</td>
+    </tr>
+    <tr>
+      <th>What it costs to run again</th>
+      <td>Re-checking a PDF after a fix with an online checker means uploading it again. Re-checking here
+      means dropping the file again or re-running the CLI -- no account, no queue, no per-file limit.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2>What does not differ</h2>
+
+<p>
+  The structural checks themselves are the ordinary PDF/UA and Section 508 building blocks any tool in
+  this class looks at: a tagged structure tree, a document title, a declared language, image alt text,
+  an extractable text layer instead of an un-OCR'd scan, and accessible names on form fields. None of
+  that is unique to this tool, and none of it is a substitute for a manual or assistive-technology
+  review -- see the checker's own disclaimer on <a href="index.html">index.html</a> for exactly what a
+  clean report does and does not mean.
+</p>
+
+<h2>Common questions</h2>
+<h3>Do free online PDF accessibility checkers upload my file to a server?</h3>
+<p>The ones surveyed here do -- PDFix, PDF Audit, freepdfchecker.com, and axesCheck all ask you to choose or drop a file that is then sent to their server to be scanned. This checker reads the file with the browser's own File and DecompressionStream APIs entirely in your tab, so a government form, a permit, or an HR document never has to leave your machine to be checked.</p>
+<h3>Can I check a whole folder of PDFs at once instead of one at a time?</h3>
+<p>Yes, with the CLI: <code>node cli/check.mjs ./document-library/ --json</code> walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either.</p>
+<h3>Does a clean report mean the PDF is fully PDF/UA or Section 508 compliant?</h3>
+<p>No. This is evidence, not a determination -- specific, automatable structural checks (tagging, title, language, alt-text coverage, text layer, form labels), not a full PDF/UA or Section 508 conformance audit and not a substitute for a manual or assistive-technology review. A clean report means these checks found nothing, not that the document is compliant.</p>
+<h3>What does this check that a visual read-through of the PDF would not catch?</h3>
+<p>It reads the file's internal structure rather than how it renders: whether the document catalog declares /MarkInfo /Marked true and a /StructTreeRoot, a non-empty /Title and a well-formed /Lang tag, whether image elements in the structure tree carry non-empty /Alt text, whether a page has an extractable text layer or is likely an un-OCR'd scan, and whether interactive form fields have an accessible name. None of that is visible just by looking at the rendered page.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a> to drop in your own PDF, or use the CLI to batch-scan a folder.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal, accessibility-consulting, or compliance advice, and it does not
+  replace a qualified accessibility review or a real assistive-technology test. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by PDFix, PDF Audit, freepdfchecker.com, axesCheck, or
+  PAC. Each is a trademark of its own owner, named here only to describe what this tool is and is not,
+  based on each product's own public documentation.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+      <li><a href="../ofx-file-check/" data-pf-to="ofx-file-check">OFX File Check — free, private, in your browser</a></li>
+      <li><a href="../osha-trir-dart-calculator/" data-pf-to="osha-trir-dart-calculator">OSHA TRIR &amp; DART Rate Calculator</a></li>
+      <li><a href="../paddle-payout-to-journal/" data-pf-to="paddle-payout-to-journal">Paddle earnings export to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pdf-accessibility-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pdf-accessibility-tag-check"></script>
+</body>
+</html>

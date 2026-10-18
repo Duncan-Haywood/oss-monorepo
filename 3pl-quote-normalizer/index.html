@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3PL Cost Calculator | Normalize Fulfillment Quotes</title>
+<meta name="description" content="Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.">
+<meta property="og:title" content="3PL Quote Normalizer"><meta property="og:description" content="See the true monthly cost and break-even volume in a 3PL quote.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3PL Quote Normalizer","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the total include returns and restocking, not just outbound fees?","acceptedAnswer":{"@type":"Answer","text":"Yes. The returns line is orders × returns rate × (return handling fee + restock fee), using the return handling and restock inputs above the calculator. It does not include chargebacks, refunded product cost, or inventory written off on returns you can't resell — the dedicated return-disposition calculator covers that."}},{"@type":"Question","name":"What happens when my minimum monthly spend is higher than the line items add up to?","acceptedAnswer":{"@type":"Answer","text":"The total switches to your minimum, and the “Minimum charge applied?” row tells you when that happened. Below the volume where the order-driven line items alone clear the minimum, the minimum is what's really setting your bill, not your order count — that's the threshold the sensitivity and negotiation pages linked above use."}},{"@type":"Question","name":"What does “in-house cost per order” need to include for a fair comparison?","acceptedAnswer":{"@type":"Answer","text":"It's a single number you type in, not a breakdown. If it leaves out warehouse rent, software, packaging materials, or a share of your own labor, the in-house side looks artificially cheap and the break-even volume shown will be wrong. Build it up from your own costs before trusting the comparison."}},{"@type":"Question","name":"Does my quote data leave this browser?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is computed client-side; your inputs are saved to this browser's local storage only so the form survives a reload, and nothing is uploaded. Turn off usage counting with the button in the results panel if you don't want anonymous feature events recorded either."}}]}</script><script src="./return-fields.js"></script><script type="module" src="./export-page.mjs"></script><script type="module" src="./warnings-page.mjs"></script>
+<style>:root{font:16px system-ui,sans-serif;color:#17212b;background:#f4f1ea}body{max-width:1050px;margin:auto;padding:28px}header{max-width:720px;margin-bottom:24px}h1{font-size:clamp(2rem,5vw,4rem);line-height:1;margin:0 0 14px;color:#123b36}p{line-height:1.5}.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:#fff;border:1px solid #d8d3c9;border-radius:14px;padding:22px;box-shadow:0 8px 24px #123b3610}form{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{font-weight:650;font-size:.86rem}input{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #a9b4af;border-radius:7px;font:inherit}button{border:0;border-radius:8px;padding:11px 15px;background:#c05430;color:#fff;font-weight:700;cursor:pointer}button.secondary{background:#e8eee9;color:#123b36}.full{grid-column:1/-1}.hero-number{font-size:2.3rem;color:#123b36;font-weight:800}.row{display:flex;justify-content:space-between;border-bottom:1px solid #e6e2da;padding:9px 0}.note,footer{font-size:.86rem;color:#52605d}pre{white-space:pre-wrap;background:#f4f1ea;padding:12px;border-radius:8px;font-size:.8rem}footer{margin-top:25px;border-top:1px solid #d8d3c9;padding-top:16px}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{text-align:right;padding:8px 6px;border-bottom:1px solid #e6e2da}th:first-child,td:first-child{text-align:left}tr.winner{background:#e8f3ee}.inbound-card{margin-top:20px}@media(max-width:720px){body{padding:16px}.layout{grid-template-columns:1fr}form{grid-template-columns:1fr}}
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"3PL Quote Normalizer","item":"https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3PL Quote Normalizer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head><body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">3PL Quote Normalizer</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p><header><p class="note">FULFILLMENT DECISION TOOL</p><h1>Normalize a 3PL quote before you sign it.</h1><p>Third-party logistics quotes hide the real answer in receiving, storage, pick and pack, shipping, returns, and minimums. Put every line on the same monthly basis and compare it with your in-house cost.</p><p class="note">Also see <a href="./compare.html">compare two quotes</a>, <a href="./sensitivity.html">volume sensitivity</a>, <a href="./returns-sensitivity.html">when return fees flip the quote</a>, <a href="./does-long-term-storage-flip-a-3pl-quote.html">whether leftover long-term storage flips the quote</a>, <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">whether restocking a return still beats letting the customer keep it</a>, <a href="./should-i-pay-the-3pl-to-kit.html">whether paying the 3PL to kit still beats skipping the bundle</a>, <a href="./inbound.html">whether pallet inbound still beats carton or loose receiving</a>, <a href="./negotiation.html">create a negotiation brief</a>, <a href="./drivers.html">rank the largest rate-card lines</a>, and <a href="./export.html">download a reviewable CSV or JSON record</a>.</p></header>
+<main class="layout"><section class="card"><h2>Your volume and quote</h2><form id="calculator"><label>Orders / month<input name="orders" type="number" value="100" min="0" inputmode="decimal"></label><label>Units / order<input name="unitsPerOrder" type="number" value="1.5" step=".1" min="0" inputmode="decimal"></label><label>Pallets stored<input name="pallets" type="number" value="1" min="0" inputmode="decimal"></label><label>Inbound units / month<input name="inboundUnits" type="number" value="150" min="0" inputmode="decimal"></label><label>Receiving / unit ($)<input name="receivingPerUnit" type="number" value="0.12" step=".01" min="0" inputmode="decimal"></label><label>Storage / pallet ($)<input name="storagePerPallet" type="number" value="18" step=".01" min="0" inputmode="decimal"></label><label>First pick / order ($)<input name="firstPick" type="number" value="2.75" step=".01" min="0" inputmode="decimal"></label><label>Additional pick / unit ($)<input name="additionalPick" type="number" value="0.5" step=".01" min="0" inputmode="decimal"></label><label>Packaging / order ($)<input name="packaging" type="number" value="0.6" step=".01" min="0" inputmode="decimal"></label><label>Shipping / order ($)<input name="shipping" type="number" value="8.5" step=".01" min="0" inputmode="decimal"></label><label>Returns (% of orders)<input name="returnsRate" type="number" value="8" step=".1" min="0" inputmode="decimal"></label><label>Fixed monthly fee ($)<input name="fixedFee" type="number" value="150" step=".01" min="0" inputmode="decimal"></label><label>Minimum monthly spend ($)<input name="minimumMonthly" type="number" value="0" step=".01" min="0" inputmode="decimal"></label><label>In-house cost / order ($)<input name="inHousePerOrder" type="number" value="13" step=".01" min="0" inputmode="decimal"></label><label>Pallet inbound fee ($)<input name="palletInboundFee" type="number" value="10" step=".01" min="0" inputmode="decimal"></label><label>Units per pallet<input name="unitsPerPallet" type="number" value="60" min="0" inputmode="decimal"></label><label>Carton inbound fee ($)<input name="cartonInboundFee" type="number" value="1.50" step=".01" min="0" inputmode="decimal"></label><label>Units per carton<input name="unitsPerCarton" type="number" value="6" min="0" inputmode="decimal"></label><button class="full" type="submit">Normalize this quote</button></form></section><section class="card" aria-live="polite"><h2>Decision snapshot</h2><div id="output"></div><p class="note">Arithmetic from your inputs, not a quote or recommendation. Change one assumption at a time to see what drives the decision.</p><button class="secondary" id="copy" type="button">Copy line-by-line summary</button> <button class="secondary" id="optout" type="button">Turn usage counting off</button><details><summary>Show line-by-line export</summary><pre id="report" aria-label="Copyable quote review report"></pre></details></section></main>
+<section class="card inbound-card" id="inbound-methods" aria-labelledby="inbound-heading">
+  <h2 id="inbound-heading">Does pallet inbound beat carton or loose receiving?</h2>
+  <p class="note">The dedicated <a href="./inbound.html">inbound method calculator</a> already has the full math. This block uses the same <code>compareInboundMethods</code> on the quote you just typed, so you do not leave the page. Pallet and carton defaults match that page ($10 / 60 units, $1.50 / 6 units). Loose receiving uses the Receiving / unit field above. More: <a href="./pallet-vs-carton-inbound.html">why pallet inbound is usually cheaper than carton</a>.</p>
+  <p id="inboundHeadline" class="hero-number" style="font-size:1.2rem"></p>
+  <div class="pf-table-scroll"><table id="inboundTable">
+    <caption class="note">Same quote, only the receiving line changes</caption>
+    <thead>
+      <tr>
+        <th scope="col">Method</th>
+        <th scope="col">Containers</th>
+        <th scope="col">Receiving / unit</th>
+        <th scope="col">Monthly receiving</th>
+        <th scope="col">3PL total</th>
+        <th scope="col">Cost / order</th>
+      </tr>
+    </thead>
+    <tbody id="inboundRows"></tbody>
+  </table></div>
+  <p id="inboundNote" class="note"></p>
+</section>
+<section class="card inbound-card" id="kitting" aria-labelledby="kitting-heading">
+  <h2 id="kitting-heading">Should I pay the 3PL to kit, or skip the bundle?</h2>
+  <p class="note">The dedicated <a href="./should-i-pay-the-3pl-to-kit.html">kitting calculator</a> already has the full math. This block uses the same <code>compareKitting</code> on the quote you just typed, so you do not leave the page. Defaults match that page ($6 AOV lift, $2.80 extra COGS, $3.50 kit fee, $1 extra picks, $0.36 extra receiving, $0.90 pre-kit labor).</p>
+  <div id="kitting-fields" class="full" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0">
+    <label>Kit attach rate (%)<input id="kitAttachRate" name="kitAttachRate" type="number" value="100" min="0" max="100" step="1" inputmode="numeric"></label>
+    <label>AOV lift from the kit ($)<input id="aovLift" name="aovLift" type="number" value="6" min="0" step=".01" inputmode="decimal"></label>
+    <label>Extra COGS in the kit ($)<input id="extraCogs" name="extraCogs" type="number" value="2.80" min="0" step=".01" inputmode="decimal"></label>
+    <label>3PL kit / assembly ($)<input id="kitFee" name="kitFee" type="number" value="3.50" min="0" step=".01" inputmode="decimal"></label>
+    <label>Extra component picks ($)<input id="extraPicks" name="extraPicks" type="number" value="1" min="0" step=".01" inputmode="decimal"></label>
+    <label>Extra inbound receiving ($)<input id="extraReceiving" name="extraReceiving" type="number" value="0.36" min="0" step=".01" inputmode="decimal"></label>
+    <label>Your pre-kit labor ($)<input id="inHouseKitLabor" name="inHouseKitLabor" type="number" value="0.90" min="0" step=".01" inputmode="decimal"></label>
+  </div>
+  <p id="kittingHeadline" class="hero-number" style="font-size:1.2rem"></p>
+  <div class="pf-table-scroll"><table id="kittingTable">
+    <caption class="note">Same quote volume, only the kit path changes</caption>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Extra 3PL / labor</th>
+        <th scope="col">Extra COGS</th>
+        <th scope="col">AOV lift</th>
+        <th scope="col">Net / kit</th>
+        <th scope="col">Monthly</th>
+      </tr>
+    </thead>
+    <tbody id="kittingRows"></tbody>
+  </table></div>
+  <p id="kittingNote" class="note"></p>
+</section>
+<section class="card inbound-card" id="aged-storage" aria-labelledby="aged-storage-heading">
+  <h2 id="aged-storage-heading">Does leftover long-term storage flip the quote?</h2>
+  <p class="note">The dedicated <a href="./does-long-term-storage-flip-a-3pl-quote.html">aged-storage calculator</a> already has the full math. This block uses the same <code>compareAgedStorage</code> on the quote you just typed, so you do not leave the page. Defaults match that page ($54 long-term / leftover pallet, $80 liquidation recovery). Leftover cannot exceed the pallets field above.</p>
+  <div id="aged-fields" class="full" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0">
+    <label>Leftover pallets<input id="leftoverPallets" name="leftoverPallets" type="number" value="1" min="0" inputmode="decimal"></label>
+    <label>Long-term storage / leftover pallet ($)<input id="longTermStoragePerPallet" name="longTermStoragePerPallet" type="number" value="54" min="0" step=".01" inputmode="decimal"></label>
+    <label>Liquidation recovery / leftover pallet ($)<input id="liquidationPerPallet" name="liquidationPerPallet" type="number" value="80" min="0" step=".01" inputmode="decimal"></label>
+  </div>
+  <p id="agedHeadline" class="hero-number" style="font-size:1.2rem"></p>
+  <div class="pf-table-scroll"><table id="agedTable">
+    <caption class="note">Same quote, only leftover storage changes</caption>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Leftover</th>
+        <th scope="col">Storage</th>
+        <th scope="col">3PL total</th>
+        <th scope="col">vs as written</th>
+      </tr>
+    </thead>
+    <tbody id="agedRows"></tbody>
+  </table></div>
+  <p id="agedNote" class="note"></p>
+</section>
+<section class="card inbound-card" id="return-disposition" aria-labelledby="disposition-heading">
+  <h2 id="disposition-heading">Should I restock a return, or let the customer keep it?</h2>
+  <p class="note">The dedicated <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">return-disposition calculator</a> already has the full math. This block uses the same <code>compareReturnDisposition</code> on the quote you just typed, so you do not leave the page. Defaults match that page ($1.50 destroy, $8 prepaid label, $18 unit cost, 70% restockable, $0.40 storage until resale). Return handling and restock fees come from the quote form above.</p>
+  <div id="disposition-fields" class="full" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0">
+    <label>Destroy / dispose ($)<input id="destroyFee" name="destroyFee" type="number" value="1.5" min="0" step=".01" inputmode="decimal"></label>
+    <label>Prepaid return label ($)<input id="returnLabelCost" name="returnLabelCost" type="number" value="8" min="0" step=".01" inputmode="decimal"></label>
+    <label>Unit cost / COGS ($)<input id="unitCost" name="unitCost" type="number" value="18" min="0" step=".01" inputmode="decimal"></label>
+    <label>Restockable rate (%)<input id="restockableRate" name="restockableRate" type="number" value="70" min="0" max="100" step="1" inputmode="numeric"></label>
+    <label>Storage until resale ($)<input id="storageUntilResale" name="storageUntilResale" type="number" value="0.4" min="0" step=".01" inputmode="decimal"></label>
+    <label>Keep-the-item thank-you ($)<input id="keepOffer" name="keepOffer" type="number" value="0" min="0" step=".01" inputmode="decimal"></label>
+  </div>
+  <p id="dispositionHeadline" class="hero-number" style="font-size:1.2rem"></p>
+  <div class="pf-table-scroll"><table id="dispositionTable">
+    <caption class="note">Same quote return rate, only the disposition path changes</caption>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">3PL + label</th>
+        <th scope="col">Inventory written off</th>
+        <th scope="col">Net / return</th>
+        <th scope="col">Monthly</th>
+      </tr>
+    </thead>
+    <tbody id="dispositionRows"></tbody>
+  </table></div>
+  <p id="dispositionNote" class="note"></p>
+</section>
+<section class="card inbound-card" id="negotiation-brief" aria-labelledby="negotiation-brief-heading">
+  <h2 id="negotiation-brief-heading">Build a negotiation brief from this quote</h2>
+  <p class="note">Itemized straight from the quote above — nothing to re-type. Unlike the line-by-line summary in the results panel, this omits your in-house estimate and break-even volume, so it stays safe to hand to the provider you are negotiating with. Comparing against a second provider's own itemized quote instead? Use the <a href="./negotiation.html">two-quote negotiation brief</a> once you have both all-in monthly totals.</p>
+  <pre id="negotiationBrief" aria-label="Copyable negotiation brief"></pre>
+  <button class="secondary" id="copyNegotiation" type="button">Copy negotiation brief</button>
+</section>
+<p class="note">Already run warehouse or order management software? See <a href="vs-extensiv.html">this calculator vs. Extensiv</a>. Comparing a quote from a specific 3PL network? See <a href="vs-shipbob.html">this calculator vs. ShipBob</a>. Thinking of just building this in a spreadsheet? See <a href="vs-normalizing-a-quote-in-a-spreadsheet.html">this calculator vs. normalizing the quote yourself</a>.</p>
+<section class="card"><h2>Common questions</h2><h3>Does the total include returns and restocking, not just outbound fees?</h3><p>Yes. The returns line is orders &times; returns rate &times; (return handling fee + restock fee), using the return handling and restock inputs above the calculator. It does not include chargebacks, refunded product cost, or inventory written off on returns you can't resell &mdash; the dedicated <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">return-disposition calculator</a> covers that.</p><h3>What happens when my minimum monthly spend is higher than the line items add up to?</h3><p>The total switches to your minimum, and the &ldquo;Minimum charge applied?&rdquo; row tells you when that happened. Below the volume where the order-driven line items alone clear the minimum, the minimum is what's really setting your bill, not your order count &mdash; that's the threshold the sensitivity and negotiation pages linked above use.</p><h3>What does &ldquo;in-house cost per order&rdquo; need to include for a fair comparison?</h3><p>It's a single number you type in, not a breakdown. If it leaves out warehouse rent, software, packaging materials, or a share of your own labor, the in-house side looks artificially cheap and the break-even volume shown will be wrong. Build it up from your own costs before trusting the comparison.</p><h3>Does my quote data leave this browser?</h3><p>No. Everything is computed client-side; your inputs are saved to this browser's local storage only so the form survives a reload, and nothing is uploaded. Turn off usage counting with the button in the results panel if you don't want anonymous feature events recorded either.</p></section>
+<footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.<br><br>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are counted only in local storage and can be deleted with the button above.<p>Normalizing a cloud storage bill instead of a fulfillment quote? The <a href="../cloud-egress-calculator/">cloud egress cost calculator</a> compares monthly S3-compatible storage, request, and data-egress charges for a real workload &mdash; nothing uploaded.</p><p>Importing the inventory this 3PL will fulfill? The <a href="../import-landed-cost-calculator/">import landed cost calculator</a> prices duty, Section 301/supplemental tariff, and CBP processing fees on the shipment before it ever reaches this quote &mdash; a different leg of the same supply chain.</p><p>Already signed with a 3PL? The <a href="../3pl-invoice-audit-checker/">3PL invoice audit checker</a> recomputes each monthly invoice line against the contract rate card and your own WMS and order records, and totals what looks overbilled.</p><p class="support">Free and open source. If it normalized the next carrier quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p></footer>
+<script type="module">import{calculate,money,summary,compareInboundMethods,inboundComparisonSummary,compareKitting,kittingSummary,compareAgedStorage,agedStorageSummary,compareReturnDisposition,returnDispositionSummary,negotiationLines}from'./calc.mjs';import {record,setUsageOptOut,usageOptedOut} from './usage.mjs';const form=document.querySelector('#calculator'),out=document.querySelector('#output'),copy=document.querySelector('#copy'),report=document.querySelector('#report'),saveKey='3pl-quote-normalizer-inputs';let latest='';let latestNegotiation='';function renderNegotiation(r){const el=document.querySelector('#negotiationBrief');if(!el)return;el.textContent=latestNegotiation=negotiationLines(r).join('\n')}const status=document.createElement('p');status.className='note';status.setAttribute('aria-live','polite');status.textContent='Quote inputs are saved locally as you edit.';form.append(status);function values(){return Object.fromEntries(new FormData(form))}function formatCount(value){if(!Number.isFinite(value))return'—';return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(value)}function kittingValues(){const ids=['kitAttachRate','aovLift','extraCogs','kitFee','extraPicks','extraReceiving','inHouseKitLabor'];const extra={};for(const id of ids){const el=document.getElementById(id);if(el)extra[id]=el.value}return{...values(),...extra}}function renderKitting(){const headline=document.querySelector('#kittingHeadline'),rows=document.querySelector('#kittingRows'),note=document.querySelector('#kittingNote');if(!headline||!rows||!note)return;try{const comparison=compareKitting(kittingValues());const best=comparison.rows.find(r=>r.id===comparison.bestPath);headline.textContent=comparison.bestPath==='tie'?'The three kit paths tie on net contribution at these assumptions.':`${best.label} keeps ${money(best.perOrder)} per kit.`;rows.innerHTML=comparison.rows.map(row=>{const selected=comparison.bestPath===row.id;return `<tr class="${selected?'winner':''}"><th scope="row">${row.label}</th><td>${money(row.fees)}</td><td>${money(row.extraCogs)}</td><td>${money(row.aovLift)}</td><td>${money(row.perOrder)}</td><td>${money(row.monthly)}</td></tr>`}).join('');note.textContent=kittingSummary(kittingValues()).split('\n').filter(Boolean).slice(2,4).join(' ')}catch(err){headline.textContent=err.message;rows.replaceChildren();note.textContent='Fix the kit fields to compare 3PL assembly, pre-kit, and skipping the bundle.'}}function agedValues(){const ids=['leftoverPallets','longTermStoragePerPallet','liquidationPerPallet'];const extra={};for(const id of ids){const el=document.getElementById(id);if(el)extra[id]=el.value}return{...values(),...extra}}function renderAged(){const headline=document.querySelector('#agedHeadline'),rows=document.querySelector('#agedRows'),note=document.querySelector('#agedNote');if(!headline||!rows||!note)return;try{const comparison=compareAgedStorage(agedValues());const cheapest=comparison.rows.find(r=>r.id===comparison.cheapestPath);headline.textContent=comparison.cheapestPath==='tie'?'The monthly 3PL totals tie across these leftover paths.':`${cheapest.label} is the lowest monthly 3PL total.`;rows.innerHTML=comparison.rows.map(row=>{const selected=comparison.cheapestPath===row.id;const vs=row.vsAsWritten;return `<tr class="${selected?'winner':''}"><th scope="row">${row.label}</th><td>${row.leftoverPallets}</td><td>${money(row.storageCost)}</td><td>${money(row.result.quote.total)}</td><td>${vs===0?'—':(vs>0?'+':'')+money(vs)}</td></tr>`}).join('');note.textContent=agedStorageSummary(agedValues()).split('\n').filter(Boolean).slice(1,3).join(' ')}catch(err){headline.textContent=err.message;rows.replaceChildren();note.textContent='Fix the leftover-storage fields to compare the quote as written, the aged rate, and liquidating leftover.'}}function dispositionValues(){const ids=['destroyFee','returnLabelCost','unitCost','restockableRate','storageUntilResale','keepOffer'];const extra={};for(const id of ids){const el=document.getElementById(id);if(el)extra[id]=el.value}return{...values(),...extra}}function renderDisposition(){const headline=document.querySelector('#dispositionHeadline'),rows=document.querySelector('#dispositionRows'),note=document.querySelector('#dispositionNote');if(!headline||!rows||!note)return;try{const comparison=compareReturnDisposition(dispositionValues());const cheapest=comparison.rows.find(r=>r.id===comparison.cheapestPath);headline.textContent=comparison.cheapestPath==='tie'?'The three return paths tie on net cash out at these assumptions.':`${cheapest.label} is the cheapest path at ${money(cheapest.perReturn)} per return.`;rows.innerHTML=comparison.rows.map(row=>{const selected=comparison.cheapestPath===row.id;return `<tr class="${selected?'winner':''}"><th scope="row">${row.label}</th><td>${money(row.fees)}</td><td>${money(row.inventoryLost)}</td><td>${money(row.perReturn)}</td><td>${money(row.monthly)}</td></tr>`}).join('');note.textContent=returnDispositionSummary(dispositionValues()).split('\n').filter(Boolean).slice(0,2).join(' ')}catch(err){headline.textContent=err.message;rows.replaceChildren();note.textContent='Fix the return-disposition fields to compare restock, destroy, and customer-keeps.'}}function renderInbound(){const headline=document.querySelector('#inboundHeadline'),rows=document.querySelector('#inboundRows'),note=document.querySelector('#inboundNote');if(!headline||!rows||!note)return;try{const comparison=compareInboundMethods(values());headline.textContent=inboundComparisonSummary(comparison);rows.innerHTML=comparison.rows.map(row=>{const selected=comparison.cheapestIds.includes(row.id);return `<tr class="${selected?'winner':''}"><th scope="row">${row.label}</th><td>${formatCount(row.inboundCount)}</td><td>${Number.isFinite(row.receivingPerUnit)?money(row.receivingPerUnit):'—'}</td><td>${Number.isFinite(row.receiving)?money(row.receiving):'—'}</td><td>${Number.isFinite(row.total)?money(row.total):'—'}</td><td>${Number.isFinite(row.perOrder)?money(row.perOrder):'—'}</td></tr>`}).join('');note.textContent=comparison.receivingSpread?`Receiving spread: ${money(comparison.receivingSpread)} / month. Storage, pick, and shipping stay the same.`:'Receiving is the same on every method at these rates.'}catch(err){headline.textContent=err.message;rows.replaceChildren();note.textContent='Fix the inbound fields to compare pallet, carton, and loose receiving.'}}function render(){const r=calculate(values());latest=summary(r);report.textContent=latest;out.innerHTML=`<p class="hero-number">${money(r.quote.total)} / month</p><div class="row"><span>True cost / order</span><strong>${money(r.perOrder)}</strong></div><div class="row"><span>In-house estimate</span><strong>${money(r.inHouse)}</strong></div><div class="row"><span>Lower estimate</span><strong>${r.winner}</strong></div><div class="row"><span>3PL break-even volume</span><strong>${Math.ceil(r.breakEvenOrders)} orders</strong></div><div class="row"><span>Minimum charge applied?</span><strong>${r.quote.total>r.quote.subtotal?'Yes':'No'}</strong></div>${r.minimumOrders>0?`<div class="row"><span>Orders to clear the minimum</span><strong>${Math.ceil(r.minimumOrders)} orders</strong></div>`:''}`;try{renderNegotiation(r)}catch(err){const el=document.querySelector('#negotiationBrief');if(el)el.textContent=err.message}try{renderInbound()}catch(err){const headline=document.querySelector('#inboundHeadline'),rows=document.querySelector('#inboundRows'),note=document.querySelector('#inboundNote');if(headline)headline.textContent=err.message;if(rows)rows.replaceChildren();if(note)note.textContent='Fix the inbound fields to compare pallet, carton, and loose receiving.'}try{renderKitting()}catch(err){const headline=document.querySelector('#kittingHeadline'),rows=document.querySelector('#kittingRows'),note=document.querySelector('#kittingNote');if(headline)headline.textContent=err.message;if(rows)rows.replaceChildren();if(note)note.textContent='Fix the kit fields to compare 3PL assembly, pre-kit, and skipping the bundle.'}try{renderAged()}catch(err){const headline=document.querySelector('#agedHeadline'),rows=document.querySelector('#agedRows'),note=document.querySelector('#agedNote');if(headline)headline.textContent=err.message;if(rows)rows.replaceChildren();if(note)note.textContent='Fix the leftover-storage fields to compare the quote as written, the aged rate, and liquidating leftover.'}try{renderDisposition()}catch(err){const headline=document.querySelector('#dispositionHeadline'),rows=document.querySelector('#dispositionRows'),note=document.querySelector('#dispositionNote');if(headline)headline.textContent=err.message;if(rows)rows.replaceChildren();if(note)note.textContent='Fix the return-disposition fields to compare restock, destroy, and customer-keeps.'}}try{const saved=JSON.parse(localStorage.getItem(saveKey)||'null');if(saved&&typeof saved==='object')for(const[name,value]of Object.entries(saved)){const input=form.elements.namedItem(name);if(input&&typeof value==='string')input.value=value}}catch{status.textContent='Local saving is unavailable in this browser.'}form.addEventListener('submit',e=>{e.preventDefault();render();record('quote_normalized')});form.addEventListener('input',()=>{try{localStorage.setItem(saveKey,JSON.stringify(values()));status.textContent='Saved locally in this browser.'}catch{status.textContent='Local saving is unavailable in this browser.'}render()});form.addEventListener('change',e=>{if(['palletInboundFee','unitsPerPallet','cartonInboundFee','unitsPerCarton'].includes(e.target.name))record('inbound_methods_compared')});document.querySelector('#kitting-fields').addEventListener('input',()=>{try{renderKitting()}catch(err){const headline=document.querySelector('#kittingHeadline');if(headline)headline.textContent=err.message}});document.querySelector('#kitting-fields').addEventListener('change',()=>{record('kitting_compared')});document.querySelector('#aged-fields').addEventListener('input',()=>{try{renderAged()}catch(err){const headline=document.querySelector('#agedHeadline');if(headline)headline.textContent=err.message}});document.querySelector('#aged-fields').addEventListener('change',()=>{record('aged_storage_compared')});document.querySelector('#disposition-fields').addEventListener('input',()=>{try{renderDisposition()}catch(err){const headline=document.querySelector('#dispositionHeadline');if(headline)headline.textContent=err.message}});document.querySelector('#disposition-fields').addEventListener('change',()=>{record('return_disposition_compared')});function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok)throw new Error('copy failed')}async function copyText(text){if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text);return}catch{}}fallbackCopy(text)}copy.addEventListener('click',async()=>{try{await copyText(latest);copy.textContent='Copied line-by-line summary'}catch{copy.textContent='Copy unavailable; select the summary manually'}record('summary_copied')});document.querySelector('#copyNegotiation').addEventListener('click',async()=>{const btn=document.querySelector('#copyNegotiation');try{await copyText(latestNegotiation);btn.textContent='Copied negotiation brief'}catch{btn.textContent='Copy unavailable; select the text manually'}record('negotiation_brief_copied_from_quote')});document.querySelector('#optout').addEventListener('click',()=>{setUsageOptOut(true);document.querySelector('#optout').textContent='Usage counting is off'});render();;/* Show the choice the visitor already made: counting is off, but the button came back saying otherwise. */if(usageOptedOut()){const usageControl=document.getElementById('optout');if(usageControl){usageControl.textContent='Usage counting is off';}}</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-quote-normalizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/?pfEmbed=1&quot; title=&quot;3PL Quote Normalizer — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="3pl-quote-normalizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/" data-pf-embed-title="3PL Quote Normalizer" data-pf-embed-slug="3pl-quote-normalizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="3pl-quote-normalizer" data-pf-jobs-amount="#inboundHeadline"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="3pl-quote-normalizer" data-pf-link-amount="#inboundHeadline"></script>
+</body></html>

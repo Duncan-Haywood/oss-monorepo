@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
+  <meta name="description" content="Free tool for medical and dental practices: drop in an X12 835 remittance file and see which service lines paid below your contract rates…">
+  <meta property="og:title" content="835 ERA Underpayment Finder — free, private, in your browser">
+  <meta property="og:description" content="Find lines your payers paid below your contract rate, straight from the 835 file. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "835 ERA Underpayment Finder", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads an X12 835 electronic remittance file and lists service lines paid below your contract fee schedule, denied claims with plain-language reasons and a next step, provider-level adjustments and whether the file adds up. Runs entirely in your browser; the file is never uploaded.", "featureList": "835 ERA parser, underpayment check against contract rates, payer-relative underpayment check, denial reasons with next steps, provider-level adjustments, balance checks, appeal worksheet CSV, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find out if an insurance payer underpaid my practice?", "acceptedAnswer": {"@type": "Answer", "text": "Drop the 835 electronic remittance file your clearinghouse or payer portal gives you into this page and paste your contract fee schedule (one line per CPT code and rate). The tool works out the amount each payer allowed on every service line, from the AMT allowed amount when the file has one or from payment plus patient responsibility when it does not, and lists the lines allowed below your contract rate by more than a tolerance you set. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "What if I do not have my contract rates handy?", "acceptedAnswer": {"@type": "Answer", "text": "Leave the schedule empty. The tool then compares each payer with its own most common allowed amount per unit for the same code, using only codes with at least three clean lines from that payer. That finds inconsistent pricing inside the file, but a legitimate difference such as place of service or plan looks identical, so treat those as questions to ask the payer, not as proof."}}, {"@type": "Question", "name": "Is it safe to put an 835 file with patient information into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs entirely in your browser: the file is read locally, nothing is sent anywhere, and a test in the code asserts there are no network calls. Patient names and member IDs are never read into the page's data; claims are identified by the patient control number your own system assigned. This is not a HIPAA compliance assessment. If your policies bar pasting PHI into any browser tool, run it from a downloaded copy of the page on an approved machine or do not use it."}}, {"@type": "Question", "name": "Which lines does the underpayment check skip?", "acceptedAnswer": {"@type": "Answer", "text": "Lines that paid nothing, and lines carrying any adjustment other than the contractual write-off (CO-45), patient responsibility or sequestration (CO-253). A line reduced for bundling, a multiple-procedure rule or medical necessity is not a clean test of your contract rate, so it is counted as skipped rather than flagged."}}, {"@type": "Question", "name": "What do the denial reason codes mean?", "acceptedAnswer": {"@type": "Answer", "text": "The tool translates the common Claim Adjustment Reason Codes into plain language and suggests a usual next step: resubmit with a fix, appeal, check the contract, bill another payer or bill the patient. The list is written from memory and abbreviated, so a code it does not know is shown as unknown rather than guessed. Payer-specific remark codes are not read."}}, {"@type": "Question", "name": "Is this legal, billing or compliance advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the file you provide and the rates you enter. It is independent and is not affiliated with any payer, clearinghouse or the X12 standards body."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"835 ERA Underpayment Finder — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="835 ERA Underpayment Finder — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">835 ERA Underpayment Finder — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">835 ERA UNDERPAYMENT FINDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did your payers pay what your contract says?</h1>
+    <p>Drop in an <strong>X12 835 remittance file</strong> and get the <strong>service lines paid below your contract rates</strong>, <strong>denied claims with plain-language reasons and a next step</strong>, <strong>provider-level takebacks</strong>, and a check that the file adds up. Download the lot as a worksheet to work the appeals from.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Patient names and member IDs are never read into the page; claims are identified by your own patient control number. Independent of any payer or clearinghouse. The 835 layout is read by position from memory of the standard and no real remittance was available when this was built; if a file is not read, the page says which segments it could not.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your remittance file(s)</h2>
+    <p class="note">Download the 835 (often <code>.835</code>, <code>.txt</code>, <code>.edi</code> or <code>.era</code>) from your clearinghouse or payer portal. You can choose several files at once. A PDF explanation of payment will not work; it has to be the electronic file.</p>
+    <label for="file">Choose one or more 835 files</label>
+    <input type="file" id="file" multiple accept=".835,.txt,.edi,.era,.dat,text/plain">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="ISA*00*          *00*          *ZZ*… ~GS*HP*… ~ST*835*0001~BPR*I*…"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Your contract rates (optional)</h2>
+    <p class="note">One line per code: <code>99213,92.50</code>. A modifier can follow a dash: <code>99213-25,80</code>. The rate is the allowed amount per unit. Leave this empty to compare each payer with its own usual amount instead.</p>
+    <label for="schedule">Fee schedule</label>
+    <textarea id="schedule" class="small" spellcheck="false" placeholder="99213,92.50&#10;99214,131.00&#10;93000,17.50"></textarea>
+    <div class="grid">
+      <div><label for="payer">Apply the schedule only to payers whose name contains</label><input type="text" id="payer" placeholder="leave blank for every payer in the file"></div>
+      <div><label for="tol">Ignore shortfalls up to ($)</label><input type="text" id="tol" inputmode="decimal" value="1.00"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Lines paid below the expected amount</h3>
+    <p class="note" id="short-note"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Payer</th><th scope="col">Claim</th><th scope="col">Code</th><th class="n" scope="col">Units</th><th class="n" scope="col">Expected</th><th class="n" scope="col">Allowed</th><th class="n" scope="col">Short by</th></tr></thead><tbody id="flagged"></tbody></table></div></div>
+    <h3>Shortfall by code</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Code</th><th class="n" scope="col">Lines</th><th class="n" scope="col">Expected</th><th class="n" scope="col">Allowed</th><th class="n" scope="col">Short by</th></tr></thead><tbody id="by-code"></tbody></table></div></div>
+    <h3>Denied claims by reason</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Reason</th><th scope="col">What it means</th><th scope="col">Usual next step</th><th class="n" scope="col">Claims</th><th class="n" scope="col">Billed</th></tr></thead><tbody id="by-denial"></tbody></table></div></div>
+    <h3>By payer</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Payer</th><th class="n" scope="col">Claims</th><th class="n" scope="col">Denied</th><th class="n" scope="col">Billed</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Paid / billed</th></tr></thead><tbody id="by-payer"></tbody></table></div></div>
+    <h3>Where the money went (adjustments)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th class="n" scope="col">Lines</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="by-reason"></tbody></table></div></div>
+    <h3>Provider-level adjustments</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Payer</th><th scope="col">Reason</th><th scope="col">Reference</th><th class="n" scope="col">Amount (positive reduced payment)</th></tr></thead><tbody id="by-plb"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download appeal worksheet as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Allowed amount</strong> for a line is the AMT allowed amount when the file carries one, otherwise payment plus patient responsibility, plus any sequestration reduction added back. Coordination of benefits, withholds and capitation make that inexact, so treat a flagged line as a question to put to the payer.</li>
+      <li><strong>Underpaid</strong> means expected (your rate times units) minus allowed is above the tolerance. Only lines that paid something and carry no adjustment other than the contractual write-off, patient responsibility or sequestration are tested; the rest are counted as skipped.</li>
+      <li><strong>Without a schedule</strong> the test is a payer against its own most common per-unit amount for a code (at least three clean lines, at least half agreeing). It finds inconsistency, not proof of a breach.</li>
+      <li><strong>Denials</strong> are claims with status 4, or nothing paid and a non-patient adjustment. Reversals are not denials. Reason text is from memory and abbreviated; unknown codes are labelled unknown.</li>
+      <li><strong>Balance checks</strong> test that charge less payment equals the listed adjustments on each claim and line, and that each deposit equals claim payments minus provider-level adjustments.</li>
+      <li><strong>Not modelled:</strong> payer appeal deadlines, rates that change by date of service, place of service, plan or provider, multiple-procedure and bundling rules, secondary-payer logic, interest owed on late payment, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find out if an insurance payer underpaid my practice?</h3>
+    <p>Drop the 835 electronic remittance file your clearinghouse or payer portal gives you into this page and paste your contract fee schedule (one line per CPT code and rate). The tool works out the amount each payer allowed on every service line, from the AMT allowed amount when the file has one or from payment plus patient responsibility when it does not, and lists the lines allowed below your contract rate by more than a tolerance you set. The file is read in your browser and never uploaded.</p>
+    <h3>What if I do not have my contract rates handy?</h3>
+    <p>Leave the schedule empty. The tool then compares each payer with its own most common allowed amount per unit for the same code, using only codes with at least three clean lines from that payer. That finds inconsistent pricing inside the file, but a legitimate difference such as place of service or plan looks identical, so treat those as questions to ask the payer, not as proof.</p>
+    <h3>Is it safe to put an 835 file with patient information into a web page?</h3>
+    <p>The page runs entirely in your browser: the file is read locally, nothing is sent anywhere, and a test in the code asserts there are no network calls. Patient names and member IDs are never read into the page's data; claims are identified by the patient control number your own system assigned. This is not a HIPAA compliance assessment. If your policies bar pasting PHI into any browser tool, run it from a downloaded copy of the page on an approved machine or do not use it.</p>
+    <h3>Which lines does the underpayment check skip?</h3>
+    <p>Lines that paid nothing, and lines carrying any adjustment other than the contractual write-off (CO-45), patient responsibility or sequestration (CO-253). A line reduced for bundling, a multiple-procedure rule or medical necessity is not a clean test of your contract rate, so it is counted as skipped rather than flagged.</p>
+    <h3>What do the denial reason codes mean?</h3>
+    <p>The tool translates the common Claim Adjustment Reason Codes into plain language and suggests a usual next step: resubmit with a fix, appeal, check the contract, bill another payer or bill the patient. The list is written from memory and abbreviated, so a code it does not know is shown as unknown rather than guessed. Payer-specific remark codes are not read.</p>
+    <p><a href="./how-to-read-an-835-era-file.html">How to read an 835 ERA file, and find the lines a payer underpaid</a></p>
+    <h3>Is this legal, billing or compliance advice?</h3>
+    <p>No. It does arithmetic on the file you provide and the rates you enter. It is independent and is not affiliated with any payer, clearinghouse or the X12 standards body.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, billing, coding, compliance, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the rates you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against the payer's own records and your contract before disputing a payment.</p>
+    <p><strong>Not affiliated with any payer or clearinghouse.</strong> X12 is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to any insurance carrier, clearinghouse, practice-management vendor or standards body. The 835 layout and reason-code text are read from memory of the standard and may not match every payer's file.</p>
+    <p><strong>Protected health information.</strong> Remittance files can contain PHI. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. This is not a HIPAA compliance assessment; whether you may open a file in a browser tool is a question for your own policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>era_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> works out what a carrier's fee schedule really collects, the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a> puts each panel on one net-per-hour figure, and the <a href="../insurance-denial-appeal-builder/">insurance denial appeal builder</a> drafts the letter for a denial you have decided to contest.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseEra, parseSchedule, analyze, decodeBuffer, sampleEra, sampleSchedule, worksheetCsv, money, pct, dateStr, NEXT_LABEL } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rows = (id, html, cols) => { $(id).innerHTML = html || `<tr><td colspan="${cols}">Nothing to show.</td></tr>`; };
+    let last = null;
+
+    function run(text) {
+      const parsed = parseEra(text);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const tol = Number($("#tol").value);
+      const schedule = parseSchedule($("#schedule").value);
+      const r = analyze(parsed, { schedule, payerFilter: $("#payer").value, tolerance: Number.isFinite(tol) ? tol : 1 });
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.firstPay !== null ? dateStr(s.firstPay) + (s.lastPay !== s.firstPay ? " to " + dateStr(s.lastPay) : "") + ": " : ""}<strong>${s.payments} payment${s.payments === 1 ? "" : "s"}</strong>, ${s.claims} claims and ${s.lines} service lines. Billed ${money(s.billed)}, paid <strong>${money(s.paid)}</strong> (${pct(s.collectRate)}), patient responsibility ${money(s.patientResp)}, provider-level adjustments ${money(s.plbNet)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#short-note").textContent = r.mode === "contract"
+        ? `Tested against your schedule: ${r.testedLines} comparable line(s), ${r.skippedLines} skipped for denials or other adjustments.`
+        : `No schedule entered, so each payer is compared with its own usual per-unit amount for a code. ${r.skippedLines} line(s) skipped for denials or other adjustments.`;
+      rows("#flagged", r.flagged.slice(0, 100).map((f) => `<tr><td>${esc(f.line.payer)}</td><td>${esc(f.line.claimId)}</td><td>${esc(f.line.code)}${f.line.mods.length ? "-" + esc(f.line.mods.join("")) : ""}</td><td class="n">${f.line.units}</td><td class="n">${money(f.expected)}</td><td class="n">${money(f.allowed)}</td><td class="n short">${money(f.shortfall)}</td></tr>`).join(""), 7);
+      rows("#by-code", r.shortByCode.map((c) => `<tr><th scope="row">${esc(c.code)}</th><td class="n">${c.lines}</td><td class="n">${money(c.expected)}</td><td class="n">${money(c.allowed)}</td><td class="n short">${money(c.shortfall)}</td></tr>`).join(""), 5);
+      rows("#by-denial", r.denialSummary.map((d) => `<tr><th scope="row">${esc(d.reason)}</th><td>${esc(d.text)}</td><td>${esc(NEXT_LABEL[d.next])}</td><td class="n">${d.count}</td><td class="n">${money(d.amount)}</td></tr>`).join(""), 5);
+      rows("#by-payer", r.payers.map((p) => `<tr><th scope="row">${esc(p.payer)}</th><td class="n">${p.claims}</td><td class="n">${p.denied}</td><td class="n">${money(p.billed)}</td><td class="n">${money(p.paid)}</td><td class="n">${pct(p.rate)}</td></tr>`).join(""), 6);
+      rows("#by-reason", r.adjustmentsByReason.slice(0, 20).map((a) => `<tr><th scope="row">${esc(a.group)}-${esc(a.reason)}</th><td>${esc(a.text)}</td><td class="n">${a.count}</td><td class="n">${money(a.amount)}</td></tr>`).join(""), 4);
+      rows("#by-plb", r.plb.map((p) => `<tr><td>${esc(p.payer)}</td><td>${esc(p.reason)} — ${esc(p.label)}</td><td>${esc(p.ref)}</td><td class="n">${money(p.amount)}</td></tr>`).join(""), 4);
+      const notes = [];
+      if (parsed.issues.length) notes.push(`${parsed.issues.length} issue(s) reading the file: ` + parsed.issues.slice(0, 4).join("; ") + (parsed.issues.length > 4 ? "; …" : ""));
+      if (schedule.bad.length) notes.push(`Schedule line(s) not understood: ${schedule.bad.slice(0, 6).join(", ")}.`);
+      if (r.flagged.length > 100) notes.push(`Showing the largest 100 of ${r.flagged.length} short lines; the CSV has them all.`);
+      if (r.adjustmentsByReason.length > 20) notes.push(`Showing the largest 20 of ${r.adjustmentsByReason.length} adjustment codes.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${s.payments} payment(s), ${s.claims} claim(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const files = [...$("#file").files];
+      const text = files.length ? (await Promise.all(files.map(async (f) => decodeBuffer(await f.arrayBuffer())))).join("\n") : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("era_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleEra();
+      $("#file").value = "";
+      $("#schedule").value = sampleSchedule();
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic remittance for a made-up practice and payer, not real people or claims."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#schedule").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([worksheetCsv(last)], { type: "text/csv" }));
+      a.download = "era-appeal-worksheet.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../rd-tax-credit-calculator/" data-pf-to="rd-tax-credit-calculator">R&amp;D Tax Credit Calculator — free, private</a></li>
+      <li><a href="../renewal-rent-optimizer/" data-pf-to="renewal-rent-optimizer">Renewal Rent Optimizer — free, private, in your browser</a></li>
+      <li><a href="../rent-roll-delinquency-analyzer/" data-pf-to="rent-roll-delinquency-analyzer">Rent Roll Delinquency Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=era-835-underpayment-finder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/?pfEmbed=1&quot; title=&quot;835 ERA Underpayment Finder — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="era-835-underpayment-finder"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/" data-pf-embed-title="835 ERA Underpayment Finder — free, private, in your browser" data-pf-embed-slug="era-835-underpayment-finder"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="era-835-underpayment-finder" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="era-835-underpayment-finder" data-pf-link-amount=""></script>
+</body>
+</html>

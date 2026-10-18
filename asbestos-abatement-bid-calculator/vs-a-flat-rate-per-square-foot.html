@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate per square foot | Asbestos Abatement Bid Calculator</title>
+<meta name="description" content="A flat 'dollars per square foot' abatement quote cannot see OSHA/EPA containment class, containment areas, or air monitoring load.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat rate per square foot | Asbestos Abatement Bid Calculator">
+<meta property="og:description" content="A 100 sq ft Class III glovebag patch and a 1,200 sq ft multi-area Class I pipe-insulation job are nowhere near the same price.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate per square foot get an abatement quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is containment class, not area. A Class I friable job needs full containment, a negative-air machine, a three-stage decon chamber, and crews working in full-face respirators doing wet removal — roughly six times slower per square foot than a Class III glovebag job on non-friable material. A flat rate charges both the same per foot."}},{"@type":"Question","name":"What does a flat rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Containment areas and air monitoring. A job split across three separate containment areas needs three containment builds and teardowns, not one, and a larger or friable job needs more air monitoring samples to clear. A per-square-foot number has no line for either."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"In the two worked examples on this page, a flat $8.50/sq ft rate overcharges a small, minimal Class III job by about 24% and undercharges a large, multi-area Class I job by about 30% — using this calculator's own verified defaults, not a cherry-picked case."}},{"@type":"Question","name":"Is a flat rate per square foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs — same containment class, one containment area, similar air monitoring load — a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know which class a given job falls into and neither does the estimator until the scope is actually reviewed."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competitors charge. It takes the crew and supervisor rates, air monitoring cost, and disposal fee you enter and turns them into a price for the containment class, area count, and volume you describe — the arithmetic a flat rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1a1a1a;background:#f7f3ee}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12}.eyebrow{font-weight:700;letter-spacing:.04em;color:#8a4b12;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#1a1a1a}.lede{font-size:1.05rem;max-width:64ch;color:#5c4633}section{background:#fff;border:1px solid #e6d9c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a1a1a10;margin:1rem 0}h2{margin-top:0;color:#1a1a1a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #e6d9c8;padding:.55rem .5rem;text-align:left;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c4633}.fine{font-size:.88rem;color:#5c4633}footer{color:#5c4633;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate per square foot | Asbestos Abatement Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../asbestos-abatement-bid-calculator/">Asbestos Abatement Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate per square foot | Asbestos Abatement Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Asbestos Abatement Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate per square foot</h1>
+<p class="lede">"$8.50 a square foot" is not a price for an abatement job &mdash; it is a price for one specific containment class, area count, and air monitoring load, quietly applied to every job that calls in.</p>
+</header>
+<section>
+<h2>What a flat rate per square foot is</h2>
+<p>
+A flat rate per square foot is the fastest way to quote: multiply the job's
+area by a number and read off a price. Customers shop it because it is easy
+to compare between bids, and it is the number a customer holding a
+competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was set for one job &mdash; one containment class, one
+containment area, one air monitoring load, no rush surcharge &mdash; and then
+reused for every job afterward, whether or not the next job looks anything
+like the one the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+OSHA/EPA containment class (Class I friable, Class II non-friable, Class III
+minor/incidental), square footage, number of containment areas, crew and
+supervisor rates, air monitoring samples, waste disposal volume, and permit
+fee. It prices containment build/teardown and production rate per class
+separately, adds air monitoring and disposal by volume, and returns a price
+above your target margin &mdash; for this job, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate per square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/sq ft whether the work is a Class III glovebag patch or a Class I full-containment removal &mdash; roughly six times the production time per square foot apart.</td>
+<td>Prices production rate and containment build/teardown cost per containment class, so Class I, II, and III are never priced off the same number.</td>
+</tr>
+<tr>
+<td>Prices "the job" as one area figure, with no separate line for how many containment areas the work is actually split across.</td>
+<td>Charges a containment setup cost per area, so a job split across three containment areas prices three builds and teardowns, not one.</td>
+</tr>
+<tr>
+<td>Has no line for air monitoring samples or waste disposal volume, regardless of how large or friable the job is.</td>
+<td>Prices air monitoring samples and disposal volume directly, so a job needing 14 samples and 9 cubic yards of waste costs more than one needing 1 sample and a quarter yard.</td>
+</tr>
+<tr>
+<td>A 100 sq ft Class III glovebag patch and a 1,200 sq ft multi-area Class I pipe-insulation job get quoted off the same $/sq ft number.</td>
+<td>The small Class III job and the large multi-area Class I job price on their own containment class, areas, and monitoring load &mdash; not on square footage, so the two jobs come out differently priced.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the price and the dollar/percent gap against what a flat rate would have quoted the same job, so a shopped price can be scored against real cost before the contractor commits to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<section>
+<h2>Two jobs, the same area-blind rate</h2>
+<p>
+Using this calculator's own verified defaults and an $8.50/sq ft naive rate:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">Flat per-square-foot quote</th><th scope="col">Containment-class-driven price</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>100 sq ft, Class III, 1 area, minimal air monitoring and waste</td><td>$850</td><td>$650 (the calculator's minimum job fee)</td><td>The flat rate overcharges by $200 &mdash; about 24% too high.</td></tr>
+<tr><td>1,200 sq ft, Class I, 3 areas, 14 air monitoring samples, 9 cu yd waste</td><td>$10,200</td><td>$13,233.33</td><td>The flat rate undercharges by about $3,033 &mdash; about 30% too low.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Both jobs use the same $8.50/sq ft naive rate. The gap runs in either direction because square footage alone is not the driver &mdash; containment class, area count, and air monitoring and disposal volume are. Run your own job's numbers in the calculator to see which side of the gap it falls on.</p>
+</section>
+<p>
+A flat rate is not wrong because it is simple &mdash; it is wrong when it is
+applied outside the one job it was built for, and nothing about a
+per-square-foot number tells you when that has happened. This calculator
+does not replace judgment about your market; it replaces the arithmetic a
+flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate per square foot get an abatement quote wrong?</h3>
+<p>Because the cost driver is containment class, not area. A Class I friable job needs full containment, a negative-air machine, a three-stage decon chamber, and crews working in full-face respirators doing wet removal &mdash; roughly six times slower per square foot than a Class III glovebag job on non-friable material. A flat rate charges both the same per foot.</p>
+<h3>What does a flat rate usually leave out entirely?</h3>
+<p>Containment areas and air monitoring. A job split across three separate containment areas needs three containment builds and teardowns, not one, and a larger or friable job needs more air monitoring samples to clear. A per-square-foot number has no line for either.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>In the two worked examples on this page, a flat $8.50/sq ft rate overcharges a small, minimal Class III job by about 24% and undercharges a large, multi-area Class I job by about 30% &mdash; using this calculator's own verified defaults, not a cherry-picked case.</p>
+<h3>Is a flat rate per square foot ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs &mdash; same containment class, one containment area, similar air monitoring load &mdash; a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know which class a given job falls into and neither does the estimator until the scope is actually reviewed.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competitors charge. It takes the crew and supervisor rates, air monitoring cost, and disposal fee you enter and turns them into a price for the containment class, area count, and volume you describe &mdash; the arithmetic a flat rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat rate per square foot is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+</section>
+<p><a href="./">Open the Asbestos Abatement Bid Calculator</a> and price your own job.</p>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not asbestos inspection, environmental, engineering, or legal advice, and it does not replace a qualified licensed contractor's own judgment. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any professional, contractual, or regulatory obligation your work is subject to. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This is a pricing worksheet based on your own assumptions, not an asbestos inspection, a bulk-sample identification, a check against any regulatory requirement, or a substitute for a licensed contractor's own certification or professional judgment.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>MIT licensed. If it helped you bid a job, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../dryer-vent-bid-calculator/" data-pf-to="dryer-vent-bid-calculator">Dryer Vent Bid Calculator</a></li>
+      <li><a href="../duct-cleaning-bid-calculator/" data-pf-to="duct-cleaning-bid-calculator">Duct Cleaning Bid Calculator</a></li>
+      <li><a href="../gutter-cleaning-bid-calculator/" data-pf-to="gutter-cleaning-bid-calculator">Gutter Cleaning Bid Calculator</a></li>
+      <li><a href="../hoarding-cleanout-bid-calculator/" data-pf-to="hoarding-cleanout-bid-calculator">Hoarding Cleanout Bid Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=asbestos-abatement-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="asbestos-abatement-bid-calculator"></script>
+</body>
+</html>

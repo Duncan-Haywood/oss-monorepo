@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Accessibility Tag Checker — Free PDF/UA &amp; Section 508 Evidence, Nothing Uploaded</title>
+<meta name="description" content="Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PDF Accessibility Tag Checker">
+<meta property="og:description" content="Check a PDF's tag structure, title, language, image alt text, and form-field labels against PDF/UA and Section 508 -- entirely in your browser…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "PDF Accessibility Tag Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (browser page); a Node.js CLI is also provided for batch-scanning a folder",
+  "description": "Reads a PDF's internal structure -- tag tree, document title, declared language, image alt text, form-field labels, and whether a page has an extractable text layer -- and reports which PDF/UA and Section 508 structural requirements are met. The browser page never uploads the file; the CLI never leaves the machine it runs on.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Checks whether a PDF is a tagged PDF (StructTreeRoot + MarkInfo/Marked)",
+    "Checks for a non-empty document title and the DisplayDocTitle viewer preference",
+    "Checks for a declared, well-formed document language",
+    "Counts images against alt-text-bearing structure elements",
+    "Flags a page that has image content but no extractable text layer (likely scanned, un-OCR'd)",
+    "Flags interactive form field widgets with no accessible name (/TU)",
+    "Runs entirely in your browser -- the PDF is never uploaded anywhere",
+    "Matching zero-dependency Node CLI for batch-scanning a whole folder of PDFs"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my PDF is PDF/UA or Section 508 compliant?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific set of automatable structural signals -- tagging, title, language, an approximate image/alt-text count, form-field labels, and whether a page has a text layer at all. It cannot judge whether an alt-text string is accurate, whether the reading order is actually correct, or run a real assistive-technology test. Treat a clean report as evidence about these specific checks, not a compliance determination -- PDF/UA and Section 508 both require things this tool cannot verify from structure alone." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my PDF uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The browser page reads the file you choose entirely inside your own tab, using the browser's native DecompressionStream API to read compressed PDF streams -- nothing is sent to this site or anywhere else. The CLI reads the file directly on your own machine. This matters for government and legal documents that may contain information you would rather not hand to a third-party server, which is what most other free online PDF accessibility checkers ask you to do." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this check PDF tags instead of just running a visual accessibility scanner?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A PDF's accessibility to a screen reader depends on structure that isn't visible on the page at all: a tag tree describing reading order and roles, a declared language, and alternate text attached to images in the structure tree, not just present somewhere in the file. PDF/UA and Section 508 are both built around this \"tagged PDF\" requirement, so checking the structure directly is what actually answers the question, the same way an HTML accessibility checker reads the DOM rather than a screenshot." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the \"approximate\" alt-text count actually mean?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool counts image objects in the document and, separately, structure-tree elements that carry non-empty alt text, and compares the two totals. It does not walk the marked-content ID chain that maps one specific structure element to one specific image, so it cannot say for certain which image is missing alt text -- only whether the document-wide totals suggest some or all of them are. Zero alt-bearing elements against one or more images is reported as a clear finding; a partial count is reported as a notice to review by hand." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is there also a CLI, not just the browser page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A government IT office or university disability-services team usually has a document library, not one PDF -- an accessibility pass means checking hundreds of them. The CLI takes a folder and reports every PDF in it in one run, which is the shape you actually want for a batch remediation project or a recurring CI/scheduled check on newly-published documents. It shares the exact same checking code as the browser page, so the two can never silently disagree." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .dropzone { border: 2px dashed #8888; border-radius: 10px; padding: 1.6rem; text-align: center; }
+  .dropzone.drag { border-color: #0a7c42; background: rgba(10,124,66,0.08); }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding.info { border-left-color: #4a7ab5; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"PDF Accessibility Tag Checker","item":"https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PDF Accessibility Tag Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">PDF Accessibility Tag Checker</span></span></nav>
+<h1>PDF Accessibility Tag Checker</h1>
+<p>
+  Checks a PDF's internal structure against the requirements PDF/UA and Section 508 are actually built
+  from: is it a <strong>tagged PDF</strong> (a structure tree a screen reader can follow), does it have a
+  <strong>title</strong> and a declared <strong>language</strong>, do its images have
+  <strong>alternate text</strong>, do form fields have an <strong>accessible name</strong>, and does every
+  page have a real <strong>text layer</strong> rather than being an un-OCR'd scan. Runs entirely in your
+  browser -- the file is never uploaded. Preparing for
+  <a href="https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/">ADA Title II's April
+  2027/2028 deadlines</a>? PDFs your site links are "web content" under that rule too.
+</p>
+
+<div class="card">
+  <h2>1. Choose a PDF (nothing is uploaded)</h2>
+  <div class="dropzone" id="dropzone">
+    <p>Drag a PDF here, or</p>
+    <label for="file-input">Choose a PDF file to check</label>
+    <input type="file" id="file-input" accept="application/pdf">
+  </div>
+  <p><button type="button" id="load-example">Load worked example (untagged, no title, no language)</button></p>
+  <p class="status-note" id="status">Waiting for a file.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <p class="status-note" id="stats"></p>
+  <div id="findings"></div>
+</section>
+
+<div class="card">
+  <h2>2. Or batch-scan a whole document library with the CLI</h2>
+  <p>Node.js, no dependencies to install -- checks the exact same things as the browser page:</p>
+  <pre class="cmd"><code>node cli/check.mjs ./document-library/ --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/pdf-accessibility-tag-check" rel="noopener">check.mjs, engine.mjs, and pdf-parser.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever reads the files you point it at; nothing goes through
+    this site. Point it at a folder to scan every <code>.pdf</code> in it (recursively), or list files
+    directly. Exits non-zero if any file has a finding, so it works as a CI or scheduled-job gate.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Does a clean report mean my PDF is PDF/UA or Section 508 compliant?</h3>
+  <p>No. This checks a specific set of automatable structural signals -- tagging, title, language, an
+  approximate image/alt-text count, form-field labels, and whether a page has a text layer at all. It
+  cannot judge whether an alt-text string is accurate, whether the reading order is actually correct, or
+  run a real assistive-technology test. Treat a clean report as evidence about these specific checks, not a
+  compliance determination -- PDF/UA and Section 508 both require things this tool cannot verify from
+  structure alone.</p>
+  <h3>Is my PDF uploaded anywhere?</h3>
+  <p>No. The browser page reads the file you choose entirely inside your own tab, using the browser's
+  native <code>DecompressionStream</code> API to read compressed PDF streams -- nothing is sent to this
+  site or anywhere else. The CLI reads the file directly on your own machine. This matters for government
+  and legal documents that may contain information you would rather not hand to a third-party server, which
+  is what most other free online PDF accessibility checkers ask you to do.</p>
+  <h3>Why does this check PDF tags instead of just running a visual accessibility scanner?</h3>
+  <p>A PDF's accessibility to a screen reader depends on structure that isn't visible on the page at all: a
+  tag tree describing reading order and roles, a declared language, and alternate text attached to images in
+  the structure tree, not just present somewhere in the file. PDF/UA and Section 508 are both built around
+  this "tagged PDF" requirement, so checking the structure directly is what actually answers the question,
+  the same way an HTML accessibility checker reads the DOM rather than a screenshot.</p>
+  <h3>What does the "approximate" alt-text count actually mean?</h3>
+  <p>This tool counts image objects in the document and, separately, structure-tree elements that carry
+  non-empty alt text, and compares the two totals. It does not walk the marked-content ID chain that maps
+  one specific structure element to one specific image, so it cannot say for certain which image is missing
+  alt text -- only whether the document-wide totals suggest some or all of them are. Zero alt-bearing
+  elements against one or more images is reported as a clear finding; a partial count is reported as a
+  notice to review by hand.</p>
+  <h3>Why is there also a CLI, not just the browser page?</h3>
+  <p>A government IT office or university disability-services team usually has a document library, not one
+  PDF -- an accessibility pass means checking hundreds of them. The CLI takes a folder and reports every PDF
+  in it in one run, which is the shape you actually want for a batch remediation project or a recurring
+  CI/scheduled check on newly-published documents. It shares the exact same checking code as the browser
+  page, so the two can never silently disagree.</p>
+  <p>Preparing web-page (not PDF) evidence for the same deadline? See
+  <a href="https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/">the ADA Title II deadline lookup and WCAG evidence report</a>.
+  Buying software rather than publishing your own PDFs? See
+  <a href="https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/">the VPAT/ACR generator</a>
+  for a vendor's own accessibility conformance report.</p>
+</section>
+
+<script type="module">
+  import { analyzePdf } from './engine.mjs';
+  import { inflate } from './inflate-browser.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    dropzone: $('#dropzone'), fileInput: $('#file-input'), status: $('#status'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), stats: $('#stats'), findings: $('#findings'),
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report, fileName) {
+    if (!report.parsed) {
+      els.verdict.className = 'verdict bad';
+      els.verdict.textContent = report.findings[0].title;
+      els.stats.textContent = report.findings[0].detail;
+      els.findings.innerHTML = '';
+      els.reportCard.hidden = false;
+      return;
+    }
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    els.verdict.textContent = report.ok
+      ? 'No danger-level findings from these automated checks.'
+      : `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    els.stats.textContent = `${fileName} — ${report.pageCount} page(s), ${report.stats.totalImages} image(s), ${report.stats.widgetCount} form field widget(s).`;
+
+    const all = [...report.findings, ...report.notes];
+    els.findings.innerHTML = all.length === 0
+      ? '<p>No findings to show.</p>'
+      : all.map((f) => `
+        <div class="finding ${f.severity !== 'danger' ? f.severity : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidence)}</p>
+        </div>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    els.status.textContent = `Reading ${file.name}…`;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const report = await analyzePdf(bytes, { inflate });
+      render(report, file.name);
+      els.status.textContent = `Checked ${file.name}. Nothing was uploaded.`;
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">Could not read this file: ${escapeHtml(err.message)}</span>`;
+    }
+  }
+
+  // A tiny hand-built PDF (Catalog/Pages/Page/one empty content stream, no
+  // MarkInfo, no StructTreeRoot, no Title, no Lang) -- lets a visitor see a
+  // real report before finding a PDF of their own, and gives page.test.mjs
+  // something to run analyzePdf() against without a browser.
+  const EXAMPLE_PDF_BASE64 =
+    'JVBERi0xLjcKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvUmVzb3VyY2VzIDw8ID4+IC9Db250ZW50cyA0IDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSA+PgplbmRvYmoKNCAwIG9iago8PCAvTGVuZ3RoIDYgPj4Kc3RyZWFtCkJUIEVUCmVuZHN0cmVhbQplbmRvYmoKdHJhaWxlcgo8PCAvUm9vdCAxIDAgUiA+PgolJUVPRg==';
+
+  function base64ToBytes(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  $('#load-example').addEventListener('click', async () => {
+    const report = await analyzePdf(base64ToBytes(EXAMPLE_PDF_BASE64), { inflate });
+    render(report, 'worked-example.pdf');
+    els.status.textContent = 'Worked example: a minimal untagged PDF with no title and no declared language.';
+  });
+
+  els.fileInput.addEventListener('change', () => handleFile(els.fileInput.files[0]));
+  ['dragenter', 'dragover'].forEach((evt) => els.dropzone.addEventListener(evt, (e) => {
+    e.preventDefault(); els.dropzone.classList.add('drag');
+  }));
+  ['dragleave', 'drop'].forEach((evt) => els.dropzone.addEventListener(evt, (e) => {
+    e.preventDefault(); els.dropzone.classList.remove('drag');
+  }));
+  els.dropzone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific set of automatable PDF
+  structural signals -- tagging, title, language, an approximate image/alt-text count, form-field labels,
+  and whether a page has a text layer. It is not a full PDF/UA or Section 508 conformance audit, cannot
+  judge whether alt text is accurate or reading order is correct, and does not replace a manual or
+  assistive-technology review.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal, accessibility-consulting, or compliance advice, and it does not
+  replace a qualified accessibility review or a real assistive-technology test.
+  <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for
+  meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors
+  accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The PDF you choose is read entirely in your own tab and
+  is never uploaded to this site or anywhere else. The CLI reads files directly on your own machine. The
+  only thing stored is an anonymous local count of which features were used and the day -- no file names,
+  no file contents, no account, no tracking cookies, no analytics vendor. Turn it off with the checkbox
+  above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+  <p>Preparing the same deadline's web-page evidence?
+  <a href="../ada-title-ii-evidence/">ADA Title II deadline lookup + WCAG evidence report</a> and
+  <a href="../shopify-a11y-evidence/">Shopify theme accessibility evidence</a> cover rendered pages the same
+  "evidence, not a certification" way this tool covers a PDF's own structure.
+  <a href="../vpat-acr-generator/">VPAT/ACR generator</a> covers a vendor's self-reported conformance report
+  instead of a document you publish yourself.
+  Wondering what checking in-browser buys you over an upload-based online checker?
+  <a href="vs-uploading-to-an-online-checker.html">See the comparison</a>.
+  Document looks fine but still failing? <a href="why-does-my-pdf-fail-when-it-looks-fine.html">See why
+  a visually clean PDF can still be untagged</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+      <li><a href="../ofx-file-check/" data-pf-to="ofx-file-check">OFX File Check — free, private, in your browser</a></li>
+      <li><a href="../osha-trir-dart-calculator/" data-pf-to="osha-trir-dart-calculator">OSHA TRIR &amp; DART Rate Calculator</a></li>
+      <li><a href="../paddle-payout-to-journal/" data-pf-to="paddle-payout-to-journal">Paddle earnings export to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pdf-accessibility-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/?pfEmbed=1&quot; title=&quot;PDF Accessibility Tag Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pdf-accessibility-tag-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/" data-pf-embed-title="PDF Accessibility Tag Checker" data-pf-embed-slug="pdf-accessibility-tag-check"></script>
+</body>
+</html>

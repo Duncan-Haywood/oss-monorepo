@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat whole-house duct-cleaning special | Duct Cleaning Bid Calculator</title>
+<meta name="description" content="A '$99 whole-house' or '$299 after-coupon' duct-cleaning special is priced on one furnace and ten vents, not on extra systems, extra vents, stories…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat whole-house duct-cleaning special">
+<meta property="og:description" content="A $299 after-coupon special barely clears this calculator's own one-system, ten-vent default job and falls $380.99 short on a two-system split-level with crawl…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat whole-house duct-cleaning special get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because duct-cleaning cost scales with the number of systems, supply vents, returns, stories, crawl access, occupancy, a coil clean, sanitizer, and heavy debris — not with \"a house.\" A one-system ranch with ten vents is a different job from a two-system split-level with extra vents, crawl access, an occupied home, and a coil clean. A flat house price quotes both the same and is wrong on one of them every time."}},{"@type":"Question","name":"What does a flat whole-house special usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The extra system, the extra vents and returns, the extra story, crawl access, occupancy, the coil clean, and sanitizer. A published whole-house price is set on one configuration — usually a single system with about ten vents on one story, unoccupied, no coil, no sanitizer — and has no separate line for a second air handler, a crawl-space run, working around a family still living there, cleaning the evaporator coil, or a heavy pet-hair job."}},{"@type":"Question","name":"How much do extra systems, vents, stories, and access actually add over the special?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples, at a $32 hourly wage, 28% burden, 16% overhead, and a 28% target margin: this calculator's own shipped one-system, ten-vent, one-story default — the form's starting point, not a job picked to make a point — walks away at $232.91, comfortably under a $299 after-coupon special. A one-system, 14-vent ranch with an occupied home, a coil clean, and sanitizer walks away at $362.12, $63.12 short of that same $299. A two-system colonial with 18 vents, crawl access, an occupied home, a coil clean, and sanitizer walks away at $600.50, $301.50 short. A two-system, 22-vent split-level with crawl access, heavy pet hair, and a coil clean walks away at $679.99, $380.99 short of the same $299 special."}},{"@type":"Question","name":"Is a flat whole-house special ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For something close to the easy job it was probably priced on — one system, about ten vents, one story, unoccupied, no coil or sanitizer add-on — a flat rate can land close, and on this calculator's own numbers even the default job only clears it by $66.09. The risk is a second system, extra vents or returns, an extra story, crawl access, an occupied home, a coil clean, sanitizer, or heavy debris stacking on top of each other, because a flat house price has no way to see any of them until the crew is already on site."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competitors charge. It takes the systems, vents, returns, stories, crawl access, occupancy, coil clean, sanitizer, and heavy debris you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe — the arithmetic a flat special skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #e6eef4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1d5f78; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4c5b68; }
+  section { background: #f6fafc; border: 1px solid #cbdae4; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1d25300d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbdae4; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5b68; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .covers { color: #1d6b3a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #4c5b68; }
+  footer { color: #4c5b68; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat whole-house duct-cleaning special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../duct-cleaning-bid-calculator/">Duct Cleaning Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat whole-house duct-cleaning special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Duct Cleaning Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat whole-house duct-cleaning special</h1>
+<p class="lede">"$99 whole-house" or "$299 after coupon" is not a price for a duct-cleaning job &mdash; it is a price for one system and ten vents, quietly applied to a two-system split-level with crawl access and a coil clean.</p>
+</header>
+<section>
+<h2>What a flat whole-house special is</h2>
+<p>
+A flat whole-house price is the fastest way to quote off a coupon page or a
+truck wrap: one number next to "duct cleaning near me." Homeowners shop it
+because it is easy to compare between companies, and it is the number a
+caller holding a competitor's coupon will ask you to match on their own
+house.
+</p>
+<p>
+The number behind it was set for one job &mdash; usually a single system
+with about ten supply vents on one story, unoccupied, no coil clean, no
+sanitizer &mdash; and then reused for every house afterward, whether or not
+the next one has a second air handler, extra vents, crawl access, a family
+still living there, or a coil that needs cleaning too.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+job type, the number of systems, supply vents, returns, and stories, and
+whether the job needs crawl access, is occupied, needs a coil clean,
+sanitizer, or has heavy debris, along with your own wage, payroll burden,
+travel, and overhead. It prices the extra system, the extra vents and
+returns, the extra story, and each add-on separately, and returns a
+walk-away price and price per vent below which the job loses money &mdash;
+for this house, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$299 after-coupon special</th><th class="num" scope="col">Walk-away price</th><th scope="col">Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td>1-system ranch, 10 vents, 1 story (this calculator's own default job)</td><td class="num">$299.00</td><td class="num">$232.91</td><td class="covers">Covers, $66.09 to spare</td></tr>
+<tr><td>1-system 14-vent ranch, occupied, coil clean + sanitizer</td><td class="num">$299.00</td><td class="num">$362.12</td><td class="loses">Short $63.12</td></tr>
+<tr><td>2-system colonial, 18 vents, crawl access, occupied, coil clean + sanitizer</td><td class="num">$299.00</td><td class="num">$600.50</td><td class="loses">Short $301.50</td></tr>
+<tr><td>2-system split-level, 22 vents, crawl access, heavy pet hair, coil clean</td><td class="num">$299.00</td><td class="num">$679.99</td><td class="loses">Short $380.99</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own job presets at a $32 hourly wage, 28% payroll burden, 16% overhead on direct cost, and a 28% target margin &mdash; the form's own shipped defaults, not numbers invented for this page. Open the calculator to check any row yourself.</p>
+<p class="note">
+Notice the top row: it is this calculator's own shipped starting point, not
+a job picked to prove a point, and a $299 after-coupon special already
+clears it by less than seventy dollars. One occupied home, one coil clean,
+or one extra system is the difference between a special that happens to
+work and one that does not.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat whole-house special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same price whether the house has one air handler or two &mdash; a second system adds its own setup, not a share of the first.</td>
+<td>Adds hours per system beyond the first included in the base setup, so a two-system house prices differently from a one-system one.</td>
+</tr>
+<tr>
+<td>Has no separate line for vent count above the advertised ten, or for returns, so a 22-vent split-level gets the same price as a 10-vent ranch.</td>
+<td>Adds hours per extra supply vent and per extra return beyond the presets included in the special, scaled to the count entered.</td>
+</tr>
+<tr>
+<td>Prices "a house" the same whether it is one story or two, and whether the crew needs crawl access to reach the trunk line.</td>
+<td>Adds hours per extra story and for crawl access separately, only when the job needs them.</td>
+</tr>
+<tr>
+<td>Has no line for working around a family still living in the house, for cleaning the evaporator coil, for sanitizer, or for heavy pet-hair debris.</td>
+<td>Prices occupied-home time, a coil clean, sanitizer, and heavy debris as their own hours, each added only when selected.</td>
+</tr>
+<tr>
+<td>Gives the technician a price to quote, not a number to check a quote against when a caller's house turns out to be a two-system split-level with crawl access after the special was already promised.</td>
+<td>Reports the walk-away price and price per vent for the job as entered, so a shopped price can be scored against real cost before it is confirmed.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat whole-house special is not wrong because it is simple &mdash; it is
+wrong when it is applied to a system count, vent count, story count, or
+access condition it was not set on, and "a house" alone never tells you
+that has happened. This calculator does not replace judgment about your
+market; it replaces the arithmetic a flat special skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat whole-house duct-cleaning special get the price wrong?</h3>
+<p>Because duct-cleaning cost scales with the number of systems, supply vents, returns, stories, crawl access, occupancy, a coil clean, sanitizer, and heavy debris &mdash; not with "a house." A one-system ranch with ten vents is a different job from a two-system split-level with extra vents, crawl access, an occupied home, and a coil clean. A flat house price quotes both the same and is wrong on one of them every time.</p>
+<h3>What does a flat whole-house special usually leave out entirely?</h3>
+<p>The extra system, the extra vents and returns, the extra story, crawl access, occupancy, the coil clean, and sanitizer. A published whole-house price is set on one configuration &mdash; usually a single system with about ten vents on one story, unoccupied, no coil, no sanitizer &mdash; and has no separate line for a second air handler, a crawl-space run, working around a family still living there, cleaning the evaporator coil, or a heavy pet-hair job.</p>
+<h3>How much do extra systems, vents, stories, and access actually add over the special?</h3>
+<p>On this calculator's own worked examples, at a $32 hourly wage, 28% burden, 16% overhead, and a 28% target margin: this calculator's own shipped one-system, ten-vent, one-story default &mdash; the form's starting point, not a job picked to make a point &mdash; walks away at $232.91, comfortably under a $299 after-coupon special. A one-system, 14-vent ranch with an occupied home, a coil clean, and sanitizer walks away at $362.12, $63.12 short of that same $299. A two-system colonial with 18 vents, crawl access, an occupied home, a coil clean, and sanitizer walks away at $600.50, $301.50 short. A two-system, 22-vent split-level with crawl access, heavy pet hair, and a coil clean walks away at $679.99, $380.99 short of the same $299 special.</p>
+<h3>Is a flat whole-house special ever the right way to quote?</h3>
+<p>For something close to the easy job it was probably priced on &mdash; one system, about ten vents, one story, unoccupied, no coil or sanitizer add-on &mdash; a flat rate can land close, and on this calculator's own numbers even the default job only clears it by $66.09. The risk is a second system, extra vents or returns, an extra story, crawl access, an occupied home, a coil clean, sanitizer, or heavy debris stacking on top of each other, because a flat house price has no way to see any of them until the crew is already on site.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competitors charge. It takes the systems, vents, returns, stories, crawl access, occupancy, coil clean, sanitizer, and heavy debris you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe &mdash; the arithmetic a flat special skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat whole-house special is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the system, vent, and access count it was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="index.html">Duct Cleaning Bid Calculator</a> and price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and equipment costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-detailing-bid-calculator/" data-pf-to="mobile-detailing-bid-calculator">Mobile Detailing Bid Calculator</a></li>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=duct-cleaning-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="duct-cleaning-bid-calculator"></script>
+</body></html>

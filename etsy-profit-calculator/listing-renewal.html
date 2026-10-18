@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does Etsy auto-renew still pay if this listing is slow?</title>
+  <meta name="description" content="Etsy charges the $0.20 listing fee when a listing publishes or auto-renews, not once per sale. See leftover after the fee across the sales you actually expect…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/listing-renewal.html">
+  <meta property="og:title" content="Does Etsy auto-renew still pay if this listing is slow?">
+  <meta property="og:description" content="Allocate the listing fee across the sales you expect in one renewal window, including a listing that sells nothing.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Etsy auto-renew still pay if a listing is slow?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales leave $40.65 after the listing fee ($0.10 per sale). One sale recovers the fee. Charging $0.20 on every order overstates listing cost by $0.20 across those two sales."}},{"@type":"Question","name":"What does auto-renew cost if nothing sells?","acceptedAnswer":{"@type":"Answer","text":"Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year."}},{"@type":"Question","name":"Does the order calculator already include the listing fee?","acceptedAnswer":{"@type":"Answer","text":"Yes, once per order. That is right for a listing that sells once and wrong for one that sells five times ($0.04 listing cost per sale) or zero times. This page keeps the same fee stack, then allocates the listing fee across the sales you type in. It does not turn auto-renew on or off."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.06em; } p { line-height: 1.5; }
+    a { color: #243d35; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .alert { background: #fff4e5; color: #25221f; border-radius: 8px; padding: 10px 12px; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/listing-renewal.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does Etsy auto-renew still pay if this listing is slow? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does Etsy auto-renew still pay if this listing is slow?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p><a href="./">← Etsy order profit</a></p>
+    <h1>Does auto-renew still pay if this listing is slow?</h1>
+    <p>Etsy charges the listing fee when a listing publishes or auto-renews — not once per sale. The <a href="./">order calculator</a> subtracts that fee from every order. This page allocates it across the sales you actually expect in one renewal window, including zero. It does not turn auto-renew on or off.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Listing and order assumptions</h2>
+      <div class="fields">
+        <label>Listing fee <input id="listingFee" type="number" min="0" step="0.01" value="0.20" inputmode="decimal"></label>
+        <label>Renewal window (months) <input id="renewalMonths" type="number" min="0.1" step="0.1" value="4" inputmode="decimal"></label>
+        <label>Expected sales in that window <input id="expectedSales" type="number" min="0" step="1" value="2" inputmode="numeric"></label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="30" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Transaction fee (%) <input id="transactionRate" type="number" min="0" step="0.1" value="6.5" inputmode="decimal"></label>
+        <label>Payment processing (%) <input id="paymentRate" type="number" min="0" step="0.1" value="3" inputmode="decimal"></label>
+        <label>Payment fixed fee <input id="paymentFixed" type="number" min="0" step="0.01" value="0.25" inputmode="decimal"></label>
+        <label>Offsite ad fee (%) <input id="offsiteAdRate" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+        <label>Shipping cost <input id="shippingCost" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4" inputmode="decimal"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Renewal window result</h2>
+      <div id="profit" class="hero-number">$0.00</div>
+      <div id="label">estimated leftover after the listing fee</div>
+      <p id="insight" class="alert" hidden></p>
+      <dl>
+        <dt>Listing cost per sale</dt><dd id="perSale"></dd>
+        <dt>Contribution before listing</dt><dd id="contribution"></dd>
+        <dt>If every order pays the full listing fee</dt><dd id="perOrder"></dd>
+        <dt>Sales that recover this listing fee</dt><dd id="recover"></dd>
+        <dt>Annual listing cost at this window</dt><dd id="annual"></dd>
+      </dl>
+      <hr>
+      <h2>Sales in one renewal window</h2>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Sales</th><th>Listing / sale</th><th>Leftover after listing</th><th>If listing is per order</th></tr></thead>
+        <tbody id="scenarios"></tbody>
+      </table></div>
+      <p id="renewalNote" class="note"></p>
+      <div class="actions"><button id="reset" type="button">Reset to defaults</button></div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Your numbers stay in this browser. This is arithmetic from your inputs, not Etsy's live fee schedule and not a recommendation to keep or cancel auto-renew.</p>
+    </section>
+  </main>
+  <h2>Common questions</h2>
+  <h3>Does Etsy auto-renew still pay if a listing is slow?</h3>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales leave $40.65 after the listing fee ($0.10 per sale). One sale recovers the fee. Charging $0.20 on every order overstates listing cost by $0.20 across those two sales.</p>
+  <h3>What does auto-renew cost if nothing sells?</h3>
+  <p>Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year.</p>
+  <h3>Does the order calculator already include the listing fee?</h3>
+  <p>Yes, once per order. That is right for a listing that sells once and wrong for one that sells five times ($0.04 listing cost per sale) or zero times. This page keeps the same fee stack, then allocates the listing fee across the sales you type in. It does not turn auto-renew on or off.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the calculator does.</p>
+  </footer>
+  <script type="module">
+    import { calculateListingRenewal, listingRenewalNote } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'listingFee', 'renewalMonths', 'expectedSales', 'price', 'shippingCharged',
+      'transactionRate', 'paymentRate', 'paymentFixed', 'offsiteAdRate',
+      'shippingCost', 'materialCost', 'otherCost',
+    ];
+    const DEFAULTS = {
+      listingFee: 0.20, renewalMonths: 4, expectedSales: 2, price: 30, shippingCharged: 5,
+      transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0,
+      shippingCost: 6, materialCost: 4, otherCost: 1,
+    };
+    const INPUTS_KEY = 'etsy-listing-renewal-inputs';
+    const field = id => document.getElementById(id);
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+    function apply(values) {
+      for (const id of FIELD_IDS) {
+        if (values[id] !== undefined) field(id).value = values[id];
+      }
+    }
+
+    function update() {
+      const insight = document.getElementById('insight');
+      try {
+        const result = calculateListingRenewal(currentInputs());
+        document.getElementById('profit').textContent = money(result.periodProfitAfterListing);
+        document.getElementById('profit').className = `hero-number ${result.periodProfitAfterListing < 0 ? 'negative' : 'positive'}`;
+        document.getElementById('label').textContent = result.unpaidRenewal
+          ? 'listing fee still due with no sales'
+          : result.coversListing
+            ? 'estimated leftover after the listing fee'
+            : 'short of the listing fee in this window';
+        document.getElementById('perSale').textContent = result.listingPerSale === null ? 'no sales to allocate' : money(result.listingPerSale);
+        document.getElementById('contribution').textContent = money(result.contributionExListing);
+        document.getElementById('perOrder').textContent = money(result.profitIfChargedEveryOrder);
+        document.getElementById('recover').textContent = result.salesToRecover === null
+          ? 'this order does not recover the listing fee'
+          : `${result.salesToRecover} sale${result.salesToRecover === 1 ? '' : 's'}`;
+        document.getElementById('annual').textContent = money(result.annualListingCost);
+        document.getElementById('renewalNote').textContent = listingRenewalNote(result);
+        if (result.unpaidRenewal) {
+          insight.hidden = false;
+          insight.textContent = `Auto-renew still charges ${money(result.listingFee)} even if nothing sells. Treating the listing fee as a per-order cost hides that ${money(result.listingFee)} until an order is calculated.`;
+        } else if (result.overstatedInPeriod > 0) {
+          insight.hidden = false;
+          insight.textContent = `Charging the full listing fee on every order overstates listing cost by ${money(result.overstatedInPeriod)} across ${result.expectedSales} sales in this window.`;
+        } else {
+          insight.hidden = true;
+          insight.textContent = '';
+        }
+        document.getElementById('scenarios').replaceChildren(...result.scenarios.map(row => {
+          const tr = document.createElement('tr');
+          for (const text of [
+            String(row.sales),
+            row.listingPerSale === null ? '—' : money(row.listingPerSale),
+            money(row.periodProfitAfterListing),
+            money(row.periodProfitIfListingPerOrder),
+          ]) {
+            tr.insertCell().textContent = text;
+          }
+          return tr;
+        }));
+      } catch (error) {
+        document.getElementById('profit').textContent = error.message;
+        document.getElementById('profit').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'fix the inputs to see a result';
+        document.getElementById('renewalNote').textContent = '';
+        insight.hidden = true;
+      }
+    }
+
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+    }
+
+    const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null'));
+    if (saved) apply(saved);
+
+    FIELD_IDS.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
+    FIELD_IDS.forEach(id => field(id).addEventListener('change', () => (
+      recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'listing_renewal_compared')
+    )));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+    document.getElementById('reset').addEventListener('click', () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      apply(DEFAULTS);
+      update();
+      flash('Reset to the default slow-listing example.');
+    });
+
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="etsy-profit-calculator" data-pf-jobs-amount="#profit"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="etsy-profit-calculator" data-pf-link-amount="#profit"></script>
+</body>
+</html>

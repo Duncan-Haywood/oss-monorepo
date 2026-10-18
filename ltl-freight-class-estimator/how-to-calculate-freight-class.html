@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Do I Calculate LTL Freight Class?</title>
+  <meta name="description" content="Freight class comes from density: total weight divided by total cubic feet. Work out the density of your pallet, see which class band it lands in…">
+  <meta property="og:title" content="How Do I Calculate LTL Freight Class?">
+  <meta property="og:description" content="Density decides the class band. A few inches of pallet height can move you a whole class — before you ever request a quote.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/how-to-calculate-freight-class.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate LTL freight class?","acceptedAnswer":{"@type":"Answer","text":"Multiply length by width by height in inches and divide by 1728 to get cubic feet per piece, then multiply by the number of pieces for total cube. Divide total weight by total cube to get density in pounds per cubic foot. That density falls into a class band: 50 lb/ft3 and above is class 50, and the bands step up through class 500 as density falls below 0.5 lb/ft3. Density is the input you control; carrier rules, stowability, handling, and liability can still change the class the carrier actually bills."}},{"@type":"Question","name":"Why is my freight class higher than I expected?","acceptedAnswer":{"@type":"Answer","text":"Almost always because the shipment is lighter for its size than you assumed — class rises as density falls. Packaging is usually the cause: an oversized carton, a tall pallet with empty headspace, or dunnage that adds cube without adding weight. The cube is measured to the outside of the packaging, including the pallet, not to the product inside it."}},{"@type":"Question","name":"Can I lower my freight class by changing the packaging?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, and it is worth checking before you book. Because density is weight divided by cube, you can raise density either by consolidating more weight onto the same footprint or by removing cube that carries no weight — trimming pallet height, using a smaller carton, or stacking rather than shipping two half-full pallets. The estimator shows the density the next lower class band needs, so you can see whether the gap is inches or out of reach."}},{"@type":"Question","name":"Is a density estimate the same as the class the carrier bills?","acceptedAnswer":{"@type":"Answer","text":"No. Density gives you the class band to expect and to sanity-check a quote against, which is what makes the carrier's form answerable. The billed class can still differ: many commodities have a fixed class regardless of density, and carriers can reclassify on stowability, handling, or liability, or re-measure the shipment at the terminal. Treat the estimate as preparation for the quote, not a substitute for it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #18212b; background: #eef6f4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #125b50; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #125b50; color: #f2fbf8; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #52606d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/how-to-calculate-freight-class.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Do I Calculate LTL Freight Class? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ltl-freight-class-estimator/">LTL Freight Class Estimator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Do I Calculate LTL Freight Class?</span></span></nav>
+  <p><a href="./">← LTL freight class estimator</a></p>
+  <h1>How do I calculate LTL freight class?</h1>
+  <p>Every LTL quote form asks for a class before it will give you a price, and the number is not arbitrary: for most freight it comes straight out of <strong>density</strong> — total weight divided by total cubic feet. Work out the density and you know the band. The part that catches small shippers is that density is measured to the outside of the packaging, pallet included, so the box decides the class as much as the product does.</p>
+  <p><a class="cta" href="./">Open the free freight class estimator</a></p>
+
+  <h2>The arithmetic, in order</h2>
+  <ol>
+    <li>Multiply length × width × height in inches, then divide by 1728. That is cubic feet for one piece.</li>
+    <li>Multiply by the number of pieces for total cube, and multiply the per-piece weight by the same count for total weight.</li>
+    <li>Divide total weight by total cube. That is density, in pounds per cubic foot.</li>
+    <li>Read the band. 50 lb/ft³ and above is class 50; the bands step up through class 500 as density drops below 0.5 lb/ft³.</li>
+  </ol>
+
+  <h2>Worked example</h2>
+  <p>A single pallet measuring 48 × 40 × 36 inches at 500 lb is 40.00 cubic feet, giving a density of <strong>12.5 lb/ft³</strong> and an estimated <strong>class 85</strong>. The next lower band, class 77.5, starts at 13.5 lb/ft³ — so it is within reach two ways: add about 40 lb to the same footprint, or take the cube down to roughly 37 cubic feet, which is about three inches off the pallet height. Neither is obvious from the weight and the class number alone, which is why the estimator shows the cube, the density, and the distance to the next band together.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate LTL freight class?</h3>
+  <p>Multiply length by width by height in inches and divide by 1728 to get cubic feet per piece, then multiply by the number of pieces for total cube. Divide total weight by total cube to get density in pounds per cubic foot. That density falls into a class band: 50 lb/ft3 and above is class 50, and the bands step up through class 500 as density falls below 0.5 lb/ft3. Density is the input you control; carrier rules, stowability, handling, and liability can still change the class the carrier actually bills.</p>
+  <h3>Why is my freight class higher than I expected?</h3>
+  <p>Almost always because the shipment is lighter for its size than you assumed — class rises as density falls. Packaging is usually the cause: an oversized carton, a tall pallet with empty headspace, or dunnage that adds cube without adding weight. The cube is measured to the outside of the packaging, including the pallet, not to the product inside it.</p>
+  <h3>Can I lower my freight class by changing the packaging?</h3>
+  <p>Sometimes, and it is worth checking before you book. Because density is weight divided by cube, you can raise density either by consolidating more weight onto the same footprint or by removing cube that carries no weight — trimming pallet height, using a smaller carton, or stacking rather than shipping two half-full pallets. The estimator shows the density the next lower class band needs, so you can see whether the gap is inches or out of reach.</p>
+  <h3>Is a density estimate the same as the class the carrier bills?</h3>
+  <p>No. Density gives you the class band to expect and to sanity-check a quote against, which is what makes the carrier's form answerable. The billed class can still differ: many commodities have a fixed class regardless of density, and carriers can reclassify on stowability, handling, or liability, or re-measure the shipment at the terminal. Treat the estimate as preparation for the quote, not a substitute for it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out.</p>
+    <p><a href="./">Use the calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../fuel-surcharge-schedule-calculator/" data-pf-to="fuel-surcharge-schedule-calculator">Fuel Surcharge Calculator — free, private</a></li>
+      <li><a href="../hos-trip-planner/" data-pf-to="hos-trip-planner">HOS Trip Planner — free, private</a></li>
+      <li><a href="../ifta-quarterly-fuel-tax-calculator/" data-pf-to="ifta-quarterly-fuel-tax-calculator">IFTA Quarterly Fuel Tax Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ltl-freight-class-estimator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ltl-freight-class-estimator"></script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Is the SALT Deduction Worth Itemizing For?</title>
+<meta name="description" content="Sometimes none of it. A capped SALT deduction only helps if your total itemized deductions clear the standard deduction -- and even then…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/is-the-salt-deduction-worth-itemizing-for.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Is the SALT deduction worth itemizing for?">
+<meta property="og:description" content="A capped SALT deduction can add nothing to your refund if it doesn't clear the standard deduction.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a bigger SALT cap always mean a bigger tax benefit?","acceptedAnswer":{"@type":"Answer","text":"No. The SALT deduction only helps at all if your total itemized deductions -- SALT plus mortgage interest, charitable gifts, and anything else you itemize -- exceed your standard deduction. If they don't, you take the standard deduction instead and the SALT cap, however generous, contributes nothing to your refund."}},{"@type":"Question","name":"What does \"partly additive\" mean?","acceptedAnswer":{"@type":"Answer","text":"It means only part of your SALT deduction is genuine extra savings. If your other itemized deductions alone fall short of the standard deduction, the first slice of your SALT deduction just closes that gap -- matching ground the standard deduction already covered for free. Only the remainder, the part that pushes your total itemized deductions past the standard deduction, is SALT's own contribution."}},{"@type":"Question","name":"What does \"wholly absorbed\" mean?","acceptedAnswer":{"@type":"Answer","text":"It means your SALT deduction, even after the OBBBA cap and phase-out are applied, adds nothing: your other itemized deductions plus SALT still don't exceed the standard deduction, so you take the standard deduction either way and the marginal benefit of the SALT deduction is zero."}},{"@type":"Question","name":"Why doesn't the calculator's own \"deduction\" figure answer this?","acceptedAnswer":{"@type":"Answer","text":"The calculator's deductible amount is the SALT-specific figure after the cap and phase-out -- a real number, but only half the picture. It says nothing about your other itemized deductions or the standard deduction, so a large capped SALT deduction can still add zero to your actual refund once the standard-deduction comparison is applied, exactly as the wholly-absorbed example on this page shows."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This page applies the published 2025/2026 standard deduction figures and ordinary itemize-vs-standard arithmetic to numbers you supply. It does not know your other itemized deductions, verify your filing status, or replace a qualified tax professional -- confirm your own numbers before filing."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 900px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .answer { font-size: 1.05rem; font-weight: 600; color: #1f4a5d; }
+  .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+  .pill.full { background: #e3f3e8; color: #14532d; }
+  .pill.part { background: #fdf0d5; color: #7c5e10; }
+  .pill.none { background: #fde8e8; color: #9a3412; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/is-the-salt-deduction-worth-itemizing-for.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is the SALT deduction worth itemizing for? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../salt-cap-calculator/">SALT Deduction Cap Calculator — free, 2025-2026</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is the SALT deduction worth itemizing for?</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>Is the SALT deduction worth itemizing for?</h1>
+<p class="answer">Sometimes none of it -- even after OBBBA raised the cap to $40,000.</p>
+<p class="lede">The calculator on this page's own index tells you your SALT deduction after
+the cap and phase-out. That figure is real, but it answers a narrower question than
+"does this help my refund." It only helps once your <strong>total</strong> itemized
+deductions -- SALT plus mortgage interest, charitable gifts, and anything else you
+itemize -- clear your standard deduction. And even then, only the slice that pushes
+you past the standard deduction is SALT's own contribution; the rest just matches
+ground the standard deduction covers for free.</p>
+
+<section class="card">
+<h2>The arithmetic in one line</h2>
+<p>Compare two totals: what you'd claim <em>with</em> SALT in the mix, and what you'd
+claim <em>without</em> it -- each the larger of itemizing or the standard deduction:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Figure</th><th scope="col">Formula</th></tr></thead>
+<tbody>
+<tr><td>Best claim with SALT</td><td>max(other itemized + SALT deduction, standard deduction)</td></tr>
+<tr><td>Best claim without SALT</td><td>max(other itemized alone, standard deduction)</td></tr>
+<tr><td><strong>SALT's marginal benefit</strong></td><td><strong>the difference between the two</strong></td></tr>
+</tbody>
+</table></div>
+<p>That difference can land anywhere from $0 (SALT changes nothing) up to the full
+capped SALT deduction (SALT is entirely extra savings) -- which of those you get
+depends entirely on your <em>other</em> itemized deductions, not on the SALT figure
+alone.</p>
+</section>
+
+<section class="card">
+<h2>Three filers, three outcomes -- all pinned against the calculator's own arithmetic</h2>
+<p>All three use the 2025 rules. Filing status and MAGI only decide the SALT cap and
+phase-out (via the same <code>saltCapOutcome()</code> the calculator uses); the
+standard deduction depends only on filing status and tax year.</p>
+
+<h3><span class="pill full">Fully additive</span> Married filing jointly, $35,000 of other itemized deductions</h3>
+<p>MAGI $200,000 (below the $500,000 phase-out threshold, so the cap is unreduced),
+$12,000 of state and local tax paid -- fully deductible, since it's under the
+$40,000 cap. $35,000 of mortgage interest and charitable gifts already clears the
+$31,500 married-filing-jointly standard deduction on its own.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><td>SALT deduction (capped)</td><td>$12,000</td></tr>
+<tr><td>Other itemized deductions</td><td>$35,000</td></tr>
+<tr><td>Total itemized</td><td>$47,000</td></tr>
+<tr><td>Standard deduction (MFJ, 2025)</td><td>$31,500</td></tr>
+<tr><td>Best claim without SALT</td><td>max($35,000, $31,500) = $35,000</td></tr>
+<tr><td>Best claim with SALT</td><td>max($47,000, $31,500) = $47,000</td></tr>
+<tr><td><strong>SALT's marginal benefit</strong></td><td><strong>$12,000 -- every dollar</strong></td></tr>
+</tbody>
+</table></div>
+
+<h3><span class="pill part">Partly additive</span> Same couple, only $20,000 of other itemized deductions</h3>
+<p>Identical SALT deduction, same $200,000 MAGI -- only the mortgage interest and
+charitable total changes, to $20,000, which alone falls short of the $31,500
+standard deduction.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><td>SALT deduction (capped)</td><td>$12,000</td></tr>
+<tr><td>Other itemized deductions</td><td>$20,000</td></tr>
+<tr><td>Total itemized</td><td>$32,000</td></tr>
+<tr><td>Standard deduction (MFJ, 2025)</td><td>$31,500</td></tr>
+<tr><td>Best claim without SALT</td><td>max($20,000, $31,500) = $31,500 (the standard deduction)</td></tr>
+<tr><td>Best claim with SALT</td><td>max($32,000, $31,500) = $32,000</td></tr>
+<tr><td><strong>SALT's marginal benefit</strong></td><td><strong>$500 -- not $12,000</strong></td></tr>
+</tbody>
+</table></div>
+<p>$11,500 of this filer's $12,000 SALT deduction just closes the gap between their
+$20,000 of other itemized deductions and the $31,500 standard deduction they would
+have taken anyway. Only the last $500 is money the SALT deduction actually saved
+them.</p>
+
+<h3><span class="pill none">Wholly absorbed</span> Single filer, $3,000 of other itemized deductions</h3>
+<p>MAGI $100,000, $8,000 of state and local tax paid (all deductible -- nowhere near
+the $40,000 cap). Only $3,000 of other itemized deductions.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><td>SALT deduction (capped)</td><td>$8,000</td></tr>
+<tr><td>Other itemized deductions</td><td>$3,000</td></tr>
+<tr><td>Total itemized</td><td>$11,000</td></tr>
+<tr><td>Standard deduction (single, 2025)</td><td>$15,750</td></tr>
+<tr><td>Best claim without SALT</td><td>max($3,000, $15,750) = $15,750</td></tr>
+<tr><td>Best claim with SALT</td><td>max($11,000, $15,750) = $15,750</td></tr>
+<tr><td><strong>SALT's marginal benefit</strong></td><td><strong>$0</strong></td></tr>
+</tbody>
+</table></div>
+<p>This filer takes the standard deduction either way. Their $8,000 SALT deduction is
+real, correctly computed, and nowhere near the OBBBA cap -- and it adds exactly
+nothing to their refund, because their total itemized deductions never clear the
+$15,750 standard deduction.</p>
+</section>
+
+<section class="card">
+<h2>Run your own numbers</h2>
+<p>The <a href="./">SALT deduction cap calculator</a> computes the capped SALT figure
+this page uses as an input. It does not ask for your other itemized deductions or
+compare against the standard deduction -- that comparison is what this page walks
+through by hand. Nothing you enter anywhere on this site is uploaded.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Does a bigger SALT cap always mean a bigger tax benefit?</h3>
+<p>No. The SALT deduction only helps at all if your total itemized deductions -- SALT plus mortgage interest, charitable gifts, and anything else you itemize -- exceed your standard deduction. If they don't, you take the standard deduction instead and the SALT cap, however generous, contributes nothing to your refund.</p>
+<h3>What does "partly additive" mean?</h3>
+<p>It means only part of your SALT deduction is genuine extra savings. If your other itemized deductions alone fall short of the standard deduction, the first slice of your SALT deduction just closes that gap -- matching ground the standard deduction already covered for free. Only the remainder, the part that pushes your total itemized deductions past the standard deduction, is SALT's own contribution.</p>
+<h3>What does "wholly absorbed" mean?</h3>
+<p>It means your SALT deduction, even after the OBBBA cap and phase-out are applied, adds nothing: your other itemized deductions plus SALT still don't exceed the standard deduction, so you take the standard deduction either way and the marginal benefit of the SALT deduction is zero.</p>
+<h3>Why doesn't the calculator's own "deduction" figure answer this?</h3>
+<p>The calculator's deductible amount is the SALT-specific figure after the cap and phase-out -- a real number, but only half the picture. It says nothing about your other itemized deductions or the standard deduction, so a large capped SALT deduction can still add zero to your actual refund once the standard-deduction comparison is applied, exactly as the wholly-absorbed example on this page shows.</p>
+<h3>Is this tax advice?</h3>
+<p>No. This page applies the published 2025/2026 standard deduction figures and ordinary itemize-vs-standard arithmetic to numbers you supply. It does not know your other itemized deductions, verify your filing status, or replace a qualified tax professional -- confirm your own numbers before filing.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal statutory figures and ordinary itemize-vs-standard-deduction arithmetic to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own filing status, MAGI, and other itemized deductions before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../family-child-care-time-space-calculator/" data-pf-to="family-child-care-time-space-calculator">Family Child Care Time-Space Calculator — free, private, in your browser</a></li>
+      <li><a href="../feie-physical-presence-calculator/" data-pf-to="feie-physical-presence-calculator">Have you been abroad 330 days yet?</a></li>
+      <li><a href="../fix-and-flip-deal-analyzer/" data-pf-to="fix-and-flip-deal-analyzer">Fix and Flip Deal Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fleet-repair-or-replace-planner/" data-pf-to="fleet-repair-or-replace-planner">Repair or replace your work truck? — free planner, no sign-up</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=salt-cap-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="salt-cap-calculator"></script>
+</body>
+</html>

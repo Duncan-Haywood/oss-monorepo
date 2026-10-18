@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tattoo Deposit &amp; Touch-Up Pricing Calculator</title>
+  <meta name="description" content="Free calculator for independent tattoo artists and shops: set a session deposit, check whether a client's touch-up falls inside your free window…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/tattoo-deposit-and-touchup-calculator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tattoo Deposit & Touch-Up Pricing Calculator">
+  <meta property="og:description" content="Set a session deposit, check a touch-up against your free window, price it by percent, flat fee, or hourly rate, and draft the policy.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/tattoo-deposit-and-touchup-calculator.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tattoo Deposit & Touch-Up Pricing Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much deposit should a tattoo shop charge?","acceptedAnswer":{"@type":"Answer","text":"There is no single correct amount — shops commonly ask for a flat amount or a percentage of the estimated session price, often in the 20-50% range for custom work. This calculator turns whatever percentage you choose into a dollar deposit and the balance still due; it does not tell you what percentage to charge."}},{"@type":"Question","name":"Is a tattoo touch-up free?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on the shop's own policy, which this tool does not set for you. Many shops offer touch-ups free within a stated window after the original session (commonly a few months to a year) and charge for touch-ups requested after that window closes. Enter your own free-window length and how long ago the original session was, and the calculator reports which side of that window a specific client falls on."}},{"@type":"Question","name":"How should a tattoo shop price a touch-up once it is no longer free?","acceptedAnswer":{"@type":"Answer","text":"Three common approaches: a percentage of the original session price, a flat fee regardless of the original price, or the shop's hourly rate multiplied by the estimated touch-up time. This calculator supports all three and reports the dollar figure for whichever one the shop already uses — it does not recommend one approach over another."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tattoo Deposit &amp; Touch-Up Pricing Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appointment-deposit-calculator/">Appointment Deposit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tattoo Deposit &amp; Touch-Up Pricing Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section><main>
+  <p class="eyebrow"><a href="./">&larr; Appointment deposit calculator</a></p>
+  <header><p class="eyebrow">FOR TATTOO ARTISTS AND SHOPS</p><h1>Deposit and touch-up pricing, in one place.</h1><p class="intro">A tattoo deposit works the same way any service deposit does. What's different is the touch-up: most shops offer a free window after the original session, then charge for touch-ups after that. This calculator handles both — set the deposit, then check a specific client's touch-up against your free window and price it by percent, flat fee, or hourly rate if the window has closed.</p></header>
+  <section class="card"><h2>The session and your policy</h2><form id="tattoo-form">
+    <label>Currency <select name="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option></select></label>
+    <label>Original session price <input name="price" type="number" min="0.01" step="0.01" value="400" required inputmode="decimal"></label>
+    <label>Deposit percentage <input name="depositPercent" type="number" min="0" max="100" step="1" value="25" required inputmode="numeric"><small>Common starting point: 20-50% for custom work. Adjust for your shop.</small></label>
+    <label>Free touch-up window (months) <input name="freeWindowMonths" type="number" min="0" step="0.5" value="6" required inputmode="decimal"><small>How long after the original session a touch-up is free, under your policy.</small></label>
+    <label>Months since the original session <input name="monthsSinceSession" type="number" min="0" step="0.5" value="3" required inputmode="decimal"><small>For this specific client — how long ago they got the piece done.</small></label>
+    <fieldset><legend>Touch-up pricing once the free window has closed</legend>
+      <label>Pricing method
+        <select name="pricingMode" id="pricing-mode">
+          <option value="percent">Percentage of original price</option>
+          <option value="flat">Flat fee</option>
+          <option value="hourly">Hourly rate &times; estimated hours</option>
+        </select>
+      </label>
+      <label data-mode="percent">Touch-up percentage <input name="touchupPercent" type="number" min="0" max="100" step="1" value="25" inputmode="numeric"></label>
+      <label data-mode="flat" hidden>Flat touch-up fee <input name="touchupFlat" type="number" min="0" step="0.01" value="50" inputmode="decimal"></label>
+      <div data-mode="hourly" hidden>
+        <label>Hourly rate <input name="hourlyRate" type="number" min="0.01" step="0.01" value="150" inputmode="decimal"></label>
+        <label>Estimated touch-up hours <input name="touchupHours" type="number" min="0.01" step="any" value="0.5" inputmode="decimal"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Policy wording (optional)</legend><label>Shop name <input name="businessName" placeholder="e.g. Northside Ink"></label><label>Artist name <input name="artistName" placeholder="e.g. Jess"></label></fieldset>
+    <button type="submit">Calculate</button>
+  </form><p id="errors" class="error" role="alert" hidden></p></section>
+  <section id="results" class="card" aria-live="polite" hidden>
+    <h2>Deposit</h2>
+    <dl class="results"><div><dt>Deposit at booking</dt><dd id="deposit"></dd></div><div><dt>Balance due at session</dt><dd id="balance"></dd></div></dl>
+    <h2>This client's touch-up</h2>
+    <dl class="results"><div><dt>Free-window status</dt><dd id="window-status"></dd></div><div><dt>Full touch-up price (your pricing rule)</dt><dd id="touchup-full-price"></dd></div><div><dt>Amount due for this touch-up</dt><dd id="amount-due"></dd></div></dl>
+    <p id="touchup-note" class="note"></p>
+    <h2>Draft deposit &amp; touch-up policy</h2>
+    <textarea id="policy" aria-label="Draft deposit and touch-up policy" rows="9" readonly></textarea>
+    <button id="copy" type="button">Copy policy</button><span id="status" role="status"></span>
+    <p class="note"><button id="share-link" type="button" class="secondary">Copy share link</button> <span id="share-status" class="small" role="status" aria-live="polite"></span></p>
+    <p class="note">The share link stores this plan's numbers, including the shop and artist names, in the page's own URL — never sent to any server, but only share it with people you trust.</p>
+  </section>
+  <section class="card"><h2>Common questions</h2>
+    <h3>How much deposit should a tattoo shop charge?</h3>
+    <p>There is no single correct amount — shops commonly ask for a flat amount or a percentage of the estimated session price, often in the 20-50% range for custom work. This calculator turns whatever percentage you choose into a dollar deposit and the balance still due; it does not tell you what percentage to charge.</p>
+    <h3>Is a tattoo touch-up free?</h3>
+    <p>That depends entirely on the shop's own policy, which this tool does not set for you. Many shops offer touch-ups free within a stated window after the original session (commonly a few months to a year) and charge for touch-ups requested after that window closes. Enter your own free-window length and how long ago the original session was, and the calculator reports which side of that window a specific client falls on.</p>
+    <h3>How should a tattoo shop price a touch-up once it is no longer free?</h3>
+    <p>Three common approaches: a percentage of the original session price, a flat fee regardless of the original price, or the shop's hourly rate multiplied by the estimated touch-up time. This calculator supports all three and reports the dollar figure for whichever one the shop already uses — it does not recommend one approach over another.</p>
+  </section>
+  <footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p><p>Everything runs in your browser. Your data is never uploaded. We count only anonymous local feature events, never people, prices, or policy text, with an opt-out in this page. Counting also honors Do Not Track and Global Privacy Control. &ldquo;Copy share link&rdquo; encodes your inputs into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it.</p><label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label><p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p></footer>
+</main><script type="module" src="tattoo-app.mjs"></script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+      <li><a href="../equipment-lease-buyout-calculator/" data-pf-to="equipment-lease-buyout-calculator">Equipment lease buyout calculator</a></li>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-deposit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appointment-deposit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="appointment-deposit-calculator" data-pf-jobs-amount=""></script>
+</body></html>

@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pest Control Bid Calculator — Price Drive and Stations</title>
+  <meta name="description" content="Price a pest control route stop from on-site minutes, bait stations, and drive time — not house size.">
+  <meta property="og:title" content="Pest Control Bid Calculator">
+  <meta property="og:description" content="Bid the stop the route actually pays — stations and drive time included — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pest Control Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"On-site minutes by service, rodent and insect station counts, one-way drive time, initial vs recurring invoices, effective hourly with drive, walk-away price, waived-initial recovery, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a pest control route stop?","acceptedAnswer":{"@type":"Answer","text":"Time the work on the lot, add the drive both ways, add chemicals and station materials, then load wage burden, overhead, and the margin you intend to keep. House size is not the cost driver — stations and drive time are."}},{"@type":"Question","name":"Why does drive time change a pest control bid?","acceptedAnswer":{"@type":"Answer","text":"A 22-minute one-way drive is 44 minutes on every visit. On a quarterly $80 account that is often more than a third of the stop, which is why the hourly rate with drive is the number to check before you accept the house."}},{"@type":"Question","name":"Should I give away the initial pest control treatment?","acceptedAnswer":{"@type":"Answer","text":"Only if later stops can recover the first-visit cost. Station installs and knockdown spray often cost more than a whole year of recurring profit on a cheap quarterly. This calculator reports how many later visits it takes."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef3ef; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b6b3c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d0dcd0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .svc-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .svc-row select, .svc-row input { padding: 10px 7px; }
+    .svc-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .svc-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #1a3b24; color: #f2f8f5; border-color: #1a3b24; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.5rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #2b6b3c; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 16px; }
+    .pair div { background: #ffffff14; border-radius: 8px; padding: 10px 12px; }
+    .pair strong { display: block; font-size: 1.35rem; letter-spacing: -.03em; }
+    .pair span { font-size: .78rem; opacity: .82; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; margin-top: 12px; }
+    .check input { width: auto; }
+    .faq { margin-top: 8px; }
+    .faq details { border-top: 1px solid #d0dcd0; padding: 10px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields, .pair { grid-template-columns: 1fr; }
+      .svc-head { display: none; }
+      .svc-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .svc-row label { font-size: .78rem; gap: 5px; }
+      .svc-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .svc-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1a3b24; --pr-accent: #2b6b3c;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Pest Control Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pest Control Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Pest Control Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT PEST CONTROL OPERATORS</p>
+    <h1>Price the drive and the stations, not the house.</h1>
+    <p>A 2,000 sq ft house with eight rodent stations and a 22-minute drive is not the same stop as an exterior spray next door. This calculator times the work on the lot, adds the drive both ways, and shows the initial invoice, the recurring stop, the hourly rate once drive is inside the number, and how many later visits recover a free initial.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for pest control?</a> &middot; <a href="./vs-pestpac.html">vs. PestPac</a> &middot; <a href="./vs-a-flat-quote-by-house-size.html">vs. a flat quote by house size</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The stop</h2>
+        <p class="hint">One row per work item. Minutes are technician-minutes on the lot — pick a service to start from a common figure, then replace it with a time clocked from your own route. Station rows are per unit; set the count.</p>
+        <div class="svc-row svc-head" aria-hidden="true">
+          <span>Service</span><span>Minutes</span><span>Count</span><span>Material $</span><span></span>
+        </div>
+        <div id="services"></div>
+        <button type="button" id="addService" data-pf-repeat="s">+ Add a service</button>
+      </section>
+
+      <section>
+        <h2>Route and costs</h2>
+        <div class="fields">
+          <label>One-way drive (minutes) <input id="oneWayMinutes" type="number" min="0" step="1" value="22" inputmode="numeric"></label>
+          <label>Service frequency
+            <select id="frequency">
+              <option value="monthly">Monthly</option>
+              <option value="bimonthly">Every other month</option>
+              <option value="quarterly" selected>Quarterly</option>
+              <option value="semiannual">Twice a year</option>
+            </select>
+          </label>
+          <label>Technician hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="20" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30" inputmode="decimal"></label>
+          <label>Vehicle cost / visit <input id="vehicleCostPerVisit" type="number" min="0" step="0.5" value="8" inputmode="decimal"></label>
+          <label>Other cost / visit <input id="otherPerVisit" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25" inputmode="decimal"></label>
+          <label>Recurring price you&rsquo;re considering (optional) <input id="proposedRecurring" type="number" min="0" step="5" placeholder="e.g. 80" inputmode="numeric"></label>
+        </div>
+        <label class="check"><input id="waiveInitial" type="checkbox"> They want the initial waived or &ldquo;free&rdquo;</label>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Vehicle cost is fuel and wear allocated to this stop — not the truck payment, which belongs in overhead. Starting minutes are ballpark figures, not a standard.</p>
+      </section>
+
+      <section class="faq">
+        <h2>Questions operators actually ask</h2>
+        <details>
+          <summary>How do I price a pest control route stop?</summary>
+          <p>Time the work on the lot, add the drive both ways, add chemicals and station materials, then load wage burden, overhead, and the margin you keep. House size is a sales phrase, not a cost driver.</p>
+        </details>
+        <details>
+          <summary>Why does drive time change the bid?</summary>
+          <p>A 22-minute one-way drive is 44 minutes on every visit. On a cheap quarterly that is often more than a third of the stop. The hourly rate <em>with</em> drive is the number to check before you accept the house.</p>
+        </details>
+        <details>
+          <summary>Should I give away the initial?</summary>
+          <p>Only if later stops can recover the first-visit cost. Station installs and knockdown spray often cost more than a year of profit on a cheap quarterly. Tick the box above to see how many later visits it takes.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div class="pair">
+        <div><span>Initial invoice</span><strong id="initialPrice">$&mdash;</strong></div>
+        <div><span id="recurringLabel">Recurring invoice</span><strong id="recurringPrice">$&mdash;</strong></div>
+      </div>
+      <dl>
+        <dt>On-site hours / recurring stop</dt><dd id="onSiteHours"></dd>
+        <dt>Drive hours / stop</dt><dd id="driveHours"></dd>
+        <dt>Hours including drive</dt><dd id="visitHours"></dd>
+        <dt>Loaded labor / recurring</dt><dd id="labor"></dd>
+        <dt>Chemicals / recurring</dt><dd id="materials"></dd>
+        <dt>Vehicle &amp; other</dt><dd id="vehicle"></dd>
+        <dt>Overhead / recurring</dt><dd id="overhead"></dd>
+        <dt>Recurring cost</dt><dd id="cost"></dd>
+        <dt>Recurring profit</dt><dd id="profit"></dd>
+        <dt>Hourly with drive</dt><dd id="hourlyDrive"></dd>
+        <dt>Hourly on-site only</dt><dd id="hourlyOnSite"></dd>
+        <dt>Walk-away recurring</dt><dd id="breakEven"></dd>
+        <dt>Year-one billed</dt><dd id="annual"></dd>
+        <dt id="recoverLabel">Stops to recover a free initial</dt><dd id="recover"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates &mdash; wage, burden, overhead, and target margin &mdash; so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the recurring hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting minutes are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; clock your own route and replace them. Year-one billed is the initial invoice plus every recurring stop that year.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Bellweather Pest Solutions LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Quarterly exterior perimeter and interior service&#10;Rodent stations checked each visit"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Termite and wood-destroying-organism treatment&#10;Exclusion carpentry and structural repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="We will call the day before each visit. Interior service only needs access if there is activity inside."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <h2>Common questions</h2>
+  <h3>How do I price a pest control route stop?</h3>
+  <p>Time the work on the lot, add the drive both ways, add chemicals and station materials, then load wage burden, overhead, and the margin you intend to keep. House size is not the cost driver — stations and drive time are.</p>
+  <h3>Why does drive time change a pest control bid?</h3>
+  <p>A 22-minute one-way drive is 44 minutes on every visit. On a quarterly $80 account that is often more than a third of the stop, which is why the hourly rate with drive is the number to check before you accept the house.</p>
+  <h3>Should I give away the initial pest control treatment?</h3>
+  <p>Only if later stops can recover the first-visit cost. Station installs and knockdown spray often cost more than a whole year of recurring profit on a cheap quarterly. This calculator reports how many later visits it takes.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, pest-control, or business advice, and it does not tell you what to charge. It is not a label, a treatment recommendation, or a guarantee of control. Verify every figure against your own payroll, insurance, product labels, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, station counts, wages, costs, or prices.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Also bidding general janitorial or office-cleaning contracts? The <a href="../janitorial-bid-calculator/">janitorial bid calculator</a> prices recurring cleaning visits, supply responsibility, and initial-clean concessions &mdash; nothing uploaded.</p>
+    <p>Quoting a one-day bed bug job instead of a recurring route? The <a href="../bed-bug-heat-treatment-price-calculator/">bed bug heat treatment price calculator</a> prices it from heaters, clutter and the callback warranty &mdash; nothing uploaded.</p>
+    <p>Called out to a raccoon, a squirrel or bats in the attic? That is a one-off project, not a route stop, and this calculator will price it far too low: the <a href="../wildlife-exclusion-bid-calculator/">wildlife exclusion bid calculator</a> counts the return trip for every day the traps are out, tiers the seal by the height it is at, and reserves against the warranty &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, SERVICE_PRESETS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    const COST_IDS = ['oneWayMinutes','frequency','hourlyWage','burdenRate','vehicleCostPerVisit','otherPerVisit','overheadRate','targetMargin','proposedRecurring'];
+    const CHOICE_IDS = ['frequency'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    // A typical residential quarterly that looks cheap until stations and
+    // drive are visible: 40 minutes of spray becomes 72 on-site plus a
+    // 44-minute round trip, and the initial is a different job.
+    const STARTING_SERVICES = [
+      { name: 'Exterior perimeter spray', minutes: 18, quantity: 1, everyVisit: true, materialPerUnit: 4.5 },
+      { name: 'Interior crack & crevice', minutes: 22, quantity: 1, everyVisit: true, materialPerUnit: 3.25 },
+      { name: 'Rodent bait station check', minutes: 4, quantity: 8, everyVisit: true, materialPerUnit: 1.75 },
+      { name: 'Initial knockdown spray', minutes: 35, quantity: 1, everyVisit: false, materialPerUnit: 8 },
+      { name: 'Station install (each)', minutes: 12, quantity: 8, everyVisit: false, materialPerUnit: 12 },
+    ];
+
+    const TYPE_OPTIONS = SERVICE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other service</option>';
+    // The same values a service row's type select actually offers, named once
+    // so the bid-link spec below cannot drift from the dropdown it describes.
+    const SERVICE_TYPE_VALUES = SERVICE_PRESETS.map((preset, index) => String(index)).concat(['other']);
+
+    const servicesHost = el('services');
+    let rowSeq = 0;
+
+    function addServiceRow(service) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'svc-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Service</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-min"><span class="lbl">Minutes each</span><input class="s-min" id="${id}-min" type="number" min="0" step="1" inputmode="numeric"></label>
+        <label for="${id}-qty"><span class="lbl">Count</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1" inputmode="numeric"></label>
+        <label for="${id}-mat"><span class="lbl">Material $ each</span><input class="s-mat" id="${id}-mat" type="number" min="0" step="0.25" inputmode="decimal"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this service</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const minField = row.querySelector('.s-min');
+      const qtyField = row.querySelector('.s-qty');
+      const matField = row.querySelector('.s-mat');
+      const presetIndex = SERVICE_PRESETS.findIndex(p => p.label === service.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      minField.value = service.minutes;
+      qtyField.value = service.quantity;
+      matField.value = service.materialPerUnit;
+      row.dataset.everyVisit = service.everyVisit ? '1' : '0';
+
+      typeField.addEventListener('change', () => {
+        const preset = SERVICE_PRESETS[Number(typeField.value)];
+        if (preset) {
+          if (!minField.dataset.edited) minField.value = preset.minutes;
+          if (!matField.dataset.edited) matField.value = preset.materialPerUnit;
+          if (!qtyField.dataset.edited) qtyField.value = preset.unit ? 8 : 1;
+          row.dataset.everyVisit = preset.everyVisit ? '1' : '0';
+        }
+        count('bid_calculated');
+        update();
+      });
+      minField.addEventListener('input', () => { minField.dataset.edited = '1'; });
+      matField.addEventListener('input', () => { matField.dataset.edited = '1'; });
+      qtyField.addEventListener('input', () => { qtyField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('service_removed');
+        update();
+      });
+      servicesHost.append(row);
+    }
+
+    function readServices() {
+      return [...servicesHost.querySelectorAll('.svc-row')].map(row => {
+        const preset = SERVICE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          minutes: row.querySelector('.s-min').value,
+          quantity: row.querySelector('.s-qty').value,
+          materialPerUnit: row.querySelector('.s-mat').value,
+          everyVisit: row.dataset.everyVisit !== '0',
+        };
+      });
+    }
+
+    // The service list in the shape a bid link and the saved draft actually
+    // carry: the raw select value (a preset index or 'other'), not the
+    // resolved name `readServices()` hands the calculator, so a link can
+    // reopen the exact dropdown state rather than guessing a preset back
+    // from a label.
+    function readServiceRows() {
+      return [...servicesHost.querySelectorAll('.svc-row')].map(row => ({
+        type: row.querySelector('.s-type').value,
+        minutes: row.querySelector('.s-min').value,
+        quantity: row.querySelector('.s-qty').value,
+        materialPerUnit: row.querySelector('.s-mat').value,
+        everyVisit: row.dataset.everyVisit === '0' ? '0' : '1',
+      }));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('recurringPrice').textContent = message;
+      el('recurringPrice').className = isError ? 'negative' : '';
+      el('initialPrice').textContent = '—';
+      ['onSiteHours','driveHours','visitHours','labor','materials','vehicle','overhead','cost','profit','hourlyDrive','hourlyOnSite','breakEven','annual','recover']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields — and `waiveInitial`, a checkbox read as
+     * `.checked` rather than `.value`, is exactly the field a third copy
+     * drops. The default parameter lets `update` pass rows it has already
+     * read rather than reading them twice.
+     */
+    function readInput(services = readServices()) {
+      return {
+        services,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedRecurring: el('proposedRecurring').value,
+        waiveInitial: el('waiveInitial').checked,
+      };
+    }
+
+    // What a bid link and the browser's own saved draft carry — the same cost
+    // fields `readInput()` sends to the calculator, plus the service rows in
+    // their raw, restorable form. Kept separate from `readInput()` because a
+    // link and a save want the row's dropdown state (`type`), not the label
+    // the calculator resolves it to.
+    function readSavable() {
+      return {
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        waiveInitial: el('waiveInitial').checked,
+        services: readServiceRows(),
+      };
+    }
+
+    // A setter re-enters the same wage, burden, overhead, and margin on every
+    // bid — losing them when the tab closes is why a pricing tool gets used
+    // once and never again. This spec is what a bid link and the local save
+    // carry between visits or to a partner; see share.mjs for how.
+    const BID_SPEC = {
+      key: 'pest-control-bid',
+      numbers: COST_IDS.filter(id => !CHOICE_IDS.includes(id)),
+      flags: ['waiveInitial'],
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+      rows: {
+        param: 'services',
+        fields: [
+          { key: 'type', kind: 'choice', options: SERVICE_TYPE_VALUES },
+          { key: 'minutes', kind: 'number' },
+          { key: 'quantity', kind: 'number' },
+          { key: 'materialPerUnit', kind: 'number' },
+          { key: 'everyVisit', kind: 'choice', options: ['1', '0'] },
+        ],
+      },
+    };
+
+    // Puts a restored or shared bid back on screen. Returns whether any
+    // service rows were restored, so the caller knows whether to fall back to
+    // the sample starting services instead of leaving the list empty.
+    //
+    // Iterates every key `values` carries — not just COST_IDS — because
+    // `withProposalTerms(BID_SPEC)` decodes the deposit, valid-days, and the
+    // three term textareas too, and each of those ids matches a real field on
+    // this page. A fixed id list here is exactly the drift this feature exists
+    // to avoid: a restored link would reopen the sender's price but silently
+    // drop their deposit and payment terms back to this page's defaults.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        if (id === 'services') continue;
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+      }
+      if (!Array.isArray(values.services) || values.services.length === 0) return false;
+      servicesHost.innerHTML = '';
+      for (const row of values.services) {
+        const preset = row.type !== 'other' ? SERVICE_PRESETS[Number(row.type)] : undefined;
+        addServiceRow({
+          name: preset ? preset.label : '',
+          minutes: row.minutes ?? (preset ? preset.minutes : 15),
+          quantity: row.quantity ?? (preset ? (preset.unit ? 8 : 1) : 1),
+          materialPerUnit: row.materialPerUnit ?? (preset ? preset.materialPerUnit : 0),
+          everyVisit: row.everyVisit !== '0',
+        });
+        // Restored figures are the sender's own measured numbers, so a later
+        // preset change on this row must not silently overwrite them.
+        const added = servicesHost.lastElementChild;
+        added.querySelector('.s-min').dataset.edited = '1';
+        added.querySelector('.s-qty').dataset.edited = '1';
+        added.querySelector('.s-mat').dataset.edited = '1';
+      }
+      return true;
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readSavable(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readSavable(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function update() {
+      const services = readServices();
+      if (services.length === 0) {
+        clearOutputs('Add a service', false);
+        el('split').innerHTML = '<li class="empty">Add at least one service above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(readInput(services));
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('initialPrice').textContent = money(result.initialPrice);
+      el('recurringPrice').textContent = money(result.recurringPrice);
+      el('recurringPrice').className = '';
+      el('recurringLabel').textContent = `${result.frequencyLabel} invoice`;
+      el('onSiteHours').textContent = `${result.recurringOnSiteHours.toFixed(2)} h`;
+      el('driveHours').textContent = `${result.driveHours.toFixed(2)} h (${result.driveMinutesRoundTrip} min)`;
+      el('visitHours').textContent = `${result.recurringVisitHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.recurringLabor);
+      el('materials').textContent = money(result.recurringMaterials);
+      el('vehicle').textContent = money(result.vehicleCostPerVisit + result.otherPerVisit);
+      el('overhead').textContent = money(result.recurringOverhead);
+      el('cost').textContent = money(result.recurringCost);
+      el('profit').textContent = money(result.recurringProfit);
+      el('hourlyDrive').textContent = result.effectiveHourlyWithDrive === null ? 'n/a' : `${money(result.effectiveHourlyWithDrive)}/h`;
+      el('hourlyOnSite').textContent = result.effectiveHourlyOnSite === null ? 'n/a' : `${money(result.effectiveHourlyOnSite)}/h`;
+      el('breakEven').textContent = money(result.breakEvenRecurring);
+      el('annual').textContent = money(result.annualPrice);
+      if (result.waiveInitial && result.visitsToRecover !== null) {
+        el('recover').textContent = `${result.visitsToRecover} (${result.monthsToRecover.toFixed(0)} months)`;
+      } else if (result.waiveInitial) {
+        el('recover').textContent = 'never — recurring profit is zero';
+      } else {
+        el('recover').textContent = 'n/a — initial is billed';
+      }
+
+      const parts = [
+        ...result.services.filter(s => s.everyVisit && s.hours > 0),
+        result.driveHours > 0 ? { name: 'Drive time', hoursShare: result.driveShare } : null,
+      ].filter(Boolean);
+      el('split').innerHTML = parts.length === 0
+        ? '<li class="empty">No recurring work is scheduled yet.</li>'
+        : parts
+          .slice()
+          .sort((a, b) => b.hoursShare - a.hoursShare)
+          .map(part => `<li><span>${part.name}</span><span>${part.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${part.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} ${result.frequencyLabel} this stop <strong>loses ${money(Math.abs(result.proposed.profit))} per visit</strong> before you take anything out of it. Your walk-away recurring price is ${money(result.breakEvenRecurring)}.`
+          : `At ${money(result.proposed.price)} ${result.frequencyLabel} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} including the drive.`;
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.services.map(s => {
+        const when = s.everyVisit ? 'every visit' : 'initial only';
+        return `- ${s.name}: ${s.quantity} × ${s.minutes} min (${when})`;
+      });
+      return [
+        'PEST CONTROL BID',
+        '',
+        `Initial service: ${money(result.initialPrice)}`,
+        `Recurring (${result.frequencyLabel}): ${money(result.recurringPrice)}`,
+        `Year-one billed: ${money(result.annualPrice)}`,
+        `Recurring stop: ${result.recurringVisitHours.toFixed(2)} hours including ${result.driveMinutesRoundTrip} min drive`,
+        `Hourly with drive: ${result.effectiveHourlyWithDrive === null ? 'n/a' : money(result.effectiveHourlyWithDrive) + '/h'}`,
+        '',
+        'SCOPE',
+        ...lines,
+        '',
+        'This is a draft for review. Confirm scope, products, labels, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addService').addEventListener('click', () => {
+      addServiceRow({ name: '', minutes: 15, quantity: 1, everyVisit: true, materialPerUnit: 2 });
+      count('service_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedRecurring' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('waiveInitial').addEventListener('change', () => {
+      count('waive_initial_toggled');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    const restoredServices = applyValues(restored.values);
+    // Only fall back to the sample starting services when none were
+    // restored, or they would be appended after the setter's own rows.
+    if (!restoredServices) STARTING_SERVICES.forEach(addServiceRow);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how an operator stops trusting the
+      // tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    update();
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+    persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'pest-control-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Results vary with conditions and access; it is not a guarantee of elimination, a wood-destroying-organism report, or a health or structural inspection.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Recurring pest service, {frequencyLabel}, {visitsPerYear~0} visit{visitsPerYear+s} a year",
+        {
+          "each": "services",
+          "when": "everyVisit",
+          "line": "{name} at every scheduled visit"
+        },
+        {
+          "line": "Initial service included as the first visit at no additional charge",
+          "when": "waiveInitial"
+        },
+        "Apply products according to their label directions",
+        "Leave a service record after each visit noting what was treated and what was found"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.recurringPrice : result.proposed.price,
+        jobTitle: scopeLines(['Pest control service — {frequencyLabel}'], result)[0] || 'Pest control service',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pet-grooming-bid-calculator/" data-pf-to="pet-grooming-bid-calculator">Pet Grooming Bid Calculator</a></li>
+      <li><a href="../pressure-washing-bid-calculator/" data-pf-to="pressure-washing-bid-calculator">Pressure Washing Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pest-control-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/?pfEmbed=1&quot; title=&quot;Pest Control Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pest-control-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/" data-pf-embed-title="Pest Control Bid Calculator" data-pf-embed-slug="pest-control-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="pest-control-bid-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

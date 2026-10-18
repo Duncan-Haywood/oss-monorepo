@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why a CAA Record Blocks Certificate Issuance</title>
+<meta name="description" content="How to diagnose and fix a 'CAA record prevents issuance' certificate error: the RFC 8659 tree-walk that decides which CAA record applies…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/caa-record-check/how-caa-blocks-certificate-issuance.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why a CAA Record Blocks Certificate Issuance">
+<meta property="og:description" content="The RFC 8659 tree-walk, the disallow-all record, and the critical-flag trap that causes a 'CAA record prevents issuance' error.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/caa-record-check/how-caa-blocks-certificate-issuance.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Diagnose and fix a CAA record blocking certificate issuance",
+  "description": "Four causes of a 'CAA record prevents issuance' certificate error, in the order to check them, and the fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Find which name in the tree the CAA record actually lives at",
+      "text": "A certificate authority does not check only the exact hostname you're requesting a certificate for -- per RFC 8659, if that name has no CAA records of its own, the CA walks up to its parent domain, then its parent, until it finds one (or runs out of domain). Run this tool against the exact hostname; its 'found at' line names the actual domain the applicable record lives at, which is often a parent you did not expect to matter."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check whether the record names your CA at all",
+      "text": "If a CAA record set exists and does not list the CA you're trying to use (by its documented issuer domain, e.g. letsencrypt.org for Let's Encrypt or pki.goog for Google Trust Services), that CA is required to refuse -- this is the ordinary, working-as-intended case, and the fix is adding an issue record for the CA you actually want, or removing the restriction if you no longer need it."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check for a disallow-all record",
+      "text": "A CAA issue record whose value is a lone semicolon (issue \";\") explicitly authorizes no certificate authority at all, for non-wildcard certificates. An issuewild record with the same value does the same for wildcard certificates specifically. Either one is easy to add by mistake while editing a zone file by hand, and the fix is simply removing or replacing it with the CA you intend to authorize."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check for a critical, unrecognized property tag",
+      "text": "RFC 8659 defines exactly three standard tags: issue, issuewild, and iodef. If a record uses any other tag and marks it critical, a compliant CA that does not specifically implement that tag must refuse to issue for the domain at all -- regardless of any issue records also present. Since no public CA implements an arbitrary custom tag, this typically blocks every CA until the record is fixed, and it is easy to miss in a plain record listing that doesn't apply this specific rule."
+    }
+  ]
+}
+</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/caa-record-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a CAA Record Blocks Certificate Issuance — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body style="max-width:820px;margin:0 auto;padding:1.5rem;font:16px/1.6 system-ui,sans-serif;">
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../caa-record-check/">CAA Record Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a CAA Record Blocks Certificate Issuance</span></span></nav>
+<p><a href="index.html">&larr; Back to the CAA Record Checker</a></p>
+<h1>Why a CAA Record Blocks Certificate Issuance</h1>
+<p>
+  "CAA record prevents issuance" (or "Blocking CAA record(s) found") is one of the most-repeated
+  error messages on certbot's own GitHub issue tracker and Let's Encrypt's community support forum.
+  It has four distinct causes, and <strong>fixing one does not fix the others</strong> — a domain
+  can have more than one of these problems layered on top of each other, so work through all four
+  before assuming the record is clean.
+</p>
+
+<h2>1. The record that actually applies isn't at the name you think it is</h2>
+<p>
+  A certificate authority does not check only the exact hostname you're requesting a certificate
+  for. Per RFC 8659's processing rules, if that name has no CAA records of its own, the CA walks up
+  to its parent domain — then that domain's parent, and so on — until it finds a domain that
+  publishes a CAA record set, or runs out of domain entirely. A restriction on
+  <code>example.com</code> applies to <code>staging.example.com</code>,
+  <code>app.staging.example.com</code>, and every other name under it, unless one of those
+  subdomains publishes its own CAA record that overrides it.
+</p>
+<p>
+  This tool's "found at" line names the actual domain in the tree the applicable record set lives
+  at — which is frequently a parent domain you weren't thinking about when a subdomain's renewal
+  started failing.
+</p>
+
+<h2>2. The record exists and simply doesn't name your CA</h2>
+<p>
+  If a CAA record set exists at the applicable name and lists one or more CAs, and the CA you're
+  trying to use isn't one of them, that CA is required to refuse issuance. This is CAA working
+  exactly as designed — the fix is adding an <code>issue</code> record naming the CA you actually
+  want to use (by its own documented issuer domain, e.g. <code>letsencrypt.org</code> for Let's
+  Encrypt or <code>pki.goog</code> for Google Trust Services), or removing the CAA record set
+  entirely if you no longer need the restriction.
+</p>
+
+<h2>3. A disallow-all record</h2>
+<p>
+  An <code>issue</code> record whose value is a lone semicolon — <code>0 issue ";"</code> —
+  explicitly authorizes <strong>no</strong> certificate authority at all for non-wildcard
+  certificates. An <code>issuewild</code> record with the same value does the same specifically for
+  wildcard certificates. Both are easy to introduce by mistake while hand-editing a zone file (a
+  stray semicolon left over from a template, or a "block everything while we set this up properly"
+  placeholder that never got removed), and the fix is simply deleting or replacing the record.
+</p>
+
+<h2>4. A critical, unrecognized property tag</h2>
+<p>
+  RFC 8659 defines exactly three standard property tags: <code>issue</code>, <code>issuewild</code>,
+  and <code>iodef</code>. A record can mark <em>any</em> tag — including a custom one, or a typo of
+  a standard one — with the "critical" flag. When it does, a compliant CA that does not specifically
+  implement that exact tag must refuse to issue for the domain at all, regardless of any
+  <code>issue</code> records also present in the set. Since no public certificate authority
+  implements an arbitrary custom tag, a critical flag on one effectively blocks every CA until the
+  record is fixed — and it is invisible in a plain record listing that doesn't specifically apply
+  this rule. This tool flags it explicitly rather than only showing the raw record text.
+</p>
+
+<h2>What this tool does and doesn't check</h2>
+<p>
+  It reads the CAA record set your DNS publishes and applies the rules above — that is evidence
+  about your DNS configuration, not a guarantee that a specific CA will actually issue. The CA still
+  applies its own domain-validation, rate-limit, and account checks on top of CAA authorization.
+</p>
+
+<footer style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid #8886;font-size:0.85rem;opacity:0.85;">
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security or compliance advice, and it does not replace a
+  qualified review. You are responsible for reviewing and verifying its output before relying on it.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><a href="index.html">Run the CAA Record Checker</a> · <a href="vs-a-plain-dns-lookup.html">How this compares to a plain DNS lookup</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=caa-record-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="caa-record-check"></script>
+</body>
+</html>

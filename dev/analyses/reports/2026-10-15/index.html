@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Process study 2026-10-15 | Development analyses</title>
+<meta name="description" content="First study, so no previous report to follow up. Written with AI assistance.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Process report</nav>
+
+<h1>Process study 2026-10-15</h1>
+<p class="meta">Process report · 2026-10-15 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/process/reports/2026-10-15.md">prompts/process/reports/2026-10-15.md</a></p>
+<article class="doc">
+<p>First study, so no previous report to follow up. Written with AI assistance.</p>
+<h3>Window</h3>
+<p>2026-10-01 to 2026-10-15 (14 days). The local clone&#39;s history is partial (the <code>git fetch --unshallow origin main</code> did not finish in this session), so per-day commit counts from <code>git log</code> are unreliable and are not used. PR counts below come from the GitHub search API and are complete.</p>
+<h3>Evidence (commands re-takeable)</h3>
+<div class="scroll"><table><thead><tr><th>Fact</th><th>Number</th><th>Source</th></tr></thead><tbody><tr><td>PRs merged since 2026-10-01</td><td>814</td><td>search <code>is:pr is:merged merged:&gt;=2026-10-01</code></td></tr><tr><td>PRs closed unmerged since 2026-10-01</td><td>42</td><td>search <code>is:pr is:closed is:unmerged closed:&gt;=2026-10-01</code></td></tr><tr><td>Of those, titled <code>... new venture ...</code></td><td>33</td><td>same list, counted by title</td></tr><tr><td>Of those, same-slug duplicate venture pairs</td><td>3 (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6698">#6698</a>/#6699, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6337">#6337</a>/#6338, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6343">#6343</a>/#6347); plus one duplicate fix pair (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6265">#6265</a>/#6266)</td><td>titles in the list</td></tr><tr><td>&quot;Fix page so Pages publish unblocks&quot; PRs (merged or closed)</td><td>5 seen: <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6265">#6265</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6266">#6266</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6558">#6558</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6727">#6727</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6645">#6645</a></td><td>titles</td></tr><tr><td><code>launched.json</code> ordering / date repair commits on 2026-10-14</td><td>4 (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6936">#6936</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6962">#6962</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6963">#6963</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6975">#6975</a>)</td><td><code>git log origin/main --grep=launched.json</code></td></tr><tr><td>Open PRs now</td><td>8 (3 are 1-9 days old drafts or parked: <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6504">#6504</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/5967">#5967</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6854">#6854</a>/#6906)</td><td><code>list open</code> search</td></tr><tr><td>Run records</td><td>175 total, 170 research, 1 process, 2 ventures</td><td><code>python3 prompts/promptctl.py measure</code></td></tr><tr><td><code>unlanded_work.py</code></td><td>exits 1 only for this session&#39;s own unpushed branch</td><td>run in this session</td></tr></tbody></table></div>
+<p>&quot;Never measured&quot; items: CI failures before green per PR (the run records carry <code>null</code>), <code>run_workflow_locally.py --tree</code> on <code>main</code>, and <code>guard_state.py</code> were not run in this session. Ventures have 2 run records against ~hundreds of venture PRs, so the run records cannot describe the venture track at all.</p>
+<h3>Sample audit</h3>
+<p>Not done. I did not re-run five PRs&#39; tests or read their diffs this session, so this study makes no claim about the quality of what merged. The next study should do it first.</p>
+<h3>Findings by root cause</h3>
+<ol><li><strong>Shared sorted files are edited by parallel branches (4 repairs in one day).</strong> <code>platform/pages/launched.json</code> has a byte-for-byte sort test (<code>launched.test.mjs:124</code>). Four merges on 2026-10-14 repaired order or missing dates after sibling venture PRs landed. The commit messages say the entry was &quot;appended out of order&quot;, which fits a hand edit instead of <code>node platform/pages/launched.mjs --write</code> (the command <code>PRODUCT_PLAYBOOK.md</code> names). I did not confirm the hand-edit cause from the diffs.</li><li><strong>Duplicate venture PRs (at least 3 venture pairs and 1 fix pair, 8 closed unmerged).</strong> Same slug opened twice within hours. This is the failure <code>CLAUDE.md</code> &quot;Duplicate PRs&quot; already describes; the check there reads open PRs, which cannot see a sibling that opened minutes earlier.</li><li><strong>Venture page defects that block the Pages publish (5 PRs).</strong> Titles name a <code>[hidden]</code> panel that renders anyway (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6558">#6558</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6645">#6645</a>) and a dead inline script (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6265">#6265</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6266">#6266</a>). <code>platform/webcheck/page-integrity</code> and <code>inline-script-braces.test.mjs</code> exist for these, so the open question is whether they run on every new venture before merge or only afterwards.</li><li><strong>High venture volume, little measurement.</strong> at least 77 &quot;new venture&quot; subjects on <code>main</code> in the window (lower bound: partial local history) versus no recorded visitor numbers (<code>portfolio/usage/</code>, <code>live_url_visitors: null</code>). Throughput is not the problem the evidence shows; whether any of it is used is unmeasured.</li></ol>
+<p>Evidence is thin on causes for 1 and 3: I read titles and two commit bodies, not diffs.</p>
+<h3>Recommendations (ranked)</h3>
+<div class="scroll"><table><thead><tr><th>#</th><th>Problem (count)</th><th>Change</th><th>Touches</th><th>Metric</th><th>Who</th></tr></thead><tbody><tr><td>1</td><td><code>launched.json</code> repairs (4/day)</td><td>Make the sort a non-conflict: have <code>check</code>/<code>merge</code> run <code>launched.mjs --write</code> automatically, or let the test normalise instead of failing</td><td><code>platform/pages/launched.mjs</code>, test</td><td>repair commits per week → 0</td><td>agent</td></tr><tr><td>2</td><td>Duplicate venture PRs (4 pairs)</td><td>Before opening a venture PR, fail on an existing <code>ventures/&lt;slug&gt;</code> in <code>main</code> or an open/closed-in-last-24h PR with that slug in its title</td><td>new check in <code>platform/ci/</code></td><td>closed-unmerged venture PRs</td><td>agent</td></tr><tr><td>3</td><td>Page defects blocking publish (5)</td><td>Confirm <code>page-integrity</code> runs for every <code>ventures/**/*.html</code> in the PR check; add if not</td><td><code>platform/webcheck</code>, workflow</td><td>&quot;unblock Pages&quot; PRs per week</td><td>agent</td></tr><tr><td>4</td><td>No usage measurement</td><td>Owner decision on a privacy-respecting counter; until then, weight effort toward deploying, not new calculators</td><td><code>portfolio/usage/</code></td><td>share of ventures with a reading</td><td>owner</td></tr><tr><td>5</td><td>Study could not see history</td><td>Document that the cloud clone is shallow and <code>git fetch --unshallow origin main</code> takes over 2 min; run it in the background first</td><td><code>prompts/process/prompt-0.md</code></td><td>study setup minutes</td><td>agent</td></tr></tbody></table></div>
+<p>No recommendation was implemented in this PR; none was both small and verified enough to ship without more evidence.</p>
+<h3>Follow-up on the last report</h3>
+<p>None exists; this is the first study.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

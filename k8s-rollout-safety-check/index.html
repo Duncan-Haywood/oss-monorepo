@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?</title>
+  <meta name="description" content="Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook…">
+  <meta property="og:title" content="Will your Kubernetes rollout drop live requests?">
+  <meta property="og:description" content="A rolling update looks like zero downtime and usually is not. Paste your Deployment YAML and get every place Kubernetes is allowed to take a pod out of service…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kubernetes Rollout Safety Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads a Kubernetes Deployment manifest and reports every configuration that lets a rolling update or a node drain drop live requests. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded, it needs no cluster access, and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"My rollout says zero downtime. Why would it drop requests?","acceptedAnswer":{"@type":"Answer","text":"Because \"RollingUpdate\" only promises that Kubernetes replaces pods gradually. It does not promise that a pod is ready before it receives traffic, or that it has stopped receiving traffic before it shuts down. Without a readinessProbe, a pod joins the load balancer the instant its process starts — every request arriving before the app has booted gets an error. Without a preStop delay, the container can exit before the pod's removal has propagated to every kube-proxy and ingress controller, so proxies keep sending it connections that are then refused. Both are invisible in a rollout that reports success."}},{"@type":"Question","name":"Why does a missing preStop hook matter if my app handles SIGTERM?","acceptedAnswer":{"@type":"Answer","text":"Because handling SIGTERM correctly is not the problem. When a pod is deleted, two things start at the same moment and neither waits for the other: the kubelet sends SIGTERM, and the endpoints controller begins removing the pod from EndpointSlice. That removal has to reach every kube-proxy and every ingress controller before they stop routing to it, and that propagation is not instant. A perfectly behaved app that shuts down promptly on SIGTERM can therefore be gone while proxies are still sending it new connections. A preStop hook that does nothing but wait gives the removal time to land before shutdown begins."}},{"@type":"Question","name":"Does a clean result mean my deploy is zero-downtime?","acceptedAnswer":{"@type":"Answer","text":"No. This checks a specific, named list of manifest-level configurations — you can see the whole list with --list-checks, and there is nothing hidden behind it. It cannot know how long your application takes to drain a connection, whether your readinessProbe actually tests the dependencies a real request needs, whether your ingress controller honours EndpointSlice updates promptly, or whether a database migration in the same release is backwards compatible. A clean result means these checks found nothing; it is not a guarantee about your deploy."}},{"@type":"Question","name":"Does this tool connect to my cluster?","acceptedAnswer":{"@type":"Answer","text":"No, and it has no way to. It reads YAML text and nothing else — no kubeconfig, no credentials, no API server, no network calls at all. The browser page parses what you paste on your own device, and the CLI reads files from your own disk. That is what makes it safe to run against production manifests in CI without granting it any cluster access, because there is none to grant."}},{"@type":"Question","name":"What about StatefulSets, DaemonSets and Argo Rollouts?","acceptedAnswer":{"@type":"Answer","text":"Only Deployment and PodDisruptionBudget are judged, and a Service is read (not judged) to work out which container receives traffic. Other kinds are listed as skipped rather than silently ignored, so you can see what was not looked at. StatefulSet and DaemonSet rollouts have genuinely different ordering semantics, and reporting Deployment rules against them would produce confident wrong answers — which is worse than abstaining."}},{"@type":"Question","name":"Why is the default maxUnavailable of 25% not flagged?","acceptedAnswer":{"@type":"Answer","text":"Because at most replica counts it is safe. Kubernetes rounds maxUnavailable down and maxSurge up, so at 3 replicas the 25%/25% default resolves to maxUnavailable 0 and maxSurge 1 — a new pod starts and becomes ready before any old pod is removed. Flagging that would make the tool cry wolf on the majority of real manifests. It is reported only when the resolved number actually reaches the replica count, which is when every pod really can be down at once."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 230px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #8a2c0d; }
+    .verdict.warn { color: #6b4708; }
+    .finding { border: 1px solid #e6eaf0; border-left-width: 5px; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+    .finding.risk { border-left-color: #8a2c0d; }
+    .finding.warn { border-left-color: #8a6508; }
+    .finding h3 { margin: 0 0 4px; font-size: 1rem; }
+    .finding p { margin: 6px 0 0; font-size: .92rem; }
+    .where { font-family: ui-monospace, monospace; font-size: .82rem; color: #55606f; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.risk { background: #fde8e8; color: #8a2c0d; }
+    .pill.warn { background: #fdf1d8; color: #6b4708; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #8a2c0d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    ul.checks { font-size: .88rem; columns: 2; column-gap: 28px; }
+    @media (max-width: 640px) { ul.checks { columns: 1; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Will your Kubernetes rollout drop live requests?","item":"https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Will your Kubernetes rollout drop live requests? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Will your Kubernetes rollout drop live requests?</span></span></nav>
+  <header>
+    <p class="note">KUBERNETES ROLLOUT SAFETY CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will your Kubernetes rollout drop live requests?</h1>
+    <p><code>RollingUpdate</code> promises that Kubernetes replaces pods gradually. It does <em>not</em> promise that a pod is ready before traffic reaches it, or that it has stopped receiving traffic before it shuts down. Those two gaps are why a deploy that reports success can still serve a burst of connection errors — and nothing in <code>kubectl rollout status</code> will ever mention it. Paste your Deployment YAML below.</p>
+    <p class="note">Nothing is uploaded. The manifest you paste is parsed in this browser and never leaves your device; this tool makes no network calls of its own and never touches your cluster.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your manifests</h2>
+    <p class="note">A <code>Deployment</code>, and ideally the <code>PodDisruptionBudget</code> and <code>Service</code> that select it. Multiple documents separated by <code>---</code> are fine, and a <code>kind: List</code> wrapper is unwrapped — so the whole output of <code>kubectl get deploy,pdb,svc -o yaml</code> works, as does a rendered Helm or Kustomize template. Including the Service is worth it: without one, nothing in the manifest says which container answers a request, so <em>every</em> container is checked and a sidecar will show up alongside your application.</p>
+    <label for="manifest" class="note">Kubernetes YAML</label>
+    <textarea id="manifest" spellcheck="false" placeholder="apiVersion: apps/v1&#10;kind: Deployment&#10;metadata:&#10;  name: api&#10;spec:&#10;  ..."></textarea>
+    <p>
+      <button type="button" id="check">Check the rollout</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a Deployment above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="scope"></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same engine, zero dependencies, no cluster access:</p>
+    <pre class="cmd"><code>node check.mjs                     # scan every .yaml under the current directory
+node check.mjs k8s/production      # scan one directory or one file
+node check.mjs --format json       # machine-readable
+node check.mjs --list-checks       # exactly what is checked, and at what severity
+node check.mjs --fail-on-risk      # exit 2 if a rollout can drop requests</code></pre>
+    <p class="note">Save the three files this page itself runs on — <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="yaml.mjs" download>yaml.mjs</a> — into one directory. Node's standard library only, nothing to install, no network calls, no kubeconfig. Render your Helm chart or Kustomize overlay first (<code>helm template</code> / <code>kubectl kustomize</code>) and pipe the output to a file, then wire <code>--fail-on-risk</code> into CI so a newly-added Deployment without a readinessProbe is caught before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <p class="note">The whole list — there is nothing hidden behind it.</p>
+    <ul class="checks" id="check-list"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>My rollout says zero downtime. Why would it drop requests?</h3>
+    <p>Because "RollingUpdate" only promises that Kubernetes replaces pods gradually. It does not promise that a pod is ready before it receives traffic, or that it has stopped receiving traffic before it shuts down. Without a <code>readinessProbe</code>, a pod joins the load balancer the instant its process starts — every request arriving before the app has booted gets an error. Without a preStop delay, the container can exit before the pod's removal has propagated to every kube-proxy and ingress controller, so proxies keep sending it connections that are then refused. Both are invisible in a rollout that reports success.</p>
+    <h3>Why does a missing preStop hook matter if my app handles SIGTERM?</h3>
+    <p>Because handling SIGTERM correctly is not the problem. When a pod is deleted, two things start at the same moment and neither waits for the other: the kubelet sends SIGTERM, and the endpoints controller begins removing the pod from EndpointSlice. That removal has to reach every kube-proxy and every ingress controller before they stop routing to it, and that propagation is not instant. A perfectly behaved app that shuts down promptly on SIGTERM can therefore be gone while proxies are still sending it new connections. A preStop hook that does nothing but wait gives the removal time to land before shutdown begins.</p>
+    <h3>Does a clean result mean my deploy is zero-downtime?</h3>
+    <p>No. This checks a specific, named list of manifest-level configurations — you can see the whole list with <code>--list-checks</code>, and there is nothing hidden behind it. It cannot know how long your application takes to drain a connection, whether your <code>readinessProbe</code> actually tests the dependencies a real request needs, whether your ingress controller honours EndpointSlice updates promptly, or whether a database migration in the same release is backwards compatible. A clean result means these checks found nothing; it is not a guarantee about your deploy.</p>
+    <h3>Does this tool connect to my cluster?</h3>
+    <p>No, and it has no way to. It reads YAML text and nothing else — no kubeconfig, no credentials, no API server, no network calls at all. The browser page parses what you paste on your own device, and the CLI reads files from your own disk. That is what makes it safe to run against production manifests in CI without granting it any cluster access, because there is none to grant.</p>
+    <h3>What about StatefulSets, DaemonSets and Argo Rollouts?</h3>
+    <p>Only <code>Deployment</code> and <code>PodDisruptionBudget</code> are judged, and a <code>Service</code> is read (not judged) to work out which container receives traffic. Other kinds are listed as skipped rather than silently ignored, so you can see what was not looked at. StatefulSet and DaemonSet rollouts have genuinely different ordering semantics, and reporting Deployment rules against them would produce confident wrong answers — which is worse than abstaining.</p>
+    <h3>Why is the default maxUnavailable of 25% not flagged?</h3>
+    <p>Because at most replica counts it is safe. Kubernetes rounds <code>maxUnavailable</code> down and <code>maxSurge</code> up, so at 3 replicas the 25%/25% default resolves to <code>maxUnavailable 0</code> and <code>maxSurge 1</code> — a new pod starts and becomes ready before any old pod is removed. Flagging that would make the tool cry wolf on the majority of real manifests. It is reported only when the resolved number actually reaches the replica count, which is when every pod really can be down at once.</p>
+    <p>More: <a href="why-your-kubernetes-rollout-drops-requests.html">why your Kubernetes rollout drops requests</a>. Already run <a href="vs-kube-score.html">kube-score</a>? See <a href="vs-kube-score.html">how this checker compares</a> on the rollout question specifically. This checks whether a rollout is <em>safe</em>, not whether the manifest's <code>apiVersion</code> itself will survive the next Kubernetes upgrade — a manifest can pass every check here and still fail to apply outright on a newer cluster. See <a href="../k8s-deprecated-api-check/">Kubernetes Deprecated API Check</a> for that, a separate failure class entirely.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a production-readiness audit, a security review, or a guarantee that your deploy is free of downtime, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including testing any suggested change against your own workload before applying it to production. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, save <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="yaml.mjs" download>yaml.mjs</a> and run them yourself.</p>
+    <p>Everything runs in your browser. The manifest you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A safe rollout is only one part of a delivery pipeline that does not break: <a href="../pinned-actions-check/">Pinned Actions Check</a> asks whether the workflow that builds and ships this image is pinned to immutable references, <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks the same of the <code>FROM</code> lines in the image itself, and <a href="../sql-migration-lock-check/">SQL Migration Lock Check</a> asks whether the schema change riding along with this release locks the database while the new pods come up — four slices of the same "does shipping this change break something quietly?" question.</p>
+    <p class="support">Free and open source. If this caught a rollout that would have dropped requests, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeSources, summaryLine, CHECKS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      manifest: $("#manifest"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), findings: $("#findings"), scope: $("#scope"),
+    };
+
+    // Deliberately a manifest that looks completely ordinary and is wrong in
+    // four ways at once -- which is the point the page is making.
+    const EXAMPLE = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 2
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:1.4.0
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    /** Render `code spans` in the finding prose without trusting it as HTML:
+     * everything is escaped first, then only backtick pairs become <code>. */
+    function prose(text) {
+      return escapeHtml(text).replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function renderFindings(result) {
+      if (!result.findings.length) {
+        els.findings.innerHTML = `<p class="note">None of the checks below found a problem. That is not a guarantee of a zero-downtime deploy &mdash; see the FAQ for what these checks cannot see.</p>`;
+        return;
+      }
+      els.findings.innerHTML = result.findings.map((f) => `
+        <div class="finding ${f.severity}">
+          <h3><span class="pill ${f.severity}">${f.severity === "risk" ? "drops requests" : "review"}</span>${escapeHtml(f.title)}</h3>
+          <p class="where">${escapeHtml(f.resource)}${f.container ? ` &middot; container ${escapeHtml(f.container)}` : ""}</p>
+          <p>${prose(f.impact)}</p>
+          <p><strong>Fix:</strong> ${prose(f.fix)}</p>
+        </div>`).join("");
+    }
+
+    function runCheck(text) {
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a Kubernetes Deployment manifest first.</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const result = analyzeSources([{ name: "pasted manifest", text }]);
+      if (result.errors.length) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.errors[0].message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      els.verdict.className = `verdict ${result.verdict === "drops-requests" ? "risk" : result.verdict === "review" ? "warn" : ""}`;
+      els.verdict.textContent = summaryLine(result);
+      const scope = [];
+      if (result.deployments.length) scope.push(`Checked: ${result.deployments.join(", ")}`);
+      if (result.skipped.length) scope.push(`Not checked (this tool reads Deployments and PodDisruptionBudgets): ${result.skipped.join(", ")}`);
+      els.scope.textContent = scope.join(" · ");
+      renderFindings(result);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check-list").innerHTML = CHECKS
+      .map((c) => `<li><span class="pill ${c.severity}">${c.severity === "risk" ? "drops requests" : "review"}</span>${escapeHtml(c.title)}</li>`)
+      .join("");
+
+    $("#check").addEventListener("click", () => runCheck(els.manifest.value));
+
+    $("#load-example").addEventListener("click", () => {
+      els.manifest.value = EXAMPLE;
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: an ordinary-looking Deployment with no readinessProbe, no preStop hook, a maxUnavailable covering every replica, and a livenessProbe that starts immediately.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.manifest.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a Deployment above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../helm-values-schema-check/" data-pf-to="helm-values-schema-check">Does your values.yaml actually match its own schema?</a></li>
+      <li><a href="../hidden-unicode-check/" data-pf-to="hidden-unicode-check">Hidden Unicode Check</a></li>
+      <li><a href="../hreflang-reciprocity-check/" data-pf-to="hreflang-reciprocity-check">hreflang Reciprocity Check</a></li>
+      <li><a href="../incident-postmortem-timeline/" data-pf-to="incident-postmortem-timeline">Turn incident notes into a postmortem draft</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-rollout-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/?pfEmbed=1&quot; title=&quot;Will your Kubernetes rollout drop live requests? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="k8s-rollout-safety-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/" data-pf-embed-title="Will your Kubernetes rollout drop live requests?" data-pf-embed-slug="k8s-rollout-safety-check"></script>
+</body>
+</html>

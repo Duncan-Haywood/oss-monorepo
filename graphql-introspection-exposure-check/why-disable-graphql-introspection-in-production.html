@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why disable GraphQL introspection in production</title>
+<meta name="description" content="What GraphQL introspection reveals to an unauthenticated caller, why it's standard practice to disable it in production…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/why-disable-graphql-introspection-in-production.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether your GraphQL endpoint exposes its schema to introspection",
+  "step": [
+    { "@type": "HowToStep", "name": "Send an introspection query with no credentials", "text": "POST an ordinary GraphQL request carrying the __schema meta-field to your endpoint, with no Authorization header -- the same request an unauthenticated attacker would send." },
+    { "@type": "HowToStep", "name": "Read back the response", "text": "If the response's data.__schema field is present, introspection is enabled: the response names every query, mutation, and subscription field, and every named type, whether or not any real client links to it." },
+    { "@type": "HowToStep", "name": "Look for a write surface and sensitive names", "text": "A non-null mutationType means the schema's write operations are enumerable too. Field names containing words like delete, reset, admin, or secret are worth a manual look -- not proof of a missing check, but a place to start." },
+    { "@type": "HowToStep", "name": "Disable introspection in production, or gate it behind authentication", "text": "Every major GraphQL server library (Apollo Server, graphql-yoga, express-graphql, and others) documents a way to disable introspection outside development, or to require authentication before serving it. A free tool that automates the check is at ../graphql-introspection-exposure-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/why-disable-graphql-introspection-in-production.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why disable GraphQL introspection in production">
+<meta property="og:description" content="What GraphQL introspection reveals to an unauthenticated caller, why it's standard practice to disable it in production…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why disable GraphQL introspection in production — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../graphql-introspection-exposure-check/">GraphQL Introspection Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why disable GraphQL introspection in production</span></span></nav>
+<h1>Why disable GraphQL introspection in production</h1>
+
+<p>
+  Introspection is a set of built-in GraphQL meta-fields — <code>__schema</code> and
+  <code>__type</code> — that let any caller ask the API to describe itself: every query,
+  mutation, and subscription field, every custom type, and every field on every type. GraphQL
+  tooling depends on it (schema-aware editors, codegen, GraphiQL/GraphQL Playground), which is
+  exactly why it defaults to <strong>on</strong> in most server libraries and frameworks — a
+  default nobody has to opt into and few people remember to turn off before shipping.
+</p>
+
+<h2>What it actually hands an attacker</h2>
+<p>
+  Without introspection, an attacker probing an unfamiliar GraphQL endpoint has to guess field
+  names one at a time, or find them leaked in a bundled client's source. With introspection
+  enabled, they get the entire schema in one request: every mutation (the API's write surface),
+  every type's fields, and every name a developer chose — including internal or
+  debugging-only fields nobody meant to expose, and fields that hint at what a query or
+  mutation does before the attacker has tried it once. This is reconnaissance, not exploitation
+  by itself, but it collapses the first stage of an attack from guesswork to a single request.
+</p>
+
+<h2>Why it's standard practice to turn off, not just a hardening nice-to-have</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Source</th><th>What it says</th></tr></thead>
+<tbody>
+<tr><td>OWASP API Security</td><td>Names schema introspection in production as a discoverable-surface risk to close</td></tr>
+<tr><td>Apollo Server docs</td><td>Disables introspection by default outside <code>NODE_ENV=development</code> in current versions, after years of the opposite default</td></tr>
+<tr><td>graphql-yoga / express-graphql</td><td>Document an explicit flag or plugin to disable introspection in production</td></tr>
+</tbody>
+</table></div>
+
+<h2>Check your own endpoint</h2>
+<p>
+  <a href="index.html">The checker on this site</a> sends one real introspection query and
+  reports whether it succeeded, and if so, exactly what it revealed — query, mutation, and
+  subscription field counts, and any field names matching common sensitive-operation wording.
+  It runs directly in your browser when the target's own CORS policy allows it, and ships a
+  zero-dependency CLI for when it doesn't (CORS is a browser-only restriction the CLI is never
+  subject to).
+</p>
+<p>
+  This is evidence from one request, not a full security assessment — see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+  A sensitive-sounding field name is a hint to review by hand, not proof of a missing
+  authorization check.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+      <li><a href="../source-map-leak-check/" data-pf-to="source-map-leak-check">Source Map Leak Checker</a></li>
+      <li><a href="../speech-to-text-pricing-calculator/" data-pf-to="speech-to-text-pricing-calculator">What will transcription cost for your audio hours, and who is cheapest?</a></li>
+      <li><a href="../sql-migration-lock-check/" data-pf-to="sql-migration-lock-check">Will this migration take your database down?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=graphql-introspection-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="graphql-introspection-exposure-check"></script>
+</body>
+</html>

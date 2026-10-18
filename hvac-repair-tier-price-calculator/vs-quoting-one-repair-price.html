@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HVAC Repair Price Calculator vs. Quoting One Repair Price</title>
+  <meta name="description" content="Compare a single HVAC repair quote with Good, Better and Best options on the same costs: $649 against $1,832 average ticket and $249.82 against $580.14 average…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is quoting one repair price cheaper for the customer?","acceptedAnswer":{"@type":"Answer","text":"Only on the day. On the defaults the single Good repair tickets $649.00 on an average call, against $1,832.20 with three options, but the customer who needed the Best option is no better off for never having been offered it. Offering options does not raise any one price: Good stays at $745.00."}},{"@type":"Question","name":"When is a single repair price still the right quote?","acceptedAnswer":{"@type":"Answer","text":"When there is only one sensible fix, such as a failed capacitor on a young system. The calculator still prices it, and a Better option with the part that fails next is usually the first one worth adding."}},{"@type":"Question","name":"What if no customer ever picks Best?","acceptedAnswer":{"@type":"Answer","text":"Then an average call earns $322.61 at a 65, 35, 0 split against $249.82 for Good alone, so Better is doing the work. Best matters when even a few customers choose it: each 5 points of approvals on Best adds $85.85 a call."}},{"@type":"Question","name":"Is this advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 24px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    a { color: #1a4560; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="HVAC Repair Price Calculator vs. Quoting One Repair Price">
+<meta property="og:description" content="Compare a single HVAC repair quote with Good, Better and Best options on the same costs: $649 against $1,832 average ticket and $249.82 against $580.14 average…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="HVAC Repair Price Calculator vs. Quoting One Repair Price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hvac-repair-tier-price-calculator/">What should Good, Better and Best HVAC repair options cost?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">HVAC Repair Price Calculator vs. Quoting One Repair Price</span></span></nav>
+  <p class="note"><a href="./">HVAC Repair Price Calculator</a> · comparison</p>
+  <h1>Good, Better, Best vs. quoting one HVAC repair price</h1>
+  <p>The way many small shops quote an HVAC repair is one price for the repair the technician found. Short answer: <strong>one price is the Good option on its own, and it leaves money on the table whenever a customer would have chosen more.</strong> The <a href="./">calculator</a> prices all three and shows the difference on your numbers.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not business, tax, legal or licensing advice. No warranty.</p>
+
+  <h2>The same call, two ways</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>One repair price</th><th>Good, Better, Best</th></tr></thead>
+    <tbody>
+      <tr><td>Prices offered</td><td>$745.00</td><td>$745.00, $1,480.00, $8,890.00</td></tr>
+      <tr><td>Average ticket per call</td><td>$649.00</td><td>$1,832.20</td></tr>
+      <tr><td>Average profit per call</td><td>$249.82</td><td>$580.14</td></tr>
+      <tr><td>Difference</td><td></td><td>$330.32 more per call</td></tr>
+    </tbody>
+  </table></div>
+  <p>Both columns share the same $113.00 true cost per billable hour, the same $265.00 diagnostic fee and the same 20 percent of calls that end at the fee. The three-option column assumes 50, 35 and 15 percent of approvals choose Good, Better and Best.</p>
+
+  <h2>What if the mix is worse than you hoped</h2>
+  <p>With a mix of 70, 25 and 5 percent an average call earns <strong>$387.66</strong> on a $1,121.80 ticket, still <strong>$137.84</strong> more than the single price. With no Best at all and the split 65, 35, 0 it earns <strong>$322.61</strong>. Each 5 points of approvals on Best adds <strong>$85.85</strong> a call, and every 10 points of calls that decline costs about $60.58 of profit.</p>
+
+  <h2>What it costs you to offer three</h2>
+  <ul>
+    <li>Time: you price and explain three options on every approved call; the calculator builds the whole price book as CSV so it is done once.</li>
+    <li>Risk: the Best option is the largest cheque you write for equipment, and the callback reserve is built in at 3 percent.</li>
+    <li>A customer who wants the cheap fix is still offered it, at the same price as before.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>Is quoting one repair price cheaper for the customer?</h3>
+  <p>Only on the day. On the defaults the single Good repair tickets $649.00 on an average call, against $1,832.20 with three options, but the customer who needed the Best option is no better off for never having been offered it. Offering options does not raise any one price: Good stays at $745.00.</p>
+  <h3>When is a single repair price still the right quote?</h3>
+  <p>When there is only one sensible fix, such as a failed capacitor on a young system. The calculator still prices it, and a Better option with the part that fails next is usually the first one worth adding.</p>
+  <h3>What if no customer ever picks Best?</h3>
+  <p>Then an average call earns $322.61 at a 65, 35, 0 split against $249.82 for Good alone, so Better is doing the work. Best matters when even a few customers choose it: each 5 points of approvals on Best adds $85.85 a call.</p>
+  <h3>Is this advice?</h3>
+  <p>No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not business, tax, legal, licensing or mechanical-code advice. Not affiliated with, endorsed by or sponsored by any HVAC trade association, licensing board, equipment manufacturer, supplier or software vendor. You are responsible for verifying anything before relying on it.</p>
+    <p>Free and open source under the MIT licence. Support is optional: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>github.com/sponsors/Duncan-Haywood</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../revenue-target-lead-planner/" data-pf-to="revenue-target-lead-planner">Revenue Target Lead Planner — free, private, in your browser</a></li>
+      <li><a href="../rfp-compliance-matrix/" data-pf-to="rfp-compliance-matrix">RFP Compliance Matrix Generator</a></li>
+      <li><a href="../route-account-pruner/" data-pf-to="route-account-pruner">Route Account Pruner — free, private, in your browser</a></li>
+      <li><a href="../sawmill-custom-sawing-calculator/" data-pf-to="sawmill-custom-sawing-calculator">Sawmill Custom Sawing Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hvac-repair-tier-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hvac-repair-tier-price-calculator"></script>
+</body>
+</html>

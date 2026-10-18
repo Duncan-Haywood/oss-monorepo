@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>League Schedule Generator — free round-robin schedule maker for clubs and rec leagues</title>
+  <meta name="description" content="Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away…">
+  <meta property="og:title" content="League Schedule Generator — free, private, in your browser">
+  <meta property="og:description" content="Round-robin schedules for rec leagues, youth sports, pickleball, darts and chess clubs. Dates, courts, home and away, blackout dates and play-offs.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "League Schedule Generator", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your team names and get a fair single or double round-robin schedule with real dates, balanced home and away, courts and time slots shared evenly, team blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs entirely in your browser; nothing is uploaded.", "featureList": "round robin schedule generator, league schedule maker, pickleball round robin schedule, double round robin, home and away balance, court and time slot assignment, blackout dates, play-off bracket, ics calendar export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a round-robin schedule for my league?", "acceptedAnswer": {"@type": "Answer", "text": "Type the team names one per line, pick the first date and the weekday you play on, and click Build the schedule. The generator uses the circle method, so every team plays every other team once (or twice for a double round robin), and shows each round with its date, court and time. Download it as a CSV, a calendar file or plain text to send to the league."}}, {"@type": "Question", "name": "How does it handle an odd number of teams?", "acceptedAnswer": {"@type": "Answer", "text": "With an odd number of teams one team has a bye each round. The generator lists the bye so everybody can see which week they are off, and every team gets exactly one bye per leg of the season."}}, {"@type": "Question", "name": "How are home and away games balanced?", "acceptedAnswer": {"@type": "Answer", "text": "Home and away is set while the rounds are built. With an even number of teams the number of back-to-back home or away games is the proven minimum, and every team's home and away games differ by at most one. With an odd number of teams nobody plays two home or two away games in a row. A double round robin is mirrored so each pair plays once at each home."}}, {"@type": "Question", "name": "What if a team cannot play on a certain date?", "acceptedAnswer": {"@type": "Answer", "text": "Add the team and the date under blackout dates. Only the match that clashes is taken out of that round and played in a makeup round after the regular season; the rest of the round goes ahead. Skip dates, such as holidays, remove a date for everyone."}}, {"@type": "Question", "name": "How are courts and time slots shared out?", "acceptedAnswer": {"@type": "Answer", "text": "If you list courts and time slots, the generator assigns each match to one so that every team gets a similar number of each court and each time. It uses a seeded search, so the same seed always gives the same schedule, and Reshuffle tries another one."}}, {"@type": "Question", "name": "Can I build a play-off from the standings?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type the results as lines like Hawks 3 - 2 Owls, choose how many teams qualify, and the page ranks the teams by points, goal difference and goals scored and builds a single-elimination bracket. If the field is not a power of two, the top seeds get a first-round bye."}}, {"@type": "Question", "name": "Is my team list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d5a3f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3b2d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3b2d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5148; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3b2d12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f6b5c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a3f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8e1; color: #1f3b2d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e3e8e1; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5148; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.bye td { color: #4a5148; font-style: italic; }
+    tr.mk td { background: #fdf3da; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef2ec; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f3b2d; }
+    footer { margin-top: 28px; border-top: 1px solid #d4dad2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .days { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0; }
+    label.inl { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    label.inl input, .check input { width: auto; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f3b2d; }
+    pre { background: #eef2ec; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"League Schedule Generator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="League Schedule Generator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">League Schedule Generator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">LEAGUE SCHEDULE GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Make a fair round-robin league schedule in a minute</h1>
+    <p>Paste the <strong>team names</strong>, pick a <strong>start date and weekday</strong>, and get every round with <strong>real dates</strong>, <strong>home and away balanced</strong>, <strong>courts and time slots shared evenly</strong>, and <strong>blackout dates</strong> handled. Export a <strong>CSV</strong>, a <strong>calendar file</strong> for the league or one team, or <strong>plain text</strong> for the group chat.</p>
+    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Teams</h2>
+    <label for="teams">One team per line</label>
+    <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
+    <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
+
+    <h2 style="margin-top:18px">2. When</h2>
+    <div class="row4">
+      <div><label for="start">First date (YYYY-MM-DD)</label><input id="start" placeholder="2026-10-06"></div>
+      <div><label for="minutes">Match length, minutes (for the calendar)</label><input id="minutes" inputmode="numeric" value="60"></div>
+      <div><label for="seed">Shuffle seed (same seed, same schedule)</label><input id="seed" inputmode="numeric" value="1"></div>
+    </div>
+    <fieldset style="border:0;padding:0;margin:12px 0 0">
+      <legend style="font-weight:600">Play on</legend>
+      <div class="days"><label class="inl" for="wd0"><input type="checkbox" id="wd0" value="Sun"> Sun</label><label class="inl" for="wd1"><input type="checkbox" id="wd1" value="Mon"> Mon</label><label class="inl" for="wd2"><input type="checkbox" id="wd2" value="Tue"> Tue</label><label class="inl" for="wd3"><input type="checkbox" id="wd3" value="Wed"> Wed</label><label class="inl" for="wd4"><input type="checkbox" id="wd4" value="Thu"> Thu</label><label class="inl" for="wd5"><input type="checkbox" id="wd5" value="Fri"> Fri</label><label class="inl" for="wd6"><input type="checkbox" id="wd6" value="Sat"> Sat</label></div>
+    </fieldset>
+    <label for="skip">Skip dates for everyone (holidays), comma separated. Ranges like <code>2026-12-24 to 2027-01-02</code> work.</label>
+    <input id="skip" placeholder="2026-11-26, 2026-12-24 to 2027-01-02">
+    <label for="blackouts">Team blackout dates, one team per line: <code>Team name: date, date</code></label>
+    <textarea id="blackouts" rows="3" placeholder="Dink Dynasty: 2026-10-20&#10;Lob Squad: 2026-11-10 to 2026-11-17"></textarea>
+
+    <h2 style="margin-top:18px">3. Where</h2>
+    <label for="timeLimits">Optional: teams that can only play at certain times, one per line: <code>Team name: 17:00, 18:00</code> (needs two or more time slots below)</label>
+    <textarea id="timeLimits" rows="2" placeholder="Dink Dynasty: 18:00"></textarea>
+    <div class="row4">
+      <div><label for="courts">Courts or tables (comma or line separated, blank = automatic)</label><input id="courts" placeholder="Court 1, Court 2"></div>
+      <div><label for="times">Time slots each night (blank = one)</label><input id="times" placeholder="18:00, 19:00"></div>
+    </div>
+
+    <h2 style="margin-top:18px">4. Play-offs (optional)</h2>
+    <div class="row4">
+      <div><label for="playoff">Teams in the play-off (0 = none)</label><input id="playoff" inputmode="numeric" value="0"></div>
+      <div><label for="playoffDouble">Double elimination (out after two losses)</label><input id="playoffDouble" type="checkbox"></div>
+      <div><label for="playoffThird">Third-place match (single elimination, 4+ teams)</label><input id="playoffThird" type="checkbox"></div>
+    </div>
+    <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code>, or <code>Hawks w/o Owls</code> when Owls forfeit (Hawks get a 3-0 win), or <code>Owls -3 pts</code> for a points deduction (<code>+1</code> adds one)</label>
+    <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
+    <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
+
+    <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
+    <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. <code>2026-10-13</code> or <code>2026-10-13 Lob Squad</code></label>
+    <textarea id="rainouts" rows="2" placeholder="2026-10-13 Lob Squad"></textarea>
+    <h2 style="margin-top:18px">5b. A team drops out (optional)</h2>
+    <label for="withdrawals">One per line: a team name removes all of its matches, a date plus a team name removes only the matches on or after that night. Nothing else moves, and the warnings list how many fixtures each opponent loses. <code>Lob Squad</code> or <code>2026-11-03 Lob Squad</code></label>
+    <textarea id="withdrawals" rows="2" placeholder="2026-11-03 Lob Squad"></textarea>
+
+    <h2 style="margin-top:18px">5c. Teams that share a ground (optional)</h2>
+    <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. The same lines keep clubmates in different pools when you build pool play. <code>Net Ninjas, Dink Dynasty</code></label>
+    <textarea id="grounds" rows="2" placeholder="Net Ninjas, Dink Dynasty"></textarea>
+
+    <h2 style="margin-top:18px">6. Referees and officials (optional)</h2>
+    <label for="officials">One per line. Every match gets one official, shared out evenly. Put a team in brackets if they belong to it (they never work its matches), weekdays after a colon, and <code>max 4</code> to cap their matches. <code>Pat (Hawks): Tue, Thu max 4</code></label>
+    <textarea id="officials" rows="3" placeholder="Pat (Hawks): Tue, Thu max 4&#10;Sam"></textarea>
+
+    <button type="button" id="build">Build the schedule</button>
+    <button type="button" class="secondary" id="reshuffle">Reshuffle courts and times</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your teams and a start date, then click Build the schedule.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your schedule</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="check-line"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="rounds"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h2 style="margin-top:22px">By team</h2>
+    <label for="team">Show one team</label>
+    <select id="team"></select>
+    <div class="scroll"><div class="pf-table-scroll"><table id="byteam"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Opponent</th><th>Venue</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="fairness"></p>
+
+    <div id="standings-wrap" hidden>
+      <h2 style="margin-top:22px">Standings</h2>
+      <div class="scroll"><div class="pf-table-scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+    <div id="race-wrap" hidden>
+      <h2 style="margin-top:22px">Play-off race</h2>
+      <p class="note" id="race-note"></p>
+      <p><button type="button" class="secondary" id="copy-race">Copy race update as text</button></p>
+      <div class="scroll"><div class="pf-table-scroll"><table id="race"><thead><tr><th>Team</th><th class="n">Pts</th><th class="n">To play</th><th class="n">Max</th><th>Status</th><th class="n">Points to clinch</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+    <div id="bracket-wrap" hidden>
+      <h2 style="margin-top:22px">Play-off bracket</h2>
+      <pre id="bracket"></pre>
+    </div>
+
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="dl-standings">Download standings CSV</button>
+    <button type="button" id="dl-ics">Download calendar (.ics), whole league</button>
+    <button type="button" id="dl-team-ics">Download calendar (.ics), selected team</button>
+    <button type="button" class="secondary" id="copy-link">Copy share link</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+    <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <button type="button" id="dl-page">Download league web page (.html)</button>
+  </section>
+
+  <section class="card" id="pool-card">
+    <h2>Pool play for a tournament (optional)</h2>
+    <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances.</p>
+    <div class="row4">
+      <div><label for="pools">Number of pools</label><input id="pools" inputmode="numeric" value="2"></div>
+      <div><label for="advance">Teams advancing from each pool</label><input id="advance" inputmode="numeric" value="2"></div>
+    </div>
+    <button type="button" id="build-pools">Build pool play</button>
+    <button type="button" class="secondary" id="dl-pools">Download pool schedule (text)</button>
+    <p id="pool-status" role="status" class="note"></p>
+    <pre id="pool-out"></pre>
+  </section>
+  <section class="card" id="swiss-card">
+    <h2>Swiss system: pair the next round</h2>
+    <p class="note">For chess, darts, board-game and esports events where a full round robin takes too long. List the players best seed first (the Teams box above), type finished games below as <code>Ana 1 - 0 Ben</code> (equal numbers are a draw) or <code>Cy bye</code>, and get the next round's boards: players with the same score meet, nobody meets twice, the bye goes to someone who has not had one, and colours alternate. The table ranks by score, then Buchholz (the sum of your opponents' scores).</p>
+    <label for="swiss-results">Finished games so far (all rounds)</label>
+    <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee"></textarea>
+    <button type="button" id="build-swiss">Pair next round</button>
+    <button type="button" class="secondary" id="dl-swiss">Download pairings (text)</button>
+    <p id="swiss-status" role="status" class="note"></p>
+    <pre id="swiss-out"></pre>
+  </section>
+
+  <section class="card" id="americano-card">
+    <h2>Americano: rotating partners for doubles nights</h2>
+    <p class="note">For social padel, pickleball, badminton and tennis nights where everyone plays with and against as many different people as possible. List the players in the Teams box above, say how many courts you have and how many rounds, and get a sheet of who partners whom each round. Games and sit-outs are shared evenly; repeat partners are avoided as far as the round count allows and counted below.</p>
+    <label for="am-courts">Courts</label>
+    <input id="am-courts" type="number" min="1" max="16" value="2" inputmode="decimal">
+    <label for="am-rounds">Rounds (blank = a sensible number)</label>
+    <input id="am-rounds" type="number" min="1" max="40" placeholder="auto" inputmode="decimal">
+    <button type="button" id="build-americano">Build rotation</button>
+    <button type="button" class="secondary" id="dl-americano">Download rotation (text)</button>
+    <p id="am-status" role="status" class="note"></p>
+    <pre id="am-out"></pre>
+  </section>
+
+  <section class="card" id="mexicano-card">
+    <h2>Mexicano: next round from the scores</h2>
+    <p class="note">The padel night format where each round is drawn from the table: the leaders play the leaders. List the players in the Teams box above, set the courts, and paste every finished game, one per line, like <code>Ana &amp; Ben 21-17 Cy &amp; Dee</code>. With no scores it draws round one at random. Each player gets their side's points, the best four play together (1 &amp; 4 against 2 &amp; 3, or a split that avoids a repeat partner), and whoever has played most sits out.</p>
+    <label for="mx-courts">Courts</label>
+    <input id="mx-courts" type="number" min="1" max="16" value="2" inputmode="decimal">
+    <label for="mx-scores">Finished games</label>
+    <textarea id="mx-scores" rows="5" placeholder="Ana &amp; Ben 21-17 Cy &amp; Dee"></textarea>
+    <button type="button" id="build-mexicano">Draw next round</button>
+    <button type="button" class="secondary" id="dl-mexicano">Download round and table (text)</button>
+    <p id="mx-status" role="status" class="note"></p>
+    <pre id="mx-out"></pre>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Pairings:</strong> the circle method. One team stays fixed and the others rotate, so every pair meets exactly once per leg. With an odd number of teams an invisible extra team gives one real team a bye each round.</p>
+    <p><strong>Home and away:</strong> set while the rounds are built. With an even number of teams the count of back-to-back home or away games is the minimum possible (teams minus two), and every team's home and away games differ by at most one. A double round robin repeats the rounds with every venue swapped.</p>
+    <p><strong>Dates:</strong> rounds go on your chosen weekdays from the first date, jumping over skip dates. A team blackout takes only the clashing match out of its round and plays it in a makeup round after the season; if no round can be played on a date, that date is left unused and the page says so.</p>
+    <p><strong>Courts and times:</strong> each match gets a slot by a seeded simulated-annealing search that evens out how often each team uses each court and each time. Reshuffle changes the seed.</p>
+    <p><strong>Checked:</strong> a separate validator re-reads the finished schedule and confirms every pair meets the right number of times, no team plays twice in a round, home and away is balanced, no court is double-booked, and every date respects your weekdays, skip dates and blackouts. It cannot tell whether the schedule suits your league's own rules.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make a round-robin schedule for my league?</h3>
+    <p>Type the team names one per line, pick the first date and the weekday you play on, and click Build the schedule. The generator uses the circle method, so every team plays every other team once (or twice for a double round robin), and shows each round with its date, court and time. Download it as a CSV, a calendar file or plain text to send to the league.</p>
+    <h3>How does it handle an odd number of teams?</h3>
+    <p>With an odd number of teams one team has a bye each round. The generator lists the bye so everybody can see which week they are off, and every team gets exactly one bye per leg of the season.</p>
+    <h3>How are home and away games balanced?</h3>
+    <p>Home and away is set while the rounds are built. With an even number of teams the number of back-to-back home or away games is the proven minimum, and every team's home and away games differ by at most one. With an odd number of teams nobody plays two home or two away games in a row. A double round robin is mirrored so each pair plays once at each home.</p>
+    <h3>What if a team cannot play on a certain date?</h3>
+    <p>Add the team and the date under blackout dates. Only the match that clashes is taken out of that round and played in a makeup round after the regular season; the rest of the round goes ahead. Skip dates, such as holidays, remove a date for everyone.</p>
+    <h3>How are courts and time slots shared out?</h3>
+    <p>If you list courts and time slots, the generator assigns each match to one so that every team gets a similar number of each court and each time. It uses a seeded search, so the same seed always gives the same schedule, and Reshuffle tries another one.</p>
+    <h3>Can I build a play-off from the standings?</h3>
+    <p>Yes. Type the results as lines like Hawks 3 - 2 Owls, choose how many teams qualify, and the page ranks the teams by points, goal difference and goals scored and builds a single-elimination bracket. If the field is not a power of two, the top seeds get a first-round bye.</p>
+    <h3>Is my team list uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your league's rules or a venue's booking system. <strong>You are responsible for reviewing and verifying the schedule</strong> (every date, court and pairing) before you send it to a league. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or scheduling software company, and none is named or ranked here. The example teams are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — your setup is remembered only in this browser ("Clear" forgets it), so download the CSV.</p>
+    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>pools_built</code>, <code>swiss_paired</code>, <code>americano_built</code>, <code>mexicano_drawn</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>text_shared</code>, <code>link_shared</code>, <code>link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, and the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, raceText, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let last = null;
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const later = (fn) => setTimeout(fn, 0);
+
+    function setFields(f) {
+      $("#teams").value = f.teams;
+      $("#double").checked = Boolean(f.double);
+      $("#start").value = f.start;
+      $("#minutes").value = f.minutes;
+      $("#seed").value = f.seed;
+      for (let i = 0; i < 7; i++) $("#wd" + i).checked = f.weekdays.includes(WEEKDAYS[i]);
+      $("#skip").value = f.skip;
+      $("#blackouts").value = f.blackouts;
+      $("#timeLimits").value = f.timeLimits || "";
+      $("#courts").value = f.courts.replace(/\n/g, ", ");
+      $("#times").value = f.times;
+      $("#playoff").value = f.playoff;
+      $("#playoffDouble").checked = !!f.playoffDouble;
+      $("#playoffThird").checked = !!f.playoffThird;
+      $("#results").value = f.results;
+      $("#rainouts").value = f.rainouts || "";
+      $("#withdrawals").value = f.withdrawals || "";
+      $("#officials").value = f.officials || "";
+      $("#grounds").value = f.grounds || "";
+    }
+
+    function readFields() {
+      const weekdays = [];
+      for (let i = 0; i < 7; i++) if ($("#wd" + i).checked) weekdays.push(WEEKDAYS[i]);
+      return {
+        teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
+        skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courts: $("#courts").value, times: $("#times").value,
+        seed: $("#seed").value, minutes: $("#minutes").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value,
+      };
+    }
+
+    function teamRows(s, idx) {
+      return teamSchedule(s, idx).map((r) => r.bye
+        ? `<tr class="bye"><td>${esc(r.round)}</td><td>${dayLabel(r.day)}</td><td colspan="4">Bye</td></tr>`
+        : `<tr><td>${esc(r.round)}</td><td>${dayLabel(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.court)}</td><td>${esc(r.opponent)}</td><td>${r.venue}</td></tr>`).join("");
+    }
+
+    function render(s, extra) {
+      last = { s, ...extra };
+      $("#report").hidden = false;
+      const v = validateSchedule(s);
+      $("#notices").innerHTML = s.notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("") + extra.warnings.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
+      const regular = s.rounds.filter((r) => !r.makeup).length;
+      $("#big").innerHTML = [
+        [s.teams.length, "teams"], [regular + (s.rounds.length - regular ? ` + ${s.rounds.length - regular}` : ""), "rounds (+ makeup)"],
+        [s.stats.matches, "matches"], [s.stats.totalBreaks, "home/away breaks"], [dayLabel(s.stats.lastDay).replace(/^\w+ /, ""), "last night"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#check-line").innerHTML = v.ok
+        ? `<span class="pill good">checked</span> Every pair meets the right number of times, nobody plays twice in a round, home and away is balanced and no court is double-booked.`
+        : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
+      $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
+      $("#rounds tbody").innerHTML = s.rounds.map((r) => {
+        const cls = r.makeup ? ' class="mk"' : "";
+        const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
+        if (r.bye !== null && r.bye !== undefined) rows.push(`<tr class="bye"><td>${r.matches.length ? "" : esc(r.label)}</td><td></td><td colspan="4">Bye: ${esc(s.teams[r.bye])}</td></tr>`);
+        return rows.join("");
+      }).join("");
+      const sel = $("#team");
+      const keep = sel.value;
+      sel.innerHTML = s.teams.map((t, i) => `<option value="${i}">${esc(t)}</option>`).join("");
+      if (keep && Number(keep) < s.teams.length) sel.value = keep;
+      showTeam();
+      const restNote = (sch) => {
+        const r = restReport(sch);
+        if (r.shortest === null) return "";
+        const worst = r.rows.filter((x) => x.shortest === r.shortest).map((x) => x.team).slice(0, 3).join(", ");
+        return ` Rest between a team's games: from ${r.shortest} to ${r.longest} day(s)${r.back_to_back ? `; ${r.back_to_back} game(s) follow the previous one within a day (${worst})` : ""}.`;
+      };
+      const rematchNote = (sch) => {
+        const r = rematchReport(sch);
+        if (r.shortest === null) return "";
+        const worst = r.pairs.filter((x) => x.gap === r.shortest).slice(0, 2).map((x) => `${x.a} v ${x.b}`).join(", ");
+        return ` Days between a pair's two meetings: from ${r.shortest} to ${r.longest} (shortest: ${worst}).`;
+      };
+      const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
+      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${restNote(s)}${rematchNote(s)}`;
+      $("#race-wrap").hidden = !extra.race;
+      if (extra.race) {
+        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;
+        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
+      }
+      $("#standings-wrap").hidden = !extra.table;
+      if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td></tr>`).join("");
+      $("#bracket-wrap").hidden = !extra.bracketText;
+      $("#bracket").textContent = extra.bracketText || "";
+    }
+
+    function showTeam() {
+      if (!last) return;
+      $("#byteam tbody").innerHTML = teamRows(last.s, Number($("#team").value) || 0);
+    }
+
+    function run(seedOverride) {
+      const f = readFields();
+      if (seedOverride !== undefined) { f.seed = seedOverride; $("#seed").value = seedOverride; }
+      const { spec, errors } = readSpec(f);
+      const warnings = [];
+      let table = null;
+      let bracket = null;
+      if (errors.length) { status.textContent = errors.join(" "); return false; }
+      let s;
+      try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
+      if ($("#rainouts").value.trim()) {
+        const rr = applyRainouts(s, $("#rainouts").value);
+        s = rr.schedule;
+        warnings.push(...rr.errors, ...rr.moves.map((m) => `Rainout: ${m.home} v ${m.away} on ${dayLabel(m.from)} is now ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
+      }
+      if ($("#withdrawals").value.trim()) {
+        const wr = applyWithdrawals(s, $("#withdrawals").value);
+        s = wr.schedule;
+        warnings.push(...wr.errors, ...wr.withdrawals.map((w) => s.teams[w.team] + " withdrew" + (w.from === null ? "" : " as of " + dayLabel(w.from)) + ": " + w.removed.length + " fixture(s) removed; short: " + (w.opponentsShort.map((o) => o.team + " " + o.fixtures).join(", ") || "none") + "."));
+      }
+      if ($("#grounds").value.trim()) {
+        const pg = parseGrounds($("#grounds").value, s.teams);
+        warnings.push(...pg.errors);
+        if (pg.groups.length) {
+          const gr = applyGroundSharing(s, pg.groups);
+          s = gr.schedule;
+          if (gr.flips.length) warnings.push(`Shared grounds: moved ${gr.flips.length} home game(s) so clubmates are not both at home (dates, courts and opponents unchanged).`);
+          warnings.push(...gr.remaining.slice(0, 5).map((c) => `Shared ground clash: ${c.teams.join(" and ")} are both at home in ${c.round} (${dayLabel(c.day)}).`));
+          if (gr.remaining.length > 5) warnings.push(`${gr.remaining.length - 5} more shared-ground clashes.`);
+        }
+      }
+      if ($("#officials").value.trim()) {
+        const po = parseOfficials($("#officials").value, s.teams);
+        warnings.push(...po.errors);
+        if (po.officials.length) {
+          const ar = assignOfficials(s, po.officials);
+          s = ar.schedule;
+          warnings.push(...validateOfficials(s, po.officials));
+          warnings.push(...ar.unfilled.slice(0, 6).map((u) => `No official for ${u.home} v ${u.away} on ${dayLabel(u.day)}${u.time ? " at " + u.time : ""}: ${u.reason}.`));
+          if (ar.unfilled.length > 6) warnings.push(`${ar.unfilled.length - 6} more matches have no official.`);
+          warnings.push("Official load: " + ar.loads.map((l) => `${l.name} ${l.matches}`).join(", ") + ".");
+        }
+      }
+      const want = Math.trunc(Number($("#playoff").value) || 0);
+      let seeds = s.teams;
+      const resText = $("#results").value;
+      if (resText.trim()) {
+        const pr = parseResults(resText, s.teams);
+        warnings.push(...pr.errors);
+        table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments });
+        seeds = table.map((r) => r.name);
+      }
+      let race = null;
+      if (resText.trim() && want >= 1 && want < s.teams.length) {
+        const pr2 = parseResults(resText, s.teams);
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want, { adjustments: pr2.adjustments }) };
+      }
+      let bracketTxt = "";
+      if (want >= 2) {
+        if (want > s.teams.length) warnings.push(`The play-off needs ${want} teams but there are only ${s.teams.length}.`);
+        else {
+          const buildBracket = $("#playoffDouble").checked && want >= 3 ? doubleEliminationBracket : playoffBracket;
+          bracket = buildBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays, thirdPlace: $("#playoffThird").checked });
+          bracketTxt = bracketText(bracket);
+        }
+      }
+      render(s, { warnings, table, bracket, bracketText: bracketTxt, race });
+      status.textContent = "Done. Scroll down for the schedule.";
+      return true;
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const fullText = () => scheduleText(last.s, last.bracket);
+
+    $("#build").addEventListener("click", () => later(() => { if (run()) record("schedule_built"); }));
+    $("#reshuffle").addEventListener("click", () => later(() => { const n = (Number($("#seed").value) || 0) + 1; if (run(n)) record("schedule_built"); }));
+    $("#load-example").addEventListener("click", () => {
+      setFields(sampleFields());
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "withdrawals", "officials", "grounds"]) $("#" + id).value = "";
+      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
+      $("#report").hidden = true; last = null; status.textContent = "Cleared.";
+    });
+    $("#team").addEventListener("change", showTeam);
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("league-schedule.csv", scheduleCsv(last.s), "text/csv"); record("csv_downloaded"); });
+    $("#dl-standings").addEventListener("click", () => {
+      if (!last) return;
+      if (!last.table) { status.textContent = "Type some results first, then the standings can be downloaded."; return; }
+      download("league-standings.csv", standingsCsv(last.table), "text/csv"); record("csv_downloaded");
+    });
+    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("league-schedule.ics", scheduleIcs(last.s, null), "text/calendar"); record("ics_downloaded"); });
+    $("#dl-team-ics").addEventListener("click", () => {
+      if (!last) return;
+      const idx = Number($("#team").value) || 0;
+      download(`${last.s.teams[idx].replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "team"}-schedule.ics`, scheduleIcs(last.s, idx), "text/calendar");
+      record("ics_downloaded");
+    });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("league-schedule.txt", fullText(), "text/plain"); record("text_shared"); });
+    $("#dl-team-msgs").addEventListener("click", () => {
+      if (!last) return;
+      download("team-messages.txt", teamMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
+    });
+    $("#dl-page").addEventListener("click", () => {
+      if (!last) return;
+      download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
+      record("page_downloaded");
+    });
+    $("#copy-race").addEventListener("click", async () => {
+      if (!last || !last.race) return;
+      try { await navigator.clipboard.writeText(raceText(last.race.rows, last.race.spots)); status.textContent = "Copied the race update. Paste it into your group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying."; }
+    });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(fullText()); status.textContent = "Copied. Paste it into your group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#copy-link").addEventListener("click", async () => {
+      const link = location.href.split("#")[0] + "#s=" + encodeFields(readFields());
+      try { await navigator.clipboard.writeText(link); status.textContent = "Link copied. It holds your setup inside the link itself, so anyone you send it to sees the same schedule; nothing is stored on a server."; record("link_shared"); }
+      catch { history.replaceState(null, "", link); status.textContent = "Your browser blocked copying. Copy the address bar instead: it now holds your setup."; }
+    });
+    const SAVE_KEY = "league-schedule-generator:setup";
+
+    let poolText = "";
+    $("#build-pools").addEventListener("click", () => later(() => {
+      const out = $("#pool-status");
+      const { spec, errors } = readSpec(readFields());
+      if (errors.length) { out.textContent = errors.join(" "); return; }
+      const k = Math.trunc(Number($("#pools").value) || 0);
+      let play;
+      const clubs = $("#grounds").value.trim() ? parseGrounds($("#grounds").value, spec.teams).groups.map((g) => g.map((i) => spec.teams[i])) : [];
+      try { play = buildPoolPlay(spec, k, clubs); } catch (e) { out.textContent = e.message; return; }
+      const parts = [];
+      const tables = [];
+      const resText = $("#results").value;
+      for (const p of play) {
+        const sched = p.schedule;
+        parts.push(`${p.name.toUpperCase()}: ${sched.teams.join(", ")}\n${scheduleText(sched)}`);
+        if (resText.trim()) {
+          const pr = parseResults(resText, sched.teams);
+          tables.push(standings(sched.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments }));
+        }
+      }
+      if (tables.length) {
+        parts.push(tables.map((t, i) => `${play[i].name} table\n` + t.map((r) => `  ${r.rank}. ${r.name}  ${r.points} pts  GD ${r.gd}`).join("\n")).join("\n\n"));
+        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1)));
+        parts.push("Play-off seeds\n" + adv.map((n, i) => `  ${i + 1}. ${n}`).join("\n"));
+      }
+      poolText = parts.join("\n\n");
+      $("#pool-out").textContent = poolText;
+      out.textContent = `Built ${play.length} pools. Every pool schedule passed the check.`;
+      record("pools_built");
+    }));
+    $("#dl-pools").addEventListener("click", () => { if (poolText) download("pool-schedule.txt", poolText, "text/plain"); });
+
+    let swissOut = "";
+    $("#build-swiss").addEventListener("click", () => later(() => {
+      const out = $("#swiss-status");
+      const players = parseTeams($("#teams").value).teams;
+      if (players.length < 2) { out.textContent = "List at least two players in the Teams box."; return; }
+      const parsed = parseSwissResults($("#swiss-results").value, players);
+      if (parsed.errors.length) { out.textContent = parsed.errors.join(" "); return; }
+      let round;
+      try { round = swissPairings(players, parsed.games, parsed.byes); } catch (e) { out.textContent = e.message; return; }
+      const problems = validateSwiss(players, parsed.games, parsed.byes, round);
+      if (problems.length) { out.textContent = problems.join(" "); return; }
+      const played = Math.max(0, ...swissStandings(players, parsed.games, parsed.byes).map((r) => r.played + r.byes));
+      const table = swissStandings(players, parsed.games, parsed.byes);
+      swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
+        table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}`).join("\n");
+      $("#swiss-out").textContent = swissOut;
+      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length} players. The pairing passed the check.`;
+      record("swiss_paired");
+    }));
+    $("#dl-swiss").addEventListener("click", () => { if (swissOut) download("swiss-pairings.txt", swissOut, "text/plain"); });
+
+    let amOut = "";
+    $("#build-americano").addEventListener("click", () => later(() => {
+      const out = $("#am-status");
+      const players = parseTeams($("#teams").value).teams;
+      const courts = Math.max(1, Math.min(16, parseInt($("#am-courts").value, 10) || 1));
+      const rounds = parseInt($("#am-rounds").value, 10) || null;
+      let plan;
+      try { plan = americano(players, { courts, rounds }); } catch (e) { out.textContent = e.message; return; }
+      const problems = validateAmericano(players, plan);
+      if (problems.length) { out.textContent = problems.join(" "); return; }
+      const st = americanoStats(players, plan);
+      amOut = americanoText(players, plan);
+      $("#am-out").textContent = amOut;
+      out.textContent = `${plan.rounds.length} rounds for ${players.length} players on ${courts} court${courts === 1 ? "" : "s"}. Games per player ${Math.min(...st.games)}-${Math.max(...st.games)}, repeat partnerships ${st.repeatPartners}, pairs who never partner ${st.unmetPartners}. The rotation passed the check.`;
+      record("americano_built");
+    }));
+    $("#dl-americano").addEventListener("click", () => { if (amOut) download("americano-rotation.txt", amOut, "text/plain"); });
+
+    let mxOut = "";
+    $("#build-mexicano").addEventListener("click", () => later(() => {
+      const out = $("#mx-status");
+      const players = parseTeams($("#teams").value).teams;
+      const courts = Math.max(1, Math.min(16, parseInt($("#mx-courts").value, 10) || 1));
+      const parsed = parseMexicanoScores($("#mx-scores").value, players);
+      if (parsed.errors.length) { out.textContent = parsed.errors.join(" "); return; }
+      let round;
+      try { round = mexicanoNextRound(players, parsed.games, { courts }); } catch (e) { out.textContent = e.message; return; }
+      const table = mexicanoStandings(players, parsed.games);
+      const roundNo = parsed.games.length ? Math.max(...table.map((r) => r.played)) + 1 : 1;
+      mxOut = mexicanoText(players, round, table, roundNo);
+      $("#mx-out").textContent = mxOut;
+      out.textContent = `Round ${roundNo} drawn for ${players.length} players on ${courts} court${courts === 1 ? "" : "s"}; ${round.repeatPartners} repeat partnership${round.repeatPartners === 1 ? "" : "s"}. Add this round's scores and draw again.`;
+      record("mexicano_drawn");
+    }));
+    $("#dl-mexicano").addEventListener("click", () => { if (mxOut) download("mexicano-round.txt", mxOut, "text/plain"); });
+
+    function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(readFields())); } catch (e) { /* storage is optional */ } }
+    $("#build").addEventListener("click", persist);
+    $("#reshuffle").addEventListener("click", persist);
+    $("#clear-all").addEventListener("click", () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* optional */ } });
+    const shared = decodeFields(location.hash);
+    if (!shared) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+        if (saved && Array.isArray(saved.weekdays) && typeof saved.teams === "string") { setFields({ ...sampleFields(), ...saved }); status.textContent = "Restored your last league from this device. Click Build the schedule to rebuild; Clear forgets it."; }
+      } catch (e) { /* optional */ }
+    }
+    if (shared) later(() => { setFields(shared); if (run()) { status.textContent = "Loaded the setup from the link you opened. Check every date before you use it."; record("link_opened"); } });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/?pfEmbed=1&quot; title=&quot;League Schedule Generator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/" data-pf-embed-title="League Schedule Generator — free, private, in your browser" data-pf-embed-slug="league-schedule-generator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="league-schedule-generator" data-pf-jobs-amount=""></script>
+</body>
+</html>

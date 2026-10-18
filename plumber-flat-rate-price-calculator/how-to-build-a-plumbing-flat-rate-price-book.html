@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Build a Plumbing Flat-Rate Price Book</title>
+  <meta name="description" content="A worked plumbing price-book example: $100 a billable hour, a $595 flat-rate price for a 2.75-hour job with tiered parts markup, a $180 minimum callout…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/plumber-flat-rate-price-calculator/how-to-build-a-plumbing-flat-rate-price-book.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I build a plumbing flat-rate price book?","acceptedAnswer":{"@type":"Answer","text":"List your common jobs, give each an honest on-site time, travel time and parts cost, then price every one the same way: true cost per billable hour times hours, divided by one minus your margin, plus parts at a tiered markup, rounded up. On the default numbers a 2.75-hour job with $120.00 of parts prices at $595.00."}},{"@type":"Question","name":"Why must overhead be spread over billable hours and not paid hours?","acceptedAnswer":{"@type":"Answer","text":"Because only billable hours earn money. On the defaults $70.00 of wages and burden and $30.00 of truck, insurance, tools and overhead make a true cost of $100.00 per billable hour. Assume every one of the 2,080 paid hours is billable and the same job prices at $445.00; at 1,000 billable hours it needs $710.00."}},{"@type":"Question","name":"How should I mark up plumbing parts?","acceptedAnswer":{"@type":"Answer","text":"Many shops use a sliding scale so small parts carry a high percentage and big parts a low one. On the default tiers $120.00 of parts earns $78.00 of markup, an effective 65.0%, and $900.00 of parts earns $330.00, an effective 36.7%."}},{"@type":"Question","name":"Is this advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 24px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    a { color: #1a4560; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/plumber-flat-rate-price-calculator/how-to-build-a-plumbing-flat-rate-price-book.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Build a Plumbing Flat-Rate Price Book">
+<meta property="og:description" content="A worked plumbing price-book example: $100 a billable hour, a $595 flat-rate price for a 2.75-hour job with tiered parts markup, a $180 minimum callout…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/plumber-flat-rate-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Build a Plumbing Flat-Rate Price Book — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../plumber-flat-rate-price-calculator/">What should a plumbing job cost at a flat rate?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Build a Plumbing Flat-Rate Price Book</span></span></nav>
+  <p class="note"><a href="./">Plumber Flat-Rate Price Calculator</a> · guide</p>
+  <h1>How to build a plumbing flat-rate price book: true hourly cost, parts markup and margin</h1>
+  <p>Short answer: <strong>work out what one billable hour truly costs you, multiply by the hours the job takes including the drive, divide by one minus the margin you want, add the parts at a tiered markup and round up.</strong> The <a href="./">calculator</a> does it for your own numbers and builds a whole price book you can export as CSV.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not business, tax, legal or licensing advice. Costs, prices and rules belong to your shop and your area. No warranty.</p>
+
+  <h2>Step 1: your true cost per billable hour</h2>
+  <p>Take a plumber paid $35 an hour with 25 percent burden (payroll tax, workers' comp, benefits): <strong>$43.75</strong> an hour loaded. Over 2,080 paid hours that is $91,000.00 a year, but only 1,300 hours a year are sold, so each billable hour carries <strong>$70.00</strong> of wages. Add $15,000 of truck, $6,000 of insurance, $3,500 of tools and $14,500 of phone, software, licence, office and marketing: $39,000 a year, or <strong>$30.00</strong> per billable hour. The true cost is <strong>$100.00</strong> an hour.</p>
+  <p>The billable-hours figure does most of the damage. Count every paid hour as billable and the cost looks like <strong>$62.50</strong> an hour; at 1,000 billable hours it is <strong>$130.00</strong>.</p>
+
+  <h2>Step 2: count the drive and the supplier run</h2>
+  <p>A job with 2 hours on site, 0.75 hours of travel and a parts run is <strong>2.75</strong> hours of your day. At $100.00 that is <strong>$275.00</strong> of time cost. A flat rate has to carry the travel; there is no line to add it on afterwards.</p>
+
+  <h2>Step 3: margin on time, markup on parts</h2>
+  <p>At a 30 percent margin the time charge is $275.00 / 0.70 = <strong>$392.86</strong>. Parts cost $120.00 and are marked up on tiers like tax brackets: 100 percent on the first $25, 60 percent from $25 to $100, 40 percent from $100 to $500 and 25 percent above that. That is $25.00 + $45.00 + $8.00 = <strong>$78.00</strong> of markup, so the parts charge is <strong>$198.00</strong>.</p>
+
+  <h2>Step 4: round up and check</h2>
+  <p>$392.86 + $198.00 = <strong>$590.86</strong>, rounded up to the next $5 is <strong>$595.00</strong>. Your cost is $395.00, so the job leaves <strong>$200.00</strong>, a margin of <strong>33.6%</strong>, and an effective <strong>$172.73</strong> an hour after parts.</p>
+  <ul>
+    <li>The minimum callout is the travel plus your shortest visit, 1.25 hours, with no parts: <strong>$180.00</strong>.</li>
+    <li>The flat price stops covering your cost at <strong>4.75</strong> hours. At 4.125 hours (50 percent over) it leaves $62.50; at 5.5 hours (double) it loses $75.00.</li>
+  </ul>
+
+  <h2>A big job: the water heater swap</h2>
+  <p>3.5 hours on site, 1 hour of travel and $900.00 of parts. The time cost is $450.00 and the time charge $642.86. The parts markup is $25.00 + $45.00 + $160.00 + $100.00 = <strong>$330.00</strong>, so parts are charged at $1,230.00 and the job prices at <strong>$1,875.00</strong>. Cost is $1,350.00, the profit is $525.00 and the margin is 28.0% because the rounding and the lower tier on the big part both pull it away from the 30 percent aimed at time; the effective rate is $216.67 an hour after parts.</p>
+
+  <h2>How to measure your own numbers</h2>
+  <ul>
+    <li>Add up a year of truck payments, fuel, repairs, insurance, tools, licence, phone, software and marketing from your statements.</li>
+    <li>Count billable hours from invoices, not from the calendar: divide hours you invoiced by weeks worked.</li>
+    <li>Time ten real jobs door to door, including the supplier run, before you set a book time for them.</li>
+    <li>Check your local licensing, permit and written-estimate rules before you publish a price book.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>How do I build a plumbing flat-rate price book?</h3>
+  <p>List your common jobs, give each an honest on-site time, travel time and parts cost, then price every one the same way: true cost per billable hour times hours, divided by one minus your margin, plus parts at a tiered markup, rounded up. On the default numbers a 2.75-hour job with $120.00 of parts prices at $595.00.</p>
+  <h3>Why must overhead be spread over billable hours and not paid hours?</h3>
+  <p>Because only billable hours earn money. On the defaults $70.00 of wages and burden and $30.00 of truck, insurance, tools and overhead make a true cost of $100.00 per billable hour. Assume every one of the 2,080 paid hours is billable and the same job prices at $445.00; at 1,000 billable hours it needs $710.00.</p>
+  <h3>How should I mark up plumbing parts?</h3>
+  <p>Many shops use a sliding scale so small parts carry a high percentage and big parts a low one. On the default tiers $120.00 of parts earns $78.00 of markup, an effective 65.0%, and $900.00 of parts earns $330.00, an effective 36.7%.</p>
+  <h3>Is this advice?</h3>
+  <p>No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not business, tax, legal, licensing or plumbing-code advice. Not affiliated with, endorsed by or sponsored by any plumbing trade association, licensing board, supplier or software vendor. You are responsible for verifying anything before relying on it.</p>
+    <p>Free and open source under the MIT licence. Support is optional: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>github.com/sponsors/Duncan-Haywood</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../client-profitability-time-analyzer/" data-pf-to="client-profitability-time-analyzer">Client Profitability Time Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../coi-expiry-gap-checker/" data-pf-to="coi-expiry-gap-checker">COI tracker and gap checker for subcontractor insurance — free, private</a></li>
+      <li><a href="../construction-delay-claim-calculator/" data-pf-to="construction-delay-claim-calculator">Construction Delay Claim Calculator — free, private</a></li>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=plumber-flat-rate-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="plumber-flat-rate-price-calculator"></script>
+</body>
+</html>

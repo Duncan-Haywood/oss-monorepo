@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Crop Insurance Coverage Level Calculator (RP, YP) — Free</title>
+  <meta name="description" content="Free crop insurance coverage level calculator for farmers: compare 70, 75, 80 and 85 percent RP, RP-HPE or YP using your agent's quoted premiums.">
+  <meta property="og:title" content="Is 85% crop insurance worth it over 80%? Free coverage level calculator">
+  <meta property="og:description" content="Guarantee, break-even yield, step cost per added dollar and scenario net for each coverage level, under RP, RP-HPE or YP. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Cpath d='M16 26V10M16 14c-4 0-6-2-6-5 4 0 6 2 6 5zM16 14c4 0 6-2 6-5-4 0-6 2-6 5zM16 20c-4 0-6-2-6-5 4 0 6 2 6 5zM16 20c4 0 6-2 6-5-4 0-6 2-6 5z' stroke='%23fff' stroke-width='1.600' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Crop Insurance Coverage Level Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare crop insurance coverage levels (RP, RP-HPE, YP) for corn, soybeans and other row crops using your agent's quoted premiums: guarantee, break-even yield, cost of each extra 5 points and net result across yield and price scenarios. Runs in your browser; nothing is uploaded.", "featureList": "Revenue Protection, RP-HPE and Yield Protection, coverage level comparison, break-even yield, marginal cost of coverage, scenario net result, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which coverage level should I buy?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal answer, and this tool does not pick one. It lays your agent's quoted farmer-paid premiums beside what each level guarantees, what each extra 5 points costs per dollar of added protection, and what you would net in the yield-and-price years you describe. A higher level costs more in good years and protects more in bad ones; the step-cost table shows how fast the price per added dollar rises."}}, {"@type": "Question", "name": "What is the difference between RP, RP-HPE and YP?", "acceptedAnswer": {"@type": "Answer", "text": "Revenue Protection sets the guarantee at the higher of the projected (spring) and harvest (fall) price, so a drought that lifts prices still pays on the higher value. RP with Harvest Price Exclusion guarantees only the projected price. Yield Protection pays missing bushels at the projected price and ignores price falls. The tool applies each rule to your scenarios."}}, {"@type": "Question", "name": "Where do I get the premium numbers?", "acceptedAnswer": {"@type": "Answer", "text": "From your crop insurance agent's quote or the USDA RMA Cost Estimator. Use the farmer-paid premium per acre, which is after the federal premium subsidy. The tool does not know your county rates, unit structure or subsidy, so it cannot produce a quote."}}, {"@type": "Question", "name": "What is the break-even yield?", "acceptedAnswer": {"@type": "Answer", "text": "The yield at which an indemnity first covers the premium if the harvest price equals the projected price: APH times coverage minus the premium divided by the price. Below it the policy pays more than it cost; above it the premium was the cost of protection."}}, {"@type": "Question", "name": "Does it calculate expected value?", "acceptedAnswer": {"@type": "Answer", "text": "Only over the scenarios you type, with the probabilities you choose. It does not know your county's yield or price distribution, so the expected figure is as good as your scenarios. The worst-case column does not depend on probabilities."}}, {"@type": "Question", "name": "Is this insurance or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not sell, quote or bind insurance, and it does not know your policy's unit structure, prevented-planting, replant, trend-adjusted APH or endorsements such as SCO and ECO. Talk to your crop insurance agent before choosing coverage."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is 85% crop insurance worth it over 80%? Free coverage level calculator","item":"https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is 85% crop insurance worth it over 80%? Free coverage level calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is 85% crop insurance worth it over 80%? Free coverage level calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CROP INSURANCE COVERAGE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is the next 5 points of crop insurance coverage worth what it costs?</h1>
+    <p>Type your APH yield, the projected price and the farmer-paid premium your agent quoted at each coverage level. It shows what each level guarantees, the yield where the policy starts paying for itself, what each extra 5 points costs per dollar of added protection, and your net result in the yield-and-price years you describe, under RP, RP-HPE or YP.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not insurance advice and not a quote.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your crop and policy</h2>
+      <div class="grid">
+        <div><label for="plan">Plan</label><select id="plan"><option value="RP">Revenue Protection (RP)</option><option value="RPHPE">RP with Harvest Price Exclusion</option><option value="YP">Yield Protection (YP)</option></select></div>
+        <div><label for="acres">Insured acres</label><input id="acres" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="aph">Approved APH yield (bu/acre)</label><input id="aph" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="projectedPrice">Projected (spring) price ($/bu)</label><input id="projectedPrice" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Quoted premiums and the years you want to test</h2>
+      <div class="grid">
+        <div style="grid-column:1/-1"><label for="coverage">One line per level: coverage %, farmer-paid premium $/acre (after subsidy, from your agent)</label><textarea id="coverage" rows="5" style="width:100%"></textarea></div>
+        <div style="grid-column:1/-1"><label for="scenarios">One line per year: label, yield per acre, harvest (fall) price, chance % (chances should add to 100)</label><textarea id="scenarios" rows="6" style="width:100%"></textarea></div>
+      </div>
+      <button type="button" id="run">Compare coverage levels</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Which coverage level should I buy?</h3>
+      <p>There is no universal answer, and this tool does not pick one. It lays your agent's quoted farmer-paid premiums beside what each level guarantees, what each extra 5 points costs per dollar of added protection, and what you would net in the yield-and-price years you describe. A higher level costs more in good years and protects more in bad ones; the step-cost table shows how fast the price per added dollar rises.</p>
+      <h3>What is the difference between RP, RP-HPE and YP?</h3>
+      <p>Revenue Protection sets the guarantee at the higher of the projected (spring) and harvest (fall) price, so a drought that lifts prices still pays on the higher value. RP with Harvest Price Exclusion guarantees only the projected price. Yield Protection pays missing bushels at the projected price and ignores price falls. The tool applies each rule to your scenarios.</p>
+      <h3>Where do I get the premium numbers?</h3>
+      <p>From your crop insurance agent's quote or the USDA RMA Cost Estimator. Use the farmer-paid premium per acre, which is after the federal premium subsidy. The tool does not know your county rates, unit structure or subsidy, so it cannot produce a quote.</p>
+      <h3>What is the break-even yield?</h3>
+      <p>The yield at which an indemnity first covers the premium if the harvest price equals the projected price: APH times coverage minus the premium divided by the price. Below it the policy pays more than it cost; above it the premium was the cost of protection.</p>
+      <h3>Does it calculate expected value?</h3>
+      <p>Only over the scenarios you type, with the probabilities you choose. It does not know your county's yield or price distribution, so the expected figure is as good as your scenarios. The worst-case column does not depend on probabilities.</p>
+      <h3>Is this insurance or financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type in. It does not sell, quote or bind insurance, and it does not know your policy's unit structure, prevented-planting, replant, trend-adjusted APH or endorsements such as SCO and ECO. Talk to your crop insurance agent before choosing coverage.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which level you should buy, your county's real premium rates and subsidy, optional versus enterprise units, trend-adjusted APH and yield exclusions, prevented planting and replant, SCO and ECO endorsements, the harvest price the insurer will actually announce, and whether a payment on one unit is netted against another. The defaults are placeholders, not a quote: replace each with your own APH and your agent's numbers, and talk to your agent before you choose.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease calculator</a> for the rent side of the same farm.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not insurance advice or a quote; it does not replace a licensed agent or your accountant. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, PLANS, num, money, money2, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const TEXT = ["coverage", "scenarios", "plan"];
+    const opts = () => { const o = {}; for (const k of KEYS) { if (TEXT.includes(k)) { o[k] = $(k).value; continue; } const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const a = analyze(o);
+      let h = "";
+      if (!a.levels.length) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Add at least one line: coverage %, premium per acre.</div>'; $("out").hidden = false; return; }
+      if (a.skippedCoverage.length) h += `<div class="finding"><span class="pill">Skipped</span> ${a.skippedCoverage.length} coverage line(s) could not be read: ${a.skippedCoverage.map(esc).join(" | ")}</div>`;
+      if (a.skippedScenarios.length) h += `<div class="finding"><span class="pill">Skipped</span> ${a.skippedScenarios.length} year line(s) could not be read: ${a.skippedScenarios.map(esc).join(" | ")}</div>`;
+      if (a.scenarios.length && Math.abs(a.probSum - 100) > 0.001) h += `<div class="finding"><span class="pill">Check chances</span> Your chances add to ${a.probSum}%, not 100%. They are scaled to 100% for the expected figures.</div>`;
+      h += `<div class="finding"><h4>${PLANS[a.plan]}: what each level guarantees and costs (per acre)</h4>${table(["Coverage", "Premium", "Guaranteed at projected price", "Protected floor after premium", "Break-even yield (bu)", "Premium on all acres"], a.levels.map((l) => [l.level + "%", money2(l.premium), money2(l.baseGuarantee), money2(l.floorAfterPremium), l.breakEvenYield.toFixed(1), money(l.totalPremium)]))}<p class="note">Break-even yield: below it, with the harvest price at the projected price, the policy pays more than the premium cost.</p></div>`;
+      if (a.levels.length > 1) h += `<div class="finding"><h4>What each step up costs</h4>${table(["Step to", "Extra premium", "Extra guarantee", "Cost per $1 of added guarantee"], a.levels.slice(1).map((l) => [l.level + "%", money2(l.stepPremium), money2(l.stepGuarantee), l.stepCostPerDollar == null ? "—" : "$" + l.stepCostPerDollar.toFixed(3)]))}<p class="note">The added guarantee only pays in years bad enough to reach it, so this price is not the chance of being paid.</p></div>`;
+      if (a.scenarios.length) {
+        h += `<div class="finding"><h4>Net per acre in each year you described (indemnity minus premium)</h4>${table(["Year (chance)", ...a.levels.map((l) => l.level + "%")], a.scenarios.map((s, i) => [esc(s.label) + " (" + s.probability + "%): " + s.yield + " bu at $" + s.harvestPrice, ...a.levels.map((l) => money2(l.outcomes[i].net))]))}</div>`;
+        h += `<div class="finding"><h4>Across those years</h4>${table(["Coverage", "Expected indemnity", "Expected net", "Worst-year net"], a.levels.map((l) => [l.level + "%", money2(l.expectedIndemnity), money2(l.expectedNet), money2(l.worstNet)]))}<p>${a.best ? `With your chances, the level with the best expected net is <strong>${a.best.level}%</strong> at ${money2(a.best.expectedNet)} an acre. That says nothing about the best level for your farm: the answer is only as good as the years and chances you typed, and a higher level also lifts the floor in the years you fear.` : ""}</p></div>`;
+      }
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../shift-roster-builder/" data-pf-to="shift-roster-builder">Shift Roster Builder — free, private, in your browser</a></li>
+      <li><a href="../shift-rotation-schedule-generator/" data-pf-to="shift-rotation-schedule-generator">Rotating shift schedule to calendar, in your browser</a></li>
+      <li><a href="../supplier-price-creep-checker/" data-pf-to="supplier-price-creep-checker">Find the supplier price creep hiding in your invoices — free, private</a></li>
+      <li><a href="../time-off-request-planner/" data-pf-to="time-off-request-planner">Time-Off Request Planner — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=crop-insurance-coverage-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/?pfEmbed=1&quot; title=&quot;Is 85% crop insurance worth it over 80%? Free coverage level calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="crop-insurance-coverage-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/" data-pf-embed-title="Is 85% crop insurance worth it over 80%? Free coverage level calculator" data-pf-embed-slug="crop-insurance-coverage-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="crop-insurance-coverage-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="crop-insurance-coverage-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

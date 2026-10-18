@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Should You Sell a Bulk Lot Whole or Split It? The Math</title>
+  <meta name="description" content="How to decide between a whole-lot offer and listing a bulk lot item by item: net per line after fees, shipping and your time…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/should-i-sell-a-bulk-lot-whole-or-split-it.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I always list every item?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each line should be listed only if it nets more than selling it on in bulk, after the marketplace fee, shipping and the value of your time. Low-priced, bulky or slow-selling lines usually fail that test."}}, {"@type": "Question", "name": "How do I value my own time?", "acceptedAnswer": {"@type": "Answer", "text": "Use what you would earn doing something else with the hour, or the rate you would pay someone to do the listing. The calculator also shows the hourly rate at which the whole-lot offer ties your best split."}}, {"@type": "Question", "name": "What if I do not know the sell-through?", "acceptedAnswer": {"@type": "Answer", "text": "Use a conservative guess and check the stress test: the tool re-runs the answer with sell-through cut to a lower share of your estimate, so you can see whether the decision survives a bad month."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/should-i-sell-a-bulk-lot-whole-or-split-it.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Should You Sell a Bulk Lot Whole or Split It? The Math">
+<meta property="og:description" content="How to decide between a whole-lot offer and listing a bulk lot item by item: net per line after fees, shipping and your time…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should You Sell a Bulk Lot Whole or Split It? The Math — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../lot-split-calculator/">Sell the lot whole or split it?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should You Sell a Bulk Lot Whole or Split It? The Math</span></span></nav>
+  <p class="note"><a href="./">Lot Split Calculator</a> · guide</p>
+  <h1>Should you sell a bulk lot whole or split it? The math</h1>
+  <p>Short answer: <strong>list the lines that net more than a bulk sale after fees, shipping and your time, sell the rest on in bulk, and compare that total with the whole-lot offer</strong>. Listing everything is usually worse than listing the right things, and sometimes worse than the offer.</p>
+
+  <h2>A worked example</h2>
+  <p>A lot holds six Pyrex bowls and ten cases of mason jars. Marketplace fee is 13%, unsold or bulk units fetch 20% of price, and your time is worth $15 an hour. A buyer offers $60 for everything.</p>
+  <ul>
+    <li>Pyrex bowls: 6 at $28, 85% sell-through, $9 shipping, 12 minutes each. Listed they net $65.38; sold in bulk, $33.60. List them.</li>
+    <li>Mason jars: 10 at $4, 95% sell-through, $6 shipping, 3 minutes each. Listed they net &minus;$31.04, because shipping and time exceed the sale; in bulk they bring $8.00. Sell them on.</li>
+  </ul>
+  <p>The best mix is $65.38 + $8.00 = $73.38, which beats the $60 offer by $13.38. Listing everything nets only $34.34, which is $25.66 <em>less</em> than the offer. The <a href="./">Lot Split Calculator</a> runs this on any list, with the stress test and the break-even rate.</p>
+
+  <h2>How the answer is found</h2>
+  <ol>
+    <li>Each line gets two values: listed (sold units net of fee and shipping, unsold units at the bulk percentage, less your hours) and dumped (the bulk percentage of price, no time).</li>
+    <li>Lines do not interact, so the best mix is the larger value on every line. The tests check this against every possible list-or-bulk combination.</li>
+    <li>The total is compared with the offer, re-run with lower sell-through, and re-solved across hourly rates to find where the offer starts to win.</li>
+  </ol>
+
+  <h2>Know the break-even hour</h2>
+  <p>The rate at which your time makes the offer and the split tie is the number to argue with. If an hour of your time is worth more than that, take the offer and move on; below it, splitting pays you for the work.</p>
+
+  <h2>Questions</h2>
+  <h3>Should I always list every item?</h3>
+  <p>No. Each line should be listed only if it nets more than selling it on in bulk, after the marketplace fee, shipping and the value of your time. Low-priced, bulky or slow-selling lines usually fail that test.</p>
+  <h3>How do I value my own time?</h3>
+  <p>Use what you would earn doing something else with the hour, or the rate you would pay someone to do the listing. The calculator also shows the hourly rate at which the whole-lot offer ties your best split.</p>
+  <h3>What if I do not know the sell-through?</h3>
+  <p>Use a conservative guess and check the stress test: the tool re-runs the answer with sell-through cut to a lower share of your estimate, so you can see whether the decision survives a bad month.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for the terms of any lot you buy or sell. The worked example is illustrative arithmetic, not a forecast of what you will sell for.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ad-incrementality-test-analyzer/" data-pf-to="ad-incrementality-test-analyzer">Ad Incrementality Test Analyzer — free, private, in your browser</a></li>
+      <li><a href="../ad-spend-saturation-optimizer/" data-pf-to="ad-spend-saturation-optimizer">Ad Spend Saturation Optimizer — free, private, in your browser</a></li>
+      <li><a href="../adu-payback-calculator/" data-pf-to="adu-payback-calculator">ADU Payback Calculator — free, private, in your browser</a></li>
+      <li><a href="../agent-brokerage-split-calculator/" data-pf-to="agent-brokerage-split-calculator">Real Estate Brokerage Split Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=lot-split-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="lot-split-calculator"></script>
+</body>
+</html>

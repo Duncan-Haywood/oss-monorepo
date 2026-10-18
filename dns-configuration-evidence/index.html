@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNS Change Evidence — Free Before/After DNS Record Report</title>
+  <meta name="description" content="Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not…">
+  <meta property="og:title" content="DNS Change Evidence — prove what a DNS change actually did">
+  <meta property="og:description" content="Snapshot a domain across Cloudflare, Google and Quad9, then compare before and after. Changed, unchanged and inconclusive are reported separately.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"DNS Change Evidence","applicationCategory":"DeveloperApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser-based DNS observation recorder that captures what public resolvers answer for a domain and compares two captures into a change-evidence report."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What problem does this solve?","acceptedAnswer":{"@type":"Answer","text":"After a nameserver move, a mail provider switch, or a TXT record edit, somebody has to be able to say what actually changed. Screenshots of a DNS panel show intent, not effect, and a green tick from a monitoring tool shows the current state without the state it replaced. This captures what named public resolvers answered before the change and again after it, and reports the difference as a record you can keep or hand to a customer."}},{"@type":"Question","name":"Does my domain list leave my browser?","acceptedAnswer":{"@type":"Answer","text":"There is no account, no server of ours, and no analytics vendor. The DNS lookups are made by your own browser directly to the public DNS-over-HTTPS endpoints you tick — Cloudflare, Google and Quad9 — exactly as any web request from your machine would be. Those resolvers see the query, as they would if you simply visited the domain. Nothing is sent to us, because there is nothing of ours in the path. Snapshots stay in your browser until you download them."}},{"@type":"Question","name":"Why does it report 'inconclusive' instead of 'no change'?","acceptedAnswer":{"@type":"Answer","text":"Because they are different claims, and conflating them is how an evidence tool becomes worthless. If a resolver timed out, refused the query, or was not asked the same question in both captures, the honest statement is that nothing was observed — not that nothing changed. Inconclusive findings are counted and listed separately, and they are never folded into the unchanged total."}},{"@type":"Question","name":"Is this a DNS monitoring or security tool?","acceptedAnswer":{"@type":"Answer","text":"No. It does not write records, send mail, test uptime, watch continuously, or judge whether a configuration is correct or secure. It records what specific resolvers answered at two moments and states the difference. Deciding whether a difference matters is the operator's job."}},{"@type":"Question","name":"Why query three resolvers instead of one?","acceptedAnswer":{"@type":"Answer","text":"Propagation is the usual reason a DNS change looks done to one person and not to another. Recording each resolver separately makes that visible: a change that has landed at Cloudflare and not yet at Google shows as changed on one row and unchanged on another, which is the actual situation rather than an average of it."}},{"@type":"Question","name":"Can I use this with the command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes. The snapshot JSON this page downloads is the same schema the Python package in the repository reads, so a baseline captured here can be compared with python3 -m dns_evidence compare, and a snapshot captured by the CLI can be loaded here as the 'before'. The two produce the same report."}},{"@type":"Question","name":"Why does a CNAME'd name show no A record?","acceptedAnswer":{"@type":"Answer","text":"Only the record type you asked for is recorded, so a CNAME in the resolution chain is never written down as if it were the A record. Query CNAME on that name to see the chain itself."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#1b2027; --muted:#5c6672; --paper:#f4f2ee; --card:#fffefb; --accent:#1f6f5c; --line:#dcd7cd; --changed:#a33a1f; --unchanged:#1f6f5c; --unknown:#7a6420; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; } main { max-width:940px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:760px; font:700 clamp(2.1rem,5.5vw,4rem)/1.0 Georgia,serif; letter-spacing:-.03em; margin:0 0 14px; } h2 { font:700 1.45rem Georgia,serif; margin:0 0 6px; } h3 { font:700 1.05rem Georgia,serif; margin:22px 0 4px; }
+    .intro { max-width:680px; color:var(--muted); font-size:1.1rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:680px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #2a231812; }
+    .step { color:var(--muted); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:4px; }
+    label { display:block; font-weight:600; margin:14px 0 4px; } label.inline { display:flex; gap:9px; align-items:flex-start; font-weight:400; margin:8px 0; }
+    input[type=text], textarea { width:100%; padding:11px 12px; border:1px solid #bdb6aa; border-radius:8px; font:inherit; color:var(--ink); background:#fff; }
+    textarea { min-height:132px; resize:vertical; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92rem; }
+    button { border:0; border-radius:8px; padding:12px 16px; font:inherit; font-weight:700; cursor:pointer; background:var(--ink); color:#fff; }
+    button.secondary { background:#e6e1d6; color:var(--ink); } button:disabled { opacity:.45; cursor:not-allowed; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; align-items:center; }
+    .bar { height:8px; border-radius:99px; background:#e6e1d6; overflow:hidden; margin-top:10px; } .bar span { display:block; height:100%; background:var(--accent); transition:width .18s ease; }
+    .tablewrap { overflow-x:auto; margin-top:12px; } table { border-collapse:collapse; width:100%; font-size:.92rem; min-width:620px; }
+    th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; } th { font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+    td code { font-size:.88rem; word-break:break-all; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:99px; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .pill.changed { background:#f6e3dd; color:var(--changed); } .pill.unchanged { background:#dfeee9; color:var(--unchanged); } .pill.inconclusive { background:#f4ecd4; color:var(--unknown); }
+    .counts { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 0; padding:0; list-style:none; }
+    .counts li { background:#efece4; border-radius:10px; padding:9px 14px; font-weight:700; } .counts li span { display:block; font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+    .slot { border:1px dashed var(--line); border-radius:10px; padding:14px; margin-top:10px; background:#fbfaf6; }
+    .slot.filled { border-style:solid; border-color:var(--accent); }
+    .note { color:var(--muted); font-size:.92rem; } .privacy { font-size:.9rem; color:var(--muted); }
+    .msg { margin-top:12px; padding:11px 14px; border-radius:9px; font-size:.94rem; }
+    .msg.error { background:#f6e3dd; color:var(--changed); } .msg.ok { background:#dfeee9; color:var(--unchanged); }
+    .empty { color:var(--muted); font-style:italic; }
+    footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    details { margin-top:10px; } summary { cursor:pointer; font-weight:600; }
+    [hidden] { display:none !important; }
+    @media(max-width:640px) { .card { padding:17px; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"DNS Change Evidence — prove what a DNS change actually did","item":"https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DNS Change Evidence — prove what a DNS change actually did — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">DNS Change Evidence — prove what a DNS change actually did</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section><main>
+  <h1>What did that DNS change actually do?</h1>
+  <p class="intro">Capture what public resolvers answer for a customer domain now, make your change, then capture again. You get a dated, source-linked record of what changed, what did not, and what could not be observed at all.</p>
+  <p class="value"><strong>After using this, you can now</strong> hand a customer evidence that a nameserver move or a mail cutover did what you said it would — instead of a screenshot of a control panel, which shows what you asked for rather than what the internet answers.</p>
+  <p class="note">Free, no account, no server of ours. The lookups are made by your own browser over DNS-over-HTTPS.</p>
+
+  <!-- Step 1 -->
+  <section class="card" aria-labelledby="h-capture">
+    <span class="step">Step 1</span>
+    <h2 id="h-capture">Capture a snapshot</h2>
+    <p class="note">Run this once before your change, and again after it.</p>
+
+    <label for="domain">Customer domain</label>
+    <input type="text" id="domain" placeholder="example.com" autocomplete="off" spellcheck="false"
+           aria-describedby="domain-help">
+    <p id="domain-help" class="note">Every name queried must sit inside this domain. That scope is the tool’s authorization boundary.</p>
+
+    <label class="inline" for="authorized">
+      <input type="checkbox" id="authorized">
+      <span>I am authorized by the domain’s owner to query these records. <span class="note">Public DNS is readable by anyone, but the record this produces is customer evidence — this confirms you are entitled to make it.</span></span>
+    </label>
+
+    <label for="records">Records to observe <span class="note">— one per line, as <code>name TYPE</code>. Use <code>@</code> for the domain itself.</span></label>
+    <textarea id="records" spellcheck="false" aria-describedby="records-help">@ A
+@ AAAA
+@ MX
+@ TXT
+@ NS
+@ CAA
+www A
+www CNAME
+_dmarc TXT</textarea>
+    <p id="records-help" class="note">Supported types: A, AAAA, CNAME, MX, NS, TXT, SOA, CAA, SRV, PTR.</p>
+
+    <fieldset style="border:1px solid var(--line); border-radius:9px; padding:10px 14px; margin:16px 0 0;">
+      <legend style="font-weight:600; padding:0 6px;">Resolvers</legend>
+      <p class="note" style="margin:4px 0 0;">Each is recorded separately, so partial propagation is visible rather than averaged away.</p>
+      <div id="resolvers"></div>
+    </fieldset>
+
+    <div class="actions">
+      <button id="capture" type="button">Capture snapshot</button>
+      <button id="sample" class="secondary" type="button">Load an example</button>
+    </div>
+    <div class="bar" id="progress-bar" hidden><span style="width:0%"></span></div>
+    <p class="note" id="progress" role="status" aria-live="polite"></p>
+    <div id="capture-msg"></div>
+
+    <div id="capture-result" hidden>
+      <h3>Latest capture</h3>
+      <p class="note" id="capture-summary"></p>
+      <div class="tablewrap"><div class="pf-table-scroll"><table id="capture-table">
+        <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Resolver</th><th scope="col">Answer</th></tr></thead>
+        <tbody></tbody>
+      </table></div></div>
+      <div class="actions">
+        <button id="save-baseline" class="secondary" type="button">Save as “before” baseline</button>
+        <button id="download-snapshot" class="secondary" type="button">Download snapshot JSON</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="card" aria-labelledby="h-compare">
+    <span class="step">Step 2</span>
+    <h2 id="h-compare">Compare before and after</h2>
+    <p class="note">The “after” is your latest capture above. Give it a “before” to compare against.</p>
+
+    <div class="slot" id="before-slot">
+      <strong>Before</strong>
+      <p class="note" id="before-state">Nothing loaded yet.</p>
+      <div class="actions">
+        <button id="use-baseline" class="secondary" type="button">Use saved baseline</button>
+        <label for="before-file" style="margin:0;">
+          <button id="before-file-btn" class="secondary" type="button">Load snapshot file…</button>
+        </label>
+        <input type="file" id="before-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+
+    <div class="slot" id="after-slot">
+      <strong>After</strong>
+      <p class="note" id="after-state">Nothing captured yet.</p>
+    </div>
+
+    <div class="actions"><button id="compare" type="button" disabled>Build evidence report</button></div>
+    <div id="compare-msg"></div>
+
+    <div id="report" hidden>
+      <h3>Evidence report</h3>
+      <ul class="counts" id="counts"></ul>
+      <div class="tablewrap"><div class="pf-table-scroll"><table id="report-table">
+        <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Resolver</th><th scope="col">Result</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+        <tbody></tbody>
+      </table></div></div>
+      <div class="actions">
+        <button id="copy-md" type="button">Copy report as Markdown</button>
+        <button id="download-report" class="secondary" type="button">Download report JSON</button>
+      </div>
+      <div id="copy-msg"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not do</h2>
+    <p class="note">It does not write DNS records, send mail, test uptime, monitor continuously, or judge whether a configuration is correct, secure, or deliverable. It records what named resolvers answered at two moments and states the difference between them. Whether a difference matters is your call.</p>
+    <p class="note"><strong>Inconclusive is not “no change”.</strong> A timeout, a refusal, or a query asked in only one of the two captures is reported as inconclusive and counted separately. It is never folded into the unchanged total.</p>
+    <p class="privacy"><label class="inline" for="usage"><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label></p>
+  </section>
+
+  <!--
+    These questions and answers are duplicated verbatim in the FAQPage JSON-LD
+    in the document head, in this order. `platform/pages/faq-visible.test.mjs`
+    pins that: structured data a visitor cannot see on the page is a claim made
+    only to a search engine. Edit both halves together.
+  -->
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What problem does this solve?</h3>
+    <p class="note">After a nameserver move, a mail provider switch, or a TXT record edit, somebody has to be able to say what actually changed. Screenshots of a DNS panel show intent, not effect, and a green tick from a monitoring tool shows the current state without the state it replaced. This captures what named public resolvers answered before the change and again after it, and reports the difference as a record you can keep or hand to a customer.</p>
+    <h3>Does my domain list leave my browser?</h3>
+    <p class="note">There is no account, no server of ours, and no analytics vendor. The DNS lookups are made by your own browser directly to the public DNS-over-HTTPS endpoints you tick — Cloudflare, Google and Quad9 — exactly as any web request from your machine would be. Those resolvers see the query, as they would if you simply visited the domain. Nothing is sent to us, because there is nothing of ours in the path. Snapshots stay in your browser until you download them.</p>
+    <h3>Why does it report 'inconclusive' instead of 'no change'?</h3>
+    <p class="note">Because they are different claims, and conflating them is how an evidence tool becomes worthless. If a resolver timed out, refused the query, or was not asked the same question in both captures, the honest statement is that nothing was observed — not that nothing changed. Inconclusive findings are counted and listed separately, and they are never folded into the unchanged total.</p>
+    <h3>Is this a DNS monitoring or security tool?</h3>
+    <p class="note">No. It does not write records, send mail, test uptime, watch continuously, or judge whether a configuration is correct or secure. It records what specific resolvers answered at two moments and states the difference. Deciding whether a difference matters is the operator's job.</p>
+    <h3>Why query three resolvers instead of one?</h3>
+    <p class="note">Propagation is the usual reason a DNS change looks done to one person and not to another. Recording each resolver separately makes that visible: a change that has landed at Cloudflare and not yet at Google shows as changed on one row and unchanged on another, which is the actual situation rather than an average of it.</p>
+    <h3>Can I use this with the command-line version?</h3>
+    <p class="note">Yes. The snapshot JSON this page downloads is the same schema the Python package in the repository reads, so a baseline captured here can be compared with <code>python3 -m dns_evidence compare</code>, and a snapshot captured by the CLI can be loaded here as the 'before'. The two produce the same report.</p>
+    <h3>Why does a CNAME'd name show no A record?</h3>
+    <p class="note">Only the record type you asked for is recorded, so a CNAME in the resolution chain is never written down as if it were the A record. Query CNAME on that name to see the chain itself.</p>
+    <p class="note">Still waiting on a change to land? <a href="how-long-does-dns-propagation-take.html">How long does DNS propagation take?</a> covers what actually sets the wait, and how to plan a cutover around it.</p>
+    <p class="note">Wondering how this compares to a global propagation checker like whatsmydns.net? See <a href="vs-whatsmydns.html">this tool vs. whatsmydns.net</a>.</p>
+    <details>
+      <summary>One caveat when mixing the browser and the CLI</summary>
+      <p class="note">The CLI queries resolvers directly over the DNS protocol; this page goes through DNS-over-HTTPS, and those endpoints present record text with small cosmetic differences (trailing dots, TXT quoting). This page normalises what it receives, so two captures made <em>here</em> always compare cleanly. Mixing a CLI capture with a browser capture can show a cosmetic “changed” on a record that did not really move. Capture both halves the same way and the question does not arise.</p>
+    </details>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is an operational observation record, not a DNS, security, deliverability, or compliance authority, and it is not legal or professional advice. It does not establish global DNS truth — only what the resolvers you selected answered at the moments you ran it. You are responsible for confirming your authorization to query a domain, for reviewing the record before relying on or sharing it, and for deciding whether any difference needs action. The authors accept no liability for loss or damage arising from its use.<p class="support">Free and open source. If it confirmed a DNS change went where you expected, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p><p>Keeping the same kind of record for backups? The <a href="../backup-verification-evidence/">backup verification evidence tool</a> reads run records in your browser and shows whether last night's archive shrank or a verified job quietly got worse.</p><p>Checking a specific set of DNS records rather than diffing a change over time? The <a href="../email-auth-check/">email authentication checker</a> reads a domain's SPF, DKIM, DMARC, and BIMI records and reports what each one means for spoofing and deliverability — a point-in-time evidence read of one specific record family, next to this tool's before/after diff of whatever records you name.</p></footer>
+</main>
+<script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'dns-configuration-evidence-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { RESOLVERS, buildReport, captureSnapshot, markdownReport, validateSnapshot } from './dns-evidence.mjs';
+
+  const $ = (id) => document.getElementById(id);
+  const BASELINE_KEY = 'dns-evidence:baseline';
+  const USAGE_KEY = 'dns-evidence:usage';
+
+  let latest = null;   // the most recent capture — the "after"
+  let before = null;   // the loaded baseline — the "before"
+  let report = null;
+
+  // --- usage counting: local, opt-in, off by default, and never about people
+  const track = (event) => {
+    if (!$('usage').checked || navigator.doNotTrack === '1' || navigator.globalPrivacyControl) return;
+    try {
+      const data = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
+      data[event] = (data[event] || 0) + 1;
+      localStorage.setItem(USAGE_KEY, JSON.stringify(data));
+    } catch { /* private mode, quota, disabled storage — counting is never worth an error */ }
+  };
+
+  const say = (target, text, kind = 'error') => {
+    $(target).innerHTML = text ? `<p class="msg ${kind}"></p>` : '';
+    if (text) $(target).firstChild.textContent = text;
+  };
+
+  // --- resolver checkboxes
+  for (const resolver of RESOLVERS) {
+    const label = document.createElement('label');
+    label.className = 'inline';
+    label.innerHTML = '<input type="checkbox" checked>';
+    label.append(` ${resolver.label}`);
+    label.firstChild.value = resolver.id;
+    label.firstChild.id = `r-${resolver.id}`;
+    $('resolvers').append(label);
+  }
+  const chosenResolvers = () => RESOLVERS.filter((r) => $(`r-${r.id}`).checked);
+
+  /**
+   * Turn the textarea into a query list.
+   *
+   * `@` and a bare label are both expanded against the domain, because typing
+   * the domain again on every line is the kind of friction that makes someone
+   * check three records instead of nine.
+   */
+  const parseQueries = (text, domain) => {
+    const queries = [];
+    const seen = new Set();
+    text.split('\n').forEach((raw, index) => {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) return;
+      const parts = line.split(/\s+/);
+      if (parts.length < 2) throw new Error(`Line ${index + 1}: write it as "name TYPE", for example "@ MX".`);
+      const [rawName, rawType] = parts;
+      const type = rawType.toUpperCase();
+      if (!Object.prototype.hasOwnProperty.call(TYPES, type)) {
+        throw new Error(`Line ${index + 1}: "${rawType}" is not a record type this tool queries.`);
+      }
+      const name = rawName === '@' ? domain
+        : rawName.includes('.') ? rawName.replace(/\.$/, '')
+        : `${rawName}.${domain}`;
+      const key = `${name.toLowerCase()} ${type}`;
+      if (seen.has(key)) return; // a duplicate line would break snapshot validation
+      seen.add(key);
+      queries.push({ name: name.toLowerCase(), type });
+    });
+    if (!queries.length) throw new Error('Add at least one record to observe.');
+    return queries;
+  };
+  const TYPES = { A: 1, AAAA: 1, CNAME: 1, MX: 1, NS: 1, TXT: 1, SOA: 1, CAA: 1, SRV: 1, PTR: 1 };
+
+  /** DNS answer text is arbitrary remote data, so it only ever reaches the DOM
+   *  through textContent — never through innerHTML. */
+  const codeCell = (row, value) => {
+    const code = document.createElement('code');
+    code.textContent = value;
+    row.insertCell().append(code);
+  };
+
+  const renderCapture = () => {
+    const body = $('capture-table').querySelector('tbody');
+    body.textContent = '';
+    for (const o of latest.observations) {
+      const row = body.insertRow();
+      codeCell(row, o.name);
+      row.insertCell().textContent = o.type;
+      row.insertCell().textContent = o.resolver;
+      const cell = row.insertCell();
+      if (o.status) {
+        const pill = document.createElement('span');
+        pill.className = 'pill inconclusive';
+        pill.textContent = o.status;
+        cell.append(pill);
+      } else if (!o.answers.length) {
+        cell.innerHTML = '<span class="empty">no records</span>';
+      } else {
+        for (const answer of o.answers) {
+          const code = document.createElement('code');
+          code.textContent = answer;
+          cell.append(code, document.createElement('br'));
+        }
+      }
+    }
+    const unresolved = latest.observations.filter((o) => o.status).length;
+    $('capture-summary').textContent =
+      `${latest.observations.length} observations of ${latest.domain} at ${latest.captured_at}` +
+      (unresolved ? ` — ${unresolved} could not be observed.` : '.');
+    $('capture-result').hidden = false;
+    $('after-state').textContent = `Latest capture — ${latest.observations.length} observations at ${latest.captured_at}.`;
+    $('after-slot').classList.add('filled');
+    refreshCompareButton();
+  };
+
+  const refreshCompareButton = () => { $('compare').disabled = !(before && latest); };
+
+  const loadBefore = (snapshot, source) => {
+    before = validateSnapshot(snapshot);
+    $('before-state').textContent =
+      `${source} — ${before.observations.length} observations of ${before.domain}` +
+      (before.captured_at ? ` at ${before.captured_at}.` : '.');
+    $('before-slot').classList.add('filled');
+    say('compare-msg', '');
+    refreshCompareButton();
+  };
+
+  $('capture').addEventListener('click', async () => {
+    say('capture-msg', '');
+    const domain = $('domain').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\.$/, '');
+    try {
+      if (!domain) throw new Error('Enter the customer domain first.');
+      if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(domain)) throw new Error(`"${domain}" does not look like a domain name.`);
+      if (!$('authorized').checked) throw new Error('Confirm you are authorized to query this domain.');
+      const resolvers = chosenResolvers();
+      if (!resolvers.length) throw new Error('Choose at least one resolver.');
+      const queries = parseQueries($('records').value, domain);
+
+      $('capture').disabled = true;
+      $('progress-bar').hidden = false;
+      $('progress').textContent = `Querying 0 of ${queries.length * resolvers.length}…`;
+      track('capture_started');
+
+      latest = await captureSnapshot({ authorized: true, domain, queries, resolvers }, {
+        onProgress: (done, total) => {
+          $('progress').textContent = `Querying ${done} of ${total}…`;
+          $('progress-bar').firstElementChild.style.width = `${Math.round((done / total) * 100)}%`;
+        },
+      });
+      $('progress').textContent = '';
+      $('progress-bar').hidden = true;
+      renderCapture();
+      track('capture_completed');
+      const unresolved = latest.observations.filter((o) => o.status).length;
+      if (unresolved === latest.observations.length) {
+        say('capture-msg', 'No resolver answered. Check the domain, your network, and whether a filter is blocking DNS-over-HTTPS.', 'error');
+      } else {
+        say('capture-msg', 'Capture complete. Save it as your baseline before making the change.', 'ok');
+      }
+    } catch (error) {
+      $('progress').textContent = '';
+      $('progress-bar').hidden = true;
+      say('capture-msg', error.message);
+    } finally {
+      $('capture').disabled = false;
+    }
+  });
+
+  $('sample').addEventListener('click', () => {
+    // A domain with stable, well-known records, so a first run shows real
+    // output rather than asking the visitor to trust an empty screen.
+    $('domain').value = 'wikipedia.org';
+    $('authorized').checked = true;
+    $('records').value = '@ A\n@ AAAA\n@ MX\n@ NS\n@ TXT\nwww CNAME';
+    say('capture-msg', 'Example loaded — press “Capture snapshot”. Public records on a domain that publishes them.', 'ok');
+    track('sample_loaded');
+  });
+
+  $('save-baseline').addEventListener('click', () => {
+    try {
+      localStorage.setItem(BASELINE_KEY, JSON.stringify(latest));
+      say('capture-msg', 'Saved to this browser as the “before” baseline. Come back after your change and capture again.', 'ok');
+      track('baseline_saved');
+    } catch {
+      say('capture-msg', 'This browser would not store the baseline. Download the snapshot JSON instead — it works the same way.', 'error');
+    }
+  });
+
+  const download = (name, text, type = 'application/json') => {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const link = document.createElement('a');
+    link.href = url; link.download = name;
+    document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
+
+  $('download-snapshot').addEventListener('click', () => {
+    download(`dns-snapshot-${latest.domain}-${latest.captured_at.replace(/[:]/g, '')}.json`, JSON.stringify(latest, null, 2));
+    track('snapshot_downloaded');
+  });
+
+  $('use-baseline').addEventListener('click', () => {
+    try {
+      const stored = localStorage.getItem(BASELINE_KEY);
+      if (!stored) return say('compare-msg', 'No baseline saved in this browser yet. Capture one and press “Save as before baseline”.');
+      loadBefore(JSON.parse(stored), 'Saved baseline');
+    } catch (error) {
+      say('compare-msg', `That baseline could not be read: ${error.message}`);
+    }
+  });
+
+  $('before-file-btn').addEventListener('click', () => $('before-file').click());
+  $('before-file').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      loadBefore(JSON.parse(await file.text()), file.name);
+      track('baseline_file_loaded');
+    } catch (error) {
+      say('compare-msg', `That file is not a snapshot this tool can compare: ${error.message}`);
+    } finally {
+      event.target.value = '';
+    }
+  });
+
+  $('compare').addEventListener('click', () => {
+    say('compare-msg', ''); say('copy-msg', '');
+    try {
+      report = buildReport(before, latest);
+      const counts = $('counts');
+      counts.textContent = '';
+      for (const key of ['changed', 'unchanged', 'inconclusive']) {
+        const item = document.createElement('li');
+        item.textContent = report.finding_counts[key] || 0;
+        const caption = document.createElement('span');
+        caption.textContent = key;
+        item.prepend(caption);
+        counts.append(item);
+      }
+      const body = $('report-table').querySelector('tbody');
+      body.textContent = '';
+      for (const finding of report.findings) {
+        const row = body.insertRow();
+        for (const value of [finding.name, finding.type, finding.resolver]) codeCell(row, value);
+        const result = row.insertCell();
+        const pill = document.createElement('span');
+        pill.className = `pill ${finding.status}`;
+        pill.textContent = finding.status;
+        result.append(pill);
+        for (const [answers, status] of [[finding.before_answers, finding.before_status], [finding.after_answers, finding.after_status]]) {
+          const cell = row.insertCell();
+          if (answers === null) {
+            const note = document.createElement('span');
+            note.className = 'empty';
+            note.textContent = `${status} (not observed)`;
+            cell.append(note);
+            continue;
+          }
+          if (!answers.length) { cell.innerHTML = '<span class="empty">no records</span>'; continue; }
+          for (const answer of answers) {
+            const code = document.createElement('code');
+            code.textContent = answer;
+            cell.append(code, document.createElement('br'));
+          }
+        }
+      }
+      $('report').hidden = false;
+      track('report_built');
+    } catch (error) {
+      $('report').hidden = true;
+      say('compare-msg', error.message);
+    }
+  });
+
+  $('copy-md').addEventListener('click', async () => {
+    const text = markdownReport(report);
+    try {
+      await navigator.clipboard.writeText(text);
+      say('copy-msg', 'Markdown copied. Paste it into your ticket, handover note, or customer email.', 'ok');
+    } catch {
+      // Clipboard is blocked without a user gesture in some embeds; a download
+      // is the fallback that always works rather than a dead button.
+      download(`dns-evidence-${report.domain}.md`, text, 'text/markdown');
+      say('copy-msg', 'Clipboard is blocked here, so the Markdown was downloaded instead.', 'ok');
+    }
+    track('report_copied');
+  });
+
+  $('download-report').addEventListener('click', () => {
+    download(`dns-evidence-${report.domain}-${report.generated_at.replace(/[:]/g, '')}.json`, JSON.stringify(report, null, 2));
+    track('report_downloaded');
+  });
+
+  // Offer the saved baseline up front, so a returning user's second visit —
+  // the one that matters — starts already half set up.
+  try {
+    const stored = localStorage.getItem(BASELINE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      $('before-state').textContent = `A saved baseline for ${parsed.domain} is in this browser. Press “Use saved baseline”.`;
+      if (!$('domain').value) $('domain').value = parsed.domain;
+    }
+  } catch { /* nothing saved, or storage unavailable */ }
+
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, dns.google, and dns.quad9.net:5053, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mailchimp-audience-csv-check/" data-pf-to="mailchimp-audience-csv-check">Mailchimp Audience CSV Check — free, private, in your browser</a></li>
+      <li><a href="../mcp-supply-chain-watch/" data-pf-to="mcp-supply-chain-watch">MCP Supply-Chain Watch — compare MCP tool manifests for drift</a></li>
+      <li><a href="../mechanics-lien-deadline-calculator/" data-pf-to="mechanics-lien-deadline-calculator">Mechanics Lien Deadline Calculator — free, 5 states</a></li>
+      <li><a href="../meta-catalog-csv-check/" data-pf-to="meta-catalog-csv-check">Meta Catalog CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dns-configuration-evidence">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/?pfEmbed=1&quot; title=&quot;DNS Change Evidence — prove what a DNS change actually did — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="dns-configuration-evidence"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/" data-pf-embed-title="DNS Change Evidence — prove what a DNS change actually did" data-pf-embed-slug="dns-configuration-evidence"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="dns-configuration-evidence" data-pf-jobs-amount=""></script>
+</body>
+</html>

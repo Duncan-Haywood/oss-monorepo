@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer free shipping on eBay? | Buyer-pays vs bake-in after sell-through</title>
+  <meta name="description" content="Compare eBay free shipping with charging the buyer. See whether baking postage into the list still leaves the same leftover…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/should-i-offer-free-shipping-on-ebay.html">
+  <meta property="og:title" content="Should I offer free shipping on eBay?">
+  <meta property="og:description" content="See whether a $46 free-ship list still beats $40 plus $6 shipping after a typed sell-through lift — and when leaving the list at $40 loses.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay free shipping vs buyer-pays",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "free shipping vs buyer-pays after sell-through, sell-through that ties buyer-pays, free-ship list that ties buyer-pays leftover, bake-in leftover versus under-bake, expected listing profit after returns, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer free shipping on eBay?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $9.96 and baked-in free shipping expects $12.68. Free shipping keeps $2.72 more. Leave the list at $40 and free shipping expects $9.41 — $0.55 less. That is arithmetic on your inputs, not advice to offer free shipping."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does eBay charge final-value fee on shipping?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.11 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if I offer free shipping and leave the list at $40?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.44. At 70% sell-through that listing expects $9.41 against $9.96 for buyer-pays — $0.55 less. Free shipping then has to convert about 74.1% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $41.01."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/should-i-offer-free-shipping-on-ebay.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I offer free shipping on eBay? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebay-fee-calculator/">eBay Fee &amp; Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I offer free shipping on eBay?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether free shipping still beats charging the buyer.</h1>
+    <p>
+      Free shipping is not the same decision as local pickup or
+      combined shipping. Pickup skips the label. Combined shipping
+      is two already-sold items. Here the item still ships. On
+      eBay, baking the exact shipping charged into the list leaves
+      the same leftover per completed sale. A 15-point sell-through
+      lift on that $46 list keeps $2.72 more. Leaving the list at
+      $40 loses $0.55.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Listing and free-shipping list</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6" inputmode="decimal"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12" inputmode="decimal"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+        <label>Free-shipping list price <input id="freeShipPrice" type="number" min="0" step="0.01" value="46" inputmode="decimal"></label>
+        <label>Buyer-pays sell-through (%) <input id="buyerPaysSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+        <label>Free-shipping sell-through (%) <input id="freeShipSellThroughPct" type="number" min="0" max="100" step="1" value="70" inputmode="numeric"></label>
+        <label>Listings per month <input id="monthlyFreeShipListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Free shipping vs buyer-pays</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by free shipping versus buyer-pays</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Buyer-pays after sell-through</dt><dd id="buyerExpected"></dd>
+        <dt>Free shipping after sell-through</dt><dd id="freeExpected"></dd>
+        <dt>If they keep a buyer-pays sale</dt><dd id="buyerIfKeeps"></dd>
+        <dt>If they keep a free-ship sale</dt><dd id="freeIfKeeps"></dd>
+        <dt>Bake-in list</dt><dd id="bakeIn"></dd>
+        <dt>Sell-through that still ties buyer-pays</dt><dd id="breakEvenSt"></dd>
+        <dt>Free-ship list that still ties leftover</dt><dd id="breakEvenPrice"></dd>
+        <dt>Monthly gap vs buyer-pays</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, two postage paths</h2>
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Buyer pays</th>
+            <th scope="col">Close rate</th>
+            <th scope="col">If they keep it</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs buyer-pays</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table></div>
+      <p class="note">On eBay, folding the exact shipping charged into the item leaves the same leftover per completed sale. Rates are inputs — not eBay search ranking.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “should I offer free shipping on eBay”
+      because free-shipping badges look like a ranking cheat
+      until they leave the list at $40 and still buy the label.
+      On eBay, final-value fee sits on item plus shipping, so a
+      $46 free-ship list is cash-identical to $40 plus $6 on a
+      completed sale. Reverb is the opposite — marketplace fee
+      sits on the item only.
+    </p>
+    <p>
+      On the defaults — a $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1
+      pack, $5 return label, 10% returns, 55% buyer-pays
+      sell-through, 70% free-ship sell-through — buyer-pays
+      expects $9.96 and baked-in free shipping expects $12.68.
+      Free shipping keeps $2.72 more (+$2.72) on this listing
+      and +$108.66 across forty listings. Free shipping has to
+      convert about 55.0% of the time, or the free-ship list
+      has to stay at about $41.01, before it matches buyer-pays.
+    </p>
+    <p>
+      Leaving the list at $40 flips. Keep the 70% lift and still
+      buy the $5 label. Buyer-pays still expects $9.96; free
+      shipping expects $9.41 — $0.55 less. Sell-through then
+      has to reach about 74.1%. A $44 list still wins (+$1.63).
+      A 50% free-ship close rate on the baked-in $46 list
+      expects $9.05 — $0.91 less.
+    </p>
+    <p>
+      It does not tell you to offer free shipping, and it is
+      not tax or financial advice. Local pickup, combined
+      shipping, Standard Envelope, and a quantity discount are
+      different questions. Compare
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      <a href="should-i-offer-ebay-combined-shipping.html">combined shipping versus two labels</a>,
+      <a href="should-i-offer-an-ebay-quantity-discount.html">a quantity discount versus selling separately</a>,
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>,
+      <a href="should-i-offer-an-ebay-coupon.html">a seller coupon versus staying listed</a>,
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I offer free shipping on eBay?</h3>
+  <p>On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $9.96 and baked-in free shipping expects $12.68. Free shipping keeps $2.72 more. Leave the list at $40 and free shipping expects $9.41 — $0.55 less. That is arithmetic on your inputs, not advice to offer free shipping.</p>
+  <h3>Does eBay charge final-value fee on shipping?</h3>
+  <p>This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.11 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout.</p>
+  <h3>What if I offer free shipping and leave the list at $40?</h3>
+  <p>You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.44. At 70% sell-through that listing expects $9.41 against $9.96 for buyer-pays — $0.55 less. Free shipping then has to convert about 74.1% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $41.01.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from offering free shipping on a $40 list that still bought a $5 label, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareFreeShipping, freeShippingNote } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "fixedFee",
+      "costOfGoods", "shippingCost", "packagingCost", "returnShippingCost",
+      "returnRatePercent", "freeShipPrice", "buyerPaysSellThroughPct",
+      "freeShipSellThroughPct", "monthlyFreeShipListings",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareFreeShipping(readInput());
+        const extra = result.extraKeptOnFreeShip;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by free shipping versus buyer-pays" :
+          extra < 0 ? "free shipping keeps less than buyer-pays" :
+          "free shipping and buyer-pays keep the same";
+        document.getElementById("summary").textContent = freeShippingNote(result);
+        document.getElementById("buyerExpected").textContent = money(result.buyerPays.expectedProfit);
+        document.getElementById("freeExpected").textContent = money(result.freeShip.expectedProfit);
+        document.getElementById("buyerIfKeeps").textContent = money(result.buyerPays.soldExpectedProfit);
+        document.getElementById("freeIfKeeps").textContent = money(result.freeShip.soldExpectedProfit);
+        document.getElementById("bakeIn").textContent = money(result.bakeInPrice);
+        document.getElementById("breakEvenSt").textContent = Number.isFinite(result.breakEvenFreeShipSellThroughPct)
+          ? `${result.breakEvenFreeShipSellThroughPct.toFixed(1)}%`
+          : "none";
+        document.getElementById("breakEvenPrice").textContent = Number.isFinite(result.breakEvenFreeShipPrice)
+          ? money(result.breakEvenFreeShipPrice)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnFreeShip >= 0
+            ? `${money(result.monthlyExtraOnFreeShip)} more`
+            : `${money(-result.monthlyExtraOnFreeShip)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${row.sellThroughPct}%</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["buyerExpected", "freeExpected", "buyerIfKeeps", "freeIfKeeps", "bakeIn", "breakEvenSt", "breakEvenPrice", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "free_shipping_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebay-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebay-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ebay-fee-calculator" data-pf-jobs-amount="#profit"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ebay-fee-calculator" data-pf-link-amount="#profit"></script>
+</body>
+</html>

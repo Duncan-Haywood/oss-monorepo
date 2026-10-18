@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat day rate | Equipment Rental Break-Even Calculator</title>
+<meta name="description" content="Many small rental operators quote one flat day rate for every booking. This free calculator breaks a booking into delivery, cleaning, damage reserve…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/vs-flat-day-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat day rate">
+<meta property="og:description" content="A flat day rate is fast to quote. It does not tell you whether that number covers this booking's delivery, cleaning, damage reserve, and ownership cost…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/vs-flat-day-rate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a flat day rate, and why do rental operators use it?","acceptedAnswer":{"@type":"Answer","text":"One round number charged for every booking of a given asset, regardless of how far it is delivered, how much cleaning or turnaround it needs, or how much damage-reserve risk it carries. It is fast to quote and easy for a customer to compare, which is why many small operators start there, especially early on when bookings are simple and similar."}},{"@type":"Question","name":"What does a flat rate hide as bookings get more varied?","acceptedAnswer":{"@type":"Answer","text":"The price stays the same while the costs behind it do not. A flat rate sized for a short local booking under-prices one with a long delivery, heavy cleaning, or a higher damage risk, and over-prices a simple one — and it says nothing about whether the rate actually recovers the asset's ownership cost or your monthly fixed overhead at all."}},{"@type":"Question","name":"Can a flat rate tell me how many bookings I need to break even?","acceptedAnswer":{"@type":"Answer","text":"No. A flat rate is a price, not a break-even calculation. Whether a given rate covers your monthly fixed overhead depends on the asset's ownership cost per day, the booking-specific costs on top, and how many bookings like it you run in a month — none of which a single number tracks. A rate can look reasonable and still lose money at your actual volume."}},{"@type":"Question","name":"Does a flat rate separate ownership cost from booking-specific costs?","acceptedAnswer":{"@type":"Answer","text":"Only if the operator works it out by hand every time. A flat rate bundles delivery, cleaning, damage reserve, and the asset's per-day ownership cost into one number, so raising or lowering it does not say which piece is under-covered, or whether a longer or shorter rental should carry a different figure."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#17212b;background:#f4f0e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#b64d2d;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#596773}section{background:#fffdf8;border:1px solid #d5cec2;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4dcc9;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#596773}.fine,.note{font-size:.88rem;color:#596773}footer{color:#596773;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat day rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../equipment-rental-break-even/">Equipment Rental Break-Even Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat day rate</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Equipment Rental Break-Even Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat day rate</h1>
+<p class="lede">A flat day rate &mdash; one round number for every booking of an asset &mdash; is the fastest way to quote a rental, and for bookings that rarely vary it can work fine. It stops working the moment delivery distance, cleaning effort, damage risk, or rental length changes from booking to booking, because none of that is priced separately in a single number.</p>
+</header>
+<section>
+<h2>What each one is for</h2>
+<p>
+  <strong>A flat day rate</strong> is quick to quote and easy for a customer
+  to compare against a competitor's number. What it does not do is separate
+  the price into anything an operator can check against a specific booking
+  &mdash; it does not scale with delivery distance or damage risk, it has no
+  ownership-recovery logic built in, and it cannot tell you whether the rate
+  actually covers the asset's per-day ownership cost or your monthly fixed
+  overhead at your real booking volume.
+</p>
+<p>
+  <strong>This calculator</strong> takes one proposed booking &mdash; price,
+  rental days, delivery, cleaning, and damage-reserve costs, plus the
+  asset's purchase cost and recovery life &mdash; and works out the
+  booking-specific costs, the per-day ownership cost, the minimum price that
+  recovers ownership and your monthly fixed overhead, the price that hits a
+  target contribution margin, and how many bookings like this one it takes
+  each month to break even. It runs free in any browser, keeps no account,
+  and nothing you type is uploaded.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What do I charge for a typical, low-variation booking?</td><td>Either one &mdash; a flat rate is fine if delivery, cleaning, and damage risk rarely change.</td></tr>
+<tr><td>What does an unusually far, dirty, or high-risk booking actually cost?</td><td>This calculator &mdash; it prices this booking's own delivery, cleaning, and damage-reserve figures, not an average.</td></tr>
+<tr><td>Does my rate cover this asset's ownership cost and my monthly overhead?</td><td>This calculator's minimum price and break-even figures, not a flat rate &mdash; a round number tracks neither.</td></tr>
+<tr><td>How many bookings like this one do I need each month to break even?</td><td>This calculator's break-even-bookings and day-share figures.</td></tr>
+<tr><td>How much should I charge to rent out this equipment?</td><td>This calculator's <a href="how-much-should-i-charge-to-rent-out-equipment.html">worked walkthrough</a>.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most rental operators get different value from each: a flat day rate for
+  a quick quote on a booking that looks like every other one, and this
+  calculator for the booking that does not &mdash; a longer delivery, a
+  messier turnaround, a higher damage risk, or simply checking that the
+  round number you have been quoting still covers ownership and overhead at
+  your current volume.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a flat day rate, and why do rental operators use it?</h3>
+<p>One round number charged for every booking of a given asset, regardless of how far it is delivered, how much cleaning or turnaround it needs, or how much damage-reserve risk it carries. It is fast to quote and easy for a customer to compare, which is why many small operators start there, especially early on when bookings are simple and similar.</p>
+<h3>What does a flat rate hide as bookings get more varied?</h3>
+<p>The price stays the same while the costs behind it do not. A flat rate sized for a short local booking under-prices one with a long delivery, heavy cleaning, or a higher damage risk, and over-prices a simple one &mdash; and it says nothing about whether the rate actually recovers the asset's ownership cost or your monthly fixed overhead at all.</p>
+<h3>Can a flat rate tell me how many bookings I need to break even?</h3>
+<p>No. A flat rate is a price, not a break-even calculation. Whether a given rate covers your monthly fixed overhead depends on the asset's ownership cost per day, the booking-specific costs on top, and how many bookings like it you run in a month &mdash; none of which a single number tracks. A rate can look reasonable and still lose money at your actual volume.</p>
+<h3>Does a flat rate separate ownership cost from booking-specific costs?</h3>
+<p>Only if the operator works it out by hand every time. A flat rate bundles delivery, cleaning, damage reserve, and the asset's per-day ownership cost into one number, so raising or lowering it does not say which piece is under-covered, or whether a longer or shorter rental should carry a different figure.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded.</p>
+<p class="note">
+  Open the <a href="./">Equipment Rental Break-Even Calculator</a> to price your own booking, or read <a href="how-much-should-i-charge-to-rent-out-equipment.html">how much should I charge to rent out equipment</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Nothing here says or implies that a flat day rate is a bad way to price a rental &mdash; it is a different job: simple to quote where this calculator is detailed when a booking's delivery, cleaning, damage risk, or ownership recovery actually varies. Everything runs in your browser and your data is never uploaded. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../quickbooks-chart-of-accounts-csv-check/" data-pf-to="quickbooks-chart-of-accounts-csv-check">QuickBooks Chart of Accounts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../rd-tax-credit-calculator/" data-pf-to="rd-tax-credit-calculator">R&amp;D Tax Credit Calculator — free, private</a></li>
+      <li><a href="../renewal-rent-optimizer/" data-pf-to="renewal-rent-optimizer">Renewal Rent Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=equipment-rental-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="equipment-rental-break-even"></script>
+</body></html>

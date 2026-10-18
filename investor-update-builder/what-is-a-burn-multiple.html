@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Is A Burn Multiple? Runway And Default Alive With An Example</title>
+  <meta name="description" content="How to work out net burn, runway, burn multiple and whether a startup is default alive, line by line, with four months of MRR and cash for a small SaaS company.">
+  <meta property="og:title" content="What Is A Burn Multiple? Runway And Default Alive With An Example">
+  <meta property="og:description" content="Net burn, runway, burn multiple and the default-alive test, worked on four months of real-sized numbers. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/what-is-a-burn-multiple.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate burn multiple?","acceptedAnswer":{"@type":"Answer","text":"Divide net burn for the month by net new annual recurring revenue, which is net new MRR times twelve. $30,000 of burn against $2,400 of net new MRR is $30,000 divided by $28,800, a burn multiple of 1.04."}},{"@type":"Question","name":"What is default alive?","acceptedAnswer":{"@type":"Answer","text":"A company is default alive if, at its current growth rate and with expenses held flat, its revenue overtakes its expenses before the cash runs out. The idea comes from Paul Graham's essay of the same name."}},{"@type":"Question","name":"Why use the average of three months of burn?","acceptedAnswer":{"@type":"Answer","text":"One month of burn can be distorted by an annual prepayment, a large invoice or a one-off purchase. Averaging the last three months gives a steadier runway figure."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #2a4aa6; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5daea; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #2a4aa6; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #444d63; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/what-is-a-burn-multiple.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Is A Burn Multiple? Runway And Default Alive With An Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../investor-update-builder/">Investor Update Builder — your numbers, written up for your investors</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Is A Burn Multiple? Runway And Default Alive With An Example</span></span></nav>
+  <p><a href="./">&larr; Investor update builder</a></p>
+  <h1>What is a burn multiple? Runway and default alive, with an example</h1>
+  <p>Investors read a startup update for three answers: how fast revenue is growing, how long the cash lasts, and how much cash it costs to grow. Runway, burn multiple and the default-alive test are the three numbers that answer them. Here they are worked on four months of figures.</p>
+  <p><a class="cta" href="./">Open the free update builder</a></p>
+  <h2>The example</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Month</th><th>MRR</th><th>Cash in bank</th></tr></thead>
+    <tbody>
+      <tr><td>June</td><td>$20,000</td><td>$400,000</td></tr>
+      <tr><td>July</td><td>$22,000</td><td>$380,000</td></tr>
+      <tr><td>August</td><td>$24,200</td><td>$355,000</td></tr>
+      <tr><td>September</td><td>$26,600</td><td>$325,000</td></tr>
+    </tbody>
+  </table></div>
+  <h2>Step 1: net burn</h2>
+  <p>Net burn is the cash lost in a month. July lost $20,000, August $25,000 and September $30,000. The average of the last three months is <strong>$25,000 a month</strong>.</p>
+  <h2>Step 2: runway</h2>
+  <p>Runway is cash divided by net burn: $325,000 &divide; $25,000 = <strong>13.0 months</strong>, so the cash lasts until about October 2027.</p>
+  <h2>Step 3: burn multiple</h2>
+  <p>MRR grew by $2,400 in September, which is $28,800 of net new annual recurring revenue. September's burn of $30,000 &divide; $28,800 = <strong>1.04</strong>. Between 1 and 1.5 is usually called great: the company spends about a dollar to add a dollar of recurring revenue.</p>
+  <h2>Step 4: default alive</h2>
+  <p>MRR grew at a compound rate of <strong>+10.0%</strong> a month over the last three months. Hold expenses flat at today's level (MRR of $26,600 plus $25,000 of burn is $51,600 a month) and keep growing at that rate, and revenue overtakes expenses in about <strong>7 months</strong>, around April 2027, well inside the 13 months of cash. The company is <strong>default alive</strong>. It would stay alive with growth of only <strong>2.8%</strong> a month.</p>
+  <h2>Frequently asked</h2>
+  <h3>How do I calculate burn multiple?</h3>
+  <p>Divide net burn for the month by net new annual recurring revenue, which is net new MRR times twelve. $30,000 of burn against $2,400 of net new MRR is $30,000 divided by $28,800, a burn multiple of 1.04.</p>
+  <h3>What is default alive?</h3>
+  <p>A company is default alive if, at its current growth rate and with expenses held flat, its revenue overtakes its expenses before the cash runs out. The idea comes from Paul Graham's essay of the same name.</p>
+  <h3>Why use the average of three months of burn?</h3>
+  <p>One month of burn can be distorted by an annual prepayment, a large invoice or a one-off purchase. Averaging the last three months gives a steadier runway figure.</p>
+  <p><a class="cta" href="./">Run your own numbers through it</a></p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is; arithmetic on the numbers shown, not legal, financial or securities advice.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../rental-property-schedule-e-categorizer/" data-pf-to="rental-property-schedule-e-categorizer">Rental Property Schedule E Categorizer — free, private, in your browser</a></li>
+      <li><a href="../rental-rent-optimizer/" data-pf-to="rental-rent-optimizer">Rental Rent Optimizer — free, private, in your browser</a></li>
+      <li><a href="../rmd-calculator/" data-pf-to="rmd-calculator">RMD Calculator — free, private, in your browser</a></li>
+      <li><a href="../roth-conversion-bracket-fill-calculator/" data-pf-to="roth-conversion-bracket-fill-calculator">Roth Conversion Calculator 2026 — fill your bracket, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=investor-update-builder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="investor-update-builder"></script>
+</body>
+</html>

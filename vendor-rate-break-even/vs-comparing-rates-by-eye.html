@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. comparing the quoted rates by eye | Supplier Rate Break-Even Calculator</title>
+  <meta name="description" content="A vendor quoting $90/job against your current $120/job looks like an obvious $30/job win. Add its $100 monthly minimum and run it at 3 jobs a month…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/vs-comparing-rates-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. comparing the quoted rates by eye | Supplier Rate Break-Even Calculator">
+  <meta property="og:description" content="A lower per-job rate with a new monthly minimum is not automatically the better deal at your actual volume.">
+  <meta property="og:url" content="./vs-comparing-rates-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just comparing the two rates side by side?","acceptedAnswer":{"@type":"Answer","text":"A per-job rate alone leaves out any fixed monthly cost attached to it -- a minimum order fee, a subscription, a lease payment. Two rate cards showing $90/job and $120/job look like a clear $30/job win for the first, but if the $90 rate carries a $100 monthly minimum and the $120 one does not, the comparison that matters is total monthly cost at your actual volume, not the per-job number alone."}},{"@type":"Question","name":"How wrong can eyeballing the rate get, in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own defaults -- a current cost of $120/job with no fixed fee, against a bulk supplier quoting $90/job plus a $100 monthly minimum -- the crossover is 4 jobs a month. Below that, the $100 minimum costs more than the $30/job saving returns: at 3 jobs a month the current vendor costs $360 and the bulk supplier costs $370, ten dollars more overall, despite its rate looking $30/job cheaper on the card. At 20 jobs a month the same bulk supplier saves $500. Same two rate cards, opposite answer, depending only on volume."}},{"@type":"Question","name":"Does a higher quoted rate ever still win?","acceptedAnswer":{"@type":"Answer","text":"Only through a lower fixed cost, and only up to a volume where that saving runs out -- this calculator reports that case as a job count the deal stays cheaper up to, the mirror image of a break-even count. If the new per-job rate is equal to or higher than your current one with no offsetting fixed-cost saving, no volume makes it worth it, and eyeballing the rate alone cannot tell you which case you are in."}},{"@type":"Question","name":"Do I need my accountant's numbers to use this?","acceptedAnswer":{"@type":"Answer","text":"No. Four numbers you already have: your jobs per month, your current fixed and variable cost, and the new rate's fixed and variable cost from the quote in front of you. The calculator does the break-even arithmetic; nothing is uploaded, and a share link carries only the numbers you entered."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, sans-serif; color: #17231c; background: #e8efe9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #16734b; overflow-wrap: anywhere; }
+    .eyebrow { font-weight: 700; letter-spacing: .04em; color: #16734b; font-size: .85rem; }
+    header { margin: 1rem 0; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 28ch; letter-spacing: -.04em; }
+    .lede { font-size: 1.05rem; max-width: 64ch; color: #486454; }
+    section { background: #fff; border: 1px solid #cbd9cf; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #12351b12; margin: 1rem 0; }
+    h2 { margin-top: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th, td { border-bottom: 1px solid #d9e4dc; padding: .55rem .5rem; text-align: left; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #486454; }
+    .fine, .note { font-size: .88rem; color: #53685a; }
+    footer { color: #53685a; font-size: .86rem; margin-top: 1.5em; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. comparing the quoted rates by eye | Supplier Rate Break-Even Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vendor-rate-break-even/">Vendor Rate Break-Even Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. comparing the quoted rates by eye | Supplier Rate Break-Even Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vendor Rate Break-Even Calculator</a></p>
+<header>
+<h1>This calculator vs. comparing the quoted rates by eye</h1>
+<p class="lede">Two rate cards side by side make the lower per-job number look like the obvious pick. It isn't, once a monthly minimum is attached to one of them &mdash; the pick depends on how many jobs you actually run.</p>
+</header>
+
+<section>
+<h2>What comparing rates by eye does</h2>
+<p>
+The fast way to size up a vendor switch is to put the two per-job numbers
+next to each other: your current cost, and the new rate on the quote or
+rate card in front of you. Whichever number is lower reads as the better
+deal, and the gap between them reads as the savings.
+</p>
+<p>
+That works as long as both numbers are the whole cost. It stops working
+the moment one of them carries a fixed monthly cost the other doesn't --
+a minimum order fee, a subscription, a lease payment -- because a fixed
+cost spread over your actual job volume changes the real per-job number,
+and by a different amount depending on how many jobs you run.
+</p>
+</section>
+
+<section>
+<h2>What this calculator does instead</h2>
+<p>
+It takes your current jobs per month, your current fixed and variable
+cost, and up to three alternatives as a fixed monthly cost plus a variable
+cost per job -- the same numbers already on the rate card, just entered
+in full instead of read off the headline. It computes total monthly cost
+and true cost per job for each option at your own volume, and the exact
+job count where a new fixed fee stops costing more than its per-job
+saving returns.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What comparing rates by eye does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Compares the per-job number alone, so a quote's fixed monthly cost never enters the comparison.</td>
+<td>Adds the fixed cost into total monthly cost, so it is counted whether or not it's the headline number.</td>
+</tr>
+<tr>
+<td>Gives one answer regardless of volume -- the lower rate "wins" the same way at 3 jobs a month or 30.</td>
+<td>Reports the job count where a fixed fee is paid back by its per-job saving, so the answer can flip with volume.</td>
+</tr>
+<tr>
+<td>Has no way to say a deal is cheaper only up to a point, or never, once a fixed cost runs the other direction.</td>
+<td>Reports both shapes: a break-even job count, or the volume a saving-on-fixed-cost deal stays cheaper up to.</td>
+</tr>
+<tr>
+<td>Stops at cost. A cheaper rate and more profit are treated as the same question.</td>
+<td>Reports profit per job, monthly profit, and margin at your actual revenue per job for every option, since a lower cost is not always more profit once volume is fixed.</td>
+</tr>
+<tr>
+<td>Compares two rate cards at a time, by hand, with no record of the comparison.</td>
+<td>Compares your current cost against up to three alternatives side by side, with a share link that hands the same numbers to a partner or the vendor.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it runs entirely in your browser, and a share link carries only the numbers in the form -- nothing is uploaded.</p>
+</section>
+
+<section>
+<h2>Same two rate cards, opposite answer</h2>
+<p>
+Take this calculator's own default comparison: a current cost of
+<strong>$120 per job</strong> with no fixed fee, against a bulk supplier
+quoting <strong>$90 per job</strong> plus a <strong>$100 monthly
+minimum</strong>. Read as two rate cards, $90 beats $120 by $30 a job,
+every time, at any volume.
+</p>
+<p>
+Run the numbers at <strong>3 jobs a month</strong>: the current vendor
+costs <strong>$360</strong>, and the bulk supplier costs
+<strong>$370</strong> &mdash; ten dollars <em>more</em>, not thirty
+dollars less, because the $100 minimum outweighs three jobs' worth of
+$30 savings. At <strong>4 jobs a month</strong>, the calculator's own
+break-even point, the bulk supplier is already <strong>$20</strong>
+cheaper ($460 vs. $480), and at <strong>20 jobs a month</strong> the same
+bulk supplier saves <strong>$500</strong> a month ($1,900 vs. $2,400).
+The rate cards never changed. Only the volume did.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What's wrong with just comparing the two rates side by side?</h3>
+<p>A per-job rate alone leaves out any fixed monthly cost attached to it -- a minimum order fee, a subscription, a lease payment. Two rate cards showing $90/job and $120/job look like a clear $30/job win for the first, but if the $90 rate carries a $100 monthly minimum and the $120 one does not, the comparison that matters is total monthly cost at your actual volume, not the per-job number alone.</p>
+<h3>How wrong can eyeballing the rate get, in practice?</h3>
+<p>Using this calculator's own defaults -- a current cost of $120/job with no fixed fee, against a bulk supplier quoting $90/job plus a $100 monthly minimum -- the crossover is 4 jobs a month. Below that, the $100 minimum costs more than the $30/job saving returns: at 3 jobs a month the current vendor costs $360 and the bulk supplier costs $370, ten dollars more overall, despite its rate looking $30/job cheaper on the card. At 20 jobs a month the same bulk supplier saves $500. Same two rate cards, opposite answer, depending only on volume.</p>
+<h3>Does a higher quoted rate ever still win?</h3>
+<p>Only through a lower fixed cost, and only up to a volume where that saving runs out -- this calculator reports that case as a job count the deal stays cheaper up to, the mirror image of a break-even count. If the new per-job rate is equal to or higher than your current one with no offsetting fixed-cost saving, no volume makes it worth it, and eyeballing the rate alone cannot tell you which case you are in.</p>
+<h3>Do I need my accountant's numbers to use this?</h3>
+<p>No. Four numbers you already have: your jobs per month, your current fixed and variable cost, and the new rate's fixed and variable cost from the quote in front of you. The calculator does the break-even arithmetic; nothing is uploaded, and a share link carries only the numbers you entered.</p>
+<p class="note">
+Open the <a href="./">Vendor Rate Break-Even Calculator</a>, or read <a href="./is-switching-vendors-worth-it.html">is switching vendors worth it?</a> for the break-even math itself.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Your data stays in this browser; no inputs are uploaded. This page makes no comparison against a named vendor or product, only a manual habit. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rmd-calculator/" data-pf-to="rmd-calculator">RMD Calculator — free, private, in your browser</a></li>
+      <li><a href="../roth-conversion-bracket-fill-calculator/" data-pf-to="roth-conversion-bracket-fill-calculator">Roth Conversion Calculator 2026 — fill your bracket, free</a></li>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-rate-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vendor-rate-break-even"></script>
+</body>
+</html>

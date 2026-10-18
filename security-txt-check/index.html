@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
+  <meta name="description" content="Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale)…">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="security.txt Checker (RFC 9116)">
+  <meta property="og:description" content="Checks a security.txt against RFC 9116 — including the expiry date that quietly turns a valid file into a stale one, which is the state most published security.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"security.txt Checker","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Validates a security.txt file against RFC 9116: the mandatory Contact and Expires fields, an expired or malformed Expires, insecure http URIs, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, unknown and misspelled field names, and a digitally signed file with no Canonical. The zero-dependency CLI additionally fetches the file over real HTTP to check it is served from /.well-known/security.txt with a text/plain media type.","featureList":["Flags an expired Expires date, which makes every other field in the file stale to a conforming consumer","Flags a missing or duplicated Expires, which RFC 9116 requires exactly once","Validates Contact as a URI and flags a plain-http one","Flags a PGP key pasted into the file, which RFC 9116 forbids","Flags the British spelling of Acknowledgments and other silently-ignored field names","Flags a cleartext-signed file with no Canonical field","CLI checks the served location and media type over real HTTP for CI use; the browser page works from pasted text with no upload"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does an expired security.txt actually break?","acceptedAnswer":{"@type":"Answer","text":"RFC 9116 says data in an expired file must be considered stale and should not be used. So once the Expires date passes, a conforming researcher or automated tool treats your file as if it published no contact at all — even though the server is still serving it and it still looks fine to a human reading it. Nothing goes red, nothing 404s, and the file quietly stops doing its job. That is why Expires is the field this tool checks first."}},{"@type":"Question","name":"Why does Contact have to be a URI?","acceptedAnswer":{"@type":"Answer","text":"RFC 9116 defines Contact as a URI field so that a consumer can act on it without guessing what kind of thing it is. security@example.com could be an address or a username; mailto:security@example.com cannot be anything else. Write a web form as https:, an email address as mailto:, and a phone number as tel:. A bare address is the single most common conformance failure after the expiry date."}},{"@type":"Question","name":"Where does the file have to live?","acceptedAnswer":{"@type":"Answer","text":"At /.well-known/security.txt. A copy at the site root is tolerated by some tooling for historical reasons, but conforming consumers look under /.well-known/ and will not find a root-only copy. The browser tool here cannot see where your file is served from — you pasted the text, not the URL — so that check is one the CLI does."}},{"@type":"Question","name":"Is this a security assessment?","acceptedAnswer":{"@type":"Answer","text":"No. It checks whether one text file conforms to the rules RFC 9116 states about that file. It does not test the site, scan for vulnerabilities, verify that anyone reads the address you publish, or confirm that the people behind it respond. A perfectly conforming security.txt on an unmaintained inbox passes every check here."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 8px; min-height: 200px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    .pill.unchecked { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"security.txt Checker (RFC 9116)","item":"https://duncan-haywood.github.io/monorepo-projects/security-txt-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="security.txt Checker (RFC 9116) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">security.txt Checker (RFC 9116)</span></span></nav>
+  <header>
+    <p class="note">SECURITY.TXT CHECKER · RFC 9116 · RUNS IN YOUR BROWSER</p>
+    <h1>Is your <code>security.txt</code> still valid — or quietly expired?</h1>
+    <p>
+      Paste a <code>security.txt</code> and check it against <strong>RFC 9116</strong>. The field that
+      catches most sites is <code>Expires</code>: the RFC says data in an expired file
+      <strong>must be considered stale</strong>, so once that date passes a conforming researcher
+      treats your file as publishing <em>no contact at all</em> — while the server keeps serving it,
+      nothing 404s, and it still reads fine to a human. Nothing about that failure is visible from
+      the outside.
+    </p>
+    <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device — no small thing here, since a list of which companies someone is checking is itself sensitive.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a security.txt</h2>
+    <label for="sectxt">security.txt contents (from <code>/.well-known/security.txt</code>, or a local file)</label>
+    <textarea id="sectxt" spellcheck="false" placeholder="Contact: mailto:security@example.com&#10;Expires: 2027-01-31T23:59:00.000Z"></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Result</h2>
+    <p id="summary"></p>
+
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table id="fields-table" hidden>
+        <thead><tr><th>Line</th><th>Field</th><th>Value</th></tr></thead>
+        <tbody id="fields-rows"></tbody>
+      </table></div>
+    </div>
+
+    <div id="findings-section" hidden>
+      <h3>Findings</h3>
+      <div id="findings"></div>
+    </div>
+
+    <p class="note" id="incomplete-note">
+      <span class="pill unchecked">not checked here</span>
+      Where the file is served from, and the media type it is served with, cannot be seen from
+      pasted text. Those two checks need the CLI below.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>
+      The CLI fetches the file over real HTTP, tries <code>/.well-known/security.txt</code> first and
+      the legacy root copy second, and adds the two checks a paste cannot support — the served
+      location and the media type:
+    </p>
+    <pre class="cmd" tabindex="0">node check.mjs example.com
+node check.mjs example.com --json
+node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
+    <p class="note">
+      Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/security-txt-check" rel="noopener">check.mjs, engine.mjs and fetch-url.mjs from the repo</a>
+      — plain Node 18+, nothing to install. It only ever talks to the host you name; nothing goes
+      through this site. Exit code 1 on a danger-severity finding or when no <code>security.txt</code>
+      could be fetched at all, 0 otherwise.
+    </p>
+    <p class="note">
+      <strong>This is the one check in this catalogue worth scheduling.</strong> Every other
+      conformance rule here is stable once fixed — but <code>Expires</code> is a date, so a file that
+      passes today fails on its own, with no commit and no deploy to blame. A monthly CI run is how
+      you find out before a researcher does.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Check</th><th>What it flags</th><th>Severity</th><th>Needs the CLI?</th></tr></thead>
+        <tbody>
+          <tr><td>Expired</td><td><code>Expires</code> is in the past — RFC 9116 says the whole file must then be treated as stale</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Expires missing / duplicated / malformed</td><td>RFC 9116 requires exactly one, as an ISO 8601 timestamp</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Expires too far out or nearly due</td><td>More than a year ahead (the RFC recommends under a year), or under 30 days left</td><td>Notice</td><td>No</td></tr>
+          <tr><td>Contact missing or not a URI</td><td>No <code>Contact</code> at all, or a bare address rather than a <code>mailto:</code>/<code>https:</code>/<code>tel:</code> URI</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Insecure URI</td><td>A <code>Contact</code> over plain <code>http:</code> (danger), or another field over <code>http:</code> (notice)</td><td>Danger / Notice</td><td>No</td></tr>
+          <tr><td>Key pasted into the file</td><td>A PGP key block inline, which RFC 9116 forbids — <code>Encryption</code> takes a URI</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Malformed line</td><td>A line that is neither <code>Field: value</code>, a <code>#</code> comment, nor blank</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Silently-ignored field</td><td><code>Acknowledgements</code> (the RFC spells it without the middle "e") and other unknown names a conforming parser drops</td><td>Notice</td><td>No</td></tr>
+          <tr><td>Signed with no Canonical</td><td>A cleartext-signed file that does not say where it is meant to live</td><td>Notice</td><td>No</td></tr>
+          <tr><td>Wrong location</td><td>Served from the site root rather than <code>/.well-known/security.txt</code></td><td>Notice</td><td>Yes</td></tr>
+          <tr><td>Wrong media type</td><td>Not served as <code>text/plain; charset=utf-8</code></td><td>Notice</td><td>Yes</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">More: <a href="why-security-txt-expires.html">why RFC 9116 made <code>Expires</code> mandatory, and what an expired file costs you</a>. See also: <a href="vs-securitytxt-org-generator.html">how this differs from securitytxt.org's generator and validator</a>, and <a href="vs-checking-it-by-eye.html">where eyeballing a security.txt usually goes wrong</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does an expired security.txt actually break?</h3>
+    <p>RFC 9116 says data in an expired file must be considered stale and should not be used. So once the <code>Expires</code> date passes, a conforming researcher or automated tool treats your file as if it published no contact at all — even though the server is still serving it and it still looks fine to a human reading it. Nothing goes red, nothing 404s, and the file quietly stops doing its job. That is why <code>Expires</code> is the field this tool checks first.</p>
+    <h3>Why does Contact have to be a URI?</h3>
+    <p>RFC 9116 defines <code>Contact</code> as a URI field so that a consumer can act on it without guessing what kind of thing it is. <code>security@example.com</code> could be an address or a username; <code>mailto:security@example.com</code> cannot be anything else. Write a web form as <code>https:</code>, an email address as <code>mailto:</code>, and a phone number as <code>tel:</code>. A bare address is the single most common conformance failure after the expiry date.</p>
+    <h3>Where does the file have to live?</h3>
+    <p>At <code>/.well-known/security.txt</code>. A copy at the site root is tolerated by some tooling for historical reasons, but conforming consumers look under <code>/.well-known/</code> and will not find a root-only copy. The browser tool here cannot see where your file is served from — you pasted the text, not the URL — so that check is one the CLI does.</p>
+    <h3>Is this a security assessment?</h3>
+    <p>No. It checks whether one text file conforms to the rules RFC 9116 states about that file. It does not test the site, scan for vulnerabilities, verify that anyone reads the address you publish, or confirm that the people behind it respond. A perfectly conforming <code>security.txt</code> on an unmaintained inbox passes every check here.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or security advice, and it does not replace a qualified professional. It reports whether the text you provided satisfies specific, mechanically checkable rules from RFC 9116 — nothing more. It is not a security assessment, not a vulnerability scan, and not a determination that your disclosure process works. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a pass over the same site: <a href="../security-headers-check/">Security Headers Check</a> classifies a page's CSP and clickjacking protection. <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> checks whether your <code>robots.txt</code> allows the crawlers you think it does. <a href="../email-auth-check/">Email Auth Check</a> checks SPF, DKIM and DMARC for the domain your <code>Contact</code> address lives on.</p>
+    <p class="support">Free and open source. If this caught an expired disclosure contact before a researcher gave up and posted publicly, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildReport } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      text: $('#sectxt'), status: $('#status'), summary: $('#summary'),
+      reportCard: $('#report-card'),
+      fieldsTable: $('#fields-table'), fieldsRows: $('#fields-rows'),
+      findingsSection: $('#findings-section'), findings: $('#findings'),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    function render() {
+      const report = buildReport({ text: els.text.value });
+
+      els.fieldsTable.hidden = report.fields.length === 0;
+      els.fieldsRows.innerHTML = report.fields.map((f) => `
+        <tr>
+          <td>${f.line}</td>
+          <td><code>${escapeHtml(f.name)}</code></td>
+          <td><code>${escapeHtml(f.value)}</code></td>
+        </tr>`).join('');
+
+      const parts = [`${report.fields.length} field${report.fields.length === 1 ? '' : 's'}`];
+      if (report.signed) parts.push('cleartext-signed');
+      if (report.expiresDate) {
+        const days = Math.floor((report.expiresDate.getTime() - Date.now()) / 86400000);
+        parts.push(days >= 0 ? `expires in ${days} day${days === 1 ? '' : 's'}` : `expired ${-days} day${days === -1 ? '' : 's'} ago`);
+      }
+      const verdict = report.dangerCount > 0
+        ? `<span class="pill fail">${report.dangerCount} must-fix</span>`
+        : `<span class="pill pass">conforms</span>`;
+      els.summary.innerHTML = `${verdict} ${escapeHtml(parts.join(' · '))}${report.noticeCount ? ` · ${report.noticeCount} notice${report.noticeCount === 1 ? '' : 's'}` : ''}`;
+
+      els.findingsSection.hidden = false;
+      els.findings.innerHTML = report.findings.length === 0
+        ? '<p class="ok">Nothing to fix in what can be checked from the text alone.</p>'
+        : report.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+
+      els.reportCard.hidden = false;
+    }
+
+    $('#check').addEventListener('click', () => {
+      if (!els.text.value.trim()) {
+        els.status.innerHTML = '<span class="error">Paste a security.txt first (or load the worked example).</span>';
+        return;
+      }
+      els.status.textContent = '';
+      render();
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    });
+
+    const EXAMPLE = [
+      '# Our security policy',
+      'Contact: security@example.com',
+      'Expires: 2025-06-01T00:00:00Z',
+      'Acknowledgements: https://example.com/hall-of-fame',
+      'Encryption: http://example.com/pgp-key.txt',
+      'Preferred-Languages: English',
+      'Policy https://example.com/vulnerability-policy',
+    ].join('\n');
+
+    $('#load-example').addEventListener('click', () => {
+      els.text.value = EXAMPLE;
+      render();
+      els.status.textContent = 'Worked example: an expired Expires, a Contact that is a bare address rather than a mailto: URI, the British spelling of Acknowledgments, an http: Encryption URI, a language name instead of a language tag, and a Policy line whose colon is missing.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+
+    $('#clear').addEventListener('click', () => {
+      els.text.value = '';
+      els.reportCard.hidden = true;
+      els.status.textContent = 'Paste a security.txt and click Check.';
+    });
+
+    // Remember the visitor's usage-counting choice between visits. A control
+    // that silently stops working is worse than none, because the visitor
+    // believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+      <li><a href="../k8s-resource-limits-check/" data-pf-to="k8s-resource-limits-check">Will this container take down its whole node?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-txt-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/security-txt-check/?pfEmbed=1&quot; title=&quot;security.txt Checker (RFC 9116) — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="security-txt-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/" data-pf-embed-title="security.txt Checker (RFC 9116)" data-pf-embed-slug="security-txt-check"></script>
+</body>
+</html>

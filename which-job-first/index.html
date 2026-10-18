@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Which Job First? Free Pairwise Job Priority Ranker for Contractors</title>
+  <meta name="description" content="Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.">
+  <meta property="og:title" content="Which Job First? — rank your job list by picking one at a time">
+  <meta property="og:description" content="Turn an overwhelming list of possible jobs into a work order by answering simple head-to-head questions.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Which Job First","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser-based pairwise ranking tool that turns a list of possible jobs into a prioritised work order."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why answer this-or-that questions instead of just scoring each job?","acceptedAnswer":{"@type":"Answer","text":"Because scoring a job on its own is a question nobody can answer consistently. Given twelve jobs and a 1-to-10 box, the seventh one gets scored against a standard that has already drifted from the first, and the result is a list of near-identical numbers. A head-to-head question is different: you are comparing two concrete jobs against each other, with every trade-off you care about — margin, travel, how the client pays, whether it fits the crew you have next week — folded into one judgement you can actually make. The ranking is assembled from those answers rather than asked for directly."}},{"@type":"Question","name":"How many questions will it ask me?","acceptedAnswer":{"@type":"Answer","text":"About n times log2 of n, so roughly 22 questions for 8 jobs, 34 for 12, and 90 for 25. The counter above the buttons shows the estimate and how far through it you are. It is a ceiling rather than a promise — the sort stops asking about a group as soon as the answer is settled, so most runs finish a little early, and none run long."}},{"@type":"Question","name":"What happens if I contradict myself?","acceptedAnswer":{"@type":"Answer","text":"You will still get a complete ranking, but it may not be the one you would have described. The method assumes that preferring A to B and B to C means you prefer A to C, and it relies on that to avoid asking about every possible pair — which is what keeps the question count to a few dozen instead of a few hundred. If your answers disagree with each other, the result reflects the order the questions happened to come in. If a finished ranking looks wrong to you, that disagreement is the useful signal: it usually means a job has a factor you had not admitted to yourself, not that the list is unrankable."}},{"@type":"Question","name":"Does my job list leave my browser?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account, no server, and no analytics vendor. Your list and your answers are held in this browser, and an unfinished ranking is saved to this browser's local storage so closing the tab does not lose your progress. Nothing is uploaded at any point."}},{"@type":"Question","name":"What does the share link contain?","acceptedAnswer":{"@type":"Answer","text":"Your list of jobs, encoded after the # in the address — and not your answers or your ranking. A browser never sends the part after # to a server, so pasting that link into a text or an email is the only way it travels. Sending the list rather than the result is deliberate: it lets a partner or a foreman rank the same jobs independently and then compare, which is the conversation two people who disagree about what to take on actually need."}},{"@type":"Question","name":"Is this only for contractors?","acceptedAnswer":{"@type":"Answer","text":"No — it ranks any list where the items are hard to score but easy to compare two at a time. Jobs and quotes are the case it was built for, because a trade with more work than weeks is the person who most often has to choose. It works the same way on a feature backlog, a shortlist of suppliers, or a stack of quotes you are deciding which to chase first."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#1b2027; --muted:#5c6672; --paper:#f4f2ee; --card:#fffefb; --accent:#1f6f5c; --line:#dcd7cd; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; } main { max-width:940px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:760px; font:700 clamp(2.1rem,5.5vw,4rem)/1.0 Georgia,serif; letter-spacing:-.03em; margin:0 0 14px; } h2 { font:700 1.45rem Georgia,serif; } h3 { font:700 1.05rem Georgia,serif; margin:22px 0 4px; }
+    .intro { max-width:680px; color:var(--muted); font-size:1.1rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:680px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #2a231812; }
+    textarea { width:100%; min-height:150px; padding:12px; border:1px solid #bdb6aa; border-radius:8px; font:inherit; color:var(--ink); background:#fff; resize:vertical; }
+    button { border:0; border-radius:8px; padding:12px 16px; font:inherit; font-weight:700; cursor:pointer; background:var(--ink); color:#fff; }
+    button.secondary { background:#e6e1d6; color:var(--ink); } button.secondary:disabled { opacity:.45; cursor:not-allowed; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+    .choices { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0 6px; }
+    .choice { min-height:132px; padding:20px; border:2px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font:600 1.15rem/1.35 system-ui,sans-serif; text-align:left; white-space:pre-wrap; word-break:break-word; }
+    .choice:hover, .choice:focus-visible { border-color:var(--accent); outline:none; }
+    .key { display:block; margin-top:10px; color:var(--muted); font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .bar { height:8px; border-radius:99px; background:#e6e1d6; overflow:hidden; margin-top:6px; } .bar span { display:block; height:100%; background:var(--accent); }
+    ol.result { padding-left:0; list-style:none; counter-reset:rank; margin:8px 0 0; } ol.result li { counter-increment:rank; display:flex; gap:14px; padding:11px 4px; border-bottom:1px solid var(--line); }
+    ol.result li::before { content:counter(rank); font-weight:700; color:var(--accent); min-width:1.6em; font-variant-numeric:tabular-nums; }
+    .privacy { font-size:.9rem; color:var(--muted); } .note { color:var(--muted); font-size:.92rem; }
+    footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    @media(max-width:640px) { .choices { grid-template-columns:1fr; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/which-job-first/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Which Job First? — rank your job list by picking one at a time","item":"https://duncan-haywood.github.io/monorepo-projects/which-job-first/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/which-job-first/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/which-job-first/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which Job First? — rank your job list by picking one at a time — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which Job First? — rank your job list by picking one at a time</span></span></nav><main>
+  <h1>Which job do you take first?</h1>
+  <p class="intro">Paste the jobs you could take, then answer a handful of this-or-that questions. You never score anything — you just pick one — and the answers are assembled into a ranked work order.</p>
+  <p class="value"><strong>After using this, you can now</strong> turn a list of possible jobs into an order you can act on, which used to mean staring at a whiteboard or scoring every job out of ten and getting twelve near-identical numbers back.</p>
+  <p class="note">New to this? <a href="./how-do-i-decide-which-job-to-take-first.html">How do I decide which job to take first?</a> covers what actually drives the order and how to run the comparison, on paper or here.</p>
+
+  <section class="card" id="setup">
+    <h2>Your list</h2>
+    <p class="privacy">One job per line — a name and enough detail to tell them apart. Nothing is uploaded.</p>
+    <label for="list" class="privacy">Jobs to rank, one per line</label>
+    <textarea id="list" placeholder="Ross kitchen rewire&#10;Mill St deck rebuild&#10;Cedar fence, 40 ft&#10;Bathroom retile, Hill Rd"></textarea>
+    <div class="actions">
+      <button type="button" id="start">Start ranking</button>
+      <button class="secondary" type="button" id="sample">Load an example list</button>
+      <button class="secondary" type="button" id="share">Copy share link</button>
+    </div>
+    <p class="note" id="setup-note" role="status" hidden></p>
+  </section>
+
+  <section class="card" id="compare" hidden>
+    <h2>Which of these would you rather take first?</h2>
+    <p class="note" id="progress-text">Comparison 1</p>
+    <div class="bar" id="progress"><span style="width:0%"></span></div>
+    <div class="choices">
+      <button class="choice" type="button" data-side="left">–<span class="key">Press 1</span></button>
+      <button class="choice" type="button" data-side="right">–<span class="key">Press 2</span></button>
+    </div>
+    <p class="note">If the two are genuinely equal, either answer is fine — pick one and move on.</p>
+    <div class="actions">
+      <button class="secondary" type="button" id="undo" disabled>Undo last answer</button>
+      <button class="secondary" type="button" id="restart">Start over</button>
+    </div>
+  </section>
+
+  <section class="card" id="result" hidden aria-live="polite">
+    <h2>Your work order</h2>
+    <p class="note" id="result-note"></p>
+    <ol class="result" id="order"></ol>
+    <div class="actions">
+      <button class="secondary" type="button" id="copy">Copy as text</button>
+      <button class="secondary" type="button" id="export">Export CSV</button>
+      <button class="secondary" type="button" id="again">Rank a new list</button>
+    </div>
+  </section>
+
+  <section class="card privacy">
+    <label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label>
+    <p>Your job list stays on this device. Nothing is uploaded. Usage counts contain only feature names — never job names, never anything about you — and are never sent anywhere.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why answer this-or-that questions instead of just scoring each job?</h3>
+    <p>Because scoring a job on its own is a question nobody can answer consistently. Given twelve jobs and a 1-to-10 box, the seventh one gets scored against a standard that has already drifted from the first, and the result is a list of near-identical numbers. A head-to-head question is different: you are comparing two concrete jobs against each other, with every trade-off you care about — margin, travel, how the client pays, whether it fits the crew you have next week — folded into one judgement you can actually make. The ranking is assembled from those answers rather than asked for directly.</p>
+    <h3>How many questions will it ask me?</h3>
+    <p>About n times log2 of n, so roughly 22 questions for 8 jobs, 34 for 12, and 90 for 25. The counter above the buttons shows the estimate and how far through it you are. It is a ceiling rather than a promise — the sort stops asking about a group as soon as the answer is settled, so most runs finish a little early, and none run long.</p>
+    <h3>What happens if I contradict myself?</h3>
+    <p>You will still get a complete ranking, but it may not be the one you would have described. The method assumes that preferring A to B and B to C means you prefer A to C, and it relies on that to avoid asking about every possible pair — which is what keeps the question count to a few dozen instead of a few hundred. If your answers disagree with each other, the result reflects the order the questions happened to come in. If a finished ranking looks wrong to you, that disagreement is the useful signal: it usually means a job has a factor you had not admitted to yourself, not that the list is unrankable.</p>
+    <h3>Does my job list leave my browser?</h3>
+    <p>No. There is no account, no server, and no analytics vendor. Your list and your answers are held in this browser, and an unfinished ranking is saved to this browser's local storage so closing the tab does not lose your progress. Nothing is uploaded at any point.</p>
+    <h3>What does the share link contain?</h3>
+    <p>Your list of jobs, encoded after the # in the address — and not your answers or your ranking. A browser never sends the part after # to a server, so pasting that link into a text or an email is the only way it travels. Sending the list rather than the result is deliberate: it lets a partner or a foreman rank the same jobs independently and then compare, which is the conversation two people who disagree about what to take on actually need.</p>
+    <h3>Is this only for contractors?</h3>
+    <p>No — it ranks any list where the items are hard to score but easy to compare two at a time. Jobs and quotes are the case it was built for, because a trade with more work than weeks is the person who most often has to choose. It works the same way on a feature backlog, a shortlist of suppliers, or a stack of quotes you are deciding which to chase first.</p>
+  </section>
+
+  <footer>
+    <p>Already decided which jobs to do and need the order that costs least when some will be late? The <a href="../rush-job-sequencer/">rush job sequencer</a> tries every order and prices the lateness &mdash; nothing uploaded.</p>
+    <p>Already know which jobs to take and need to decide which crew goes where? The <a href="../crew-dispatch-optimizer/">crew dispatch optimizer</a> assigns the day's jobs to crews and orders each route at the lowest cost &mdash; nothing uploaded.</p>
+    <p>Reviewing a finished job's estimate against actuals rather than ranking what to take next? The <a href="../job-margin-variance/">job cost variance calculator</a> compares hours and costs after the work is complete &mdash; nothing uploaded.</p>
+    <p><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or business advice and does not replace your own judgement. A ranking here reflects only the answers you gave it; you are responsible for reviewing it before acting on it, and for the commitments you make. The authors accept no liability for loss or damage arising from its use.</p>
+    <p>Free and open source. If it helped you settle what to tackle first, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p><a href="vs-jobber.html">How this compares to Jobber</a></p>
+    <p><a href="vs-scoring-every-job-out-of-ten.html">This tool vs. scoring every job out of ten</a></p>
+  </footer>
+</main><script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'which-job-first-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import {
+    parseItems, createRanking, isComplete, nextPair, choose, ranking,
+    estimateComparisons, progress, toCsv, encodeList, decodeList,
+  } from './rank.mjs';
+
+  const $ = (id) => document.getElementById(id);
+  const setup = $('setup'), compare = $('compare'), result = $('result');
+  const listBox = $('list'), bar = $('progress').firstElementChild;
+  const sides = [...document.querySelectorAll('[data-side]')];
+  const storageKey = 'which-job-first-state';
+
+  // Undo is a stack of whole previous states rather than an inverse of each
+  // step. The state is small and JSON-shaped, so copying it is cheap, and the
+  // alternative -- unwinding a merge by hand -- is the kind of code that goes
+  // subtly wrong exactly when someone is relying on it to fix a misclick.
+  let state = null, history = [], banner = '';
+
+  const track = (event) => {
+    if (!$('usage').checked || navigator.doNotTrack || navigator.globalPrivacyControl) return;
+    try {
+      const key = 'which-job-first-events';
+      const data = JSON.parse(localStorage.getItem(key) || '{}');
+      data[event] = (data[event] || 0) + 1;
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch { /* a browser with storage blocked still ranks fine */ }
+  };
+
+  const save = () => {
+    try {
+      if (state && !isComplete(state)) localStorage.setItem(storageKey, JSON.stringify(state));
+      else localStorage.removeItem(storageKey);
+    } catch { /* nothing to do; progress is simply not resumable here */ }
+  };
+
+  const note = (element, text) => { element.textContent = text; element.hidden = !text; };
+
+  function render() {
+    const running = state && !isComplete(state);
+    const done = state && isComplete(state);
+    setup.hidden = !!state;
+    compare.hidden = !running;
+    result.hidden = !done;
+
+    if (running) {
+      const pair = nextPair(state);
+      sides[0].firstChild.nodeValue = pair.left.label;
+      sides[1].firstChild.nodeValue = pair.right.label;
+      const estimate = estimateComparisons(state.items.length);
+      $('progress-text').textContent = `Comparison ${state.comparisons + 1} of about ${estimate}`;
+      bar.style.width = `${Math.round(progress(state) * 100)}%`;
+      $('undo').disabled = history.length === 0;
+    }
+
+    if (done) {
+      const order = ranking(state);
+      $('order').replaceChildren(...order.map((label) => {
+        const li = document.createElement('li');
+        li.textContent = label;
+        return li;
+      }));
+      note($('result-note'), banner || `${order.length} jobs ranked from ${state.comparisons} answers. Top of the list first.`);
+    }
+    save();
+  }
+
+  function begin(items) {
+    const parsed = Array.isArray(items) ? items : parseItems(listBox.value);
+    if (parsed.length < 2) {
+      note($('setup-note'), 'Add at least two jobs, one per line — there is nothing to compare with fewer.');
+      return;
+    }
+    note($('setup-note'), '');
+    state = createRanking(parsed);
+    history = [];
+    banner = '';
+    render();
+    track('ranking_started');
+  }
+
+  const answer = (side) => {
+    if (!state || isComplete(state)) return;
+    history.push(JSON.parse(JSON.stringify(state)));
+    state = choose(state, side);
+    if (isComplete(state)) track('ranking_completed');
+    render();
+  };
+
+  $('start').onclick = () => begin();
+  $('sample').onclick = () => {
+    listBox.value = [
+      'Ross kitchen rewire — 3 days, pays on completion',
+      'Mill St deck rebuild — 5 days, 50% up front',
+      'Cedar fence, 40 ft — 1 day, cash',
+      'Bathroom retile, Hill Rd — 4 days, slow payer',
+      'Garage slab, Fenwick — 2 days, 40 min drive',
+    ].join('\n');
+    note($('setup-note'), 'An example list of five jobs. Replace it with your own whenever you like.');
+    track('sample_loaded');
+  };
+  $('share').onclick = async () => {
+    const items = parseItems(listBox.value);
+    if (!items.length) { note($('setup-note'), 'Add some jobs first — a share link needs a list to carry.'); return; }
+    const url = `${location.origin}${location.pathname}#list=${encodeList(items)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      note($('setup-note'), 'Share link copied. It carries your list only — not your answers — so whoever opens it ranks the same jobs themselves.');
+    } catch {
+      // Clipboard access is refused in plenty of ordinary situations (an
+      // insecure origin, a denied permission). Putting the link in the address
+      // bar leaves the person somewhere they can copy it by hand.
+      location.hash = `list=${encodeList(items)}`;
+      note($('setup-note'), 'Clipboard access was refused, so the link is in your address bar instead — copy it from there.');
+    }
+  };
+  for (const button of sides) button.onclick = () => answer(button.dataset.side);
+  $('undo').onclick = () => { if (history.length) { state = history.pop(); banner = ''; render(); } };
+  $('restart').onclick = () => { const items = state.items; state = null; history = []; render(); listBox.value = items.join('\n'); };
+  $('again').onclick = () => { const items = state.items; state = null; history = []; render(); listBox.value = items.join('\n'); };
+  $('copy').onclick = async () => {
+    const text = ranking(state).map((label, index) => `${index + 1}. ${label}`).join('\n');
+    try { await navigator.clipboard.writeText(text); banner = 'Work order copied.'; }
+    catch { banner = 'Clipboard access was refused — the ranking is above, ready to copy by hand.'; }
+    render();
+    track('copied');
+  };
+  $('export').onclick = () => {
+    const blob = new Blob([toCsv(ranking(state))], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'work-order.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    track('exported');
+  };
+
+  // 1 and 2 sit under the fingers of someone working through thirty
+  // comparisons; the arrows are what people try first. Both, and neither
+  // steals a key from a form field.
+  document.addEventListener('keydown', (event) => {
+    if (!state || isComplete(state)) return;
+    if (event.target.matches('input, textarea')) return;
+    if (event.key === '1' || event.key === 'ArrowLeft') { event.preventDefault(); answer('left'); }
+    if (event.key === '2' || event.key === 'ArrowRight') { event.preventDefault(); answer('right'); }
+  });
+
+  // A shared list wins over a half-finished local one: someone who just opened
+  // a link from a partner means to rank that list, and silently resuming their
+  // own older session instead would be the wrong guess and a confusing one.
+  const shared = decodeList(new URLSearchParams(location.hash.slice(1)).get('list'));
+  if (shared.length >= 2) {
+    listBox.value = shared.join('\n');
+    note($('setup-note'), `${shared.length} jobs came in from a shared link. Rank them yourself, then compare.`);
+    render();
+  } else {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (saved && Array.isArray(saved.items) && saved.items.length >= 2 && !isComplete(saved)) state = saved;
+      render();
+    } catch {
+      // A saved object can parse successfully but still contain a damaged
+      // comparison. Recover even when rendering that comparison fails.
+      state = null;
+      render();
+    }
+  }
+
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../grazing-lease-rate-calculator/" data-pf-to="grazing-lease-rate-calculator">Grazing Lease Rate Calculator — free, private</a></li>
+      <li><a href="../handyman-minimum-job-calculator/" data-pf-to="handyman-minimum-job-calculator">Handyman Minimum Job Calculator — free, private, in your browser</a></li>
+      <li><a href="../hay-sale-price-calculator/" data-pf-to="hay-sale-price-calculator">Hay Sale Price Calculator — free, private</a></li>
+      <li><a href="../home-service-lead-roi-analyzer/" data-pf-to="home-service-lead-roi-analyzer">Home Service Lead ROI Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=which-job-first">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/which-job-first/?pfEmbed=1&quot; title=&quot;Which Job First? — rank your job list by picking one at a time — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="which-job-first"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/which-job-first/" data-pf-embed-title="Which Job First? — rank your job list by picking one at a time" data-pf-embed-slug="which-job-first"></script>
+</body></html>

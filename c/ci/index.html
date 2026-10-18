@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free CI checks and developer gates | Open Tools and Research</title>
+  <meta name="description" content="Free local tools that read a GitHub Actions job JSON, two coverage XML reports, JUnit XML across runs, or a robots.txt — and report a deterministic verdict.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/ci/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free CI checks and developer gates">
+  <meta property="og:description" content="Free local tools that read a GitHub Actions job JSON, two coverage XML reports, JUnit XML across runs, or a robots.txt — and report a deterministic verdict.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/ci/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-ci.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Free CI checks and developer gates — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Free CI checks and developer gates","url":"https://duncan-haywood.github.io/monorepo-projects/c/ci/","description":"Free local tools that read a GitHub Actions job JSON, two coverage XML reports, JUnit XML across runs, or a robots.txt — and report a deterministic verdict. No account, nothing uploaded.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"CI checks \u0026 developer gates","item":"https://duncan-haywood.github.io/monorepo-projects/c/ci/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":173,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/","name":"Can a fork PR's artifact get executed by your privileged workflow?"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/","name":"Can a fork PR poison your GitHub Actions cache?"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/","name":"Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/","name":"Is your GitHub Actions workflow open to a pwn request or script injection?"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/","name":"What will this GitHub Actions workflow cost you a month?"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/","name":"Does your GITHUB_TOKEN use least-privilege permissions?"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/","name":"Is your red GitHub Actions check even real?"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-runtime-deprecation-check/","name":"Which of your GitHub Actions steps run on a deprecated Node runtime?"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-schedule-check/","name":"Will your GitHub Actions schedule cron actually run when you think it will?"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/","name":"Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?"},{"@type":"ListItem","position":11,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/","name":"Does secrets: inherit hand your secrets to the wrong workflow?"},{"@type":"ListItem","position":12,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/","name":"Is your self-hosted GitHub Actions runner exposed to a fork?"},{"@type":"ListItem","position":13,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-timeout-check/","name":"Which of your GitHub Actions jobs can hang for 6 hours?"},{"@type":"ListItem","position":14,"url":"https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/","name":"Does your pinned workflow load something unpinned underneath it?"},{"@type":"ListItem","position":15,"url":"https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/","name":"Does your AI coding agent's instruction file still match your repo?"},{"@type":"ListItem","position":16,"url":"https://duncan-haywood.github.io/monorepo-projects/agent-permission-config-check/","name":"Is your AI coding agent's permission config over-broad?"},{"@type":"ListItem","position":17,"url":"https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/","name":"Is your AI coding plan actually cheaper than the API?"},{"@type":"ListItem","position":18,"url":"https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/","name":"Which AI crawlers can actually read your site?"},{"@type":"ListItem","position":19,"url":"https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/","name":"Android Data Safety Checker"},{"@type":"ListItem","position":20,"url":"https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/","name":"App Store \u0026 Google Play Listing Checker"},{"@type":"ListItem","position":21,"url":"https://duncan-haywood.github.io/monorepo-projects/app-store-commission-calculator/","name":"What does the App Store really cost you versus web checkout?"},{"@type":"ListItem","position":22,"url":"https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/","name":"App Store Screenshot \u0026 Icon Checker"},{"@type":"ListItem","position":23,"url":"https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/","name":"What will authentication cost at your user count, and who is cheapest?"},{"@type":"ListItem","position":24,"url":"https://duncan-haywood.github.io/monorepo-projects/aws-bill-change-explainer/","name":"Why did my AWS bill go up this month?"},{"@type":"ListItem","position":25,"url":"https://duncan-haywood.github.io/monorepo-projects/aws-commitment-breakeven-calculator/","name":"AWS Commitment Break-Even Calculator — how much to commit, not just whether"},{"@type":"ListItem","position":26,"url":"https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/","name":"AWS IAM Policy Risk Check — free, private, paste-the-policy"},{"@type":"ListItem","position":27,"url":"https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/","name":"Backup File Exposure Checker"},{"@type":"ListItem","position":28,"url":"https://duncan-haywood.github.io/monorepo-projects/bigquery-query-cost-advisor/","name":"Why is your BigQuery bill so high?"},{"@type":"ListItem","position":29,"url":"https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/","name":"Has your branch protection drifted from policy?"},{"@type":"ListItem","position":30,"url":"https://duncan-haywood.github.io/monorepo-projects/caa-record-check/","name":"CAA Record Checker"},{"@type":"ListItem","position":31,"url":"https://duncan-haywood.github.io/monorepo-projects/cache-control-check/","name":"Cache-Control Checker"},{"@type":"ListItem","position":32,"url":"https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/","name":"Canonical Tag Checker"},{"@type":"ListItem","position":33,"url":"https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/","name":"Caption Quality Checker"},{"@type":"ListItem","position":34,"url":"https://duncan-haywood.github.io/monorepo-projects/cargo-audit-triage/","name":"Which cargo audit findings actually matter?"},{"@type":"ListItem","position":35,"url":"https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/","name":"What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?"},{"@type":"ListItem","position":36,"url":"https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/","name":"Chrome Extension Permission Checker"},{"@type":"ListItem","position":37,"url":"https://duncan-haywood.github.io/monorepo-projects/ci-minutes-pricing-calculator/","name":"What will CI cost at your build-minute volume, and who is cheapest?"},{"@type":"ListItem","position":38,"url":"https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/","name":"Split your CI tests into evenly timed shards"},{"@type":"ListItem","position":39,"url":"https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/","name":"Claude Code Hooks Security Check"},{"@type":"ListItem","position":40,"url":"https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/","name":"Claude Code Settings Check"},{"@type":"ListItem","position":41,"url":"https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/","name":"Claude Code Subagent Check"},{"@type":"ListItem","position":42,"url":"https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/","name":"Claude Skill Scaffold Generator"},{"@type":"ListItem","position":43,"url":"https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/","name":"Cloud Bucket Exposure Checker"},{"@type":"ListItem","position":44,"url":"https://duncan-haywood.github.io/monorepo-projects/cloudflare-bill-estimator/","name":"What will your Cloudflare bill be, and what cuts it most?"},{"@type":"ListItem","position":45,"url":"https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/","name":"Why is your CloudWatch Logs bill so high?"},{"@type":"ListItem","position":46,"url":"https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/","name":"CODEOWNERS Shadow Checker"},{"@type":"ListItem","position":47,"url":"https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/","name":"Cookie Security Checker"},{"@type":"ListItem","position":48,"url":"https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/","name":"CORS Misconfiguration Checker"},{"@type":"ListItem","position":49,"url":"https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/","name":"Did this PR drop your coverage?"},{"@type":"ListItem","position":50,"url":"https://duncan-haywood.github.io/monorepo-projects/cron-dst-drift-check/","name":"Will your cron job survive daylight saving?"},{"@type":"ListItem","position":51,"url":"https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/","name":"CSV to SQL, in your browser"},{"@type":"ListItem","position":52,"url":"https://duncan-haywood.github.io/monorepo-projects/databricks-cluster-cost-advisor/","name":"Why is your Databricks bill so high?"},{"@type":"ListItem","position":53,"url":"https://duncan-haywood.github.io/monorepo-projects/datadog-bill-estimator/","name":"What will your Datadog bill be, and what cuts it most?"},{"@type":"ListItem","position":54,"url":"https://duncan-haywood.github.io/monorepo-projects/dependabot-config-check/","name":"Is Dependabot actually watching all of your repo?"},{"@type":"ListItem","position":55,"url":"https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/","name":"Could a public package be substituted for your internal one?"},{"@type":"ListItem","position":56,"url":"https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/","name":"Deploy Concurrency Check"},{"@type":"ListItem","position":57,"url":"https://duncan-haywood.github.io/monorepo-projects/devsec-toolkit/","name":"devsec-toolkit: every DevSecOps check in one free command"},{"@type":"ListItem","position":58,"url":"https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/","name":"DMARC Report Reader — read rua reports without a SaaS"},{"@type":"ListItem","position":59,"url":"https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/","name":"Is your Dockerfile's base image still supported?"},{"@type":"ListItem","position":60,"url":"https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/","name":"Are your Dockerfile base images pinned to a digest?"},{"@type":"ListItem","position":61,"url":"https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/","name":"Is a secret baked into your Docker image?"},{"@type":"ListItem","position":62,"url":"https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/","name":"Is your Dockerfile busting its own build cache?"},{"@type":"ListItem","position":63,"url":"https://duncan-haywood.github.io/monorepo-projects/docker-compose-security-check/","name":"What is your docker-compose.yml handing to the host?"},{"@type":"ListItem","position":64,"url":"https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/","name":"Dotenv Exposure Checker"},{"@type":"ListItem","position":65,"url":"https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/","name":"Is your DynamoDB table on the wrong capacity mode?"},{"@type":"ListItem","position":66,"url":"https://duncan-haywood.github.io/monorepo-projects/ebs-volume-cost-advisor/","name":"Are your EBS volumes the wrong type?"},{"@type":"ListItem","position":67,"url":"https://duncan-haywood.github.io/monorepo-projects/email-api-pricing-calculator/","name":"What will transactional email cost at your send volume, and who is cheapest?"},{"@type":"ListItem","position":68,"url":"https://duncan-haywood.github.io/monorepo-projects/email-auth-check/","name":"Email Authentication Checker (SPF, DKIM, DMARC, BIMI)"},{"@type":"ListItem","position":69,"url":"https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/","name":"Does your .env.example still match what the code actually reads?"},{"@type":"ListItem","position":70,"url":"https://duncan-haywood.github.io/monorepo-projects/error-tracking-pricing-calculator/","name":"What will error tracking cost at your event volume, and who is cheapest?"},{"@type":"ListItem","position":71,"url":"https://duncan-haywood.github.io/monorepo-projects/feature-flag-pricing-calculator/","name":"What will feature flags cost at your requests-per-month volume, and who is cheapest?"},{"@type":"ListItem","position":72,"url":"https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/","name":"Firebase Security Rules Exposure Checker"},{"@type":"ListItem","position":73,"url":"https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/","name":"Which of your tests are actually flaky?"},{"@type":"ListItem","position":74,"url":"https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/","name":"If one person left tomorrow, which folders would nobody understand?"},{"@type":"ListItem","position":75,"url":"https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/","name":"Git Exposure Checker"},{"@type":"ListItem","position":76,"url":"https://duncan-haywood.github.io/monorepo-projects/git-timesheet/","name":"Turn your git history into a timesheet your client can read"},{"@type":"ListItem","position":77,"url":"https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/","name":"GraphQL Introspection Exposure Checker"},{"@type":"ListItem","position":78,"url":"https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/","name":"Does your values.yaml actually match its own schema?"},{"@type":"ListItem","position":79,"url":"https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/","name":"Hidden Unicode Check"},{"@type":"ListItem","position":80,"url":"https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/","name":"hreflang Reciprocity Check"},{"@type":"ListItem","position":81,"url":"https://duncan-haywood.github.io/monorepo-projects/incident-postmortem-timeline/","name":"Turn incident notes into a postmortem draft"},{"@type":"ListItem","position":82,"url":"https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/","name":"iOS Privacy Manifest Checker"},{"@type":"ListItem","position":83,"url":"https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/","name":"JSON-LD Rich Result Validator — free, private, in your browser"},{"@type":"ListItem","position":84,"url":"https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/","name":"JSON to TypeScript, Zod, JSON Schema and Go, in your browser"},{"@type":"ListItem","position":85,"url":"https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/","name":"Is your code verifying JWTs, or only reading them?"},{"@type":"ListItem","position":86,"url":"https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/","name":"Will this manifest survive your next Kubernetes upgrade?"},{"@type":"ListItem","position":87,"url":"https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/","name":"What are your Kubernetes manifests handing to the node?"},{"@type":"ListItem","position":88,"url":"https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/","name":"Are your Kubernetes requests wasting money?"},{"@type":"ListItem","position":89,"url":"https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/","name":"Will this container take down its whole node?"},{"@type":"ListItem","position":90,"url":"https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/","name":"Will your Kubernetes rollout drop live requests?"},{"@type":"ListItem","position":91,"url":"https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/","name":"Is your Lambda memory setting costing you money?"},{"@type":"ListItem","position":92,"url":"https://duncan-haywood.github.io/monorepo-projects/lambda-vs-fargate-cost-breakeven/","name":"Lambda or Fargate? Find your cost break-even"},{"@type":"ListItem","position":93,"url":"https://duncan-haywood.github.io/monorepo-projects/liability-audit/","name":"What in your app could cost you a fine, a chargeback or a surprise bill?"},{"@type":"ListItem","position":94,"url":"https://duncan-haywood.github.io/monorepo-projects/license-compat-check/","name":"Can you ship these dependencies under your license?"},{"@type":"ListItem","position":95,"url":"https://duncan-haywood.github.io/monorepo-projects/license-drift-check/","name":"Did a dependency's license just change under you?"},{"@type":"ListItem","position":96,"url":"https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/","name":"LLM API Pricing Calculator"},{"@type":"ListItem","position":97,"url":"https://duncan-haywood.github.io/monorepo-projects/llm-call-cost-scan/","name":"Which LLM calls in your code are quietly costing you money?"},{"@type":"ListItem","position":98,"url":"https://duncan-haywood.github.io/monorepo-projects/llm-output-regression-diff/","name":"Did the new model break your prompts?"},{"@type":"ListItem","position":99,"url":"https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/","name":"Would a spend cap have stopped your runaway LLM bill?"},{"@type":"ListItem","position":100,"url":"https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/","name":"LLM Usage Log Analyzer"},{"@type":"ListItem","position":101,"url":"https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/","name":"Build a valid llms.txt for your site, free"},{"@type":"ListItem","position":102,"url":"https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/","name":"Is anything in your node_modules GPL?"},{"@type":"ListItem","position":103,"url":"https://duncan-haywood.github.io/monorepo-projects/log-management-pricing-calculator/","name":"What will logging cost at your GB-per-month volume, and who is cheapest?"},{"@type":"ListItem","position":104,"url":"https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/","name":"MCP Config Risk Check"},{"@type":"ListItem","position":105,"url":"https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/","name":"Will this product feed get items disapproved?"},{"@type":"ListItem","position":106,"url":"https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/","name":"Stripe or a merchant of record: what do you keep at your monthly revenue?"},{"@type":"ListItem","position":107,"url":"https://duncan-haywood.github.io/monorepo-projects/nat-gateway-cost-advisor/","name":"Is your NAT gateway bill avoidable?"},{"@type":"ListItem","position":108,"url":"https://duncan-haywood.github.io/monorepo-projects/neon-bill-estimator/","name":"What will your Neon bill be, and what cuts it most?"},{"@type":"ListItem","position":109,"url":"https://duncan-haywood.github.io/monorepo-projects/node-version-drift-check/","name":"Do your package.json, .nvmrc, Dockerfile and CI agree on Node.js?"},{"@type":"ListItem","position":110,"url":"https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/","name":"Which npm audit findings actually matter?"},{"@type":"ListItem","position":111,"url":"https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/","name":"Did a dependency just start running code at install time?"},{"@type":"ListItem","position":112,"url":"https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/","name":"Why is node_modules installing the same package five times?"},{"@type":"ListItem","position":113,"url":"https://duncan-haywood.github.io/monorepo-projects/npm-provenance-check/","name":"Which of your npm dependencies lack a provenance attestation?"},{"@type":"ListItem","position":114,"url":"https://duncan-haywood.github.io/monorepo-projects/object-storage-pricing-calculator/","name":"What will object storage cost for your GB stored and GB served, and who is cheapest?"},{"@type":"ListItem","position":115,"url":"https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/","name":"Obsidian Plugin Review Checker"},{"@type":"ListItem","position":116,"url":"https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/","name":"GitHub Actions OIDC Trust Policy Checker"},{"@type":"ListItem","position":117,"url":"https://duncan-haywood.github.io/monorepo-projects/oncall-load-analyzer/","name":"On-Call Load Analyzer — free, private, paste-the-export"},{"@type":"ListItem","position":118,"url":"https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/","name":"Did this API version break existing clients?"},{"@type":"ListItem","position":119,"url":"https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/","name":"Does your package.json \"exports\" map point at files that actually exist?"},{"@type":"ListItem","position":120,"url":"https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/","name":"pg_stat_statements Analyzer — free, private, paste-the-output"},{"@type":"ListItem","position":121,"url":"https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/","name":"Are your GitHub Actions pinned to a commit SHA?"},{"@type":"ListItem","position":122,"url":"https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/","name":"Which pip-audit findings actually matter?"},{"@type":"ListItem","position":123,"url":"https://duncan-haywood.github.io/monorepo-projects/postgres-explain-analyzer/","name":"Why is my Postgres query slow? Paste the plan."},{"@type":"ListItem","position":124,"url":"https://duncan-haywood.github.io/monorepo-projects/postgres-index-auditor/","name":"Postgres Index Auditor — free, private, paste-the-output"},{"@type":"ListItem","position":125,"url":"https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/","name":"PPP pricing table generator for apps and SaaS"},{"@type":"ListItem","position":126,"url":"https://duncan-haywood.github.io/monorepo-projects/product-analytics-pricing-calculator/","name":"What will product analytics cost at your event volume, and who is cheapest?"},{"@type":"ListItem","position":127,"url":"https://duncan-haywood.github.io/monorepo-projects/prometheus-cardinality-cost/","name":"Which labels are inflating your Prometheus metrics bill?"},{"@type":"ListItem","position":128,"url":"https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/","name":"PWA Installability Checker"},{"@type":"ListItem","position":129,"url":"https://duncan-haywood.github.io/monorepo-projects/pypi-provenance-check/","name":"Which of your PyPI dependencies lack a provenance attestation?"},{"@type":"ListItem","position":130,"url":"https://duncan-haywood.github.io/monorepo-projects/rds-instance-cost-advisor/","name":"Why is your RDS bill so high?"},{"@type":"ListItem","position":131,"url":"https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/","name":"Is your RDS instance too big?"},{"@type":"ListItem","position":132,"url":"https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/","name":"Redirect Chain Checker"},{"@type":"ListItem","position":133,"url":"https://duncan-haywood.github.io/monorepo-projects/referrer-permissions-policy-check/","name":"Referrer-Policy \u0026 Permissions-Policy Checker"},{"@type":"ListItem","position":134,"url":"https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/","name":"Which regexes in your code can hang your server?"},{"@type":"ListItem","position":135,"url":"https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/","name":"Changelog from git commits, in your browser"},{"@type":"ListItem","position":136,"url":"https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/","name":"Is a required status check stuck forever on your repo?"},{"@type":"ListItem","position":137,"url":"https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/","name":"Is your requirements.txt actually reproducible?"},{"@type":"ListItem","position":138,"url":"https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/","name":"S3 Bucket Exposure Checker"},{"@type":"ListItem","position":139,"url":"https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/","name":"Is your S3 bucket in the wrong storage class?"},{"@type":"ListItem","position":140,"url":"https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/","name":"Will an S3 lifecycle rule actually save money?"},{"@type":"ListItem","position":141,"url":"https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/","name":"What changed between two SBOMs?"},{"@type":"ListItem","position":142,"url":"https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/","name":"What will hosted search cost for your records and monthly searches, and who is cheapest?"},{"@type":"ListItem","position":143,"url":"https://duncan-haywood.github.io/monorepo-projects/security-headers-check/","name":"Security Headers Checker"},{"@type":"ListItem","position":144,"url":"https://duncan-haywood.github.io/monorepo-projects/security-txt-check/","name":"security.txt Checker (RFC 9116)"},{"@type":"ListItem","position":145,"url":"https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/","name":"Sitemap lastmod Freshness Check"},{"@type":"ListItem","position":146,"url":"https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/","name":"Skill Manifest Check"},{"@type":"ListItem","position":147,"url":"https://duncan-haywood.github.io/monorepo-projects/slo-burn-rate-alerts/","name":"SLO burn-rate alerts, generated"},{"@type":"ListItem","position":148,"url":"https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/","name":"Did an AI assistant just suggest a package that doesn't exist?"},{"@type":"ListItem","position":149,"url":"https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/","name":"Why does this text bill as 3 segments?"},{"@type":"ListItem","position":150,"url":"https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/","name":"Why is your Snowflake bill so high?"},{"@type":"ListItem","position":151,"url":"https://duncan-haywood.github.io/monorepo-projects/soc2-readiness-checker/","name":"SOC 2 Readiness Checker — free, private, no signup"},{"@type":"ListItem","position":152,"url":"https://duncan-haywood.github.io/monorepo-projects/social-preview-check/","name":"Social Preview Checker"},{"@type":"ListItem","position":153,"url":"https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/","name":"Source Map Leak Checker"},{"@type":"ListItem","position":154,"url":"https://duncan-haywood.github.io/monorepo-projects/speech-to-text-pricing-calculator/","name":"What will transcription cost for your audio hours, and who is cheapest?"},{"@type":"ListItem","position":155,"url":"https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/","name":"Will this migration take your database down?"},{"@type":"ListItem","position":156,"url":"https://duncan-haywood.github.io/monorepo-projects/sri-check/","name":"Subresource Integrity (SRI) Checker \u0026 Hash Generator"},{"@type":"ListItem","position":157,"url":"https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/","name":"Does your structured data match what's actually on the page?"},{"@type":"ListItem","position":158,"url":"https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/","name":"Subdomain Takeover Checker"},{"@type":"ListItem","position":159,"url":"https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/","name":"Your GitHub Pages sitemap is probably never read"},{"@type":"ListItem","position":160,"url":"https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/","name":"What will your Supabase bill be, and what cuts it most?"},{"@type":"ListItem","position":161,"url":"https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/","name":"Supabase RLS Exposure Checker"},{"@type":"ListItem","position":162,"url":"https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/","name":"Which of these resources is your terraform apply about to destroy?"},{"@type":"ListItem","position":163,"url":"https://duncan-haywood.github.io/monorepo-projects/terraform-plan-cost-estimate/","name":"What will this terraform apply add to the monthly AWS bill?"},{"@type":"ListItem","position":164,"url":"https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/","name":"Did your Terraform plan just print a secret in plaintext?"},{"@type":"ListItem","position":165,"url":"https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/","name":"What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?"},{"@type":"ListItem","position":166,"url":"https://duncan-haywood.github.io/monorepo-projects/upstash-redis-bill-estimator/","name":"What will your Upstash Redis bill be, and should you go fixed?"},{"@type":"ListItem","position":167,"url":"https://duncan-haywood.github.io/monorepo-projects/uptime-monitoring-pricing-calculator/","name":"What will uptime monitoring cost for your monitors and check interval, and who is cheapest?"},{"@type":"ListItem","position":168,"url":"https://duncan-haywood.github.io/monorepo-projects/vercel-bill-estimator/","name":"What will your Vercel bill be, and what cuts it most?"},{"@type":"ListItem","position":169,"url":"https://duncan-haywood.github.io/monorepo-projects/video-hosting-pricing-calculator/","name":"What will video hosting cost for your minutes stored and watched, and who is cheapest?"},{"@type":"ListItem","position":170,"url":"https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/","name":"Did an extension you already trust just change what it does?"},{"@type":"ListItem","position":171,"url":"https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/","name":"Why is my webhook signature failing?"},{"@type":"ListItem","position":172,"url":"https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/","name":"WordPress Plugin Review Checker"},{"@type":"ListItem","position":173,"url":"https://duncan-haywood.github.io/monorepo-projects/workflow-audit/","name":"One GitHub Action, twelve workflow risks checked"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CI checks &amp; developer gates</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">CI checks &amp; developer gates</p>
+      <h1>Free CI checks and developer gates</h1>
+      <p class="lede">A red CI check, a coverage cliff, a flaky suite, or an AI crawler you thought you blocked — each is a file or a JSON blob you already have. These tools read that input in your browser (or as a matching zero-dependency CLI) and name the verdict, without an account or an upload.</p>
+      <p class="count">173 free tools · no account · nothing you type is uploaded, except on Does your pinned workflow load something unpinned underneath it?, CAA Record Checker, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Would a spend cap have stopped your runaway LLM bill?, Which of your PyPI dependencies lack a provenance attestation?, Subdomain Takeover Checker, and Did an extension you already trust just change what it does?</p>
+    </header>
+
+    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these 173 tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>
+
+    <main>
+      <ul class="cards">
+          <li class="card">
+            <a href="../../actions-artifact-poisoning-check/" data-tool="actions-artifact-poisoning-check" data-pf-to="actions-artifact-poisoning-check">
+              <h3>Can a fork PR's artifact get executed by your privileged workflow?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-cache-poisoning-check/" data-tool="actions-cache-poisoning-check" data-pf-to="actions-cache-poisoning-check">
+              <h3>Can a fork PR poison your GitHub Actions cache?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-checkout-credentials-check/" data-tool="actions-checkout-credentials-check" data-pf-to="actions-checkout-credentials-check">
+              <h3>Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false, with jobs that also upload artifacts (the artipacked pattern)…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../actions-injection-check/" data-tool="actions-injection-check" data-pf-to="actions-injection-check">
+              <h3>Is your GitHub Actions workflow open to a pwn request or script injection?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }}…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-minutes-estimator/" data-tool="actions-minutes-estimator" data-pf-to="actions-minutes-estimator">
+              <h3>What will this GitHub Actions workflow cost you a month?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-permissions-check/" data-tool="actions-permissions-check" data-pf-to="actions-permissions-check">
+              <h3>Does your GITHUB_TOKEN use least-privilege permissions?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-runner-starvation-check/" data-tool="actions-runner-starvation-check" data-pf-to="actions-runner-starvation-check">
+              <h3>Is your red GitHub Actions check even real?</h3>
+            </a>
+            <p>Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-runtime-deprecation-check/" data-tool="actions-runtime-deprecation-check" data-pf-to="actions-runtime-deprecation-check">
+              <h3>Which of your GitHub Actions steps run on a deprecated Node runtime?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and list every actions/* step pinned to a major that runs on a deprecated Node runtime (Node 12 or 16) or that GitHub has shut down. Free…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../actions-schedule-check/" data-tool="actions-schedule-check" data-pf-to="actions-schedule-check">
+              <h3>Will your GitHub Actions schedule cron actually run when you think it will?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub's 5-minute minimum, or pinned to the top of the hour where scheduled runs…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-secret-leak-check/" data-tool="actions-secret-leak-check" data-pf-to="actions-secret-leak-check">
+              <h3>Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find the two documented ways a secret slips past GitHub's own log masking: transforming it (base64/hex/substring) before printing, and…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-secrets-inherit-check/" data-tool="actions-secrets-inherit-check" data-pf-to="actions-secrets-inherit-check">
+              <h3>Does secrets: inherit hand your secrets to the wrong workflow?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every secrets: inherit call that hands your whole secret set to an external reusable workflow, or to a job a fork can trigger…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-self-hosted-exposure-check/" data-tool="actions-self-hosted-exposure-check" data-pf-to="actions-self-hosted-exposure-check">
+              <h3>Is your self-hosted GitHub Actions runner exposed to a fork?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-timeout-check/" data-tool="actions-timeout-check" data-pf-to="actions-timeout-check">
+              <h3>Which of your GitHub Actions jobs can hang for 6 hours?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../actions-transitive-pin-check/" data-tool="actions-transitive-pin-check" data-pf-to="actions-transitive-pin-check">
+              <h3>Does your pinned workflow load something unpinned underneath it?</h3>
+            </a>
+            <p>Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a mutable tag underneath — a…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../agent-instructions-drift-check/" data-tool="agent-instructions-drift-check" data-pf-to="agent-instructions-drift-check">
+              <h3>Does your AI coding agent's instruction file still match your repo?</h3>
+            </a>
+            <p>Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../agent-permission-config-check/" data-tool="agent-permission-config-check" data-pf-to="agent-permission-config-check">
+              <h3>Is your AI coding agent's permission config over-broad?</h3>
+            </a>
+            <p>Paste your Claude Code .claude/settings.json or an .mcp.json / .cursor/mcp.json / .vscode/mcp.json MCP-server config and see every blanket Bash allow-all rule, unscoped…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ai-coding-plan-cost-calculator/" data-tool="ai-coding-plan-cost-calculator" data-pf-to="ai-coding-plan-cost-calculator">
+              <h3>Is your AI coding plan actually cheaper than the API?</h3>
+            </a>
+            <p>Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ai-crawler-access-check/" data-tool="ai-crawler-access-check" data-pf-to="ai-crawler-access-check">
+              <h3>Which AI crawlers can actually read your site?</h3>
+            </a>
+            <p>Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../android-data-safety-check/" data-tool="android-data-safety-check" data-pf-to="android-data-safety-check">
+              <h3>Android Data Safety Checker</h3>
+            </a>
+            <p>Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../app-listing-metadata-check/" data-tool="app-listing-metadata-check" data-pf-to="app-listing-metadata-check">
+              <h3>App Store &amp; Google Play Listing Checker</h3>
+            </a>
+            <p>Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../app-store-commission-calculator/" data-tool="app-store-commission-calculator" data-pf-to="app-store-commission-calculator">
+              <h3>What does the App Store really cost you versus web checkout?</h3>
+            </a>
+            <p>Enter your monthly app revenue and average in-app price and see what Apple (30% or 15%), Google Play and web checkout via Stripe or Paddle take, your net payout, 12-month totals…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../app-store-screenshot-check/" data-tool="app-store-screenshot-check" data-pf-to="app-store-screenshot-check">
+              <h3>App Store Screenshot &amp; Icon Checker</h3>
+            </a>
+            <p>Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can't contain an alpha channel&quot;…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../auth-mau-pricing-calculator/" data-tool="auth-mau-pricing-calculator" data-pf-to="auth-mau-pricing-calculator">
+              <h3>What will authentication cost at your user count, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly active users and see what Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS charge, the 12-month spend under your growth rate, and the user count…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../aws-bill-change-explainer/" data-tool="aws-bill-change-explainer" data-pf-to="aws-bill-change-explainer">
+              <h3>Why did my AWS bill go up this month?</h3>
+            </a>
+            <p>Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../aws-commitment-breakeven-calculator/" data-tool="aws-commitment-breakeven-calculator" data-pf-to="aws-commitment-breakeven-calculator">
+              <h3>AWS Commitment Break-Even Calculator — how much to commit, not just whether</h3>
+            </a>
+            <p>Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option's discount to find the commitment that saves the most, its break-even…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../aws-iam-policy-risk-check/" data-tool="aws-iam-policy-risk-check" data-pf-to="aws-iam-policy-risk-check">
+              <h3>AWS IAM Policy Risk Check — free, private, paste-the-policy</h3>
+            </a>
+            <p>Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../backup-file-exposure-check/" data-tool="backup-file-exposure-check" data-pf-to="backup-file-exposure-check">
+              <h3>Backup File Exposure Checker</h3>
+            </a>
+            <p>Free tool: paste your site's URL and it sends real GET requests to eight well-known backup filenames (backup.zip, backup.tar.gz, backup.sql, db.sql, and more), verifying the…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../bigquery-query-cost-advisor/" data-tool="bigquery-query-cost-advisor" data-pf-to="bigquery-query-cost-advisor">
+              <h3>Why is your BigQuery bill so high?</h3>
+            </a>
+            <p>Paste your BigQuery query groups (runs per month, GB billed, slot-hours) and see on-demand vs Editions cost, the expensive queries to cap with maximum_bytes_billed, and repeat…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../branch-protection-drift-check/" data-tool="branch-protection-drift-check" data-pf-to="branch-protection-drift-check">
+              <h3>Has your branch protection drifted from policy?</h3>
+            </a>
+            <p>Paste a repo's actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../caa-record-check/" data-tool="caa-record-check" data-pf-to="caa-record-check">
+              <h3>CAA Record Checker</h3>
+            </a>
+            <p>Free tool: paste a hostname and it resolves the CAA record set that actually governs certificate issuance -- walking up your DNS tree per RFC 8659 to the ancestor domain that…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cache-control-check/" data-tool="cache-control-check" data-pf-to="cache-control-check">
+              <h3>Cache-Control Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../canonical-tag-check/" data-tool="canonical-tag-check" data-pf-to="canonical-tag-check">
+              <h3>Canonical Tag Checker</h3>
+            </a>
+            <p>Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../caption-quality-check/" data-tool="caption-quality-check" data-pf-to="caption-quality-check">
+              <h3>Caption Quality Checker</h3>
+            </a>
+            <p>Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cargo-audit-triage/" data-tool="cargo-audit-triage" data-pf-to="cargo-audit-triage">
+              <h3>Which cargo audit findings actually matter?</h3>
+            </a>
+            <p>Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cdn-bandwidth-pricing-calculator/" data-tool="cdn-bandwidth-pricing-calculator" data-pf-to="cdn-bandwidth-pricing-calculator">
+              <h3>What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly CDN bandwidth (GB delivered) and see what Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN charge, the 12-month spend under your growth rate…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../chrome-extension-permission-check/" data-tool="chrome-extension-permission-check" data-pf-to="chrome-extension-permission-check">
+              <h3>Chrome Extension Permission Checker</h3>
+            </a>
+            <p>Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ci-minutes-pricing-calculator/" data-tool="ci-minutes-pricing-calculator" data-pf-to="ci-minutes-pricing-calculator">
+              <h3>What will CI cost at your build-minute volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly build-minute volume and see what GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite charge, the 12-month spend under your growth rate, and the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ci-test-shard-balancer/" data-tool="ci-test-shard-balancer" data-pf-to="ci-test-shard-balancer">
+              <h3>Split your CI tests into evenly timed shards</h3>
+            </a>
+            <p>Paste JUnit XML from pytest, Jest, Go, Maven/Gradle or RSpec and get an even split into N CI shards, the slowest-shard time, billed-minute savings, the best shard count, and…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../claude-code-hooks-security-check/" data-tool="claude-code-hooks-security-check" data-pf-to="claude-code-hooks-security-check">
+              <h3>Claude Code Hooks Security Check</h3>
+            </a>
+            <p>Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../claude-code-settings-check/" data-tool="claude-code-settings-check" data-pf-to="claude-code-settings-check">
+              <h3>Claude Code Settings Check</h3>
+            </a>
+            <p>Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can't compile, a hook with no command, a…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../claude-code-subagent-check/" data-tool="claude-code-subagent-check" data-pf-to="claude-code-subagent-check">
+              <h3>Claude Code Subagent Check</h3>
+            </a>
+            <p>Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn't kebab-case, a missing or vague description that stops…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../claude-skill-scaffold-generator/" data-tool="claude-skill-scaffold-generator" data-pf-to="claude-skill-scaffold-generator">
+              <h3>Claude Skill Scaffold Generator</h3>
+            </a>
+            <p>Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles, and get a starter SKILL.md with valid YAML frontmatter…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cloud-bucket-exposure-check/" data-tool="cloud-bucket-exposure-check" data-pf-to="cloud-bucket-exposure-check">
+              <h3>Cloud Bucket Exposure Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cloudflare-bill-estimator/" data-tool="cloudflare-bill-estimator" data-pf-to="cloudflare-bill-estimator">
+              <h3>What will your Cloudflare bill be, and what cuts it most?</h3>
+            </a>
+            <p>Estimate a monthly Cloudflare developer-platform bill from your own usage (Workers requests and CPU time, KV reads and writes, R2 storage and operations) at editable list prices…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cloudwatch-logs-cost-advisor/" data-tool="cloudwatch-logs-cost-advisor" data-pf-to="cloudwatch-logs-cost-advisor">
+              <h3>Why is your CloudWatch Logs bill so high?</h3>
+            </a>
+            <p>Paste your CloudWatch log groups (stored GB, retention, GB ingested per month) and get what each costs, the retention policy to set, dead groups and Infrequent Access candidates…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../codeowners-shadow-check/" data-tool="codeowners-shadow-check" data-pf-to="codeowners-shadow-check">
+              <h3>CODEOWNERS Shadow Checker</h3>
+            </a>
+            <p>Free tool: paste your CODEOWNERS file and your repo's file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub's own…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cookie-security-check/" data-tool="cookie-security-check" data-pf-to="cookie-security-check">
+              <h3>Cookie Security Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cors-misconfig-check/" data-tool="cors-misconfig-check" data-pf-to="cors-misconfig-check">
+              <h3>CORS Misconfiguration Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../coverage-drop-check/" data-tool="coverage-drop-check" data-pf-to="coverage-drop-check">
+              <h3>Did this PR drop your coverage?</h3>
+            </a>
+            <p>Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cron-dst-drift-check/" data-tool="cron-dst-drift-check" data-pf-to="cron-dst-drift-check">
+              <h3>Will your cron job survive daylight saving?</h3>
+            </a>
+            <p>Paste a cron expression and an IANA timezone and see every upcoming run that falls in a spring-forward gap (never happens) or a fall-back overlap (happens twice), plus a separate…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../csv-to-sql-generator/" data-tool="csv-to-sql-generator" data-pf-to="csv-to-sql-generator">
+              <h3>CSV to SQL, in your browser</h3>
+            </a>
+            <p>Convert a CSV to SQL: CREATE TABLE with inferred column types plus batched INSERT statements for PostgreSQL, MySQL, SQLite, SQL Server and BigQuery. Free, runs in your browser…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../databricks-cluster-cost-advisor/" data-tool="databricks-cluster-cost-advisor" data-pf-to="databricks-cluster-cost-advisor">
+              <h3>Why is your Databricks bill so high?</h3>
+            </a>
+            <p>Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../datadog-bill-estimator/" data-tool="datadog-bill-estimator" data-pf-to="datadog-bill-estimator">
+              <h3>What will your Datadog bill be, and what cuts it most?</h3>
+            </a>
+            <p>Estimate a monthly Datadog bill from your own usage (hosts, containers, custom metrics, logs, APM, synthetics) at editable list prices, and see which changes cut it most, with a…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../dependabot-config-check/" data-tool="dependabot-config-check" data-pf-to="dependabot-config-check">
+              <h3>Is Dependabot actually watching all of your repo?</h3>
+            </a>
+            <p>Paste your dependabot.yml and your repo's file list. Finds ecosystems Dependabot never updates, invalid intervals, duplicate entries, missing groups and cooldown, and writes a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dependency-confusion-check/" data-tool="dependency-confusion-check" data-pf-to="dependency-confusion-check">
+              <h3>Could a public package be substituted for your internal one?</h3>
+            </a>
+            <p>Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../deploy-concurrency-check/" data-tool="deploy-concurrency-check" data-pf-to="deploy-concurrency-check">
+              <h3>Deploy Concurrency Check</h3>
+            </a>
+            <p>Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group, a group that changes every run…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../devsec-toolkit/" data-tool="devsec-toolkit" data-pf-to="devsec-toolkit">
+              <h3>devsec-toolkit: every DevSecOps check in one free command</h3>
+            </a>
+            <p>One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dmarc-report-reader/" data-tool="dmarc-report-reader" data-pf-to="dmarc-report-reader">
+              <h3>DMARC Report Reader — read rua reports without a SaaS</h3>
+            </a>
+            <p>Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why, and when it is safe to move from p=none to…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../docker-base-image-eol-check/" data-tool="docker-base-image-eol-check" data-pf-to="docker-base-image-eol-check">
+              <h3>Is your Dockerfile's base image still supported?</h3>
+            </a>
+            <p>Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../docker-base-image-pin-check/" data-tool="docker-base-image-pin-check" data-pf-to="docker-base-image-pin-check">
+              <h3>Are your Dockerfile base images pinned to a digest?</h3>
+            </a>
+            <p>Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../docker-build-secrets-check/" data-tool="docker-build-secrets-check" data-pf-to="docker-build-secrets-check">
+              <h3>Is a secret baked into your Docker image?</h3>
+            </a>
+            <p>Paste your Dockerfile and find every ENV or ARG instruction whose name looks like a secret, and every COPY/ADD of a credential file like .env or id_rsa into the build. Free, runs…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../docker-cache-order-check/" data-tool="docker-cache-order-check" data-pf-to="docker-cache-order-check">
+              <h3>Is your Dockerfile busting its own build cache?</h3>
+            </a>
+            <p>Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed after the whole build context, an install…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../docker-compose-security-check/" data-tool="docker-compose-security-check" data-pf-to="docker-compose-security-check">
+              <h3>What is your docker-compose.yml handing to the host?</h3>
+            </a>
+            <p>Paste your docker-compose.yml and find risky settings: privileged: true, docker.sock mounts, network_mode host, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets, :latest…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../dotenv-exposure-check/" data-tool="dotenv-exposure-check" data-pf-to="dotenv-exposure-check">
+              <h3>Dotenv Exposure Checker</h3>
+            </a>
+            <p>Free tool: paste your site's URL and it sends real GET requests to .env, .env.local, .env.production, and two other well-known dotenv filenames, verifying the response body…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../dynamodb-capacity-mode-advisor/" data-tool="dynamodb-capacity-mode-advisor" data-pf-to="dynamodb-capacity-mode-advisor">
+              <h3>Is your DynamoDB table on the wrong capacity mode?</h3>
+            </a>
+            <p>Paste a DynamoDB table's consumed read and write capacity from CloudWatch and see what it costs on-demand, provisioned with autoscaling and provisioned at a fixed peak. Free, runs…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ebs-volume-cost-advisor/" data-tool="ebs-volume-cost-advisor" data-pf-to="ebs-volume-cost-advisor">
+              <h3>Are your EBS volumes the wrong type?</h3>
+            </a>
+            <p>Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../email-api-pricing-calculator/" data-tool="email-api-pricing-calculator" data-pf-to="email-api-pricing-calculator">
+              <h3>What will transactional email cost at your send volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly send volume and see what Resend, Postmark, SendGrid, Mailgun, Amazon SES and Brevo charge, the 12-month spend under your growth rate, and the volume where the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../email-auth-check/" data-tool="email-auth-check" data-pf-to="email-auth-check">
+              <h3>Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</h3>
+            </a>
+            <p>Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../env-example-drift-check/" data-tool="env-example-drift-check" data-pf-to="env-example-drift-check">
+              <h3>Does your .env.example still match what the code actually reads?</h3>
+            </a>
+            <p>Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../error-tracking-pricing-calculator/" data-tool="error-tracking-pricing-calculator" data-pf-to="error-tracking-pricing-calculator">
+              <h3>What will error tracking cost at your event volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly event volume and see what Sentry, Rollbar, Bugsnag, Honeybadger and GlitchTip charge, the 12-month spend under your growth rate, and the volume where the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../feature-flag-pricing-calculator/" data-tool="feature-flag-pricing-calculator" data-pf-to="feature-flag-pricing-calculator">
+              <h3>What will feature flags cost at your requests-per-month volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly flag-evaluation volume (thousands of requests) and see what PostHog, Flagsmith and ConfigCat charge, the 12-month spend under your growth rate, and the volume…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../firebase-rules-check/" data-tool="firebase-rules-check" data-pf-to="firebase-rules-check">
+              <h3>Firebase Security Rules Exposure Checker</h3>
+            </a>
+            <p>Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only, unauthenticated requests…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../flaky-test-finder/" data-tool="flaky-test-finder" data-pf-to="flaky-test-finder">
+              <h3>Which of your tests are actually flaky?</h3>
+            </a>
+            <p>Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../git-bus-factor-check/" data-tool="git-bus-factor-check" data-pf-to="git-bus-factor-check">
+              <h3>If one person left tomorrow, which folders would nobody understand?</h3>
+            </a>
+            <p>Paste your git log and see the bus factor (truck factor) of every folder: who really owns it, whether they are still active, and who to pair with. Free, runs in your browser…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../git-exposure-check/" data-tool="git-exposure-check" data-pf-to="git-exposure-check">
+              <h3>Git Exposure Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../git-timesheet/" data-tool="git-timesheet" data-pf-to="git-timesheet">
+              <h3>Turn your git history into a timesheet your client can read</h3>
+            </a>
+            <p>Paste your git log and get estimated hours per day, a client-ready work summary in Markdown or CSV, and an invoice figure at your hourly rate. Free, private, runs in your browser…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../graphql-introspection-exposure-check/" data-tool="graphql-introspection-exposure-check" data-pf-to="graphql-introspection-exposure-check">
+              <h3>GraphQL Introspection Exposure Checker</h3>
+            </a>
+            <p>Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../helm-values-schema-check/" data-tool="helm-values-schema-check" data-pf-to="helm-values-schema-check">
+              <h3>Does your values.yaml actually match its own schema?</h3>
+            </a>
+            <p>Paste a Helm chart's values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare (Helm's template engine…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../hidden-unicode-check/" data-tool="hidden-unicode-check" data-pf-to="hidden-unicode-check">
+              <h3>Hidden Unicode Check</h3>
+            </a>
+            <p>Paste CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any text and find zero-width characters, Unicode tag characters, and bidirectional (RLO/LRO)…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../hreflang-reciprocity-check/" data-tool="hreflang-reciprocity-check" data-pf-to="hreflang-reciprocity-check">
+              <h3>hreflang Reciprocity Check</h3>
+            </a>
+            <p>Free tool: paste a page's HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../incident-postmortem-timeline/" data-tool="incident-postmortem-timeline" data-pf-to="incident-postmortem-timeline">
+              <h3>Turn incident notes into a postmortem draft</h3>
+            </a>
+            <p>Paste an incident log and get time to detect, acknowledge, mitigate and resolve plus a blameless postmortem draft in Markdown. Free incident timeline generator and MTTR…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ios-privacy-manifest-check/" data-tool="ios-privacy-manifest-check" data-pf-to="ios-privacy-manifest-check">
+              <h3>iOS Privacy Manifest Checker</h3>
+            </a>
+            <p>Free, browser-local checker: scans your Swift/Objective-C source for Apple's Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../json-ld-rich-result-validator/" data-tool="json-ld-rich-result-validator" data-pf-to="json-ld-rich-result-validator">
+              <h3>JSON-LD Rich Result Validator — free, private, in your browser</h3>
+            </a>
+            <p>Free JSON-LD and schema markup validator. Paste a page's HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../json-to-types-generator/" data-tool="json-to-types-generator" data-pf-to="json-to-types-generator">
+              <h3>JSON to TypeScript, Zod, JSON Schema and Go, in your browser</h3>
+            </a>
+            <p>Convert JSON to TypeScript interfaces, Zod schemas, JSON Schema or Go structs. Merges many samples to find optional and nullable fields. Free, runs in your browser, nothing…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../jwt-verification-misuse-check/" data-tool="jwt-verification-misuse-check" data-pf-to="jwt-verification-misuse-check">
+              <h3>Is your code verifying JWTs, or only reading them?</h3>
+            </a>
+            <p>Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none, unpinned algorithms…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../k8s-deprecated-api-check/" data-tool="k8s-deprecated-api-check" data-pf-to="k8s-deprecated-api-check">
+              <h3>Will this manifest survive your next Kubernetes upgrade?</h3>
+            </a>
+            <p>Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will remove --…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../k8s-pod-security-check/" data-tool="k8s-pod-security-check" data-pf-to="k8s-pod-security-check">
+              <h3>What are your Kubernetes manifests handing to the node?</h3>
+            </a>
+            <p>Paste your Kubernetes YAML and find risky pod security settings: privileged: true, hostNetwork, hostPath docker.sock, SYS_ADMIN capabilities, running as root, missing…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../k8s-requests-rightsizer/" data-tool="k8s-requests-rightsizer" data-pf-to="k8s-requests-rightsizer">
+              <h3>Are your Kubernetes requests wasting money?</h3>
+            </a>
+            <p>Paste kubectl top output, kubectl get pods JSON or a simple CSV and see which containers request far more CPU and memory than they use, a recommended request with headroom, the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../k8s-resource-limits-check/" data-tool="k8s-resource-limits-check" data-pf-to="k8s-resource-limits-check">
+              <h3>Will this container take down its whole node?</h3>
+            </a>
+            <p>Paste or load Kubernetes manifest YAML and get a deterministic report of every container missing a memory limit, memory request, CPU request, or ephemeral-storage limit -- the…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../k8s-rollout-safety-check/" data-tool="k8s-rollout-safety-check" data-pf-to="k8s-rollout-safety-check">
+              <h3>Will your Kubernetes rollout drop live requests?</h3>
+            </a>
+            <p>Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../lambda-memory-rightsizer/" data-tool="lambda-memory-rightsizer" data-pf-to="lambda-memory-rightsizer">
+              <h3>Is your Lambda memory setting costing you money?</h3>
+            </a>
+            <p>Paste AWS Lambda CloudWatch REPORT lines and see peak memory against what you configured, duration percentiles, cold-start share, and the memory size that minimises cost without a…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../lambda-vs-fargate-cost-breakeven/" data-tool="lambda-vs-fargate-cost-breakeven" data-pf-to="lambda-vs-fargate-cost-breakeven">
+              <h3>Lambda or Fargate? Find your cost break-even</h3>
+            </a>
+            <p>Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../liability-audit/" data-tool="liability-audit" data-pf-to="liability-audit">
+              <h3>What in your app could cost you a fine, a chargeback or a surprise bill?</h3>
+            </a>
+            <p>Free, open-source scan of your app's code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../license-compat-check/" data-tool="license-compat-check" data-pf-to="license-compat-check">
+              <h3>Can you ship these dependencies under your license?</h3>
+            </a>
+            <p>Paste your dependency licenses, say how you ship (closed-source app, SaaS, internal tool, or an open-source license) and see which dependencies conflict — GPL in a proprietary…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../license-drift-check/" data-tool="license-drift-check" data-pf-to="license-drift-check">
+              <h3>Did a dependency's license just change under you?</h3>
+            </a>
+            <p>Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../llm-api-pricing-calculator/" data-tool="llm-api-pricing-calculator" data-pf-to="llm-api-pricing-calculator">
+              <h3>LLM API Pricing Calculator</h3>
+            </a>
+            <p>Compare the monthly dollar cost of calling different LLM APIs (Claude, GPT, Gemini, or a custom provider) for your own workload -- modelling fresh input, cached input, and output…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../llm-call-cost-scan/" data-tool="llm-call-cost-scan" data-pf-to="llm-call-cost-scan">
+              <h3>Which LLM calls in your code are quietly costing you money?</h3>
+            </a>
+            <p>Paste your code and see every OpenAI, Anthropic and Gemini call with no max-tokens cap, inside a loop, on a premium model, or using a retired model name, plus a monthly cost…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../llm-output-regression-diff/" data-tool="llm-output-regression-diff" data-pf-to="llm-output-regression-diff">
+              <h3>Did the new model break your prompts?</h3>
+            </a>
+            <p>Paste your saved LLM outputs from before and after a model swap or prompt edit and see which cases broke: invalid JSON, lost keys, new refusals, truncation, lost numbers. Free…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../llm-spend-guard/" data-tool="llm-spend-guard" data-pf-to="llm-spend-guard">
+              <h3>Would a spend cap have stopped your runaway LLM bill?</h3>
+            </a>
+            <p>Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../llm-usage-log-analyzer/" data-tool="llm-usage-log-analyzer" data-pf-to="llm-usage-log-analyzer">
+              <h3>LLM Usage Log Analyzer</h3>
+            </a>
+            <p>Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../llms-txt-generator/" data-tool="llms-txt-generator" data-pf-to="llms-txt-generator">
+              <h3>Build a valid llms.txt for your site, free</h3>
+            </a>
+            <p>Paste your site's page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../lockfile-license-check/" data-tool="lockfile-license-check" data-pf-to="lockfile-license-check">
+              <h3>Is anything in your node_modules GPL?</h3>
+            </a>
+            <p>Paste your package-lock.json and see every dependency licence: copyleft (GPL, AGPL), unlicensed and unknown packages flagged first. Free npm license checker, runs in your browser…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../log-management-pricing-calculator/" data-tool="log-management-pricing-calculator" data-pf-to="log-management-pricing-calculator">
+              <h3>What will logging cost at your GB-per-month volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly log volume (GB ingested) and see what Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail charge, the 12-month spend under your growth rate…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../mcp-config-risk-check/" data-tool="mcp-config-risk-check" data-pf-to="mcp-config-risk-check">
+              <h3>MCP Config Risk Check</h3>
+            </a>
+            <p>Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../merchant-feed-check/" data-tool="merchant-feed-check" data-pf-to="merchant-feed-check">
+              <h3>Will this product feed get items disapproved?</h3>
+            </a>
+            <p>Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../merchant-of-record-fee-calculator/" data-tool="merchant-of-record-fee-calculator" data-pf-to="merchant-of-record-fee-calculator">
+              <h3>Stripe or a merchant of record: what do you keep at your monthly revenue?</h3>
+            </a>
+            <p>Enter your monthly software revenue and average sale price and see what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take, your net payout, 12-month totals, and the revenue…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../nat-gateway-cost-advisor/" data-tool="nat-gateway-cost-advisor" data-pf-to="nat-gateway-cost-advisor">
+              <h3>Is your NAT gateway bill avoidable?</h3>
+            </a>
+            <p>Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../neon-bill-estimator/" data-tool="neon-bill-estimator" data-pf-to="neon-bill-estimator">
+              <h3>What will your Neon bill be, and what cuts it most?</h3>
+            </a>
+            <p>Estimate a monthly Neon serverless Postgres bill from your own usage (compute CU-hours, storage, restore history, branches, data transfer) at editable list prices, and see which…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../node-version-drift-check/" data-tool="node-version-drift-check" data-pf-to="node-version-drift-check">
+              <h3>Do your package.json, .nvmrc, Dockerfile and CI agree on Node.js?</h3>
+            </a>
+            <p>Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../npm-audit-triage/" data-tool="npm-audit-triage" data-pf-to="npm-audit-triage">
+              <h3>Which npm audit findings actually matter?</h3>
+            </a>
+            <p>Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../npm-lifecycle-script-check/" data-tool="npm-lifecycle-script-check" data-pf-to="npm-lifecycle-script-check">
+              <h3>Did a dependency just start running code at install time?</h3>
+            </a>
+            <p>Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../npm-lockfile-duplicates-check/" data-tool="npm-lockfile-duplicates-check" data-pf-to="npm-lockfile-duplicates-check">
+              <h3>Why is node_modules installing the same package five times?</h3>
+            </a>
+            <p>Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../npm-provenance-check/" data-tool="npm-provenance-check" data-pf-to="npm-provenance-check">
+              <h3>Which of your npm dependencies lack a provenance attestation?</h3>
+            </a>
+            <p>Paste a package-lock.json, package.json, or a plain package list and see which packages were published with a provenance attestation (npm trusted publishing / OIDC, or…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../object-storage-pricing-calculator/" data-tool="object-storage-pricing-calculator" data-pf-to="object-storage-pricing-calculator">
+              <h3>What will object storage cost for your GB stored and GB served, and who is cheapest?</h3>
+            </a>
+            <p>Enter the GB you store and the GB you serve per month and see what Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner charge, the 12-month spend under…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../obsidian-plugin-review-check/" data-tool="obsidian-plugin-review-check" data-pf-to="obsidian-plugin-review-check">
+              <h3>Obsidian Plugin Review Checker</h3>
+            </a>
+            <p>Free, browser-local checker for Obsidian plugin developers: cross-checks manifest.json against versions.json, flags leftover sample-plugin template placeholder values, and scans…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../oidc-trust-policy-check/" data-tool="oidc-trust-policy-check" data-pf-to="oidc-trust-policy-check">
+              <h3>GitHub Actions OIDC Trust Policy Checker</h3>
+            </a>
+            <p>Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../oncall-load-analyzer/" data-tool="oncall-load-analyzer" data-pf-to="oncall-load-analyzer">
+              <h3>On-Call Load Analyzer — free, private, paste-the-export</h3>
+            </a>
+            <p>Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../openapi-breaking-change-check/" data-tool="openapi-breaking-change-check" data-pf-to="openapi-breaking-change-check">
+              <h3>Did this API version break existing clients?</h3>
+            </a>
+            <p>Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../package-exports-drift-check/" data-tool="package-exports-drift-check" data-pf-to="package-exports-drift-check">
+              <h3>Does your package.json &quot;exports&quot; map point at files that actually exist?</h3>
+            </a>
+            <p>Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn't exist -- the cause of…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../pg-stat-statements-analyzer/" data-tool="pg-stat-statements-analyzer" data-pf-to="pg-stat-statements-analyzer">
+              <h3>pg_stat_statements Analyzer — free, private, paste-the-output</h3>
+            </a>
+            <p>Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time, which look like N+1 loops, and which miss…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../pinned-actions-check/" data-tool="pinned-actions-check" data-pf-to="pinned-actions-check">
+              <h3>Are your GitHub Actions pinned to a commit SHA?</h3>
+            </a>
+            <p>Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../pip-audit-triage/" data-tool="pip-audit-triage" data-pf-to="pip-audit-triage">
+              <h3>Which pip-audit findings actually matter?</h3>
+            </a>
+            <p>Paste pip-audit -f json and your Python source: see which vulnerable packages your code actually imports and which are test-only or unreferenced noise. Free pip-audit triage, runs…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../postgres-explain-analyzer/" data-tool="postgres-explain-analyzer" data-pf-to="postgres-explain-analyzer">
+              <h3>Why is my Postgres query slow? Paste the plan.</h3>
+            </a>
+            <p>Paste a PostgreSQL EXPLAIN ANALYZE plan (text or JSON) and see where the time went per node, missing indexes, bad row estimates and disk spills, each with a suggested fix. Free…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../postgres-index-auditor/" data-tool="postgres-index-auditor" data-pf-to="postgres-index-auditor">
+              <h3>Postgres Index Auditor — free, private, paste-the-output</h3>
+            </a>
+            <p>Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ppp-pricing-table-generator/" data-tool="ppp-pricing-table-generator" data-pf-to="ppp-pricing-table-generator">
+              <h3>PPP pricing table generator for apps and SaaS</h3>
+            </a>
+            <p>Turn one price into a purchasing-power (PPP) price table for about 50 countries: damped discounts, a floor, .99 rounding, price tiers, regional discount groups and a revenue…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../product-analytics-pricing-calculator/" data-tool="product-analytics-pricing-calculator" data-pf-to="product-analytics-pricing-calculator">
+              <h3>What will product analytics cost at your event volume, and who is cheapest?</h3>
+            </a>
+            <p>Enter your monthly event volume and see what PostHog, Mixpanel, Plausible, Fathom and Umami Cloud charge, the 12-month spend under your growth rate, and the volume where the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../prometheus-cardinality-cost/" data-tool="prometheus-cardinality-cost" data-pf-to="prometheus-cardinality-cost">
+              <h3>Which labels are inflating your Prometheus metrics bill?</h3>
+            </a>
+            <p>Paste a Prometheus or OpenMetrics /metrics scrape and see active series per metric, the high-cardinality labels, the exact series saved by dropping each one, and a monthly cost…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../pwa-installability-check/" data-tool="pwa-installability-check" data-pf-to="pwa-installability-check">
+              <h3>PWA Installability Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../pypi-provenance-check/" data-tool="pypi-provenance-check" data-pf-to="pypi-provenance-check">
+              <h3>Which of your PyPI dependencies lack a provenance attestation?</h3>
+            </a>
+            <p>Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing /…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../rds-instance-cost-advisor/" data-tool="rds-instance-cost-advisor" data-pf-to="rds-instance-cost-advisor">
+              <h3>Why is your RDS bill so high?</h3>
+            </a>
+            <p>Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../rds-instance-rightsizer/" data-tool="rds-instance-rightsizer" data-pf-to="rds-instance-rightsizer">
+              <h3>Is your RDS instance too big?</h3>
+            </a>
+            <p>Paste CloudWatch CPU, freeable memory and connection numbers (or describe-db-instances JSON) and see which RDS and Aurora instances are over- or under-provisioned, the next class…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../redirect-chain-check/" data-tool="redirect-chain-check" data-pf-to="redirect-chain-check">
+              <h3>Redirect Chain Checker</h3>
+            </a>
+            <p>Free tool: paste the hops a URL's redirects actually took (from your browser's Network tab, or a curl -sI trace) and check for a redirect loop, a chain longer than the recommended…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../referrer-permissions-policy-check/" data-tool="referrer-permissions-policy-check" data-pf-to="referrer-permissions-policy-check">
+              <h3>Referrer-Policy &amp; Permissions-Policy Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../regex-redos-check/" data-tool="regex-redos-check" data-pf-to="regex-redos-check">
+              <h3>Which regexes in your code can hang your server?</h3>
+            </a>
+            <p>Paste JavaScript, TypeScript or Python and see every regular expression that can backtrack catastrophically (ReDoS): nested quantifiers, overlapping alternation, adjacent…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../release-notes-generator/" data-tool="release-notes-generator" data-pf-to="release-notes-generator">
+              <h3>Changelog from git commits, in your browser</h3>
+            </a>
+            <p>Generate release notes and a CHANGELOG.md entry from git log: grouped by Conventional Commit type, breaking changes first, with a suggested semantic version bump. Free, runs in…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../required-checks-drift-check/" data-tool="required-checks-drift-check" data-pf-to="required-checks-drift-check">
+              <h3>Is a required status check stuck forever on your repo?</h3>
+            </a>
+            <p>Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../requirements-pin-check/" data-tool="requirements-pin-check" data-pf-to="requirements-pin-check">
+              <h3>Is your requirements.txt actually reproducible?</h3>
+            </a>
+            <p>Paste your requirements.txt and see every unpinned version, missing hash, extra index URL and unpinned git dependency. Free pip requirements pin checker, runs in your browser…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../s3-bucket-exposure-check/" data-tool="s3-bucket-exposure-check" data-pf-to="s3-bucket-exposure-check">
+              <h3>S3 Bucket Exposure Checker</h3>
+            </a>
+            <p>Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../s3-storage-class-advisor/" data-tool="s3-storage-class-advisor" data-pf-to="s3-storage-class-advisor">
+              <h3>Is your S3 bucket in the wrong storage class?</h3>
+            </a>
+            <p>Paste per-bucket S3 size, object count and read activity and see the monthly cost in Standard, Standard-IA, Intelligent-Tiering and Glacier Instant Retrieval, with the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../s3-storage-class-savings/" data-tool="s3-storage-class-savings" data-pf-to="s3-storage-class-savings">
+              <h3>Will an S3 lifecycle rule actually save money?</h3>
+            </a>
+            <p>Paste an S3 Inventory CSV and see current monthly cost by storage class and the net 12-month saving of moving objects to Standard-IA, Glacier or Intelligent-Tiering after…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sbom-diff-check/" data-tool="sbom-diff-check" data-pf-to="sbom-diff-check">
+              <h3>What changed between two SBOMs?</h3>
+            </a>
+            <p>Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../search-api-pricing-calculator/" data-tool="search-api-pricing-calculator" data-pf-to="search-api-pricing-calculator">
+              <h3>What will hosted search cost for your records and monthly searches, and who is cheapest?</h3>
+            </a>
+            <p>Enter your record count and monthly searches and see what Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted box cost, the 12-month spend under your…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../security-headers-check/" data-tool="security-headers-check" data-pf-to="security-headers-check">
+              <h3>Security Headers Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../security-txt-check/" data-tool="security-txt-check" data-pf-to="security-txt-check">
+              <h3>security.txt Checker (RFC 9116)</h3>
+            </a>
+            <p>Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn't a URI…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sitemap-lastmod-freshness-check/" data-tool="sitemap-lastmod-freshness-check" data-pf-to="sitemap-lastmod-freshness-check">
+              <h3>Sitemap lastmod Freshness Check</h3>
+            </a>
+            <p>Free tool: paste a sitemap.xml and check its &lt;lastmod&gt; dates for the freshness-faking anti-pattern Google's own sitemap documentation warns about -- invalid/malformed W3C-Datetime…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../skill-manifest-check/" data-tool="skill-manifest-check" data-pf-to="skill-manifest-check">
+              <h3>Skill Manifest Check</h3>
+            </a>
+            <p>Paste a SKILL.md file (the format Claude Code and similar agent systems use) and get every common authoring mistake flagged: missing or malformed frontmatter, a description too…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../slo-burn-rate-alerts/" data-tool="slo-burn-rate-alerts" data-pf-to="slo-burn-rate-alerts">
+              <h3>SLO burn-rate alerts, generated</h3>
+            </a>
+            <p>Enter your SLO and get the error budget in minutes of downtime, multi-window multi-burn-rate alert thresholds, how fast each alert fires in an outage, and a Prometheus rules file…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../slopsquatting-check/" data-tool="slopsquatting-check" data-pf-to="slopsquatting-check">
+              <h3>Did an AI assistant just suggest a package that doesn't exist?</h3>
+            </a>
+            <p>Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sms-segment-cost-calculator/" data-tool="sms-segment-cost-calculator" data-pf-to="sms-segment-cost-calculator">
+              <h3>Why does this text bill as 3 segments?</h3>
+            </a>
+            <p>Paste a text message to see whether it is GSM-7 or UCS-2, how many segments it bills as, what it costs per month at your volume, and which curly quote or emoji to swap to cut the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../snowflake-warehouse-cost-advisor/" data-tool="snowflake-warehouse-cost-advisor" data-pf-to="snowflake-warehouse-cost-advisor">
+              <h3>Why is your Snowflake bill so high?</h3>
+            </a>
+            <p>Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../soc2-readiness-checker/" data-tool="soc2-readiness-checker" data-pf-to="soc2-readiness-checker">
+              <h3>SOC 2 Readiness Checker — free, private, no signup</h3>
+            </a>
+            <p>Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../social-preview-check/" data-tool="social-preview-check" data-pf-to="social-preview-check">
+              <h3>Social Preview Checker</h3>
+            </a>
+            <p>Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../source-map-leak-check/" data-tool="source-map-leak-check" data-pf-to="source-map-leak-check">
+              <h3>Source Map Leak Checker</h3>
+            </a>
+            <p>Free tool: paste your site's URL (or a list of JS file URLs), and it finds every script's sourceMappingURL comment, fetches the map, and names which ones are publicly readable and…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../speech-to-text-pricing-calculator/" data-tool="speech-to-text-pricing-calculator" data-pf-to="speech-to-text-pricing-calculator">
+              <h3>What will transcription cost for your audio hours, and who is cheapest?</h3>
+            </a>
+            <p>Enter how many audio hours you transcribe a month and whether you need real-time streaming or speaker labels, and see what the OpenAI Whisper API, Deepgram, AssemblyAI, Google…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sql-migration-lock-check/" data-tool="sql-migration-lock-check" data-pf-to="sql-migration-lock-check">
+              <h3>Will this migration take your database down?</h3>
+            </a>
+            <p>Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sri-check/" data-tool="sri-check" data-pf-to="sri-check">
+              <h3>Subresource Integrity (SRI) Checker &amp; Hash Generator</h3>
+            </a>
+            <p>Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../structured-data-drift-check/" data-tool="structured-data-drift-check" data-pf-to="structured-data-drift-check">
+              <h3>Does your structured data match what's actually on the page?</h3>
+            </a>
+            <p>Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../subdomain-takeover-check/" data-tool="subdomain-takeover-check" data-pf-to="subdomain-takeover-check">
+              <h3>Subdomain Takeover Checker</h3>
+            </a>
+            <p>Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) --…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../subpath-robots-check/" data-tool="subpath-robots-check" data-pf-to="subpath-robots-check">
+              <h3>Your GitHub Pages sitemap is probably never read</h3>
+            </a>
+            <p>A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt, so its sitemap is never auto-discovered and…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../supabase-bill-estimator/" data-tool="supabase-bill-estimator" data-pf-to="supabase-bill-estimator">
+              <h3>What will your Supabase bill be, and what cuts it most?</h3>
+            </a>
+            <p>Estimate a monthly Supabase Pro bill from your own usage (compute, database disk, egress, storage, monthly active users, Edge Functions, Realtime) at editable list prices, and see…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../supabase-rls-check/" data-tool="supabase-rls-check" data-pf-to="supabase-rls-check">
+              <h3>Supabase RLS Exposure Checker</h3>
+            </a>
+            <p>Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../terraform-plan-blast-radius-check/" data-tool="terraform-plan-blast-radius-check" data-pf-to="terraform-plan-blast-radius-check">
+              <h3>Which of these resources is your terraform apply about to destroy?</h3>
+            </a>
+            <p>Paste or load a Terraform structured plan (terraform show -json) and see its blast radius before you apply: every destroy and replace called out individually with the attribute…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../terraform-plan-cost-estimate/" data-tool="terraform-plan-cost-estimate" data-pf-to="terraform-plan-cost-estimate">
+              <h3>What will this terraform apply add to the monthly AWS bill?</h3>
+            </a>
+            <p>Paste a Terraform plan (terraform show -json) and get an approximate monthly AWS cost delta before you apply: top cost drivers, an honest list of what it could not price, and a…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../terraform-plan-secret-exposure-check/" data-tool="terraform-plan-secret-exposure-check" data-pf-to="terraform-plan-secret-exposure-check">
+              <h3>Did your Terraform plan just print a secret in plaintext?</h3>
+            </a>
+            <p>Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../training-gpu-pricing-calculator/" data-tool="training-gpu-pricing-calculator" data-pf-to="training-gpu-pricing-calculator">
+              <h3>What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</h3>
+            </a>
+            <p>Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../upstash-redis-bill-estimator/" data-tool="upstash-redis-bill-estimator" data-pf-to="upstash-redis-bill-estimator">
+              <h3>What will your Upstash Redis bill be, and should you go fixed?</h3>
+            </a>
+            <p>Estimate a monthly Upstash Redis bill from your own usage (million commands, storage GB, bandwidth GB) at editable list prices, see where pay-as-you-go crosses over to a fixed…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../uptime-monitoring-pricing-calculator/" data-tool="uptime-monitoring-pricing-calculator" data-pf-to="uptime-monitoring-pricing-calculator">
+              <h3>What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</h3>
+            </a>
+            <p>Enter how many monitors you need, how often they must be checked and whether you want a public status page, and see what UptimeRobot, Better Stack, Hyperping, Pingdom and…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../vercel-bill-estimator/" data-tool="vercel-bill-estimator" data-pf-to="vercel-bill-estimator">
+              <h3>What will your Vercel bill be, and what cuts it most?</h3>
+            </a>
+            <p>Estimate a monthly Vercel Pro bill from your own usage (bandwidth, edge requests, functions, images, builds, seats) at editable list prices, and see which changes cut it most…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../video-hosting-pricing-calculator/" data-tool="video-hosting-pricing-calculator" data-pf-to="video-hosting-pricing-calculator">
+              <h3>What will video hosting cost for your minutes stored and watched, and who is cheapest?</h3>
+            </a>
+            <p>Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../vscode-extension-drift-check/" data-tool="vscode-extension-drift-check" data-pf-to="vscode-extension-drift-check">
+              <h3>Did an extension you already trust just change what it does?</h3>
+            </a>
+            <p>Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../webhook-signature-debugger/" data-tool="webhook-signature-debugger" data-pf-to="webhook-signature-debugger">
+              <h3>Why is my webhook signature failing?</h3>
+            </a>
+            <p>Webhook signature verification failed? Paste the headers, raw body and secret to verify the HMAC for Stripe, GitHub, Shopify, Slack and Svix, and see exactly why it does not…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../wordpress-plugin-review-check/" data-tool="wordpress-plugin-review-check" data-pf-to="wordpress-plugin-review-check">
+              <h3>WordPress Plugin Review Checker</h3>
+            </a>
+            <p>Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../workflow-audit/" data-tool="workflow-audit" data-pf-to="workflow-audit">
+              <h3>One GitHub Action, twelve workflow risks checked</h3>
+            </a>
+            <p>Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only…</p>
+            
+          </li>
+      </ul>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/self-hosted/">Self-hosted business apps</a> <span>(30)</span></li>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../../c/evidence/">Free compliance check and evidence record tools</a> <span>(116)</span></li>
+        <li><a href="../../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(54)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/ci" defer></script>
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>
+</body>
+</html>

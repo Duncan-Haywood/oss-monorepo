@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Can an Owner Operator Deduct Per Diem? Worked Example</title>
+  <meta name="description" content="How an owner-operator truck driver thinks about the meal per diem deduction: days away, travel days at 75%, the 80% DOT limit, receipts versus per diem…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/can-an-owner-operator-deduct-per-diem.html">
+  <meta property="og:title" content="Can an Owner Operator Deduct Per Diem?">
+  <meta property="og:description" content="A worked example of per diem versus receipts for a self-employed truck driver, with what to verify.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can an owner-operator deduct per diem?", "acceptedAnswer": {"@type": "Answer", "text": "A self-employed truck driver who is away from home overnight for work can generally deduct meals and incidental expenses, either with actual receipts or a per diem rate, subject to the 80% DOT hours-of-service limit. Verify the current rules and rates with the IRS and a tax professional."}}, {"@type": "Question", "name": "Can a W-2 company driver deduct per diem?", "acceptedAnswer": {"@type": "Answer", "text": "Generally not as an unreimbursed employee expense, but rules changed under 2025 legislation: verify with the IRS and a tax professional before relying on any answer."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; }
+    p, li { line-height: 1.55; }
+    a { color: #8a5a12; }
+    .example { background: #fff; border: 1px solid #c9d2c6; border-radius: 12px; padding: 16px 18px; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5b54; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/can-an-owner-operator-deduct-per-diem.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Can an Owner Operator Deduct Per Diem? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../owner-operator-per-diem-calculator/">Owner Operator Per Diem Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Can an Owner Operator Deduct Per Diem?</span></span></nav>
+  <p><a href="./">← Owner-operator per diem calculator</a></p>
+  <h1>Can an owner-operator deduct per diem?</h1>
+  <p>In general, a self-employed truck driver who is away from home overnight for work can deduct meals and incidental expenses, either from actual receipts or with a per diem rate instead of tracking each meal. For drivers under the DOT hours-of-service rules the deductible share of meals is 80%. Every figure in this page is a starting point to verify against the current GSA and IRS notices.</p>
+  <h2>A worked example</h2>
+  <div class="example">
+    <p>220 full days and 30 travel days away, at a default $80 a day (verify the current rate; it is higher outside the continental US). Travel days count at 75%.</p>
+    <p>220 × $80 = $17,600. 30 × $80 × 75% = $1,800. Together $19,400. At the 80% limit the per diem deduction is <strong>$15,520</strong>. If receipts total $9,000, they give $7,200, so per diem is larger here.</p>
+    <p>At $80,000 of net profit, the 15.3% × 92.35% self-employment tax falls by about $2,193, and a 22% bracket on the deduction adds roughly $3,650 more. Your numbers will differ.</p>
+  </div>
+  <h2>What to check</h2>
+  <ul>
+    <li>The current rate and travel-day percentage, from the GSA and IRS notices, not from this page.</li>
+    <li>That you are self-employed. W-2 company drivers generally cannot deduct these as unreimbursed employee expenses, but verify; rules changed under 2025 legislation.</li>
+    <li>That your records of dates and places away from home are complete.</li>
+    <li>The Social Security wage base for the year, which caps the 12.4% part of self-employment tax.</li>
+  </ul>
+  <h2>Can an owner-operator deduct per diem?</h2>
+  <p>A self-employed truck driver who is away from home overnight for work can generally deduct meals and incidental expenses, either with actual receipts or a per diem rate, subject to the 80% DOT hours-of-service limit. Verify the current rules and rates with the IRS and a tax professional.</p>
+  <h2>Can a W-2 company driver deduct per diem?</h2>
+  <p>Generally not as an unreimbursed employee expense, but rules changed under 2025 legislation: verify with the IRS and a tax professional before relying on any answer.</p>
+  <p><a href="./">Open the calculator</a>, replace the example with your own days and receipts, and see which is larger. Nothing is uploaded. Related: <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a> and <a href="../ifta-quarterly-fuel-tax-calculator/">IFTA quarterly fuel tax calculator</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free general information and arithmetic, not tax, legal or financial advice. Verify every figure with the IRS, GSA and a qualified tax professional before relying on it. Not affiliated with the IRS, GSA or DOT. The authors accept no liability for loss from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and may be taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+      <li><a href="../3pl-quote-normalizer/" data-pf-to="3pl-quote-normalizer">3PL Quote Normalizer</a></li>
+      <li><a href="../car-hauler-load-planner/" data-pf-to="car-hauler-load-planner">Car hauler load planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=owner-operator-per-diem-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="owner-operator-per-diem-calculator"></script>
+</body>
+</html>

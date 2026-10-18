@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Second janitorial site after drive time | Does the next building still pay?</title>
+  <meta name="description" content="A second commercial cleaning account looks profitable until you count the drive. Price the new building with loaded travel labor, extra fuel…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/second-site.html">
+  <meta property="og:title" content="Does a second janitorial site still pay after the drive?">
+  <meta property="og:description" content="Drive time is loaded labor. See the second-building price that still holds your margin once the van is not free.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Second janitorial site drive-time calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Second-site production-rate bid, loaded drive-time labor, extra fuel, walk-away price, offered-price margin check, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c7a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #6b4a12; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c7a5e; }
+    .nav { margin: 0 0 18px; font-size: .9rem; }
+    .nav a { color: #1c7a5e; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/second-site.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does a second janitorial site still pay after the drive? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../janitorial-bid-calculator/">Janitorial Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does a second janitorial site still pay after the drive?</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p class="nav"><a href="./">← First-building bid calculator</a></p>
+  <header>
+    <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
+    <h1>Does the second building still pay after the drive?</h1>
+    <p>The production-rate bid on the first site treats the van as already paid for. The second site adds a hop. Those minutes are loaded labor, and the extra fuel is a monthly direct cost. This page prices the new building the same way as the first, then puts the drive on the bill before you say yes.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The new building</h2>
+        <p class="hint">Same method as the first-building calculator: cleanable square feet divided by the rate your crew really hits. Put only incremental equipment here — do not re-enter the first site&rsquo;s truck.</p>
+        <div class="fields">
+          <label>Office / open floor (sq ft) <input id="officeSqFt" type="number" min="0" step="10" value="2000" inputmode="numeric"></label>
+          <label>Office sq ft / hour <input id="officeRate" type="number" min="1" step="any" value="4000" inputmode="decimal"></label>
+          <label>Restrooms (sq ft) <input id="restroomSqFt" type="number" min="0" step="10" value="200" inputmode="numeric"></label>
+          <label>Restroom sq ft / hour <input id="restroomRate" type="number" min="1" step="any" value="1200" inputmode="decimal"></label>
+          <label>Cleans per week <input id="cleaningsPerWeek" type="number" min="0" max="21" step="1" value="3" inputmode="numeric"></label>
+          <label>Cleaner hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="17" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28" inputmode="decimal"></label>
+          <label>Supplies per sq ft / month <input id="suppliesPerSqFtMonth" type="number" min="0" step="0.001" value="0.005" inputmode="decimal"></label>
+          <label>Incremental equipment / month <input id="equipmentMonthly" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20" inputmode="decimal"></label>
+        </div>
+      </section>
+      <section>
+        <h2>The drive</h2>
+        <p class="hint">One-way minutes from your current route — home or the first building — to this address. Trips per week is how often the crew actually goes, which can be less than cleans per week if they stack two sites in one night.</p>
+        <div class="fields">
+          <label>Drive minutes, one way <input id="driveMinutesOneWay" type="number" min="0" step="1" value="25" inputmode="numeric"></label>
+          <label>Trips per week <input id="tripsPerWeek" type="number" min="0" max="21" step="1" value="3" inputmode="numeric"></label>
+          <label>Extra fuel, tolls, wear / month <input id="extraVehicleMonthly" type="number" min="0" step="1" value="80" inputmode="numeric"></label>
+          <label>Price they offered (optional) <input id="offeredMonthly" type="number" min="0" step="10" placeholder="e.g. 450" inputmode="numeric"></label>
+          <label>Profit you already keep / month (optional) <input id="existingMonthlyProfit" type="number" step="10" placeholder="e.g. 340" inputmode="numeric"></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Second-site price</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">monthly, drive included, to hold your margin</div>
+      <dl>
+        <dt>If the van were free</dt><dd id="ignoredDrive"></dd>
+        <dt>Drive gap</dt><dd id="driveGap"></dd>
+        <dt>Hours on the road / month</dt><dd id="driveHours"></dd>
+        <dt>Drive share of this site&rsquo;s hours</dt><dd id="driveShare"></dd>
+        <dt>Loaded drive labor</dt><dd id="driveLabor"></dd>
+        <dt>Extra vehicle</dt><dd id="vehicle"></dd>
+        <dt>Walk-away (drive included)</dt><dd id="walkAway"></dd>
+        <dt>Building-only labor hours / month</dt><dd id="buildingHours"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div id="combined" class="note" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy reply</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard. Time your own crews and replace them. Confirm insurance, mileage policy, and overtime before you send a number.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge or whether to take a job. Verify every figure against your own payroll, insurance, fuel, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your buildings, wages, costs, or prices.</p>
+    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+
+  <script type="module">
+    import { compareSecondSite, secondSiteNote } from './second-site.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'officeSqFt','officeRate','restroomSqFt','restroomRate','cleaningsPerWeek',
+      'hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','overheadRate','targetMargin',
+      'driveMinutesOneWay','tripsPerWeek','extraVehicleMonthly','offeredMonthly','existingMonthlyProfit',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      const cleans = el('cleaningsPerWeek').value;
+      return {
+        candidate: {
+          areas: [
+            { name: 'Open office', squareFeet: el('officeSqFt').value, productionRate: el('officeRate').value, cleaningsPerWeek: cleans },
+            { name: 'Restrooms', squareFeet: el('restroomSqFt').value, productionRate: el('restroomRate').value, cleaningsPerWeek: cleans },
+          ],
+          hourlyWage: el('hourlyWage').value,
+          burdenRate: el('burdenRate').value,
+          suppliesPerSqFtMonth: el('suppliesPerSqFtMonth').value,
+          equipmentMonthly: el('equipmentMonthly').value,
+          otherMonthly: 0,
+          overheadRate: el('overheadRate').value,
+          targetMargin: el('targetMargin').value,
+        },
+        driveMinutesOneWay: el('driveMinutesOneWay').value,
+        tripsPerWeek: el('tripsPerWeek').value,
+        extraVehicleMonthly: el('extraVehicleMonthly').value,
+        offeredMonthly: el('offeredMonthly').value,
+        existingMonthlyProfit: el('existingMonthlyProfit').value,
+      };
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly, drive included, to hold your margin';
+      ['ignoredDrive','driveGap','driveHours','driveShare','driveLabor','vehicle','walkAway','buildingHours']
+        .forEach(id => { el(id).textContent = ''; });
+      el('verdict').hidden = true;
+      el('combined').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = compareSecondSite(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.priceToHoldMargin);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'monthly, drive included, to hold your margin';
+      el('ignoredDrive').textContent = money(result.ignoredDrivePrice);
+      el('driveGap').textContent = money(result.driveGap);
+      el('driveHours').textContent = `${result.monthlyDriveHours.toFixed(1)} h`;
+      el('driveShare').textContent = `${result.driveShare.toFixed(0)}%`;
+      el('driveLabor').textContent = money(result.monthlyDriveLabor);
+      el('vehicle').textContent = money(result.extraVehicleMonthly);
+      el('walkAway').textContent = money(result.walkAwayMonthly);
+      el('buildingHours').textContent = `${result.building.monthlyHours.toFixed(1)} h`;
+
+      const verdict = el('verdict');
+      if (result.offered === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        if (result.offered.belowWalkAway) {
+          verdict.className = 'verdict bad';
+          verdict.innerHTML = `At ${money(result.offered.price)} this site <strong>loses ${money(Math.abs(result.offered.profit))} a month</strong> after the drive. Walk-away is ${money(result.walkAwayMonthly)}.`;
+        } else if (result.offered.missesTarget) {
+          verdict.className = 'verdict warn';
+          verdict.innerHTML = `At ${money(result.offered.price)} you cover cost after the drive but keep only a <strong>${result.offered.margin.toFixed(1)}% margin</strong> — ${money(result.priceToHoldMargin - result.offered.price)} short of the target.`;
+        } else {
+          verdict.className = 'verdict';
+          verdict.innerHTML = `At ${money(result.offered.price)} this site still holds a <strong>${result.offered.margin.toFixed(1)}% margin</strong> after the drive — ${money(result.offered.profit)} a month.`;
+        }
+      }
+
+      const combined = el('combined');
+      if (result.combinedProfitAtTarget === null) {
+        combined.hidden = true;
+      } else if (result.combinedProfitAtOffer !== null) {
+        combined.hidden = false;
+        combined.textContent = `Combined book at their offer: ${money(result.combinedProfitAtOffer)} / month. Combined book if you hold the target on this site: ${money(result.combinedProfitAtTarget)} / month.`;
+      } else {
+        combined.hidden = false;
+        combined.textContent = `If you already keep ${money(result.existingMonthlyProfit)} on the first site, holding the target here makes the book ${money(result.combinedProfitAtTarget)} / month.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = compareSecondSite(readInput());
+      const text = secondSiteNote(result, { targetMargin: Number(el('targetMargin').value) });
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('second_site_summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'offeredMonthly' ? 'second_site_offer_compared' : 'second_site_compared'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dryer-vent-bid-calculator/" data-pf-to="dryer-vent-bid-calculator">Dryer Vent Bid Calculator</a></li>
+      <li><a href="../duct-cleaning-bid-calculator/" data-pf-to="duct-cleaning-bid-calculator">Duct Cleaning Bid Calculator</a></li>
+      <li><a href="../gutter-cleaning-bid-calculator/" data-pf-to="gutter-cleaning-bid-calculator">Gutter Cleaning Bid Calculator</a></li>
+      <li><a href="../hoarding-cleanout-bid-calculator/" data-pf-to="hoarding-cleanout-bid-calculator">Hoarding Cleanout Bid Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=janitorial-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="janitorial-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="janitorial-bid-calculator" data-pf-jobs-amount="#price"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="janitorial-bid-calculator" data-pf-link-amount="#price"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

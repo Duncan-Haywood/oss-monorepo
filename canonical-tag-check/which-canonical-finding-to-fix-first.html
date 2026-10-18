@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which canonical-tag finding to fix first | Canonical Tag Checker</title>
+<meta name="description" content="A report with several findings at once is not a to-do list in the order it prints. Danger findings send search engines a contradictory or dead-end signal…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/which-canonical-finding-to-fix-first.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Which canonical-tag finding to fix first">
+<meta property="og:description" content="Danger findings send search engines a contradictory or dead-end signal. Notice findings are usually real but rarely urgent.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/which-canonical-finding-to-fix-first.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a danger-severity finding mean the page is already deindexed?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. Severity here describes how directly the finding contradicts itself or points nowhere useful, not a confirmed ranking or indexing outcome — this tool checks two fetches, not what a search engine has already done with them. A canonical-target-noindex finding, for instance, is danger because the page's own markup says two contradictory things, which is worth fixing regardless of whether it has visibly affected indexing yet."}},{"@type":"Question","name":"Should I fix every notice-severity finding before shipping?","acceptedAnswer":{"@type":"Answer","text":"Not on the same timeline as a danger finding. A relative canonical URL, for example, resolves correctly in every major browser and most crawlers today — fixing it is good hygiene per Google's own published guidance, not an urgent repair. Batch notice findings into ordinary cleanup work rather than treating a report with several of them as several fires."}},{"@type":"Question","name":"Is a cross-domain canonical always something to fix?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the one finding that needs a judgment call rather than a default. Syndicated content pointing back at the original publisher is a legitimate, deliberate use of a cross-domain canonical. A staging or preview hostname left in a canonical tag on the production page is the same finding shape from a copy-paste mistake, and it means production is telling search engines to index the staging copy instead. The finding itself can't tell these apart — check which one you're looking at before deciding what to do."}},{"@type":"Question","name":"Should CI fail the build on any finding, or only danger ones?","acceptedAnswer":{"@type":"Answer","text":"The CLI's own exit code already makes this distinction for you: it exits 1 on a danger-severity finding and 0 otherwise, specifically so a CI gate can block a real self-contradiction (a broken or noindex'd canonical target, conflicting tags) without also failing routine deploys over a relative URL or an intentional cross-domain reference. Wiring a stricter gate that fails on any finding at all will make the check fire on legitimate cases and get bypassed."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 30ch; color: #17324a; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17324a10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #17324a; }
+  ol, ul { padding-left: 1.3rem; }
+  li { margin: .4rem 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+  .pill.danger { background: #fde8e8; color: #9a3412; }
+  .pill.notice { background: #fef3c7; color: #92400e; }
+  @media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which canonical-tag finding to fix first — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../canonical-tag-check/">Canonical Tag Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which canonical-tag finding to fix first</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Canonical Tag Checker</a></p>
+<header>
+<h1>Which canonical-tag finding to fix first</h1>
+<p class="lede">A report with several findings at once is not a to-do list in the order it prints them. This tool already grades each finding <span class="pill danger">danger</span> or <span class="pill notice">notice</span> &mdash; here is what that grading means in practice, and how to wire the CLI's exit code into CI without blocking a deploy over the wrong finding.</p>
+</header>
+
+<section>
+<h2><span class="pill danger">danger</span> findings: the tag contradicts itself or points nowhere useful</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Finding</th><th scope="col">Why it's danger, not notice</th></tr></thead>
+<tbody>
+<tr><td>Multiple conflicting canonical tags</td><td>The page's own markup names two different canonical URLs. Only the first is honoured, so whichever system emitted the second one is being silently ignored &mdash; usually two independent sources (a CMS plugin and a hand-written template tag) that don't know about each other.</td></tr>
+<tr><td>Canonical target unreachable</td><td>The tag points at a URL that 404s or errors. The page is telling search engines "index this instead" and naming a dead end.</td></tr>
+<tr><td>Canonical target marked noindex</td><td>A direct self-contradiction: the canonical says "index this page," and that exact page says "don't index me." One of the two is wrong.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>All three are worth fixing before the next deploy, in roughly this order: a broken or noindex'd target first, since the URL you're pointing at needs to actually work; conflicting tags second, since it's a build or template bug that will keep recurring until the duplicate emitter is found.</p>
+</section>
+
+<section>
+<h2><span class="pill notice">notice</span> findings: usually real, rarely urgent</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Finding</th><th scope="col">What to do</th></tr></thead>
+<tbody>
+<tr><td>Relative canonical URL</td><td>Works in every major browser and crawler today. Google's own guidance prefers an absolute URL since a relative one leaves the protocol and host to be inferred &mdash; fix it as ordinary hygiene, not as a repair.</td></tr>
+<tr><td>Protocol mismatch (http/https)</td><td>Usually a leftover from an http-to-https migration. Low urgency unless the site no longer serves the old protocol at all, in which case the canonical target itself may also be unreachable &mdash; check for that finding too.</td></tr>
+<tr><td>Cross-domain canonical</td><td>Needs a judgment call, not a default fix &mdash; see the FAQ below.</td></tr>
+<tr><td>Canonical target redirects</td><td>The canonical points at a URL that works, but isn't the final one &mdash; it 30x's somewhere else first. Pointing the tag straight at the final URL saves search engines a hop; not urgent, but a quick fix once you're already touching the template.</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>No canonical tag at all is a separate, lower-severity notice</h2>
+<p>
+  Plenty of pages don't need one &mdash; a single canonical URL with no
+  duplicate-content risk gets nothing extra from adding a tag that just
+  points at itself. Treat a <code>no-canonical-tag</code> finding as a
+  prompt to ask "does this page have a duplicate (a print view, a
+  tracking-parameter variant, an amp version)?" rather than as a defect on
+  its own.
+</p>
+</section>
+
+<section>
+<h2>Wiring the CLI into CI on the right signal</h2>
+<p>
+  <code>node cli/check.mjs &lt;url&gt;</code> exits <code>1</code> only when a
+  danger-severity finding is produced (or the fetch itself fails), and
+  <code>0</code> otherwise &mdash; including when notice findings are
+  present. That split is deliberate: gating a deploy on the exit code
+  blocks the self-contradicting cases above without also failing a build
+  over a relative URL or a deliberate cross-domain reference. Grep the
+  <code>--json</code> output for notice-severity findings separately if you
+  want them tracked, but keep the build gate on the exit code as shipped
+  rather than tightening it to fail on any finding at all.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Does a danger-severity finding mean the page is already deindexed?</h3>
+<p>Not necessarily. Severity here describes how directly the finding contradicts itself or points nowhere useful, not a confirmed ranking or indexing outcome &mdash; this tool checks two fetches, not what a search engine has already done with them. A canonical-target-noindex finding, for instance, is danger because the page's own markup says two contradictory things, which is worth fixing regardless of whether it has visibly affected indexing yet.</p>
+<h3>Should I fix every notice-severity finding before shipping?</h3>
+<p>Not on the same timeline as a danger finding. A relative canonical URL, for example, resolves correctly in every major browser and most crawlers today &mdash; fixing it is good hygiene per Google's own published guidance, not an urgent repair. Batch notice findings into ordinary cleanup work rather than treating a report with several of them as several fires.</p>
+<h3>Is a cross-domain canonical always something to fix?</h3>
+<p>No, and this is the one finding that needs a judgment call rather than a default. Syndicated content pointing back at the original publisher is a legitimate, deliberate use of a cross-domain canonical. A staging or preview hostname left in a canonical tag on the production page is the same finding shape from a copy-paste mistake, and it means production is telling search engines to index the staging copy instead. The finding itself can't tell these apart &mdash; check which one you're looking at before deciding what to do.</p>
+<h3>Should CI fail the build on any finding, or only danger ones?</h3>
+<p>The CLI's own exit code already makes this distinction for you: it exits 1 on a danger-severity finding and 0 otherwise, specifically so a CI gate can block a real self-contradiction (a broken or noindex'd canonical target, conflicting tags) without also failing routine deploys over a relative URL or an intentional cross-domain reference. Wiring a stricter gate that fails on any finding at all will make the check fire on legitimate cases and get bypassed.</p>
+<p class="note">Want the accuracy question instead &mdash; what this tool checks and doesn't? See <a href="./">the tool's own FAQ</a>, or how it compares to <a href="vs-screaming-frog.html">a whole-site crawler</a> and to <a href="vs-checking-canonicals-by-view-source.html">checking canonicals by view-source</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including for having authorisation to check any URL you point the CLI at. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> The hosted browser page is free, experimental, and may be slow, broken, moved, or taken offline without notice. The CLI has no such dependency &mdash; it's a script you run yourself.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>optional support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../supabase-bill-estimator/" data-pf-to="supabase-bill-estimator">What will your Supabase bill be, and what cuts it most?</a></li>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=canonical-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="canonical-tag-check"></script>
+</body></html>

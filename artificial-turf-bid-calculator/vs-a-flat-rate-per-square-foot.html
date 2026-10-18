@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate per square foot | Artificial Turf Bid Calculator</title>
+<meta name="description" content="A flat 'dollars per square foot' turf quote cannot see turf type, sod demo, base depth, or tree wells.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat rate per square foot">
+<meta property="og:description" content="A 600 sq ft landscape pad and an 800 sq ft pet-turf yard with sod demo and two tree wells are not the same job.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate per square foot get a turf quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is turf type and scope, not area. Pet turf on the same footprint as landscape turf needs a heavier turf face weight, drainage hours and material, more infill, and usually a deeper base -- and a job with sod demo or tree wells adds hours and dump weight a landscape-only job never sees. A flat per-square-foot rate charges all of that the same as a bare pad on a prepared lot."}},{"@type":"Question","name":"What does a flat rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Sod demo, base depth, pet drainage, and tree wells or obstacle cuts. A job that needs the existing lawn stripped, hauled, and dumped, plus two tree wells cut into the turf, is doing four things a bare-pad landscape job is not -- and a per-square-foot number has no line for any of them."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped presets: a 600 sq ft landscape job with sod demo prices at $5,468.14, which works out to $9.11 a square foot. Applying that same $9.11 rate to an 800 sq ft pet-turf job with sod demo and two tree wells quotes $7,290.86 -- $495.89 below that job's own $7,786.75 break-even cost, before a dollar of profit. The flat rate does not just cut the margin on the pet job; it prices it as a loss."}},{"@type":"Question","name":"Is a flat rate per square foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- same turf type, similar base depth, no sod demo or wells either time -- a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know which job it was built on and neither does the estimator until the takeoff is actually done."}},{"@type":"Question","name":"Does this calculator know what turf or labor costs in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material or labor rates. It takes the turf type, lawn square footage, waste percent, base depth, sod demo, seams, tree wells, and the labor hours and material costs you enter, and turns that into a price for this job -- the arithmetic a flat rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2a1f; background: #eef3ea; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #2f6b3a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4f5a4e; }
+  section { background: #f6faf3; border: 1px solid #cfe0c9; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c2a1f0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cfe0c9; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5a4e; }
+  .fine, .note { font-size: .88rem; color: #4f5a4e; }
+  footer { color: #4f5a4e; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/artificial-turf-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate per square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../artificial-turf-bid-calculator/">Artificial Turf Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate per square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Artificial Turf Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate per square foot</h1>
+<p class="lede">"$9 a square foot installed" is not a price for a turf job &mdash; it is a price for one specific turf type, base depth, and scope, quietly applied to every yard that calls in.</p>
+</header>
+<section>
+<h2>What a flat rate per square foot is</h2>
+<p>
+A flat rate per square foot is the fastest way to quote: multiply the lawn's
+area by a number and read off a price. Homeowners shop it because it is easy
+to compare between bids, and it is the number a homeowner holding a
+competitor's flyer will ask you to match.
+</p>
+<p>
+The number behind it was set for one job &mdash; one turf type, one base
+depth, a prepared pad, no sod demo, no tree wells &mdash; and then reused for
+every yard afterward, whether or not the next yard looks anything like the
+one the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the turf
+type (landscape, pet/play, or putting green/sports), lawn square footage,
+roll waste percent, crushed-rock base depth, sod demo, perimeter and seam
+length, tree wells or obstacle cuts, and pet drainage, plus your own labor
+hours and material costs. It prices turf, base, sod demo, infill, seams, and
+drainage separately by task and turf type, then returns the walk-away price
+and a bid price above your target margin &mdash; for this job, not a generic
+one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate per square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/sq ft whether the turf is landscape, pet, or putting green &mdash; even though pet turf alone adds drainage hours, drainage material, and heavier infill that landscape turf never sees.</td>
+<td>Prices turf, infill, and drainage per turf type, so landscape, pet, and putting green are never quoted off the same number.</td>
+</tr>
+<tr>
+<td>Has no line for sod demo, regardless of whether the existing lawn has to be stripped, hauled, and dumped before turf goes down.</td>
+<td>Prices sod-demo hours and dump-ton weight directly, so a job with an existing lawn to remove costs more than one on a prepared pad.</td>
+</tr>
+<tr>
+<td>Prices the lawn's measured square footage, with no separate line for the roll waste that turf's 15-foot width always leaves on the cutting-room floor.</td>
+<td>Applies your waste percent to the lawn area to get the turf you actually have to buy, and prices install labor and turf material off that larger number.</td>
+</tr>
+<tr>
+<td>Has no line for tree wells, obstacle cuts, or a deeper base, regardless of how many the yard needs.</td>
+<td>Prices tree wells per opening and base tons per inch of depth, so a yard with two tree wells and a 4-inch base costs more than the same square footage with neither.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat rate would have quoted the same job, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two lawns, the same area-blind rate</h2>
+<p>
+Using this calculator's own shipped presets:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">This calculator's price</th><th scope="col">A flat $9.11/sq ft rate, applied by area alone</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>600 sq ft landscape turf, 3 in base, sod demo, no wells (the rate this flat number was built on)</td><td>$5,468.14 &mdash; $9.11/sq ft</td><td>$5,468.14 (same job, same rate)</td><td>No gap: this is the one job the flat rate fits.</td></tr>
+<tr><td>800 sq ft pet turf, 4 in base, sod demo, 2 tree wells</td><td>$11,123.92 bid price; $7,786.75 break-even cost</td><td>$7,290.86</td><td>The flat rate quotes $495.89 <strong>below</strong> this job's own break-even cost &mdash; before a dollar of profit &mdash; and $3,833.06 below the calculator's bid price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Both flat-rate quotes use the $9.11/sq ft rate the 600 sq ft landscape job's own price works out to. Applied to the pet-turf job's 800 sq ft, that rate does not just erode margin &mdash; it prices below the job's own cost to complete. Run your own lawn's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat rate is not wrong because it is simple &mdash; it is wrong when it is
+applied outside the one yard it was built for, and nothing about a
+per-square-foot number tells you when that has happened. This calculator does
+not know your local market; it replaces the arithmetic a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate per square foot get a turf quote wrong?</h3>
+<p>Because the cost driver is turf type and scope, not area. Pet turf on the same footprint as landscape turf needs a heavier turf face weight, drainage hours and material, more infill, and usually a deeper base -- and a job with sod demo or tree wells adds hours and dump weight a landscape-only job never sees. A flat per-square-foot rate charges all of that the same as a bare pad on a prepared lot.</p>
+<h3>What does a flat rate usually leave out entirely?</h3>
+<p>Sod demo, base depth, pet drainage, and tree wells or obstacle cuts. A job that needs the existing lawn stripped, hauled, and dumped, plus two tree wells cut into the turf, is doing four things a bare-pad landscape job is not -- and a per-square-foot number has no line for any of them.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped presets: a 600 sq ft landscape job with sod demo prices at $5,468.14, which works out to $9.11 a square foot. Applying that same $9.11 rate to an 800 sq ft pet-turf job with sod demo and two tree wells quotes $7,290.86 -- $495.89 below that job's own $7,786.75 break-even cost, before a dollar of profit. The flat rate does not just cut the margin on the pet job; it prices it as a loss.</p>
+<h3>Is a flat rate per square foot ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs -- same turf type, similar base depth, no sod demo or wells either time -- a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know which job it was built on and neither does the estimator until the takeoff is actually done.</p>
+<h3>Does this calculator know what turf or labor costs in my market?</h3>
+<p>No. It has no data on local material or labor rates. It takes the turf type, lawn square footage, waste percent, base depth, sod demo, seams, tree wells, and the labor hours and material costs you enter, and turns that into a price for this job -- the arithmetic a flat rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Artificial Turf Bid Calculator</a> to price your own lawn, or read the <a href="how-much-to-charge-for-artificial-turf.html">pricing walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not landscaping, construction, legal, tax, or financial advice, and it does not tell you what to charge or whether a base or drainage design is adequate. Verify every figure against your own payroll, insurance, and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a job.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../irrigation-winterization-bid-calculator/" data-pf-to="irrigation-winterization-bid-calculator">Irrigation Winterization Bid Calculator</a></li>
+      <li><a href="../landscape-lighting-bid-calculator/" data-pf-to="landscape-lighting-bid-calculator">Landscape Lighting Bid Calculator</a></li>
+      <li><a href="../lawn-aeration-overseeding-bid-calculator/" data-pf-to="lawn-aeration-overseeding-bid-calculator">Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</a></li>
+      <li><a href="../lawn-care-bid-calculator/" data-pf-to="lawn-care-bid-calculator">Lawn Care Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=artificial-turf-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="artificial-turf-bid-calculator"></script>
+</body></html>

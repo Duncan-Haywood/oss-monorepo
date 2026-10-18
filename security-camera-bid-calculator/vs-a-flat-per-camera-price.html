@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-camera price | Security Camera Bid Calculator</title>
+<meta name="description" content="A flat 'per camera' install price cannot see masonry, a lift, or a PTZ that needs PoE+. This free…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/vs-a-flat-per-camera-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-camera price">
+<meta property="og:description" content="Eight fixed-dome cameras through an accessible attic and eight PTZ cameras through masonry with a lift both get quoted as 'eight cameras.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-camera price get a security camera install wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the drop and the hardware, not the camera count. Eight fixed-dome cameras through an accessible attic need a straightforward pull and a light PoE budget. Eight PTZ cameras through masonry, with a lift for the runs and a PoE+ switch to carry the heavier draw, need roughly twice the labour hours and a materially larger hardware bill, on the same camera count. A flat per-camera price charges both the same because it was priced on the count, not the drop."}},{"@type":"Question","name":"What does a flat per-camera price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Construction type, a lift, and camera wattage. A flat price has no line for masonry drops that take twice the hours of an accessible attic, no line for a lift day when a run cannot be reached from a ladder, and no line for the heavier PoE+ switch and pricier hardware a PTZ or heated camera needs over a fixed dome. It also has no line for the longer cable runs an exterior or masonry job usually carries."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting example: eight fixed-dome cameras through an accessible attic, on a light PoE budget, prices at $7,440.38. The same eight cameras as PTZ units through masonry, with a lift, a PoE+ switch, and longer runs, cost $9,422.96 to complete and this calculator bids the job at $14,496.86 -- 1.95 times the easy job. Quoting the masonry-and-lift job at the easy job's $7,440.38 flat per-camera price prices it $1,982.58 below its own break-even cost, before a dollar of profit or the crew's time is covered, and $7,056.48 below this calculator's own bid."}},{"@type":"Question","name":"Is a flat per-camera price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- interior fixed-dome or bullet cameras through an accessible attic, on a switch with headroom -- a flat per-camera number can land close, because that is probably the job the price was set on. The risk is quoting a masonry job, a lift job, or a PTZ job the same way sight unseen, because the price does not know the construction type, the run length, or the camera wattage until someone walks the site, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or hardware costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your distributor's camera and switch pricing, or your permit fees. It takes the camera count, resolution, codec, construction type, cable run, camera wattage, drive and switch hardware, and your own wage, burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-camera price skips, not a market survey."}}]}</script>
+<style>
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+a { color: #1c5f7a; overflow-wrap: anywhere; }
+.eyebrow { font-weight: 700; }
+header { margin: 1rem 0; }
+h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+.lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+h2 { margin-top: 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+.fine, .note { font-size: .88rem; color: #4a5666; }
+footer { color: #4a5666; font-size: .86rem; }
+footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/vs-a-flat-per-camera-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-camera price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-camera-bid-calculator/">Security Camera Installation Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-camera price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Security Camera Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-camera price</h1>
+<p class="lede">&ldquo;$900 a camera, installed&rdquo; is not a price for a security system &mdash; it is a price for one construction type and one camera wattage, quietly applied to every drop that gets called in.</p>
+</header>
+<section>
+<h2>What a flat per-camera price is</h2>
+<p>
+A flat per-camera price is the fastest way to quote a camera install over the
+phone: multiply the camera count by a number and read it back. Customers
+shop it because it is easy to compare between bids, and it is the number a
+customer holding a competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; usually fixed-dome
+or bullet cameras through an accessible attic, on a switch with headroom
+&mdash; and then reused for every site afterward, whether or not the next
+one is masonry, needs a lift, or is specifying PTZ cameras that need PoE+.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+camera count, resolution, codec, and recording mode, the retention days
+quoted and the drives you actually plan to buy, the PoE switch budget and
+each camera's draw, the construction type and cable run, whether a lift is
+required, and your camera, NVR, and switch hardware costs, plus your own
+wage, payroll burden, overhead, permit fee, and target margin. It prices
+the drops by construction type, checks the PoE budget and cable run against
+real limits, and returns the bid price, the cost floor, and the price per
+camera &mdash; for this job and this site, not a flat number for every
+install.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-camera price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same fee whether the drop is through an open attic or through masonry that takes twice the hours &mdash; and has no line for a lift day at all.</td>
+<td>Prices labour hours per drop by construction type (open, attic, finished, masonry, soffit), and adds a lift's hours only when the job needs one.</td>
+</tr>
+<tr>
+<td>Has no line for the switch or hardware a PTZ or heated camera needs over a fixed dome, regardless of the extra draw or the pricier unit.</td>
+<td>Prices each camera's watts against the switch's PoE budget and flags when the load is over budget or over an 80% planning ceiling, before you commit to a switch.</td>
+</tr>
+<tr>
+<td>Quotes the same cable allowance for a short interior run and a long exterior one, with no check against the 328 ft Ethernet limit.</td>
+<td>Prices cable footage with a waste allowance and flags any run past the Ethernet limit, so a mid-span switch or extender is in the scope, not a surprise.</td>
+</tr>
+<tr>
+<td>Has no separate line for camera, NVR, or switch hardware &mdash; the count is the whole quote.</td>
+<td>Prices camera, NVR, switch, drive, and cable materials as their own lines, so a heavier hardware spec is never quoted at the light spec's invoice.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat per-camera price would have quoted the same job, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two eight-camera jobs, one flat price</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+Eight fixed-dome cameras through an accessible attic, on a 120 W switch
+budget with headroom, prices at <strong>$7,440.38</strong>, on a job that
+costs $4,836.25 to run.
+</p>
+<p>
+Take the same eight cameras and make them PTZ units through masonry
+instead &mdash; a lift for the runs, a PoE+ switch to carry the heavier
+draw, and longer cable to the exterior mounts &mdash; and the job costs
+<strong>$9,422.96</strong> to run before a dollar of profit, and this
+calculator bids it at <strong>$14,496.86</strong>: 1.95 times the easy
+job, on the identical camera count. Quoting the masonry-and-lift job at
+the easy job's flat <strong>$7,440.38</strong> price prices it
+<strong>$1,982.58 below its own break-even cost</strong> &mdash; before
+counting the $7,056.48 it falls short of this calculator's own bid price
+at a 35% target margin. Same camera count, same flat price, one site that
+pays and one that loses money the moment the lift shows up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-camera price get a security camera install wrong?</h3>
+<p>Because the cost driver is the drop and the hardware, not the camera count. Eight fixed-dome cameras through an accessible attic need a straightforward pull and a light PoE budget. Eight PTZ cameras through masonry, with a lift for the runs and a PoE+ switch to carry the heavier draw, need roughly twice the labour hours and a materially larger hardware bill, on the same camera count. A flat per-camera price charges both the same because it was priced on the count, not the drop.</p>
+<h3>What does a flat per-camera price usually leave out entirely?</h3>
+<p>Construction type, a lift, and camera wattage. A flat price has no line for masonry drops that take twice the hours of an accessible attic, no line for a lift day when a run cannot be reached from a ladder, and no line for the heavier PoE+ switch and pricier hardware a PTZ or heated camera needs over a fixed dome. It also has no line for the longer cable runs an exterior or masonry job usually carries.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting example: eight fixed-dome cameras through an accessible attic, on a light PoE budget, prices at $7,440.38. The same eight cameras as PTZ units through masonry, with a lift, a PoE+ switch, and longer runs, cost $9,422.96 to complete and this calculator bids the job at $14,496.86 -- 1.95 times the easy job. Quoting the masonry-and-lift job at the easy job's $7,440.38 flat per-camera price prices it $1,982.58 below its own break-even cost, before a dollar of profit or the crew's time is covered, and $7,056.48 below this calculator's own bid.</p>
+<h3>Is a flat per-camera price ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- interior fixed-dome or bullet cameras through an accessible attic, on a switch with headroom -- a flat per-camera number can land close, because that is probably the job the price was set on. The risk is quoting a masonry job, a lift job, or a PTZ job the same way sight unseen, because the price does not know the construction type, the run length, or the camera wattage until someone walks the site, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or hardware costs?</h3>
+<p>No. It has no data on your local labor market, your distributor's camera and switch pricing, or your permit fees. It takes the camera count, resolution, codec, construction type, cable run, camera wattage, drive and switch hardware, and your own wage, burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-camera price skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Security Camera Bid Calculator</a> to price your own job, or read the <a href="how-much-to-charge.html">pricing walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not electrical, engineering, code, security, privacy, legal, tax, or contracting advice, and it does not replace a licensed installer, a manufacturer's specification, or the authority having jurisdiction. Verify every figure against your own equipment, payroll, and site conditions before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sewer-line-replace-bid-calculator/" data-pf-to="sewer-line-replace-bid-calculator">Sewer Line Replacement Bid Calculator</a></li>
+      <li><a href="../solar-pv-bid-calculator/" data-pf-to="solar-pv-bid-calculator">Solar PV Install Bid Calculator</a></li>
+      <li><a href="../standby-generator-bid-calculator/" data-pf-to="standby-generator-bid-calculator">Standby Generator Installation Bid Calculator</a></li>
+      <li><a href="../standby-generator-install-price-calculator/" data-pf-to="standby-generator-install-price-calculator">Standby Generator Install Price Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-camera-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-camera-bid-calculator"></script>
+</body></html>

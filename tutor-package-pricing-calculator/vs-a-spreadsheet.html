@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a spreadsheet — Tutor Package Pricing Calculator</title>
+<meta name="description" content="A spreadsheet can compare a package's revenue against pay-per-session revenue in one line. What it usually leaves out is the hours…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet can compare package revenue against per-session revenue. It usually misses the hours a makeup guarantee still owes…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet compare package pricing against pay-per-session?","acceptedAnswer":{"@type":"Answer","text":"It can compare revenue in one line: package price against sessions times single-session price. What it usually does not do on its own is account for the hours a makeup guarantee still owes on a missed session, which is the part that decides whether the package actually pays better per hour worked."}},{"@type":"Question","name":"Why does a revenue-only comparison miss the real answer?","acceptedAnswer":{"@type":"Answer","text":"Because a package guarantees revenue but, with a makeup owed, does not reduce hours the way a pay-per-session no-show does. A no-show under pay-per-session simply frees that slot, unpaid and unworked. A no-show under a package with makeup owed is rescheduled, not forfeited, so every hour is eventually worked at the discounted rate. A spreadsheet cell comparing two revenue totals never sees that difference."}},{"@type":"Question","name":"What would I have to build into a spreadsheet to catch this?","acceptedAnswer":{"@type":"Answer","text":"A row for whether a missed session is made up or forfeited, a formula that converts that choice into hours actually worked (not just sessions attended), and effective hourly pay for both pricing models from those hours — then keep that formula correct every time the no-show rate, discount, or makeup policy changes. This calculator runs that model directly and shows revenue and effective hourly pay side by side."}},{"@type":"Question","name":"Does either one tell me what to charge?","acceptedAnswer":{"@type":"Answer","text":"No. Both a spreadsheet and this calculator only compute the consequence of numbers you supply — your single-session price, package size and price, no-show rate, and makeup policy. Neither one knows your market or your students; you decide what to charge."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f4f2f7}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#2a6b8e;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#1f4a5d}
+h2{font-size:1.15rem;margin:0 0 10px;color:#1f4a5d}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#3c3644}
+.card{background:#fff;border:1px solid #e0d6ec;border-radius:14px;padding:22px;box-shadow:0 8px 24px #1f4a5d10;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e6e0ee;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#4c5a68}
+.note,footer{font-size:.86rem;color:#4c5a68}
+footer{margin-top:28px;border-top:1px solid #e0d6ec;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tutor-package-pricing-calculator/">Tutor Package Pricing Calculator — package vs. pay-per-session, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">Most tutors who compare a prepaid package against pay-per-session pricing do it with one spreadsheet line: package price against sessions times single-session price. That line answers a revenue question. It does not answer whether the package pays better <strong>per hour actually worked</strong> — and when a package promises a makeup for a missed session, those two questions can point in opposite directions.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A spreadsheet</strong> is fine for the revenue comparison, and most tutors already have one: package price in one cell, sessions times single price in another. What it leaves out, unless someone builds it in on purpose, is hours — specifically, that a package with a makeup guarantee still owes every session eventually, so a no-show does not shrink the hours worked the way it does under pay-per-session.</p>
+<p><strong>This calculator</strong> takes your single-session price, package size and price, no-show rate, and whether a miss earns a makeup, and reports revenue <em>and</em> effective hourly pay for both models side by side, plus the package price that would clear a target hourly rate.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which pricing model brings in more revenue?</td><td>A spreadsheet answers this fine — it's one subtraction.</td></tr>
+<tr><td>Which pricing model pays more per hour actually worked?</td><td>Only if the sheet also converts a makeup policy into hours, which most don't. This calculator does it directly.</td></tr>
+<tr><td>Can a deep package discount plus a makeup guarantee pay worse than full price?</td><td>Yes — this page's worked example below shows exactly that case.</td></tr>
+<tr><td>Does either one tell me what to charge?</td><td>Neither. Both apply only the numbers you enter.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Worked example: a $60 session, a 10-for-$450 package, 10% no-shows, makeup owed</h2>
+<p>A tutor charges $60 per single session, and sells a package of 10 sessions for $450 — a 25% per-session discount. From recent memory, about 10% of booked sessions are no-shows, and the tutor's package policy is to reschedule (not forfeit) a missed session. Each session runs 60 minutes with 15 minutes of prep, so 75 minutes of work per session delivered.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col"></th><th scope="col">Pay-per-session</th><th scope="col">Package</th></tr></thead>
+<tbody>
+<tr><td>Revenue for this block</td><td>$540.00</td><td>$450.00</td></tr>
+<tr><td>Hours actually worked</td><td>11.25</td><td>12.50</td></tr>
+<tr><td>Effective hourly pay</td><td>$48.00/hr</td><td>$36.00/hr</td></tr>
+</tbody>
+</table></div>
+<p>A revenue-only spreadsheet line sees $450 versus $540 and stops at "the package brings in less, but it's guaranteed up front." It never surfaces the second, sharper fact: because the missed session is made up rather than forfeited, the tutor ends up working <strong>more</strong> hours for <strong>less</strong> money — $36.00 an hour against $48.00 an hour charging full price per session and letting a no-show simply free that slot. The 25% discount is deeper than the 10% no-show rate it was meant to cover, and a makeup guarantee turns that gap into an hourly-pay loss rather than a wash.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Can a spreadsheet compare package pricing against pay-per-session?</h3>
+<p>It can compare revenue in one line: package price against sessions times single-session price. What it usually does not do on its own is account for the hours a makeup guarantee still owes on a missed session, which is the part that decides whether the package actually pays better per hour worked.</p>
+<h3>Why does a revenue-only comparison miss the real answer?</h3>
+<p>Because a package guarantees revenue but, with a makeup owed, does not reduce hours the way a pay-per-session no-show does. A no-show under pay-per-session simply frees that slot, unpaid and unworked. A no-show under a package with makeup owed is rescheduled, not forfeited, so every hour is eventually worked at the discounted rate. A spreadsheet cell comparing two revenue totals never sees that difference.</p>
+<h3>What would I have to build into a spreadsheet to catch this?</h3>
+<p>A row for whether a missed session is made up or forfeited, a formula that converts that choice into hours actually worked (not just sessions attended), and effective hourly pay for both pricing models from those hours &mdash; then keep that formula correct every time the no-show rate, discount, or makeup policy changes. This calculator runs that model directly and shows revenue and effective hourly pay side by side.</p>
+<h3>Does either one tell me what to charge?</h3>
+<p>No. Both a spreadsheet and this calculator only compute the consequence of numbers you supply &mdash; your single-session price, package size and price, no-show rate, and makeup policy. Neither one knows your market or your students; you decide what to charge.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply arithmetic to numbers you supply, to one representative block of sessions; they are not legal, tax, or financial advice. <strong>You are responsible for verifying anything here against your own package policy.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>Nothing here says or implies that a spreadsheet is a bad way to track your pricing &mdash; it is a different job: a formula you build and maintain yourself, where this calculator applies the hours-aware comparison for you and shows the breakdown.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../voiceover-project-rate-calculator/" data-pf-to="voiceover-project-rate-calculator">Voice-Over Project Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tutor-package-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tutor-package-pricing-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photos Import Tools | Resumable macOS photo import</title>
+  <meta name="description" content="Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Photos Import Tools | Resumable macOS photo import">
+  <meta property="og:description" content="Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photos Import Tools","applicationCategory":"UtilitiesApplication","operatingSystem":"macOS","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification."}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink)}
+    main{max-width:860px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:0 0 1rem}
+    h2{margin-top:0}p.lede{font-size:1.15rem;color:var(--muted)}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
+    pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:.75rem;overflow:auto;font-size:.85rem}
+    img{max-width:100%;height:auto;border-radius:8px}
+    a{color:var(--accent)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Photos Import Tools | Resumable macOS photo import","item":"https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Photos Import Tools | Resumable macOS photo import — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Photos Import Tools | Resumable macOS photo import</span></span></nav>
+<main>
+  <h1>Import photos without losing your place.</h1>
+  <p class="lede">Python command-line tools for moving large photo libraries into Apple Photos. Every step is recorded in a manifest, so a crash or timeout resumes instead of starting over or duplicating files.</p>
+  <section>
+    <h2>What it does</h2>
+    <ul>
+      <li><code>resumable_photos_import.py</code>: restartable importer with <code>init</code>, <code>run</code>, <code>status</code>, <code>preflight</code> and <code>verify</code> commands; JPEG and RAW keep separate manifests.</li>
+      <li><code>photos_import_watchdog.py</code> supervises the import phases, and <code>photos_import_errors.py</code> classifies failures and picks a recovery action.</li>
+      <li><code>sd_offload.py</code> copies from removable storage; <code>--verify hash</code> compares SHA-256 so a same-size corrupted copy is caught.</li>
+      <li><code>verify</code> reads every manifest file back and exits 1 if any is missing, empty or unreadable, before you retire a source copy.</li>
+      <li>Status and report files are written atomically, so a reader never sees a half-written file.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Status</h2>
+    <p>Prototype. It runs on your Mac and talks to Photos.app; defaults reflect one machine's folder layout, so pass your own paths as the README describes.</p>
+  </section>
+  <section>
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/photos-import-tools</pre>
+    <p>The README in that folder has the full steps.</p>
+  </section>
+  <section>
+    <h2>Privacy and usage</h2>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you.</p>
+  </section>
+  <section>
+    <h2>Disclaimer</h2>
+    <p>Always keep your original files until <code>verify</code> passes and you have checked the result in Photos. Importing can fail partway; back up first.</p>
+    <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  </section>
+  <footer>Related: <a href="../photo-editing/">ShootFlow</a>, safe ingest and deliverable planning. Also an open-source app: <a href="../quick-pick-survey/">Quick Pick</a>, a pairwise preference survey engine. Open source. Part of the tool catalogue.</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ugc-creator-rate-calculator/" data-pf-to="ugc-creator-rate-calculator">UGC rate calculator: price the video and the rights, free and private</a></li>
+      <li><a href="../upwork-earnings-fee-analyzer/" data-pf-to="upwork-earnings-fee-analyzer">Upwork Earnings and Fee Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../voiceover-project-rate-calculator/" data-pf-to="voiceover-project-rate-calculator">Voice-Over Project Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=photos-import-tools">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/?pfEmbed=1&quot; title=&quot;Photos Import Tools | Resumable macOS photo import — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="photos-import-tools"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/" data-pf-embed-title="Photos Import Tools | Resumable macOS photo import" data-pf-embed-slug="photos-import-tools"></script>
+</body>
+</html>

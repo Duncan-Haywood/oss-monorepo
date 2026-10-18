@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formal or Informal Entry — Why the Fee Jumps $30 Either Way You Guess | Import Landed Cost Calculator</title>
+  <meta name="description" content="Informal entry pays a flat $2.62 Merchandise Processing Fee. Formal entry pays a $32.71 floor on anything under about $9,443 of customs value…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/formal-vs-informal-entry.html">
+  <meta property="og:title" content="Formal or informal entry — why the fee jumps $30 either way you guess">
+  <meta property="og:description" content="Informal entry: $2.62 flat. Formal entry: a $32.71 floor on anything under about $9,443 of customs value.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What decides whether my shipment is a formal or an informal entry?","acceptedAnswer":{"@type":"Answer","text":"Customs value is the usual line: shipments valued at $2,500 or less are generally eligible for informal entry, and shipments above that generally require a formal entry. Some commodity types (certain textiles, for example) have a lower threshold, and a broker can sometimes elect a formal entry below $2,500 for their own tracking reasons — so this is the general rule, not a determination for your specific shipment. Confirm which applies with your customs broker or current CBP guidance."}},{"@type":"Question","name":"Why does the Merchandise Processing Fee jump by $30 right at the line?","acceptedAnswer":{"@type":"Answer","text":"Informal entries pay a flat $2.62 regardless of value. Formal entries pay 0.3464% of customs value, but with a statutory floor of $32.71 per entry — and that floor is higher than the percentage would produce for any formal entry under roughly $9,443 of customs value. So a $2,500 formal entry does not pay a $2,500-sized fee; it pays the same $32.71 floor a $9,000 formal entry pays. The jump from informal to formal is $30.09, flat, no matter which side of $2,500 the shipment sits on, right up to that ceiling."}},{"@type":"Question","name":"Does the $32.71 floor change with the size of my shipment?","acceptedAnswer":{"@type":"Answer","text":"Not below about $9,443 of customs value — 0.3464% of any formal-entry shipment under that figure comes out below $32.71, so the floor is what actually gets charged. Above roughly $9,443 the percentage takes over and the fee scales with value up to the $634.62 statutory ceiling, reached around $183,200 of customs value."}},{"@type":"Question","name":"Is my shipment data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser. Nothing you type is sent to a server, there is no account, and the optional usage counter only tallies anonymous feature events, never your costs, rates, or quantities."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2028; background: #f2f0f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; background: #fdfcff; }
+    th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #d6d0e6; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #5b566c; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5b566c; }
+    .callout { background: #ece6fb; border: 1px solid #c9baf0; border-radius: 10px; padding: 12px 14px; font-size: .92rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/formal-vs-informal-entry.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Formal or informal entry — why the fee jumps $30 either way you guess — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../import-landed-cost-calculator/">Import Landed Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Formal or informal entry — why the fee jumps $30 either way you guess</span></span></nav>
+  <p><a href="./">← Import landed cost calculator</a></p>
+  <h1>Formal or informal entry — why the fee jumps $30 either way you guess</h1>
+  <p>The Merchandise Processing Fee is priced two completely different ways depending on one checkbox: a flat
+    $2.62 for an informal entry, or 0.3464% of customs value — with a $32.71 floor and a $634.62 ceiling — for a
+    formal one. Guess wrong on a mid-size shipment and the fee you priced is off by $30, not by a rounding error.</p>
+  <p class="callout"><strong>Not a customs broker or compliance service.</strong> This page and the calculator it
+    links to are not a customs broker, freight forwarder, or licensed customs classification service. Whether a
+    specific shipment qualifies for informal entry depends on commodity type and your broker's own practice, not
+    only on value — confirm which applies to you with a licensed customs broker or current CBP guidance before
+    you rely on either entry type in your pricing.</p>
+
+  <h2>The line is usually $2,500 of customs value</h2>
+  <p>Customs value — item cost plus freight to the US port or border, the same basis this calculator uses —
+    at or under $2,500 is generally eligible for informal entry. Above that, a formal entry is generally
+    required. A few commodity types (certain textiles among them) carry a lower threshold, and a broker can
+    sometimes elect formal entry below $2,500 for their own consolidated tracking, so treat $2,500 as the
+    general rule rather than a determination for your specific goods.</p>
+
+  <h2>What the floor actually does to the fee</h2>
+  <p>0.3464% of customs value is a small number until the value is large. Solved against the $32.71 floor, the
+    percentage only clears it above <strong>about $9,443 of customs value</strong> — so every formal entry
+    below that figure pays the same flat $32.71 the floor sets, not a value-scaled fee. The percentage does not
+    start doing anything until a shipment is nearly four times the informal-entry threshold.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Customs value</th><th>Informal MPF</th><th>Formal MPF</th><th>Formal &minus; informal</th></tr></thead>
+    <tbody>
+      <tr><td>$2,500</td><td>$2.62</td><td>$32.71 (floor)</td><td>$30.09</td></tr>
+      <tr><td>$9,000</td><td>$2.62</td><td>$32.71 (floor)</td><td>$30.09</td></tr>
+      <tr><td>$20,000</td><td>$2.62</td><td>$69.28 (0.3464%)</td><td>$66.66</td></tr>
+    </tbody>
+  </table></div>
+  <p>At $2,500 and at $9,000 the formal-entry fee is identical — $32.71 — because both sit under the ~$9,443
+    crossover where the floor is still the binding number. Only at $20,000, well past that crossover, does the
+    percentage actually exceed the floor and the fee starts scaling with value. Run either row on the
+    <a href="./?itemCost=2300&amp;freightCost=200&amp;insuranceCost=0&amp;quantity=100&amp;dutyRatePct=4.5&amp;supplementalRatePct=0&amp;brokerFee=0&amp;entryType=formal&amp;oceanFreight=0">calculator, pre-filled at $2,500 customs value</a> and flip the entry type to see the $30.09 move by itself, with every other input held still.</p>
+  <p class="note">MPF figures are the published CBP fee schedule as of this tool's last update and are indexed
+    periodically — confirm current figures at
+    <a href="https://www.cbp.gov" target="_blank" rel="noopener">cbp.gov</a> before relying on them for a real
+    entry.</p>
+
+  <h2>Common questions</h2>
+  <h3>What decides whether my shipment is a formal or an informal entry?</h3>
+  <p>Customs value is the usual line: shipments valued at $2,500 or less are generally eligible for informal
+    entry, and shipments above that generally require a formal entry. Some commodity types (certain textiles,
+    for example) have a lower threshold, and a broker can sometimes elect a formal entry below $2,500 for their
+    own tracking reasons &mdash; so this is the general rule, not a determination for your specific shipment.
+    Confirm which applies with your customs broker or current CBP guidance.</p>
+  <h3>Why does the Merchandise Processing Fee jump by $30 right at the line?</h3>
+  <p>Informal entries pay a flat $2.62 regardless of value. Formal entries pay 0.3464% of customs value, but
+    with a statutory floor of $32.71 per entry &mdash; and that floor is higher than the percentage would
+    produce for any formal entry under roughly $9,443 of customs value. So a $2,500 formal entry does not pay a
+    $2,500-sized fee; it pays the same $32.71 floor a $9,000 formal entry pays. The jump from informal to formal
+    is $30.09, flat, no matter which side of $2,500 the shipment sits on, right up to that ceiling.</p>
+  <h3>Does the $32.71 floor change with the size of my shipment?</h3>
+  <p>Not below about $9,443 of customs value &mdash; 0.3464% of any formal-entry shipment under that figure
+    comes out below $32.71, so the floor is what actually gets charged. Above roughly $9,443 the percentage
+    takes over and the fee scales with value up to the $634.62 statutory ceiling, reached around $183,200 of
+    customs value.</p>
+  <h3>Is my shipment data uploaded anywhere?</h3>
+  <p>No. The calculator this page links to runs entirely in your browser. Nothing you type is sent to a
+    server, there is no account, and the optional usage counter only tallies anonymous feature events, never
+    your costs, rates, or quantities.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not customs, legal, tax, or financial advice, and it does not replace a licensed customs broker or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=import-landed-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="import-landed-cost-calculator"></script>
+</body>
+</html>

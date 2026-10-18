@@ -1,0 +1,24 @@
+{
+  "number": "RE-2026-001",
+  "issue_date": "2026-10-15",
+  "due_date": "2026-11-14",
+  "currency": "EUR",
+  "buyer_reference": "04011000-12345-03",
+  "order_reference": "PO-77",
+  "terms": "Payable within 30 days",
+  "seller": {
+    "name": "Muster Software GmbH", "street": "Hauptstrasse 1", "postal_code": "10115", "city": "Berlin", "country": "DE",
+    "vat_id": "DE136695976",
+    "endpoint": {"scheme": "EM", "id": "billing@muster.example"},
+    "contact": {"name": "Erika Muster", "phone": "+49 30 123456", "email": "billing@muster.example"}
+  },
+  "buyer": {
+    "name": "Kunde AG", "street": "Marktplatz 2", "postal_code": "20095", "city": "Hamburg", "country": "DE",
+    "endpoint": {"scheme": "EM", "id": "ap@kunde.example"}
+  },
+  "payment": {"iban": "DE02120300000000202051", "bic": "BYLADEM1001"},
+  "lines": [
+    {"description": "Consulting", "quantity": 2, "unit": "hours", "unit_price": 100, "tax_percent": 19},
+    {"description": "Printed handbook", "quantity": 3, "unit": "pieces", "unit_price": 50, "tax_percent": 7}
+  ]
+}

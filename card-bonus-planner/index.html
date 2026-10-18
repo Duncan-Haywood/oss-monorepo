@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Card Bonus Planner — Sign-Up Bonus Tracker, 5/24 and Spend Scheduler</title>
+  <meta name="description" content="Plan credit card sign-up bonuses: track minimum-spend deadlines, see your 5/24 count and issuer velocity limits, compare net value after the annual fee…">
+  <meta property="og:title" content="Card Bonus Planner — schedule sign-up bonuses around your real spending">
+  <meta property="og:description" content="5/24 status, issuer velocity rules, net bonus value and a spend-aware application schedule with calendar export. Private and free.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Card Bonus Planner", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Tracks credit card sign-up bonuses: minimum-spend deadlines, 5/24 and issuer velocity status, net value after annual fee, and a schedule that fits your monthly spending."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Chase 5/24 rule?", "acceptedAnswer": {"@type": "Answer", "text": "Community-reported: Chase tends to decline many of its personal cards if you have opened five or more personal credit cards, from any bank, in the last 24 months. The planner counts your cards and shows the date you drop back under five. It is not a published Chase rule, so check before you apply."}}, {"@type": "Question", "name": "How do I plan several sign-up bonuses without missing a minimum spend?", "acceptedAnswer": {"@type": "Answer", "text": "Each bonus needs its minimum spend inside a window that starts when the account opens. If two windows overlap, they draw on the same monthly spending. The planner schedules each application on the earliest day that both clears the issuer velocity rules and leaves your monthly spend able to cover every active deadline."}}, {"@type": "Question", "name": "Is a sign-up bonus worth the annual fee?", "acceptedAnswer": {"@type": "Answer", "text": "Net value here is the bonus (points times your cents-per-point estimate, plus any cash) minus the first-year annual fee unless it is waived. Points value is your own estimate, so change it to match how you redeem."}}, {"@type": "Question", "name": "Are my cards uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Card names, open dates and spend stay in this browser's local storage and the page makes no network requests. Enter no account numbers; the planner never needs them."}}, {"@type": "Question", "name": "Can I put the deadlines in my calendar?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Build a plan and download the .ics file: one event for each application date and each minimum-spend deadline."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f9a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17335c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17335c; }
+    p, li { line-height: 1.55; }
+    footer { font-size: .86rem; color: #46505e; }
+    .card { background: #fff; border: 1px solid #d8dde6; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin: 8px 0 3px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #aeb9cc; border-radius: 8px; font: inherit; }
+    input[type=checkbox] { width: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 12px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f9a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eaf5; color: #17335c; }
+    button.small { padding: 4px 9px; margin: 0; font-size: .8rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    td input { width: 90px; }
+    .stats { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; }
+    .stat { background: #eef3fb; border-radius: 10px; padding: 10px 16px; }
+    .stat b { display: block; font-size: 1.5rem; color: #17335c; }
+    .ok { color: #17623a; font-weight: 700; }
+    .wait { color: #8a5a00; font-weight: 700; }
+    .bad { color: #a02525; font-weight: 700; }
+    .err { color: #a02525; font-weight: 600; }
+    .hint { font-size: .86rem; color: #38414f; margin: 2px 0 0; }
+    .tablewrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Card Bonus Planner — schedule sign-up bonuses around your real spending","item":"https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Card Bonus Planner — schedule sign-up bonuses around your real spending — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Card Bonus Planner — schedule sign-up bonuses around your real spending</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main>
+  <h1>Plan your card sign-up bonuses around your real spending</h1>
+  <p>Track every minimum-spend deadline, see your <strong>5/24 count</strong> and issuer velocity limits, and get an <strong>application schedule that your monthly spending can actually cover</strong>. Your cards stay in this browser. No account, no numbers from your cards, nothing uploaded.</p>
+
+  <section class="card" aria-labelledby="set">
+    <h2 id="set">Settings</h2>
+    <div class="grid">
+      <div><label for="today">Today</label><input id="today" type="date"></div>
+      <div><label for="monthly">Spend you can put on new cards per month ($)</label><input id="monthly" type="number" min="0" step="100" value="2000" inputmode="numeric"></div>
+    </div>
+    <button id="example" class="secondary" type="button">Load an example</button>
+    <button id="clear" class="secondary" type="button">Clear my data</button>
+    <p id="msg" class="err" role="alert"></p>
+  </section>
+
+  <section class="card" aria-labelledby="mine">
+    <h2 id="mine">Cards I opened</h2>
+    <form id="ownform" class="grid">
+      <div><label for="o-name">Card</label><input id="o-name" required placeholder="e.g. Sapphire Preferred"></div>
+      <div><label for="o-issuer">Issuer</label><input id="o-issuer" required list="issuers" placeholder="chase"></div>
+      <div><label for="o-date">Opened</label><input id="o-date" type="date" required></div>
+      <div><label for="o-pts">Bonus points</label><input id="o-pts" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="o-cpp">Cents per point</label><input id="o-cpp" type="number" min="0" step="0.1" value="1" inputmode="decimal"></div>
+      <div><label for="o-cash">Bonus cash ($)</label><input id="o-cash" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="o-min">Minimum spend ($)</label><input id="o-min" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="o-win">Window (days)</label><input id="o-win" type="number" min="1" value="90" inputmode="decimal"></div>
+      <div><label for="o-fee">Annual fee ($)</label><input id="o-fee" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label><input id="o-waived" type="checkbox"> First-year fee waived</label><label><input id="o-personal" type="checkbox" checked> Personal card</label></div>
+    </form>
+    <button id="addown" type="button">Add card</button>
+    <div class="tablewrap"><div class="pf-table-scroll"><table><thead><tr><th>Card</th><th>Opened</th><th>Spent so far ($)</th><th>Spend by</th><th>Still to spend</th><th>Per month needed</th><th>Net bonus value</th><th></th></tr></thead><tbody id="ownrows"></tbody></table></div></div>
+    <datalist id="issuers"><option value="chase"><option value="amex"><option value="citi"><option value="capital one"><option value="bank of america"><option value="us bank"><option value="wells fargo"><option value="barclays"></datalist>
+  </section>
+
+  <section class="card" aria-labelledby="elig" aria-live="polite">
+    <h2 id="elig">Where you stand</h2>
+    <div class="stats" id="stats"></div>
+    <div class="tablewrap"><div class="pf-table-scroll"><table><thead><tr><th>Issuer rule (community-reported)</th><th>Cards counted</th><th>Status today</th><th>Next clear date</th></tr></thead><tbody id="rules"></tbody></table></div></div>
+    <p class="hint">These velocity rules are reported by cardholder communities, not published by the issuers, and they change without notice. Treat them as a planning aid and check before you apply.</p>
+  </section>
+
+  <section class="card" aria-labelledby="wish">
+    <h2 id="wish">Cards I am considering</h2>
+    <form id="wishform" class="grid">
+      <div><label for="w-name">Card</label><input id="w-name" required></div>
+      <div><label for="w-issuer">Issuer</label><input id="w-issuer" required list="issuers"></div>
+      <div><label for="w-pts">Bonus points</label><input id="w-pts" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="w-cpp">Cents per point</label><input id="w-cpp" type="number" min="0" step="0.1" value="1" inputmode="decimal"></div>
+      <div><label for="w-cash">Bonus cash ($)</label><input id="w-cash" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="w-min">Minimum spend ($)</label><input id="w-min" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="w-win">Window (days)</label><input id="w-win" type="number" min="1" value="90" inputmode="decimal"></div>
+      <div><label for="w-fee">Annual fee ($)</label><input id="w-fee" type="number" min="0" value="0" inputmode="decimal"></div>
+      <div><label><input id="w-waived" type="checkbox"> First-year fee waived</label><label><input id="w-personal" type="checkbox" checked> Personal card</label></div>
+    </form>
+    <button id="addwish" type="button">Add to wishlist</button>
+    <div class="tablewrap"><div class="pf-table-scroll"><table><thead><tr><th>Card</th><th>Net bonus value</th><th>Min spend</th><th>Value per $1,000 of spend</th><th></th></tr></thead><tbody id="wishrows"></tbody></table></div></div>
+    <label for="order">Order to apply</label>
+    <select id="order"><option value="efficiency">Most value per dollar of minimum spend first</option><option value="net">Highest net value first</option><option value="listed">As listed</option></select>
+    <label for="gap">Minimum days between applications</label>
+    <input id="gap" type="number" min="0" value="30" inputmode="decimal">
+    <button id="plan" type="button">Build my schedule</button>
+  </section>
+
+  <section class="card" id="out" aria-live="polite" hidden>
+    <h2>Your schedule</h2>
+    <div class="stats" id="planstats"></div>
+    <div class="tablewrap"><div class="pf-table-scroll"><table><thead><tr><th>Apply on or after</th><th>Card</th><th>Spend by</th><th>Net bonus value</th></tr></thead><tbody id="planrows"></tbody></table></div></div>
+    <p id="skipped" class="hint"></p>
+    <button id="ics" class="secondary" type="button">Download calendar (.ics)</button>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the Chase 5/24 rule?</h3>
+    <p>Community-reported: Chase tends to decline many of its personal cards if you have opened five or more personal credit cards, from any bank, in the last 24 months. The planner counts your cards and shows the date you drop back under five. It is not a published Chase rule, so check before you apply.</p>
+    <h3>How do I plan several sign-up bonuses without missing a minimum spend?</h3>
+    <p>Each bonus needs its minimum spend inside a window that starts when the account opens. If two windows overlap, they draw on the same monthly spending. The planner schedules each application on the earliest day that both clears the issuer velocity rules and leaves your monthly spend able to cover every active deadline.</p>
+    <h3>Is a sign-up bonus worth the annual fee?</h3>
+    <p>Net value here is the bonus (points times your cents-per-point estimate, plus any cash) minus the first-year annual fee unless it is waived. Points value is your own estimate, so change it to match how you redeem.</p>
+    <h3>Are my cards uploaded anywhere?</h3>
+    <p>No. Card names, open dates and spend stay in this browser's local storage and the page makes no network requests. Enter no account numbers; the planner never needs them.</p>
+    <h3>Can I put the deadlines in my calendar?</h3>
+    <p>Yes. Build a plan and download the .ics file: one event for each application date and each minimum-spend deadline.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied, and with no uptime or accuracy guarantee. Its output is a planning aid, not legal, tax, or financial advice; issuer rules, eligibility and bonus terms are set by each issuer and change, so read the offer terms and decide for yourself. Applying for credit affects your credit score and can cost you fees and interest if you carry a balance. Issuer names are used only to describe the rules people report; this site is not affiliated with or endorsed by any bank. Everything on this page runs in your browser: your cards are never uploaded and the page makes no network requests. Hosted on a free static site with no SLA. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { DEFAULT_RULES, checkRules, earliestEligible, fiveTwentyFour, netValue, spendStatus, buildPlan, toIcs } from "./plan.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const money = (n) => "$" + Math.round(n).toLocaleString();
+    const STORE = "card-bonus-planner-data";
+    const blank = () => ({ owned: [], wishlist: [], spent: {}, monthly: 2000 });
+    let state = blank(), lastPlan = null;
+    try { const s = JSON.parse(localStorage.getItem(STORE) || "null"); if (s && Array.isArray(s.owned) && Array.isArray(s.wishlist)) state = { ...blank(), ...s }; } catch { /* storage is optional */ }
+    const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch { /* storage is optional */ } };
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    $("today").value = new Date().toISOString().slice(0, 10);
+    $("monthly").value = state.monthly;
+    const today = () => $("today").value;
+    const num = (id) => Number($(id).value) || 0;
+    const read = (p) => ({ name: $(p + "-name").value.trim(), issuer: $(p + "-issuer").value.trim().toLowerCase(), bonusPoints: num(p + "-pts"), cpp: num(p + "-cpp"), bonusCash: num(p + "-cash"), minSpend: num(p + "-min"), windowDays: num(p + "-win") || 90, annualFee: num(p + "-fee"), firstYearFeeWaived: $(p + "-waived").checked, personal: $(p + "-personal").checked });
+    function render() {
+      $("msg").textContent = "";
+      try {
+        state.monthly = num("monthly"); save();
+        $("ownrows").innerHTML = state.owned.map((c) => { const s = spendStatus(c, state.spent[c.id] || 0, today()); return `<tr><td>${esc(c.name)}<p class="hint">${esc(c.issuer)}${c.personal === false ? " (business)" : ""}</p></td><td>${esc(c.openedOn)}</td><td><input type="number" min="0" aria-label="Spent so far on ${esc(c.name)}" data-spent="${esc(c.id)}" value="${state.spent[c.id] || 0}" inputmode="decimal"></td><td>${esc(s.deadline)}</td><td class="${s.done ? "ok" : s.missed ? "bad" : "wait"}">${s.done ? "Done" : s.missed ? "Missed " + money(s.remaining) : money(s.remaining)}</td><td>${!s.done && !s.missed ? money(s.perMonth) : ""}</td><td>${money(netValue(c))}</td><td><button class="small secondary" data-rm-own="${esc(c.id)}" type="button">Remove</button></td></tr>`; }).join("");
+        const f = fiveTwentyFour(state.owned, today());
+        $("stats").innerHTML = [["5/24 count", f.count + (f.status === "over" ? " (over)" : "")], ["Under 5/24 again", f.status === "over" ? esc(f.dropsOn || "—") : "Now"], ["Open bonuses", state.owned.filter((c) => !spendStatus(c, state.spent[c.id] || 0, today()).done).length]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
+        $("rules").innerHTML = DEFAULT_RULES.map((r) => { const res = checkRules(state.owned, r.issuer, today(), [r]).results[0]; const nxt = res.ok ? "Now" : earliestEligible(state.owned, r.issuer, today(), [r]) || "Not within 4 years"; return `<tr><td>${esc(r.label)}</td><td>${res.count}</td><td class="${res.ok ? "ok" : "wait"}">${res.ok ? "Inside the rule" : "Wait"}</td><td>${esc(nxt)}</td></tr>`; }).join("");
+        $("wishrows").innerHTML = state.wishlist.map((c, i) => `<tr><td>${esc(c.name)}<p class="hint">${esc(c.issuer)}</p></td><td>${money(netValue(c))}</td><td>${money(c.minSpend)}</td><td>${c.minSpend ? money((netValue(c) / c.minSpend) * 1000) : "—"}</td><td><button class="small secondary" data-rm-wish="${i}" type="button">Remove</button></td></tr>`).join("");
+      } catch (e) { $("msg").textContent = e.message; }
+    }
+    function addOwn() {
+      const c = { ...read("o"), id: "c" + Date.now(), openedOn: $("o-date").value };
+      if (!c.name || !c.issuer || !c.openedOn) { $("msg").textContent = "Enter a card name, an issuer and the date you opened it."; return; }
+      state.owned.push(c); $("ownform").reset(); record("card_added"); render();
+    }
+    function addWish() {
+      const c = read("w");
+      if (!c.name || !c.issuer) { $("msg").textContent = "Enter a card name and an issuer."; return; }
+      state.wishlist.push(c); $("wishform").reset(); record("wishlist_added"); render();
+    }
+    $("addown").addEventListener("click", addOwn);
+    $("addwish").addEventListener("click", addWish);
+    for (const id of ["today", "monthly"]) $(id).addEventListener("change", render);
+    document.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t.dataset?.rmOwn) { state.owned = state.owned.filter((c) => c.id !== t.dataset.rmOwn); render(); }
+      if (t.dataset?.rmWish) { state.wishlist.splice(Number(t.dataset.rmWish), 1); render(); }
+    });
+    document.addEventListener("change", (e) => { if (e.target.dataset?.spent) { state.spent[e.target.dataset.spent] = Number(e.target.value) || 0; render(); } });
+    $("clear").addEventListener("click", () => { state = blank(); lastPlan = null; $("out").hidden = true; $("monthly").value = 2000; render(); });
+    $("example").addEventListener("click", () => {
+      const d = (o) => { const x = new Date(today() + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() - o); return x.toISOString().slice(0, 10); };
+      state = { monthly: 2500, spent: { e1: 900 }, owned: [
+        { id: "e1", name: "Example travel card", issuer: "chase", openedOn: d(30), bonusPoints: 60000, cpp: 1.5, bonusCash: 0, minSpend: 4000, windowDays: 90, annualFee: 95, firstYearFeeWaived: false, personal: true },
+        { id: "e2", name: "Example cash card", issuer: "citi", openedOn: d(200), bonusPoints: 0, cpp: 1, bonusCash: 200, minSpend: 1500, windowDays: 90, annualFee: 0, firstYearFeeWaived: true, personal: true },
+        { id: "e3", name: "Example airline card", issuer: "amex", openedOn: d(400), bonusPoints: 50000, cpp: 1.2, bonusCash: 0, minSpend: 3000, windowDays: 180, annualFee: 99, firstYearFeeWaived: true, personal: true }],
+        wishlist: [
+        { name: "Example hotel card", issuer: "amex", bonusPoints: 100000, cpp: 0.7, bonusCash: 0, minSpend: 6000, windowDays: 180, annualFee: 95, firstYearFeeWaived: false, personal: true },
+        { name: "Example cash card B", issuer: "capital one", bonusPoints: 0, cpp: 1, bonusCash: 250, minSpend: 500, windowDays: 90, annualFee: 0, firstYearFeeWaived: true, personal: true },
+        { name: "Example big-spend card", issuer: "citi", bonusPoints: 75000, cpp: 1.4, bonusCash: 0, minSpend: 5000, windowDays: 90, annualFee: 95, firstYearFeeWaived: false, personal: true }] };
+      $("monthly").value = 2500; record("example_loaded"); render();
+    });
+    $("plan").addEventListener("click", () => {
+      $("msg").textContent = "";
+      try {
+        const p = buildPlan({ owned: state.owned, spentSoFar: state.spent, wishlist: state.wishlist, monthlySpend: num("monthly"), todayIso: today(), order: $("order").value, minGapDays: num("gap") });
+        lastPlan = p;
+        $("planstats").innerHTML = [["Cards scheduled", p.placed.length], ["Total net value", money(p.totalNet)], ["Monthly spend used", money(num("monthly"))]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
+        $("planrows").innerHTML = p.placed.map((x) => `<tr><td>${esc(x.applyOn)}</td><td>${esc(x.card.name)}</td><td>${esc(x.spendBy)}</td><td>${money(x.net)}</td></tr>`).join("");
+        $("skipped").textContent = p.skipped.length ? "Not schedulable at this monthly spend: " + p.skipped.map((s) => s.card.name).join(", ") + "." : "";
+        $("out").hidden = false; record("plan_built");
+      } catch (e) { $("msg").textContent = e.message; }
+    });
+    $("ics").addEventListener("click", () => {
+      if (!lastPlan) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toIcs(lastPlan)], { type: "text/calendar" }));
+      a.download = "card-bonus-schedule.ics"; a.click(); record("calendar_downloaded");
+    });
+    render();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../studio-class-slot-optimizer/" data-pf-to="studio-class-slot-optimizer">Studio Class Slot Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tax-lien-certificate-yield-calculator/" data-pf-to="tax-lien-certificate-yield-calculator">What does a tax lien certificate really yield? Free calculator</a></li>
+      <li><a href="../tax-lot-sale-optimizer/" data-pf-to="tax-lot-sale-optimizer">Which lots should you sell? Free tax lot optimizer</a></li>
+      <li><a href="../tutor-package-pricing-calculator/" data-pf-to="tutor-package-pricing-calculator">Tutor Package Pricing Calculator — package vs. pay-per-session, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=card-bonus-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/?pfEmbed=1&quot; title=&quot;Card Bonus Planner — schedule sign-up bonuses around your real spending — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="card-bonus-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/" data-pf-embed-title="Card Bonus Planner — schedule sign-up bonuses around your real spending" data-pf-embed-slug="card-bonus-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="card-bonus-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="card-bonus-planner" data-pf-link-amount=""></script>
+</body>
+</html>

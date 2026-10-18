@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Turo Take From Hosts? (2026 Plan x Booking-Window Matrix)</title>
+  <meta name="description" content="Turo's host cut is not one percentage anymore. Worked through on a real $350 trip: the same booking pays a host anywhere from $245 to $315 depending on…">
+  <meta property="og:title" content="How much does Turo take from hosts?">
+  <meta property="og:description" content="A $350 trip pays $245 to $315 to the host depending on plan and booking window -- worked through on real numbers…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/how-much-does-turo-take-from-hosts.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Turo actually take from hosts in 2026?","acceptedAnswer":{"@type":"Answer","text":"Somewhere between 0% and 35%, depending on two things you pick or the guest picks: your earnings plan (Peace of Mind, Balanced, or More Earnings) and how far ahead of the trip the guest booked (0-2, 3-13, 14-27, or 28+ days). On the Balanced plan, Turo's cut ranges from 25% (last-minute) down to 10% (28+ days out). There is no single \"Turo takes X%\" answer anymore -- the honest answer is a 12-cell matrix, not a percentage."}},{"@type":"Question","name":"Why does the same trip pay differently depending on when it was booked?","acceptedAnswer":{"@type":"Answer","text":"Turo's host share locks in at the moment the guest books, and every earnings plan pays more the further ahead that booking happens. A trip booked 28+ days out pays a meaningfully higher host share than the identical trip booked 0-2 days before it starts, under all three plans -- it rewards a host's listing being bookable further in advance, not the trip itself being any different."}},{"@type":"Question","name":"Which earnings plan should I pick?","acceptedAnswer":{"@type":"Answer","text":"That depends on how much weight you put on host share versus damage-responsibility exposure, which this page cannot decide for you. Peace of Mind pays the lowest share (65-80%) but caps a damage claim you could be held responsible for at a commonly cited $250. More Earnings pays the highest share (85-100%) but raises that cap to a commonly cited $2,750. A higher share is not free money -- it comes with more of your own vehicle's risk on your side of the line."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a1f16; background: #f2f6ef; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; color: #1f4d20; }
+    h2 { margin-top: 1.6em; color: #1f4d20; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92rem; }
+    th, td { text-align: left; border-bottom: 1px solid #c7d6c0; padding: 6px 10px; }
+    code { background: #e2ecdc; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #eaf3e6; border: 1px solid #a9c99a; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #1f4d20; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5946; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/how-much-does-turo-take-from-hosts.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does Turo take from hosts? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../turo-host-payout-calculator/">Turo Host Payout Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does Turo take from hosts?</span></span></nav>
+  <p><a href="./">&larr; Back to the Turo host payout calculator</a></p>
+  <h1>How much does Turo actually take from hosts?</h1>
+  <p>Not one percentage &mdash; a matrix. Turo restructured host earnings around March 2026 into three named earnings
+    plans, and within each plan the host share also depends on how far ahead of the trip the guest booked. The rest
+    of this page works through the matrix on a real trip price, not a rounded example.</p>
+
+  <h2>The matrix</h2>
+  <p>Host share by earnings plan and booking window (the guest's fraction goes to Turo):</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Plan</th><th>0-2 days ahead</th><th>3-13 days ahead</th><th>14-27 days ahead</th><th>28+ days ahead</th></tr></thead>
+    <tbody>
+      <tr><td>Peace of Mind ($250 cap)</td><td>65%</td><td>70%</td><td>75%</td><td>80%</td></tr>
+      <tr><td>Balanced ($1,500 cap)</td><td>75%</td><td>80%</td><td>85%</td><td>90%</td></tr>
+      <tr><td>More Earnings ($2,750 cap)</td><td>85%</td><td>90%</td><td>95%</td><td>100%</td></tr>
+    </tbody>
+  </table></div>
+  <p>The percentage applies to the trip price plus any extra-mileage, late-return, and additional-usage fees the
+    guest owes &mdash; not just the headline daily rate. The &ldquo;cap&rdquo; column is each plan's commonly cited
+    damage-responsibility limit: the dollar amount a host can be held responsible for if the vehicle is damaged on
+    a trip. It does not enter the payout arithmetic, but it is the real trade-off behind picking a higher-share
+    plan.</p>
+
+  <h2>Worked example</h2>
+  <p>A host lists a $350 trip (1 day, no extra fees) on the Balanced plan, booked 3-13 days ahead.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Figure</th><th>Arithmetic</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Host share</td><td>Balanced &times; 3-13 days</td><td>80%</td></tr>
+      <tr><td>Host payout</td><td>$350 &times; 0.80</td><td>$280.00</td></tr>
+      <tr><td>Turo's cut</td><td>$350 &minus; $280.00</td><td>$70.00 (20%)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The same $350 trip, every plan, same booking window</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Plan</th><th>Host payout</th><th>Turo's cut</th><th>Damage cap</th></tr></thead>
+      <tbody>
+        <tr><td>Peace of Mind</td><td>$245.00</td><td>$105.00</td><td>$250</td></tr>
+        <tr><td>Balanced</td><td>$280.00</td><td>$70.00</td><td>$1,500</td></tr>
+        <tr><td>More Earnings</td><td>$315.00</td><td>$35.00</td><td>$2,750</td></tr>
+      </tbody>
+    </table></div>
+    <p>A <strong>$70.00 swing</strong> on one trip from plan choice alone &mdash; against a damage-exposure range
+      running from $250 to $2,750 over the same three rows.</p>
+  </div>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The same $350 trip, Balanced plan, every booking window</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Booking window</th><th>Host share</th><th>Host payout</th></tr></thead>
+      <tbody>
+        <tr><td>0-2 days ahead</td><td>75%</td><td>$262.50</td></tr>
+        <tr><td>3-13 days ahead</td><td>80%</td><td>$280.00</td></tr>
+        <tr><td>14-27 days ahead</td><td>85%</td><td>$297.50</td></tr>
+        <tr><td>28+ days ahead</td><td>90%</td><td>$315.00</td></tr>
+      </tbody>
+    </table></div>
+    <p>A <strong>$52.50 swing</strong> on the identical trip, from booking timing alone &mdash; nothing about the
+      trip itself changed.</p>
+  </div>
+
+  <h2>What that adds up to over a month</h2>
+  <p>At 6 trips like this one a month, on the Balanced plan at the 3-13-day window: $280.00 &times; 6 =
+    <strong>$1,680.00 a month</strong>, or <strong>$20,160.00 a year</strong> &mdash; a linear projection from one
+    trip's payout and a stated trip frequency, not a booked-calendar forecast.</p>
+
+  <h2>Do this with your own trip</h2>
+  <p>The <a href="./">Turo host payout calculator</a> runs this same arithmetic on your own trip price, plan,
+    booking window, and any extra fees, compares all three plans and all four booking windows side by side, and
+    projects a monthly and annual estimate from your own trip frequency. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>How much does Turo actually take from hosts in 2026?</h3>
+  <p>Somewhere between 0% and 35%, depending on two things you pick or the guest picks: your earnings plan (Peace of Mind, Balanced, or More Earnings) and how far ahead of the trip the guest booked (0-2, 3-13, 14-27, or 28+ days). On the Balanced plan, Turo's cut ranges from 25% (last-minute) down to 10% (28+ days out). There is no single "Turo takes X%" answer anymore -- the honest answer is a 12-cell matrix, not a percentage.</p>
+
+  <h3>Why does the same trip pay differently depending on when it was booked?</h3>
+  <p>Turo's host share locks in at the moment the guest books, and every earnings plan pays more the further ahead that booking happens. A trip booked 28+ days out pays a meaningfully higher host share than the identical trip booked 0-2 days before it starts, under all three plans -- it rewards a host's listing being bookable further in advance, not the trip itself being any different.</p>
+
+  <h3>Which earnings plan should I pick?</h3>
+  <p>That depends on how much weight you put on host share versus damage-responsibility exposure, which this page cannot decide for you. Peace of Mind pays the lowest share (65-80%) but caps a damage claim you could be held responsible for at a commonly cited $250. More Earnings pays the highest share (85-100%) but raises that cap to a commonly cited $2,750. A higher share is not free money -- it comes with more of your own vehicle's risk on your side of the line.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator it links to are arithmetic references, not
+      financial or business advice, and they do not replace a qualified professional. This is an independent,
+      unofficial reference, not affiliated with, endorsed by, or sponsored by Turo &mdash; Turo has changed its
+      host-earnings structure more than once within 2026 alone, so treat every figure here as a commonly cited
+      starting point to check against your own Turo Host Hub, not a guarantee of what you will actually be paid.
+      To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from
+      its use.</p>
+    <p>Free and open source &mdash; <a href="LICENSE" rel="noopener">MIT licensed</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../app-review-insights/" data-pf-to="app-review-insights">App Review Insights — free, private, CSV in your browser</a></li>
+      <li><a href="../app-subscription-proceeds-calculator/" data-pf-to="app-subscription-proceeds-calculator">What does an app subscriber really leave you after store fees?</a></li>
+      <li><a href="../auction-car-flip-calculator/" data-pf-to="auction-car-flip-calculator">Auction Car Flip Calculator — free, private, in your browser</a></li>
+      <li><a href="../axe-throwing-bar-profit-calculator/" data-pf-to="axe-throwing-bar-profit-calculator">Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=turo-host-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="turo-host-payout-calculator"></script>
+</body>
+</html>

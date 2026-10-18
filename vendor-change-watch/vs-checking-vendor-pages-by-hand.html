@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. checking vendor pages by hand | Vendor Change Watch</title>
+<meta name="description" content="Revisiting a vendor's terms, privacy, or subprocessor page from memory and eyeballing whether anything looks different is the method every practitioner already…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/vs-checking-vendor-pages-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. checking vendor pages by hand">
+<meta property="og:description" content="Eyeballing a vendor's page from memory cannot tell you which clause moved, cannot prove a check happened…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/vs-checking-vendor-pages-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does checking a vendor's page by hand actually catch?","acceptedAnswer":{"@type":"Answer","text":"It catches a change large enough to jump out against your memory of the page — a rewritten heading, a new paragraph, a page that looks obviously different in layout or length. It does not catch a single clause edited in place inside a page that otherwise reads the same, because nothing about a by-hand look preserves what the page actually said last time you read it."}},{"@type":"Question","name":"Why is “I checked and it looked the same” not proof of anything?","acceptedAnswer":{"@type":"Answer","text":"Because a page that failed to load, redirected somewhere else, or was blocked by the vendor's own bot protection can look exactly like a page that never changed — you scroll, you do not see the change you were looking for, and you move on having actually looked at nothing. A by-hand check has no way to distinguish those two outcomes from each other, and no record afterward of which one happened."}},{"@type":"Question","name":"Can I put a by-hand check in a ticket as evidence?","acceptedAnswer":{"@type":"Answer","text":"Only as a note that you looked, on a given date, and did not personally notice anything. That is weaker evidence than a reviewer, an auditor, or your own future self usually needs — it carries no source URL, no before/after text, and no independent way to confirm which version of the page you were actually looking at."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #1f6f8b; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; color: #1c3f5f; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c3f5f10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #1c3f5f; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. checking vendor pages by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vendor-change-watch/">See exactly what changed in a vendor's terms</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. checking vendor pages by hand</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vendor Change Watch</a></p>
+<header>
+<h1>This tool vs. checking vendor pages by hand</h1>
+<p class="lede">Names no specific company or product &mdash; this compares against the manual habit nearly every practitioner already has: opening a vendor's terms, privacy, or subprocessor page from time to time and eyeballing whether it looks different from what you remember.</p>
+</header>
+<section>
+<h2>What checking by hand actually does</h2>
+<p>
+  Revisiting a vendor page by hand is free and needs no tool, which is exactly
+  why it is the default. You open the page, skim it, and compare it against
+  your memory of the last time you read it. If nothing jumps out, you move on
+  assuming nothing changed.
+</p>
+<p>
+  That method has three failure modes this tool exists to close. First,
+  memory is not a diff: a single clause rewritten in place &mdash; a
+  retention window stretched, a notice period shortened, a subprocessor
+  swapped for another with the same category label &mdash; reads the same at
+  a glance as the version you remember, because nothing preserved the exact
+  wording to compare against. Second, a failed check looks identical to a
+  clean one: a page that timed out, redirected, or was blocked by the
+  vendor's own bot protection shows you nothing, and "I saw nothing wrong"
+  and "I saw nothing at all" produce the same blank result in your head.
+  Third, there is no record afterward &mdash; no source URL, no timestamp, no
+  before-and-after text &mdash; so six months later neither you nor a
+  reviewer can reconstruct what the page said the last time anyone actually
+  looked.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want to know if a vendor's page has changed at all, and I am willing to re-read the whole thing from memory.</td><td>Checking by hand &mdash; free, and works if the change is large enough to notice.</td></tr>
+<tr><td>I want to know exactly which clause changed, word for word, without relying on memory.</td><td>This tool &mdash; a section-by-section, word-level diff between two captures.</td></tr>
+<tr><td>I want to tell a genuinely unchanged page apart from a check that silently failed.</td><td>This tool &mdash; a failed or blocked capture is reported as <code>inconclusive</code>, never as "no change."</td></tr>
+<tr><td>I want evidence I can put in a ticket: a source URL, both timestamps, and the exact before/after text.</td><td>This tool &mdash; the report is built from what was actually captured, not from what someone recalls.</td></tr>
+<tr><td>I want to run scheduled checks without remembering to revisit the page myself.</td><td>This tool's CLI &mdash; fetches on your own machine, on whatever schedule you already run.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Checking by hand is not wrong so much as unverifiable: a practitioner doing
+  it carefully, every single time, would eventually catch most large changes.
+  What it structurally cannot do is prove a check happened, prove what it
+  found, or catch a change smaller than what memory retains &mdash; and this
+  tool's whole design, on both the browser page and the CLI, is built around
+  closing exactly those three gaps for free.
+</p>
+<p class="fine">This tool needs no account, no hosting, and no server to try: the comparison page runs entirely in your browser, and the CLI's stored data never leaves your own machine.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What does checking a vendor's page by hand actually catch?</h3>
+<p>It catches a change large enough to jump out against your memory of the page &mdash; a rewritten heading, a new paragraph, a page that looks obviously different in layout or length. It does not catch a single clause edited in place inside a page that otherwise reads the same, because nothing about a by-hand look preserves what the page actually said last time you read it.</p>
+<h3>Why is “I checked and it looked the same” not proof of anything?</h3>
+<p>Because a page that failed to load, redirected somewhere else, or was blocked by the vendor's own bot protection can look exactly like a page that never changed &mdash; you scroll, you do not see the change you were looking for, and you move on having actually looked at nothing. A by-hand check has no way to distinguish those two outcomes from each other, and no record afterward of which one happened.</p>
+<h3>Can I put a by-hand check in a ticket as evidence?</h3>
+<p>Only as a note that you looked, on a given date, and did not personally notice anything. That is weaker evidence than a reviewer, an auditor, or your own future self usually needs &mdash; it carries no source URL, no before/after text, and no independent way to confirm which version of the page you were actually looking at.</p>
+<p class="note">
+  Open <a href="./">Vendor Change Watch</a> to try your own vendor page.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied. It is not legal, compliance, procurement, or security advice, and it does not replace a qualified professional. It reports what changed in the text of pages you configured; it does not assert that a vendor is or is not compliant with anything. You are responsible for reviewing and verifying its output before relying on it.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live connection anywhere &mdash; it is a static page comparing this tool against a manual habit, not against any other product.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../grant-writer-proposal-price-calculator/" data-pf-to="grant-writer-proposal-price-calculator">Grant Writer Proposal Price Calculator — free</a></li>
+      <li><a href="../gtin-list-check/" data-pf-to="gtin-list-check">GTIN List Check — free, private, in your browser</a></li>
+      <li><a href="../gumroad-sales-to-journal/" data-pf-to="gumroad-sales-to-journal">Gumroad sales export to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../hubspot-contacts-csv-check/" data-pf-to="hubspot-contacts-csv-check">HubSpot Contacts CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-change-watch">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vendor-change-watch"></script>
+</body></html>

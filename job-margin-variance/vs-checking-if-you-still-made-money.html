@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. just checking if you still made money | Job Margin Variance</title>
+<meta name="description" content="Clearing a profit on the invoice total is not the same as knowing why the margin moved. A flat before/after check catches a loss…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/vs-checking-if-you-still-made-money.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. just checking if you still made money">
+<meta property="og:description" content="A job that still cleared a profit can still have quietly lost 14 margin points, and the line that actually did it is rarely the one that looks biggest until…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/vs-checking-if-you-still-made-money.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't it enough to check whether the invoice cleared the bid?","acceptedAnswer":{"@type":"Answer","text":"It catches an outright loss and nothing else. On this calculator's own worked example -- 16 estimated hours running to 20, materials $420 to $465, other costs $80 to $95, a $55/hr rate and a $2,000 bid -- the job still nets $340 profit, down from an estimated $620. A flat before/after check sees a job that made money and stops there. It does not see that the margin fell from 31% to 17%, or which of the three lines actually did it."}},{"@type":"Question","name":"Which line actually caused the overrun in that example?","acceptedAnswer":{"@type":"Answer","text":"Labor, by a wide margin, and it is the line a flat total hides best. Materials ran $45 over and other costs $15 over -- $60 combined, and the more visible number on an invoice. But 4 extra labor hours at $55/hr is a $220 overrun -- nearly 79% of the full $280 cost increase -- and it never appears as a dollar figure on the invoice at all unless someone prices the hours at the shop rate."}},{"@type":"Question","name":"Why does a raw hours number get missed next to two dollar figures?","acceptedAnswer":{"@type":"Answer","text":"Because eyeballing a materials line, an other-costs line, and an hours line side by side means comparing $45 and $15 against a bare \"4\" -- different units read as if they were the same one. $45 looks bigger than 4 on the page, so materials gets blamed and the estimate gets revised on the wrong assumption. This calculator prices the hours at your rate before ranking, so the comparison is dollars against dollars, not dollars against a bare count."}},{"@type":"Question","name":"Do I need to add a labor rate and bid price to use this?","acceptedAnswer":{"@type":"Answer","text":"No -- both are optional. Without them the calculator still reports the cost variance and flags the largest-moving line by its own unit. Adding an hourly rate converts the labor-hour variance into the same currency as materials and other costs, so the ranking is not comparing hours to dollars. Adding the job's bid price on top turns that into the margin swing -- the number that actually says whether \"we still made money\" is hiding a real problem."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#17251f;background:#f2f5ef}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#17633d;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#506050}section{background:#fff;border:1px solid #cbd8ca;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #19351a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #dce6dc;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#506050}.fine,.note{font-size:.88rem;color:#506050}footer{color:#506050;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. just checking if you still made money — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../job-margin-variance/">Job Cost Variance Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. just checking if you still made money</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Job Margin Variance</a></p>
+<header>
+<h1>This calculator vs. just checking if you still made money</h1>
+<p class="lede">The fastest job review there is: does the final invoice clear the bid? It catches an outright loss and nothing else -- a job can still turn a profit while quietly losing more than a tenth of its margin, and the line actually responsible is rarely the one that looks biggest on the invoice.</p>
+</header>
+<section>
+<h2>What each check actually tells you</h2>
+<p>
+  <strong>Checking whether you still made money</strong> is one comparison:
+  total cost against the bid price, after the fact. It answers exactly one
+  question -- loss or no loss -- and nothing about where the job
+  moved or which assumption to fix before quoting the next one like it. It
+  needs no tool at all, which is exactly why it is the default.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same estimate-versus-actual
+  numbers and breaks them into labor hours, materials, and other costs,
+  each measured on its own line. Add an hourly rate and it prices the
+  labor-hour variance in the same currency as the other two, so the three
+  lines can be ranked against each other honestly instead of comparing a
+  raw hours count to two dollar figures. Add the bid price as well and it
+  turns that into the actual margin swing -- the number "we still made
+  money" cannot see.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Estimate vs. actual</th><th scope="col">Estimated</th><th scope="col">Actual</th><th scope="col">Variance</th></tr></thead>
+<tbody>
+<tr><td>Labor hours (at $55/hr)</td><td>16 hrs</td><td>20 hrs</td><td>+4 hrs -- <strong>$220</strong></td></tr>
+<tr><td>Materials</td><td>$420</td><td>$465</td><td>$45</td></tr>
+<tr><td>Other costs</td><td>$80</td><td>$95</td><td>$15</td></tr>
+<tr><td>Job price</td><td colspan="3">$2,000</td></tr>
+<tr><td>Profit</td><td>$620 (31.0%)</td><td>$340 (17.0%)</td><td>&minus;$280, &minus;14.0 points</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  "Did we still make money?" answers yes -- $340 profit, still positive.
+  It stops there. This calculator's own defaults show the fuller picture: margin
+  fell from 31.0% to 17.0%, a 14-point swing, and of the $280 total cost
+  increase, <strong>$220 of it -- nearly 79%</strong> -- is the
+  4 extra labor hours priced at the $55/hr rate, not the $45 materials
+  overrun that looks like the bigger number sitting next to a bare "4" on
+  an unpriced hours line. Revise the next quote's materials allowance on the
+  strength of the flat check and the estimate stays wrong in the same place.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Did the job clear the bid at all?</td><td>Either check answers this -- a flat total-vs-bid comparison is enough for a yes/no.</td></tr>
+<tr><td>By how many points did the margin actually move?</td><td>This calculator's margin section, once a labor rate and bid price are entered.</td></tr>
+<tr><td>Which single assumption is most worth revising before the next quote?</td><td>This calculator's ranked largest-movement line -- priced in dollars, not a raw hours count next to two dollar figures.</td></tr>
+<tr><td>Is a labor overrun hiding behind a smaller-looking materials number?</td><td>This calculator, once an hourly rate is entered -- a flat total-vs-bid check cannot separate the two at all.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't it enough to check whether the invoice cleared the bid?</h3>
+<p>It catches an outright loss and nothing else. On this calculator's own worked example -- 16 estimated hours running to 20, materials $420 to $465, other costs $80 to $95, a $55/hr rate and a $2,000 bid -- the job still nets $340 profit, down from an estimated $620. A flat before/after check sees a job that made money and stops there. It does not see that the margin fell from 31% to 17%, or which of the three lines actually did it.</p>
+<h3>Which line actually caused the overrun in that example?</h3>
+<p>Labor, by a wide margin, and it is the line a flat total hides best. Materials ran $45 over and other costs $15 over -- $60 combined, and the more visible number on an invoice. But 4 extra labor hours at $55/hr is a $220 overrun -- nearly 79% of the full $280 cost increase -- and it never appears as a dollar figure on the invoice at all unless someone prices the hours at the shop rate.</p>
+<h3>Why does a raw hours number get missed next to two dollar figures?</h3>
+<p>Because eyeballing a materials line, an other-costs line, and an hours line side by side means comparing $45 and $15 against a bare "4" -- different units read as if they were the same one. $45 looks bigger than 4 on the page, so materials gets blamed and the estimate gets revised on the wrong assumption. This calculator prices the hours at your rate before ranking, so the comparison is dollars against dollars, not dollars against a bare count.</p>
+<h3>Do I need to add a labor rate and bid price to use this?</h3>
+<p>No -- both are optional. Without them the calculator still reports the cost variance and flags the largest-moving line by its own unit. Adding an hourly rate converts the labor-hour variance into the same currency as materials and other costs, so the ranking is not comparing hours to dollars. Adding the job's bid price on top turns that into the margin swing -- the number that actually says whether "we still made money" is hiding a real problem.</p>
+<p class="note">
+  Open the <a href="./">Job Margin Variance calculator</a> to price your own job's hours, or read <a href="./why-did-my-job-cost-more-than-i-estimated.html">why a job costs more than estimated</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not financial, tax, accounting, or business advice, and it does not replace a qualified professional or your own bookkeeping records. Verify every figure before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against anything -- it is a static page describing this calculator's own arithmetic.</p>
+<p class="support">Free and open source. If it helps you price the next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hay-sale-price-calculator/" data-pf-to="hay-sale-price-calculator">Hay Sale Price Calculator — free, private</a></li>
+      <li><a href="../home-service-lead-roi-analyzer/" data-pf-to="home-service-lead-roi-analyzer">Home Service Lead ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../hunting-lease-income-calculator/" data-pf-to="hunting-lease-income-calculator">Hunting Lease Income Calculator — free, private</a></li>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=job-margin-variance">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="job-margin-variance"></script>
+</body></html>

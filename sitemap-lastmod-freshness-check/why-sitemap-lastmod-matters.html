@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Sitemap lastmod Freshness Matters</title>
+  <meta name="description" content="Google's own sitemap documentation says &lt;lastmod&gt; should reflect a real, significant content change…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/why-sitemap-lastmod-matters.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why Sitemap lastmod Freshness Matters">
+  <meta property="og:description" content="A lastmod value Google can't trust is worse than no lastmod at all -- it can cost the whole site's signal.">
+  <meta property="og:url" content="./why-sitemap-lastmod-matters.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where does Google say lastmod has to be accurate?","acceptedAnswer":{"@type":"Answer","text":"Google's Search Central documentation on building and submitting a sitemap describes <lastmod> as the date the page was last significantly modified, and says the field is only useful if it is accurate — and that a crawler which finds a site's lastmod values are not reliable may choose to disregard the field for that site going forward, rather than continuing to trust a signal that has proven wrong."}},{"@type":"Question","name":"What actually happens if lastmod stops being trusted?","acceptedAnswer":{"@type":"Answer","text":"The entire point of lastmod is to help a crawler prioritize what to recrawl — a page that changed yesterday deserves attention sooner than one that hasn't changed in a year. If a crawler decides a site's lastmod values are not reliable, it loses that prioritization signal for every URL in the sitemap, not just the ones with a wrong date — a site with mostly-accurate dates and a handful of faked ones can lose the benefit for all of them, because the crawler has no cheap way to tell which entries to still trust."}},{"@type":"Question","name":"How does freshness faking happen in practice?","acceptedAnswer":{"@type":"Answer","text":"Almost never on purpose. The most common cause is a sitemap generator or static-site build step that stamps every URL with the current build timestamp by default, rather than the page's actual last-edited date — so a page nobody has touched in two years shows a lastmod of this morning simply because the site was redeployed. A second common cause is a CMS whose \"last modified\" field updates on any save, including a save that changed nothing (a draft re-save, a metadata-only edit, a cache-busting republish)."}},{"@type":"Question","name":"Is a uniform lastmod always wrong?","acceptedAnswer":{"@type":"Answer","text":"No — a genuine one-time event, like a full site migration, a CMS re-platform, or a bulk content re-license, can legitimately touch every page on the same day. That is why this tool reports a uniform pattern as a notice-severity statistical signal rather than a certain violation: it names the pattern and the share of URLs involved, and leaves the judgment of whether it reflects a real event to the person who knows their own site's history."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    h2 { font-size: 1.1rem; margin: 1.4rem 0 .4rem; color: #17324a; }
+    pre.example { background: #f7f9fb; padding: 10px 12px; border-radius: 8px; font-size: .84rem; overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Sitemap lastmod Freshness Matters — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Sitemap lastmod Freshness Matters</span></span></nav>
+  <p><a href="./">&larr; Sitemap lastmod Freshness Check</a></p>
+  <h1>Why sitemap lastmod freshness matters</h1>
+  <p>
+    Google's Search Central documentation on building a sitemap is direct about this: the
+    <code>&lt;lastmod&gt;</code> field should name the date a page was <strong>last significantly
+    modified</strong>, and the field is only useful to a crawler if it can be trusted. Google's own
+    guidance says that when a site's lastmod values consistently don't hold up, it may choose to
+    <strong>disregard the field for that site going forward</strong> — not just for the one wrong
+    entry, but as a general policy toward a source that has proven unreliable.
+  </p>
+  <p>
+    That is a quiet failure, the same shape as a broken hreflang set: the sitemap still validates,
+    the XML is still well-formed, and nothing in an ordinary QA pass shows anything wrong. The only
+    symptom is that a crawler stops prioritizing your recently-changed pages the way the field was
+    supposed to let it — because it decided the field was noise.
+  </p>
+  <h2>The pattern that causes this: freshness faking</h2>
+  <p>
+    Almost never intentional. The most common cause is a sitemap generator or static-site build step
+    that stamps every URL with the <strong>current build timestamp</strong> by default, rather than
+    the page's actual last-edited date — so a page nobody has touched in two years shows a
+    <code>&lt;lastmod&gt;</code> of this morning simply because the site was redeployed. Run that
+    build often enough and every single URL in the sitemap carries the same, constantly-advancing
+    date, which is exactly the pattern that erodes trust in the field: a value that is always "today"
+    carries no information about what actually changed.
+  </p>
+  <pre class="example" tabindex="0">&lt;!-- every one of 400 URLs, regenerated on every deploy --&gt;
+&lt;url&gt;&lt;loc&gt;https://example.com/&lt;/loc&gt;&lt;lastmod&gt;2026-06-15&lt;/lastmod&gt;&lt;/url&gt;
+&lt;url&gt;&lt;loc&gt;https://example.com/about&lt;/loc&gt;&lt;lastmod&gt;2026-06-15&lt;/lastmod&gt;&lt;/url&gt;
+&lt;url&gt;&lt;loc&gt;https://example.com/blog/post-from-2019&lt;/loc&gt;&lt;lastmod&gt;2026-06-15&lt;/lastmod&gt;&lt;/url&gt;
+&lt;!-- ...397 more, all dated today, regardless of when the page last changed --&gt;</pre>
+  <p>
+    A second common cause is a CMS whose "last modified" timestamp updates on <em>any</em> save,
+    including one that changed nothing meaningful — a draft re-save, a metadata-only edit, a
+    cache-busting republish. The date is technically accurate about when a database row was touched,
+    but not about when a reader would notice the page changed, which is the distinction Google's
+    documentation is asking site owners to make.
+  </p>
+  <h2>The other checks this tool runs</h2>
+  <ul>
+    <li><strong>Invalid format.</strong> The sitemap protocol requires a full W3C Datetime — a bare
+      date or a full date-time with an explicit timezone. A bare time with no timezone, a
+      slash-separated date, or a two-digit year all fail silently in some consumers rather than
+      erroring loudly.</li>
+    <li><strong>Future-dated.</strong> A page cannot have been modified in the future — always a
+      clock/timezone bug or an unreplaced placeholder.</li>
+    <li><strong>Duplicate or conflicting.</strong> The same URL listed twice with two different
+      dates is a real conflict nothing consuming the sitemap can resolve on your behalf.</li>
+    <li><strong>Server mismatch (CLI only).</strong> Whether the live page's own HTTP
+      <code>Last-Modified</code> response header actually confirms a change as recent as the
+      sitemap claims — reported as a signal to check, not proof, since some servers send render
+      time rather than content-edit time, or send no such header at all.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>Where does Google say lastmod has to be accurate?</h3>
+  <p>Google's Search Central documentation on building and submitting a sitemap describes &lt;lastmod&gt; as the date the page was last significantly modified, and says the field is only useful if it is accurate — and that a crawler which finds a site's lastmod values are not reliable may choose to disregard the field for that site going forward, rather than continuing to trust a signal that has proven wrong.</p>
+  <h3>What actually happens if lastmod stops being trusted?</h3>
+  <p>The entire point of lastmod is to help a crawler prioritize what to recrawl — a page that changed yesterday deserves attention sooner than one that hasn't changed in a year. If a crawler decides a site's lastmod values are not reliable, it loses that prioritization signal for every URL in the sitemap, not just the ones with a wrong date — a site with mostly-accurate dates and a handful of faked ones can lose the benefit for all of them, because the crawler has no cheap way to tell which entries to still trust.</p>
+  <h3>How does freshness faking happen in practice?</h3>
+  <p>Almost never on purpose. The most common cause is a sitemap generator or static-site build step that stamps every URL with the current build timestamp by default, rather than the page's actual last-edited date — so a page nobody has touched in two years shows a lastmod of this morning simply because the site was redeployed. A second common cause is a CMS whose "last modified" field updates on any save, including a save that changed nothing (a draft re-save, a metadata-only edit, a cache-busting republish).</p>
+  <h3>Is a uniform lastmod always wrong?</h3>
+  <p>No — a genuine one-time event, like a full site migration, a CMS re-platform, or a bulk content re-license, can legitimately touch every page on the same day. That is why this tool reports a uniform pattern as a notice-severity statistical signal rather than a certain violation: it names the pattern and the share of URLs involved, and leaves the judgment of whether it reflects a real event to the person who knows their own site's history.</p>
+  <p class="note">Check your own sitemap: <a href="./">Sitemap lastmod Freshness Check</a>. See also: <a href="vs-xml-sitemaps-validator.html">how this differs from XML-Sitemaps.com's Sitemap Validator</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is SEO, legal, or marketing advice. <strong>You are responsible for reviewing and verifying any output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. The code is under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sitemap-lastmod-freshness-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sitemap-lastmod-freshness-check"></script>
+</body>
+</html>

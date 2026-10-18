@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out the 90% gambling loss cap by hand | Gambling Loss Deduction Calculator</title>
+<meta name="description" content="Working out the new OBBBA 90% gambling-loss deduction cap by hand usually goes wrong in the same places: applying 90% to losses instead of winnings…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out the 90% gambling loss cap by hand | Gambling Loss Deduction Calculator">
+<meta property="og:description" content="A hand estimate of the OBBBA 90% gambling-loss cap has a few common failure points, above all which figure the 90% applies to.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Applying the 90% to the wrong figure. The cap is 90% of WINNINGS, not 90% of losses — the deduction is the lesser of your actual losses or 90% of your winnings. Taking 90% of a large loss figure and comparing that to winnings gives the wrong answer whenever losses exceed winnings by more than a little."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Forgetting the pre-existing rule is still there underneath the new one. Losses have always been capped at winnings, full stop — OBBBA adds a SECOND, tighter cap (90% of winnings) on top of that first one. Only the tighter of the two ever actually binds."}},{"@type":"Question","name":"What eligibility mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Assuming any deduction is available without itemizing. It is not, and this predates OBBBA entirely — a non-itemizer's full winnings are taxable with zero loss offset, cap or no cap."}},{"@type":"Question","name":"What mistake do professional gamblers make most often?","acceptedAnswer":{"@type":"Answer","text":"Assuming a trade-or-business structure escapes the cap. It does not — OBBBA permanently folded a professional gambler's wagering-related business expenses into the same 90%-of-winnings limitation a casual gambler's losses face."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page knows your other itemized deductions, your state's own gambling-loss rules, or whether a repeal bill has since become law. Both apply the same published federal rule to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/gambling-loss-deduction-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. working out the 90% gambling loss cap by hand | Gambling Loss Deduction Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../gambling-loss-deduction-calculator/">Gambling Loss Deduction Calculator — free, 2026 90% cap</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. working out the 90% gambling loss cap by hand | Gambling Loss Deduction Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out the 90% gambling loss cap by hand</h1>
+<p class="lede">The rule sounds simple — "you can only deduct 90% of your
+losses" — and that plain-English version is exactly the part that goes
+wrong. The 90% applies to winnings, not losses, and getting that backwards
+changes the answer whenever the two numbers differ.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Which figure gets the 90%</td><td>Takes 90% of losses, not winnings.</td><td>Caps the deduction at the lesser of actual losses or 90% of WINNINGS — the two give different answers whenever losses and winnings differ.</td></tr>
+<tr><td>The older rule underneath</td><td>Forgets losses were already capped at winnings before OBBBA, and applies only the new 90% rule.</td><td>Applies both caps and reports whichever one actually binds — usually the new 90% figure once losses reach or exceed winnings.</td></tr>
+<tr><td>Itemizing requirement</td><td>Assumes some deduction is available either way.</td><td>Reports zero deduction and full taxable winnings if you are not itemizing — a pre-OBBBA rule this new cap does not change.</td></tr>
+<tr><td>Professional gamblers</td><td>Assumes a trade-or-business structure escapes the cap.</td><td>Flags that OBBBA permanently folds a professional's wagering-related business expenses into the same 90%-of-winnings limitation.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Applying the 90% to the wrong figure. The cap is 90% of WINNINGS, not 90% of losses — the deduction is the lesser of your actual losses or 90% of your winnings. Taking 90% of a large loss figure and comparing that to winnings gives the wrong answer whenever losses exceed winnings by more than a little.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Forgetting the pre-existing rule is still there underneath the new one. Losses have always been capped at winnings, full stop — OBBBA adds a SECOND, tighter cap (90% of winnings) on top of that first one. Only the tighter of the two ever actually binds.</p>
+<h3>What eligibility mistake gets made most often?</h3>
+<p>Assuming any deduction is available without itemizing. It is not, and this predates OBBBA entirely — a non-itemizer's full winnings are taxable with zero loss offset, cap or no cap.</p>
+<h3>What mistake do professional gamblers make most often?</h3>
+<p>Assuming a trade-or-business structure escapes the cap. It does not — OBBBA permanently folded a professional gambler's wagering-related business expenses into the same 90%-of-winnings limitation a casual gambler's losses face.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page knows your other itemized deductions, your state's own gambling-loss rules, or whether a repeal bill has since become law. Both apply the same published federal rule to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal gambling-loss deduction rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../commercial-property-cap-rate-calculator/" data-pf-to="commercial-property-cap-rate-calculator">Commercial property cap rate calculator. Free, private</a></li>
+      <li><a href="../consignment-markdown-planner/" data-pf-to="consignment-markdown-planner">When should a consignment shop mark things down?</a></li>
+      <li><a href="../contractor-wip-schedule/" data-pf-to="contractor-wip-schedule">Contractor WIP Schedule — free, private, in your browser</a></li>
+      <li><a href="../cost-segregation-study-calculator/" data-pf-to="cost-segregation-study-calculator">Cost Segregation Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=gambling-loss-deduction-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="gambling-loss-deduction-calculator"></script>
+</body>
+</html>

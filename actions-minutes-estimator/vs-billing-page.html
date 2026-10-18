@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This Estimator vs. Reading Your GitHub Billing Page</title>
+  <meta name="description" content="GitHub's billing page shows Actions minutes you already spent, added up across the whole account.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/vs-billing-page.html">
+  <meta property="og:title" content="This estimator vs. your GitHub billing page">
+  <meta property="og:description" content="Billing shows minutes already spent, aggregated across the account. This reads your workflow files and projects cost forward, per workflow and per job…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I stop checking my GitHub billing page if I use this tool?","acceptedAnswer":{"@type":"Answer","text":"No. The billing page is the only place that shows what you were actually charged, and it is the source of truth to reconcile against. This tool exists for the question the billing page cannot answer -- what a workflow you have not merged yet, or one you are changing right now, will cost -- so the two are complementary rather than substitutes."}},{"@type":"Question","name":"Why can I not just watch the billing page after each merge?","acceptedAnswer":{"@type":"Answer","text":"You can, but by then the minutes are already spent, and the billing page still will not tell you which workflow or which job spent them -- it reports a single aggregated number for the account. Attributing that total back to a specific matrix leg or a specific cron schedule is arithmetic you would have to do by hand, from memory of what changed and when, on every workflow you suspect."}},{"@type":"Question","name":"Do I need to know the billing rules myself to use this tool?","acceptedAnswer":{"@type":"Answer","text":"No, and that is most of what it replaces. The multipliers, the per-job rounding, and the free-minutes-only-on-public-repos rule are exactly the arithmetic this tool applies to your pasted YAML, so you do not have to re-derive them from GitHub's documentation each time you want an answer for a specific workflow."}},{"@type":"Question","name":"Is my workflow file uploaded anywhere to get this estimate?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing and costing happen entirely in your own browser and nothing is sent anywhere -- there is no server this portfolio operates that ever sees the YAML you paste. The CLI version reads local files and makes no network call at all, which is the same trust boundary as running grep on your own repository."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; color: #17324a; margin: 0 0 16px; }
+    h2 { font-size: 1.18rem; margin: 30px 0 8px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; margin: 20px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+    th { color: #55606f; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+    code { background: #eef1f5; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 11px 16px; border-radius: 8px; text-decoration: none; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/vs-billing-page.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This estimator vs. your GitHub billing page — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-minutes-estimator/">What will this GitHub Actions workflow cost you a month?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This estimator vs. your GitHub billing page</span></span></nav>
+  <p class="note"><a href="./">&larr; GitHub Actions Minutes Estimator</a></p>
+  <h1>This tool vs. reading your GitHub billing page</h1>
+
+  <p><strong>Your GitHub billing page</strong> is the only place that shows what you actually paid. It is authoritative, and nothing here replaces it as the number to reconcile against. What it does not do is attribute that number to a workflow, a job, or a matrix leg, and it cannot tell you anything about a workflow you have not merged yet -- it only reports minutes already spent, added up across the whole account.</p>
+
+  <p><strong>This tool</strong> reads the workflow YAML you paste and runs the same billing arithmetic GitHub applies -- the OS multiplier, per-job rounding, the free plan's included minutes -- forward, before you merge, and attributes the projected cost per workflow and per job. It answers a different question than billing does: not "what did I spend" but "what is this about to cost."</p>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>What did my account actually get charged last month?</td>
+        <td>Your GitHub billing page -- it is the source of truth for money that already moved.</td>
+      </tr>
+      <tr>
+        <td>What will this workflow I'm about to merge cost, before it runs once?</td>
+        <td>This estimator -- billing has no answer for a workflow that has not run yet.</td>
+      </tr>
+      <tr>
+        <td>Which job or matrix leg is actually spending my allowance?</td>
+        <td>This estimator -- billing reports one aggregated number for the whole account, not a breakdown per workflow or job.</td>
+      </tr>
+      <tr>
+        <td>I want this checked automatically before a change merges, failing the build if it pushes usage over budget.</td>
+        <td>This estimator's CLI -- <code>node cli.mjs --max-allowance-percent 80 .github/workflows</code> exits non-zero, wired into CI itself.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p>In practice the two are used together: this tool before a change merges, to catch an expensive pattern while it is still a diff, and the billing page afterward, to confirm the account actually spent what was projected.</p>
+
+  <div class="card">
+    <h2>Try it</h2>
+    <p>Paste the workflow file you are about to change and see the projected monthly cost, with the expensive patterns named, before it reaches your billing page at all.</p>
+    <p><a class="cta" href="./">Estimate a workflow's cost</a></p>
+    <p class="note">Free, runs entirely in your browser, nothing is uploaded. Already out of minutes and staring at red checks instead? <a href="../actions-runner-starvation-check/">actions-runner-starvation-check</a> tells you whether a red check is a real failure or a job GitHub never assigned a runner to.</p>
+  </div>
+
+  <h2>Questions</h2>
+
+  <h3>Should I stop checking my GitHub billing page if I use this tool?</h3>
+  <p>No. The billing page is the only place that shows what you were actually charged, and it is the source of truth to reconcile against. This tool exists for the question the billing page cannot answer -- what a workflow you have not merged yet, or one you are changing right now, will cost -- so the two are complementary rather than substitutes.</p>
+
+  <h3>Why can I not just watch the billing page after each merge?</h3>
+  <p>You can, but by then the minutes are already spent, and the billing page still will not tell you which workflow or which job spent them -- it reports a single aggregated number for the account. Attributing that total back to a specific matrix leg or a specific cron schedule is arithmetic you would have to do by hand, from memory of what changed and when, on every workflow you suspect.</p>
+
+  <h3>Do I need to know the billing rules myself to use this tool?</h3>
+  <p>No, and that is most of what it replaces. The multipliers, the per-job rounding, and the free-minutes-only-on-public-repos rule are exactly the arithmetic this tool applies to your pasted YAML, so you do not have to re-derive them from GitHub's documentation each time you want an answer for a specific workflow. <a href="how-github-actions-minutes-are-billed.html">How GitHub Actions minutes are billed</a> explains that arithmetic in full if you want to check the tool's working.</p>
+
+  <h3>Is my workflow file uploaded anywhere to get this estimate?</h3>
+  <p>No. Parsing and costing happen entirely in your own browser and nothing is sent anywhere -- there is no server this portfolio operates that ever sees the YAML you paste. The CLI version reads local files and makes no network call at all, which is the same trust boundary as running grep on your own repository.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em>, not a billing statement, and is not financial, accounting, or tax advice. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p>Not affiliated with GitHub, Inc. "GitHub" and "GitHub Actions" are trademarks of GitHub, Inc., used here only to describe the billing page this tool is compared against.</p>
+    <p class="note"><a href="./">Back to the estimator</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support this work</a> (entirely optional)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-minutes-estimator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-minutes-estimator"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. the 3x filament rule | 3D Print Price Calculator</title>
+  <meta name="description" content="Why multiplying filament cost by three is a guess, not a price — and what a flat multiplier can never see: print time, electricity, printer wear…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/vs-the-3x-filament-rule.html">
+  <meta property="og:title" content="This calculator vs. the 3x filament rule | 3D Print Price Calculator">
+  <meta property="og:description" content="A flat multiplier gives the same answer to a 20-minute print and a 20-hour print off the same filament weight.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 3x filament rule?","acceptedAnswer":{"@type":"Answer","text":"A pricing shortcut common among makers selling on Etsy, Shopify, or at a craft table: take what the filament in a print cost and multiply it by three (sometimes two, sometimes four — the constant varies by who is teaching it). It is fast, needs no other numbers, and for a lot of small trinkets it happens to land somewhere reasonable. It is not a calculation of anything; it is a habit that has not yet been tested against a print that breaks it."}},{"@type":"Question","name":"Why does the same multiplier work for one print and fail for another?","acceptedAnswer":{"@type":"Answer","text":"Because filament weight and print time are not the same thing, and only one of them drives most of the real cost. A 20-gram print that takes 20 minutes and a 20-gram print that takes 8 hours can cost the same in filament and wildly different amounts in electricity and printer wear — the multiplier gives them the same price either way. The rule is really a bet that time-per-gram stays roughly constant across everything you print. Miniatures and multi-hour functional parts do not share that ratio, so one flat constant cannot price both correctly."}},{"@type":"Question","name":"What does a flat multiplier leave out completely?","acceptedAnswer":{"@type":"Answer","text":"Three things it has no input for at all: the printer itself wearing out over its service life, the prints that fail partway through and still burn filament and hours before they are scrapped, and the percentage a marketplace takes out of whatever price you list — which is a cut of the price, not a cost you can multiply into it. A multiplier is silent on all three because it was never given the print time, the failure rate, or the fee percentage to begin with."}},{"@type":"Question","name":"Can a multiplier tell me if I am pricing below break-even?","acceptedAnswer":{"@type":"Answer","text":"No — it has no break-even to compare against, because it never separately totals electricity, amortized printer wear, and the failure buffer. This calculator does, and the check-a-price panel takes a price you are already charging (to match a competitor's listing, say) and shows the real profit and margin against that break-even, rather than against a guess."}},{"@type":"Question","name":"Is a flat multiplier ever fine to use?","acceptedAnswer":{"@type":"Answer","text":"For a quick mental check on a small, fast, low-stakes print, sure — it costs nothing to eyeball. The risk is treating it as a price for everything, especially long or power-hungry prints, where the gap between the guess and the real cost is largest and least visible until a run of orders quietly loses money."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #151a24; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0e2a5c; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/vs-the-3x-filament-rule.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. the 3x filament rule | 3D Print Price Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3d-print-price-calculator/">3D Print Price Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. the 3x filament rule | 3D Print Price Calculator</span></span></nav>
+  <p><a href="./">← 3D print price calculator</a></p>
+  <h1>This calculator vs. the 3x filament rule</h1>
+  <p>
+    Multiply the filament cost by three (or two, or four, depending who taught
+    it to you) and call that the price — it is the fastest pricing shortcut a
+    maker has, and for a lot of small trinkets it happens to land somewhere
+    reasonable. <strong>It is not a calculation of anything.</strong> It has no
+    input for print time, so a 20-minute keychain and a 20-hour functional
+    part cut from the same filament weight get the identical price, even
+    though one used a fraction of the electricity and printer hours the other
+    did.
+  </p>
+  <p>
+    This calculator charges what actually varies by print instead of hoping a
+    constant absorbs it: the power drawn over however many hours the print
+    takes, the share of the printer's own replacement cost those hours used
+    up, the attempts that failed before one came out sellable, your finishing
+    time, the packaging, and the percentage the marketplace takes out of
+    whatever you list.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Isn't filament cost times three close enough?</td>
+        <td>Only if print time barely varies across what you sell. This calculator prices <a href="./#printTimeHours">the hours</a> directly, so a fast print and a slow print off the same filament weight stop getting the same answer.</td>
+      </tr>
+      <tr>
+        <td>What is a multiplier not charging me for at all?</td>
+        <td>This calculator's <a href="./#electricityOut">electricity</a> and <a href="./#printerLifetimeHours">amortized printer wear</a> lines — a flat constant has no input for either.</td>
+      </tr>
+      <tr>
+        <td>What do the prints that fail cost me on the one that sells?</td>
+        <td>This calculator's <a href="./#failureBufferOut">failure buffer</a>, which a multiplier cannot see because it never asks your failure rate.</td>
+      </tr>
+      <tr>
+        <td>What is my true break-even before any margin?</td>
+        <td>This calculator's <a href="./#breakEvenOut">break-even figure</a> — a number a multiplier does not produce at all.</td>
+      </tr>
+      <tr>
+        <td>I'm already charging a price I picked by eye. Is it actually profitable?</td>
+        <td>This calculator's <a href="./#actualSellingPrice">check-a-price panel</a>, which compares that price to the real break-even instead of to another guess.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price a print now</a>
+  <p>
+    This tool needs no account and no upload: it is a static page, the
+    arithmetic runs in your browser, and the figures you type stay on this
+    device.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is the 3x filament rule?</h3>
+  <p>A pricing shortcut common among makers selling on Etsy, Shopify, or at a craft table: take what the filament in a print cost and multiply it by three (sometimes two, sometimes four — the constant varies by who is teaching it). It is fast, needs no other numbers, and for a lot of small trinkets it happens to land somewhere reasonable. It is not a calculation of anything; it is a habit that has not yet been tested against a print that breaks it.</p>
+  <h3>Why does the same multiplier work for one print and fail for another?</h3>
+  <p>Because filament weight and print time are not the same thing, and only one of them drives most of the real cost. A 20-gram print that takes 20 minutes and a 20-gram print that takes 8 hours can cost the same in filament and wildly different amounts in electricity and printer wear — the multiplier gives them the same price either way. The rule is really a bet that time-per-gram stays roughly constant across everything you print. Miniatures and multi-hour functional parts do not share that ratio, so one flat constant cannot price both correctly.</p>
+  <h3>What does a flat multiplier leave out completely?</h3>
+  <p>Three things it has no input for at all: the printer itself wearing out over its service life, the prints that fail partway through and still burn filament and hours before they are scrapped, and the percentage a marketplace takes out of whatever price you list — which is a cut of the price, not a cost you can multiply into it. A multiplier is silent on all three because it was never given the print time, the failure rate, or the fee percentage to begin with.</p>
+  <h3>Can a multiplier tell me if I am pricing below break-even?</h3>
+  <p>No — it has no break-even to compare against, because it never separately totals electricity, amortized printer wear, and the failure buffer. This calculator does, and the check-a-price panel takes a price you are already charging (to match a competitor's listing, say) and shows the real profit and margin against that break-even, rather than against a guess.</p>
+  <h3>Is a flat multiplier ever fine to use?</h3>
+  <p>For a quick mental check on a small, fast, low-stakes print, sure — it costs nothing to eyeball. The risk is treating it as a price for everything, especially long or power-hungry prints, where the gap between the guess and the real cost is largest and least visible until a run of orders quietly loses money.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a print, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bandcamp-sales-report-analyzer/" data-pf-to="bandcamp-sales-report-analyzer">Bandcamp Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3d-print-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3d-print-price-calculator"></script>
+</body>
+</html>

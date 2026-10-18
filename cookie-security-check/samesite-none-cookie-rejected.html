@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why a SameSite=None cookie disappears instead of just weakening</title>
+<meta name="description" content="Why Chrome, Firefox, and Safari reject a SameSite=None cookie outright when it lacks Secure, why __Host-/__Secure- prefix violations are rejected the same way…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/samesite-none-cookie-rejected.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether a cookie's SameSite=None or __Host-/__Secure- prefix will be silently rejected",
+  "step": [
+    { "@type": "HowToStep", "name": "Fetch the page and read its Set-Cookie response headers", "text": "Send an ordinary GET request to the page and read back every Set-Cookie header in the response -- no login or special access needed, this is public response data the server chose to send." },
+    { "@type": "HowToStep", "name": "Check SameSite first", "text": "If a cookie carries SameSite=None, it must also carry Secure. Current Chrome, Firefox, and Safari all reject the Set-Cookie header outright -- not just restrict it to same-site requests -- when Secure is missing. The cookie the response describes is never actually stored." },
+    { "@type": "HowToStep", "name": "Check the cookie's name for a __Host- or __Secure- prefix", "text": "A __Secure- prefixed cookie must carry Secure. A __Host- prefixed cookie must carry Secure, must not carry a Domain attribute, and must have Path=/. Violate any one of those and, again, the browser silently refuses to store the cookie -- the prefix is a contract the browser itself enforces, not documentation." },
+    { "@type": "HowToStep", "name": "Automate it", "text": "A free tool that reads a response's Set-Cookie headers, applies these rejection rules correctly, and reports exactly which cookie and which rule failed is at ../cookie-security-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/samesite-none-cookie-rejected.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why a SameSite=None cookie disappears instead of just weakening">
+<meta property="og:description" content="Why Chrome, Firefox, and Safari reject a SameSite=None cookie outright when it lacks Secure, why __Host-/__Secure- prefix violations are rejected the same way…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a SameSite=None cookie disappears instead of just weakening — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cookie-security-check/">Cookie Security Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a SameSite=None cookie disappears instead of just weakening</span></span></nav>
+<h1>Why a <code>SameSite=None</code> cookie disappears instead of just weakening</h1>
+
+<p>
+  <code>SameSite=None</code> is how a site opts a cookie in to being sent on cross-site requests --
+  an embedded widget, a cross-site payment redirect, a federated login flow all depend on it. It is
+  natural to assume that forgetting the accompanying <code>Secure</code> attribute just makes that
+  cookie a little less protected. It does not: the current SameSite specification requires
+  <code>Secure</code> whenever <code>SameSite=None</code> is set, and Chrome, Firefox, and Safari all
+  enforce that by <strong>rejecting the Set-Cookie header entirely</strong>. No cookie is stored. The
+  feature it existed for -- the embed staying logged in, the payment flow remembering its session --
+  simply breaks, with nothing in the response that says why.
+</p>
+
+<h2>The same shape applies to <code>__Host-</code> and <code>__Secure-</code></h2>
+<p>
+  Cookie name prefixes are usually just a naming convention. These two are not -- they are a
+  contract the browser itself checks before it will store the cookie at all:
+</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Prefix</th><th>Required for the browser to store the cookie</th></tr></thead>
+<tbody>
+<tr><td><code>__Secure-</code></td><td><code>Secure</code> attribute present</td></tr>
+<tr><td><code>__Host-</code></td><td><code>Secure</code> present, no <code>Domain</code> attribute, <code>Path=/</code></td></tr>
+</tbody>
+</table></div>
+<p>
+  Miss any one of those rules and the browser silently refuses to store the cookie -- again, no
+  error visible anywhere in the response or the page. A server that checks an incoming
+  <code>__Host-session</code> cookie and trusts that its name alone proves it was set by this exact
+  secure origin is relying on the browser having enforced that when the cookie was created; a
+  malformed <code>Set-Cookie</code> header means that guarantee was never established, and the
+  session simply does not exist rather than existing in some weaker form.
+</p>
+
+<h2>Why this reads as a functional bug before it reads as a security one</h2>
+<p>
+  Both patterns fail the same way: a person hits the flow, the cookie the server thinks it set is
+  never actually present on the next request, and whatever depended on it -- being logged in, a
+  cart surviving a redirect, a CSRF token matching -- silently stops working. It is usually reported
+  as "login is broken on Safari" or "the checkout redirect logs people out" long before anyone
+  connects it to a missing <code>Secure</code> attribute.
+</p>
+
+<h2>Check your own site automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> sends one real request, reads every Set-Cookie
+  header exactly as Node's HTTP client already splits them (never joined and re-split on commas,
+  which corrupts a cookie carrying an <code>Expires</code> date), and reports exactly which cookie
+  and which rule triggered a rejection -- plus notices for a missing <code>Secure</code>,
+  <code>HttpOnly</code>, or <code>SameSite</code> attribute that weaken a cookie without causing an
+  outright rejection. The request comes from a Node CLI you run yourself against a system you own or
+  are authorised to test; the browser page only renders a report you paste in.
+</p>
+<p>
+  This is evidence from that one response, not a full security assessment -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../firebase-rules-check/" data-pf-to="firebase-rules-check">Firebase Security Rules Exposure Checker</a></li>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cookie-security-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cookie-security-check"></script>
+</body>
+</html>

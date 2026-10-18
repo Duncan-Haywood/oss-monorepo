@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why a CODEOWNERS Review Requirement Can Silently Stop Firing</title>
+<meta name="description" content="A pull request that used to require your team's review stops requiring it, with no error, no warning, and no edit to the rule that used to protect it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/why-codeowners-review-stops-being-required.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does branch protection notice when a CODEOWNERS rule stops winning?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Branch protection's \"Require review from Code Owners\" setting asks GitHub to resolve the file at merge time and request whichever team wins under last-match-wins. If a broader rule now wins instead of yours, GitHub asks that rule's owners -- correctly, by its own logic -- and nothing on the pull request says a different team used to be asked." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can this happen without anyone editing the rule that stopped working?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, and this is the case that is hardest to trace. The rule itself, and every file it matches, can stay exactly as they were. All that has to change is a broader pattern being added anywhere below it in the file -- for an unrelated reason, by someone who has never looked at the earlier rule and has no reason to." }
+    },
+    {
+      "@type": "Question",
+      "name": "If I delete the newer catch-all rule, does the older rule immediately start winning again?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes -- last-match-wins is recalculated fresh from the current file on every resolution, with no memory of what won before. Removing whichever later rule now matches the same files hands the win straight back to the earlier, more specific rule, with no other change needed." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does moving the specific rule below the broad rule fix it, or does it have to be deleted?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Moving it works just as well as deleting the broad rule, and is usually the smaller edit: last-match-wins only cares about position in the file, not when each rule was written. Put the specific rule after the broad one and it wins again, with both rules still present." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4.2vw, 2.2rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/why-codeowners-review-stops-being-required.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why a CODEOWNERS Review Requirement Can Silently Stop Firing">
+<meta property="og:description" content="A pull request that used to require your team's review stops requiring it, with no error, no warning, and no edit to the rule that used to protect it.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a CODEOWNERS Review Requirement Can Silently Stop Firing — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../codeowners-shadow-check/">CODEOWNERS Shadow Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a CODEOWNERS Review Requirement Can Silently Stop Firing</span></span></nav>
+<p><a href="index.html">&larr; Back to the CODEOWNERS Shadow Checker</a></p>
+<h1>Why a CODEOWNERS review requirement can silently stop firing</h1>
+
+<p>
+  A repository has "Require review from Code Owners" turned on. For months, a change under
+  <code>/src/payments/*.js</code> has correctly required the payments team's approval before it can merge.
+  Then one day it doesn't -- the pull request opens, the payments team is not requested, and it merges
+  without them ever seeing it. Nobody touched the payments rule. Nobody touched the payments files. The
+  repository's own settings page still lists "Require review from Code Owners" as enabled.
+</p>
+
+<h2>What actually happened underneath</h2>
+
+<p>
+  GitHub does not pick the most specific matching rule for a file, and it does not pick the first one
+  written. It checks every pattern in the file, in order, and the <strong>last one that matches wins</strong>
+  -- exactly the rule <code>.gitignore</code> uses for exclusions. Somewhere between "worked" and "stopped
+  working", a new line was added below the payments rule -- for a completely unrelated reason, by someone
+  who had no idea a payments rule existed:
+</p>
+
+<pre><code># Line 4 -- present since the repository was created, worked for months
+/src/payments/*.js @payments-team
+
+# Line 19 -- added later, for a different reason entirely
+*.js @generalists</code></pre>
+
+<p>
+  <code>src/payments/charge.js</code> still matches line 4, exactly as it always did. It now also matches
+  line 19, which sits below it. Under last-match-wins, line 19 decides ownership. Line 4 is not broken,
+  not removed, and not flagged by anything -- it simply never wins again, for any file it matches, from the
+  moment line 19 landed.
+</p>
+
+<h2>Why nothing on the pull request says so</h2>
+
+<p>
+  GitHub resolves CODEOWNERS the same way every time it is asked: fresh, from whatever the file currently
+  says, with no record of who used to be the answer. Branch protection asks "who owns this file, right
+  now" and gets a correct answer under the file as it stands -- <code>@generalists</code>. There is nothing
+  wrong to report, because nothing is wrong from GitHub's side: the file is valid, every owner is real, and
+  the resolution is exactly what last-match-wins specifies. The gap is between what the file says now and
+  what its author intended when they wrote line 4, and that gap has no error message, because it isn't an
+  error.
+</p>
+
+<h2>Two fixes, same effect</h2>
+
+<div class="pf-table-scroll"><table>
+  <tbody>
+    <tr>
+      <th>Move the specific rule later</th>
+      <td>Put <code>/src/payments/*.js @payments-team</code> after <code>*.js @generalists</code> in the
+      file. Both rules stay; the payments rule now sits last among the ones that match payments files, so
+      it wins again.</td>
+    </tr>
+    <tr>
+      <th>Narrow the broad rule</th>
+      <td>Change <code>*.js @generalists</code> so it no longer matches <code>src/payments/**</code> -- for
+      example scoping it to a specific directory instead of the whole tree. The payments rule wins because
+      the conflict is gone, not because of position.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  Either way, the fix is a one-line edit and the failure mode does not recur for these two rules -- until a
+  <em>third</em> rule broad enough to match the same files is added below both of them, which is exactly
+  why this is worth checking after every change to the file, not just once.
+</p>
+
+<h2>Checking for it without reading the file by eye</h2>
+
+<p>
+  <code>check.mjs</code> only gathers your CODEOWNERS file and tracked file list into JSON -- it does not
+  itself decide pass or fail, because that judgment belongs to the browser report at
+  <a href="index.html">index.html</a>. To gate a CI job instead, call the same pure function the page uses,
+  <code>buildReport</code> from <a href="codeowners.mjs"><code>codeowners.mjs</code></a>, directly:
+</p>
+
+<pre><code>import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { buildReport } from './codeowners.mjs';
+
+const codeowners = readFileSync('CODEOWNERS', 'utf8');
+const paths = execFileSync('git', ['ls-files'], { encoding: 'utf8' }).split('\n').filter(Boolean);
+const report = buildReport(codeowners, paths.join('\n'));
+
+if (!report.ok) {
+  console.error(`${report.shadowed.length} shadowed rule(s), ${report.syntaxErrors.length} syntax error(s)`);
+  process.exit(1);
+}</code></pre>
+
+<p>
+  That is the entire dependency: one pure module, no network call, no GitHub token. It reports evidence
+  against the file list you gave it, same as the browser page -- see the checker's own disclaimer for what
+  that does and does not cover.
+</p>
+
+<h2>Common questions</h2>
+<h3>Does branch protection notice when a CODEOWNERS rule stops winning?</h3>
+<p>No. Branch protection's "Require review from Code Owners" setting asks GitHub to resolve the file at merge time and request whichever team wins under last-match-wins. If a broader rule now wins instead of yours, GitHub asks that rule's owners -- correctly, by its own logic -- and nothing on the pull request says a different team used to be asked.</p>
+<h3>Can this happen without anyone editing the rule that stopped working?</h3>
+<p>Yes, and this is the case that is hardest to trace. The rule itself, and every file it matches, can stay exactly as they were. All that has to change is a broader pattern being added anywhere below it in the file -- for an unrelated reason, by someone who has never looked at the earlier rule and has no reason to.</p>
+<h3>If I delete the newer catch-all rule, does the older rule immediately start winning again?</h3>
+<p>Yes -- last-match-wins is recalculated fresh from the current file on every resolution, with no memory of what won before. Removing whichever later rule now matches the same files hands the win straight back to the earlier, more specific rule, with no other change needed.</p>
+<h3>Does moving the specific rule below the broad rule fix it, or does it have to be deleted?</h3>
+<p>Moving it works just as well as deleting the broad rule, and is usually the smaller edit: last-match-wins only cares about position in the file, not when each rule was written. Put the specific rule after the broad one and it wins again, with both rules still present.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a> to resolve your own CODEOWNERS file and file list and see exactly which rules are shadowed.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or compliance advice, and it does not replace a qualified review of
+  your repository's access controls. To the maximum extent permitted by law, the authors accept no
+  liability for any loss or damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+      <li><a href="../cron-dst-drift-check/" data-pf-to="cron-dst-drift-check">Will your cron job survive daylight saving?</a></li>
+      <li><a href="../csv-to-sql-generator/" data-pf-to="csv-to-sql-generator">CSV to SQL, in your browser</a></li>
+      <li><a href="../databricks-cluster-cost-advisor/" data-pf-to="databricks-cluster-cost-advisor">Why is your Databricks bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=codeowners-shadow-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="codeowners-shadow-check"></script>
+</body>
+</html>

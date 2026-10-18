@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is it worth chasing a late invoice? | Wait, chase, settle, or collections</title>
+  <meta name="description" content="Score an overdue invoice four ways — keep waiting, chase it yourself, offer a settlement, or send it to collections…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/chasing-a-late-invoice.html">
+  <meta property="og:title" content="Is it worth chasing a late invoice?">
+  <meta property="og:description" content="On a $1,200 invoice 15 days overdue, a 10% settlement is worth $861.16 and chasing it yourself only wins if you close it in under 1.8 hours.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Late Invoice Decision Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Overdue invoice comparison, chase-hours break-even, settlement discount break-even, collection commission break-even, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it worth chasing a late invoice yourself?","acceptedAnswer":{"@type":"Answer","text":"It depends on how many of your own hours it takes, because those hours are spent whether or not you get paid. On the calculator defaults — a $1,200 invoice 15 days overdue, 85% odds of recovery, $85 an hour — chasing recovers the most cash of any path if it works, but three hours of your time costs $255 and drops it to $755.61. It only gets ahead of a 10% settlement if you can close it in under about 1.8 hours."}},{"@type":"Question","name":"How much do collection agencies take?","acceptedAnswer":{"@type":"Answer","text":"Commissions on small commercial invoices are commonly quoted in the 25-50% range, and the calculator defaults to 30% over 90 days at 45% odds. On a $1,200 invoice that is worth $355.63 — behind every other path. It gets more interesting on a large invoice from a payer unlikely to settle: at $20,000 with 55% odds, collections leads and stays ahead up to about a 65% commission. Enter the commission you were actually quoted."}},{"@type":"Question","name":"Should I offer a discount to settle an overdue invoice?","acceptedAnswer":{"@type":"Answer","text":"The calculator prices it rather than recommending it. On the defaults a 10% settlement paid in 5 days at 80% odds is worth $861.16, which is $37.73 more than waiting. The break-even is about 13.9% — past that, waiting is worth more on these odds. This is arithmetic from numbers you type, not a recommendation to settle."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; } * { box-sizing: border-box; }
+    body { max-width: 980px; margin: 0 auto; padding: 30px 18px; } header { max-width: 700px; margin-bottom: 24px; } h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; letter-spacing: -.05em; margin: 8px 0 15px; } p { line-height: 1.5; } .eyebrow { letter-spacing: .15em; font-weight: 750; font-size: .75rem; } a { color: #176b53; }
+    /* Grid items default to min-width:auto, so a nowrap table inside one
+       widens the whole column instead of scrolling. min-width:0 lets the
+       .scroller below actually do its job. */
+    .layout { display: grid; grid-template-columns: 1fr .9fr; gap: 18px; align-items: start; } .layout > section { min-width: 0; } section { background: #fff; border: 1px solid #cbd8d3; border-radius: 16px; padding: 21px; box-shadow: 0 10px 30px #20352d12; } h2 { margin-top: 0; font-size: 1.15rem; } h3 { font-size: .95rem; margin: 18px 0 8px; } .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } label { display: grid; gap: 5px; font-size: .85rem; font-weight: 700; } input { width: 100%; padding: 10px; border: 1px solid #9aada6; border-radius: 8px; font: inherit; background: #fff; } .result { background: #173f3d; color: #f4fbf8; border-color: #173f3d; position: sticky; top: 14px; }.result a{color:inherit;text-decoration:underline} .big { font-size: 2.1rem; letter-spacing: -.04em; font-weight: 800; margin: 6px 0; line-height: 1.05; } hr { border: 0; border-top: 1px solid #ffffff33; margin: 20px 0; } /* Four and six column money tables do not fit a 390px phone. Scroll the
+       table inside its own box rather than letting the page scroll sideways. */
+    .scroller { overflow-x: auto; } .scroller table { min-width: 100%; } table { width: 100%; border-collapse: collapse; } th, td { padding: 9px 3px; text-align: right; border-bottom: 1px solid #ffffff2e; font-variant-numeric: tabular-nums; } /* Values must not break mid-figure; headers may wrap so the money columns stay visible on a laptop instead of scrolling. */ td { white-space: nowrap; } th, td:first-child { white-space: normal; } th:first-child, td:first-child { text-align: left; } tbody tr.lead { font-weight: 750; } tbody tr.lead td:first-child::after { content: " ←"; } button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 13px; font: inherit; font-weight: 750; background: #b8f28e; color: #17322d; } .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; } .note, footer { font-size: .82rem; opacity: .86; } footer { margin-top: 22px; color: #344640; opacity: 1; } footer label { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 8px; font-weight: 400; } footer input { width: auto; } .explainer { margin-top: 22px; } .explainer table { background: #fff; } .explainer th, .explainer td { border-bottom: 1px solid #cbd8d3; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/chasing-a-late-invoice.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is it worth chasing a late invoice? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../invoice-payment-terms-calculator/">Invoice Payment Terms Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is it worth chasing a late invoice?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p><a href="./">← Invoice payment terms calculator</a></p>
+    <div class="eyebrow">FOR FREELANCERS AND SMALL SERVICE FIRMS</div>
+    <h1>It is already late. Now what?</h1>
+    <p>
+      The due-date calculator prices an invoice that gets paid on terms. This one
+      starts after that date has passed. Score the same overdue invoice four ways —
+      keep waiting, chase it yourself, offer a settlement, or hand it to a collection
+      agency — on the cash each is worth once you price the odds, the wait, and the
+      hours chasing it costs you.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>The invoice</h2>
+      <div class="fields">
+        <label>Amount still owed <input id="amount" type="number" min="0.01" step="0.01" value="1200" inputmode="decimal"></label>
+        <label>Days overdue <input id="daysOverdue" type="number" min="0" max="1095" step="1" value="15" inputmode="numeric"></label>
+        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24" inputmode="decimal"></label>
+        <label>Your hourly rate <input id="hourlyRate" type="number" min="0" step="1" value="85" inputmode="numeric"></label>
+      </div>
+
+      <h3>Keep waiting</h3>
+      <div class="fields">
+        <label>Days until they pay <input id="waitDays" type="number" min="0" max="1095" step="1" value="30" inputmode="numeric"></label>
+        <label>Chance they pay (%) <input id="waitRecoveryPct" type="number" min="0" max="100" step="1" value="70" inputmode="numeric"></label>
+      </div>
+
+      <h3>Chase it yourself</h3>
+      <div class="fields">
+        <label>Hours you would spend <input id="chaseHours" type="number" min="0" step="0.25" value="3" inputmode="decimal"></label>
+        <label>Days until they pay <input id="chaseDays" type="number" min="0" max="1095" step="1" value="14" inputmode="numeric"></label>
+        <label>Chance they pay (%) <input id="chaseRecoveryPct" type="number" min="0" max="100" step="1" value="85" inputmode="numeric"></label>
+      </div>
+
+      <h3>Offer a settlement</h3>
+      <div class="fields">
+        <label>Discount to close it (%) <input id="settlementDiscountPct" type="number" min="0" max="99" step="0.5" value="10" inputmode="decimal"></label>
+        <label>Days until they pay <input id="settlementDays" type="number" min="0" max="1095" step="1" value="5" inputmode="numeric"></label>
+        <label>Chance they take it (%) <input id="settlementRecoveryPct" type="number" min="0" max="100" step="1" value="80" inputmode="numeric"></label>
+      </div>
+
+      <h3>Send to collections</h3>
+      <div class="fields">
+        <label>Agency commission (%) <input id="collectionCommissionPct" type="number" min="0" max="99" step="1" value="30" inputmode="numeric"></label>
+        <label>Days until a payout <input id="collectionDays" type="number" min="0" max="1095" step="1" value="90" inputmode="numeric"></label>
+        <label>Chance they recover (%) <input id="collectionRecoveryPct" type="number" min="0" max="100" step="1" value="45" inputmode="numeric"></label>
+      </div>
+
+      <div class="actions">
+        <button id="save" type="button">Save draft in this browser</button>
+        <button id="load" type="button">Load saved draft</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+      <p id="draftStatus" class="note" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="result">
+      <h2>What each path is worth</h2>
+      <div id="headline" class="big">—</div>
+      <p id="note" class="note"></p>
+      <hr>
+      <div class="scroller">
+        <div class="pf-table-scroll"><table>
+          <caption class="note" style="text-align:left;margin-bottom:6px;white-space:normal">Expected value = odds × (cash after float) − hours spent</caption>
+          <thead><tr><th>Path</th><th>Cash if paid</th><th>Odds</th><th>Worth</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </div>
+      <hr>
+      <h2>Where each path flips</h2>
+      <dl id="breakEven" style="display:grid;grid-template-columns:1fr auto;gap:10px;margin:0"></dl>
+      <hr>
+      <p id="sunk" class="note"></p>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <section class="explainer">
+    <h2>Why chasing an invoice yourself so often loses</h2>
+    <p>
+      Chasing recovers the most cash of any path when it works — you give up no
+      discount and no commission. What sinks it is that the hours are certain and
+      the payment is not. On the defaults, three hours at $85 is <strong>$255</strong>
+      spent whether or not the client ever pays, which drops an
+      <strong>85%</strong> chance at $1,188.95 down to <strong>$755.61</strong>.
+      A 10% settlement paid in five days at 80% odds is worth <strong>$861.16</strong>.
+    </p>
+    <p>
+      That is why the chase-hours break-even is the most useful number on the page.
+      At these defaults it is about <strong>1.8 hours</strong>: one focused call and a
+      firm email is worth it, six weeks of polite follow-ups is not. If you can make
+      the chase cheap — a scheduled reminder, a statement, one call — the arithmetic
+      changes in its favour, and you can watch it change by typing fewer hours.
+    </p>
+    <div class="scroller">
+    <div class="pf-table-scroll"><table>
+      <thead>
+        <tr><th>Path</th><th>Cash if paid</th><th>Wait</th><th>Odds</th><th>Your time</th><th>Worth</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Offer a settlement</td><td>$1,080.00</td><td>5 days</td><td>80%</td><td>$0.00</td><td>$861.16</td></tr>
+        <tr><td>Keep waiting</td><td>$1,200.00</td><td>30 days</td><td>70%</td><td>$0.00</td><td>$823.43</td></tr>
+        <tr><td>Chase it yourself</td><td>$1,200.00</td><td>14 days</td><td>85%</td><td>$255.00</td><td>$755.61</td></tr>
+        <tr><td>Send to collections</td><td>$840.00</td><td>90 days</td><td>45%</td><td>$0.00</td><td>$355.63</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <h2>What these numbers are not</h2>
+    <p>
+      The odds are your estimate of this client, not a prediction — the calculator has
+      never met them. Carrying cost is the rate you type, not a late fee and not
+      interest you can invoice; use the main calculator for late-fee scenarios.
+      Whether a late fee is permitted, what a collection agency may do, and what a
+      settlement means for a balance you still intend to pursue are legal questions
+      that vary by jurisdiction and by the contract you signed. This page does not
+      answer them, and it does not tell you to settle, escalate, or walk away.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Is it worth chasing a late invoice yourself?</h3>
+  <p>It depends on how many of your own hours it takes, because those hours are spent whether or not you get paid. On the calculator defaults — a $1,200 invoice 15 days overdue, 85% odds of recovery, $85 an hour — chasing recovers the most cash of any path if it works, but three hours of your time costs $255 and drops it to $755.61. It only gets ahead of a 10% settlement if you can close it in under about 1.8 hours.</p>
+  <h3>How much do collection agencies take?</h3>
+  <p>Commissions on small commercial invoices are commonly quoted in the 25-50% range, and the calculator defaults to 30% over 90 days at 45% odds. On a $1,200 invoice that is worth $355.63 — behind every other path. It gets more interesting on a large invoice from a payer unlikely to settle: at $20,000 with 55% odds, collections leads and stays ahead up to about a 65% commission. Enter the commission you were actually quoted.</p>
+  <h3>Should I offer a discount to settle an overdue invoice?</h3>
+  <p>The calculator prices it rather than recommending it. On the defaults a 10% settlement paid in 5 days at 80% odds is worth $861.16, which is $37.73 more than waiting. The break-even is about 13.9% — past that, waiting is worth more on these odds. This is arithmetic from numbers you type, not a recommendation to settle.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not determine whether a late fee is permitted or enforceable, what a debt collector is allowed to do, or what any settlement means for the rest of a balance. Verify the output and applicable rules with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your numbers are not uploaded. Anonymous feature counts stay local and can be disabled above. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareLateInvoice, lateInvoiceNote } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const ids = ['amount','daysOverdue','annualCarryRate','hourlyRate','waitDays','waitRecoveryPct','chaseHours','chaseDays','chaseRecoveryPct','settlementDiscountPct','settlementDays','settlementRecoveryPct','collectionCommissionPct','collectionDays','collectionRecoveryPct'];
+    const defaults = { amount:'1200', daysOverdue:'15', annualCarryRate:'24', hourlyRate:'85', waitDays:'30', waitRecoveryPct:'70', chaseHours:'3', chaseDays:'14', chaseRecoveryPct:'85', settlementDiscountPct:'10', settlementDays:'5', settlementRecoveryPct:'80', collectionCommissionPct:'30', collectionDays:'90', collectionRecoveryPct:'45' };
+    const $ = id => document.getElementById(id);
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    const money = n => `${n < 0 ? '-' : ''}$${Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+    let usageTimer;
+
+    // Each break-even is the value at which that path exactly ties the best of
+    // the other three, so it reads as a ceiling when the path is already
+    // leading and as a target when it is not. Null is a real answer: no value
+    // in range gets there.
+    const flips = comparison => [
+      ['Chasing ties the best other path at', comparison.breakEven.chaseHours, v => `${v.toFixed(1)} hours`, 'no number of hours'],
+      ['A settlement ties it at', comparison.breakEven.settlementDiscountPct, v => `${v.toFixed(1)}% off`, 'no discount'],
+      ['Collections ties it at', comparison.breakEven.collectionCommissionPct, v => `${v.toFixed(1)}% commission`, 'no commission'],
+      ['…or at recovery odds of', comparison.breakEven.collectionRecoveryPct, v => `${v.toFixed(1)}%`, 'no recovery rate'],
+    ];
+
+    function update(count = true) {
+      try {
+        const input = Object.fromEntries(ids.map(id => [id, $(id).value]));
+        const comparison = compareLateInvoice(input);
+        $('headline').textContent = `${comparison.best.label}: ${money(comparison.best.expected)}`;
+        $('note').textContent = lateInvoiceNote(comparison);
+        $('rows').replaceChildren(...comparison.ranked.map(row => {
+          const tr = document.createElement('tr');
+          if (row.key === comparison.best.key) tr.className = 'lead';
+          [row.label, money(row.cashIfPaid), `${row.recoveryPct}%`, money(row.expected)].forEach(value => {
+            tr.insertCell().textContent = value;
+          });
+          return tr;
+        }));
+        $('breakEven').replaceChildren(...flips(comparison).flatMap(([label, value, format, none]) => {
+          const dt = document.createElement('dt');
+          dt.textContent = label;
+          const dd = document.createElement('dd');
+          dd.textContent = value == null ? none : format(value);
+          return [dt, dd];
+        }));
+        $('sunk').textContent = `Sitting unpaid for ${comparison.daysOverdue} days has already cost about ${money(comparison.sunkCarry)} at ${comparison.annualCarryRate}% — the same in every path above, so it changes none of them.`;
+        $('status').textContent = '';
+        if (count) {
+          recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'late_invoice_compared');
+        }
+      } catch (error) {
+        $('headline').textContent = 'Check the inputs';
+        $('status').textContent = error.message;
+      }
+    }
+
+    ids.forEach(id => {
+      $(id).addEventListener('input', () => {
+        update(false);
+        clearTimeout(usageTimer);
+        usageTimer = setTimeout(() => update(), 800);
+      });
+      $(id).addEventListener('change', () => update(false));
+    });
+    $('usageOptOut').addEventListener('change', () => update(false));
+
+    const draftStorage = () => safe(() => localStorage);
+    $('save').addEventListener('click', () => {
+      const storage = draftStorage();
+      if (!storage) { $('draftStatus').textContent = 'Saved drafts are unavailable in this browser.'; return; }
+      storage.setItem('late-invoice-draft-v1', JSON.stringify(Object.fromEntries(ids.map(id => [id, $(id).value]))));
+      $('draftStatus').textContent = 'Draft saved only in this browser.';
+      recordUsage(storage, $('usageOptOut').checked, 'late_invoice_draft_saved');
+    });
+    $('load').addEventListener('click', () => {
+      const storage = draftStorage();
+      if (!storage) { $('draftStatus').textContent = 'Saved drafts are unavailable in this browser.'; return; }
+      try {
+        const draft = JSON.parse(storage.getItem('late-invoice-draft-v1') || 'null');
+        if (!draft || typeof draft !== 'object') throw new Error();
+        ids.forEach(id => { if (typeof draft[id] === 'string') $(id).value = draft[id]; });
+        update(false);
+        $('draftStatus').textContent = 'Saved draft loaded.';
+        recordUsage(storage, $('usageOptOut').checked, 'late_invoice_draft_loaded');
+      } catch { $('draftStatus').textContent = 'No valid saved draft found.'; }
+    });
+    $('reset').addEventListener('click', () => {
+      Object.entries(defaults).forEach(([id, value]) => { $(id).value = value; });
+      $('draftStatus').textContent = '';
+      update();
+    });
+
+    update(false);
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+      <li><a href="../s-corp-reasonable-compensation-calculator/" data-pf-to="s-corp-reasonable-compensation-calculator">S-Corp Reasonable Compensation Calculator</a></li>
+      <li><a href="../saas-annual-plan-discount-calculator/" data-pf-to="saas-annual-plan-discount-calculator">SaaS Annual Plan Discount Calculator — break-even prepay discount, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=invoice-payment-terms-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="invoice-payment-terms-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="invoice-payment-terms-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="invoice-payment-terms-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supplier Rate Break-Even Calculator | Cost Per Job</title>
+<meta name="description" content="Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.">
+<meta name="robots" content="index,follow"><meta property="og:title" content="Vendor Rate Break-Even Calculator"><meta property="og:description" content="Find out whether a supplier discount or equipment lease really saves money at your job volume.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Rate Break-Even Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does one scenario break even at zero jobs and another need four?","acceptedAnswer":{"@type":"Answer","text":"Break-even only exists when a scenario charges a fixed fee the baseline does not. In the built-in example, the bulk supplier adds a $100/month fee but drops the per-job cost from $120 to $90 — a $30/job saving, so it takes ceil($100 ÷ $30) = 4 jobs before that fee is paid back. The subcontractor scenario has no fixed fee at all, only a $5/job saving, so there is nothing to recoup and it shows as cheaper starting from job one."}},{"@type":"Question","name":"What does “Not cheaper” mean in the break-even column?","acceptedAnswer":{"@type":"Answer","text":"It means the scenario loses on both numbers: its per-job cost is higher than your current variable cost and its fixed cost is the same or higher, so no volume of jobs ever makes it win — there is no break-even point to reach, not just a distant one. Compare the “Cost / job” and “Savings / job” columns for that row: a negative savings figure is why."}},{"@type":"Question","name":"What does “Below N jobs/mo” mean?","acceptedAnswer":{"@type":"Answer","text":"The opposite trade from a fixed-fee break-even: this scenario has a lower fixed cost than your baseline but a higher per-job cost, so it wins at low volume on the fixed-cost saving alone and loses that lead once enough jobs push the higher per-job rate past it. It is cheaper only while your monthly job count stays below the number shown — run more jobs than that and the current operation (or a scenario with a lower per-job cost) wins instead. A no-minimum, pay-per-job vendor compared against a leased or subscription-priced one is the usual shape of this case."}},{"@type":"Question","name":"Why enter fixed cost and per-job cost separately instead of one blended rate?","acceptedAnswer":{"@type":"Answer","text":"Because they behave differently as volume changes. A monthly minimum or lease payment (fixed) gets cheaper per job the more jobs you run; a per-unit supplier price or mileage rate (variable) does not move with volume at all. Blending them into one number hides which lever actually changes if your job count changes next quarter."}},{"@type":"Question","name":"At the default 20 jobs/month, which option actually wins?","acceptedAnswer":{"@type":"Answer","text":"The bulk supplier: $1,900/month total versus the current $2,400, for a cost of $95 per job against a $120 baseline — a $25/job saving even after the $100 fixed fee. The subcontractor option is cheaper per job than today but not as cheap as the bulk supplier at this volume, which is exactly why the table ranks all three rather than only showing yes/no."}},{"@type":"Question","name":"Is my vendor pricing uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The comparison runs entirely in your browser; nothing is sent to a server. “Save draft” writes your scenarios to this browser's local storage and restores them the next time you open the page, “Copy share link” encodes the same fields into the page's URL fragment so you can hand the comparison to someone else, and the optional usage counter records only which buttons were used, never your rates or volumes."}}]}</script>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#17231c;background:#e8efe9}body{max-width:1050px;margin:auto;padding:28px 16px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:.95;letter-spacing:-.06em;max-width:700px;margin:8px 0 14px}p{line-height:1.5}.kicker{color:#16734b;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem}.grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid #cbd9cf;border-radius:14px;padding:20px;box-shadow:0 8px 30px #12351b12}label{display:grid;gap:5px;font-weight:650;margin:12px 0}input{box-sizing:border-box;width:100%;padding:10px;border:1px solid #9db6a4;border-radius:7px;font:inherit}.scenario{border-top:1px solid #d9e4dc;margin-top:16px;padding-top:7px}.results{overflow:auto}table{border-collapse:collapse;width:100%;min-width:620px}th,td{text-align:right;padding:12px 8px;border-bottom:1px solid #d9e4dc}th:first-child,td:first-child{text-align:left}th{font-size:.78rem;text-transform:uppercase;color:#486454}.best{background:#e0f3e7;font-weight:750}.hero{background:#164b32;color:#effff4;border-radius:12px;padding:18px;margin-bottom:16px}.hero strong{font-size:2.2rem;display:block}.note{font-size:.88rem;color:#53685a}.hero .note{color:#c9ead5}.danger{color:#9a351d}.controls{display:flex;gap:12px;align-items:center;margin-top:18px}button{border:0;border-radius:7px;padding:10px 14px;background:#16734b;color:white;font:inherit;font-weight:750;cursor:pointer}@media(max-width:760px){.grid{grid-template-columns:1fr}body{padding:20px 12px}}
+
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Vendor Rate Break-Even Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Vendor Rate Break-Even Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head><body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Vendor Rate Break-Even Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section><header><div class="kicker">Decision tool for service operators</div><h1>Does the vendor rate actually save you money?</h1><p>Compare your current cost with supplier discounts, subcontractor rates, or equipment leases at the job volume you really expect.</p><p><a href="./is-switching-vendors-worth-it.html">Is switching vendors worth it?</a> &middot; <a href="./vs-crest-capital.html">This calculator vs. Crest Capital's lease calculator</a> &middot; <a href="./vs-comparing-rates-by-eye.html">This calculator vs. comparing the quoted rates by eye</a></p></header>
+<main class="grid"><section class="card"><h2>Your current operation</h2><label>Jobs per month<input id="jobs" type="number" min="1" step="1" value="20" inputmode="numeric"></label><label>Revenue per job<input id="revenue" type="number" min="0" step="1" value="500" inputmode="numeric"></label><label>Current fixed cost / month<input id="baseFixed" type="number" min="0" step="1" value="0" inputmode="numeric"></label><label>Current variable cost / job<input id="baseVariable" type="number" min="0" step="1" value="120" inputmode="numeric"></label><div id="scenarioInputs"></div><div class="controls"><button id="add" type="button">Add scenario</button><button id="save" type="button">Save draft</button><button id="copyShare" type="button">Copy share link</button><span id="shareStatus" class="note" role="status" aria-live="polite"></span></div><label class="note"><input id="optout" type="checkbox"> Do not count anonymous local usage events</label></section>
+<section class="card" aria-live="polite"><div class="hero"><span>Best at this volume</span><strong id="best">Enter costs below</strong><span id="bestNote" class="note"></span></div><div class="results"><div class="pf-table-scroll"><table><thead><tr><th>Option</th><th>Monthly cost</th><th>Cost / job</th><th>Savings / job</th><th>Profit / job</th><th>Margin</th><th>Break-even</th></tr></thead><tbody id="results"></tbody></table></div></div><p class="note">Break-even is an estimate based only on the fixed and per-job costs you enter. Profit and margin use the revenue per job you enter above; review contracts, taxes, fuel, minimums, and service quality separately.</p></section>
+
+<section id="faq">
+<h2>Common questions</h2>
+
+<h3>Why does one scenario break even at zero jobs and another need four?</h3>
+<p>Break-even only exists when a scenario charges a fixed fee the baseline does not. In the built-in example, the bulk supplier adds a $100/month fee but drops the per-job cost from $120 to $90 &mdash; a $30/job saving, so it takes ceil($100 &divide; $30) = 4 jobs before that fee is paid back. The subcontractor scenario has no fixed fee at all, only a $5/job saving, so there is nothing to recoup and it shows as cheaper starting from job one.</p>
+
+<h3>What does &ldquo;Not cheaper&rdquo; mean in the break-even column?</h3>
+<p>It means the scenario loses on both numbers: its per-job cost is higher than your current variable cost <em>and</em> its fixed cost is the same or higher, so no volume of jobs ever makes it win &mdash; there is no break-even point to reach, not just a distant one. Compare the &ldquo;Cost / job&rdquo; and &ldquo;Savings / job&rdquo; columns for that row: a negative savings figure is why.</p>
+
+<h3>What does &ldquo;Below N jobs/mo&rdquo; mean?</h3>
+<p>The opposite trade from a fixed-fee break-even: this scenario has a <em>lower</em> fixed cost than your baseline but a <em>higher</em> per-job cost, so it wins at low volume on the fixed-cost saving alone and loses that lead once enough jobs push the higher per-job rate past it. It is cheaper only while your monthly job count stays below the number shown &mdash; run more jobs than that and the current operation (or a scenario with a lower per-job cost) wins instead. A no-minimum, pay-per-job vendor compared against a leased or subscription-priced one is the usual shape of this case.</p>
+
+<h3>Why enter fixed cost and per-job cost separately instead of one blended rate?</h3>
+<p>Because they behave differently as volume changes. A monthly minimum or lease payment (fixed) gets cheaper per job the more jobs you run; a per-unit supplier price or mileage rate (variable) does not move with volume at all. Blending them into one number hides which lever actually changes if your job count changes next quarter.</p>
+
+<h3>At the default 20 jobs/month, which option actually wins?</h3>
+<p>The bulk supplier: $1,900/month total versus the current $2,400, for a cost of $95 per job against a $120 baseline &mdash; a $25/job saving even after the $100 fixed fee. The subcontractor option is cheaper per job than today but not as cheap as the bulk supplier at this volume, which is exactly why the table ranks all three rather than only showing yes/no.</p>
+
+<h3>Is my vendor pricing uploaded anywhere?</h3>
+<p>No. The comparison runs entirely in your browser; nothing is sent to a server. &ldquo;Save draft&rdquo; writes your scenarios to this browser's local storage and restores them the next time you open the page, &ldquo;Copy share link&rdquo; encodes the same fields into the page's URL fragment so you can hand the comparison to someone else, and the optional usage counter records only which buttons were used, never your rates or volumes.</p>
+</section>
+</main>
+<footer class="note">
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Your data stays in this browser; no inputs are uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  <p>Pricing bookings for equipment you rent out rather than comparing supplier rates on a job? The <a href="../equipment-rental-break-even/">equipment rental break-even calculator</a> prices ownership, delivery, cleaning, damage reserve, and idle time &mdash; nothing uploaded.</p>
+</footer>
+<script type="module">
+import { compare } from './calc.mjs';
+import { recordUsage, setUsageOptOut, readOptOut, writeOptOut } from './usage.mjs';
+import { encodeShare, decodeShare } from './share.mjs';
+
+const $ = (id) => document.getElementById(id);
+const money = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+const percent = (n) => `${n.toFixed(1)}%`;
+const escapeHtml = (value) => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+let scenarios = [['Bulk supplier', 100, 90], ['Subcontractor', 0, 115]];
+
+function renderInputs() {
+  $('scenarioInputs').innerHTML = scenarios.map((row, i) => `<div class="scenario"><label>Scenario ${i + 1} name<input data-i="${i}" data-k="name" value="${escapeHtml(row[0])}"></label><label>Fixed cost / month<input data-i="${i}" data-k="fixed" type="number" min="0" value="${row[1]}" inputmode="decimal"></label><label>Variable cost / job<input data-i="${i}" data-k="variable" type="number" min="0" value="${row[2]}" inputmode="decimal"></label></div>`).join('');
+  document.querySelectorAll('#scenarioInputs input').forEach((field) => {
+    field.addEventListener('input', () => {
+      const i = Number(field.dataset.i);
+      const key = field.dataset.k;
+      scenarios[i][key === 'name' ? 0 : key === 'fixed' ? 1 : 2] = key === 'name' ? field.value : Number(field.value);
+      update();
+    });
+  });
+}
+
+function update() {
+  try {
+    const result = compare({
+      jobsPerMonth: +$('jobs').value,
+      revenuePerJob: +$('revenue').value,
+      baseFixedMonthly: +$('baseFixed').value,
+      baseVariablePerJob: +$('baseVariable').value,
+      scenarios: scenarios.map((row) => ({ name: row[0], fixedMonthly: row[1], variablePerJob: row[2] })),
+    });
+    const rows = [{ name: 'Current operation', ...result.baseline, savingsPerJob: 0, breakEvenJobs: null, cheaperUpToJobs: null }, ...result.scenarios];
+    const best = rows.reduce((a, b) => (b.costPerJob < a.costPerJob ? b : a));
+    $('best').textContent = best.name;
+    const marginNote = best.marginPercent === null ? 'n/a margin (revenue per job is $0)' : `${percent(best.marginPercent)} margin`;
+    $('bestNote').textContent = `${money(best.costPerJob)} per job at ${result.jobs} jobs/month — ${money(best.profitPerJob)} profit/job, ${marginNote}`;
+    $('results').innerHTML = rows.map((row) => `<tr class="${row === best ? 'best' : ''}"><th>${escapeHtml(row.name)}</th><td>${money(row.monthlyCost)}</td><td>${money(row.costPerJob)}</td><td class="${row.savingsPerJob < 0 ? 'danger' : ''}">${money(row.savingsPerJob)}</td><td class="${row.profitPerJob < 0 ? 'danger' : ''}">${money(row.profitPerJob)}</td><td>${row.marginPercent === null ? 'n/a' : percent(row.marginPercent)}</td><td>${row.breakEvenJobs === 0 ? 'Already cheaper' : row.breakEvenJobs !== null ? `${row.breakEvenJobs} jobs/mo` : row.cheaperUpToJobs !== null ? `Below ${row.cheaperUpToJobs} jobs/mo` : 'Not cheaper'}</td></tr>`).join('');
+  } catch (error) {
+    $('best').textContent = error.message;
+    $('bestNote').textContent = '';
+    $('results').innerHTML = '';
+  }
+}
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+}
+
+function readShareInput() {
+  return {
+    jobs: $('jobs').value,
+    revenue: $('revenue').value,
+    baseFixed: $('baseFixed').value,
+    baseVariable: $('baseVariable').value,
+    scenarios,
+  };
+}
+
+// A restored value (from a share link or the saved draft) always replaces
+// the built-in demo scenarios rather than being appended to them -- the
+// visitor is looking at the sender's comparison, not the sender's rows
+// mixed into the sample data.
+function applyValues(values) {
+  if (typeof values.jobs !== 'undefined') $('jobs').value = values.jobs;
+  if (typeof values.revenue !== 'undefined') $('revenue').value = values.revenue;
+  if (typeof values.baseFixed !== 'undefined') $('baseFixed').value = values.baseFixed;
+  if (typeof values.baseVariable !== 'undefined') $('baseVariable').value = values.baseVariable;
+  if (Array.isArray(values.scenarios) && values.scenarios.length > 0) {
+    scenarios = values.scenarios.map((row) => [...row]);
+  }
+}
+
+function restoreDraft() {
+  // "Save draft" writes vendor-rate-break-even-draft on every click, but
+  // nothing ever read it back on load -- a returning user always saw the
+  // hardcoded demo scenarios instead of their own comparison. This reads it
+  // once, before the first render, so reopening the tool actually returns to
+  // where the user left off. A share link takes priority over this (see the
+  // load sequence below): opening a link someone sent means seeing the
+  // comparison they sent, not the visitor's own last draft.
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('vendor-rate-break-even-draft') || 'null'); } catch { saved = null; }
+  if (!saved || typeof saved !== 'object') return;
+  applyValues(saved);
+}
+
+async function copyShare() {
+  const hash = encodeShare(readShareInput());
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, '', `#${hash}`);
+  recordUsage('share_copied');
+  $('shareStatus').textContent = 'Share link copied';
+  setTimeout(() => { $('shareStatus').textContent = ''; }, 2500);
+}
+
+['jobs', 'revenue', 'baseFixed', 'baseVariable'].forEach((id) => $(id).addEventListener('input', update));
+$('add').onclick = () => {
+  if (scenarios.length < 3) {
+    scenarios.push(['New scenario', 0, 0]);
+    renderInputs();
+    update();
+    recordUsage('scenario_added');
+  }
+};
+$('save').onclick = () => {
+  localStorage.setItem('vendor-rate-break-even-draft', JSON.stringify({
+    scenarios,
+    jobs: $('jobs').value,
+    revenue: $('revenue').value,
+    baseFixed: $('baseFixed').value,
+    baseVariable: $('baseVariable').value,
+  }));
+  recordUsage('draft_saved');
+  $('save').textContent = 'Saved';
+  setTimeout(() => { $('save').textContent = 'Save draft'; }, 1000);
+};
+$('copyShare').addEventListener('click', () => {
+  copyShare().catch(() => { $('shareStatus').textContent = 'Copy failed.'; });
+});
+$('optout').onchange = () => setUsageOptOut($('optout').checked);
+
+const shared = decodeShare(location.hash);
+if (shared) applyValues(shared);
+else restoreDraft();
+renderInputs();
+update();
+recordUsage('comparison_completed');
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optout');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rmd-calculator/" data-pf-to="rmd-calculator">RMD Calculator — free, private, in your browser</a></li>
+      <li><a href="../roth-conversion-bracket-fill-calculator/" data-pf-to="roth-conversion-bracket-fill-calculator">Roth Conversion Calculator 2026 — fill your bracket, free</a></li>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-rate-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/?pfEmbed=1&quot; title=&quot;Vendor Rate Break-Even Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="vendor-rate-break-even"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/" data-pf-embed-title="Vendor Rate Break-Even Calculator" data-pf-embed-slug="vendor-rate-break-even"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="vendor-rate-break-even" data-pf-jobs-amount=""></script>
+</body></html>

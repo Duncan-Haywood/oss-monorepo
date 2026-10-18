@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL Introspection Exposure Checker — Is Your Schema Public?</title>
+<meta name="description" content="Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GraphQL Introspection Exposure Checker">
+<meta property="og:description" content="Sends one introspection query to a GraphQL endpoint and reports whether your schema -- including mutations and internal field names -- is publicly enumerable.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GraphQL Introspection Exposure Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser when the target's CORS policy allows it; a Node.js CLI always works)",
+  "description": "Sends a deliberately minimal GraphQL introspection query to an endpoint URL and reports whether introspection is enabled, naming the query, mutation, and subscription field counts and any field names that match common sensitive-operation wording.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends one real introspection query to a GraphQL endpoint you choose",
+    "Reports whether introspection is enabled and, if so, the exact query/mutation/subscription field counts and named types it reveals",
+    "Flags mutation and query field names matching common sensitive-operation wording (admin, delete, reset, secret, and similar)",
+    "Runs directly in the browser when the target's CORS policy allows it",
+    "Ships a zero-dependency Node CLI for every target, since CORS is a browser-only restriction the CLI is never subject to",
+    "Nothing is uploaded -- the browser check talks straight to the endpoint you name, and pasted CLI output is parsed locally"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is GraphQL introspection and why does leaving it enabled matter?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Introspection is a set of built-in GraphQL meta-fields (__schema, __type) that let any caller ask the API to describe its own schema -- every query, mutation, subscription, type, and field name. It is essential during development, but on a production endpoint it hands an unauthenticated caller a complete map of the API's surface, including mutations and fields no real client ever links to. OWASP's API Security guidance and GraphQL's own production-hardening documentation both name disabling introspection in production as standard practice." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the browser sometimes need a CLI instead of just checking the URL I type in?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The introspection query itself needs no special browser-forbidden header -- it's an ordinary POST with a JSON body -- so this page tries it directly first. Whether that succeeds depends entirely on the target's own CORS policy: some public GraphQL APIs allow requests from any origin (they're built to be called from arbitrary frontends), and for those the check runs entirely in your browser. A target with a stricter CORS policy will block the browser from reading the response even though the request reached the server -- the browser hides the response rather than reporting an error. The CLI has no such restriction, because CORS is enforced by browsers, not by Node's fetch, so it always gets a real answer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to run this against an endpoint?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It sends exactly one ordinary POST request carrying a read-only introspection query -- GraphQL's introspection meta-fields cannot mutate anything. It does nothing a GraphQL client wouldn't also do by querying the endpoint directly. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the API has no other security issues?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks exactly one thing -- whether an unauthenticated introspection query succeeds -- from one request. It is not a full security assessment, does not test authenticated behaviour, field-level authorization, query depth/complexity limits, or batching/aliasing abuse, and a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control. Treat a clean report as evidence about introspection specifically." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  label { display: block; font-weight: 600; margin: 0.6rem 0 0.2rem; }
+  input[type="url"], textarea { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  textarea { min-height: 90px; }
+  textarea#payload { min-height: 160px; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.6rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  #fallback { display: none; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"GraphQL Introspection Exposure Checker","item":"https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GraphQL Introspection Exposure Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">GraphQL Introspection Exposure Checker</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<h1>GraphQL Introspection Exposure Checker</h1>
+<p>
+  Sends one real GraphQL introspection query to an endpoint URL you choose and reports whether
+  introspection is <strong>enabled</strong> -- exposing every query, mutation, and subscription
+  field name, and every named type, including ones no client ever links to. This is the
+  reconnaissance step <a href="https://owasp.org/www-project-api-security/" rel="noopener">OWASP's
+  API Security</a> guidance names as a reason to disable introspection in production. Only point
+  it at a system you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>1. Check an endpoint</h2>
+  <label for="endpoint">GraphQL endpoint URL</label>
+  <input id="endpoint" type="url" placeholder="https://api.example.com/graphql" autocomplete="off">
+  <label for="headers">Custom request headers (optional, one per line, "Name: Value")</label>
+  <textarea id="headers" spellcheck="false" placeholder="X-Api-Key: only-if-required-to-reach-the-endpoint-at-all"></textarea>
+  <p>
+    <button type="button" class="primary" id="check-browser">Check in your browser</button>
+    <button type="button" id="load-example">Load worked example (vulnerable)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter an endpoint URL and click Check. This tries the request directly from your browser first.</p>
+</div>
+
+<div class="card" id="fallback">
+  <h2>2. Or run the CLI and paste its output</h2>
+  <p>If your browser could not read a response (commonly a CORS policy that doesn't allow this
+  page's origin), the request is not subject to that restriction from a plain Node script:</p>
+  <pre class="cmd"><code id="cli-cmd">node check.mjs https://api.example.com/graphql --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/graphql-introspection-exposure-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass; nothing goes through this site.
+  </p>
+  <label for="payload">Paste the CLI's JSON output here</label>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://api.example.com/graphql", "probe": {"ok": true, "status": 200, "body": {"data": {"__schema": {...}}}}}'></textarea>
+  <p><button type="button" class="primary" id="check-pasted">Render pasted report</button></p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <div class="pf-table-scroll"><table id="field-table" hidden>
+    <thead><tr><th>Root type</th><th>Field count</th><th>Field names</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What is GraphQL introspection and why does leaving it enabled matter?</h3>
+  <p>Introspection is a set of built-in GraphQL meta-fields (<code>__schema</code>, <code>__type</code>) that let any caller ask the API to describe its own schema -- every query, mutation, subscription, type, and field name. It is essential during development, but on a production endpoint it hands an unauthenticated caller a complete map of the API's surface, including mutations and fields no real client ever links to. OWASP's API Security guidance and GraphQL's own production-hardening documentation both name disabling introspection in production as standard practice.</p>
+  <h3>Why does the browser sometimes need a CLI instead of just checking the URL I type in?</h3>
+  <p>The introspection query itself needs no special browser-forbidden header -- it's an ordinary POST with a JSON body -- so this page tries it directly first. Whether that succeeds depends entirely on the target's own CORS policy: some public GraphQL APIs allow requests from any origin (they're built to be called from arbitrary frontends), and for those the check runs entirely in your browser. A target with a stricter CORS policy will block the browser from reading the response even though the request reached the server -- the browser hides the response rather than reporting an error. The CLI has no such restriction, because CORS is enforced by browsers, not by Node's fetch, so it always gets a real answer.</p>
+  <h3>Is it safe to run this against an endpoint?</h3>
+  <p>It sends exactly one ordinary POST request carrying a read-only introspection query -- GraphQL's introspection meta-fields cannot mutate anything. It does nothing a GraphQL client wouldn't also do by querying the endpoint directly. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server.</p>
+  <h3>Does a clean report mean the API has no other security issues?</h3>
+  <p>No. This checks exactly one thing -- whether an unauthenticated introspection query succeeds -- from one request. It is not a full security assessment, does not test authenticated behaviour, field-level authorization, query depth/complexity limits, or batching/aliasing abuse, and a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control. Treat a clean report as evidence about introspection specifically.</p>
+  <p>More background: <a href="why-disable-graphql-introspection-in-production.html">why production GraphQL APIs disable introspection, and what it actually protects against</a>.</p>
+  <p>See <a href="vs-checking-introspection-by-hand.html">this checker vs. checking introspection by hand</a> -- why testing from the API's own GraphiQL UI understates the risk, and why the mutation surface is easy to miss on a skim.</p>
+</section>
+
+<script type="module">
+  import { sendIntrospectionQuery } from './probe.mjs';
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    endpoint: $('#endpoint'), headers: $('#headers'), status: $('#status'),
+    fallback: $('#fallback'), cliCmd: $('#cli-cmd'), payload: $('#payload'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    fieldTable: $('#field-table'), fieldTableBody: $('#field-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://api.example.com/graphql',
+    probe: {
+      ok: true, status: 200, error: null,
+      body: {
+        data: {
+          __schema: {
+            queryType: { name: 'Query', fields: [{ name: 'me' }, { name: 'listUsers' }, { name: 'internalDebugInfo' }] },
+            mutationType: { name: 'Mutation', fields: [{ name: 'updateProfile' }, { name: 'deleteUser' }, { name: 'grantAdminRole' }, { name: 'resetPassword' }] },
+            subscriptionType: null,
+            types: [
+              { name: 'Query', kind: 'OBJECT' }, { name: 'Mutation', kind: 'OBJECT' },
+              { name: 'User', kind: 'OBJECT' }, { name: 'Role', kind: 'ENUM' },
+              { name: 'String', kind: 'SCALAR' }, { name: 'ID', kind: 'SCALAR' },
+            ],
+          },
+        },
+      },
+    },
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function parseHeaderLines(text) {
+    const headers = {};
+    for (const line of String(text || '').split('\n')) {
+      const idx = line.indexOf(':');
+      if (idx <= 0) continue;
+      const name = line.slice(0, idx).trim();
+      const value = line.slice(idx + 1).trim();
+      if (name) headers[name] = value;
+    }
+    return headers;
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `Probe did not complete: ${report.error ?? 'unknown error'}. Re-run once the target is reachable.`;
+    } else if (!report.introspectionEnabled) {
+      els.verdict.textContent = 'Introspection appears disabled or blocked -- no danger finding.';
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `Introspection is ENABLED: ${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else {
+      els.verdict.textContent = `Introspection is ENABLED but no sensitive-sounding names or mutation surface were found (${report.noticeCount} notice(s)).`;
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidence)}</p>
+        </div>`).join('');
+
+    if (report.introspectionEnabled) {
+      els.fieldTable.hidden = false;
+      const rows = [
+        ['Query', report.queryFieldCount, report.queryFields],
+        ['Mutation', report.mutationFieldCount, report.mutationFields],
+        ['Subscription', report.subscriptionFieldCount, report.subscriptionFields],
+      ];
+      els.fieldTableBody.innerHTML = rows.map(([label, count, names]) => `
+        <tr><td>${escapeHtml(label)}</td><td>${count}</td><td>${escapeHtml(names.join(', ') || '(none)')}</td></tr>`).join('');
+    } else {
+      els.fieldTable.hidden = true;
+    }
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function recordEvent(event) {
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check-browser').addEventListener('click', async () => {
+    const url = els.endpoint.value.trim();
+    if (!url) {
+      els.status.innerHTML = '<span class="error">Enter an endpoint URL first.</span>';
+      return;
+    }
+    try {
+      // eslint-disable-next-line no-new
+      new URL(url);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not a valid URL.</span>';
+      return;
+    }
+    const headers = parseHeaderLines(els.headers.value);
+    els.status.textContent = 'Checking…';
+    const probe = await sendIntrospectionQuery(url, { headers });
+    if (probe.ok === false) {
+      const headerFlags = Object.entries(headers).map(([n, v]) => ` --header "${n}: ${v}"`).join('');
+      els.cliCmd.textContent = `node check.mjs ${url} --json${headerFlags}`;
+      els.fallback.style.display = 'block';
+      els.status.innerHTML =
+        '<span class="error">Your browser could not read a response from this endpoint</span> -- ' +
+        'often because its CORS policy does not allow this page to read it (browsers hide the ' +
+        'response entirely rather than reporting a CORS error specifically, so this could also be ' +
+        'a genuine network problem or a bad URL). Run the CLI below instead -- it is not subject to ' +
+        'browser CORS -- and paste its output.';
+      els.reportCard.hidden = true;
+      return;
+    }
+    els.fallback.style.display = 'none';
+    render(buildReport(url, probe));
+    els.status.textContent = '';
+    recordEvent('browser_check_run');
+  });
+
+  $('#check-pasted').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the CLI JSON output first.</span>';
+      return;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    if (!parsed || typeof parsed !== 'object' || !parsed.probe) {
+      els.status.innerHTML = '<span class="error">Expected an object with a "probe" key -- the exact shape "node check.mjs &lt;url&gt; --json" prints.</span>';
+      return;
+    }
+    render(buildReport(parsed.target ?? '(unknown target)', parsed.probe));
+    els.status.textContent = '';
+    recordEvent('pasted_check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.endpoint.value = EXAMPLE.target;
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    render(buildReport(EXAMPLE.target, EXAMPLE.probe));
+    els.status.textContent = 'Worked example: an endpoint with introspection enabled, a mutation surface, and sensitive-sounding names (deleteUser, grantAdminRole).';
+    recordEvent('example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.endpoint.value = '';
+    els.headers.value = '';
+    els.payload.value = '';
+    els.fallback.style.display = 'none';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter an endpoint URL and click Check. This tries the request directly from your browser first.';
+  });
+
+  // Remember the visitor's usage-counting choice between visits. The control
+  // was read on every record call and never stored, so the box came back
+  // unticked on the next load and counting resumed -- a control that quietly
+  // stops working is worse than none, because the visitor believes they have
+  // already used it.
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks exactly one thing -- whether an
+  unauthenticated introspection query succeeds -- from one request. It is not a full security
+  assessment, does not test authenticated behaviour or field-level authorization, and a
+  sensitive-sounding field name is a hint to review by hand, not proof of a missing access
+  control.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point it at. To the maximum extent permitted by law, the authors accept no liability for any
+  loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing is uploaded.</strong> The browser check talks straight from your tab to the
+  endpoint you name -- never through this site -- and the CLI's request goes straight from your
+  machine. Pasted CLI output is parsed locally in your tab; nothing you type or paste is sent
+  anywhere. The only thing stored is an anonymous local count of which features were used and the
+  day -- no endpoint URLs, no headers, no schema contents, no account, no tracking cookies, no
+  analytics vendor, honouring Do Not Track and Global Privacy Control automatically. Turn it off
+  with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your API: <a href="../cors-misconfig-check/">CORS misconfiguration
+  checker</a> covers a different response-header evidence class -- a reflected
+  <code>Origin</code> rather than an enumerable schema -- and
+  <a href="../supabase-rls-check/">Supabase RLS exposure checker</a> covers a database-level
+  access-control evidence class again: whether a table returns real rows to an unauthenticated
+  request, not a GraphQL schema at all.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+      <li><a href="../source-map-leak-check/" data-pf-to="source-map-leak-check">Source Map Leak Checker</a></li>
+      <li><a href="../speech-to-text-pricing-calculator/" data-pf-to="speech-to-text-pricing-calculator">What will transcription cost for your audio hours, and who is cheapest?</a></li>
+      <li><a href="../sql-migration-lock-check/" data-pf-to="sql-migration-lock-check">Will this migration take your database down?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=graphql-introspection-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/?pfEmbed=1&quot; title=&quot;GraphQL Introspection Exposure Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="graphql-introspection-exposure-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/" data-pf-embed-title="GraphQL Introspection Exposure Checker" data-pf-embed-slug="graphql-introspection-exposure-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="graphql-introspection-exposure-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="graphql-introspection-exposure-check" data-pf-link-amount=""></script>
+</body>
+</html>

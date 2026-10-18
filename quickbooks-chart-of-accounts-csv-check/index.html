@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QuickBooks Chart of Accounts CSV Check — Find Errors Before You Import</title>
+  <meta name="description" content="Free QuickBooks Online chart of accounts import CSV checker: unknown account types, blank detail types, duplicate names and numbers…">
+  <meta property="og:title" content="QuickBooks Chart of Accounts CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks a QuickBooks Online chart of accounts import, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "QuickBooks Chart of Accounts CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a QuickBooks Online chart of accounts import CSV for unknown account types, blank detail types, duplicate names and numbers, sub-accounts before their parent, balances on income and expense accounts and missing as-of dates before it is imported, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "QuickBooks chart of accounts CSV validator, account type checker, duplicate account number finder, sub-account order checker, Excel damage finder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my QuickBooks Online chart of accounts import fail or skip accounts?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are an account type QuickBooks does not recognise (Expense instead of Expenses, Checking instead of Bank), a detail type left blank, an account name or number used twice, a sub-account listed before its parent, and an opening balance on an Income or Expense account. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "What are the QuickBooks account types?", "acceptedAnswer": {"@type": "Answer", "text": "Bank, Accounts receivable (A/R), Other Current Assets, Fixed Assets, Other Assets, Accounts payable (A/P), Credit Card, Other Current Liabilities, Long Term Liabilities, Equity, Income, Cost of Goods Sold, Expenses, Other Income and Other Expense. A near miss such as Expnses is reported with the likely type."}}, {"@type": "Question", "name": "How do I import sub-accounts?", "acceptedAnswer": {"@type": "Answer", "text": "Write the full name as Parent:Child in the Account Name column, and put the parent's row first. If the parent already exists in the company it need not be in the file. The tool notes a parent that is not in the file and flags a child that comes before its parent."}}, {"@type": "Question", "name": "Can I import opening balances with a chart of accounts?", "acceptedAnswer": {"@type": "Answer", "text": "Only on balance sheet accounts, and with a balance as-of date. Income, Cost of Goods Sold and Expense accounts take their balances from transactions, so a balance on them is flagged. Balances must be plain numbers; the safe fixes turn $1,200.00 into 1200.00 and (300.00) into -300.00."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: the delimiter, heading capitalisation, stray spaces around a cell and money formatting. It never edits an account name, number, type, detail type or date."}}, {"@type": "Question", "name": "Is it safe to put my chart of accounts into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether QuickBooks will accept the file today, whether each detail type is valid for its account type in your edition, tax mappings, or anything Intuit changes in its importer. A clean result is not a promise of success: import a few accounts first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"QuickBooks Chart of Accounts CSV Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="QuickBooks Chart of Accounts CSV Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">QuickBooks Chart of Accounts CSV Check — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">QUICKBOOKS CHART OF ACCOUNTS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my QuickBooks chart of accounts import skip accounts?</h1>
+    <p>Paste or drop your <strong>chart of accounts CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>account types</strong> QuickBooks does not recognise, blank <strong>detail types</strong>, <strong>duplicate names and account numbers</strong>, a <code>Parent:Child</code> sub-account listed before its parent, opening balances on Income or Expense accounts, balances with no as-of date, and semicolon-separated files. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Intuit Inc. Field names and rules are read from memory of Intuit's public import help pages; no QuickBooks import was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your chart of accounts CSV</h2>
+    <p class="note">A CSV saved from Excel, Google Sheets, another accounting package or a QuickBooks export. For customers, vendors and items use the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Account Name,Number,Type,Detail Type,Balance,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Rows</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Name</th><th scope="col">Detail</th></tr></thead><tbody id="products"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-split" hidden>Download in 1,000-row parts</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Account Name</strong> is required and unique; a sub-account is written <code>Parent:Child</code>, with the parent's row first. <strong>Number</strong> is optional but unique when used.</li>
+      <li><strong>Type</strong> must be one of the fifteen QuickBooks account types, and each account needs a <strong>Detail Type</strong>; a near miss is reported with the likely type.</li>
+      <li><strong>Balance and Balance As Of:</strong> only balance sheet accounts carry an opening balance, it must be a plain number, and it needs an as-of date in one consistent date order.</li>
+      <li><strong>Headings are advisory.</strong> QuickBooks lets you map columns by hand, so an unfamiliar heading is a note, not an error.</li>
+      <li><strong>Safe fixes</strong> change only delimiter, heading capitals, stray outer spaces and money formatting. It never edits an account name, number, type, detail type or date.</li>
+      <li><strong>Not checked:</strong> that QuickBooks will accept the file today, whether each detail type fits its account type in your edition, tax mappings, and anything Intuit changes in its importer. Import a few accounts first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my QuickBooks Online chart of accounts import fail or skip accounts?</h3>
+    <p>The usual causes are an account type QuickBooks does not recognise (Expense instead of Expenses, Checking instead of Bank), a detail type left blank, an account name or number used twice, a sub-account listed before its parent, and an opening balance on an Income or Expense account. This tool tests each of them and names the line.</p>
+    <h3>What are the QuickBooks account types?</h3>
+    <p>Bank, Accounts receivable (A/R), Other Current Assets, Fixed Assets, Other Assets, Accounts payable (A/P), Credit Card, Other Current Liabilities, Long Term Liabilities, Equity, Income, Cost of Goods Sold, Expenses, Other Income and Other Expense. A near miss such as Expnses is reported with the likely type.</p>
+    <h3>How do I import sub-accounts?</h3>
+    <p>Write the full name as Parent:Child in the Account Name column, and put the parent's row first. If the parent already exists in the company it need not be in the file. The tool notes a parent that is not in the file and flags a child that comes before its parent.</p>
+    <h3>Can I import opening balances with a chart of accounts?</h3>
+    <p>Only on balance sheet accounts, and with a balance as-of date. Income, Cost of Goods Sold and Expense accounts take their balances from transactions, so a balance on them is flagged. Balances must be plain numbers; the safe fixes turn $1,200.00 into 1200.00 and (300.00) into -300.00.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, heading capitalisation, stray spaces around a cell and money formatting. It never edits an account name, number, type, detail type or date.</p>
+    <h3>Is it safe to put my chart of accounts into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether QuickBooks will accept the file today, whether each detail type is valid for its account type in your edition, tax mappings, or anything Intuit changes in its importer. A clean result is not a promise of success: import a few accounts first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace QuickBooks' own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that QuickBooks will accept the file or that your books will be right.</p>
+    <p><strong>Not affiliated with Intuit.</strong> This tool is independent and is not sponsored, endorsed or connected to Intuit Inc. or any accounting software vendor. QuickBooks is a trademark of its owner, used here only to say which file format the tool reads. The field list and rules are read from memory of public sources and may be out of date or miss a variant; check them against Intuit's current import documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../quickbooks-iif-file-check/">QuickBooks IIF file check</a> checks a Desktop IIF transaction file for missing ENDTRNS rows and unbalanced entries, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> does the same for customer, vendor and item files, the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> turns a bank export into a QuickBooks bank file, and the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> checks Xero sales invoice files.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, splitCsv, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer, KIND_LABEL, ROW_LIMIT } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null, sourceText = "";
+    const kind = () => "accounts";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      sourceText = text;
+      const r = validate(text, kind());
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as ${esc(KIND_LABEL[s.kind] || "unknown")}, ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns (${s.mapped} matched to a QuickBooks field)`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#products").innerHTML = s.groups.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.name)}</td><td>${esc(g.detail)}</td></tr>`).join("") || `<tr><td colspan="3">No rows found.</td></tr>`;
+      const fix = repair(text, kind());
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#download-split").hidden = s.rows <= ROW_LIMIT;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, numbers, tax IDs, dates and balances are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    const example = (fn, msg) => () => {
+      const k = "accounts";
+      $("#paste").value = fn(k); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = msg; }
+    };
+    $("#load-example").addEventListener("click", example(sampleFile, "Worked example: a made-up business's list, not real people."));
+    $("#load-broken").addEventListener("click", example(sampleBrokenFile, "Worked example: the same kind of list after a spreadsheet round trip, with typical faults."));
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("quickbooks-accounts-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-split").addEventListener("click", () => { splitCsv(fixedText || sourceText).forEach((p, i) => download(`quickbooks-accounts-part-${i + 1}.csv`, p, "text/csv")); });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("quickbooks-csv-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../workers-comp-premium-calculator/" data-pf-to="workers-comp-premium-calculator">Workers' Comp Premium Calculator — free, with audit true-up</a></li>
+      <li><a href="../xero-contacts-csv-check/" data-pf-to="xero-contacts-csv-check">Xero Contacts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../xero-invoice-csv-check/" data-pf-to="xero-invoice-csv-check">Xero Invoice CSV Check — free, private, in your browser</a></li>
+      <li><a href="../youtube-revenue-rpm-analyzer/" data-pf-to="youtube-revenue-rpm-analyzer">YouTube Revenue and RPM Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=quickbooks-chart-of-accounts-csv-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/?pfEmbed=1&quot; title=&quot;QuickBooks Chart of Accounts CSV Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="quickbooks-chart-of-accounts-csv-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/" data-pf-embed-title="QuickBooks Chart of Accounts CSV Check — free, private, in your browser" data-pf-embed-slug="quickbooks-chart-of-accounts-csv-check"></script>
+</body>
+</html>

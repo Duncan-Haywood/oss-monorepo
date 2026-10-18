@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Prompt Caching Changes the Math | LLM API Pricing Calculator</title>
+<meta name="description" content="Why cached input tokens, not fresh input tokens, dominate the bill for agentic and long-context LLM workloads…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/why-prompt-caching-changes-the-math.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why prompt caching changes the math">
+<meta property="og:description" content="A blended per-token rate is one number. What an agentic workload actually pays is usually mostly cache reads, billed far below it.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is prompt/context caching in an LLM API?","acceptedAnswer":{"@type":"Answer","text":"A way for a provider to avoid reprocessing input tokens it has already seen recently — a system prompt, a long document, or the earlier turns of a multi-step agentic conversation. Instead of billing those repeated tokens at the full input rate every time, the provider bills them at a steep discount, because serving them from a cache costs the provider far less compute than processing them fresh."}},{"@type":"Question","name":"Why do cached tokens dominate an agentic workload's bill?","acceptedAnswer":{"@type":"Answer","text":"An agentic loop — a coding assistant, a tool-using agent, a long chat session — typically resends the entire conversation and tool context on every turn, appending only a small amount of new content each time. Nearly all of that resent context is identical to what was just sent a moment ago, so it is eligible for the cache discount. Publicly reported real-world figures put cache reads at well over 90% of total input tokens for sustained agentic sessions, which makes the cached rate, not the fresh rate, the number that actually determines the bill."}},{"@type":"Question","name":"Why does a single blended per-token rate get this wrong?","acceptedAnswer":{"@type":"Answer","text":"Because it assumes every input token costs the same, when in an agentic workload most of them are billed at a fraction of the fresh-input rate. Estimating cost from total tokens times one blended rate — often the fresh-input rate, since that is the headline number on a pricing page — overstates the bill for exactly the workloads it is most often applied to."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:820px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/why-prompt-caching-changes-the-math.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why prompt caching changes the math — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why prompt caching changes the math</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; LLM API Pricing Calculator</a></p>
+<header>
+<h1>Why prompt caching changes the math</h1>
+<p class="lede">A blended &ldquo;$X per million input tokens&rdquo; estimate is one number. What a sustained agentic workload actually pays is usually mostly cache reads, billed at a fraction of that rate &mdash; here is why, and how to account for it.</p>
+</header>
+<section>
+<h2>What caching is, and why it exists</h2>
+<p>
+  Modern LLM APIs let a provider avoid reprocessing input tokens it has
+  already seen recently &mdash; a system prompt, a long document, or the
+  earlier turns of a multi-step agentic conversation. Instead of billing
+  those repeated tokens at the full input rate every single time, the
+  provider bills them at a steep discount, commonly a fifth to a tenth of
+  the fresh-input rate, because serving them from a cache costs the
+  provider far less compute than processing them fresh. Different providers
+  call this different things (prompt caching, context caching, cache reads
+  and writes) and structure the discount slightly differently, but the
+  shape is the same: some fraction of input is fresh, some fraction is a
+  cache hit, and the two are billed at different rates.
+</p>
+</section>
+<section>
+<h2>Why this fraction is usually large for agents, not small</h2>
+<p>
+  A one-shot question-and-answer call has little to cache -- most of its
+  input is new every time. An agentic loop is the opposite case: a coding
+  assistant, a tool-using agent, or a long chat session typically resends
+  the entire conversation and tool context on every turn, appending only a
+  small amount of new content each time. Nearly all of that resent context
+  is identical to what was just sent a moment ago, so it is eligible for
+  the cache discount on every subsequent turn. The cached share tends to
+  <em>grow</em> as a session runs longer, not shrink -- the accumulated
+  history is what gets resent, and it only gets longer.
+</p>
+<p>
+  This is not a small effect. Publicly reported figures from real,
+  sustained agentic-coding sessions describe cache reads making up well
+  over 90% of total input tokens across a session. At that share, the
+  cached rate -- not the fresh-input rate most pricing pages headline -- is
+  the number that actually determines most of the bill.
+</p>
+</section>
+<section>
+<h2>What this means for estimating cost</h2>
+<p>
+  Estimating cost from total input tokens times one blended rate silently
+  picks a rate to apply to the whole total, and that rate is usually either
+  the fresh rate (overstating the bill, often badly, for an agentic
+  workload) or a rate assumed from someone else's cache share (which may
+  not match yours). The fix is not a better blended number -- it is not
+  blending at all: track fresh and cached input tokens as separate figures,
+  and price each at its own rate. That is the whole reason the
+  <a href="./">LLM API Pricing Calculator</a> asks for them separately
+  rather than asking for one input-token total.
+</p>
+<p class="fine">This page describes a general, widely documented mechanism common to current LLM APIs. It is not a claim about any specific provider's current cache discount, cache duration, or pricing -- check the provider's own pricing page for those.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is prompt/context caching in an LLM API?</h3>
+<p>A way for a provider to avoid reprocessing input tokens it has already seen recently — a system prompt, a long document, or the earlier turns of a multi-step agentic conversation. Instead of billing those repeated tokens at the full input rate every time, the provider bills them at a steep discount, because serving them from a cache costs the provider far less compute than processing them fresh.</p>
+<h3>Why do cached tokens dominate an agentic workload's bill?</h3>
+<p>An agentic loop — a coding assistant, a tool-using agent, a long chat session — typically resends the entire conversation and tool context on every turn, appending only a small amount of new content each time. Nearly all of that resent context is identical to what was just sent a moment ago, so it is eligible for the cache discount. Publicly reported real-world figures put cache reads at well over 90% of total input tokens for sustained agentic sessions, which makes the cached rate, not the fresh rate, the number that actually determines the bill.</p>
+<h3>Why does a single blended per-token rate get this wrong?</h3>
+<p>Because it assumes every input token costs the same, when in an agentic workload most of them are billed at a fraction of the fresh-input rate. Estimating cost from total tokens times one blended rate — often the fresh-input rate, since that is the headline number on a pricing page — overstates the bill for exactly the workloads it is most often applied to.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not financial, procurement, or vendor-pricing advice, and it does not replace verifying current rates directly with each provider. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Use the <a href="./">LLM API Pricing Calculator</a> to turn your own fresh/cached/output token split into a monthly cost comparison. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../obsidian-plugin-review-check/" data-pf-to="obsidian-plugin-review-check">Obsidian Plugin Review Checker</a></li>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llm-api-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="llm-api-pricing-calculator"></script>
+</body></html>

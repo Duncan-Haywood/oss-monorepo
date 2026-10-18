@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. NotaryGadget | Notary Trip Quote</title>
+<meta name="description" content="NotaryGadget is a subscription platform built specifically for loan signing agents — appointments, mileage, expenses, invoicing…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/notary-trip-quote/vs-notarygadget.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. NotaryGadget">
+<meta property="og:description" content="Two different shapes: NotaryGadget is a subscription platform for running a notary's whole book of appointments and tax records.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/notary-trip-quote/vs-notarygadget.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or NotaryGadget?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a mobile notary of any size may end up using both. NotaryGadget is a subscription platform built specifically for loan signing agents: it tracks appointments, mileage, expenses, and invoicing across a notary's whole book of business, and exports the records a 1099 filing needs at year end. This calculator does one narrower thing: starting from travel miles and drive time, appointment labor, a minimum fee, state-set signing fees, witness fees, after-hours work, waiting time, and print costs, it turns that into what one trip should cost, the effective hourly rate once vehicle cost is subtracted, and whether a signing service's flat offered fee actually clears that number before you accept the job. It runs free in any browser, keeps no account, and uploads nothing you type. A notary already tracking a full calendar of appointments and preparing a year of tax records is better served by NotaryGadget or a comparable notary-specific tool; a mobile notary who wants an instant, private check on whether one offered trip fee is worth taking is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with NotaryGadget?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by NotaryGadget. NotaryGadget is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c1a18;background:#f4efe6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#5c5854}section{background:#fffdf8;border:1px solid #ded9d2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1c1a180d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ded9d2;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5854}.fine,.note{font-size:.88rem;color:#5c5854}footer{color:#5c5854;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/notary-trip-quote/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. NotaryGadget — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../notary-trip-quote/">Mobile Notary &amp; Loan Signing Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. NotaryGadget</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Notary Trip Quote</a></p>
+<header>
+<h1>This calculator vs. NotaryGadget</h1>
+<p class="lede">Two different shapes: NotaryGadget is a subscription platform for running a notary's whole book of appointments, mileage, and tax records. This page is a free, private worksheet for one question &mdash; what should this one trip cost, and does the offered fee actually clear it, before you confirm the appointment.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>NotaryGadget</strong> is a subscription platform built specifically
+  for loan signing agents. It tracks appointments, mileage, and expenses
+  across a notary's whole calendar, generates invoices, and exports the
+  records a 1099 filing needs at year end. NotaryGadget's own pricing page
+  is not reachable from this session to confirm today's exact plan names or
+  dollar figures, so no price for it is invented here: only its
+  well-documented identity and category &mdash; notary-specific scheduling
+  and bookkeeping software, sold as a subscription account &mdash; are
+  stated, and no dollar amount for NotaryGadget appears on this page.
+</p>
+<p>
+  This calculator does none of what NotaryGadget does. It does not track a
+  calendar, generate a 1099 export, or hold a record across jobs. It takes
+  one trip &mdash; travel miles and drive time, appointment labor, a
+  minimum fee, state-set signing fees, witness fees, after-hours work,
+  waiting time, and print costs &mdash; and turns that into what the trip
+  should cost, the effective hourly rate once vehicle cost is subtracted,
+  and whether a signing service's flat offered fee actually clears that
+  number. It runs free in any browser, keeps no account, and uploads
+  nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need to track my whole calendar of signings, mileage, and expenses for a 1099 filing at year end.</td><td>NotaryGadget, or a comparable notary-specific tool &mdash; a full year's bookkeeping is not something this calculator does.</td></tr>
+<tr><td>Does this one offered trip fee actually clear my drive time, appointment labor, and vehicle cost?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>Why does a flat $75 signing-service offer lose money on a 40-mile round trip with two witnesses?</td><td>This calculator's own <a href="how-much-to-charge-for-a-mobile-notary-appointment.html">trip-pricing walkthrough</a>.</td></tr>
+<tr><td>I need one shared record of every signing I've done this year, ready for tax season.</td><td>NotaryGadget, or a comparable notary-specific tool.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. NotaryGadget is used through a subscription account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most mobile notaries get different value from each: NotaryGadget (or a
+  comparable notary-specific tool) for running a full calendar of
+  appointments and a year of tax records as an ongoing subscription, and a
+  private calculator like this one for an instant, no-login check on
+  whether one offered trip fee is worth taking. This page's own figures
+  are a pricing model, not a scheduled appointment or a tax record.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or NotaryGadget?</h3>
+<p>They do different jobs, and a mobile notary of any size may end up using both. NotaryGadget is a subscription platform built specifically for loan signing agents: it tracks appointments, mileage, expenses, and invoicing across a notary's whole book of business, and exports the records a 1099 filing needs at year end. This calculator does one narrower thing: starting from travel miles and drive time, appointment labor, a minimum fee, state-set signing fees, witness fees, after-hours work, waiting time, and print costs, it turns that into what one trip should cost, the effective hourly rate once vehicle cost is subtracted, and whether a signing service's flat offered fee actually clears that number before you accept the job. It runs free in any browser, keeps no account, and uploads nothing you type. A notary already tracking a full calendar of appointments and preparing a year of tax records is better served by NotaryGadget or a comparable notary-specific tool; a mobile notary who wants an instant, private check on whether one offered trip fee is worth taking is in the right place here.</p>
+<h3>Is this page affiliated with NotaryGadget?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by NotaryGadget. NotaryGadget is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Notary Trip Quote</a> calculator to price your own appointment.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. Verify every figure against your own vehicle costs and state fee schedule before relying on it or accepting an offered fee. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against NotaryGadget &mdash; it is a static page describing publicly documented facts.</p>
+<p class="note"><a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a></p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../photo-booth-event-quote/" data-pf-to="photo-booth-event-quote">Photo Booth Event Quote Calculator</a></li>
+      <li><a href="../pickleball-facility-pro-forma/" data-pf-to="pickleball-facility-pro-forma">Pickleball Facility Pro Forma — free, private, in your browser</a></li>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+      <li><a href="../pool-opening-closing-price-calculator/" data-pf-to="pool-opening-closing-price-calculator">Pool Opening and Closing Price Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=notary-trip-quote">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="notary-trip-quote"></script>
+</body></html>

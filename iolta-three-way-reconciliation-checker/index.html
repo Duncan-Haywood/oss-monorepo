@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IOLTA Three-Way Reconciliation Checker — Free Client Trust Account Tool</title>
+  <meta name="description" content="Free IOLTA / client trust account three-way reconciliation for solo lawyers: paste your trust journal and bank balance to check bank vs journal vs client…">
+  <meta property="og:title" content="IOLTA three-way reconciliation checker. Free, private">
+  <meta property="og:description" content="Bank vs journal vs client ledgers, negative balances, uncleared-funds disbursements, commingling and stale checks.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IOLTA Three-Way Reconciliation Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a three-way reconciliation?", "acceptedAnswer": {"@type": "Answer", "text": "Every month you compare three numbers for your client trust (IOLTA) account: the bank balance adjusted for outstanding items, the trust journal balance, and the sum of every client ledger. All three must agree to the cent."}}, {"@type": "Question", "name": "Can a client ledger go negative?", "acceptedAnswer": {"@type": "Answer", "text": "No. A negative balance means one client's money was used to pay for another. Most jurisdictions require you to fix it immediately and some require a report. This tool flags the date a ledger first dropped below zero, even if it was repaid later."}}, {"@type": "Question", "name": "Why does it ask which items have cleared?", "acceptedAnswer": {"@type": "Answer", "text": "Paying out against a deposit that has not cleared the bank spends other clients' money. Marking items cleared or not also gives you the deposits in transit and outstanding checks for the bank side of the reconciliation."}}, {"@type": "Question", "name": "When does money have to leave the trust account?", "acceptedAnswer": {"@type": "Answer", "text": "Earned fees must be moved to the operating account promptly, and unclaimed client balances usually must be refunded or reported. Rules differ by state and country, so check yours."}}, {"@type": "Question", "name": "Is my client data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent. Use initials or matter numbers instead of names if you prefer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+      .mono { font-family: ui-monospace, monospace; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"IOLTA three-way reconciliation checker. Free, private","item":"https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="IOLTA three-way reconciliation checker. Free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">IOLTA three-way reconciliation checker. Free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">IOLTA / CLIENT TRUST ACCOUNT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your trust account three-way reconcile?</h1>
+    <p>Paste the month's trust journal and the bank statement balance. You get the adjusted bank balance, the journal balance and the client ledger total side by side, the likely cause of any difference, and every client who went negative, was paid from uncleared funds, or left firm money in trust.</p>
+    <p class="note">Checks the arithmetic every trust accounting rule is built on. Your jurisdiction's rule and your bar decide what you must do. Not legal or accounting advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <label for="transactions">Trust journal (CSV: date, client, description, amount, cleared). Deposits positive, disbursements negative.</label>
+    <textarea id="transactions" spellcheck="false" placeholder="date,client,description,amount,cleared&#10;2026-08-03,Alvarez,Wire from client,5000.00,yes&#10;2026-08-10,Alvarez,Check 1001,-650.00,no"></textarea>
+    <div class="grid">
+      <div><label for="bankBalance">Bank statement ending balance ($)</label><input id="bankBalance" type="text" inputmode="decimal" placeholder="13,650.00"></div>
+      <div><label for="statementDate">Statement date (YYYY-MM-DD)</label><input id="statementDate" type="text" inputmode="numeric" placeholder="2026-08-31"></div>
+      <div><label for="staleDays">Flag outstanding checks older than (days)</label><input id="staleDays" type="number" min="1" step="1" placeholder="90" inputmode="numeric"></div>
+    </div>
+    <label for="clientBalances">Your client ledger balances (optional CSV: client, balance). Adds the true third leg of the reconciliation.</label>
+    <textarea id="clientBalances" spellcheck="false" placeholder="client,balance&#10;Alvarez,4350.00"></textarea>
+    <p>
+      <button type="button" id="calc">Reconcile</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste your journal and enter the bank balance, then click Reconcile.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Reconciliation</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h2>Findings</h2>
+    <div id="report-findings"></div>
+    <h2>Client ledgers</h2>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Client</th><th class="n">Ledger balance</th><th class="n">Cleared balance</th></tr></thead><tbody id="clients"></tbody></table></div></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download reconciliation (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Checks:</strong> adjusted bank balance vs trust journal vs client ledgers; a negative client ledger on any date; payments made before the deposit cleared; firm money left in trust; transactions with no client; duplicates; stale outstanding checks; slow deposits; dormant balances.</li>
+      <li><strong>Explains differences:</strong> if one entry equals the difference, doubled entries, or transposed digits, it says so.</li>
+      <li><strong>Not decided:</strong> what your jurisdiction requires, reporting duties, interest and unclaimed property rules, whether a fee is earned, recordkeeping periods, or anything about your operating account. Your bar's guidance decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a three-way reconciliation?</h3>
+    <p>Every month you compare three numbers for your client trust (IOLTA) account: the bank balance adjusted for outstanding items, the trust journal balance, and the sum of every client ledger. All three must agree to the cent.</p>
+    <h3>Can a client ledger go negative?</h3>
+    <p>No. A negative balance means one client's money was used to pay for another. Most jurisdictions require you to fix it immediately and some require a report. This tool flags the date a ledger first dropped below zero, even if it was repaid later.</p>
+    <h3>Why does it ask which items have cleared?</h3>
+    <p>Paying out against a deposit that has not cleared the bank spends other clients' money. Marking items cleared or not also gives you the deposits in transit and outstanding checks for the bank side of the reconciliation.</p>
+    <h3>When does money have to leave the trust account?</h3>
+    <p>Earned fees must be moved to the operating account promptly, and unclaimed client balances usually must be refunded or reported. Rules differ by state and country, so check yours.</p>
+    <h3>Is my client data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent. Use initials or matter numbers instead of names if you prefer.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or accounting advice. You are responsible for your own trust account records, for verifying results against your bank statement and your jurisdiction's trust accounting rule, and for any report to your bar.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tool: the <a href="../law-firm-realization-rate-calculator/">law firm realization rate calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { reconcile, SAMPLE, summaryText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { transactions: "transactions", bankBalance: "bankBalance", statementDate: "statementDate", staleDays: "staleDays", clientBalances: "clientBalances" };
+    const IDLE = "Paste your journal and enter the bank balance, then click Reconcile.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = reconcile(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors.slice(0, 3).join(" "); return false; }
+      last = r;
+      $("#due").textContent = r.balanced ? "The three balances agree." : `Does not balance: bank vs journal ${money(r.diffBank)}, ledgers vs journal ${money(r.diffLedger)}.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}${f.detail ? `<div class="note">${esc(f.detail)}</div>` : ""}</div>`).join("");
+      const row = (a, b, cls = "") => `<tr class="${cls}"><td>${a}</td><td class="n">${money(b)}</td></tr>`;
+      $("#rows").innerHTML = row("Bank statement ending balance", r.bank) + row("+ deposits in transit", r.dit) + row("- outstanding disbursements", r.outstanding) + row("1. Adjusted bank balance", r.bankAdjusted, "total") + row("2. Trust journal balance", r.book, "total") + row(r.providedLedger ? "3. Sum of client ledgers" : "3. Sum of client ledgers (derived from journal)", r.ledgerTotal, "total");
+      $("#clients").innerHTML = r.clients.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${money(c.book)}</td><td class="n">${money(c.cleared)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against your bank statement and your jurisdiction's rule.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key] ?? "";
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a trust account that is out by $650 with a negative client and firm money in trust.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("trust-reconciliation.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+      <li><a href="../s-corp-reasonable-compensation-calculator/" data-pf-to="s-corp-reasonable-compensation-calculator">S-Corp Reasonable Compensation Calculator</a></li>
+      <li><a href="../saas-annual-plan-discount-calculator/" data-pf-to="saas-annual-plan-discount-calculator">SaaS Annual Plan Discount Calculator — break-even prepay discount, free</a></li>
+      <li><a href="../saas-cac-payback-calculator/" data-pf-to="saas-cac-payback-calculator">SaaS CAC Payback Calculator — churn-adjusted payback and LTV:CAC, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=iolta-three-way-reconciliation-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/?pfEmbed=1&quot; title=&quot;IOLTA three-way reconciliation checker. Free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="iolta-three-way-reconciliation-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/" data-pf-embed-title="IOLTA three-way reconciliation checker. Free, private" data-pf-embed-slug="iolta-three-way-reconciliation-checker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="iolta-three-way-reconciliation-checker" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="iolta-three-way-reconciliation-checker" data-pf-link-amount=""></script>
+</body>
+</html>

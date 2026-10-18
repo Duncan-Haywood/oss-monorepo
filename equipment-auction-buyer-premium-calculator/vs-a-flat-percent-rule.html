@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. mentally adding a flat percentage | Equipment Auction Buyer's Premium Calculator</title>
+<meta name="description" content="Adding '10%' to a hammer price in your head misses four real costs at farm and heavy-equipment auctions: the buyer's premium cap, the online-bidding premium…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. mentally adding a flat percentage | Equipment Auction Buyer's Premium Calculator">
+<meta property="og:description" content="A flat percent-of-hammer-price rule misses the premium cap, the online-bidding premium, the card surcharge, and tax on the premium.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat percentage overstate the cost on an expensive lot?","acceptedAnswer":{"@type":"Answer","text":"Because many equipment auctions cap the buyer's premium per lot — commonly a few thousand dollars — so a flat 10% in your head keeps growing past the point where the cap has already stopped the real bill. On a $45,000 tractor with a $2,500 cap, mentally adding 10% ($4,500) overstates the premium by $2,000."}},{"@type":"Question","name":"Why does a flat percentage understate the cost when bidding online?","acceptedAnswer":{"@type":"Answer","text":"Because the buyer's premium and the online-bidding (internet) premium are two separate, stacking fees at most houses that run a live online platform. A mental estimate of just the buyer's premium misses the extra 2-3% charged only to bidders using the platform, which a bidder on the floor in person would not owe."}},{"@type":"Question","name":"Does a flat percentage account for a card surcharge?","acceptedAnswer":{"@type":"Answer","text":"Not unless you remember to add it separately, and it applies to the whole invoice — hammer price, every premium, and tax — not the hammer price alone. Paying by ACH or check instead of a card avoids this fee at houses that charge one."}},{"@type":"Question","name":"Is sales tax calculated on the hammer price or the full purchase price?","acceptedAnswer":{"@type":"Answer","text":"Under most published auction terms, on the full purchase price — hammer price plus every premium — which a mental estimate that taxes only the hammer price will understate. Some houses or states tax the hammer price alone, and some equipment purchases are exempt entirely, so the specific auction's printed terms are what actually governs, not a general rule."}},{"@type":"Question","name":"Does this calculator know my auction's actual terms?","acceptedAnswer":{"@type":"Answer","text":"No — you supply the buyer's premium rate and cap, the online and card fees, and the tax rate from the auction's own printed terms. What it removes is the arithmetic mistake of adding them up in the wrong order or forgetting one of them, not the need to read the terms in the first place."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c1f16; background: #f4f3ee; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #5c4412; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #5c4412; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5c4412; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #33301f; }
+  .card { background: #fff; border: 1px solid #e2ddc9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5c441210; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #f0ecdd; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55503f; }
+  .note, footer { font-size: .86rem; color: #55503f; }
+  footer { margin-top: 28px; border-top: 1px solid #e2ddc9; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. mentally adding a flat percentage | Equipment Auction Buyer's Premium Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../equipment-auction-buyer-premium-calculator/">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. mentally adding a flat percentage | Equipment Auction Buyer's Premium Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. mentally adding a flat percentage</h1>
+<p class="lede">"Add 10% for the buyer's premium" is close enough for a rough guess and wrong in real money on an actual bid. Equipment auctions stack up to four separate charges on top of the hammer price &mdash; a capped premium, an online-bidding premium, a card surcharge, and tax on more than just the hammer price &mdash; and a flat mental percentage cannot represent a cap, a conditional fee, or a compounding tax base at the same time.</p>
+
+<section class="card">
+<h2>Where a flat-percentage guess usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Charge</th><th scope="col">Flat-percentage mistake</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Buyer's premium cap</td><td>Keeps applying the percentage past the point where a per-lot cap has already stopped the real charge, overstating the cost on an expensive lot.</td><td>Charges the lesser of the percentage or the cap you enter, and says on the page when the cap applied.</td></tr>
+<tr><td>Online-bidding premium</td><td>Forgets it entirely, or double-counts it as part of the "buyer's premium" percentage, when it is usually a separate, stacking fee.</td><td>Adds it only when you say you're bidding online, on top of the buyer's premium, never merged into one number.</td></tr>
+<tr><td>Card surcharge</td><td>Applied to the hammer price alone, if applied at all &mdash; when it is normally charged on the whole invoice including every premium and tax.</td><td>Applies the surcharge to the full invoice total, only when you say you're paying by card.</td></tr>
+<tr><td>Sales tax base</td><td>Taxes the hammer price only, understating the bill wherever the premium is taxed too &mdash; or assumes tax applies when the purchase is actually exempt.</td><td>Taxes the full purchase price (hammer price plus every premium) unless you mark the purchase exempt, and always discloses which assumption it used.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why does a flat percentage overstate the cost on an expensive lot?</h3>
+<p>Because many equipment auctions cap the buyer's premium per lot &mdash; commonly a few thousand dollars &mdash; so a flat 10% in your head keeps growing past the point where the cap has already stopped the real bill. On a $45,000 tractor with a $2,500 cap, mentally adding 10% ($4,500) overstates the premium by $2,000.</p>
+<h3>Why does a flat percentage understate the cost when bidding online?</h3>
+<p>Because the buyer's premium and the online-bidding (internet) premium are two separate, stacking fees at most houses that run a live online platform. A mental estimate of just the buyer's premium misses the extra 2-3% charged only to bidders using the platform, which a bidder on the floor in person would not owe.</p>
+<h3>Does a flat percentage account for a card surcharge?</h3>
+<p>Not unless you remember to add it separately, and it applies to the whole invoice &mdash; hammer price, every premium, and tax &mdash; not the hammer price alone. Paying by ACH or check instead of a card avoids this fee at houses that charge one.</p>
+<h3>Is sales tax calculated on the hammer price or the full purchase price?</h3>
+<p>Under most published auction terms, on the full purchase price &mdash; hammer price plus every premium &mdash; which a mental estimate that taxes only the hammer price will understate. Some houses or states tax the hammer price alone, and some equipment purchases are exempt entirely, so the specific auction's printed terms are what actually governs, not a general rule.</p>
+<h3>Does this calculator know my auction's actual terms?</h3>
+<p>No &mdash; you supply the buyer's premium rate and cap, the online and card fees, and the tax rate from the auction's own printed terms. What it removes is the arithmetic mistake of adding them up in the wrong order or forgetting one of them, not the need to read the terms in the first place.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply the buyer's premium, fee, and tax terms you supply. It is not legal, tax, or financial advice, and it does not replace confirming the exact terms with the auction house. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ucr-fee-calculator/" data-pf-to="ucr-fee-calculator">UCR Fee Calculator — free, private</a></li>
+      <li><a href="../vector-db-cost-calculator/" data-pf-to="vector-db-cost-calculator">Vector Database Cost Calculator</a></li>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=equipment-auction-buyer-premium-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="equipment-auction-buyer-premium-calculator"></script>
+</body>
+</html>

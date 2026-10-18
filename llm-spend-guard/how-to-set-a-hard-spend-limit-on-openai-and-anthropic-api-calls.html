@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Set a Hard Spend Limit on OpenAI and Anthropic API Calls</title>
+  <meta name="description" content="Provider spend limits, alerts and a guard in front of your calls each catch a different failure. What a per-user, per-run and per-day budget does…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/how-to-set-a-hard-spend-limit-on-openai-and-anthropic-api-calls.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is the provider's own spend limit enough?", "acceptedAnswer": {"@type": "Answer", "text": "Keep it on: it is the backstop that works even when your code is wrong. But it sees the whole organisation or project, not one user, feature or agent run, and depending on the provider and setting it may alert rather than refuse, or act after usage is counted. A guard in your own path can refuse one runaway user or run while everyone else keeps working."}}, {"@type": "Question", "name": "Why reserve the worst case before a call?", "acceptedAnswer": {"@type": "Answer", "text": "Counting spend after responses arrive lets every concurrent call see the same remaining budget, so twenty parallel calls can all start under a limit that only one of them fits. Holding each call's worst case (input estimate plus full output cap) first means the budget is never promised twice."}}, {"@type": "Question", "name": "What should a first policy look like?", "acceptedAnswer": {"@type": "Answer", "text": "A global daily and monthly dollar cap, a smaller per-user daily cap, a per-run total and step cap for agents, an output-token ceiling, a repeat breaker per run, and a calls-per-minute breaker globally. Start it in observe mode for a week, read what it would have refused, then switch to enforce."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .85rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/how-to-set-a-hard-spend-limit-on-openai-and-anthropic-api-calls.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Set a Hard Spend Limit on OpenAI and Anthropic API Calls">
+<meta property="og:description" content="Provider spend limits, alerts and a guard in front of your calls each catch a different failure. What a per-user, per-run and per-day budget does…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Set a Hard Spend Limit on OpenAI and Anthropic API Calls — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../llm-spend-guard/">Would a spend cap have stopped your runaway LLM bill?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Set a Hard Spend Limit on OpenAI and Anthropic API Calls</span></span></nav>
+  <p><a href="./">← Back to LLM Spend Guard</a></p>
+  <h1>How to set a hard spend limit on OpenAI and Anthropic API calls</h1>
+  <p>Three layers catch three different failures. Use all three; none replaces the others.</p>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Layer</th><th>Catches</th><th>Misses</th></tr></thead>
+    <tbody>
+      <tr><td>Provider console limit and alerts</td><td>Everything, even when your code is wrong; it is the last line</td><td>Who or what spent it: one user or one agent run stops everyone; depending on the setting it may alert rather than refuse</td></tr>
+      <tr><td>Static checks before code ships (<a href="../llm-call-cost-scan/">LLM Call Cost Scan</a>)</td><td>Calls with no output cap, calls inside loops, oversized models, before they run</td><td>Anything that depends on real traffic</td></tr>
+      <tr><td>A guard in the request path (this tool)</td><td>One user, feature, key or run crossing its own budget; loops; requests with no cap; unpriced models</td><td>Calls that bypass it, which is why the provider limit stays on</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Hold the worst case, then settle the real cost</h2>
+  <p>A guard that counts spend after responses come back is too late under concurrency: twenty parallel calls all see the same remaining budget. LLM Spend Guard prices each call's worst case before it is sent: a deliberately high input estimate (bytes of the request divided by three) plus the full output cap. It holds that amount against every budget the call belongs to. The real cost from the response's <code>usage</code> then replaces the hold. A call that never reports back is charged at its hold, never at zero.</p>
+
+  <h2>Budgets: scope × window</h2>
+  <p>Each budget has a <strong>scope</strong> (<code>global</code>, <code>user</code>, <code>feature</code>, <code>key</code>, <code>run</code>), a <strong>window</strong> (UTC <code>minute</code>, <code>hour</code>, <code>day</code>, <code>month</code>, or <code>total</code>) and a dollar limit, a call limit or both. A per-run <code>total</code> call limit is a step cap for an agent. Calls with no user still count, in one shared <code>(none)</code> bucket, so anonymous traffic cannot slip past a per-user cap.</p>
+
+  <h2>Breakers: stop the loop, not just the bill</h2>
+  <p>A budget eventually stops a loop, but only after the loop has spent the budget. Breakers watch a rolling window and open early:</p>
+  <ul>
+    <li><code>maxRepeats</code>: the same request (same model and input) more than <em>n</em> times in <code>repeatWindowSec</code>. This catches an agent re-sending one failing tool call.</li>
+    <li><code>maxCallsPerMinute</code> and <code>maxSpendPerMinuteUsd</code>: a burst far above normal.</li>
+  </ul>
+  <p>An open breaker refuses calls in its scope for <code>cooldownSec</code>. The proxy answers 429 with <code>Retry-After</code>, so a well-behaved client waits instead of hammering.</p>
+
+  <h2>Fail closed</h2>
+  <p>By default a model with no configured price is refused (so a new model name cannot slip past every budget at $0), and a request with no output cap is refused. Set <code>defaultMaxOutputTokens</code> to add a cap instead, and <code>maxOutputTokens</code> to clamp any cap to a ceiling.</p>
+
+  <h2>A policy to start from</h2>
+<pre>{
+  "mode": "observe",
+  "prices": { "your-model-name": { "in": 0, "out": 0, "cacheRead": 0 } },
+  "defaultMaxOutputTokens": 1024,
+  "maxOutputTokens": 8192,
+  "budgets": [
+    { "id": "org-day",   "scope": "global", "window": "day",   "limitUsd": 25 },
+    { "id": "org-month", "scope": "global", "window": "month", "limitUsd": 400 },
+    { "id": "user-day",  "scope": "user",   "window": "day",   "limitUsd": 2 },
+    { "id": "run-total", "scope": "run",    "window": "total", "limitUsd": 3, "limitCalls": 150 }
+  ],
+  "breakers": [
+    { "id": "loop",  "scope": "run",    "maxRepeats": 20, "repeatWindowSec": 300, "cooldownSec": 900 },
+    { "id": "burst", "scope": "global", "maxCallsPerMinute": 120, "cooldownSec": 120 }
+  ]
+}</pre>
+  <p>Fill in your models' current per-million-token prices from your provider's pricing page; the zeros above are placeholders, not rates. Run it in <code>observe</code> mode first: it logs every call it <em>would</em> refuse and refuses none. Replay last month's log through it on the <a href="./">simulator</a>, adjust, then set <code>"mode": "enforce"</code>.</p>
+
+  <h2>Other tools that do some of this</h2>
+  <p>Gateways and observability platforms such as LiteLLM, Portkey and Helicone offer budgets, rate limits or spend dashboards in various forms; check their current documentation for what each enforces and on which plan. Use this tool if you want a dependency-free file you can read in an hour. It holds worst-case cost before a call, breaks on repeated requests per agent run, refuses unpriced models by default, and replays a log offline. Not affiliated with, endorsed by, or sponsored by LiteLLM, Portkey or Helicone; their names are trademarks of their owners, used here only to describe what this tool is and is not.</p>
+
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>Is the provider's own spend limit enough?</h3>
+    <p>Keep it on: it is the backstop that works even when your code is wrong. But it sees the whole organisation or project, not one user, feature or agent run, and depending on the provider and setting it may alert rather than refuse, or act after usage is counted. A guard in your own path can refuse one runaway user or run while everyone else keeps working.</p>
+    <h3>Why reserve the worst case before a call?</h3>
+    <p>Counting spend after responses arrive lets every concurrent call see the same remaining budget, so twenty parallel calls can all start under a limit that only one of them fits. Holding each call's worst case (input estimate plus full output cap) first means the budget is never promised twice.</p>
+    <h3>What should a first policy look like?</h3>
+    <p>A global daily and monthly dollar cap, a smaller per-user daily cap, a per-run total and step cap for agents, an output-token ceiling, a repeat breaker per run, and a calls-per-minute breaker globally. Start it in observe mode for a week, read what it would have refused, then switch to enforce.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not financial, legal, security or engineering advice, and the tool is not a billing system: its figures come from prices you configure and usage providers report, and can differ from your invoice. <strong>You are responsible for reviewing and verifying its configuration and output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the source and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to proxy.local, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+      <li><a href="../package-exports-drift-check/" data-pf-to="package-exports-drift-check">Does your package.json &quot;exports&quot; map point at files that actually exist?</a></li>
+      <li><a href="../pg-stat-statements-analyzer/" data-pf-to="pg-stat-statements-analyzer">pg_stat_statements Analyzer — free, private, paste-the-output</a></li>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llm-spend-guard">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="llm-spend-guard"></script>
+</body>
+</html>

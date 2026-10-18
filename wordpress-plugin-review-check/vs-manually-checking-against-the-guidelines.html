@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This checker vs. manually checking against the guidelines yourself</title>
+  <meta name="description" content="Reading wordpress.org's Detailed Plugin Guidelines and then re-reading your own readme.txt and PHP files against it by eye is the default first pass every…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This checker vs. manually checking against the guidelines yourself">
+  <meta property="og:description" content="Re-reading your readme.txt and PHP source against the Plugin Directory's own guidelines by eye is the default first pass.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't reading the guidelines and checking my own code enough?","acceptedAnswer":{"@type":"Answer","text":"It is the step every plugin author already takes, and it works for anything you can see in one place -- a missing License field, an obviously unescaped block. It works less well for anything that requires cross-referencing two files that live far apart (readme.txt's Stable tag against the main plugin file's Version header) or holding one rule in your head while scanning every line of every file in the plugin (does every $_POST read have a nonce check somewhere in this file?). Neither task is hard once you know to do it -- they are just easy to skip while reading for the dozens of other things the guidelines also cover."}},{"@type":"Question","name":"How easy is it really to miss a Stable tag mismatch by eye?","acceptedAnswer":{"@type":"Answer","text":"In a 15-line worked example built specifically to demonstrate this tool -- short enough to read in ten seconds -- the readme.txt says Stable tag: 1.2.0 and the plugin file's header comment says Version: 1.3.0, three lines apart in two different files. A guidelines read-through checks each file looks correctly formatted; it does not by default diff the two version strings against each other, because nothing about reading either file in isolation calls attention to the other one."}},{"@type":"Question","name":"Why is a missing nonce check easy to miss in a manual read?","acceptedAnswer":{"@type":"Answer","text":"Because the guidelines ask you to confirm a negative across an unbounded search: does any $_POST handler, anywhere in this file, lack a nonce check anywhere else in the same file? In a plugin with a handful of files that is tedious but doable. In a plugin with dozens of files handling forms, AJAX actions, and admin-post hooks, holding that question open while reading line by line is exactly the kind of check a deadline compresses first -- and unlike a formatting typo, a missing nonce check produces no visual cue that draws the eye."}},{"@type":"Question","name":"Does this tool replace reading the guidelines?","acceptedAnswer":{"@type":"Answer","text":"No, and it checks only four specific, common patterns out of everything the Detailed Plugin Guidelines cover. Reading the guidelines is still how you learn what a first submission needs to look like at all. This tool exists for the narrower, mechanical part of that job -- cross-referencing two files and scanning every line for one of four patterns -- which is exactly the part a careful, unaided read-through is most likely to let through."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. manually checking against the guidelines yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../wordpress-plugin-review-check/">WordPress Plugin Review Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. manually checking against the guidelines yourself</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; WordPress Plugin Review Checker</a></p>
+    <h1>This checker vs. manually checking against the guidelines yourself</h1>
+    <p class="lede">Reading wordpress.org's Detailed Plugin Guidelines and re-checking your own readme.txt and
+      PHP files against it by eye is the default first pass -- and every plugin author already does it. It
+      reliably misses the two checks that require cross-referencing two separate files or scanning an entire
+      file for the absence of something, which is exactly what this free tool automates.</p>
+
+    <section class="card">
+      <h2>What a manual guidelines read-through involves</h2>
+      <p>
+        wordpress.org publishes the <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">Detailed Plugin Guidelines</a>
+        as prose -- readme.txt format, required and recommended header fields, security expectations, and more,
+        laid out as paragraphs rather than a literal checklist. Preparing a submission means reading through
+        that page, then re-reading your own readme.txt and every PHP file against it, holding each rule in mind
+        as you go.
+      </p>
+      <p>
+        That works well for anything visible in one place: an obviously missing <code>License</code> line, a
+        readme.txt that clearly does not follow the standard format. It works less well for a rule that spans
+        two files that live nowhere near each other, or a rule that asks you to confirm an absence across every
+        line of every file -- both are easy to satisfy in your head ("I checked the readme, I checked the
+        header, both look fine") without ever performing the specific cross-check the rule actually requires.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">The two checks a read-through is most likely to skip.</caption>
+        <thead><tr><th scope="col">What the guidelines ask</th><th scope="col">Reading through by eye</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>readme.txt's <code>Stable tag</code> matches the plugin header's <code>Version</code>.</td><td>Requires opening two files and comparing two short strings against each other -- easy to skip when each file individually looks correctly formatted.</td><td>Reads both files and compares the two values automatically, every time.</td></tr>
+          <tr><td>Every <code>$_POST</code> handler is guarded by a nonce check somewhere in the same file.</td><td>Requires holding the question open while scanning every line of every file -- tedious in a small plugin, easy to lose track of in a large one.</td><td>Scans every file's <code>$_POST</code> usage against every known nonce-check function name.</td></tr>
+          <tr><td>Every superglobal value printed with <code>echo</code>/<code>print</code>/<code>printf</code> is escaped on the same line.</td><td>An escaping function a few lines away, or on a different variable on the same line, can look right at a glance.</td><td>Checks the exact line for both the output statement and an escaping call together.</td></tr>
+          <tr><td>Required readme.txt and header fields are all present.</td><td>A field that "looks like it's probably there" from memory of past submissions.</td><td>Checks each required field name explicitly and lists exactly which are missing.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">Reading the guidelines is not wrong -- it is the only way to learn what a submission needs
+        to look like at all, and this tool does not decide anything about your plugin the guidelines don't
+        already say. What it automates is the narrow, mechanical cross-checking a careful read-through is most
+        likely to let through under a deadline.</p>
+      <p><a class="cta" href="./">Run the free plugin review checker</a></p>
+    </section>
+
+    <section class="card">
+      <h2>The same 15-line example a guidelines read-through would pass</h2>
+      <p>
+        This is this tool's own bundled worked example -- short enough to read end to end in a few seconds:
+      </p>
+      <pre style="white-space:pre-wrap;background:#f7f9fb;border:1px solid #e6eaf0;border-radius:8px;padding:10px 12px;font-size:.82rem;overflow-x:auto">=== Example Plugin ===
+Stable tag: 1.2.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+&lt;?php
+/**
+ * Plugin Name: Example Plugin
+ * Version: 1.3.0
+ */
+if ( isset( $_GET['name'] ) ) {
+    echo 'Hello, ' . $_GET['name'];
+}
+function example_save_settings() {
+    if ( isset( $_POST['example_option'] ) ) {
+        update_option( 'example_option', $_POST['example_option'] );
+    }
+}</pre>
+      <p>
+        Read start to finish, both files look ordinary: the readme has every required field, the plugin header
+        has a name and a version, and the code is short enough that nothing about it looks alarming. Run this
+        checker's own detection logic against it and it reports <strong>three separate issues</strong>: the
+        readme's <code>Stable tag: 1.2.0</code> does not match the header's <code>Version: 1.3.0</code>; the
+        <code>echo</code> on line 11 prints <code>$_GET['name']</code> with no escaping function; and
+        <code>example_save_settings()</code> reads <code>$_POST['example_option']</code> with no
+        <code>check_admin_referer</code>, <code>check_ajax_referer</code>, or <code>wp_verify_nonce</code> call
+        anywhere in the file. All required readme and header fields are present, so none of the three issues
+        is a missing-field problem a quick skim would catch -- each one needs the specific cross-check above.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Isn't reading the guidelines and checking my own code enough?</h3>
+      <p>It is the step every plugin author already takes, and it works for anything you can see in one place -- a missing License field, an obviously unescaped block. It works less well for anything that requires cross-referencing two files that live far apart (readme.txt's Stable tag against the main plugin file's Version header) or holding one rule in your head while scanning every line of every file in the plugin (does every $_POST read have a nonce check somewhere in this file?). Neither task is hard once you know to do it -- they are just easy to skip while reading for the dozens of other things the guidelines also cover.</p>
+      <h3>How easy is it really to miss a Stable tag mismatch by eye?</h3>
+      <p>In a 15-line worked example built specifically to demonstrate this tool -- short enough to read in ten seconds -- the readme.txt says Stable tag: 1.2.0 and the plugin file's header comment says Version: 1.3.0, three lines apart in two different files. A guidelines read-through checks each file looks correctly formatted; it does not by default diff the two version strings against each other, because nothing about reading either file in isolation calls attention to the other one.</p>
+      <h3>Why is a missing nonce check easy to miss in a manual read?</h3>
+      <p>Because the guidelines ask you to confirm a negative across an unbounded search: does any $_POST handler, anywhere in this file, lack a nonce check anywhere else in the same file? In a plugin with a handful of files that is tedious but doable. In a plugin with dozens of files handling forms, AJAX actions, and admin-post hooks, holding that question open while reading line by line is exactly the kind of check a deadline compresses first -- and unlike a formatting typo, a missing nonce check produces no visual cue that draws the eye.</p>
+      <h3>Does this tool replace reading the guidelines?</h3>
+      <p>No, and it checks only four specific, common patterns out of everything the Detailed Plugin Guidelines cover. Reading the guidelines is still how you learn what a first submission needs to look like at all. This tool exists for the narrower, mechanical part of that job -- cross-referencing two files and scanning every line for one of four patterns -- which is exactly the part a careful, unaided read-through is most likely to let through.</p>
+      <p>Already run wordpress.org's own <a href="vs-plugin-check.html">Plugin Check</a>? See how it compares to
+      this checker. More on the most common single issue: <a href="stable-tag-mismatch.html">Fixing a readme.txt
+      "Stable tag" mismatch</a>.</p>
+    </section>
+
+    <footer>
+      <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the
+      files you selected -- known readme.txt/plugin-header field names, and known WordPress escaping and
+      nonce function calls. It is a line-level and file-level heuristic, not data-flow analysis, and a clean
+      report is not a guarantee wordpress.org Plugin Review will pass -- verify against
+      <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">the Plugin Directory's current guidelines</a>
+      before you submit.</p>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+      express or implied. It is not legal or security advice, and it does not replace a qualified
+      professional or wordpress.org's own review process. You are responsible for reviewing and
+      verifying its output before relying on it, and for reading the Plugin Directory's own guidelines
+      yourself before submitting. To the maximum extent permitted by law, the authors accept no liability
+      for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow,
+      broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+      <p>Everything runs in your browser or as a local CLI. Files you select are never uploaded. We
+      count only anonymous local feature events, never people or file contents, with an opt-out on the
+      checker page. Do Not Track and Global Privacy Control are honoured. This page names no company or
+      product as a point of comparison -- only the generic habit of reading the guidelines and checking
+      your own files against them by eye, which every plugin author already does.</p>
+      <p>Not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., or
+      WordPress.org. WordPress&reg; is a registered trademark of the WordPress Foundation, named here only
+      to describe what this tool checks.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT
+      licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+      <li><a href="../docker-compose-security-check/" data-pf-to="docker-compose-security-check">What is your docker-compose.yml handing to the host?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wordpress-plugin-review-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="wordpress-plugin-review-check"></script>
+</body></html>

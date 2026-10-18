@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free UK tax, pay and benefits calculators | Open Tools and Research</title>
+  <meta name="description" content="Free UK calculators: take-home pay, Self Assessment, dividend tax, IR35, VAT schemes, pension relief, statutory pay and the £100k personal-allowance trap.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/uk-tax/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free UK tax, pay and benefits calculators">
+  <meta property="og:description" content="Free UK calculators: take-home pay, Self Assessment, dividend tax, IR35, VAT schemes, pension relief, statutory pay and the £100k personal-allowance trap.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/uk-tax/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-uk-tax.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Free UK tax, pay and benefits calculators — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Free UK tax, pay and benefits calculators","url":"https://duncan-haywood.github.io/monorepo-projects/c/uk-tax/","description":"Free UK calculators: take-home pay, Self Assessment, dividend tax, IR35, VAT schemes, pension relief, statutory pay and the £100k personal-allowance trap.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"UK tax, pay \u0026 benefits","item":"https://duncan-haywood.github.io/monorepo-projects/c/uk-tax/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":54,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-100k-tax-trap-calculator/","name":"UK £100k tax trap: what does the pension contribution really cost? Free, private"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-bonus-tax-calculator/","name":"UK bonus tax calculator: how much of my bonus do I keep? Free, private"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-capital-allowances-calculator/","name":"Capital allowances calculator: what can I deduct for equipment? Free, private"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-capital-gains-tax-calculator/","name":"UK Capital Gains Tax calculator 2025/26: how much CGT do I owe? Free, private"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-child-benefit-charge-calculator/","name":"UK Child Benefit charge calculator: how much do you lose over £60,000? Free, private"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-cis-deduction-refund-calculator/","name":"UK CIS deduction and refund calculator: free, private"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-company-car-tax-calculator/","name":"Company car tax calculator: what will this car cost me in tax? Free, private"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-directors-loan-s455-calculator/","name":"Director's loan s455 calculator: how much tax and by when? Free, private"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-dividend-tax-calculator/","name":"UK dividend tax calculator: how much tax on my dividends? Free, private"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-eis-seis-relief-calculator/","name":"EIS and SEIS calculator: what does my investment really cost? Free, private"},{"@type":"ListItem","position":11,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-emi-share-option-tax-calculator/","name":"EMI options tax calculator: what will I keep when I sell? Free, private"},{"@type":"ListItem","position":12,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-employer-hiring-cost-calculator/","name":"UK cost of hiring an employee: salary + employer NI + pension + extras. Free, private"},{"@type":"ListItem","position":13,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-gift-aid-higher-rate-relief-calculator/","name":"Gift Aid higher rate relief calculator: what does my donation really cost? Free, private"},{"@type":"ListItem","position":14,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-holiday-pay-calculator/","name":"UK holiday entitlement and holiday pay calculator: part-time, starters, leavers, irregular hours. Free, private"},{"@type":"ListItem","position":15,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-inheritance-tax-calculator/","name":"UK Inheritance Tax calculator: how much IHT on an estate? Free, private"},{"@type":"ListItem","position":16,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/","name":"IR35 inside vs outside, 2026/27: what the same day rate really pays"},{"@type":"ListItem","position":17,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-landlord-section-24-calculator/","name":"UK landlord Section 24 calculator: how much extra tax on my mortgage interest? Free, private"},{"@type":"ListItem","position":18,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-late-payment-interest-calculator/","name":"Late payment interest calculator: what can I charge on an overdue invoice? Free, private"},{"@type":"ListItem","position":19,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-lifetime-isa-vs-pension-calculator/","name":"Lifetime ISA or pension? Compare them on your own numbers. Free, private"},{"@type":"ListItem","position":20,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-marriage-allowance-calculator/","name":"UK Marriage Allowance calculator: do we qualify and what can we claim back? Free, private"},{"@type":"ListItem","position":21,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-mileage-allowance-calculator/","name":"UK Mileage Allowance Calculator 2026/27. Free, private"},{"@type":"ListItem","position":22,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-minimum-wage-checker/","name":"UK minimum wage checker 2026/27. Free, private"},{"@type":"ListItem","position":23,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-money-tools-finder/","name":"UK money tools finder: which tax or pay calculator do I need? Free, private"},{"@type":"ListItem","position":24,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-mortgage-overpayment-calculator/","name":"UK mortgage overpayment calculator: how much interest and time will I save? Free, private"},{"@type":"ListItem","position":25,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-mtd-income-tax-checker/","name":"Making Tax Digital checker: your start date and deadlines. Free, private"},{"@type":"ListItem","position":26,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-payments-on-account-calculator/","name":"UK payments on account calculator: what do I owe on 31 January and 31 July? Free, private"},{"@type":"ListItem","position":27,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-pension-annual-allowance-calculator/","name":"UK pension annual allowance: taper, carry forward and the charge. Free, private"},{"@type":"ListItem","position":28,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-pension-withdrawal-tax-calculator/","name":"Pension withdrawal tax calculator: how much will I keep? Free, private"},{"@type":"ListItem","position":29,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-rd-tax-relief-calculator/","name":"R\u0026D tax credits calculator: what is my claim worth? Free, private"},{"@type":"ListItem","position":30,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-redundancy-pay-calculator/","name":"UK redundancy pay calculator: what am I owed and how much is tax-free? Free, private"},{"@type":"ListItem","position":31,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-rent-a-room-relief-calculator/","name":"UK Rent a Room Relief calculator: relief or expenses, which is cheaper? Free, private"},{"@type":"ListItem","position":32,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-salary-sacrifice-calculator/","name":"Salary sacrifice calculator: how much does my pension really cost me? Free, private"},{"@type":"ListItem","position":33,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-savings-interest-tax-calculator/","name":"Do I pay tax on my savings interest? Free, private UK calculator"},{"@type":"ListItem","position":34,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-scottish-income-tax-calculator/","name":"Scottish income tax calculator: what do I keep from my salary in Scotland? Free, private"},{"@type":"ListItem","position":35,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-self-assessment-late-penalty-calculator/","name":"UK Self Assessment late penalty calculator: what does filing late cost? Free, private"},{"@type":"ListItem","position":36,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-self-assessment-tax-calculator/","name":"Self Assessment tax calculator: what will I owe on 31 January? Free, private"},{"@type":"ListItem","position":37,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-self-employed-tax-set-aside-calculator/","name":"UK Self-Employed Tax Set-Aside Calculator. Free, private"},{"@type":"ListItem","position":38,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-shared-parental-pay-planner/","name":"UK Shared Parental Pay planner 2026/27. Free, private"},{"@type":"ListItem","position":39,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-simplified-expenses-calculator/","name":"Simplified expenses or actual costs? Which claim is bigger for a UK sole trader"},{"@type":"ListItem","position":40,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-sole-trader-vs-limited-company-calculator/","name":"Sole trader vs limited company, UK 2026/27: what you actually keep"},{"@type":"ListItem","position":41,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-stamp-duty-calculator/","name":"UK Stamp Duty calculator: how much SDLT on my house? Free, private"},{"@type":"ListItem","position":42,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-state-pension-ni-years-checker/","name":"UK State Pension NI years checker 2026/27. Free, private"},{"@type":"ListItem","position":43,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-statutory-maternity-pay-calculator/","name":"UK Statutory Maternity Pay calculator 2026/27. Free, private"},{"@type":"ListItem","position":44,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-statutory-sick-pay-calculator/","name":"UK Statutory Sick Pay calculator 2026/27. Free, private"},{"@type":"ListItem","position":45,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-student-loan-repayment-calculator/","name":"UK student loan calculator: will yours be written off? Is overpaying worth it? Free, private"},{"@type":"ListItem","position":46,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-take-home-pay-calculator/","name":"UK take-home pay calculator: what do I keep from my salary? Free, private"},{"@type":"ListItem","position":47,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-tax-code-checker/","name":"UK tax code checker 2026/27. Free, private"},{"@type":"ListItem","position":48,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/","name":"Childcare costs after free hours and Tax-Free Childcare: free, private calculator"},{"@type":"ListItem","position":49,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-trading-allowance-calculator/","name":"UK trading allowance calculator: claim £1,000 or deduct expenses? Free, private"},{"@type":"ListItem","position":50,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-umbrella-company-take-home-calculator/","name":"Umbrella company calculator: what do I keep from my day rate? Free, private"},{"@type":"ListItem","position":51,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-unfair-dismissal-compensation-calculator/","name":"UK Unfair Dismissal Compensation Calculator 2026/27. Free, private"},{"@type":"ListItem","position":52,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-vat-flat-rate-scheme-calculator/","name":"Flat Rate Scheme or standard VAT? Which is cheaper for a UK small business"},{"@type":"ListItem","position":53,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-vat-registration-checker/","name":"Do I need to register for VAT? UK £90,000 threshold checker"},{"@type":"ListItem","position":54,"url":"https://duncan-haywood.github.io/monorepo-projects/uk-working-from-home-tax-relief-calculator/","name":"UK working from home tax relief: what can you still claim back?"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">UK tax, pay &amp; benefits</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">UK tax, pay &amp; benefits</p>
+      <h1>Free UK tax, pay and benefits calculators</h1>
+      <p class="lede">Each tool works one UK tax or pay question with HMRC rates and thresholds, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.</p>
+      <p class="count">54 free tools · no account · nothing you type is uploaded</p>
+    </header>
+
+    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these 54 tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>
+
+    <main>
+      <ul class="cards">
+          <li class="card">
+            <a href="../../uk-100k-tax-trap-calculator/" data-tool="uk-100k-tax-trap-calculator" data-pf-to="uk-100k-tax-trap-calculator">
+              <h3>UK £100k tax trap: what does the pension contribution really cost? Free, private</h3>
+            </a>
+            <p>Free UK 60% tax trap calculator for pay between £100,000 and £125,140: your real marginal rate, the pension contribution that restores your personal allowance and childcare, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-bonus-tax-calculator/" data-tool="uk-bonus-tax-calculator" data-pf-to="uk-bonus-tax-calculator">
+              <h3>UK bonus tax calculator: how much of my bonus do I keep? Free, private</h3>
+            </a>
+            <p>Free UK bonus tax calculator for 2026/27: how much of a bonus you keep after income tax, National Insurance, student loan, the 60% personal allowance trap and the Child Benefit…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-capital-allowances-calculator/" data-tool="uk-capital-allowances-calculator" data-pf-to="uk-capital-allowances-calculator">
+              <h3>Capital allowances calculator: what can I deduct for equipment? Free, private</h3>
+            </a>
+            <p>Free UK capital allowances calculator: how much of your equipment spend you can deduct this year under the Annual Investment Allowance, full expensing and writing-down allowances…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-capital-gains-tax-calculator/" data-tool="uk-capital-gains-tax-calculator" data-pf-to="uk-capital-gains-tax-calculator">
+              <h3>UK Capital Gains Tax calculator 2025/26: how much CGT do I owe? Free, private</h3>
+            </a>
+            <p>Free UK Capital Gains Tax calculator for 2025/26: enter the sale, costs, losses and your income to see the tax at 18% and 24%, the annual exempt amount and how to report it. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-child-benefit-charge-calculator/" data-tool="uk-child-benefit-charge-calculator" data-pf-to="uk-child-benefit-charge-calculator">
+              <h3>UK Child Benefit charge calculator: how much do you lose over £60,000? Free, private</h3>
+            </a>
+            <p>Free UK High Income Child Benefit Charge calculator: enter your income, pension and Gift Aid to see the clawback, how much pension avoids it, and whether to opt out of payments…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-cis-deduction-refund-calculator/" data-tool="uk-cis-deduction-refund-calculator" data-pf-to="uk-cis-deduction-refund-calculator">
+              <h3>UK CIS deduction and refund calculator: free, private</h3>
+            </a>
+            <p>Free UK CIS calculator for subcontractors: see the 20% or 30% deduction on an invoice, estimate your Self Assessment bill and Class 4 NI, and find out how much CIS tax you can…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-company-car-tax-calculator/" data-tool="uk-company-car-tax-calculator" data-pf-to="uk-company-car-tax-calculator">
+              <h3>Company car tax calculator: what will this car cost me in tax? Free, private</h3>
+            </a>
+            <p>Free UK company car tax calculator for 2026/27: benefit in kind for electric, plug-in hybrid and petrol or diesel cars, monthly tax at your rate, employer Class 1A, free-fuel…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-directors-loan-s455-calculator/" data-tool="uk-directors-loan-s455-calculator" data-pf-to="uk-directors-loan-s455-calculator">
+              <h3>Director's loan s455 calculator: how much tax and by when? Free, private</h3>
+            </a>
+            <p>Free UK director's loan calculator: the s455 tax on an overdrawn director's loan account, the date it is due, the benefit-in-kind on loans over £10,000, and whether a dividend, a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-dividend-tax-calculator/" data-tool="uk-dividend-tax-calculator" data-pf-to="uk-dividend-tax-calculator">
+              <h3>UK dividend tax calculator: how much tax on my dividends? Free, private</h3>
+            </a>
+            <p>Free UK dividend tax calculator for 2025/26 and 2026/27: enter your other income and dividends to see tax by band, the £500 dividend allowance and the cost of your next £1,000…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-eis-seis-relief-calculator/" data-tool="uk-eis-seis-relief-calculator" data-pf-to="uk-eis-seis-relief-calculator">
+              <h3>EIS and SEIS calculator: what does my investment really cost? Free, private</h3>
+            </a>
+            <p>Free UK EIS and SEIS calculator: income tax relief you can actually use, CGT deferral or reinvestment relief, loss relief if the company fails, and the break-even sale price. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-emi-share-option-tax-calculator/" data-tool="uk-emi-share-option-tax-calculator" data-pf-to="uk-emi-share-option-tax-calculator">
+              <h3>EMI options tax calculator: what will I keep when I sell? Free, private</h3>
+            </a>
+            <p>Free UK EMI option tax calculator: income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, what you keep after a sale, and a comparison with an…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-employer-hiring-cost-calculator/" data-tool="uk-employer-hiring-cost-calculator" data-pf-to="uk-employer-hiring-cost-calculator">
+              <h3>UK cost of hiring an employee: salary + employer NI + pension + extras. Free, private</h3>
+            </a>
+            <p>Free UK employer cost calculator: salary plus 15% employer National Insurance, workplace pension, Employment Allowance, equipment and recruitment. See the true monthly and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-gift-aid-higher-rate-relief-calculator/" data-tool="uk-gift-aid-higher-rate-relief-calculator" data-pf-to="uk-gift-aid-higher-rate-relief-calculator">
+              <h3>Gift Aid higher rate relief calculator: what does my donation really cost? Free, private</h3>
+            </a>
+            <p>Free UK Gift Aid calculator for higher and additional rate taxpayers: what the charity receives, the relief you reclaim, the carry-back to last tax year, and the gift that wins…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-holiday-pay-calculator/" data-tool="uk-holiday-pay-calculator" data-pf-to="uk-holiday-pay-calculator">
+              <h3>UK holiday entitlement and holiday pay calculator: part-time, starters, leavers, irregular hours. Free, private</h3>
+            </a>
+            <p>Free UK holiday entitlement calculator: 5.6 weeks pro-rated for part-time, starters and leavers, plus the 12.07% method for irregular hours, and what unused days are worth. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-inheritance-tax-calculator/" data-tool="uk-inheritance-tax-calculator" data-pf-to="uk-inheritance-tax-calculator">
+              <h3>UK Inheritance Tax calculator: how much IHT on an estate? Free, private</h3>
+            </a>
+            <p>Free UK Inheritance Tax calculator for deaths from April 2025: £325,000 nil-rate band, £175,000 residence nil-rate band with the £2 million taper, transferred spouse allowances…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-ir35-inside-outside-calculator/" data-tool="uk-ir35-inside-outside-calculator" data-pf-to="uk-ir35-inside-outside-calculator">
+              <h3>IR35 inside vs outside, 2026/27: what the same day rate really pays</h3>
+            </a>
+            <p>Free UK IR35 calculator: compare contractor take-home outside IR35 (own limited company, best salary and dividends) and inside IR35 (umbrella), and find the inside day rate that…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-landlord-section-24-calculator/" data-tool="uk-landlord-section-24-calculator" data-pf-to="uk-landlord-section-24-calculator">
+              <h3>UK landlord Section 24 calculator: how much extra tax on my mortgage interest? Free, private</h3>
+            </a>
+            <p>Free UK landlord Section 24 calculator for 2025/26 and 2026/27: enter rent, costs, mortgage interest and other income to see your tax bill, the 20% finance cost credit and how…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-late-payment-interest-calculator/" data-tool="uk-late-payment-interest-calculator" data-pf-to="uk-late-payment-interest-calculator">
+              <h3>Late payment interest calculator: what can I charge on an overdue invoice? Free, private</h3>
+            </a>
+            <p>Free UK late payment interest calculator: statutory interest at 8% over base rate, fixed compensation of £40, £70 or £100 and a ready-to-send demand letter for an overdue business…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-lifetime-isa-vs-pension-calculator/" data-tool="uk-lifetime-isa-vs-pension-calculator" data-pf-to="uk-lifetime-isa-vs-pension-calculator">
+              <h3>Lifetime ISA or pension? Compare them on your own numbers. Free, private</h3>
+            </a>
+            <p>Free UK Lifetime ISA vs pension calculator: per £1 of take-home pay, which pot is worth more at 60, for a first home or if you withdraw early, and the retirement tax rate or…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-marriage-allowance-calculator/" data-tool="uk-marriage-allowance-calculator" data-pf-to="uk-marriage-allowance-calculator">
+              <h3>UK Marriage Allowance calculator: do we qualify and what can we claim back? Free, private</h3>
+            </a>
+            <p>Free UK Marriage Allowance calculator for 2025/26 and 2026/27: enter both partners' incomes to see if you qualify, how much tax you save (up to £252 a year) and what a four-year…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-mileage-allowance-calculator/" data-tool="uk-mileage-allowance-calculator" data-pf-to="uk-mileage-allowance-calculator">
+              <h3>UK Mileage Allowance Calculator 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK business mileage calculator using HMRC approved rates (45p/25p). Employees: see tax relief on what your employer under-pays. Self-employed: compare simplified mileage with…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-minimum-wage-checker/" data-tool="uk-minimum-wage-checker" data-pf-to="uk-minimum-wage-checker">
+              <h3>UK minimum wage checker 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK minimum wage checker for 2026/27: enter pay, hours worked, deductions and accommodation to see the effective hourly rate against the National Living Wage and NMW, the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-money-tools-finder/" data-tool="uk-money-tools-finder" data-pf-to="uk-money-tools-finder">
+              <h3>UK money tools finder: which tax or pay calculator do I need? Free, private</h3>
+            </a>
+            <p>Tick what applies to you (employee, Scottish taxpayer, landlord, contractor, director, parent, buying a home) and get the right free UK tax, pay and employment calculators from 53…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-mortgage-overpayment-calculator/" data-tool="uk-mortgage-overpayment-calculator" data-pf-to="uk-mortgage-overpayment-calculator">
+              <h3>UK mortgage overpayment calculator: how much interest and time will I save? Free, private</h3>
+            </a>
+            <p>Free UK mortgage overpayment calculator: interest saved, years cut off the term, overpaying vs saving, the 10% early repayment charge allowance, and the overpayment needed to be…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-mtd-income-tax-checker/" data-tool="uk-mtd-income-tax-checker" data-pf-to="uk-mtd-income-tax-checker">
+              <h3>Making Tax Digital checker: your start date and deadlines. Free, private</h3>
+            </a>
+            <p>Free UK Making Tax Digital for Income Tax checker: enter your gross self-employment and property income to see if you must join, from which date (April 2026, 2027 or 2028), and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-payments-on-account-calculator/" data-tool="uk-payments-on-account-calculator" data-pf-to="uk-payments-on-account-calculator">
+              <h3>UK payments on account calculator: what do I owe on 31 January and 31 July? Free, private</h3>
+            </a>
+            <p>Free UK payments on account calculator: enter your Self Assessment bill to see the balancing payment, the two advance instalments, why your first January bill is about 150%, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-pension-annual-allowance-calculator/" data-tool="uk-pension-annual-allowance-calculator" data-pf-to="uk-pension-annual-allowance-calculator">
+              <h3>UK pension annual allowance: taper, carry forward and the charge. Free, private</h3>
+            </a>
+            <p>Free UK pension annual allowance calculator: your tapered allowance for incomes over £260,000, carry forward from the last three years, how much you can still pay in, and the tax…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-pension-withdrawal-tax-calculator/" data-tool="uk-pension-withdrawal-tax-calculator" data-pf-to="uk-pension-withdrawal-tax-calculator">
+              <h3>Pension withdrawal tax calculator: how much will I keep? Free, private</h3>
+            </a>
+            <p>Free UK pension withdrawal tax calculator: how much of a lump sum or UFPLS is tax-free, the tax you really owe, the emergency tax refund to expect and how spreading it over tax…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-rd-tax-relief-calculator/" data-tool="uk-rd-tax-relief-calculator" data-pf-to="uk-rd-tax-relief-calculator">
+              <h3>R&amp;D tax credits calculator: what is my claim worth? Free, private</h3>
+            </a>
+            <p>Free UK R&amp;D tax relief calculator: what the merged scheme credit or R&amp;D-intensive loss-maker relief is worth in cash or tax, the PAYE and NIC cap, and what a claims agency's…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-redundancy-pay-calculator/" data-tool="uk-redundancy-pay-calculator" data-pf-to="uk-redundancy-pay-calculator">
+              <h3>UK redundancy pay calculator: what am I owed and how much is tax-free? Free, private</h3>
+            </a>
+            <p>Free UK statutory redundancy pay calculator: enter your dates and weekly pay to see your redundancy pay, the weekly cap, your minimum notice and how much of it is tax-free. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-rent-a-room-relief-calculator/" data-tool="uk-rent-a-room-relief-calculator" data-pf-to="uk-rent-a-room-relief-calculator">
+              <h3>UK Rent a Room Relief calculator: relief or expenses, which is cheaper? Free, private</h3>
+            </a>
+            <p>Free UK Rent a Room Relief calculator for 2025/26 and 2026/27: enter your rent, expenses and other income to see whether the £7,500 relief or the normal rules costs less tax. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-salary-sacrifice-calculator/" data-tool="uk-salary-sacrifice-calculator" data-pf-to="uk-salary-sacrifice-calculator">
+              <h3>Salary sacrifice calculator: how much does my pension really cost me? Free, private</h3>
+            </a>
+            <p>Free UK salary sacrifice pension calculator for 2026/27: the same contribution by salary sacrifice, net pay and relief at source side by side, with income tax, National Insurance…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-savings-interest-tax-calculator/" data-tool="uk-savings-interest-tax-calculator" data-pf-to="uk-savings-interest-tax-calculator">
+              <h3>Do I pay tax on my savings interest? Free, private UK calculator</h3>
+            </a>
+            <p>Free UK savings interest tax calculator: how much tax you owe on bank and building society interest after the personal allowance, the 0% starting rate for savings and the Personal…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-scottish-income-tax-calculator/" data-tool="uk-scottish-income-tax-calculator" data-pf-to="uk-scottish-income-tax-calculator">
+              <h3>Scottish income tax calculator: what do I keep from my salary in Scotland? Free, private</h3>
+            </a>
+            <p>Free Scottish income tax calculator for 2026/27: the six Scottish bands (19% to 48%), National Insurance, student loan and pension, with monthly and weekly take-home pay and a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-self-assessment-late-penalty-calculator/" data-tool="uk-self-assessment-late-penalty-calculator" data-pf-to="uk-self-assessment-late-penalty-calculator">
+              <h3>UK Self Assessment late penalty calculator: what does filing late cost? Free, private</h3>
+            </a>
+            <p>Free UK Self Assessment late penalty calculator: enter your tax year, tax owed and the dates you filed and paid to see late filing penalties, late payment penalties, interest and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-self-assessment-tax-calculator/" data-tool="uk-self-assessment-tax-calculator" data-pf-to="uk-self-assessment-tax-calculator">
+              <h3>Self Assessment tax calculator: what will I owe on 31 January? Free, private</h3>
+            </a>
+            <p>Free UK Self Assessment tax calculator for 2025/26: combine employment, self-employed profit, rental income, savings and dividends. See income tax, Class 4 NIC, student loan, the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-self-employed-tax-set-aside-calculator/" data-tool="uk-self-employed-tax-set-aside-calculator" data-pf-to="uk-self-employed-tax-set-aside-calculator">
+              <h3>UK Self-Employed Tax Set-Aside Calculator. Free, private</h3>
+            </a>
+            <p>Free UK self-employed tax calculator: enter income and expenses to see income tax, Class 4 National Insurance, student loan, payments on account and how much of every invoice to…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-shared-parental-pay-planner/" data-tool="uk-shared-parental-pay-planner" data-pf-to="uk-shared-parental-pay-planner">
+              <h3>UK Shared Parental Pay planner 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK Shared Parental Pay planner for 2026/27: enter both parents' earnings and employment dates, choose how many weeks of maternity pay the mother takes, and compare how…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-simplified-expenses-calculator/" data-tool="uk-simplified-expenses-calculator" data-pf-to="uk-simplified-expenses-calculator">
+              <h3>Simplified expenses or actual costs? Which claim is bigger for a UK sole trader</h3>
+            </a>
+            <p>Free UK simplified expenses calculator for sole traders: compare HMRC's 45p/25p mileage rate and £10/£18/£26 use-of-home flat rate with your actual costs and see which claim is…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-sole-trader-vs-limited-company-calculator/" data-tool="uk-sole-trader-vs-limited-company-calculator" data-pf-to="uk-sole-trader-vs-limited-company-calculator">
+              <h3>Sole trader vs limited company, UK 2026/27: what you actually keep</h3>
+            </a>
+            <p>Free UK calculator: compare what you keep as a sole trader or limited company director in 2026/27. Finds the best salary and dividend split, shows every tax line, and flags the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-stamp-duty-calculator/" data-tool="uk-stamp-duty-calculator" data-pf-to="uk-stamp-duty-calculator">
+              <h3>UK Stamp Duty calculator: how much SDLT on my house? Free, private</h3>
+            </a>
+            <p>Free UK Stamp Duty (SDLT) calculator for England and Northern Ireland from April 2025: standard rates, first-time buyer relief, the 5% second home and buy-to-let rate and the 2%…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-state-pension-ni-years-checker/" data-tool="uk-state-pension-ni-years-checker" data-pf-to="uk-state-pension-ni-years-checker">
+              <h3>UK State Pension NI years checker 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK State Pension checker for 2026/27: your State Pension age, projected qualifying years, whether to buy voluntary Class 3 National Insurance years, the cost, the extra…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-statutory-maternity-pay-calculator/" data-tool="uk-statutory-maternity-pay-calculator" data-pf-to="uk-statutory-maternity-pay-calculator">
+              <h3>UK Statutory Maternity Pay calculator 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK SMP calculator for 2026/27: enter the due date, average weekly earnings and employment start to check eligibility, the qualifying week, the 39-week pay schedule and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-statutory-sick-pay-calculator/" data-tool="uk-statutory-sick-pay-calculator" data-pf-to="uk-statutory-sick-pay-calculator">
+              <h3>UK Statutory Sick Pay calculator 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK SSP calculator for 2026/27: enter average weekly earnings, qualifying days and sickness dates to see the weekly and daily rate, days paid and total SSP due, including the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-student-loan-repayment-calculator/" data-tool="uk-student-loan-repayment-calculator" data-pf-to="uk-student-loan-repayment-calculator">
+              <h3>UK student loan calculator: will yours be written off? Is overpaying worth it? Free, private</h3>
+            </a>
+            <p>Free UK student loan calculator for Plan 1, 2, 4, 5 and Postgraduate loans: monthly deduction, when you clear it, how much is written off, and whether overpaying is worth it. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-take-home-pay-calculator/" data-tool="uk-take-home-pay-calculator" data-pf-to="uk-take-home-pay-calculator">
+              <h3>UK take-home pay calculator: what do I keep from my salary? Free, private</h3>
+            </a>
+            <p>Free UK take-home pay calculator for 2025/26: income tax, National Insurance, student loan and pension by salary sacrifice, net pay or relief at source, with monthly and weekly…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-tax-code-checker/" data-tool="uk-tax-code-checker" data-pf-to="uk-tax-code-checker">
+              <h3>UK tax code checker 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK tax code checker for 2026/27: decode any PAYE tax code (1257L, BR, 0T, K, M1/W1 emergency), see if your payslip tax matches it, estimate an overpayment, and work out what…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-tax-free-childcare-calculator/" data-tool="uk-tax-free-childcare-calculator" data-pf-to="uk-tax-free-childcare-calculator">
+              <h3>Childcare costs after free hours and Tax-Free Childcare: free, private calculator</h3>
+            </a>
+            <p>Free UK Tax-Free Childcare and 30 hours calculator for England: do you qualify, the value of free hours, the 20% top-up, what you pay a month and the Universal Credit alternative…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-trading-allowance-calculator/" data-tool="uk-trading-allowance-calculator" data-pf-to="uk-trading-allowance-calculator">
+              <h3>UK trading allowance calculator: claim £1,000 or deduct expenses? Free, private</h3>
+            </a>
+            <p>Free UK trading allowance calculator: enter your side-hustle income and expenses to see whether to claim the £1,000 allowance or deduct costs, with the income tax and Class 4 NIC…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-umbrella-company-take-home-calculator/" data-tool="uk-umbrella-company-take-home-calculator" data-pf-to="uk-umbrella-company-take-home-calculator">
+              <h3>Umbrella company calculator: what do I keep from my day rate? Free, private</h3>
+            </a>
+            <p>Free UK umbrella company calculator for 2026/27: enter your agency day rate and see employer NI, umbrella margin, tax, NI and take-home pay per day, week and month, plus the day…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-unfair-dismissal-compensation-calculator/" data-tool="uk-unfair-dismissal-compensation-calculator" data-pf-to="uk-unfair-dismissal-compensation-calculator">
+              <h3>UK Unfair Dismissal Compensation Calculator 2026/27. Free, private</h3>
+            </a>
+            <p>Free UK unfair dismissal compensation estimate: basic award, compensatory award, the 52-week cap, Polkey and ACAS adjustments, and your claim deadline. Runs in your browser…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-vat-flat-rate-scheme-calculator/" data-tool="uk-vat-flat-rate-scheme-calculator" data-pf-to="uk-vat-flat-rate-scheme-calculator">
+              <h3>Flat Rate Scheme or standard VAT? Which is cheaper for a UK small business</h3>
+            </a>
+            <p>Free UK VAT Flat Rate Scheme calculator: compare the flat rate for your trade, the 16.5% limited cost trader rate and the 1% first-year discount with standard VAT accounting and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-vat-registration-checker/" data-tool="uk-vat-registration-checker" data-pf-to="uk-vat-registration-checker">
+              <h3>Do I need to register for VAT? UK £90,000 threshold checker</h3>
+            </a>
+            <p>Free UK tool: paste your monthly sales to see if your rolling 12-month turnover has passed the £90,000 VAT threshold, the date you must tell HMRC, when registration starts, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../uk-working-from-home-tax-relief-calculator/" data-tool="uk-working-from-home-tax-relief-calculator" data-pf-to="uk-working-from-home-tax-relief-calculator">
+              <h3>UK working from home tax relief: what can you still claim back?</h3>
+            </a>
+            <p>Free UK calculator: the £6 a week working from home tax relief ended in April 2026, but 2022/23 to 2025/26 can still be claimed. See your refund per year and each deadline. Runs…</p>
+            
+          </li>
+      </ul>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/self-hosted/">Self-hosted business apps</a> <span>(30)</span></li>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../../c/evidence/">Free compliance check and evidence record tools</a> <span>(116)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../../c/ci/">Free CI checks and developer gates</a> <span>(173)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/uk-tax" defer></script>
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>
+</body>
+</html>

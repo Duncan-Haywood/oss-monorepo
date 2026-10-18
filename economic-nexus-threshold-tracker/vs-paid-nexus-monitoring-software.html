@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This tracker vs. paid nexus-monitoring software (Avalara, TaxJar)</title>
+<meta name="description" content="Avalara and TaxJar are ongoing paid platforms that connect to your sales channels and continuously monitor, calculate, and file.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/vs-paid-nexus-monitoring-software.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tracker vs. paid nexus-monitoring software">
+<meta property="og:description" content="A free, one-time economic-nexus threshold check vs. an ongoing paid monitoring subscription -- what each one actually does, and when a seller needs which.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does paid nexus-monitoring software like Avalara or TaxJar actually do that this tracker doesn't?","acceptedAnswer":{"@type":"Answer","text":"A paid platform connects directly to your sales channels (Shopify, Amazon, your payment processor) via API, continuously tallies your rolling sales by state as new orders come in, alerts you automatically the moment you approach or cross a threshold, and in most plans calculates and files the actual sales tax returns once you're registered. This tracker does none of the ongoing, connected, or filing parts -- it answers one question, once, with numbers you type in yourself."}},{"@type":"Question","name":"When is a free one-time check enough, and when do I need an ongoing paid platform?","acceptedAnswer":{"@type":"Answer","text":"A one-time or periodic check is enough for a seller who wants to know where they stand today, especially one not yet close to any threshold or selling into only a handful of states. An ongoing paid platform earns its subscription once you're registered in multiple states and need returns actually calculated and filed on a recurring deadline, or once your sales are large and volatile enough that a threshold could be crossed between the times you'd remember to check by hand."}},{"@type":"Question","name":"Does this tracker replace an accountant or a paid platform once I've crossed a threshold?","acceptedAnswer":{"@type":"Answer","text":"No. Crossing a threshold is the start of a registration and filing process, not the end of one -- you still need to register with the state, determine what's taxable, calculate the tax, and file on that state's schedule. This tracker's job stops at telling you which states to look into next."}},{"@type":"Question","name":"Is my sales data safer in this tracker than in a paid platform?","acceptedAnswer":{"@type":"Answer","text":"This tracker never uploads anything -- every number you enter stays in your browser's local storage and is never sent to a server, so there's no account to breach and no data of yours held anywhere. A connected paid platform necessarily holds your sales data on its servers in order to do the continuous monitoring and filing it's built for; that's a reasonable tradeoff for the functionality, but it is a tradeoff this tracker doesn't ask you to make."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #17251f; background: #f5f1e8; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #b44f2f; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #b44f2f; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #b44f2f; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fffdf8; border: 1px solid #d9d2c4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3c2e1812; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef2ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5b6b63; }
+  .note, footer { font-size: .86rem; color: #5b6b63; }
+  footer { margin-top: 28px; border-top: 1px solid #d9d2c4; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/vs-paid-nexus-monitoring-software.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tracker vs. paid nexus-monitoring software — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../economic-nexus-threshold-tracker/">Economic Nexus Threshold Tracker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tracker vs. paid nexus-monitoring software</span></span></nav>
+<p class="note"><a href="./">&larr; back to the tracker</a></p>
+<h1>This tracker vs. paid nexus-monitoring software</h1>
+<p class="lede">Avalara and TaxJar are the two names sellers hear most often for sales-tax nexus monitoring, and both are real, capable platforms doing a genuinely different job from this page. This free tracker answers one question -- which states have I crossed a threshold in, right now, with the numbers I already have -- without an account, an integration, or a subscription. Here is exactly where each tool fits.</p>
+
+<section class="card">
+<h2>What each one actually does</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Job</th><th scope="col">This tracker</th><th scope="col">Avalara / TaxJar (paid, ongoing)</th></tr></thead>
+<tbody>
+<tr><td>How you check a threshold</td><td>Type in your trailing-12-month sales by state, by hand, whenever you want to check.</td><td>Connects to your sales channels via API and tallies your rolling totals automatically as orders come in.</td></tr>
+<tr><td>How you find out you've crossed one</td><td>You re-run the check yourself and read the result.</td><td>Sends an automatic alert the moment a threshold is approached or crossed.</td></tr>
+<tr><td>What happens after you've crossed a threshold</td><td>Nothing -- it names the states, and you take it from there.</td><td>Most plans can calculate and file the actual sales tax returns for you on an ongoing basis.</td></tr>
+<tr><td>Cost</td><td>Free.</td><td>Ongoing subscription, priced by transaction volume or number of states.</td></tr>
+<tr><td>Where your sales data goes</td><td>Nowhere -- stays in your browser's local storage, never uploaded.</td><td>Held on the platform's servers, which is what makes the continuous monitoring and filing possible.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does paid nexus-monitoring software like Avalara or TaxJar actually do that this tracker doesn't?</h3>
+<p>A paid platform connects directly to your sales channels (Shopify, Amazon, your payment processor) via API, continuously tallies your rolling sales by state as new orders come in, alerts you automatically the moment you approach or cross a threshold, and in most plans calculates and files the actual sales tax returns once you're registered. This tracker does none of the ongoing, connected, or filing parts -- it answers one question, once, with numbers you type in yourself.</p>
+<h3>When is a free one-time check enough, and when do I need an ongoing paid platform?</h3>
+<p>A one-time or periodic check is enough for a seller who wants to know where they stand today, especially one not yet close to any threshold or selling into only a handful of states. An ongoing paid platform earns its subscription once you're registered in multiple states and need returns actually calculated and filed on a recurring deadline, or once your sales are large and volatile enough that a threshold could be crossed between the times you'd remember to check by hand.</p>
+<h3>Does this tracker replace an accountant or a paid platform once I've crossed a threshold?</h3>
+<p>No. Crossing a threshold is the start of a registration and filing process, not the end of one -- you still need to register with the state, determine what's taxable, calculate the tax, and file on that state's schedule. This tracker's job stops at telling you which states to look into next.</p>
+<h3>Is my sales data safer in this tracker than in a paid platform?</h3>
+<p>This tracker never uploads anything -- every number you enter stays in your browser's local storage and is never sent to a server, so there's no account to breach and no data of yours held anywhere. A connected paid platform necessarily holds your sales data on its servers in order to do the continuous monitoring and filing it's built for; that's a reasonable tradeoff for the functionality, but it is a tradeoff this tracker doesn't ask you to make.</p>
+</section>
+
+<footer>
+<p><strong>Not affiliated with, endorsed by, or sponsored by Avalara or TaxJar.</strong> Avalara and TaxJar are trademarks of their respective owners, named here only to describe what this free tracker is and is not. Their features are described from their own public marketing and documentation as of this writing and may have changed since.</p>
+<p><strong>No warranty.</strong> This page and the linked tracker are not legal, tax, or financial advice, and threshold figures are compiled from secondary sources, not an independent fifty-state statute review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The tracker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the tracker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../square-sales-to-journal/" data-pf-to="square-sales-to-journal">Square sales to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../stripe-payout-to-journal/" data-pf-to="stripe-payout-to-journal">Stripe payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../teachable-payout-to-journal/" data-pf-to="teachable-payout-to-journal">Teachable transactions to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../time-tracker/" data-pf-to="time-tracker">Time Tracker — free billable hours timer, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=economic-nexus-threshold-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="economic-nexus-threshold-tracker"></script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Job Application Tracker — Free, Private, No Sign-Up</title>
+  <meta name="description" content="Free job application tracker that stays on your device: no account, nothing uploaded. Log applications, get follow-up reminders (calendar export)…">
+  <meta property="og:title" content="Job Application Tracker — free, private, no sign-up">
+  <meta property="og:description" content="Track applications, follow-ups and which job sources get replies. Runs in your browser; your data never leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Job Application Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private, browser-only job application tracker with follow-up reminders, calendar (.ics) export, CSV import and export, and a funnel showing which sources reply. Data stays in local storage on your device."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where is my job search data stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your browser's local storage on this device. Nothing is uploaded and there is no account. Because of that, clearing site data deletes it, so use Export CSV regularly to keep a copy."}},{"@type":"Question","name":"When should I follow up on a job application?","acceptedAnswer":{"@type":"Answer","text":"A common rule of thumb is about a week after applying and a few days after an interview. The tracker defaults to those gaps and lets you set any date you prefer; they are conventions, not guarantees about any employer."}},{"@type":"Question","name":"Can I move my spreadsheet into it?","acceptedAnswer":{"@type":"Answer","text":"Yes. Import a CSV with columns named company, role, source, link, salary, status, applied (YYYY-MM-DD), followUp and notes; column order does not matter and unrecognised columns are ignored."}},{"@type":"Question","name":"How do I get reminders?","acceptedAnswer":{"@type":"Answer","text":"Download the calendar file (.ics) and open it in Google Calendar, Apple Calendar or Outlook. It contains an all-day event for each pending follow-up. The page itself does not send notifications."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f4; }
+    body { max-width: 1100px; margin: auto; padding: 24px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.08; margin: 0 0 12px; color: #0b4a3a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b4a3a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d5a56; }
+    .card { background: #fff; border: 1px solid #d3dedb; border-radius: 14px; padding: 20px; margin: 16px 0; box-shadow: 0 6px 18px #0b4a3a10; }
+    form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    label { display: grid; gap: 4px; font-size: .85rem; font-weight: 600; }
+    input, select, textarea { font: inherit; padding: 8px; border: 1px solid #a9bbb6; border-radius: 7px; box-sizing: border-box; width: 100%; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #0f7a5f; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e1ece9; color: #0b4a3a; }
+    button.small { padding: 4px 9px; font-size: .8rem; margin: 0 4px 4px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e3ebe9; vertical-align: top; }
+    th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5a56; }
+    .tablewrap { overflow-x: auto; }
+    .due { color: #9a3412; font-weight: 700; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; background: #e1ece9; color: #0b4a3a; }
+    .pill.offer { background: #d6f2df; color: #14532d; }
+    .pill.rejected, .pill.ghosted, .pill.withdrawn { background: #eceaea; color: #5b5353; }
+    .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .tile { background: #f2f5f4; border-radius: 10px; padding: 10px 14px; min-width: 110px; }
+    .tile b { display: block; font-size: 1.5rem; color: #0b4a3a; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 26px; border-top: 1px solid #d3dedb; padding-top: 14px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Job Application Tracker — free, private, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Job Application Tracker — free, private, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Job Application Tracker — free, private, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">JOB APPLICATION TRACKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Know who to follow up with today — and which sources actually reply.</h1>
+    <p>Log each application once. This page tells you which follow-ups are due, flags applications that have gone quiet for a month, and shows your reply rate by source so you can see whether LinkedIn, referrals or company sites deserve the next hour. No account, no sync, no upload — your list lives in this browser and exports to CSV whenever you want it.</p>
+  </header>
+
+  <section class="card" aria-live="polite">
+    <h2>Today</h2>
+    <div class="tiles" id="tiles"></div>
+    <div id="actions"><p class="note">Add your first application below, or load the example.</p></div>
+  </section>
+
+  <section class="card">
+    <h2 id="form-title">Add an application</h2>
+    <form id="app-form" class="grid">
+      <label>Company <input id="f-company" required autocomplete="off"></label>
+      <label>Role <input id="f-role" autocomplete="off"></label>
+      <label>Source <input id="f-source" list="sources" placeholder="LinkedIn, referral, company site…" autocomplete="off"></label>
+      <datalist id="sources"><option value="LinkedIn"><option value="Referral"><option value="Company site"><option value="Indeed"><option value="Recruiter"><option value="Job board"></datalist>
+      <label>Date applied <input id="f-applied" type="date" required></label>
+      <label>Status <select id="f-status"></select></label>
+      <label>Posting link <input id="f-link" type="url" placeholder="https://…"></label>
+      <label>Salary (yearly, optional) <input id="f-salary" type="number" min="0" step="1000" inputmode="numeric"></label>
+      <label>Follow up on (optional) <input id="f-followup" type="date"></label>
+      <label style="grid-column: 1 / -1">Notes <textarea id="f-notes" rows="2"></textarea></label>
+      <div style="grid-column: 1 / -1">
+        <button type="submit" id="save">Save application</button>
+        <button type="button" class="secondary" id="cancel" hidden>Cancel edit</button>
+        <button type="button" class="secondary" id="example">Load example data</button>
+      </div>
+    </form>
+    <p class="note" id="form-status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Your applications</h2>
+    <label style="max-width:260px">Show <select id="filter"><option value="open">Open (not closed out)</option><option value="all">Everything</option></select></label>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Company / role</th><th>Source</th><th>Status</th><th>Applied</th><th>Follow up</th><th>Actions</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div></div>
+    <p>
+      <button type="button" class="secondary" id="export-csv">Export CSV</button>
+      <button type="button" class="secondary" id="export-ics">Download follow-up calendar (.ics)</button>
+      <button type="button" class="secondary" id="export-json">Backup (JSON)</button>
+      <label style="display:inline-grid;margin-top:6px">Import CSV or JSON backup <input id="import" type="file" accept=".csv,.json,text/csv,application/json"></label>
+    </p>
+    <p class="note" id="io-status">Your data is only in this browser. Clearing site data deletes it — export a copy now and then.</p>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <h2>Which sources reply</h2>
+    <div class="tiles" id="funnel-tiles"></div>
+    <p id="insight" class="note"></p>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Source</th><th>Sent</th><th>Replied</th><th>Reply rate</th><th>Interviews</th></tr></thead>
+      <tbody id="source-rows"></tbody>
+    </table></div></div>
+    <p class="note" id="weeks"></p>
+    <p class="note">A reply is any move to screen, interview, offer or rejection. Small samples are noisy: this is a hint about where to spend effort, not a measure of your worth or of any employer.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Where is my job search data stored?</h3>
+    <p>Only in your browser's local storage on this device. Nothing is uploaded and there is no account. Because of that, clearing site data deletes it, so use Export CSV regularly to keep a copy.</p>
+    <h3>When should I follow up on a job application?</h3>
+    <p>A common rule of thumb is about a week after applying and a few days after an interview. The tracker defaults to those gaps and lets you set any date you prefer; they are conventions, not guarantees about any employer. More in <a href="when-to-follow-up-on-a-job-application.html">when to follow up on a job application</a>.</p>
+    <h3>Can I move my spreadsheet into it?</h3>
+    <p>Yes. Import a CSV with columns named company, role, source, link, salary, status, applied (YYYY-MM-DD), followUp and notes; column order does not matter and unrecognised columns are ignored. See <a href="vs-a-spreadsheet.html">how this compares to a spreadsheet</a>.</p>
+    <h3>How do I get reminders?</h3>
+    <p>Download the calendar file (.ics) and open it in Google Calendar, Apple Calendar or Outlook. It contains an all-day event for each pending follow-up. The page itself does not send notifications. Also check your resume's format with the <a href="../ats-resume-checker/">ATS resume checker</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and follow-up timing and reply-rate figures are conventions and summaries of what you typed, not predictions about any employer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — export your list to keep it.</p>
+    <p>Everything runs in your browser. Your applications are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>app_saved</code>, <code>csv_exported</code>, <code>ics_exported</code>, <code>import_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { STATUSES, normalizeApp, setStatus, nextFollowUp, nextActions, ghostCandidates, funnel, insight, toCsv, fromCsv, toIcs, newId } from "./tracker.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const KEY = "job-application-tracker-data";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const todayIso = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+    const safeLink = (u) => /^https?:\/\//i.test(u) ? u : "";
+
+    let apps = [];
+    let editing = null;
+    try { const raw = JSON.parse(localStorage.getItem(KEY) || "[]"); apps = (Array.isArray(raw) ? raw : []).map(normalizeApp).filter(Boolean); } catch { apps = []; }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(apps)); } catch { $("#io-status").innerHTML = '<span class="error">Could not save to this browser (storage is blocked or full). Export a CSV now so you do not lose this list.</span>'; } }
+
+    $("#f-status").innerHTML = STATUSES.map((s) => `<option value="${s}"${s === "applied" ? " selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("");
+    $("#f-applied").value = todayIso();
+
+    function download(name, text, type) {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function render() {
+      const today = todayIso();
+      const f = funnel(apps, today);
+      const acts = nextActions(apps, today);
+      const ghosts = ghostCandidates(apps, today);
+      $("#tiles").innerHTML = [["Follow-ups due", acts.filter((a) => a.daysLate >= 0).length], ["Open", apps.filter((a) => ["applied", "screen", "interview", "offer"].includes(a.status)).length], ["Quiet 30+ days", ghosts.length]]
+        .map(([k, v]) => `<div class="tile"><b>${v}</b>${k}</div>`).join("");
+      let html = acts.map((x) => `<p>${x.daysLate > 0 ? `<span class="due">${x.daysLate} day${x.daysLate === 1 ? "" : "s"} overdue</span>` : x.daysLate === 0 ? '<span class="due">Due today</span>' : `Due in ${-x.daysLate} day${x.daysLate === -1 ? "" : "s"}`} — follow up with <strong>${esc(x.app.company || x.app.role)}</strong>${x.app.company && x.app.role ? ` (${esc(x.app.role)})` : ""} <button type="button" class="small secondary" data-act="snooze" data-id="${esc(x.app.id)}">Snooze 3 days</button></p>`).join("");
+      if (ghosts.length) html += `<p class="note">${ghosts.length} application${ghosts.length === 1 ? " has" : "s have"} had no reply for 30+ days: ${ghosts.slice(0, 5).map((g) => esc(g.company || g.role)).join(", ")}${ghosts.length > 5 ? "…" : ""}. Consider marking ${ghosts.length === 1 ? "it" : "them"} ghosted to keep your list honest.</p>`;
+      $("#actions").innerHTML = html || '<p class="note">Nothing due. Add an application below, or load the example.</p>';
+
+      const open = $("#filter").value === "open";
+      const shown = apps.filter((a) => !open || ["wishlist", "applied", "screen", "interview", "offer"].includes(a.status));
+      $("#rows").innerHTML = shown.map((a) => {
+        const due = nextFollowUp(a);
+        const link = safeLink(a.link);
+        return `<tr><td><strong>${esc(a.company)}</strong><br>${link ? `<a href="${esc(link)}" rel="noopener noreferrer">${esc(a.role || "posting")}</a>` : esc(a.role)}${a.notes ? `<br><span class="note">${esc(a.notes)}</span>` : ""}</td><td>${esc(a.source)}</td><td><span class="pill ${esc(a.status)}">${esc(a.status)}</span></td><td>${esc(a.applied)}</td><td${due && due <= today ? ' class="due"' : ""}>${esc(due)}</td><td>
+          <label class="note">Move to <select data-act="status" data-id="${esc(a.id)}" aria-label="Change status for ${esc(a.company || a.role)}"><option value="">…</option>${STATUSES.filter((s) => s !== a.status).map((s) => `<option value="${s}">${s}</option>`).join("")}</select></label>
+          <button type="button" class="small secondary" data-act="edit" data-id="${esc(a.id)}">Edit</button><button type="button" class="small secondary" data-act="delete" data-id="${esc(a.id)}">Delete</button></td></tr>`;
+      }).join("") || '<tr><td colspan="6" class="note">Nothing to show yet.</td></tr>';
+
+      $("#funnel-tiles").innerHTML = [["Sent", f.sent], ["Reply rate", f.responseRate === null ? "–" : f.responseRate + "%"], ["Interview rate", f.interviewRate === null ? "–" : f.interviewRate + "%"], ["Offers", f.offers], ["Median days to reply", f.medianDaysToResponse === null ? "–" : f.medianDaysToResponse]]
+        .map(([k, v]) => `<div class="tile"><b>${v}</b>${k}</div>`).join("");
+      $("#insight").textContent = insight(f);
+      $("#source-rows").innerHTML = f.sources.map((s) => `<tr><td>${esc(s.source)}</td><td>${s.sent}</td><td>${s.responded}</td><td>${s.responseRate}%</td><td>${s.interviewed}</td></tr>`).join("") || '<tr><td colspan="5" class="note">No applications sent yet.</td></tr>';
+      $("#weeks").textContent = f.sent ? "Applications sent, last four weeks (oldest first): " + f.weeks.map((w) => w.sent).join(" · ") : "";
+    }
+
+    function resetForm() {
+      editing = null; $("#app-form").reset(); $("#f-applied").value = todayIso(); $("#f-status").value = "applied";
+      $("#form-title").textContent = "Add an application"; $("#cancel").hidden = true; $("#save").textContent = "Save application";
+    }
+
+    $("#app-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const raw = { company: $("#f-company").value, role: $("#f-role").value, source: $("#f-source").value, link: $("#f-link").value, salary: $("#f-salary").value, status: $("#f-status").value, applied: $("#f-applied").value, followUp: $("#f-followup").value, notes: $("#f-notes").value };
+      if (editing) {
+        const old = apps.find((a) => a.id === editing);
+        const next = normalizeApp({ ...old, ...raw, id: old.id, history: old.history });
+        if (next) { const moved = next.status !== old.status ? setStatus({ ...next, status: old.status }, next.status, todayIso()) : next; apps = apps.map((a) => (a.id === old.id ? moved : a)); }
+      } else {
+        const a = normalizeApp({ ...raw, id: newId() });
+        if (!a) { $("#form-status").innerHTML = '<span class="error">Enter a company or a role.</span>'; return; }
+        apps.push(a);
+      }
+      persist(); record("app_saved"); resetForm(); $("#form-status").textContent = "Saved."; render();
+    });
+    $("#cancel").addEventListener("click", resetForm);
+    $("#filter").addEventListener("change", render);
+
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-act]"); if (!b) return;
+      const id = b.dataset.id, a = apps.find((x) => x.id === id); if (!a) return;
+      if (b.dataset.act === "delete") { if (confirm(`Delete ${a.company || a.role}? This cannot be undone.`)) { apps = apps.filter((x) => x.id !== id); persist(); render(); } }
+      if (b.dataset.act === "snooze") { apps = apps.map((x) => (x.id === id ? { ...x, followUp: new Date(Date.parse(todayIso() + "T00:00:00Z") + 3 * 86400000).toISOString().slice(0, 10) } : x)); persist(); render(); }
+      if (b.dataset.act === "edit") {
+        editing = id; $("#f-company").value = a.company; $("#f-role").value = a.role; $("#f-source").value = a.source; $("#f-link").value = a.link; $("#f-salary").value = a.salary ?? ""; $("#f-status").value = a.status; $("#f-applied").value = a.applied; $("#f-followup").value = a.followUp; $("#f-notes").value = a.notes;
+        $("#form-title").textContent = "Edit application"; $("#cancel").hidden = false; $("#save").textContent = "Save changes"; $("#app-form").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+    document.addEventListener("change", (e) => {
+      const s = e.target.closest("select[data-act=status]"); if (!s || !s.value) return;
+      apps = apps.map((x) => (x.id === s.dataset.id ? setStatus(x, s.value, todayIso()) : x)); persist(); render();
+    });
+
+    $("#example").addEventListener("click", () => {
+      const t = todayIso(); const day = (n) => new Date(Date.parse(t + "T00:00:00Z") - n * 86400000).toISOString().slice(0, 10);
+      const ex = [
+        ["Northwind Logistics", "Operations Analyst", "LinkedIn", "applied", day(9)], ["Contoso Health", "Data Analyst", "Referral", "interview", day(12), "interview", day(4)],
+        ["Fabrikam", "Business Analyst", "LinkedIn", "applied", day(35)], ["Litware", "Ops Manager", "Company site", "rejected", day(20), "rejected", day(10)],
+        ["Tailspin", "Analyst", "LinkedIn", "applied", day(3)], ["Adventure Works", "Planner", "Referral", "screen", day(8), "screen", day(5)],
+      ].map(([company, role, source, status, applied, st, when]) => { let a = normalizeApp({ id: newId(), company, role, source, status: "applied", applied }); if (st) a = setStatus(a, st, when); return a; });
+      apps = apps.concat(ex); persist(); record("example_loaded"); render();
+    });
+
+    $("#export-csv").addEventListener("click", () => { download("job-applications.csv", toCsv(apps), "text/csv"); record("csv_exported"); });
+    $("#export-ics").addEventListener("click", () => {
+      const n = (toIcs(apps).match(/BEGIN:VEVENT/g) || []).length;
+      if (!n) { $("#io-status").innerHTML = '<span class="error">No pending follow-ups to export.</span>'; return; }
+      download("job-follow-ups.ics", toIcs(apps), "text/calendar"); record("ics_exported"); $("#io-status").textContent = `Calendar file with ${n} follow-up${n === 1 ? "" : "s"} downloaded.`;
+    });
+    $("#export-json").addEventListener("click", () => download("job-applications-backup.json", JSON.stringify(apps, null, 2), "application/json"));
+    $("#import").addEventListener("change", async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const text = await file.text(); let incoming = [], skipped = 0;
+      if (/\.json$/i.test(file.name)) { try { const raw = JSON.parse(text); incoming = (Array.isArray(raw) ? raw : []).map(normalizeApp).filter(Boolean); skipped = (Array.isArray(raw) ? raw.length : 0) - incoming.length; } catch { /* reported below */ } }
+      else ({ apps: incoming, skipped } = fromCsv(text));
+      if (!incoming.length) { $("#io-status").innerHTML = '<span class="error">Nothing importable found. A CSV needs a header row with at least a company or role column.</span>'; return; }
+      const have = new Set(apps.map((a) => `${a.company}|${a.role}|${a.applied}`.toLowerCase()));
+      const fresh = incoming.filter((a) => !have.has(`${a.company}|${a.role}|${a.applied}`.toLowerCase()));
+      apps = apps.concat(fresh.map((a) => ({ ...a, id: newId() }))); persist(); record("import_run"); render();
+      $("#io-status").textContent = `Imported ${fresh.length} application${fresh.length === 1 ? "" : "s"}${incoming.length - fresh.length ? `, ${incoming.length - fresh.length} already present` : ""}${skipped ? `, ${skipped} row${skipped === 1 ? "" : "s"} skipped` : ""}.`;
+      e.target.value = "";
+    });
+
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    render();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+      <li><a href="../bai2-to-ofx-converter/" data-pf-to="bai2-to-ofx-converter">BAI2 to OFX, QBO, QIF and Xero CSV — free, private</a></li>
+      <li><a href="../bank-statement-pdf-to-csv/" data-pf-to="bank-statement-pdf-to-csv">Bank statement PDF to CSV, checked against the statement's own balances. Free, private</a></li>
+      <li><a href="../boi-reporting-exemption-checker/" data-pf-to="boi-reporting-exemption-checker">BOI Reporting Exemption Checker — free, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=job-application-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/?pfEmbed=1&quot; title=&quot;Job Application Tracker — free, private, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="job-application-tracker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/" data-pf-embed-title="Job Application Tracker — free, private, no sign-up" data-pf-embed-slug="job-application-tracker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="job-application-tracker" data-pf-jobs-amount=""></script>
+</body>
+</html>

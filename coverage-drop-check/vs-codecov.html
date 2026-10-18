@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coverage Drop Check vs. Codecov</title>
+  <meta name="description" content="Codecov is a hosted service you connect to your CI: it uploads every report, keeps history, and posts patch/project coverage status checks and PR comments.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/vs-codecov.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Coverage Drop Check vs. Codecov">
+  <meta property="og:description" content="Two different jobs: Codecov is an ongoing, connected, hosted coverage dashboard. This is a free, one-shot…">
+  <meta property="og:url" content="./vs-codecov.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Coverage Drop Check or Codecov?","acceptedAnswer":{"@type":"Answer","text":"They answer a similar question — did coverage get worse — for different situations. Codecov is a hosted service: a GitHub Action (or other CI integration) uploads your coverage report to Codecov's servers on every build, where it is stored, shown on a historical dashboard, and used to post codecov/patch and codecov/project status checks plus a PR comment, across every branch and contributor, continuously, once it is connected. Coverage Drop Check is a free tool with no account and no connection: you paste the baseline report and the current report you already have and get a deterministic percentage-point delta and a per-file breakdown in your browser, right now, with nothing sent anywhere. It answers \"did this specific PR drop coverage compared to this specific baseline\", once, for whoever is looking at two XML files this minute. If you want an always-on team dashboard with history and PR comments wired into every build, Codecov's job is not one this page tries to do. If you have two reports in hand and want the delta before signing up for anything, that is what this tool is for."}},{"@type":"Question","name":"Does using Coverage Drop Check require connecting my CI or creating an account?","acceptedAnswer":{"@type":"Answer","text":"No. There is nothing to connect and nothing to sign up for. The browser page parses the XML you paste entirely on your own device and never sends it anywhere; the CLI reads local files and makes no network call at all. Codecov's own public documentation describes the opposite model: its GitHub Action uploads your coverage report to Codecov's servers on every run so the dashboard and status checks can work, and while public repositories on GitHub Actions can upload without a token, using it at all still means creating a Codecov account, installing its GitHub App or Action, and sending your coverage report to Codecov's infrastructure on every build."}},{"@type":"Question","name":"Does Codecov do anything this tool cannot?","acceptedAnswer":{"@type":"Answer","text":"Yes — a persistent historical dashboard across every build and contributor, native PR comments and commit statuses wired directly into GitHub without pasting anything by hand, coverage badges, support for many more report formats through its universal uploader (LCOV and Clover included, where this tool reads only Cobertura and JaCoCo), and team-wide visibility across many repositories at once. None of that is possible from a page with no server, no account and no memory between visits. This tool only ever computes the delta between the two specific reports you paste into it in that session."}},{"@type":"Question","name":"Is this page affiliated with Codecov?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Codecov, Inc. Codecov is named here only to describe what this tool is and is not, based on Codecov's own public documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Coverage Drop Check vs. Codecov — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../coverage-drop-check/">Did this PR drop your coverage?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Coverage Drop Check vs. Codecov</span></span></nav>
+  <p><a href="./">&larr; Coverage Drop Check</a></p>
+  <h1>Coverage Drop Check vs. Codecov</h1>
+  <p>
+    <strong>Codecov</strong> is a hosted coverage service. A GitHub Action (or
+    another CI integration) uploads your coverage report to Codecov's servers
+    on every build. Public repositories on GitHub Actions can upload without a
+    token; private repositories need one, or the newer OIDC-based
+    authentication. Once connected, Codecov keeps a historical dashboard
+    across every branch and contributor, posts a PR comment, and can fail a
+    check on two different signals &mdash; <code>codecov/patch</code>
+    (coverage of the lines this PR touched) and <code>codecov/project</code>
+    (overall coverage) &mdash; configured through an optional
+    <code>codecov.yml</code> file.
+  </p>
+  <p>
+    That is a genuinely useful job for a team that wants it running on every
+    build without thinking about it, and it is not this tool's job. This page
+    parses the two coverage XML reports you paste &mdash; nothing is
+    uploaded, there is no account, and nothing is remembered once you close
+    the tab.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have a baseline report and this PR's report right now &mdash; did line coverage drop?</td>
+        <td>Coverage Drop Check &mdash; paste both, get the percentage-point delta and which files moved, no signup, nothing leaves your device.</td>
+      </tr>
+      <tr>
+        <td>I want a coverage status check and PR comment on every build, automatically, for the whole team.</td>
+        <td>Codecov &mdash; that needs an ongoing CI integration and an uploaded report on every run, which a stateless browser page never does.</td>
+      </tr>
+      <tr>
+        <td>I want historical coverage trends across branches and contributors, or a badge for my README.</td>
+        <td>Codecov's dashboard &mdash; this tool has no memory between visits and nowhere to keep history.</td>
+      </tr>
+      <tr>
+        <td>My CI already writes coverage.xml or jacoco.xml and I don't want to connect an account or upload it just to check one PR.</td>
+        <td>Coverage Drop Check &mdash; the browser page never makes a network request, and the CLI never phones home either.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    The two are not substitutes. A team that wants an always-on, connected,
+    historical coverage dashboard with PR comments across every repository
+    needs a hosted tool like Codecov &mdash; a page that only looks at
+    whatever you paste into it, once, cannot do that job. A person who
+    already has a baseline report and a PR report and wants the delta before
+    signing up for anything, or without sending code-coverage data to a
+    third party at all, does not need an account or a CI integration to get
+    it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Coverage Drop Check or Codecov?</h3>
+  <p>They answer a similar question &mdash; did coverage get worse &mdash; for different situations. Codecov is a hosted service: a GitHub Action (or other CI integration) uploads your coverage report to Codecov's servers on every build, where it is stored, shown on a historical dashboard, and used to post <code>codecov/patch</code> and <code>codecov/project</code> status checks plus a PR comment, across every branch and contributor, continuously, once it is connected. Coverage Drop Check is a free tool with no account and no connection: you paste the baseline report and the current report you already have and get a deterministic percentage-point delta and a per-file breakdown in your browser, right now, with nothing sent anywhere. It answers "did this specific PR drop coverage compared to this specific baseline", once, for whoever is looking at two XML files this minute. If you want an always-on team dashboard with history and PR comments wired into every build, Codecov's job is not one this page tries to do. If you have two reports in hand and want the delta before signing up for anything, that is what this tool is for.</p>
+  <h3>Does using Coverage Drop Check require connecting my CI or creating an account?</h3>
+  <p>No. There is nothing to connect and nothing to sign up for. The browser page parses the XML you paste entirely on your own device and never sends it anywhere; the CLI reads local files and makes no network call at all. Codecov's own public documentation describes the opposite model: its GitHub Action uploads your coverage report to Codecov's servers on every run so the dashboard and status checks can work, and while public repositories on GitHub Actions can upload without a token, using it at all still means creating a Codecov account, installing its GitHub App or Action, and sending your coverage report to Codecov's infrastructure on every build.</p>
+  <h3>Does Codecov do anything this tool cannot?</h3>
+  <p>Yes &mdash; a persistent historical dashboard across every build and contributor, native PR comments and commit statuses wired directly into GitHub without pasting anything by hand, coverage badges, support for many more report formats through its universal uploader (LCOV and Clover included, where this tool reads only Cobertura and JaCoCo), and team-wide visibility across many repositories at once. None of that is possible from a page with no server, no account and no memory between visits. This tool only ever computes the delta between the two specific reports you paste into it in that session.</p>
+  <h3>Is this page affiliated with Codecov?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Codecov, Inc. Codecov is named here only to describe what this tool is and is not, based on Codecov's own public documentation.</p>
+  <p class="note">
+    More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a quality judgement of your code, not a substitute for reading the diff, and not advice about what coverage you should have. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this saved you a Codecov bill or a silent coverage drop, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../incident-postmortem-timeline/" data-pf-to="incident-postmortem-timeline">Turn incident notes into a postmortem draft</a></li>
+      <li><a href="../ios-privacy-manifest-check/" data-pf-to="ios-privacy-manifest-check">iOS Privacy Manifest Checker</a></li>
+      <li><a href="../json-ld-rich-result-validator/" data-pf-to="json-ld-rich-result-validator">JSON-LD Rich Result Validator — free, private, in your browser</a></li>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=coverage-drop-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="coverage-drop-check"></script>
+</body>
+</html>

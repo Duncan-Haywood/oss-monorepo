@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merchant Feed Check vs. DataFeedWatch | Google/Meta Shopping Feed Errors</title>
+<meta name="description" content="DataFeedWatch is paid, ongoing feed-management software: it pulls in your product data, applies transformation rules…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/vs-datafeedwatch.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Merchant Feed Check vs. DataFeedWatch">
+<meta property="og:description" content="Two different shapes: DataFeedWatch transforms and exports your product feed to many channels, under an ongoing subscription.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/vs-datafeedwatch.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or DataFeedWatch?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a seller running feeds to several channels will likely end up touching both. DataFeedWatch is product-feed management software, sold under an ongoing subscription account: it connects to your store or feed source, lets you build transformation rules (title templates, category mapping, attribute enrichment), and exports the result to many advertising and marketplace channels. Setting it up means an account, connecting a data source, and configuring channel-specific export templates, not a one-off check. DataFeedWatch's own site is not reachable from this session to confirm today's specific plan names, product-count tiers, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does none of that. It does not connect to a store, transform a feed, or export anywhere. It takes a feed you already have -- CSV, TSV, or JSON -- and reports exactly which items would be flagged against Google Merchant Center's and Meta Catalog's own published product-data specification: missing required fields, invalid GTIN/MPN checksums, malformed prices, and known promotional-text disapproval triggers. It runs free in any browser or as a zero-dependency CLI, keeps no account, and nothing you load is uploaded. A seller building and routing feeds to many channels day to day is better served by DataFeedWatch or a comparable feed-management platform; a seller who wants to know whether a feed conforms to the spec before it syncs, or wants that check wired into their own CI pipeline, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with DataFeedWatch?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by DataFeedWatch. DataFeedWatch is a trademark of its owner, named here only to describe what this checker is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#17604a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:28ch;letter-spacing:-.03em;color:#17324a}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#17324a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Merchant Feed Check vs. DataFeedWatch — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../merchant-feed-check/">Will this product feed get items disapproved?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Merchant Feed Check vs. DataFeedWatch</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Merchant Feed Check</a></p>
+<header>
+<h1>Merchant Feed Check vs. DataFeedWatch</h1>
+<p class="lede">Two different shapes: DataFeedWatch connects to your store, transforms your product feed with rules you build, and exports it to many advertising channels &mdash; an ongoing subscription account. This page is a free, no-account checker for one question &mdash; does a feed you already have conform to Google Merchant Center's and Meta Catalog's own published product-data specification &mdash; before it syncs.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>DataFeedWatch</strong> is product-feed management software, sold
+  under an ongoing subscription account to e-commerce sellers and agencies.
+  It connects to your store or feed source, lets you build transformation
+  rules &mdash; title templates, category mapping, attribute enrichment,
+  custom labels &mdash; and exports the optimized result to many advertising
+  and marketplace channels. Setting it up means creating an account,
+  connecting a data source, and configuring channel-specific export
+  templates, not a one-off check. DataFeedWatch's own site is not reachable
+  from this session to confirm today's specific plan names, product-count
+  tiers, or pricing, so only its well-documented category and identity are
+  stated here: nothing about it is invented, and no dollar figure for it
+  appears on this page.
+</p>
+<p>
+  This checker does none of that. It does not connect to a store, build
+  transformation rules, or export a feed anywhere. It takes a feed you
+  already have &mdash; CSV, TSV, or JSON, pasted or loaded from a file
+  &mdash; and reports, item by item, exactly what would fail Google Merchant
+  Center's or Meta Catalog's own published product-data specification:
+  missing required fields, invalid GTIN/MPN checksums, malformed prices and
+  availability values, and known promotional-text disapproval triggers. It
+  runs free in any browser, and the same logic ships as a zero-dependency
+  Node CLI you can run as a CI gate right before your feed generator syncs.
+  No account, no upload, nothing stored.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need to connect my store, transform a feed with rules, and export it to many advertising channels.</td><td>DataFeedWatch, or a comparable feed-management platform.</td></tr>
+<tr><td>I want to know whether the feed I already have would get items disapproved, before I sync it.</td><td>This checker &mdash; free, instant, no account, nothing uploaded.</td></tr>
+<tr><td>I want the same check to run automatically before every deploy, as a CI gate.</td><td>This checker's zero-dependency CLI (<code>cli.mjs</code>), run against the file your generator produces.</td></tr>
+<tr><td>I need channel-specific field mapping, category rules, and multi-channel export.</td><td>DataFeedWatch, or a comparable platform &mdash; this checker has none of those features.</td></tr>
+<tr><td>Why do products actually get disapproved, beyond a failed check?</td><td>This checker's <a href="./why-products-get-disapproved-in-google-merchant-center.html">disapproval-reasons page</a>.</td></tr>
+<tr><td>Do I need an account or a connected data source to use the tool?</td><td>This checker: no. DataFeedWatch and comparable platforms are sold through an ongoing account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A seller running feeds to several channels gets different value from each:
+  DataFeedWatch (or a comparable platform) for building and routing an
+  optimized feed day to day under an ongoing subscription, and a free
+  checker like this one for an instant, no-login answer to whether a feed
+  conforms to the published spec, wired into CI if you want it there. This
+  page's own report is a deterministic read of the feed you loaded, not a
+  guarantee that Google or Meta will approve any specific listing.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses a pasted or locally loaded file entirely in your own browser, and the CLI reads only a local file. Neither ever sends your feed anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this checker or DataFeedWatch?</h3>
+<p>They do different jobs, and a seller running feeds to several channels will likely end up touching both. DataFeedWatch is product-feed management software, sold under an ongoing subscription account: it connects to your store or feed source, lets you build transformation rules (title templates, category mapping, attribute enrichment), and exports the result to many advertising and marketplace channels. Setting it up means an account, connecting a data source, and configuring channel-specific export templates, not a one-off check. DataFeedWatch's own site is not reachable from this session to confirm today's specific plan names, product-count tiers, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does none of that. It does not connect to a store, transform a feed, or export anywhere. It takes a feed you already have -- CSV, TSV, or JSON -- and reports exactly which items would be flagged against Google Merchant Center's and Meta Catalog's own published product-data specification: missing required fields, invalid GTIN/MPN checksums, malformed prices, and known promotional-text disapproval triggers. It runs free in any browser or as a zero-dependency CLI, keeps no account, and nothing you load is uploaded. A seller building and routing feeds to many channels day to day is better served by DataFeedWatch or a comparable feed-management platform; a seller who wants to know whether a feed conforms to the spec before it syncs, or wants that check wired into their own CI pipeline, is in the right place here.</p>
+<h3>Is this page affiliated with DataFeedWatch?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by DataFeedWatch. DataFeedWatch is a trademark of its owner, named here only to describe what this checker is and is not.</p>
+<p class="note">
+  Open <a href="./">Merchant Feed Check</a> to check your own feed, or see <a href="../structured-data-drift-check/">Structured Data Drift Check</a> for the matching check on your product pages' own JSON-LD.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not advice about Shopping Ads policy, account-level compliance, or whether Google or Meta will approve any specific listing. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p>Everything runs in your browser. Your feed is never uploaded, and this page makes no live comparison against DataFeedWatch &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=merchant-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="merchant-feed-check"></script>
+</body></html>

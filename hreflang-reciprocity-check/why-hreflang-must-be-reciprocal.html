@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why hreflang Links Must Be Reciprocal</title>
+  <meta name="description" content="Google's hreflang documentation requires alternate-language link tags to be reciprocal, or the annotation may be ignored.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/why-hreflang-must-be-reciprocal.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why hreflang Links Must Be Reciprocal">
+  <meta property="og:description" content="A one-way hreflang link is treated by Google as if it did not exist. Here is why, and the four other ways hreflang commonly breaks.">
+  <meta property="og:url" content="./why-hreflang-must-be-reciprocal.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where does Google say hreflang links must be reciprocal?","acceptedAnswer":{"@type":"Answer","text":"Google's Search Central documentation on localized versions of a page instructs site owners to confirm that hreflang links are reciprocal — each page in a set of alternates should link to every other page, and every other page should link back to it. Google's own guidance says that when a return link is missing, the search engine may disregard the annotation."}},{"@type":"Question","name":"What actually happens if the return link is missing?","acceptedAnswer":{"@type":"Answer","text":"Google's documentation says a hreflang annotation without a matching return link may be ignored. In practice this means the language- or region-targeted result you intended for a search in a particular market may not appear, and instead a visitor might land on the wrong-language version of the page with no signal ever reaching you that the annotation failed, because nothing about it produces an error — the page still loads fine and the tag is still valid HTML."}},{"@type":"Question","name":"How does a one-way hreflang link happen in practice?","acceptedAnswer":{"@type":"Answer","text":"Usually a new locale is added to a site's language switcher and its hreflang set before every existing locale's own page has been updated to add a matching entry pointing at the new one — a rollout that touches N pages needs to touch N pages' hreflang blocks, and a template or migration script that only updates the new page's own tag leaves every existing page pointing at nothing that points back. It also happens when a page is retired or moved and its alternates are not updated to drop or repoint the now-dead entry."}},{"@type":"Question","name":"What is x-default and is it required?","acceptedAnswer":{"@type":"Answer","text":"hreflang=\"x-default\" names the page to show a visitor whose language or region does not match any of the other declared alternates. Google's documentation describes it as optional but recommended whenever a page set has more than one real language or region variant, specifically for sites that do automatic language/country selection with a landing page a generic visitor should see."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    h2 { font-size: 1.1rem; margin: 1.4rem 0 .4rem; color: #17324a; }
+    pre.example { background: #f7f9fb; padding: 10px 12px; border-radius: 8px; font-size: .84rem; overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why hreflang Links Must Be Reciprocal — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why hreflang Links Must Be Reciprocal</span></span></nav>
+  <p><a href="./">&larr; hreflang Reciprocity Check</a></p>
+  <h1>Why hreflang links must be reciprocal</h1>
+  <p>
+    Google's Search Central documentation on localized pages is direct about this: hreflang
+    annotations describe a set of pages that are equivalent alternates of each other, and it asks
+    site owners to <strong>confirm the links are reciprocal</strong> — every page in the set should
+    link to every other page in the set, including itself. When a page names an alternate that does
+    not link back, Google's own documentation says the annotation <strong>may be disregarded</strong>.
+  </p>
+  <p>
+    That is a quiet failure. The page still renders. The HTML is still valid. Nothing in a browser,
+    a linter, or a normal QA pass will show a broken hreflang set — the only symptom is a search
+    result that doesn't show up where it was supposed to, in a market nobody in the room is testing
+    from.
+  </p>
+  <h2>The shape of a correct set</h2>
+  <p>Three pages, each in a different language, each listing all three (including itself):</p>
+  <pre class="example" tabindex="0">&lt;!-- on https://example.com/en/ --&gt;
+&lt;link rel="alternate" hreflang="en" href="https://example.com/en/" /&gt;
+&lt;link rel="alternate" hreflang="fr" href="https://example.com/fr/" /&gt;
+&lt;link rel="alternate" hreflang="de" href="https://example.com/de/" /&gt;
+
+&lt;!-- on https://example.com/fr/ --&gt;
+&lt;link rel="alternate" hreflang="en" href="https://example.com/en/" /&gt;
+&lt;link rel="alternate" hreflang="fr" href="https://example.com/fr/" /&gt;
+&lt;link rel="alternate" hreflang="de" href="https://example.com/de/" /&gt;
+
+&lt;!-- on https://example.com/de/ --&gt;
+&lt;link rel="alternate" hreflang="en" href="https://example.com/en/" /&gt;
+&lt;link rel="alternate" hreflang="fr" href="https://example.com/fr/" /&gt;
+&lt;link rel="alternate" hreflang="de" href="https://example.com/de/" /&gt;</pre>
+  <p>
+    Every page names all three, including itself (the self-reference Google's documentation also
+    asks for). If the German page above were missing its own entry pointing back at
+    <code>/fr/</code>, the French page's link to German would be one-way, and Google's documentation
+    says it may be ignored for exactly that pair.
+  </p>
+  <h2>How a one-way link actually happens</h2>
+  <p>
+    Almost never on purpose. The common real cause is a rollout: a site adds a new locale and
+    updates its language switcher and hreflang block for the new page, but the existing pages'
+    hreflang blocks are generated from a template or a migration script that only ran once, before
+    the new locale existed. Every existing page keeps pointing at the same set it always had; the
+    new page points at all of them; nothing points back at the new page except the new page itself.
+    The same thing happens in reverse when a locale is retired — its alternates keep naming a page
+    that no longer exists or was never repointed.
+  </p>
+  <h2>The other four ways this tool checks for</h2>
+  <ul>
+    <li><strong>Invalid codes.</strong> A region subtag that isn't a real ISO 3166-1 code — "UK" is
+      the single most common instance, since it's the everyday abbreviation for a country whose
+      actual code is "GB".</li>
+    <li><strong>Missing x-default.</strong> Recommended, not required, for a page set with more than
+      one real variant, as the fallback for a visitor who matches none of them.</li>
+    <li><strong>Missing self-reference.</strong> A page that names alternates but never lists
+      itself among them.</li>
+    <li><strong>Duplicate or conflicting values.</strong> The same hreflang code pointing at two
+      different URLs is a real conflict a search engine cannot resolve on your behalf; the same
+      code pointing at the same URL twice is just redundant.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>Where does Google say hreflang links must be reciprocal?</h3>
+  <p>Google's Search Central documentation on localized versions of a page instructs site owners to confirm that hreflang links are reciprocal — each page in a set of alternates should link to every other page, and every other page should link back to it. Google's own guidance says that when a return link is missing, the search engine may disregard the annotation.</p>
+  <h3>What actually happens if the return link is missing?</h3>
+  <p>Google's documentation says a hreflang annotation without a matching return link may be ignored. In practice this means the language- or region-targeted result you intended for a search in a particular market may not appear, and instead a visitor might land on the wrong-language version of the page with no signal ever reaching you that the annotation failed, because nothing about it produces an error — the page still loads fine and the tag is still valid HTML.</p>
+  <h3>How does a one-way hreflang link happen in practice?</h3>
+  <p>Usually a new locale is added to a site's language switcher and its hreflang set before every existing locale's own page has been updated to add a matching entry pointing at the new one — a rollout that touches N pages needs to touch N pages' hreflang blocks, and a template or migration script that only updates the new page's own tag leaves every existing page pointing at nothing that points back. It also happens when a page is retired or moved and its alternates are not updated to drop or repoint the now-dead entry.</p>
+  <h3>What is x-default and is it required?</h3>
+  <p>hreflang="x-default" names the page to show a visitor whose language or region does not match any of the other declared alternates. Google's documentation describes it as optional but recommended whenever a page set has more than one real language or region variant, specifically for sites that do automatic language/country selection with a landing page a generic visitor should see.</p>
+  <p class="note">Check your own pages: <a href="./">hreflang Reciprocity Check</a>. See also: <a href="vs-merkle-hreflang-tool.html">how this differs from Merkle's hreflang Tags Testing Tool</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is SEO, legal, or marketing advice. <strong>You are responsible for reviewing and verifying any output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. The code is under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+      <li><a href="../auth-mau-pricing-calculator/" data-pf-to="auth-mau-pricing-calculator">What will authentication cost at your user count, and who is cheapest?</a></li>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hreflang-reciprocity-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hreflang-reciprocity-check"></script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YouTube Revenue and RPM Analyzer — Which Videos Actually Pay</title>
+  <meta name="description" content="Free analyzer for YouTube creators: drop in your Studio analytics CSV and see RPM by video, country or day, where your revenue concentrates…">
+  <meta property="og:title" content="YouTube Revenue and RPM Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="RPM by video, the videos that pay least per view, and the ones worth making more of, from your own Studio export. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "YouTube Revenue and RPM Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a YouTube Studio analytics export CSV into RPM by video, country, traffic source or day, revenue concentration, low-paying and under-fed videos, click-through gaps and RPM by video length. Runs entirely in your browser; the file is never uploaded.", "featureList": "RPM by video, revenue concentration, RPM gap, zero-revenue views, click-through gaps, RPM by length, country mix, monthly trend"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find which of my YouTube videos earn the most per view?", "acceptedAnswer": {"@type": "Answer", "text": "In YouTube Studio open Analytics, go to the Revenue tab (or Advanced mode), pick the Videos table, and use Export current view as comma-separated values. Drop that file here. The tool divides revenue by views for every video, ranks them by RPM, and shows which ones pay far under or over your median. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "What is RPM and how is it different from CPM?", "acceptedAnswer": {"@type": "Answer", "text": "RPM is what you earn per thousand views after YouTube's share, so it is revenue divided by views times 1,000. CPM is what advertisers pay per thousand ad impressions before that share, and only some views show an ad. This tool computes RPM from the revenue and views in your own file and does not assume a rate."}}, {"@type": "Question", "name": "Why do two videos with the same views earn very different amounts?", "acceptedAnswer": {"@type": "Answer", "text": "Common reasons are the audience's countries, the topic advertisers bid on, video length and ad formats, whether ads are turned on, and claims or limited-ads status. The tool shows the numbers by video, country or format so you can see which factor is large in your file. It cannot tell you the cause from the file alone."}}, {"@type": "Question", "name": "What does the RPM gap number mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is what the below-half-median videos would have earned if their views had paid the median RPM. It is a ceiling used to size the problem, not a forecast, because much of a low RPM comes from things you cannot change."}}, {"@type": "Question", "name": "Is this financial advice, and is it connected to YouTube?", "acceptedAnswer": {"@type": "Answer", "text": "No to both. It applies arithmetic to the file you provide. It is independent of YouTube, Google and every other platform and is not affiliated with or endorsed by any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"YouTube Revenue and RPM Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="YouTube Revenue and RPM Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">YouTube Revenue and RPM Analyzer — free, private, CSV in your browser</span></span></nav>
+  <header>
+    <p class="note">YOUTUBE REVENUE AND RPM ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your videos actually pay?</h1>
+    <p>Drop in a <strong>YouTube Studio analytics export</strong> and see <strong>revenue per thousand views for every video</strong>, how much of your income <strong>rides on a few videos</strong>, which videos pay <strong>under half your median</strong>, which pay well but <strong>get little traffic</strong>, and <strong>RPM by video length</strong>, without giving another app access to your channel.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of YouTube and Google: not affiliated with or endorsed by either.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Studio export</h2>
+    <p class="note">In Studio, open <strong>Analytics</strong>, then <strong>Revenue</strong> (or Advanced mode), pick a table (Videos, Geography, Traffic source or a by-day chart) and choose <strong>Export current view</strong>, comma-separated values. Needs <strong>Views</strong> and <strong>Estimated revenue</strong> columns. Watch time, Subscribers, Impressions, click-through rate, Duration and RPM are used when present. Comma, tab and semicolon files and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Video title,Views,Estimated revenue (USD)"></textarea>
+    <div class="grid">
+      <div><label for="minviews">Ignore rows under this many views when ranking (default 100)</label><input type="number" id="minviews" min="0" step="1" placeholder="100" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3 id="rows-title">By row</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" id="label-head">Row</th><th class="n" scope="col">Views</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">% of revenue</th><th class="n" scope="col">RPM</th><th class="n" scope="col">Per watch hour</th><th class="n" scope="col">Click-through</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <div id="duration-block" hidden>
+      <h3>By video length</h3>
+      <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Length</th><th class="n" scope="col">Videos</th><th class="n" scope="col">Views</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">RPM</th></tr></thead><tbody id="by-duration"></tbody></table></div></div>
+    </div>
+    <div id="month-block" hidden>
+      <h3>By month</h3>
+      <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Views</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">RPM</th></tr></thead><tbody id="by-month"></tbody></table></div></div>
+    </div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>RPM</strong> is estimated revenue divided by views, times 1,000, worked out from your file for every row. The RPM column in Studio, if present, is not used, so every figure here comes from revenue and views.</li>
+      <li><strong>Median RPM</strong> is taken over rows with at least the minimum views, so a video with 12 views does not set the benchmark. Findings need at least four such rows.</li>
+      <li><strong>Reconciles.</strong> Rows add to the totals shown, and if the file has its own Total row the tool tells you when the rows cover less than 99% of it (Studio limits how many rows an export holds).</li>
+      <li><strong>The RPM gap</strong> is what rows under half the median would earn at the median. It is a ceiling that sizes a problem, not a forecast.</li>
+      <li><strong>Click-through</strong> is weighted by impressions, not an average of percentages.</li>
+      <li><strong>Amounts</strong> are shown as they appear in your file. Currency is never converted, and the report writes $ whatever the file's currency.</li>
+      <li><strong>Not modelled:</strong> why a rate is low, ad formats, claims, Shorts versus long-form revenue pools, memberships and other revenue types outside the file, taxes, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find which of my YouTube videos earn the most per view?</h3>
+    <p>In YouTube Studio open Analytics, go to the Revenue tab (or Advanced mode), pick the Videos table, and use Export current view as comma-separated values. Drop that file here. The tool divides revenue by views for every video, ranks them by RPM, and shows which ones pay far under or over your median. The file is read in your browser and never uploaded.</p>
+    <h3>What is RPM and how is it different from CPM?</h3>
+    <p>RPM is what you earn per thousand views after YouTube's share, so it is revenue divided by views times 1,000. CPM is what advertisers pay per thousand ad impressions before that share, and only some views show an ad. This tool computes RPM from the revenue and views in your own file and does not assume a rate.</p>
+    <h3>Why do two videos with the same views earn very different amounts?</h3>
+    <p>Common reasons are the audience's countries, the topic advertisers bid on, video length and ad formats, whether ads are turned on, and claims or limited-ads status. The tool shows the numbers by video, country or format so you can see which factor is large in your file. It cannot tell you the cause from the file alone.</p>
+    <h3>What does the RPM gap number mean?</h3>
+    <p>It is what the below-half-median videos would have earned if their views had paid the median RPM. It is a ceiling used to size the problem, not a forecast, because much of a low RPM comes from things you cannot change.</p>
+    <h3>Is this financial advice, and is it connected to YouTube?</h3>
+    <p>No to both. It applies arithmetic to the file you provide. It is independent of YouTube, Google and every other platform and is not affiliated with or endorsed by any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any platform.</strong> YouTube, Google and other names are trademarks of their respective owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Publishing videos? The <a href="../youtube-chapters-check/">YouTube chapters check</a> finds why chapters do not show and converts editor markers to a chapter list.</p>
+    <p>Earning from content? See the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>, the <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const dash = (v, f) => (v === null || v === undefined ? "–" : f(v));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.rows, { minViews: $("#minviews").value === "" ? 100 : Number($("#minviews").value) }, n);
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.rows} ${esc(r.dimension)} rows` + (s.from !== null ? `, ${dateStr(s.from)} to ${dateStr(s.to)}` : "") + `. ${s.views.toLocaleString("en-US")} views earned <strong>$${money(s.revenue)}</strong>, <strong>RPM $${dash(s.rpm, money)}</strong>` + (r.medianRpm !== null ? ` (median row $${money(r.medianRpm)})` : "") + (r.rpmGap ? `. Rows under half the median leave about <strong>$${money(r.rpmGap.revenue)}</strong> on the table at the median rate` : "") + ".";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#label-head").textContent = r.dimension[0].toUpperCase() + r.dimension.slice(1);
+      $("#rows-title").textContent = `By ${r.dimension} (highest revenue first)`;
+      $("#rows").innerHTML = r.byRev.slice(0, 200).map((x) => `<tr><th scope="row">${esc(x.label)}</th><td class="n">${x.views.toLocaleString("en-US")}</td><td class="n">${money(x.revenue)}</td><td class="n">${s.revenue > 0 ? pct(x.revenue / s.revenue) : "–"}</td><td class="n">${dash(x.rpm, money)}</td><td class="n">${dash(x.perHour, money)}</td><td class="n">${dash(x.ctr, (v) => v.toFixed(1) + "%")}</td></tr>`).join("");
+      $("#duration-block").hidden = !r.byDuration;
+      if (r.byDuration) $("#by-duration").innerHTML = r.byDuration.map((b) => `<tr><th scope="row">${b.bucket}</th><td class="n">${b.videos}</td><td class="n">${b.views.toLocaleString("en-US")}</td><td class="n">${money(b.revenue)}</td><td class="n">${dash(b.rpm, money)}</td></tr>`).join("");
+      $("#month-block").hidden = !r.byMonth;
+      if (r.byMonth) $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${m.month}</th><td class="n">${m.views.toLocaleString("en-US")}</td><td class="n">${money(m.revenue)}</td><td class="n">${dash(m.rpm, money)}</td></tr>`).join("");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (r.byRev.length > 200) notes.push("The table shows the top 200 rows; the CSV download has all of them.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic videos for a made-up channel. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const num = (v) => (v === null || v === undefined ? "" : v.toFixed(2));
+      const rows = ["label,views,revenue,rpm,revenue_per_watch_hour,ctr_percent"].concat(last.byRev.map((x) => [q(x.label), x.views, x.revenue.toFixed(2), num(x.rpm), num(x.perHour), num(x.ctr)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "youtube-revenue-by-row.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ad-incrementality-test-analyzer/" data-pf-to="ad-incrementality-test-analyzer">Ad Incrementality Test Analyzer — free, private, in your browser</a></li>
+      <li><a href="../ad-spend-saturation-optimizer/" data-pf-to="ad-spend-saturation-optimizer">Ad Spend Saturation Optimizer — free, private, in your browser</a></li>
+      <li><a href="../adu-payback-calculator/" data-pf-to="adu-payback-calculator">ADU Payback Calculator — free, private, in your browser</a></li>
+      <li><a href="../agent-brokerage-split-calculator/" data-pf-to="agent-brokerage-split-calculator">Real Estate Brokerage Split Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=youtube-revenue-rpm-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/?pfEmbed=1&quot; title=&quot;YouTube Revenue and RPM Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="youtube-revenue-rpm-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/" data-pf-embed-title="YouTube Revenue and RPM Analyzer — free, private, CSV in your browser" data-pf-embed-slug="youtube-revenue-rpm-analyzer"></script>
+</body>
+</html>

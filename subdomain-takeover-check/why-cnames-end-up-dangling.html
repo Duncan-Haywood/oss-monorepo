@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why CNAMEs End Up Dangling (And How To Fix Each Way)</title>
+<meta name="description" content="The common ways a DNS CNAME record ends up pointing at an unclaimed cloud resource, and the fix for each -- with the decommissioning-checklist change that…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/why-cnames-end-up-dangling.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to stop a DNS CNAME from being left dangling",
+  "description": "Common causes of a dangling CNAME record pointing at an unclaimed cloud resource, and the specific fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Decommission the DNS record in the same change that decommissions the resource",
+      "text": "Deleting an S3 bucket, a Heroku app, or a GitHub Pages repository is usually a one-click action in that provider's own dashboard -- and it does not touch your DNS zone at all. The CNAME record you created when you first set the subdomain up keeps pointing at a name that now belongs to nobody, until someone remembers to remove it separately, in a different system."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Treat 'remove the DNS record' as a mandatory step in your own offboarding checklist",
+      "text": "The fix is procedural, not technical: whatever runbook or ticket template your team uses for decommissioning a service, add 'remove the DNS record pointing at it' as a required step, in the same place as 'revoke the API key' and 'delete the database'. A resource that still exists is not takeover-prone; the dangling record left behind after it's deleted is."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Audit periodically, not just when you remember to",
+      "text": "A team that migrates providers, retires a marketing campaign's landing page, or sunsets an old product line accumulates dangling records the same way -- each individually easy to miss and each dangling indefinitely until someone claims it, maliciously or otherwise. A recurring pass over your own DNS zone's CNAME records, checked against what's still actually provisioned, catches what any one migration's checklist did not."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Prefer an ALIAS/ANAME or A record at the apex, and scope CNAME TTLs sensibly",
+      "text": "This does not prevent a dangling CNAME on its own, but a shorter TTL on records pointing at short-lived infrastructure (a preview environment, a staging app) means a stale pointer is at least resolved sooner once you do notice, rather than continuing to serve a cached answer to some resolvers for longer than intended."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { font-size: 1.15rem; margin-top: 1.8rem; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/why-cnames-end-up-dangling.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why CNAMEs End Up Dangling (And How To Fix Each Way)">
+<meta property="og:description" content="The common ways a DNS CNAME record ends up pointing at an unclaimed cloud resource, and the fix for each -- with the decommissioning-checklist change that…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why CNAMEs End Up Dangling (And How To Fix Each Way) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why CNAMEs End Up Dangling (And How To Fix Each Way)</span></span></nav>
+<p><a href="index.html">← Back to the Subdomain Takeover Checker</a></p>
+<h1>Why CNAMEs end up dangling</h1>
+<p>
+  A dangling CNAME only becomes a takeover risk once someone else claims the name it points at.
+  There are a few common, independent ways the record is left behind in the first place.
+  Fixing one does not fix the others.
+</p>
+
+<h2>1. Decommissioning the resource doesn't touch DNS</h2>
+<p>
+  Deleting an S3 bucket, a Heroku app, or a GitHub Pages repository is usually a one-click action
+  in that provider's own dashboard — and it does not touch your DNS zone at all. The CNAME record
+  you created when you first set the subdomain up keeps pointing at a name that now belongs to
+  nobody, until someone remembers to remove it separately, in a different system.
+</p>
+<pre><code># Wrong: delete the S3 bucket and stop there
+aws s3 rb s3://old-marketing-page-bucket --force
+# blog.example.com's CNAME still points at old-marketing-page-bucket.s3-website-us-east-1.amazonaws.com
+
+# Right: remove the DNS record in the same change
+aws s3 rb s3://old-marketing-page-bucket --force
+# then, in your DNS provider: delete the CNAME for blog.example.com</code></pre>
+
+<h2>2. It's not on the offboarding checklist</h2>
+<p>
+  The fix is procedural, not technical: whatever runbook or ticket template your team uses for
+  decommissioning a service, add "remove the DNS record pointing at it" as a required step, in the
+  same place as "revoke the API key" and "delete the database". A resource that still exists is
+  not takeover-prone; the dangling record left behind after it's deleted is.
+</p>
+
+<h2>3. Nobody audits the zone on a recurring basis</h2>
+<p>
+  A team that migrates providers, retires a marketing campaign's landing page, or sunsets an old
+  product line accumulates dangling records the same way — each individually easy to miss, and
+  each dangling indefinitely until someone claims it, maliciously or otherwise. A recurring pass
+  over your own DNS zone's CNAME records, checked against what's still actually provisioned,
+  catches what any one migration's checklist did not.
+</p>
+
+<h2>If this checker already found a confirmed finding</h2>
+<p>
+  Two ways to close it, and you usually want one or the other rather than both:
+</p>
+<ul>
+  <li><strong>Still using it:</strong> reclaim the exact name on the provider (recreate the S3
+  bucket with that name, recreate the Heroku app, re-add the GitHub Pages custom domain) before
+  anyone else can.</li>
+  <li><strong>Not using it anymore:</strong> remove the CNAME record from your DNS zone entirely —
+  the subdomain then stops resolving, which is safe, rather than continuing to point at a name
+  someone else could still claim.</li>
+</ul>
+<p>
+  Run the <a href="index.html">Subdomain Takeover Checker</a> again afterward to confirm the fix.
+  Only run it against a hostname you own or are authorised to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review. You are responsible for reviewing and verifying its guidance before relying on it. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=subdomain-takeover-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="subdomain-takeover-check"></script>
+</body>
+</html>

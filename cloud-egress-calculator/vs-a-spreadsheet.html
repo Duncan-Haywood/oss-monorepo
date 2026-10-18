@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. estimating egress in a spreadsheet | Cloud Egress Cost Calculator for S3 Storage</title>
+<meta name="description" content="A quick spreadsheet egress estimate usually applies one flat per-GB rate to the whole outbound volume.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. estimating egress in a spreadsheet | Cloud Egress Cost Calculator for S3 Storage">
+<meta property="og:description" content="A flat per-GB spreadsheet formula skips the free monthly allowance and the graduated rate steps every major provider publishes.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a quick spreadsheet formula usually get wrong about egress?","acceptedAnswer":{"@type":"Answer","text":"Two things, both because a single =volume*rate cell is the easiest formula to write, not because the price sheet actually works that way. First, it bills from the first byte, when every major provider gives some GB of outbound transfer free each month before the per-GB rate starts. Second, it applies one flat rate to the whole volume, when the published rate steps down as volume grows -- \"the next 10,240 GB at $0.09, everything beyond at $0.085\" is how a real sheet reads, not one number for every gigabyte."}},{"@type":"Question","name":"How much difference does that actually make?","acceptedAnswer":{"@type":"Answer","text":"On a workload of 2,000 GB stored, 8 million requests, and 15,000 GB of outbound transfer a month, a flat $0.09/GB spreadsheet formula totals $1,399.20. The same workload against a sheet with a 100 GB free allowance and a $0.085/GB step past 10,240 billable GB totals $1,366.90 -- $32.30/month, $387.60/year, on rates that were never wrong, only applied more simply than the provider actually bills them."}},{"@type":"Question","name":"Can a spreadsheet formula just add the free allowance and the rate steps itself?","acceptedAnswer":{"@type":"Answer","text":"Yes, and a careful one often does for a single quote. What it does not do without real effort is the break-even: the outbound volume at which a cheaper-storage, pricier-egress option stops winning against the alternative. That is a piecewise crossing between two multi-segment curves, not a single-cell formula, and re-deriving it by hand for every new pair of rate sheets is exactly the kind of one-off arithmetic this calculator exists to skip."}},{"@type":"Question","name":"Does this page publish any provider's actual current rates?","acceptedAnswer":{"@type":"Answer","text":"No. The $0.09/$0.085 rate step and the 100 GB free allowance in the worked example above are illustrative figures chosen to show the arithmetic, not a quotation of any provider's published price list. Paste in the rates from your own current quote; this calculator computes from what you enter and fetches nobody's price sheet."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+  body { max-width: 800px; margin: 0 auto; padding: 28px 18px 64px; line-height: 1.55; }
+  a { color: #1f4f8a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); letter-spacing: -.03em; line-height: 1.1; }
+  h2 { font-size: 1.15rem; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9e0eb; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #58657a; }
+  .note { font-size: .85rem; color: #58657a; }
+  footer { margin-top: 2rem; font-size: .85rem; color: #58657a; border-top: 1px solid #d9e0eb; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. estimating egress in a spreadsheet | Cloud Egress Cost Calculator for S3 Storage — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloud-egress-calculator/">Cloud Egress Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. estimating egress in a spreadsheet | Cloud Egress Cost Calculator for S3 Storage</span></span></nav>
+<p class="note"><a href="./">&larr; Cloud Egress Cost Calculator</a></p>
+<h1>This calculator vs. estimating egress in a spreadsheet</h1>
+<p class="lede">
+  Storage-and-egress arithmetic looks simple enough to do in one spreadsheet
+  cell: multiply the outbound gigabytes by the per-GB rate on the quote. The
+  arithmetic is not wrong -- the formula is just simpler than the price
+  sheet it is pricing, in two specific ways that both push the estimate
+  higher than the real bill.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Step</th><th scope="col">Common spreadsheet shortcut</th><th scope="col">What this calculator does</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>The free monthly allowance</td>
+      <td>Bills every outbound gigabyte from the first one, because a flat <code>=volume*rate</code> formula has no cell for "the first N GB are free."</td>
+      <td>Subtracts your entered free-egress allowance before any rate is applied, for both options.</td>
+    </tr>
+    <tr>
+      <td>Graduated rate steps</td>
+      <td>Applies one rate to the whole billable volume, when the published sheet is usually "next 10,240 GB at $X, everything beyond at a lower $Y."</td>
+      <td>Walks a pasted multi-band rate sheet the same way the provider bills it, cheaper bands and all.</td>
+    </tr>
+    <tr>
+      <td>The break-even outbound volume</td>
+      <td>Requires solving a piecewise crossing between two multi-segment curves by hand for every new pair of quotes.</td>
+      <td>Computes the outbound GB where the two options bill the same, honoring both options' allowances and bands.</td>
+    </tr>
+    <tr>
+      <td>Does anything I type get uploaded anywhere?</td>
+      <td>N/A</td>
+      <td>No. The comparison runs entirely in your browser; nothing you enter is sent to a server.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2>A worked example</h2>
+<p>
+  Take a workload of 2,000 GB stored, 8 million requests/month, and 15,000
+  GB of outbound transfer, priced at $0.023/GB storage and $0.40/million
+  requests on both approaches. The only difference is how the egress line is
+  billed:
+</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Approach</th><th scope="col">Egress line</th><th scope="col">Total</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Flat spreadsheet formula</td>
+      <td>15,000 GB &times; $0.09/GB, no free allowance</td>
+      <td>$1,399.20</td>
+    </tr>
+    <tr>
+      <td>This calculator</td>
+      <td>100 GB free, then 10,240 GB at $0.09 and 4,660 GB at $0.085</td>
+      <td>$1,366.90</td>
+    </tr>
+  </tbody>
+</table></div>
+<p>
+  The gap is $32.30/month -- $387.60/year -- on rates that were never typed
+  in wrong, only applied one step more simply than the price sheet actually
+  bills them. Paste the rate sheet you were actually quoted, including any
+  free allowance and graduated bands, and the calculator applies all of it.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does a quick spreadsheet formula usually get wrong about egress?</h3>
+<p>Two things, both because a single =volume*rate cell is the easiest formula to write, not because the price sheet actually works that way. First, it bills from the first byte, when every major provider gives some GB of outbound transfer free each month before the per-GB rate starts. Second, it applies one flat rate to the whole volume, when the published rate steps down as volume grows -- "the next 10,240 GB at $0.09, everything beyond at $0.085" is how a real sheet reads, not one number for every gigabyte.</p>
+<h3>How much difference does that actually make?</h3>
+<p>On a workload of 2,000 GB stored, 8 million requests, and 15,000 GB of outbound transfer a month, a flat $0.09/GB spreadsheet formula totals $1,399.20. The same workload against a sheet with a 100 GB free allowance and a $0.085/GB step past 10,240 billable GB totals $1,366.90 -- $32.30/month, $387.60/year, on rates that were never wrong, only applied more simply than the provider actually bills them.</p>
+<h3>Can a spreadsheet formula just add the free allowance and the rate steps itself?</h3>
+<p>Yes, and a careful one often does for a single quote. What it does not do without real effort is the break-even: the outbound volume at which a cheaper-storage, pricier-egress option stops winning against the alternative. That is a piecewise crossing between two multi-segment curves, not a single-cell formula, and re-deriving it by hand for every new pair of rate sheets is exactly the kind of one-off arithmetic this calculator exists to skip.</p>
+<h3>Does this page publish any provider's actual current rates?</h3>
+<p>No. The $0.09/$0.085 rate step and the 100 GB free allowance in the worked example above are illustrative figures chosen to show the arithmetic, not a quotation of any provider's published price list. Paste in the rates from your own current quote; this calculator computes from what you enter and fetches nobody's price sheet.</p>
+
+<p class="note">
+  Open the <a href="./">Cloud Egress Cost Calculator</a> to run this on your
+  own rate sheet, or see how it handles
+  <a href="does-a-cdn-cut-s3-egress.html">a CDN in front of the same store</a>,
+  <a href="does-a-replica-beat-cross-region-pull.html">a cross-region replica</a>,
+  or <a href="does-infrequent-access-still-beat-standard.html">infrequent-access
+  storage</a>.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice. Verify every rate against your provider's own current price sheet before relying on a result.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+  <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-egress-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloud-egress-calculator"></script>
+</body>
+</html>

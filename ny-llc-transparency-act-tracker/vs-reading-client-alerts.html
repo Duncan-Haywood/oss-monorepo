@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NY LLC Transparency Act Tracker vs. Reading Law-Firm Client Alerts</title>
+  <meta name="description" content="Compare this free NY LLC Transparency Act tracker against the usual method — piecing your category, your deadline…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/vs-reading-client-alerts.html">
+  <meta property="og:title" content="NY LLC Transparency Act Tracker vs. Reading Client Alerts">
+  <meta property="og:description" content="What a free NY LLC Transparency Act tracker gets right versus piecing the answer together from law-firm client alerts…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read a law-firm client alert?","acceptedAnswer":{"@type":"Answer","text":"Client alerts are written by licensed attorneys and are usually accurate about the rule as of their publication date — that is their real strength, and this tool does not replace it. The friction is that an alert explains the rule in general while you still have to apply it to your own LLC, compute your own date, and build your own list of what to collect. The specific risk is date drift: NYDOS narrowed the reporting scope in guidance confirmed December 31, 2025, so an alert written before that change, or a search result surfacing one, can describe a broader set of LLCs as Reporting Companies than the current guidance does."}},{"@type":"Question","name":"Does this tracker replace a lawyer?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. This tool is a reference and an organizer: it applies a published rule to the facts you enter and arranges what you will need, but it produces a likely category rather than a determination of your actual filing status. It is not legal advice and does not replace an attorney licensed in New York. If your ownership structure is layered, contested, or you are unsure whether your LLC has a New York nexus at all, that is a question for counsel, not for a web page."}},{"@type":"Question","name":"Is my beneficial-owner information safer here than in a shared document?","acceptedAnswer":{"@type":"Answer","text":"It is handled differently, and deliberately so. Beneficial-owner details are name, address, date of birth, and government ID number. This tool runs entirely in your browser, never uploads anything, ships no copy-a-link feature at all, and does not save the worksheet to your browser unless you explicitly switch that on — it is off by default, and reloading the page clears the worksheet. A document in a shared drive, by contrast, syncs to a cloud account and inherits whatever sharing that folder already has. Neither approach is a substitute for your own judgment about where this category of data belongs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; line-height: 1.15; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/vs-reading-client-alerts.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NY LLC Transparency Act Tracker vs. Reading Client Alerts — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ny-llc-transparency-act-tracker/">NY LLC Transparency Act Tracker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">NY LLC Transparency Act Tracker vs. Reading Client Alerts</span></span></nav>
+  <p><a href="./">← Back to the NY LLC Transparency Act Tracker</a></p>
+  <h1>This tracker vs. piecing it together from law-firm client alerts</h1>
+
+  <p>This names no specific firm or product. It compares a free browser tool against the generic method most
+    New York LLC owners actually use right now: searching the Act, landing on two or three law-firm client
+    alerts, and assembling your own answer from them.</p>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Question</th><th>Reading client alerts</th><th>This tracker</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Which category your LLC is in</td>
+        <td>The rule is explained in general; you apply it to your own facts</td>
+        <td>You answer three questions — formed in New York, authorized in New York, formed outside the US — and it applies the published rule to those answers</td>
+      </tr>
+      <tr>
+        <td>Whether the scope narrowing is reflected</td>
+        <td>Depends entirely on the alert's date. One written before the NYDOS guidance confirmed December 31, 2025 can describe a broader set of LLCs as Reporting Companies than current guidance does</td>
+        <td>Applies the narrowed scope — a full Beneficial Ownership Disclosure only for an LLC formed outside the United States with a New York nexus — and says which guidance and date that comes from</td>
+      </tr>
+      <tr>
+        <td>Your own filing date</td>
+        <td>Both deadline tracks are described; you work out which one you are on and count the days</td>
+        <td>Computes the applicable initial deadline from your nexus date and shows a countdown to it</td>
+      </tr>
+      <tr>
+        <td>What to collect before filing</td>
+        <td>Listed in prose, often mid-article, and you rebuild it as your own checklist</td>
+        <td>Structured worksheet rows, plus a downloadable organizer and CSV to review before you write the filing email</td>
+      </tr>
+      <tr>
+        <td>Not confusing this with the federal filing</td>
+        <td>Many alerts cover both the federal Corporate Transparency Act and the New York Act, which is thorough but easy to conflate on a skim</td>
+        <td>Covers the New York state filing only, and says plainly that a FinCEN filing does not satisfy it</td>
+      </tr>
+      <tr>
+        <td>Authority behind the answer</td>
+        <td>Its real strength — written and reviewed by licensed attorneys, and citable</td>
+        <td>A likely category, not a determination. Not legal advice, and no substitute for counsel on a hard question</td>
+      </tr>
+      <tr>
+        <td>Where the beneficial-owner details live</td>
+        <td>Usually a document or spreadsheet you create, syncing to whatever cloud account and sharing that folder already has</td>
+        <td>In page memory only. No upload, no copy-a-link feature at all, and saving to your browser is off by default</td>
+      </tr>
+      <tr>
+        <td>Submitting the filing</td>
+        <td>Explains the process; you send the email</td>
+        <td>Never contacts New York State and files nothing — you remain the filer and send it yourself</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p>Neither approach decides whether your LLC has a New York nexus, and neither files anything for you. Both
+    are only as good as the facts you bring to them, and both should be checked against NYDOS before you rely
+    on a date.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Why not just read a law-firm client alert?</h3>
+  <p>Client alerts are written by licensed attorneys and are usually accurate about the rule as of their
+    publication date &mdash; that is their real strength, and this tool does not replace it. The friction is
+    that an alert explains the rule in general while you still have to apply it to your own LLC, compute your
+    own date, and build your own list of what to collect. The specific risk is date drift: NYDOS narrowed the
+    reporting scope in guidance confirmed December 31, 2025, so an alert written before that change, or a
+    search result surfacing one, can describe a broader set of LLCs as Reporting Companies than the current
+    guidance does.</p>
+
+  <h3>Does this tracker replace a lawyer?</h3>
+  <p>No, and it is not trying to. This tool is a reference and an organizer: it applies a published rule to the
+    facts you enter and arranges what you will need, but it produces a <em>likely</em> category rather than a
+    determination of your actual filing status. It is not legal advice and does not replace an attorney
+    licensed in New York. If your ownership structure is layered, contested, or you are unsure whether your LLC
+    has a New York nexus at all, that is a question for counsel, not for a web page.</p>
+
+  <h3>Is my beneficial-owner information safer here than in a shared document?</h3>
+  <p>It is handled differently, and deliberately so. Beneficial-owner details are name, address, date of birth,
+    and government ID number. This tool runs entirely in your browser, never uploads anything, ships no
+    copy-a-link feature at all, and does not save the worksheet to your browser unless you explicitly switch
+    that on &mdash; it is off by default, and reloading the page clears the worksheet. A document in a shared
+    drive, by contrast, syncs to a cloud account and inherits whatever sharing that folder already has. Neither
+    approach is a substitute for your own judgment about where this category of data belongs.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified attorney licensed in New York. Statutes and agency guidance are amended without notice &mdash; verify the current rule directly with NYDOS before you rely on any date here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Use the <a href="./">NY LLC Transparency Act Tracker</a> to check your own category and deadline, or read <a href="./when-is-the-ny-llc-transparency-act-deadline.html">when is the NY LLC Transparency Act deadline?</a> for the dates and how the New York filing differs from the federal one.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../eu-data-act-checker/" data-pf-to="eu-data-act-checker">EU Data Act checker: does the Data Act apply to your connected product or cloud service? Free, private</a></li>
+      <li><a href="../eu-dora-readiness-checker/" data-pf-to="eu-dora-readiness-checker">EU DORA checker: in scope?, what is missing, when is the incident report due. Free, private</a></li>
+      <li><a href="../eu-dsa-obligations-checker/" data-pf-to="eu-dsa-obligations-checker">DSA obligations checker: which Articles apply to your platform. Free, private</a></li>
+      <li><a href="../eu-einvoicing-mandate-checker/" data-pf-to="eu-einvoicing-mandate-checker">EU e-invoicing mandate checker: your receive and issue dates by country. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ny-llc-transparency-act-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ny-llc-transparency-act-tracker"></script>
+</body>
+</html>

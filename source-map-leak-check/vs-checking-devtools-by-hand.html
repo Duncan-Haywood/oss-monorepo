@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Source Map Leak Checker vs. Checking DevTools By Hand</title>
+<meta name="description" content="Opening devtools and looking for a Sources/Debugger panel with readable file names catches an obvious leak.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/vs-checking-devtools-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does opening devtools by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Open the Sources (Chrome/Edge) or Debugger (Firefox) panel on a live page: if a script's map is loaded, you'll usually see the original, readable file tree instead of the minified bundle. That is a fast, real signal for the single obvious case -- a map that is fully exposed on the exact script you happened to open." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick devtools look easily misses: (1) a script that references a map which 404s or 403s -- devtools just shows you the minified code with no indication of whether the reference itself is a stray leftover or was never a problem; you'd have to separately try to load the .map URL. (2) A vendor or third-party bundle carrying its own sourceMappingURL comment independently of your own build -- easy to skip when you're eyeballing the entry bundle you wrote and not the ten other script tags the page also loads. (3) An inline data: URI source map, which some bundlers embed directly in the script rather than as a separate file -- devtools will resolve it the same way, but a person scanning file sizes or thinking 'no separate .map request, so no map' would miss it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A devtools check is a point-in-time, manual look. A deploy pipeline, a CDN config change, or a new vendor dependency can reintroduce an exposed map at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/vs-checking-devtools-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Source Map Leak Checker vs. Checking DevTools By Hand">
+<meta property="og:description" content="Opening devtools and looking for a Sources/Debugger panel with readable file names catches an obvious leak.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Source Map Leak Checker vs. Checking DevTools By Hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../source-map-leak-check/">Source Map Leak Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Source Map Leak Checker vs. Checking DevTools By Hand</span></span></nav>
+<p><a href="index.html">← Back to the Source Map Leak Checker</a></p>
+<h1>Source Map Leak Checker vs. checking devtools by hand</h1>
+<p>
+  Opening a browser's devtools and looking at the Sources/Debugger panel is a real, fast way to
+  spot the single obvious case: a map that is fully exposed on the exact script you happened to
+  open. It is also the method most developers already reach for first, and it genuinely works for
+  that case. This page is not affiliated with any browser vendor — it names browser devtools only
+  as a generic manual habit, not a product being compared against.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Check</th><th>Opening devtools by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious fully-exposed map on the script you're looking at</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>A map reference that 404s/403s (stray but harmless)</td><td>Easy to misread as "no map"</td><td>Reports it separately as "blocked", distinct from "clean"</td></tr>
+    <tr><td>A vendor/third-party bundle with its own reference</td><td>Easy to skip — you're looking at your own entry bundle</td><td>Checks every script tag the page loads</td></tr>
+    <tr><td>An inline <code>data:</code> URI source map</td><td>Easy to miss scanning network requests</td><td>Decoded and checked the same as an external map</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+    <tr><td>Distinguishes full source text from paths-only</td><td>You'd have to read the map JSON yourself</td><td>Reported automatically as a separate severity</td></tr>
+  </tbody>
+</table></div>
+
+<h2>When to still just look</h2>
+<p>
+  If you only need a one-off sanity check on a page you're already staring at in devtools, looking
+  is fine — it's free and you're already there. The gap this tool closes is coverage: every script
+  tag, not just the one you opened, checked the same way every time a deploy happens, with an exit
+  code a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does opening devtools by hand actually show you?</h3>
+<p>Open the Sources (Chrome/Edge) or Debugger (Firefox) panel on a live page: if a script's map is loaded, you'll usually see the original, readable file tree instead of the minified bundle. That is a fast, real signal for the single obvious case -- a map that is fully exposed on the exact script you happened to open.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a quick devtools look easily misses: (1) a script that references a map which 404s or 403s -- devtools just shows you the minified code with no indication of whether the reference itself is a stray leftover or was never a problem; you'd have to separately try to load the .map URL. (2) A vendor or third-party bundle carrying its own sourceMappingURL comment independently of your own build -- easy to skip when you're eyeballing the entry bundle you wrote and not the ten other script tags the page also loads. (3) An inline data: URI source map, which some bundlers embed directly in the script rather than as a separate file -- devtools will resolve it the same way, but a person scanning file sizes or thinking 'no separate .map request, so no map' would miss it.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A devtools check is a point-in-time, manual look. A deploy pipeline, a CDN config change, or a new vendor dependency can reintroduce an exposed map at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any site you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+      <li><a href="../terraform-plan-secret-exposure-check/" data-pf-to="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=source-map-leak-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="source-map-leak-check"></script>
+</body>
+</html>

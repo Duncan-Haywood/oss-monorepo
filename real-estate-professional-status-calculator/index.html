@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Real Estate Professional Status Calculator — Free</title>
+  <meta name="description" content="Free calculator: do your hours pass the real estate professional 750-hour and more-than-half tests, are your rentals materially participated in…">
+  <meta property="og:title" content="Do I qualify as a real estate professional? Free calculator">
+  <meta property="og:description" content="Hours test, material participation gate, $25,000 allowance phase-out and what REPS is worth in today's dollars. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Real Estate Professional Status Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Check the 750-hour and more-than-half tests for real estate professional status, the material participation gate on your rentals, the $25,000 allowance phase-out, and what turning a rental loss non-passive is worth in today's dollars. Runs in your browser; nothing is uploaded.","featureList":"750-hour test, more-than-half test, hours short, material participation check, $25,000 allowance phase-out, suspended loss carryforward, present value of REPS, hours pass/fail grid, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Who qualifies as a real estate professional for tax purposes?","acceptedAnswer":{"@type":"Answer","text":"You must spend more than 750 hours a year in real property trades or businesses in which you materially participate, and those hours must be more than half of all the hours you work in any business or job. A full-time W-2 job almost always rules this out for you. On a joint return only one spouse has to meet both tests, but the 750 hours cannot be added across spouses."}},{"@type":"Question","name":"Does passing the 750-hour test make my rental loss deductible?","acceptedAnswer":{"@type":"Answer","text":"Not by itself. Each rental activity also needs material participation, for example 500 or more hours on it, unless you elected to group all your rentals as one activity. If you pass the hours test but not material participation, the loss is still passive. The calculator shows which gate you are failing."}},{"@type":"Question","name":"What happens to the loss if I do not qualify?","acceptedAnswer":{"@type":"Answer","text":"It is passive. Active participants can use up to $25,000 a year against other income, phased out between $100,000 and $150,000 of income. The rest is suspended and carried forward, then released against other income when you sell the property in a fully taxable sale. Status therefore changes when you get the deduction, and the multi-year table prices that timing."}},{"@type":"Question","name":"Is the short-term rental route different?","acceptedAnswer":{"@type":"Answer","text":"Yes. A rental with an average stay of seven days or less is not treated as a rental activity, so you only need to materially participate in it. That is a different test and is not modelled here."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Hours logs, grouping elections, the material participation tests, at-risk and basis limits and state rules decide your actual result, so confirm with a tax professional. Defaults are placeholders."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Do I qualify as a real estate professional? Free calculator","item":"https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Do I qualify as a real estate professional? Free calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Do I qualify as a real estate professional? Free calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">REAL ESTATE PROFESSIONAL STATUS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do you qualify as a real estate professional, and what is it worth?</h1>
+    <p>Enter your hours, your rental loss and your income. It checks both hours tests and the material participation gate, shows how much of the loss the $25,000 allowance can use if you do not qualify, and prices the difference in today's dollars over your holding period.</p>
+    <p class="note">Planning arithmetic on your own numbers, not a determination of your status.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your hours for the year</h2>
+      <div class="grid">
+        <div><label for="reHours">Hours in real property trades or businesses you materially participate in (development, construction, rental, management, brokerage)</label><input id="reHours" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="otherHours">Hours in all other work (W-2 job, other business)</label><input id="otherHours" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="rentalHours">Hours you personally spend on your rental activities (the 500-hour material participation test)</label><input id="rentalHours" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Income and the loss</h2>
+      <div class="grid">
+        <div><label for="magi">Modified AGI before any passive loss ($)</label><input id="magi" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="activeParticipation">Do you actively participate in the rentals (set rent, approve tenants, approve repairs)? 1 = yes, 0 = no</label><select id="activeParticipation"><option value="1">1 — yes</option><option value="0">0 — no</option></select></div>
+        <div><label for="year1Loss">Rental loss in year 1 ($: depreciation, cost segregation and interest over rent)</label><input id="year1Loss" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="annualLoss">Rental loss each later year ($)</label><input id="annualLoss" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="yearsHeld">Years until you sell in a fully taxable sale</label><input id="yearsHeld" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Rates and rules</h2>
+      <div class="grid">
+        <div><label for="marginalRatePct">Marginal tax rate on the loss, federal plus state (%)</label><input id="marginalRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="discountPct">Discount rate for timing (%)</label><input id="discountPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="allowance">Special allowance for active participants ($)</label><input id="allowance" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="phaseoutStart">MAGI where the allowance starts to shrink ($)</label><input id="phaseoutStart" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="phaseoutRatePct">Allowance lost per dollar of MAGI over that (%)</label><input id="phaseoutRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Check my status</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Who qualifies as a real estate professional for tax purposes?</h3>
+      <p>You must spend more than 750 hours a year in real property trades or businesses in which you materially participate, and those hours must be more than half of all the hours you work in any business or job. A full-time W-2 job almost always rules this out for you. On a joint return only one spouse has to meet both tests, but the 750 hours cannot be added across spouses.</p>
+      <h3>Does passing the 750-hour test make my rental loss deductible?</h3>
+      <p>Not by itself. Each rental activity also needs material participation, for example 500 or more hours on it, unless you elected to group all your rentals as one activity. If you pass the hours test but not material participation, the loss is still passive. The calculator shows which gate you are failing.</p>
+      <h3>What happens to the loss if I do not qualify?</h3>
+      <p>It is passive. Active participants can use up to $25,000 a year against other income, phased out between $100,000 and $150,000 of income. The rest is suspended and carried forward, then released against other income when you sell the property in a fully taxable sale. Status therefore changes when you get the deduction, and the multi-year table prices that timing.</p>
+      <h3>Is the short-term rental route different?</h3>
+      <p>Yes. A rental with an average stay of seven days or less is not treated as a rental activity, so you only need to materially participate in it. That is a different test and is not modelled here.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Hours logs, grouping elections, the material participation tests, at-risk and basis limits and state rules decide your actual result, so confirm with a tax professional. Defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your hours would survive an audit (a contemporaneous log is what examiners ask for), which activities count as real property trades or businesses, the other six material participation tests, a grouping election for all rentals, the short-term rental route, at-risk and basis limits, the net investment income tax, state treatment, alternative minimum tax, and whether a sale is fully taxable and large enough to absorb suspended losses. This prices timing with one flat rate and one discount rate. The $25,000 allowance and every other default are placeholders, not current law: check them for your year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../str-tax-loophole-calculator/">short-term rental tax loophole calculator</a>, the <a href="../cost-segregation-study-calculator/">cost segregation study calculator</a> and the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting every federal and state rule that applies to your hours, records and filings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no taxpayer identifiers are asked for or needed. Anonymous feature events (<code>status_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, analyze, hoursGrid } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.reHours >= 0) || !(o.year1Loss + o.annualLoss > 0) || !(o.marginalRatePct > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter your hours, a rental loss and a marginal rate above zero.</div>'; $("out").hidden = false; return; }
+      const a = analyze(o);
+      const h = a.hours;
+      let s = "";
+      const why = a.nonPassive ? "Both gates pass, so the rental loss is not passive and offsets your other income as it arises." : !h.pass ? `The hours test fails: ${h.over750 ? "" : "you are at or under 750 hours. "}${h.overHalf ? "" : "your real estate hours are not more than half of all your work hours. "}You are ${Math.round(h.hoursShort).toLocaleString("en-US")} hours short of passing.` : "You pass the hours test, but you spend under 500 hours on the rentals themselves, so they are still passive unless you meet another material participation test or elect to group.";
+      s += `<div class="finding"><h4>${a.nonPassive ? "Your rental loss is non-passive" : "Your rental loss is passive"}</h4><p>${why}</p><p class="stats">Real estate hours are <strong>${(h.share * 100).toFixed(0)}%</strong> of ${Math.round(h.total).toLocaleString("en-US")} total work hours. Year 1: <strong>${money(a.firstYear.deducted)}</strong> of the ${money(a.firstYear.loss)} loss is deductible now (worth ${money(a.firstYear.taxValue)}); ${money(a.firstYear.suspended)} is suspended.</p></div>`;
+      s += `<div class="finding"><h4>What status is worth</h4><p>Your $25,000 allowance at this income is <strong>${money(a.allowance)}</strong> a year. Over ${a.years} year${a.years === 1 ? "" : "s"} and ${money(a.totalLoss)} of loss, passing both gates is worth <strong>${money(a.pvGainFromReps)}</strong> in today's dollars over staying passive, and moves ${money(a.year1Gain)} of tax saving into year 1. The loss itself is not lost when passive: ${money(a.releasedAtSale)} is released when you sell, if the sale is fully taxable.</p></div>`;
+      s += `<div class="finding"><h4>If passive: year by year</h4>${table(["Year", "Loss", "Deducted now", "Suspended at year end"], a.passiveRows.map((r) => [r.year, money(r.loss), money(r.deducted), money(r.suspended)]))}</div>`;
+      const g = hoursGrid();
+      s += `<div class="finding"><h4>Does the hours test pass?</h4>${table(["Real estate hours \\ Other work hours", ...g[0].cells.map((x) => x.other.toLocaleString("en-US"))], g.map((r) => [r.re.toLocaleString("en-US"), ...r.cells.map((x) => (x.pass ? "Pass" : "Fail"))]))}<p class="note">A full-time job leaves almost no room: real estate hours must beat all your other work hours.</p></div>`;
+      $("result").innerHTML = s;
+      $("out").hidden = false;
+      record("status_checked");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../h1b-weighted-lottery-odds-calculator/" data-pf-to="h1b-weighted-lottery-odds-calculator">H-1B weighted lottery odds by wage level — free, private</a></li>
+      <li><a href="../hearing-aid-dispensing-margin-calculator/" data-pf-to="hearing-aid-dispensing-margin-calculator">Hearing aid dispensing margin calculator</a></li>
+      <li><a href="../hoa-reserve-fund-calculator/" data-pf-to="hoa-reserve-fund-calculator">HOA Reserve Fund Calculator</a></li>
+      <li><a href="../home-care-agency-margin-calculator/" data-pf-to="home-care-agency-margin-calculator">Home Care Agency Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=real-estate-professional-status-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/?pfEmbed=1&quot; title=&quot;Do I qualify as a real estate professional? Free calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="real-estate-professional-status-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/" data-pf-embed-title="Do I qualify as a real estate professional? Free calculator" data-pf-embed-slug="real-estate-professional-status-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="real-estate-professional-status-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="real-estate-professional-status-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

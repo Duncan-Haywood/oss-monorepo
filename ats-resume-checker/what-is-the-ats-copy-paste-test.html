@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is the ATS Copy-Paste Test? — ATS Resume Checker</title>
+  <meta name="description" content="What the ATS copy-paste test is, why career coaches recommend it, and the specific formatting problems it catches — icon-font bullets, missing headings…">
+  <meta property="og:title" content="What is the ATS copy-paste test?">
+  <meta property="og:description" content="Copy the text out of your resume file and see what actually extracts. This is why the test works, and what to look for.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/what-is-the-ats-copy-paste-test.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"How to run the ATS copy-paste test on your resume","step":[{"@type":"HowToStep","text":"Open your resume file (PDF or Word)."},{"@type":"HowToStep","text":"Select all the text (Ctrl+A or Cmd+A) and copy it (Ctrl+C or Cmd+C)."},{"@type":"HowToStep","text":"Paste the copied text into a plain-text tool, such as the ATS Resume Checker, and read what actually came out — not what you remember writing."},{"@type":"HowToStep","text":"Look for garbled characters, missing sections, out-of-order content, or a contact block that landed somewhere unexpected."}]}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #3a1f5d; }
+    h2 { font-size: 1.15rem; margin: 28px 0 10px; color: #3a1f5d; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #5c5468; }
+    .card { background: #fff; border: 1px solid #ddd6e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3a1f5d10; margin: 18px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd6e6; padding-top: 16px; }
+    a { color: #5b3a8e; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/what-is-the-ats-copy-paste-test.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is the ATS copy-paste test? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ats-resume-checker/">ATS Resume Checker — the copy-paste test, free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is the ATS copy-paste test?</span></span></nav>
+  <header>
+    <p class="note">ATS RESUME CHECKER</p>
+    <h1>What is the ATS copy-paste test, and why does it work?</h1>
+    <p>An applicant tracking system (ATS) is the software that reads your
+    resume before a person does. Most of them work the same mechanical way:
+    they extract the text from your file — PDF or Word — and parse it into
+    fields like contact info, work history, and skills. They do not "see"
+    your resume the way a human reading a printed page does; they read the
+    underlying text stream, in whatever order the file exposes it.</p>
+    <p>That is exactly what your operating system's copy command does too.
+    So copying all the text out of your resume file and looking at what
+    comes out is a genuine, if imperfect, simulation of what an ATS parser
+    sees — and it needs no special software, no account, and no upload.</p>
+  </header>
+
+  <section class="card">
+    <h2>How to run it</h2>
+    <ol>
+      <li>Open your resume file (PDF or Word — whatever you actually send to employers).</li>
+      <li>Select all the text (<kbd>Ctrl+A</kbd> / <kbd>Cmd+A</kbd>) and copy it (<kbd>Ctrl+C</kbd> / <kbd>Cmd+C</kbd>).</li>
+      <li>Paste it somewhere you can actually read it — a plain text editor, or the <a href="index.html">ATS resume checker</a> on this site, which also flags the specific symptoms below automatically.</li>
+      <li>Read what came out, not what you remember writing. Is everything there? In the right order? Readable?</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>What to look for</h2>
+    <p><strong>Garbled or missing characters.</strong> If bullet points, checkmarks, or icons turn into odd boxes or unreadable characters, your template is using an icon font for decoration — the character that displays as a bullet in your design software has no meaning outside it, and an ATS reading the raw text sees the same garbage character this test does.</p>
+    <p><strong>Sections that don't show up at all.</strong> If your Skills or Education section is completely missing from the pasted text, that content is probably living in a text box, a graphic, or a table cell that didn't copy as plain text — which usually means it won't extract for an ATS either.</p>
+    <p><strong>Contact info in the wrong place, or missing.</strong> If your name, email, or phone number don't appear near the top — or don't appear at all — check whether they're set in a header or footer. Some ATS platforms deliberately ignore header/footer content because it's inconsistent across resume templates.</p>
+    <p><strong>Content that reads out of order.</strong> Two-column layouts and tables are designed to be read visually, top-to-bottom within each column. A mechanical text extraction usually reads left-to-right per line instead, which can interleave your job titles with your skills list into a scrambled mess.</p>
+    <p><strong>No dates anywhere.</strong> If your employment dates don't show up as plain text (say, because they're in a graphic timeline), an ATS can't build a work-history timeline from them.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this test can't tell you</h2>
+    <p>It's a proxy, not a guarantee. Different ATS products (Workday, Greenhouse, Lever, iCIMS, Taleo, and others) use different parsing engines, and some are considerably more forgiving than others. A resume that copies out cleanly is more likely to parse well broadly, but no free tool — this one included — can promise a specific result on a specific company's system. It also says nothing about whether your resume's content is compelling, relevant to the role, or well-written; that's a separate, and arguably more important, question.</p>
+    <p>Run the check: <a href="index.html">back to the ATS resume checker</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational and is not career, legal, or other professional advice. <strong>Best-effort hosting, no SLA.</strong> Free, experimental, and may change or move without notice.</p>
+    <p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.anthropic.com, api.openai.com, and generativelanguage.googleapis.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../social-security-benefits-tax-calculator/" data-pf-to="social-security-benefits-tax-calculator">Is my Social Security taxable? Free calculator with the tax torpedo, private</a></li>
+      <li><a href="../social-security-earnings-test-calculator/" data-pf-to="social-security-earnings-test-calculator">Social Security earnings test calculator: how much is withheld if you work? Free, private</a></li>
+      <li><a href="../sponsor-ready/" data-pf-to="sponsor-ready">Sponsor Ready</a></li>
+      <li><a href="../structured-settlement-buyout-calculator/" data-pf-to="structured-settlement-buyout-calculator">What rate is the settlement buyer charging you? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ats-resume-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ats-resume-checker"></script>
+</body>
+</html>

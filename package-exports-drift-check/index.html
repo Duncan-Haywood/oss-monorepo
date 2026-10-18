@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>package.json Exports Drift Check — Does "exports" Point at Files That Exist?</title>
+  <meta name="description" content="Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn't…">
+  <meta property="og:title" content="Does your package.json &quot;exports&quot; map point at files that actually exist?">
+  <meta property="og:description" content="Paste your package.json and a file listing and get a deterministic list of every exports target that doesn't exist on disk -- the bug that only shows up after…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"package.json Exports Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flattens a package.json \"exports\" map (subpaths, nested conditions, fallback arrays) and checks that every literal file target actually exists, naming every target that points at a file that is missing -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module errors right after a stranger's npm install. Runs entirely in the browser or as a zero-dependency Node CLI usable as a pre-publish CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a bad exports target only show up after publish?","acceptedAnswer":{"@type":"Answer","text":"On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an npm publish run before the build step finished, and the first person to find out is a stranger running npm install, not the maintainer."}},{"@type":"Question","name":"What is ERR_PACKAGE_PATH_NOT_EXPORTED?","acceptedAnswer":{"@type":"Answer","text":"Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for."}},{"@type":"Question","name":"Is this a bundler or a publish tool?","acceptedAnswer":{"@type":"Answer","text":"No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (\"./features/*\") and bare-specifier re-exports of another package are listed as not checked, not as passing or failing."}},{"@type":"Question","name":"Is my package.json uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; overflow-wrap: anywhere; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; overflow-wrap: anywhere; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; overflow-wrap: anywhere; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.missing { background: #fde8e8; color: #7f1d1d; }
+    .pill.skipped { background: #e3e9ef; color: #334155; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Does your package.json \"exports\" map point at files that actually exist?","item":"https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does your package.json &quot;exports&quot; map point at files that actually exist? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does your package.json &quot;exports&quot; map point at files that actually exist?</span></span></nav>
+  <header>
+    <p class="note">PACKAGE.JSON EXPORTS DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your package.json "exports" map point at files that actually exist?</h1>
+    <p>Paste your <code>package.json</code> and a listing of the files you actually publish (<code>npm pack --dry-run</code>, <code>git ls-files</code>, or a plain <code>find . -type f</code>) and see every literal target in the <code>exports</code> map — across every subpath, every condition (<code>import</code>/<code>require</code>/<code>types</code>/...), every fallback array — that doesn't exist. That's the difference between a package that works on the maintainer's own machine and one that throws <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code> or <code>Cannot find module</code> the moment a stranger runs <code>npm install</code>.</p>
+    <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. This checks existence, not behaviour: it never runs your code, resolves an import graph, or reads a file's contents.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your files</h2>
+    <div class="grid">
+      <div>
+        <label for="pkg-input">package.json</label>
+        <textarea id="pkg-input" spellcheck="false" placeholder='{&#10;  "name": "my-lib",&#10;  "exports": {&#10;    ".": { "import": "./esm/index.js", "require": "./cjs/index.js" },&#10;    "./feature": "./cjs/feature.js"&#10;  }&#10;}'></textarea>
+      </div>
+      <div>
+        <label for="files-input">Files you actually publish (one per line — paste <code>npm pack --dry-run</code>'s "Tarball Contents", <code>git ls-files</code>, or a file listing)</label>
+        <textarea id="files-input" spellcheck="false" placeholder="package.json&#10;README.md&#10;esm/index.js&#10;cjs/index.js"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with drift)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What's missing</h2>
+    <p id="summary"></p>
+    <div class="pf-table-scroll"><table id="results-table" hidden>
+      <thead><tr><th>Subpath</th><th>Condition</th><th>Target</th><th>Status</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a pre-publish CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — reads only local files, no network call:</p>
+    <pre class="cmd">node cli.mjs check                          # ./package.json
+node cli.mjs check path/to/package.json
+node cli.mjs check --json                    # machine-readable</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. Run it <strong>after your build step and before <code>npm publish</code></strong> — it checks what's on disk right now, so running it before the build has produced anything will read every export as missing. Exits 1 if any literal export target is missing, so it works as the last gate before a publish that would have broken.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked, and what's deliberately skipped</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Shape</th><th>Handling</th></tr></thead>
+      <tbody>
+        <tr><td>A literal path (<code>"./dist/index.js"</code>), at any subpath, any nesting of conditions, any position in a fallback array</td><td>Checked — reported <span class="pill missing">missing</span> if it doesn't exist</td></tr>
+        <tr><td>A wildcard target (<code>"./features/*"</code>)</td><td><span class="pill skipped">skipped</span> — resolving one needs matching real files against a pattern, out of scope for v0</td></tr>
+        <tr><td>A bare specifier (<code>"other-package/subpath"</code>)</td><td><span class="pill skipped">skipped</span> — re-exports another package, nothing on disk to check</td></tr>
+        <tr><td><code>null</code> (explicitly blocked subpath)</td><td>Not a file target, ignored entirely — this is intentional, correct package.json</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">More: <a href="why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a> &middot; <a href="vs-manually-checking-exports-targets.html">this checker vs. manually checking each target by eye</a>. Already use <a href="vs-publint.html">publint</a>? See how the two compare.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a bad exports target only show up after publish?</h3>
+    <p>On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an <code>npm publish</code> run before the build step finished, and the first person to find out is a stranger running <code>npm install</code>, not the maintainer.</p>
+    <h3>What is <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code>?</h3>
+    <p>Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for.</p>
+    <h3>Is this a bundler or a publish tool?</h3>
+    <p>No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (<code>"./features/*"</code>) and bare-specifier re-exports of another package are listed as not checked, not as passing or failing.</p>
+    <h3>Is my package.json uploaded anywhere?</h3>
+    <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided — nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a> and <a href="../structured-data-drift-check/">Structured Data Drift Check</a> ask the same "does the doc still match the code" question about a different pair of files, with the same deterministic, no-upload shape. <a href="../node-version-drift-check/">Node Version Drift Check</a> does the same for the Node.js versions declared in <code>engines.node</code>, <code>.nvmrc</code>, the Dockerfile and CI.</p>
+    <p class="support">Free and open source. If this saved you a broken publish, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePackageJson, extractExportEntries, classifyExportEntries, normalizePath, parseFileList, diffExports, summarize } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      pkgInput: $("#pkg-input"), filesInput: $("#files-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderReport() {
+      const pkgText = els.pkgInput.value;
+      const filesText = els.filesInput.value;
+      if (!pkgText.trim() || !filesText.trim()) {
+        els.status.innerHTML = `<span class="error">Paste both your package.json and a file listing first (or load the worked example).</span>`;
+        return;
+      }
+
+      let pkg;
+      try {
+        pkg = parsePackageJson(pkgText);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">package.json: ${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const entries = extractExportEntries(pkg.exports);
+      const { literal, wildcard, external } = classifyExportEntries(entries);
+      const fileSet = parseFileList(filesText);
+      const report = diffExports({ literal, fileExists: (t) => fileSet.has(normalizePath(t)) });
+      const { status, text } = summarize(report, { wildcardCount: wildcard.length, externalCount: external.length });
+      els.summary.innerHTML = status === "ok"
+        ? `<span class="ok">${escapeHtml(text)}</span>`
+        : `<span class="changed">${escapeHtml(text)}</span>`;
+
+      const rows = [
+        ...report.missing.map((e) => ({ ...e, kind: "missing" })),
+        ...wildcard.map((e) => ({ ...e, kind: "skipped (wildcard)" })),
+        ...external.map((e) => ({ ...e, kind: "skipped (external)" })),
+      ];
+      els.table.hidden = rows.length === 0;
+      els.rows.innerHTML = rows.map((r) => `<tr>
+        <td><code>${escapeHtml(r.subpath)}</code></td>
+        <td>${escapeHtml(r.condition || "—")}</td>
+        <td><code>${escapeHtml(r.target)}</code></td>
+        <td><span class="pill ${r.kind.startsWith("missing") ? "missing" : "skipped"}">${escapeHtml(r.kind)}</span></td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_PKG = JSON.stringify({
+      name: "example-lib",
+      version: "1.2.0",
+      exports: {
+        ".": { import: "./esm/index.js", require: "./cjs/index.js", types: "./types/index.d.ts" },
+        "./feature": "./cjs/feature.js",
+      },
+    }, null, 2);
+    const EXAMPLE_FILES = `package.json
+README.md
+esm/index.js
+cjs/index.js
+types/index.d.ts`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.pkgInput.value = EXAMPLE_PKG;
+      els.filesInput.value = EXAMPLE_FILES;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.pkgInput.value = "";
+      els.filesInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+      <li><a href="../cron-dst-drift-check/" data-pf-to="cron-dst-drift-check">Will your cron job survive daylight saving?</a></li>
+      <li><a href="../csv-to-sql-generator/" data-pf-to="csv-to-sql-generator">CSV to SQL, in your browser</a></li>
+      <li><a href="../databricks-cluster-cost-advisor/" data-pf-to="databricks-cluster-cost-advisor">Why is your Databricks bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=package-exports-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/?pfEmbed=1&quot; title=&quot;Does your package.json &quot;exports&quot; map point at files that actually exist? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="package-exports-drift-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/" data-pf-embed-title="Does your package.json &quot;exports&quot; map point at files that actually exist?" data-pf-embed-slug="package-exports-drift-check"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I eat the shipping on Reverb? | Keep the list, absorb the label</title>
+  <meta name="description" content="Keeping an $800 Reverb list and offering free shipping leaves $208.99. Folding the $75 into the list leaves $277.85.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/should-i-eat-the-shipping-on-reverb.html">
+  <meta property="og:title" content="Should I eat the shipping on Reverb?">
+  <meta property="og:description" content="Keeping an $800 Reverb list and offering free shipping leaves $208.99. Folding the $75 into the list leaves $277.85.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I eat the shipping on Reverb?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — $800 list, $75 shipping charged, $65 label, 5% marketplace, 3.19%+$0.49 payment — keeping the $800 list and absorbing the label leaves $208.99. Folding the $75 into an $875 list leaves $277.85. Charging the buyer leaves $281.60. Absorbing the label is $68.86 worse than including shipping and $72.61 worse than charging the buyer. None of that is advice to raise the price — it is the arithmetic on those inputs."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; background: #fffef8; } th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #d8d2c4; } th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #5c554d; } footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/should-i-eat-the-shipping-on-reverb.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I eat the shipping on Reverb? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../reverb-fee-calculator/">Reverb Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I eat the shipping on Reverb?</span></span></nav>
+  <p><a href="./">← Reverb fee calculator</a></p>
+  <h1>Should I eat the shipping on Reverb?</h1>
+  <p>A used guitar is listed at $800. You would charge $75 for shipping and pay $65 for the label. “Free shipping” can mean two different sales. Folding the $75 into an $875 list is the path on <a href="should-i-include-shipping-on-reverb.html">should I include shipping</a>. This page is the other path: keep the $800 list, offer free shipping, and still buy the label. Overwrite the rates on <a href="./#shipping-compare">the calculator</a>.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Path</th><th>Buyer checkout</th><th>Net cash</th><th>vs buyer-pays</th></tr></thead>
+    <tbody>
+      <tr><td>Buyer pays shipping</td><td>$875.00</td><td>$281.60</td><td>+$0.00</td></tr>
+      <tr><td>Shipping included in the price</td><td>$875.00</td><td>$277.85</td><td>−$3.75</td></tr>
+      <tr><td>Local pickup</td><td>$800.00</td><td>$273.99</td><td>−$7.61</td></tr>
+      <tr><td>You absorb the label</td><td>$800.00</td><td>$208.99</td><td>−$72.61</td></tr>
+    </tbody>
+  </table></div>
+  <p>Absorbing the label keeps <strong>$208.99</strong>. That is <strong>−$68.86</strong> versus including shipping in the price, because you stop collecting $75 and you still pay $65. Including shipping only costs the extra marketplace line on the folded postage (<strong>$3.75</strong> here). If pickup is not free, add gas or parking as the meetup cost on the calculator — it comes out of pickup cash only.</p>
+  <p>None of those sentences is advice to raise the list or require a meetup — they are the arithmetic on the inputs above.</p>
+  <p class="note">Marketplace and Reverb Gives apply to the item. Payment processing applies to item plus shipping charged. Change any rate on the calculator and the four paths update. Your numbers stay in the browser. Comparing this guitar to eBay, Etsy, Amazon, or your own store? The <a href="../where-to-sell-calculator/#c=%7B%22shared%22%3A%7B%22price%22%3A800%2C%22shippingCharged%22%3A75%2C%22shippingCost%22%3A65%2C%22itemCost%22%3A450%2C%22otherCost%22%3A10%7D%2C%22channels%22%3A%5B%7B%22id%22%3A%22reverb%22%2C%22enabled%22%3Atrue%2C%22values%22%3A%7B%7D%7D%5D%7D">where-to-sell calculator</a> ranks Reverb against them with this item's price, shipping, and cost already filled in.</p>
+  <h2>Common questions</h2>
+  <h3>Should I eat the shipping on Reverb?</h3>
+  <p>On the worked example — $800 list, $75 shipping charged, $65 label, 5% marketplace, 3.19%+$0.49 payment — keeping the $800 list and absorbing the label leaves $208.99. Folding the $75 into an $875 list leaves $277.85. Charging the buyer leaves $281.60. Absorbing the label is $68.86 worse than including shipping and $72.61 worse than charging the buyer. None of that is advice to raise the price — it is the arithmetic on those inputs.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../whatnot-sales-report-analyzer/" data-pf-to="whatnot-sales-report-analyzer">Whatnot Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../whatnot-seller-payout/" data-pf-to="whatnot-seller-payout">Whatnot Seller Payout Calculator</a></li>
+      <li><a href="../where-to-sell-calculator/" data-pf-to="where-to-sell-calculator">Where to Sell Calculator — compare marketplace fees on one item</a></li>
+      <li><a href="../wholesale-line-sheet-maker/" data-pf-to="wholesale-line-sheet-maker">Wholesale Line Sheet Maker — free, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=reverb-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="reverb-fee-calculator"></script>
+</body>
+</html>

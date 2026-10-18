@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Supabase Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
+  <meta name="description" content="Estimate a monthly Supabase Pro bill from your own usage (compute, database disk, egress, storage, monthly active users, Edge Functions…">
+  <meta property="og:title" content="What will your Supabase bill be, and what cuts it most?">
+  <meta property="og:description" content="Type your usage, get an estimated monthly bill and a ranked list of savings levers with dollar figures. No account, no upload.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Supabase Bill Estimator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate a monthly Supabase Pro bill from your own usage numbers at editable list prices, and see a ranked list of the changes that cut it most (compute rightsizing, egress trimming, database cleanup, storage cleanup, Edge Function caching, Realtime batching, fake sign-up blocking) with a dollar saving each. Runs in the browser or as a zero-dependency Node CLI with a --budget CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my Supabase account or invoice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the usage numbers you type or paste (copy them from the Usage page of your Supabase dashboard) and multiplies them by list prices you can edit. It cannot see your plan, regions, spend limits, enterprise contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public Pro-plan list prices from Supabase's pricing documentation as best known in 2025 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number."}}, {"@type": "Question", "name": "How is the saving for each lever calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, rightsizing that removes 30% of compute spend) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"What will your Supabase bill be, and what cuts it most?","item":"https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What will your Supabase bill be, and what cuts it most? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What will your Supabase bill be, and what cuts it most?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">SUPABASE BILL ESTIMATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will your Supabase bill be, and what cuts it most?</h1>
+    <p>Enter your usage from the Supabase dashboard and get an <strong>estimated monthly bill by line</strong> and a <strong>ranked list of levers</strong> (compute rightsizing, egress trimming, database cleanup, storage cleanup, Edge Function caching, Realtime batching, fake sign-up blocking) with a dollar saving for each.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your plan or your invoice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your monthly usage</h2>
+    <div class="grid">
+      <div><label for="f-pro_orgs">Pro organizations <span class="note">(organizations)</span></label><input type="number" id="f-pro_orgs" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-compute_usd">Compute instances (list price) <span class="note">(USD per month)</span></label><input type="number" id="f-compute_usd" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-db_disk_gb">Database disk <span class="note">(GB)</span></label><input type="number" id="f-db_disk_gb" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-egress_gb">Egress <span class="note">(GB)</span></label><input type="number" id="f-egress_gb" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-storage_gb">File storage <span class="note">(GB)</span></label><input type="number" id="f-storage_gb" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-mau_thousand">Monthly active users <span class="note">(thousand)</span></label><input type="number" id="f-mau_thousand" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-edge_invocations_million">Edge Function invocations <span class="note">(million)</span></label><input type="number" id="f-edge_invocations_million" min="0" value="0" inputmode="decimal"></div>
+      <div><label for="f-realtime_messages_million">Realtime messages <span class="note">(million)</span></label><input type="number" id="f-realtime_messages_million" min="0" value="0" inputmode="decimal"></div>
+    </div>
+    <label for="budget">Monthly budget in USD (optional)</label>
+    <input type="number" id="budget" min="0" placeholder="e.g. 500" inputmode="decimal">
+    <label for="csv">Or paste a <code>product,usage</code> CSV (see the CLI template)</label>
+    <textarea id="csv" spellcheck="false" placeholder="product,usage&#10;pro_orgs,2&#10;egress_gb,900"></textarea>
+    <p>
+      <button type="button" id="calc">Estimate</button>
+      <button type="button" class="secondary" id="load-csv">Fill form from CSV</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Estimate</h2>
+    <p id="summary"></p>
+    <div class="pf-table-scroll"><table id="items-table"><thead><tr><th>Line</th><th>Billable</th><th>Per month</th></tr></thead><tbody id="items-rows"></tbody></table></div>
+    <h3>Levers that cut the bill most</h3>
+    <div class="pf-table-scroll"><table id="levers-table" hidden><thead><tr><th>Change</th><th>Assumption</th><th>Saves per month</th></tr></thead><tbody id="levers-rows"></tbody></table></div>
+    <p class="note">Each lever is computed alone under the assumption shown. Levers overlap, so the savings are not additive.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prices, allowances and assumptions (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Price per unit (USD)</th><th>Included per month</th></tr></thead><tbody id="prices-rows"></tbody></table></div>
+    <p class="note">Change a price here and press Estimate. Defaults are approximate list prices; check <a href="https://supabase.com/pricing" rel="noopener">supabase.com/pricing</a> and your plan.</p>
+    <div class="row" id="assume-row"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a budget gate in CI?</h2>
+    <pre class="cmd">node cli.mjs template &gt; usage.csv
+node cli.mjs estimate usage.csv
+node cli.mjs estimate usage.csv --budget 500      # exit 1 over budget
+node cli.mjs estimate usage.csv --set egress_gb=2000 --json
+node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-reduce-your-supabase-bill.html">how to reduce your Supabase bill</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my Supabase account or invoice?</h3>
+    <p>No. It reads only the usage numbers you type or paste (copy them from the Usage page of your Supabase dashboard) and multiplies them by list prices you can edit. It cannot see your plan, regions, spend limits, enterprise contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>They are approximate public Pro-plan list prices from Supabase's pricing documentation as best known in 2025 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number.</p>
+    <h3>How is the saving for each lever calculated?</h3>
+    <p>Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, rightsizing that removes 30% of compute spend) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive.</p>
+    <h3>Is my usage data uploaded anywhere?</h3>
+    <p>No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies usage numbers you enter by list prices that may be out of date and ignores plans, contracts, spend limits and Supabase's own metering rules; it is not a guarantee of what Supabase will charge, and it is not a bill reader. You are responsible for verifying its output. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Supabase is a trademark of its owner; this project is not affiliated with or endorsed by Supabase Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../vercel-bill-estimator/">Vercel Bill Estimator</a> does the same for a hosting invoice, <a href="../neon-bill-estimator/">Neon Bill Estimator</a> ranks the levers on a serverless Postgres invoice, <a href="../datadog-bill-estimator/">Datadog Bill Estimator</a> ranks the levers on an observability invoice, and <a href="../llm-call-cost-scan/">LLM Call Cost Scan</a> finds the LLM API calls quietly costing money.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { USAGE_FIELDS, DEFAULT_PRICES, DEFAULT_ASSUMPTIONS, DEFAULT_CREDIT_USD, PRICES_AS_OF, parseUsageCsv, estimateBill, rankLevers, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+    const assumptions = { ...DEFAULT_ASSUMPTIONS };
+    let credit = DEFAULT_CREDIT_USD;
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+
+    const priceRows = Object.entries(prices).map(([key, p]) => `<tr><td>${escapeHtml(p.label)}</td><td><input type="number" step="0.001" min="0" aria-label="${escapeHtml(p.label)} price" data-price="${key}" value="${p.rate}" inputmode="decimal"></td><td><input type="number" step="any" min="0" aria-label="${escapeHtml(p.label)} included" data-included="${key}" value="${p.included}" inputmode="decimal"></td></tr>`);
+    priceRows.push(`<tr><td>Extra monthly usage credit (USD, optional; the bundled $10 compute credit is already the compute allowance)</td><td colspan="2"><input type="number" step="1" min="0" aria-label="Monthly usage credit" id="credit" value="${credit}" inputmode="numeric"></td></tr>`);
+    $("#prices-rows").innerHTML = priceRows.join("");
+    $("#assume-row").innerHTML = Object.entries(assumptions).map(([k, v]) => `<div><label for="a-${k}">${escapeHtml(k)}</label><input type="number" min="0" step="any" id="a-${k}" value="${v}" inputmode="decimal"></div>`).join("");
+
+    function readPrices() {
+      for (const el of document.querySelectorAll("[data-price]")) prices[el.dataset.price].rate = Math.max(0, Number(el.value) || 0);
+      for (const el of document.querySelectorAll("[data-included]")) prices[el.dataset.included].included = Math.max(0, Number(el.value) || 0);
+      credit = Math.max(0, Number($("#credit").value) || 0);
+      for (const k of Object.keys(assumptions)) assumptions[k] = Math.max(0, Number($("#a-" + k).value) || 0);
+    }
+    function readUsage() {
+      const u = {};
+      for (const f of USAGE_FIELDS) u[f.key] = Number($("#f-" + f.key).value) || 0;
+      return u;
+    }
+    function fillForm(u) {
+      for (const [k, v] of Object.entries(u)) if ($("#f-" + k)) $("#f-" + k).value = v;
+    }
+
+    function render() {
+      readPrices();
+      const est = estimateBill(readUsage(), prices, credit);
+      if (est.items.every((i) => i.quantity === 0)) {
+        $("#status").innerHTML = `<span class="error">Enter at least one usage number first (or load the worked example).</span>`;
+        return;
+      }
+      $("#status").textContent = "";
+      const levers = rankLevers(est.usage, prices, assumptions, credit);
+      const b = $("#budget").value === "" ? null : Math.max(0, Number($("#budget").value) || 0);
+      const s = summarize(est, levers, { budget: b });
+      $("#summary").innerHTML = `<span class="${s.overBudget ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      const rows = est.items.filter((i) => i.monthly > 0).map((i) => `<tr><td>${escapeHtml(i.label)}${i.note ? ` <span class="note">(${escapeHtml(i.note)})</span>` : ""}</td><td>${i.billable} ${escapeHtml(i.unit)}</td><td>${fmt(i.monthly)}</td></tr>`);
+      if (est.credit > 0) rows.push(`<tr><td>Monthly usage credit</td><td></td><td>-${fmt(est.credit)}</td></tr>`);
+      $("#items-rows").innerHTML = rows.join("") + `<tr><th>Total</th><th></th><th>${fmt(est.total)}</th></tr>`;
+      $("#levers-table").hidden = levers.length === 0;
+      $("#levers-rows").innerHTML = levers.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${escapeHtml(l.assumption)}</td><td>${fmt(l.saving)} (${l.pctOfBill}%)</td></tr>`).join("");
+      $("#estimate").textContent = `${PRICES_AS_OF}. Your usage numbers and editable prices; not a measurement of any invoice.`;
+      $("#report-card").hidden = false;
+      record("estimate_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+    $("#load-csv").addEventListener("click", () => {
+      const { usage, errors } = parseUsageCsv($("#csv").value);
+      if (errors.length) { $("#status").innerHTML = `<span class="error">${escapeHtml(errors.join("; "))}</span>`; return; }
+      fillForm(usage);
+      render();
+    });
+
+    const EXAMPLE = { pro_orgs: 2, compute_usd: 120, db_disk_gb: 60, egress_gb: 900, storage_gb: 400, mau_thousand: 300, edge_invocations_million: 15, realtime_messages_million: 40 };
+    $("#load-example").addEventListener("click", () => {
+      fillForm(EXAMPLE);
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const f of USAGE_FIELDS) $("#f-" + f.key).value = 0;
+      $("#csv").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=supabase-bill-estimator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/?pfEmbed=1&quot; title=&quot;What will your Supabase bill be, and what cuts it most? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="supabase-bill-estimator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/" data-pf-embed-title="What will your Supabase bill be, and what cuts it most?" data-pf-embed-slug="supabase-bill-estimator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="supabase-bill-estimator" data-pf-jobs-amount=""></script>
+</body>
+</html>

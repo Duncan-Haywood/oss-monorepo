@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-square-foot price | Asphalt Sealcoat Bid Calculator</title>
+<meta name="description" content="A flat 'cents per square foot' sealcoat price cannot see pavement condition, oil spots, crack fill, or stalls to stripe.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-square-foot price">
+<meta property="og:description" content="An 800 sq ft residential driveway and an 800 sq ft failing-condition commercial lot with oil spots, crack fill…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-square-foot price get a sealcoating job wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the condition and the scope, not the square footage. An 800 sq ft residential driveway in typical oxidized condition with a handful of oil spots and light crack fill needs one coat of sealer at a normal coverage rate and a short crew visit. An 800 sq ft commercial lot in badly oxidized, failing condition, with twenty oil spots to prime, 220 feet of crack fill, and 24 stalls to restripe, drinks more sealer per coat, adds priming and crack-fill and striping labor on top, and takes roughly three times as long -- on the identical square footage. A flat per-square-foot price charges both the same because it was priced on the area, not the condition or the scope."}},{"@type":"Question","name":"What does a flat per-square-foot price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Pavement condition, oil-spot priming, crack fill, and striping. A flat price has no line for oxidized or failing pavement drinking more sealer on the first coat than a recently sealed lot, no line for the primer and labor an oil spot needs before it can be coated at all, no line for crack fill by the linear foot, and no line for restriping stalls after the coat goes down. It also has no separate line for the extra crew hours all of that adds, since the flat number was set on square footage alone."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting example: an 800 sq ft residential driveway, in typical oxidized condition with 4 oil spots and 40 feet of crack fill, prices at $371.93, on a job that costs $278.94 to run -- $0.46 per square foot. The same 800 square feet as a commercial parking lot in badly oxidized, failing condition, with 20 oil spots, 220 feet of crack fill, and 24 stalls to stripe, costs $741.74 to run before a dollar of profit, and this calculator prices the job at $988.99 -- $1.24 per square foot, 2.66 times the easy job's price on the identical square footage. Quoting the hard job at the easy job's flat $371.93 price prices it $369.82 below its own break-even cost, before counting the $617.07 it falls short of this calculator's own price at a 25% target margin. Same square footage, same flat price, one lot that pays and one that loses money the moment the condition and the stalls show up."}},{"@type":"Question","name":"Is a flat per-square-foot price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- a residential driveway in ordinary condition, with few oil spots, little crack fill, and no striping -- a flat per-square-foot number can land close, because that is probably the job the price was set on. The risk is quoting a badly oxidized or failing lot, a job with heavy crack fill, or a lot that needs stalls restriped the same way sight unseen, because the price does not know the condition, the prep, or the scope until someone walks the site, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your sealer supplier's pricing, or your material costs. It takes the square footage and coats per surface, the pavement condition, application method, oil spots, crack feet, stalls to stripe, and your own wage, burden, travel, materials, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-square-foot price skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1e1e1e;background:#eceae6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2f4f2f;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a4a44}section{background:#fff;border:1px solid #d6d2c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1e1e1e0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d6d2c8;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a4a44}.fine,.note{font-size:.88rem;color:#4a4a44}footer{color:#4a4a44;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/asphalt-sealcoat-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-square-foot price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../asphalt-sealcoat-bid-calculator/">Asphalt Sealcoating Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-square-foot price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Asphalt Sealcoat Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-square-foot price</h1>
+<p class="lede">&ldquo;35 cents a square foot, done&rdquo; is not a price for a sealcoat job &mdash; it is a price for one pavement condition and one scope, quietly applied to every lot that gets called in.</p>
+</header>
+<section>
+<h2>What a flat per-square-foot price is</h2>
+<p>
+A flat per-square-foot price is the fastest way to quote a sealcoat job over
+the phone: multiply the square footage by a number and read it back.
+Customers shop it because it is easy to compare between bids, and it is the
+number a customer holding a competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; usually a
+residential driveway in ordinary condition, with few oil spots, little
+crack fill, and no striping &mdash; and then reused for every lot
+afterward, whether or not the next one is badly oxidized, carries oil
+spots and heavy crack fill, or needs stalls restriped.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+surface's square footage and coats, the pavement condition and application
+method, the oil spots to prime, the crack feet to fill, the stalls to
+stripe, and your own wage, payroll burden, materials, overhead, target
+margin, and travel. It prices the sealer gallons by condition and coats,
+adds priming, crack fill, and striping as their own lines, and returns the
+job price, the walk-away price, and the price per square foot &mdash; for
+this lot and this site, not a flat number for every job.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-square-foot price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same fee whether the pavement is a recently sealed lot or badly oxidized, failing asphalt that drinks nearly twice the first-coat sealer for the same area.</td>
+<td>Applies a coverage multiplier to first-coat gallons by condition (good, oxidized, failing), so worse pavement uses more sealer and costs more &mdash; the second coat is priced the same either way, since the first coat already did the drinking.</td>
+</tr>
+<tr>
+<td>Has no line for oil spots at all &mdash; a lot with twenty of them gets the same quote as a clean one.</td>
+<td>Prices oil-spot priming by the spot, in both the primer gallons and the extra crew hours to prep them, before the coat goes down.</td>
+</tr>
+<tr>
+<td>Quotes the same number for a lot needing 40 feet of crack fill and one needing 220, with no separate line for the filler or the labor.</td>
+<td>Prices crack fill by the linear foot in both filler material and crew hours, so a heavily cracked lot is never quoted at the light lot's price.</td>
+</tr>
+<tr>
+<td>Has no line for restriping stalls after the coat &mdash; a lot with 24 stalls to paint gets the same number as one with none.</td>
+<td>Prices striping by the stall, in both paint and labor, as its own line rather than folding it into the square-footage number.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the price per square foot, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two 800 sq ft jobs, one flat price</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+An 800 sq ft residential driveway, in typical oxidized condition with 4 oil
+spots and 40 feet of crack fill, prices at <strong>$371.93</strong>
+&mdash; <strong>$0.46 per square foot</strong> &mdash; on a job that costs
+$278.94 to run.
+</p>
+<p>
+Take the same 800 square feet and make it a commercial parking lot instead
+&mdash; badly oxidized, failing condition that drinks more first-coat
+sealer, 20 oil spots to prime, 220 feet of crack fill, and 24 stalls to
+restripe &mdash; and the job costs <strong>$741.74</strong> to run before
+a dollar of profit, and this calculator prices it at
+<strong>$988.99</strong>: <strong>$1.24 per square foot</strong>, 2.66
+times the easy job's price, on the identical square footage. Quoting the
+hard job at the easy job's flat <strong>$371.93</strong> price prices it
+<strong>$369.82 below its own break-even cost</strong> &mdash; before
+counting the $617.07 it falls short of this calculator's own price at a
+25% target margin. Same square footage, same flat price, one lot that
+pays and one that loses money the moment the condition and the stalls
+show up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-square-foot price get a sealcoating job wrong?</h3>
+<p>Because the cost driver is the condition and the scope, not the square footage. An 800 sq ft residential driveway in typical oxidized condition with a handful of oil spots and light crack fill needs one coat of sealer at a normal coverage rate and a short crew visit. An 800 sq ft commercial lot in badly oxidized, failing condition, with twenty oil spots to prime, 220 feet of crack fill, and 24 stalls to restripe, drinks more sealer per coat, adds priming and crack-fill and striping labor on top, and takes roughly three times as long -- on the identical square footage. A flat per-square-foot price charges both the same because it was priced on the area, not the condition or the scope.</p>
+<h3>What does a flat per-square-foot price usually leave out entirely?</h3>
+<p>Pavement condition, oil-spot priming, crack fill, and striping. A flat price has no line for oxidized or failing pavement drinking more sealer on the first coat than a recently sealed lot, no line for the primer and labor an oil spot needs before it can be coated at all, no line for crack fill by the linear foot, and no line for restriping stalls after the coat goes down. It also has no separate line for the extra crew hours all of that adds, since the flat number was set on square footage alone.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting example: an 800 sq ft residential driveway, in typical oxidized condition with 4 oil spots and 40 feet of crack fill, prices at $371.93, on a job that costs $278.94 to run -- $0.46 per square foot. The same 800 square feet as a commercial parking lot in badly oxidized, failing condition, with 20 oil spots, 220 feet of crack fill, and 24 stalls to stripe, costs $741.74 to run before a dollar of profit, and this calculator prices the job at $988.99 -- $1.24 per square foot, 2.66 times the easy job's price on the identical square footage. Quoting the hard job at the easy job's flat $371.93 price prices it $369.82 below its own break-even cost, before counting the $617.07 it falls short of this calculator's own price at a 25% target margin. Same square footage, same flat price, one lot that pays and one that loses money the moment the condition and the stalls show up.</p>
+<h3>Is a flat per-square-foot price ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- a residential driveway in ordinary condition, with few oil spots, little crack fill, and no striping -- a flat per-square-foot number can land close, because that is probably the job the price was set on. The risk is quoting a badly oxidized or failing lot, a job with heavy crack fill, or a lot that needs stalls restriped the same way sight unseen, because the price does not know the condition, the prep, or the scope until someone walks the site, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market, your sealer supplier's pricing, or your material costs. It takes the square footage and coats per surface, the pavement condition, application method, oil spots, crack feet, stalls to stripe, and your own wage, burden, travel, materials, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-square-foot price skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Asphalt Sealcoat Bid Calculator</a> to price your own job, or read the <a href="how-much-to-charge.html">pricing walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. It is not a pavement-condition assessment, a specification, or a finding that any lot is ready to coat. Verify every figure against your own payroll, insurance, sealer yield, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../retaining-wall-bid-calculator/" data-pf-to="retaining-wall-bid-calculator">Retaining Wall Bid Calculator</a></li>
+      <li><a href="../shed-install-bid-calculator/" data-pf-to="shed-install-bid-calculator">Shed Install Bid Calculator</a></li>
+      <li><a href="../asphalt-driveway-pave-bid-calculator/" data-pf-to="asphalt-driveway-pave-bid-calculator">Asphalt Driveway Paving Bid Calculator</a></li>
+      <li><a href="../concrete-bid-calculator/" data-pf-to="concrete-bid-calculator">Concrete Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=asphalt-sealcoat-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="asphalt-sealcoat-bid-calculator"></script>
+</body></html>

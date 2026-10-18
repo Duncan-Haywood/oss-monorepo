@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat-rate water heater special | Water Heater Bid Calculator</title>
+<meta name="description" content="A postcard '$1,200 water heater installed' special cannot see whether the job is a same-day 50-gallon electric garage swap or a condensing tankless on an attic…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat-rate water heater special">
+<meta property="og:description" content="A same-day 50-gallon electric garage swap and a condensing tankless on a 3/4-inch gas upsize with an attic carry both get called 'installing a water heater.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat water heater special get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the labor and materials scale with heater type, location, vent, and gas or electrical path, not with the word \"water heater\" alone. A same-day 50-gallon electric tank swapped in an easy garage is a different job from a condensing gas tankless carried into an attic on a 3/4-inch gas upsize with a concentric sidewall vent, a drip pan, and a condensate line. A flat special quotes both the same and is wrong on one of them every time."}},{"@type":"Question","name":"What does a flat special usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The vent, the gas or electrical path, and the attic or crawl-space access hours. A rate built around \"swap the tank\" has no line for upsizing a 1/2-inch gas line to 3/4 inch, no line for a concentric or PVC sidewall termination a condensing unit needs instead of the old atmospheric stack, and no line for the extra hours an attic carry takes over a garage that is already at floor level."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped defaults, at a $48 hourly wage, 30% payroll burden, 16% overhead, and a 25% target margin: the easy job -- a 50-gallon electric tank in a garage, existing circuit, no vent, no gas work -- prices at $1,035.40, on a $776.55 break-even cost. Move the same house to a condensing gas tankless in the attic instead -- concentric sidewall vent, a 3/4-inch gas upsize, a drip pan, a condensate line, and tankless service valves -- and the job costs $2,984.49 to run before a dollar of profit, and this calculator bids it at $3,979.33: 3.8 times the easy job. Quoting the attic tankless at the easy job's own $1,035.40 flat rate prices it $1,949.09 below its own break-even cost."}},{"@type":"Question","name":"Is a flat rate ever the right way to quote a water heater swap?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- same heater type, easy garage or basement access, no vent change, no gas or electrical work -- a flat rate can land close, because that is probably the job the rate was set on. The risk is applying it outside that band without noticing, because the postcard rate does not know which band a given house is in and neither does the installer until the walkthrough."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local labor rates, equipment cost, or what competitors charge. It takes the heater type, location, vent, gas or electrical path, and add-ons, plus your own loaded wage, burden, overhead, and target margin, and turns that into a walk-away price for the job you describe -- the arithmetic a flat rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #f3eee8; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a4b1f; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5348; }
+  section { background: #fff; border: 1px solid #ddd0bd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1420330d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd0bd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5348; }
+  .fine, .note { font-size: .88rem; color: #5c5348; }
+  footer { color: #5c5348; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat-rate water heater special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../water-heater-bid-calculator/">Water Heater Replacement Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat-rate water heater special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Water Heater Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat-rate water heater special</h1>
+<p class="lede">"$1,200 water heater installed" is not a price for a job &mdash; it is a price for a same-day tank swap in an easy garage, quietly reused for every house that also asks to replace a water heater.</p>
+</header>
+<section>
+<h2>What a flat water heater special is</h2>
+<p>
+A flat special is the fastest way to quote over the phone: read off the
+postcard or search-result number, skip the walkthrough. Homeowners shop it
+because it is easy to compare between bids, and it is the number a customer
+holding a competitor's flyer will ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; usually a 50-gallon
+electric tank swapped in a garage or basement with easy access, the existing
+circuit reused, no vent change, no gas work &mdash; and then reused for
+every house afterward, whether or not the next one needs an attic carry, a
+condensing tankless, a gas-line upsize, or a panel rebuild.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+heater type (electric tank, atmospheric or power-vent gas tank, condensing
+gas tankless, electric tankless, or heat pump), tank gallons or tankless
+GPM, location, venting and vent length, gas line and gas-line length,
+electrical path, and add-ons such as an expansion tank, drip pan,
+condensate, recirculation pump, haul-away, seismic straps, a mixing valve,
+and tankless service valves, plus your own loaded wage, payroll burden,
+overhead, and target margin. It returns the installed price, the effective
+hourly rate, and the walk-away price below which the job loses money
+&mdash; for this heater and this house, not a flat number for every garage.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same headline price whether the job is a same-day 50-gallon electric garage swap or a condensing tankless on an attic carry with a gas-line upsize &mdash; several times the labor and materials for the same phrase "water heater".</td>
+<td>Prices the heater from the entered type, capacity, location, vent, and gas or electrical path, so the two jobs above come out at different numbers instead of one.</td>
+</tr>
+<tr>
+<td>Has no line for upsizing a 1/2-inch gas line to 3/4 inch, regardless of whether the existing line can actually flow enough gas for a condensing tankless.</td>
+<td>Prices the gas line separately by scope and length, and flags when a tankless is being priced on an existing line that "looks adequate" &mdash; the check the flat rate never runs.</td>
+</tr>
+<tr>
+<td>Quotes the same number for a heater set on the floor and one carried into an attic or crawl space, with no separate line for access hours.</td>
+<td>Times attic, crawl, closet, and basement access as their own labor hours, on top of the base swap.</td>
+</tr>
+<tr>
+<td>Has no line for a concentric sidewall vent, a drip pan, a condensate line, or tankless service valves &mdash; the extras a condensing or heat-pump unit usually needs that the old atmospheric tank did not.</td>
+<td>Prices venting by type and length and each add-on as its own labor and material line, applied only when the job calls for it.</td>
+</tr>
+<tr>
+<td>Gives the installer a number to quote, not a number to check a quote against when a homeowner asks to match a cheaper flyer.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat special would have quoted the same job, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two houses, one flat rate</h2>
+<p>
+Using this calculator's own shipped defaults &mdash; a $48 hourly wage,
+30% payroll burden, 16% overhead, and a 25% target margin:
+</p>
+<p>
+The easy job &mdash; a 50-gallon electric tank swapped in a garage,
+existing circuit reused, no vent change, no gas work, with an expansion
+tank and haul-away &mdash; prices at <strong>$1,035.40</strong>, on a job
+that costs <strong>$776.55</strong> to run.
+</p>
+<p>
+Take the same house to a condensing gas tankless in the attic instead
+&mdash; a concentric sidewall vent, a 3/4-inch gas-line upsize, a drip
+pan, a condensate line, tankless service valves, and haul-away &mdash;
+and the job costs <strong>$2,984.49</strong> to run before a dollar of
+profit, and this calculator bids it at <strong>$3,979.33</strong>: 3.8
+times the easy job, on the same "water heater replacement" phrase.
+Quoting the attic tankless at the easy job's own
+<strong>$1,035.40</strong> flat rate prices it
+<strong>$1,949.09 below its own break-even cost</strong> &mdash; before
+counting the $2,943.93 it falls short of this calculator's own bid price
+at the same 25% target margin. Same flat rate, one house that pays and
+one that loses money the moment the attic carry and the gas upsize show
+up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat water heater special get the price wrong?</h3>
+<p>Because the labor and materials scale with heater type, location, vent, and gas or electrical path, not with the word "water heater" alone. A same-day 50-gallon electric tank swapped in an easy garage is a different job from a condensing gas tankless carried into an attic on a 3/4-inch gas upsize with a concentric sidewall vent, a drip pan, and a condensate line. A flat special quotes both the same and is wrong on one of them every time.</p>
+<h3>What does a flat special usually leave out entirely?</h3>
+<p>The vent, the gas or electrical path, and the attic or crawl-space access hours. A rate built around "swap the tank" has no line for upsizing a 1/2-inch gas line to 3/4 inch, no line for a concentric or PVC sidewall termination a condensing unit needs instead of the old atmospheric stack, and no line for the extra hours an attic carry takes over a garage that is already at floor level.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped defaults, at a $48 hourly wage, 30% payroll burden, 16% overhead, and a 25% target margin: the easy job -- a 50-gallon electric tank in a garage, existing circuit, no vent, no gas work -- prices at $1,035.40, on a $776.55 break-even cost. Move the same house to a condensing gas tankless in the attic instead -- concentric sidewall vent, a 3/4-inch gas upsize, a drip pan, a condensate line, and tankless service valves -- and the job costs $2,984.49 to run before a dollar of profit, and this calculator bids it at $3,979.33: 3.8 times the easy job. Quoting the attic tankless at the easy job's own $1,035.40 flat rate prices it $1,949.09 below its own break-even cost.</p>
+<h3>Is a flat rate ever the right way to quote a water heater swap?</h3>
+<p>For a narrow band of near-identical jobs -- same heater type, easy garage or basement access, no vent change, no gas or electrical work -- a flat rate can land close, because that is probably the job the rate was set on. The risk is applying it outside that band without noticing, because the postcard rate does not know which band a given house is in and neither does the installer until the walkthrough.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local labor rates, equipment cost, or what competitors charge. It takes the heater type, location, vent, gas or electrical path, and add-ons, plus your own loaded wage, burden, overhead, and target margin, and turns that into a walk-away price for the job you describe -- the arithmetic a flat rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat water heater special is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Water Heater Bid Calculator</a> to price your own job, or read
+  <a href="how-much-to-charge.html">how much you should charge to replace a water heater</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not plumbing, electrical, engineering, code, legal, tax, or financial advice, and it does not replace a licensed plumber, electrician, or the authority having jurisdiction. Verify every figure against your own payroll, insurance, and supply costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it keeps you off a losing flat-rate quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sump-pump-bid-calculator/" data-pf-to="sump-pump-bid-calculator">Sump Pump Bid Calculator</a></li>
+      <li><a href="../toilet-replacement-bid-calculator/" data-pf-to="toilet-replacement-bid-calculator">Toilet Replacement Bid Calculator</a></li>
+      <li><a href="../water-softener-bid-calculator/" data-pf-to="water-softener-bid-calculator">Water Softener Bid Calculator</a></li>
+      <li><a href="../well-pump-bid-calculator/" data-pf-to="well-pump-bid-calculator">Well Pump Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=water-heater-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="water-heater-bid-calculator"></script>
+</body></html>

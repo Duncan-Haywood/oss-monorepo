@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chargeback Evidence Packet Builder for Ecommerce Sellers</title>
+  <meta name="description" content="Build a structured chargeback response packet from your order, delivery, and customer-contact evidence. Free, private, and browser-local.">
+  <meta property="og:title" content="Chargeback Evidence Packet Builder"><meta property="og:description" content="Turn scattered ecommerce order evidence into a clear, copyable chargeback response draft.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Chargeback Evidence Packet Builder","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free browser-local checklist and response draft generator for ecommerce chargeback evidence."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What evidence should a small seller include?","acceptedAnswer":{"@type":"Answer","text":"Start with the order record, payment authorization, fulfillment record, and delivery or customer-contact evidence that relates to the dispute reason. This tool identifies a practical starting checklist; your processor may request different records."}},{"@type":"Question","name":"Does this tool submit a chargeback response?","acceptedAnswer":{"@type":"Answer","text":"No. It runs in your browser and creates a reviewable draft. You remain responsible for checking the facts, redacting unnecessary personal data, meeting the processor's deadline, and submitting through the processor."}},{"@type":"Question","name":"Can it guarantee that a dispute will be won?","acceptedAnswer":{"@type":"Answer","text":"No. The packet builder makes no prediction or legal determination. It only organizes the evidence you say you have and points out missing items in its checklist."}},{"@type":"Question","name":"What extra evidence does a fraudulent-transaction dispute need that others don't?","acceptedAnswer":{"@type":"Answer","text":"The checklist's core set for \"Fraudulent transaction\" is the payment authorization, AVS/CVV verification result, billing-and-shipping address match, and carrier tracking — because the question there is whether the cardholder authorized the purchase, not whether the goods arrived. That is different from \"Merchandise not received,\" where the core set is the order, payment, fulfillment record, and tracking, because the question is delivery. Device/login history and prior undisputed orders are recommended, not core, for a fraud claim."}},{"@type":"Question","name":"How close to the deadline is too late to start?","acceptedAnswer":{"@type":"Answer","text":"The deadline field flags \"urgent\" once 3 days or fewer remain, and switches to a same-day warning when the deadline is today. If the date you enter has already passed, it tells you to contact the processor immediately rather than assume a filing is still possible — this tool only does the day-count arithmetic, it does not know your processor's actual cutoff time or whether a late submission is accepted. Start while the checklist still shows \"ahead\" so a missing record has time to be requested."}},{"@type":"Question","name":"What if my dispute reason isn't one of the seven listed?","acceptedAnswer":{"@type":"Answer","text":"Choosing a reason outside the seven modeled ones falls back to a minimal core set — order confirmation and payment authorization — plus customer correspondence and accepted terms as recommended records, and a note to confirm the actual requirement with your processor for that reason code. The seven modeled reasons (merchandise not received, credit not processed, merchandise not as described, fraudulent transaction, duplicate transaction, subscription canceled, incorrect amount) cover the most common reason-code families, not every processor's exact taxonomy."}},{"@type":"Question","name":"What evidence does a duplicate-charge, canceled-subscription, or wrong-amount dispute need?","acceptedAnswer":{"@type":"Answer","text":"A duplicate-transaction dispute is carried by the order and payment records for each charge, showing two distinct purchases rather than one purchase billed twice. A subscription-canceled dispute is carried by the terms the buyer accepted at signup and any record of when and how they canceled, because the question is whether the charge was still authorized when it posted. An incorrect-amount dispute is carried by the order total as originally agreed and the terms accepted at checkout, set against what was actually charged. None of these three share a core set with each other or with the original four."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#17202a;background:#f5f1e8;line-height:1.5}body{max-width:900px;margin:0 auto;padding:2rem 1rem}h1{font-size:clamp(2rem,6vw,4rem);line-height:1;margin:.5rem 0}header{border-bottom:1px solid #c9c0b2;padding-bottom:2rem}.lede{font-size:1.2rem;max-width:45rem}.card{background:#fffdf8;border:1px solid #d8cfc2;border-radius:12px;padding:1.25rem;margin:1.25rem 0;box-shadow:0 3px 12px #57452b12}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}label{display:grid;gap:.35rem;font-weight:650}input,textarea,select{font:inherit;padding:.65rem;border:1px solid #aaa092;border-radius:6px;background:white}textarea{width:100%;box-sizing:border-box;min-height:260px}button{background:#173f35;color:white;border:0;border-radius:6px;padding:.75rem 1rem;font-weight:700;cursor:pointer;margin:.5rem .5rem 0 0}button.secondary{background:#dce8df;color:#173f35}.result{border-left:5px solid #d46b3c;padding-left:1rem}.muted{color:#625c54;font-size:.92rem}.checks label{display:flex;display:flex;flex-direction:row;align-items:flex-start;font-weight:500}.checks input{margin-top:.35rem}.checks h3{margin:1.25rem 0 .1rem;font-size:1.05rem}.checks h3:first-child{margin-top:.25rem}.checks p{margin:.1rem 0 .6rem}#summary ul{margin:.3rem 0 .6rem;padding-left:1.2rem}.notice{background:#fff0dc;padding:1rem;border-radius:8px}footer{margin-top:2rem;border-top:1px solid #c9c0b2;padding-top:1rem;font-size:.9rem}@media(max-width:500px){body{padding:1rem}.card{padding:1rem}}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Chargeback Evidence Packet Builder","item":"https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Chargeback Evidence Packet Builder — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Chargeback Evidence Packet Builder</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<header><p class="muted">FREE • NO ACCOUNT • RUNS IN YOUR BROWSER</p><h1>Build a chargeback evidence packet.</h1><p class="lede">Turn an ecommerce order's shipping, delivery, and customer-contact records into a clear response draft and an evidence checklist before your deadline.</p><p class="muted"><a href="./how-to-respond-to-a-chargeback.html">How to respond to a chargeback</a> &middot; <a href="./vs-chargeflow.html">vs. Chargeflow</a> &middot; <a href="./vs-a-generic-dispute-checklist.html">vs. a generic checklist</a></p></header>
+<main>
+<section class="card"><h2>Order and dispute</h2><div class="grid"><label>Order ID<input id="order" placeholder="e.g. 10482"></label><label>Dispute reason<select id="reason"><option>Merchandise not received</option><option>Credit not processed</option><option>Merchandise not as described</option><option>Fraudulent transaction</option><option>Duplicate transaction</option><option>Subscription canceled</option><option>Incorrect amount</option></select><span class="muted">The checklist below changes with this. Match it to the reason code your processor shows.</span></label><label>Order date<input id="date" type="date"></label><label>Order amount<input id="amount" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal"></label><label>Processor deadline<input id="deadline" type="date"><span class="muted">Use the deadline shown in your processor account. It is not inferred here.</span></label></div></section>
+<section class="card"><h2>Evidence you have</h2><p id="focus" class="muted"></p><p class="muted">Check only what you can actually provide. The output identifies gaps; it never claims an outcome.</p><div id="checks" class="checks"></div><label style="margin-top:1rem">Relevant facts or timeline<textarea id="facts" placeholder="Write only factual, reviewable details: shipped date, tracking event, customer message, refund date..."></textarea></label><button id="build">Build response draft</button><button id="save" class="secondary">Save draft locally</button><button id="restore" class="secondary">Restore saved draft</button><span id="saveStatus" role="status"></span><p class="muted">Saving is optional and keeps these fields only in this browser. Clear it from this device before sharing or handing it to someone else.</p></section>
+<section id="output" class="card" hidden aria-live="polite"><h2>Packet review</h2><div id="summary" class="result"></div><h3>Copyable response draft</h3><textarea id="draft" aria-label="Chargeback response draft" readonly></textarea><button id="copy">Copy draft</button><button id="download" class="secondary">Download packet</button><button id="export" class="secondary">Download packet JSON</button><span id="status" role="status"></span><p class="muted">The JSON download contains the fields and checklist you entered. It stays on your device unless you choose where to save or share it.</p></section>
+<section class="card"><h2>Chargeback response FAQ</h2><h3>What evidence should a small seller include?</h3><p>Start with the order record, payment authorization, fulfillment record, and delivery or customer-contact evidence that relates to the dispute reason. This tool identifies a practical starting checklist; your processor may request different records.</p><h3>Does this tool submit a chargeback response?</h3><p>No. It runs in your browser and creates a reviewable draft. You remain responsible for checking the facts, redacting unnecessary personal data, meeting the processor's deadline, and submitting through the processor.</p><h3>Can it guarantee that a dispute will be won?</h3><p>No. The packet builder makes no prediction or legal determination. It only organizes the evidence you say you have and points out missing items in its checklist.</p><h3>What extra evidence does a fraudulent-transaction dispute need that others don't?</h3><p>The checklist's core set for "Fraudulent transaction" is the payment authorization, AVS/CVV verification result, billing-and-shipping address match, and carrier tracking — because the question there is whether the cardholder authorized the purchase, not whether the goods arrived. That is different from "Merchandise not received," where the core set is the order, payment, fulfillment record, and tracking, because the question is delivery. Device/login history and prior undisputed orders are recommended, not core, for a fraud claim.</p><h3>How close to the deadline is too late to start?</h3><p>The deadline field flags "urgent" once 3 days or fewer remain, and switches to a same-day warning when the deadline is today. If the date you enter has already passed, it tells you to contact the processor immediately rather than assume a filing is still possible — this tool only does the day-count arithmetic, it does not know your processor's actual cutoff time or whether a late submission is accepted. Start while the checklist still shows "ahead" so a missing record has time to be requested.</p><h3>What if my dispute reason isn't one of the seven listed?</h3><p>Choosing a reason outside the seven modeled ones falls back to a minimal core set — order confirmation and payment authorization — plus customer correspondence and accepted terms as recommended records, and a note to confirm the actual requirement with your processor for that reason code. The seven modeled reasons (merchandise not received, credit not processed, merchandise not as described, fraudulent transaction, duplicate transaction, subscription canceled, incorrect amount) cover the most common reason-code families, not every processor's exact taxonomy.</p><h3>What evidence does a duplicate-charge, canceled-subscription, or wrong-amount dispute need?</h3><p>A duplicate-transaction dispute is carried by the order and payment records for each charge, showing two distinct purchases rather than one purchase billed twice. A subscription-canceled dispute is carried by the terms the buyer accepted at signup and any record of when and how they canceled, because the question is whether the charge was still authorized when it posted. An incorrect-amount dispute is carried by the order total as originally agreed and the terms accepted at checkout, set against what was actually charged. None of these three share a core set with each other or with the original four.</p></section>
+<section class="card notice"><strong>Important boundary:</strong> This is an evidence organizer and drafting aid, not legal, financial, or payment-dispute advice. It does not predict a bank's decision or prove that a transaction was authorized. Review every fact and submit through the payment processor's deadline and process. The deadline reminder is arithmetic only and does not determine an extension or filing requirement.</section>
+</main><footer><p><strong>Privacy:</strong> Everything runs locally. Order details and notes are never uploaded. Anonymous feature events are stored only in this browser, with an opt-out below. Do Not Track and Global Privacy Control keep counting off automatically.</p><label><input id="optout" type="checkbox"> Don't count my usage</label><p id="usage" class="muted"></p><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or payment advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Working out what card acceptance actually costs you, rather than fighting one disputed charge? The <a href="../card-processing-fee-audit/">card processing fee audit</a> splits a merchant statement into network interchange you cannot negotiate and processor markup you can &mdash; nothing uploaded.</p><p>Want to know how close your whole shop is to a dispute-rate warning, not just this one case? The <a href="../chargeback-ratio-monitor/">chargeback ratio monitor</a> turns a payments export into a monthly dispute ratio &mdash; nothing uploaded.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+<script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'chargeback-evidence-packet-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('optout');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+import {EVIDENCE_KEYS,buildPacket,buildWorkingNotes,labelFor,rulesFor,safeFileStem} from './packet.mjs';
+const key='chargeback-packet-events'; const draftKey='chargeback-packet-draft'; const privacySignal=navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true; const getEvents=()=>JSON.parse(localStorage.getItem(key)||'[]');
+function event(name){if(!document.querySelector('#optout').checked&&!privacySignal){const e=getEvents();e.push(name);localStorage.setItem(key,JSON.stringify(e.slice(-100)));}renderUsage()}
+function renderUsage(){document.querySelector('#usage').textContent=`${getEvents().length} anonymous feature events recorded in this browser.`}
+if(privacySignal)document.querySelector('#optout').checked=true;
+document.querySelector('#optout').onchange=()=>{if(document.querySelector('#optout').checked)localStorage.removeItem(key);renderUsage()};renderUsage();
+document.querySelector('#copy').onclick=async()=>{const draft=document.querySelector('#draft');let copied=false;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(draft.value);copied=true}}catch(error){copied=false}if(!copied){draft.focus();draft.select();copied=document.execCommand('copy')}document.querySelector('#status').textContent=copied?' Draft copied.':' Select the draft and copy it manually.';if(copied)event('draft_copied')};
+function readDraft(){return {order:document.querySelector('#order').value,date:document.querySelector('#date').value,amount:document.querySelector('#amount').value,deadline:document.querySelector('#deadline').value,reason:document.querySelector('#reason').value,facts:document.querySelector('#facts').value,checked:[...document.querySelectorAll('.checks input:checked')].map(x=>x.value)}}
+document.querySelector('#save').onclick=()=>{try{localStorage.setItem(draftKey,JSON.stringify(readDraft()));document.querySelector('#saveStatus').textContent=' Draft saved only in this browser.';event('draft_saved')}catch(error){document.querySelector('#saveStatus').textContent=' This browser blocked saving a draft; copy the text instead.'}};
+document.querySelector('#restore').onclick=()=>{let saved=null;try{saved=JSON.parse(localStorage.getItem(draftKey)||'null')}catch(error){saved=null}if(!saved){document.querySelector('#saveStatus').textContent=' No saved draft found.';return}['order','date','amount','deadline','facts'].forEach(id=>document.querySelector('#'+id).value=saved[id]||'');document.querySelector('#reason').value=saved.reason||document.querySelector('#reason').options[0].value;renderChecks();document.querySelectorAll('.checks input').forEach(input=>input.checked=(saved.checked||[]).includes(input.value));document.querySelector('#saveStatus').textContent=' Draft restored from this browser.';event('draft_restored')};
+let packet=null;
+
+// The checklist is rendered from the rule for the selected reason rather than
+// written once in the markup. A seller disputing "not as described" and one
+// disputing "fraudulent" need different records, and a single flat list of
+// thirteen boxes tells neither of them which four actually matter.
+const checksHost=document.querySelector('#checks');
+function renderChecks(){
+  const held=new Set([...checksHost.querySelectorAll('input:checked')].map(x=>x.value));
+  const rule=rulesFor(document.querySelector('#reason').value);
+  const other=EVIDENCE_KEYS.filter(k=>!rule.required.includes(k)&&!rule.recommended.includes(k));
+  const group=(heading,hint,keys)=>{
+    if(!keys.length)return '';
+    const boxes=keys.map(k=>`<label><input type="checkbox" value="${k}"${held.has(k)?' checked':''}> ${labelFor(k)}</label>`).join('');
+    return `<h3>${heading}</h3><p class="muted">${hint}</p><div class="grid">${boxes}</div>`;
+  };
+  checksHost.innerHTML=
+    group('Core for this reason','A response is usually built around these. Gaps here are flagged below.',rule.required)
+    +group('Strengthens your response','Not treated as gaps, but they corroborate the core records.',rule.recommended)
+    +group('Other records you may hold','Outside the usual set for this reason. Include them if they are relevant.',other);
+  document.querySelector('#focus').textContent=rule.focus;
+}
+document.querySelector('#reason').onchange=renderChecks;
+renderChecks();
+
+document.querySelector('#download').onclick=()=>{if(!packet)return;const blob=new Blob([buildWorkingNotes(packet)],{type:'text/plain;charset=utf-8'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`chargeback-packet-${safeFileStem(packet.orderId)}.txt`;link.click();URL.revokeObjectURL(link.href);document.querySelector('#status').textContent=' Packet downloaded.';event('packet_downloaded')};
+document.querySelector('#export').onclick=()=>{if(!packet)return;const blob=new Blob([JSON.stringify(packet,null,2)],{type:'application/json;charset=utf-8'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`chargeback-packet-${safeFileStem(packet.orderId)}.json`;link.click();URL.revokeObjectURL(link.href);document.querySelector('#status').textContent=' Packet JSON downloaded.';event('packet_exported')};
+
+// Every string written into #summary comes from packet.mjs, not from a field
+// the visitor typed, so there is nothing here to escape. Keep it that way: if a
+// user value ever belongs in this panel, give it its own text node.
+const li=items=>items.map(x=>`<li>${x}</li>`).join('');
+document.querySelector('#build').onclick=()=>{
+  packet=buildPacket(readDraft());
+  const gaps=packet.missingEvidence.length
+    ?`<p>Still to gather, core for this reason:</p><ul>${li(packet.missingEvidence)}</ul>`
+    :'<p>You hold every record this checklist treats as core for this reason. Verify that each one is legible and belongs to this order.</p>';
+  const extra=packet.missingRecommended.length
+    ?`<p class="muted">Would strengthen it further: ${packet.missingRecommended.join(', ')}.</p>`
+    :'';
+  document.querySelector('#summary').innerHTML=
+    `<strong>${packet.complete?'Core evidence complete':'Review needed'}</strong>`
+    +`<p class="muted">${packet.focus}</p>${gaps}${extra}`
+    +`<p>${packet.deadlineNote}</p>`
+    +`<p>Selected ${packet.evidence.length} evidence item(s). This is an observation, not a decision.</p>`;
+  document.querySelector('#draft').value=packet.draft;
+  document.querySelector('#output').hidden=false;
+  event('packet_built');
+  document.querySelector('#output').scrollIntoView({behavior:'smooth'});
+};
+
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+      <li><a href="../npm-deployment-evidence/" data-pf-to="npm-deployment-evidence">npm Deployment Evidence</a></li>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=chargeback-evidence-packet">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/?pfEmbed=1&quot; title=&quot;Chargeback Evidence Packet Builder — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="chargeback-evidence-packet"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/" data-pf-embed-title="Chargeback Evidence Packet Builder" data-pf-embed-slug="chargeback-evidence-packet"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="chargeback-evidence-packet" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="chargeback-evidence-packet" data-pf-link-amount=""></script>
+</body></html>

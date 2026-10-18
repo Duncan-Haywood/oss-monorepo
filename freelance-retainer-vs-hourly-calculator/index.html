@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Retainer vs Hourly Calculator — priced from your own time log</title>
+  <meta name="description" content="Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer…">
+  <meta property="og:title" content="Freelance Retainer vs Hourly Calculator — free, private, in your browser">
+  <meta property="og:description" content="Test a monthly retainer against the hours you actually logged for each client. Your time log never leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Retainer vs Hourly Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your own time log (date, client, hours, optional billed amount), enter your hourly rate and a proposed monthly retainer. Shows monthly hours per client (mean, median, 80th percentile, seeded bootstrap range), your effective hourly rate under the retainer in a typical, busy and worst month, break-even hours, the retainer that would hit a target rate at a chosen coverage, how often the retainer would have underpaid, and a hold-out check. Runs entirely in your browser; nothing is uploaded.", "featureList": "retainer vs hourly, effective hourly rate, break-even hours, retainer pricing from time log, percentile of monthly hours, bootstrap range, hold-out check, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a retainer better than hourly billing?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how many hours the client really uses in a month. A retainer pays the same however many hours you work, so it beats hourly in the light months and loses in the heavy ones. This tool counts, from your own time log, how many past months would have paid more under the retainer you propose, and what your effective hourly rate would have been in a typical, a busy and your worst month."}}, {"@type": "Question", "name": "How do I price a retainer from my time log?", "acceptedAnswer": {"@type": "Answer", "text": "Take the hours you actually spent on that client each month, pick how many months you want the retainer to cover (80% is common), read the hours at that percentile, and multiply by the hourly rate you want to earn. Paste one row per time entry and the tool does it, with a range from 300 seeded resamples of your months."}}, {"@type": "Question", "name": "What is effective hourly rate on a retainer?", "acceptedAnswer": {"@type": "Answer", "text": "The monthly retainer divided by the hours you worked that month. A 1,500 dollar retainer is 100 dollars an hour in a 15-hour month and 75 dollars an hour in a 20-hour month. The tool shows it at the median month, the 80th-percentile month and your single busiest month."}}, {"@type": "Question", "name": "What is the break-even number of hours?", "acceptedAnswer": {"@type": "Answer", "text": "The retainer divided by your hourly rate. Below that many hours in a month the retainer pays more than hourly billing would have; above it, less. The tool also shows the share of your past months that fell above it."}}, {"@type": "Question", "name": "How much history do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 6 months for each client; a client with fewer is left out. Months with no entries between a client's first and last month count as zero hours. With 9 or more months the tool also holds the latest third back and checks whether the earlier months predicted it; with fewer it says the evidence is weak."}}, {"@type": "Question", "name": "Why does it say my hours are unstable?", "acceptedAnswer": {"@type": "Answer", "text": "The percentiles are computed from the earlier months and compared with the latest ones. If average monthly hours moved by more than a quarter, a client may have ramped up or wound down, and old months may not describe the next year. Read the numbers as history, not a forecast."}}, {"@type": "Question", "name": "Is my time log uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Client names, hours and amounts are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your log. It works offline once the page has loaded."}}, {"@type": "Question", "name": "Does it replace a contract or advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It describes the hours in the log you supply. It does not model scope creep, rollover or unused hours, late payment, taxes or what a client would agree to, and it is not legal, tax or financial advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Freelance Retainer vs Hourly Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Freelance Retainer vs Hourly Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Freelance Retainer vs Hourly Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">FREELANCE RETAINER VS HOURLY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Would a retainer have paid more than hourly?</h1>
+    <p>Paste your <strong>time log: date, client, hours</strong> (and the amount billed, if you have it). Enter your hourly rate and the <strong>monthly retainer</strong> you are thinking of proposing. The tool replays the retainer against <strong>your own months</strong> for each client: your effective hourly rate in a typical, a busy and your worst month, the break-even hours, how often hourly would have paid more, and the retainer that would have covered 80% of your months at the rate you want.</p>
+    <p class="note">Your time log never leaves this browser tab. A statistical description of the data you supply, not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your time log</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: date, client, hours, billed amount)</label>
+    <textarea id="rows" spellcheck="false" placeholder="date,client,hours,billed&#10;2026-01-05,Acme,3.5,350&#10;2026-01-19,Acme,1:30,150"></textarea>
+    <h2 style="margin-top:18px">Your numbers</h2>
+    <div class="row3">
+      <div><label for="rate">Hourly rate ($)</label><input id="rate" inputmode="decimal" placeholder="blank = from billed column"></div>
+      <div><label for="retainer">Proposed monthly retainer ($)</label><input id="retainer" inputmode="decimal" placeholder="e.g. 1800"></div>
+      <div><label for="target">Target effective rate ($/h)</label><input id="target" inputmode="decimal" placeholder="blank = your hourly rate"></div>
+      <div><label for="coverage">Months the retainer should cover (%)</label><input id="coverage" inputmode="numeric" value="80"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="lastcomplete" aria-label="The latest month in my log is complete" checked> The latest month in my log is complete (untick to leave it out)</label>
+    <p class="note">One row per time entry, dates like 2026-03-14 or 3/14/2026, hours as 1.5 or 1:30. Months with no entries between a client's first and last month count as zero hours. Each client needs at least 6 months.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your time log, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <label for="client">Client</label>
+    <select id="client"></select>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Monthly hours, month by month</h3>
+    <div id="chart"></div>
+    <h3>All clients at this retainer</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ct"><thead><tr><th>Client</th><th class="n">Months</th><th class="n">Mean h</th><th class="n">Median h</th><th class="n">80th pct h</th><th class="n">Rate at median</th><th class="n">Rate at 80th</th><th class="n">Underpays</th><th class="n">Retainer for target</th><th>Hold-out</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download the table (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Monthly hours:</strong> your entries are summed by client and calendar month, from the client's first month to its last, and a month with no entries is zero hours. The median and 80th percentile are interpolated between ranked months. The range is the middle 80% of 300 seeded resamples of those months (a fixed seed, so the same log always gives the same range).</p>
+    <p><strong>Under the retainer:</strong> effective hourly rate is the retainer divided by the hours worked, shown at the median month, the 80th-percentile month and your busiest month. Break-even hours are the retainer divided by your hourly rate. The retainer <em>underpays</em> in a month when those hours at your hourly rate would have come to more than the retainer; the share is counted over your months, with a bootstrap range. The retainer for a target rate is that rate times the hours at the coverage percentile, so it would have met the target in that share of your months.</p>
+    <p><strong>Hold-out:</strong> with 9 or more months, the first two thirds set the percentile and the last third is held back. If average hours moved by more than 25% the history is called unstable. Fewer than 12 months is called weak evidence even when it passes. Under 6 months for a client, nothing is computed.</p>
+    <p><strong>Not modelled:</strong> scope creep, unused-hour rollover, late payment, taxes, the client's willingness to agree, and work you did not log. Unlogged hours make a retainer look better than it was. Overlapping percentiles from a handful of months are rough, and 6 to 12 months can miss a busy season. Unverified: tested on hand-counted logs and simulated hours with a known distribution, not on a published dataset.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a retainer better than hourly billing?</h3>
+    <p>It depends on how many hours the client really uses in a month. A retainer pays the same however many hours you work, so it beats hourly in the light months and loses in the heavy ones. This tool counts, from your own time log, how many past months would have paid more under the retainer you propose, and what your effective hourly rate would have been in a typical, a busy and your worst month.</p>
+    <h3>How do I price a retainer from my time log?</h3>
+    <p>Take the hours you actually spent on that client each month, pick how many months you want the retainer to cover (80% is common), read the hours at that percentile, and multiply by the hourly rate you want to earn. Paste one row per time entry and the tool does it, with a range from 300 seeded resamples of your months.</p>
+    <h3>What is effective hourly rate on a retainer?</h3>
+    <p>The monthly retainer divided by the hours you worked that month. A 1,500 dollar retainer is 100 dollars an hour in a 15-hour month and 75 dollars an hour in a 20-hour month. The tool shows it at the median month, the 80th-percentile month and your single busiest month.</p>
+    <h3>What is the break-even number of hours?</h3>
+    <p>The retainer divided by your hourly rate. Below that many hours in a month the retainer pays more than hourly billing would have; above it, less. The tool also shows the share of your past months that fell above it.</p>
+    <h3>How much history do I need?</h3>
+    <p>At least 6 months for each client; a client with fewer is left out. Months with no entries between a client's first and last month count as zero hours. With 9 or more months the tool also holds the latest third back and checks whether the earlier months predicted it; with fewer it says the evidence is weak.</p>
+    <h3>Why does it say my hours are unstable?</h3>
+    <p>The percentiles are computed from the earlier months and compared with the latest ones. If average monthly hours moved by more than a quarter, a client may have ramped up or wound down, and old months may not describe the next year. Read the numbers as history, not a forecast.</p>
+    <h3>Is my time log uploaded anywhere?</h3>
+    <p>No. Client names, hours and amounts are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your log. It works offline once the page has loaded.</p>
+    <h3>Does it replace a contract or advice?</h3>
+    <p>No. It describes the hours in the log you supply. It does not model scope creep, rollover or unused hours, late payment, taxes or what a client would agree to, and it is not legal, tax or financial advice.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical descriptions of the time log you supply; they do not guarantee what a client will use or pay. You are responsible for reviewing and verifying its output before relying on it or quoting a price.</p>
+    <p><strong>Independent.</strong> Not affiliated with any time-tracking, invoicing or freelance-marketplace vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your time log is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> (prices a retainer from an income goal rather than a log), the <a href="../freelance-platform-fee-calculator/">freelance platform fee calculator</a>, <a href="../git-timesheet/">Git Timesheet</a> (estimates the hours from your commit history), and the <a href="../scope-creep-change-order-calculator/">scope creep change order calculator</a> (prices a client's extra requests on a fixed-price job).</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, rate, pct, hrs } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(c, retainer, rateH) {
+      const W = 900, H = 220, L = 48, R = 20, T = 12, B = 34;
+      const top = Math.max(c.max, retainer / rateH, 1) * 1.1;
+      const slot = (W - L - R) / c.months.length, bw = Math.min(40, slot * 0.7);
+      const y = (v) => T + (H - T - B) * (1 - v / top);
+      const be = retainer / rateH;
+      const bars = c.months.map((m, i) => {
+        const x = L + slot * i + (slot - bw) / 2, h = (H - T - B) * (m.hours / top);
+        const over = m.hours > be;
+        return `<rect x="${x.toFixed(1)}" y="${(H - B - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${over ? "#b5533c" : "#1f5f86"}"/>` +
+          (c.months.length <= 24 ? `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 14}" font-size="10" text-anchor="middle" fill="#4c5a68">${m.month.slice(2)}</text>` : "");
+      }).join("");
+      return `<div class="legend note"><span style="color:#1f5f86">■ Retainer paid more than hourly</span><span style="color:#b5533c">■ Hourly would have paid more</span><span>— break-even ${be.toFixed(1)} h</span></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Hours worked each month for this client against the break-even hours of the retainer">` +
+        bars + `<line x1="${L}" x2="${W - R}" y1="${y(be).toFixed(1)}" y2="${y(be).toFixed(1)}" stroke="#1b1f2a" stroke-dasharray="5 4"/>` +
+        `<text x="${L - 6}" y="${(y(0) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">0 h</text><text x="${L - 6}" y="${(y(top / 1.1) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${(top / 1.1).toFixed(0)} h</text></svg>`;
+    }
+
+    function show(i) {
+      const c = last.clients[i], p = last.params;
+      const e = c.effective;
+      const big = [
+        [rate(e.p50), `Effective rate in a median month (${hrs(c.p50)}) on a ${money(p.retainer)} retainer`],
+        [rate(e.p80), `In an 80th-percentile month (${hrs(c.p80)}; 80% range of that figure ${hrs(c.p80Range80[0])} to ${hrs(c.p80Range80[1])})`],
+        [rate(e.worst), `In your busiest month (${hrs(c.max)}); your least busy was ${hrs(c.min)}`],
+        [hrs(c.breakEvenHours), `Break-even: above this many hours a month, hourly pays more than ${money(p.retainer)}`],
+        [pct(c.underpayProb, 0), `Months where hourly would have paid more (80% range ${pct(c.underpayRange80[0], 0)} to ${pct(c.underpayRange80[1], 0)} of resamples)`],
+        [money(c.retainerForTarget), `Retainer that hits ${rate(p.target)} in ${pct(p.coverage, 0)} of your months (yours covers ${pct(c.coverageAtRetainer, 0)})`],
+        [`${c.retainerMinusHourly >= 0 ? "+" : "−"}${money(Math.abs(c.retainerMinusHourly))}`, `Retainer minus hourly in an average month (mean ${hrs(c.mean)}, 80% range ${hrs(c.meanRange80[0])} to ${hrs(c.meanRange80[1])})`],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      const pill = c.verdict === "usable" ? ["good", "usable"] : c.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "hours unstable"];
+      const vol = `Monthly hours are ${c.volatility} volatility (standard deviation ${hrs(c.sd)}${c.zeroMonths ? `; ${c.zeroMonths} month${c.zeroMonths === 1 ? "" : "s"} with no hours` : ""}).`;
+      $("#trust").innerHTML = `<div class="warn ${c.verdict === "unstable" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(c.verdictNote + " " + vol)}</div>`;
+      $("#chart").innerHTML = chart(c, p.retainer, p.rate);
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const pick = (id) => $(id).value.trim();
+      const cov = pick("#coverage");
+      const r = analyze(parsed.rows, {
+        rate: pick("#rate") || undefined,
+        retainer: pick("#retainer"),
+        target: pick("#target") || undefined,
+        coverage: cov === "" ? undefined : Number(cov) / 100,
+        includeLastMonth: $("#lastcomplete").checked,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      $("#client").innerHTML = r.clients.map((c, i) => `<option value="${i}">${esc(c.name)} (${c.n} months)</option>`).join("");
+      $("#ct tbody").innerHTML = r.clients.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${c.n}</td><td class="n">${c.mean.toFixed(1)}</td><td class="n">${c.p50.toFixed(1)}</td><td class="n">${c.p80.toFixed(1)}</td><td class="n">${rate(c.effective.p50)}</td><td class="n">${rate(c.effective.p80)}</td><td class="n">${pct(c.underpayProb, 0)}</td><td class="n">${money(c.retainerForTarget)}</td><td>${esc(c.verdict)}</td></tr>`).join("");
+      show(0);
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#client").addEventListener("change", (e) => { if (last) show(Number(e.target.value)); });
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#rate").value = "95"; $("#retainer").value = "1800"; $("#target").value = ""; $("#coverage").value = "80";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented clients and hours, not a real freelancer."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your time log, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "retainer-vs-hourly.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../construction-delay-claim-calculator/" data-pf-to="construction-delay-claim-calculator">Construction Delay Claim Calculator — free, private</a></li>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+      <li><a href="../cow-calf-breakeven-calculator/" data-pf-to="cow-calf-breakeven-calculator">What calf price do you need to break even on a cow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-retainer-vs-hourly-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/?pfEmbed=1&quot; title=&quot;Freelance Retainer vs Hourly Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="freelance-retainer-vs-hourly-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/" data-pf-embed-title="Freelance Retainer vs Hourly Calculator — free, private, in your browser" data-pf-embed-slug="freelance-retainer-vs-hourly-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="freelance-retainer-vs-hourly-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="freelance-retainer-vs-hourly-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

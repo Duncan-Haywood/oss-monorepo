@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payroll Register to Xero and QuickBooks Journal</title>
+  <meta name="description" content="Free payroll register to journal converter: checks every employee row, books wages and employer taxes as expenses and every withholding as a liability…">
+  <meta property="og:title" content="Payroll register to Xero / QuickBooks journal — free, private">
+  <meta property="og:description" content="Turn a payroll register into pay-run journal entries with every withholding as a liability. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Payroll Register to Journal", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a payroll register CSV into balanced accounting journals for Xero and QuickBooks in the browser, one per pay date or month, with every withholding booked as a liability and the 941 deposit totalled. Nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn a payroll register into a journal entry?", "acceptedAnswer": {"@type": "Answer", "text": "Export the payroll register from your payroll provider (one row per employee per pay date, with gross pay, each tax and deduction, and net pay), paste it here and press Read, check and build journals. The page checks that gross pay less every withholding equals net pay on each row, books wages and employer costs as expenses and every withholding as a liability, and writes one balanced journal per pay date with net pay going to a payroll clearing account."}}, {"@type": "Question", "name": "Why not book the payroll bank withdrawal as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "The net pay withdrawal is not what payroll costs you. Gross wages are the expense, the employer's own Social Security, Medicare, FUTA, SUTA and retirement match are extra expenses, and the withholdings are money you owe to the IRS, the state and the plan until you remit it. Booking the withdrawal leaves wages understated, employer taxes missing and the liability accounts empty, so the quarterly 941 and the state returns will not agree with your books."}}, {"@type": "Question", "name": "What is the 941 deposit figure for?", "acceptedAnswer": {"@type": "Answer", "text": "For each pay run the page adds federal income tax withheld to both halves of Social Security and Medicare. That is the amount a monthly or semiweekly depositor sends to the IRS for the run, before any adjustment for credits. Use it to check the liability accounts the journal creates against the payments you actually make."}}, {"@type": "Question", "name": "What does a row where gross pay is not explained mean?", "acceptedAnswer": {"@type": "Answer", "text": "Gross pay should equal net pay plus every withholding and deduction. Any remainder, for example a deduction in a column the page does not recognise, is journalled to an uncategorised liability account so the journal still balances, and it is listed for you to review. If net pay is more than gross pay less withholdings, for example a reimbursement or a hand edit, that is reported as an error. Nothing is dropped."}}, {"@type": "Question", "name": "Which accounting software can I import to?", "acceptedAnswer": {"@type": "Answer", "text": "Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. Rename the accounts for each category before downloading so they match your chart of accounts."}}, {"@type": "Question", "name": "Is it safe to paste a payroll register into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Employee names are shown on screen in findings only and are never written into a journal. Remove names, Social Security numbers and bank details from the file if you would rather not have them on screen: only dates and amounts are used."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the register matches your payroll provider or your books, that withholdings are correct for any employee or jurisdiction, payroll tax deposit deadlines or penalties, workers' compensation premiums, accruals for unpaid wages at month end, department or class allocation, and account names or codes that must already exist in your accounting software."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Payroll register to Xero / QuickBooks journal — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Payroll register to Xero / QuickBooks journal — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Payroll register to Xero / QuickBooks journal — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PAYROLL REGISTER TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a payroll register into a Xero or QuickBooks journal</h1>
+    <p>Paste or drop the <strong>payroll register CSV</strong> from Gusto, ADP, Paychex, QuickBooks Payroll or a spreadsheet. Every employee row is <strong>checked (gross pay less every withholding equals net pay)</strong>, then written as a <strong>balanced journal per pay date or month</strong>: wages and employer taxes as expenses, <strong>every withholding as a liability</strong>, net pay to a payroll clearing account — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV. The <strong>941 deposit</strong> each run creates is totalled for you.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Only dates and amounts are used; names are never written into a journal. Independent of every payroll and accounting vendor. The register layout and the importer layouts are read from memory of public help documents; no real payroll export and no live Xero or QuickBooks import was available when this was written.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your payroll register</h2>
+    <p class="note">One row per employee per pay date. Several pay dates in one file are fine: each becomes its own journal (or one per month, below).</p>
+    <label for="file">Choose a payroll register</label>
+    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <label for="paste">…or paste the register text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,401(k),Health Insurance,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA"></textarea>
+    <div class="grid">
+      <div><label for="group">One journal per</label><select id="group"><option value="paydate">Pay date</option><option value="month">Calendar month</option></select></div>
+      <div><label for="date-order">Dates written as slashes</label><select id="date-order"><option value="mdy">Export uses MM/DD/YYYY</option><option value="dmy">Export uses DD/MM/YYYY</option></select></div>
+      <div><label for="tax-rate">Xero tax rate</label><input id="tax-rate" value="Tax Exempt"></div>
+      <div><label for="expected">Run net pay (optional)</label><input id="expected" inputmode="decimal" placeholder="e.g. 2976.70"></div>
+    </div>
+    <label for="mapping">Accounts (one <code>category = account</code> per line; names or codes as your software has them)</label>
+    <textarea id="mapping" class="small" spellcheck="false" wrap="off"></textarea>
+    <p class="note" id="mapping-note"></p>
+    <p>
+      <button type="button" id="validate">Read, check and build journals</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="reset-map">Reset accounts</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read, check and build journals.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Net pay check</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Run</th><th scope="col">Last pay date</th><th class="n" scope="col">You typed</th><th class="n" scope="col">Net pay adds up to</th><th scope="col">Agrees</th></tr></thead><tbody id="recon"></tbody></table></div></div>
+    <h3>What each run creates owing</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Run</th><th class="n" scope="col">Employees</th><th class="n" scope="col">Federal income tax</th><th class="n" scope="col">Social Security + Medicare (both halves)</th><th class="n" scope="col">941 deposit</th><th class="n" scope="col">State and local</th><th class="n" scope="col">FUTA + SUTA</th><th class="n" scope="col">Retirement plan</th></tr></thead><tbody id="remit"></tbody></table></div></div>
+    <h3>Journals</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Journal</th><th scope="col">Date</th><th scope="col">Account</th><th class="n" scope="col">Debit</th><th class="n" scope="col">Credit</th><th scope="col">Memo</th></tr></thead><tbody id="journals"></tbody></table></div></div>
+    <h3>Download</h3>
+    <p><button type="button" id="dl-xero">Xero journal CSV</button> <button type="button" id="dl-qbo">QuickBooks Online CSV</button> <button type="button" id="dl-iif">QuickBooks Desktop IIF</button> <button type="button" id="dl-csv">Plain CSV</button></p>
+    <p class="note">The accounts must already exist in your software under these names or codes. Post the journals, then match the net pay withdrawal in your bank feed to Payroll Clearing and each tax payment to its liability account. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Rows:</strong> each row is one employee on one pay date with Gross Pay, each employee tax and deduction, Net Pay, and the employer's Social Security, Medicare, FUTA, SUTA and retirement match. Amounts like <code>$2,400.00</code> and <code>($3.00)</code> are read to cents. Every row must satisfy gross pay less withholdings equals net pay or it is flagged. Totals rows are skipped so nothing is counted twice.</li>
+      <li><strong>Expenses:</strong> gross wages, employer payroll taxes (Social Security, Medicare, FUTA, SUTA) and employer retirement or benefit contributions.</li>
+      <li><strong>Liabilities:</strong> federal income tax, Social Security and Medicare (employee and employer halves together), state and local withholding, FUTA and SUTA, retirement deferrals plus match, benefit deductions, and other deductions or garnishments. Net pay goes to Payroll Clearing.</li>
+      <li><strong>Recognised columns:</strong> Pay Date (or Check Date), Employee, Gross Pay, Net Pay, Federal Income Tax, Social Security, Medicare, Additional Medicare, State Income Tax, Local Tax, SDI, 401(k), Health Insurance (or Medical, Dental, Vision, HSA, FSA), Other Deductions (or Garnishments), Employer Social Security, Employer Medicare, FUTA, SUTA, Employer 401(k) Match, Employer Health. A column with a tax or deduction name the page does not know is reported, never ignored silently.</li>
+      <li><strong>Not checked:</strong> that the register agrees with your payroll provider or your books, that any withholding is right for an employee or jurisdiction, deposit deadlines and penalties, workers' compensation, accruals at month end, department or class allocation, and that the accounts exist in your software.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I turn a payroll register into a journal entry?</h3>
+    <p>Export the payroll register from your payroll provider (one row per employee per pay date, with gross pay, each tax and deduction, and net pay), paste it here and press Read, check and build journals. The page checks that gross pay less every withholding equals net pay on each row, books wages and employer costs as expenses and every withholding as a liability, and writes one balanced journal per pay date with net pay going to a payroll clearing account.</p>
+    <h3>Why not book the payroll bank withdrawal as an expense?</h3>
+    <p>The net pay withdrawal is not what payroll costs you. Gross wages are the expense, the employer's own Social Security, Medicare, FUTA, SUTA and retirement match are extra expenses, and the withholdings are money you owe to the IRS, the state and the plan until you remit it. Booking the withdrawal leaves wages understated, employer taxes missing and the liability accounts empty, so the quarterly 941 and the state returns will not agree with your books.</p>
+    <h3>What is the 941 deposit figure for?</h3>
+    <p>For each pay run the page adds federal income tax withheld to both halves of Social Security and Medicare. That is the amount a monthly or semiweekly depositor sends to the IRS for the run, before any adjustment for credits. Use it to check the liability accounts the journal creates against the payments you actually make.</p>
+    <h3>What does a row where gross pay is not explained mean?</h3>
+    <p>Gross pay should equal net pay plus every withholding and deduction. Any remainder, for example a deduction in a column the page does not recognise, is journalled to an uncategorised liability account so the journal still balances, and it is listed for you to review. If net pay is more than gross pay less withholdings, for example a reimbursement or a hand edit, that is reported as an error. Nothing is dropped.</p>
+    <h3>Which accounting software can I import to?</h3>
+    <p>Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. Rename the accounts for each category before downloading so they match your chart of accounts.</p>
+    <h3>Is it safe to paste a payroll register into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Employee names are shown on screen in findings only and are never written into a journal. Remove names, Social Security numbers and bank details from the file if you would rather not have them on screen: only dates and amounts are used.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether the register matches your payroll provider or your books, that withholdings are correct for any employee or jurisdiction, payroll tax deposit deadlines or penalties, workers' compensation premiums, accruals for unpaid wages at month end, department or class allocation, and account names or codes that must already exist in your accounting software.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your own bookkeeping review. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for, including payroll tax deposits and filings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any payroll or accounting vendor.</strong> Gusto, ADP, Paychex, Xero and QuickBooks belong to their owners. This tool is independent and is not sponsored, endorsed or connected to any of them, to Intuit, or to any other vendor. The register layout and category rules are read from memory of public help documents and may not match every provider.</p>
+    <p><strong>Financial data.</strong> A payroll register contains employees' names and pay and may contain identifiers and bank details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open it in a browser tool is a question for your own policies and your employees' privacy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>journal_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../payroll-hours-csv-check/">payroll hours CSV check</a> catches errors before payroll runs, the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a> prices a late 941 deposit, the <a href="../square-sales-to-journal/">Square sales to journal converter</a> and <a href="../stripe-payout-to-journal/">Stripe payout to journal converter</a> do the same for the sales side, and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> brings in the bank side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { validate, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#mapping").value = mappingText();
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const mp = parseMapping($("#mapping").value);
+      $("#mapping-note").textContent = mp.errors.join(" ");
+      const exp = parseFloat($("#expected").value.replace(",", "."));
+      const r = validate(text, { mapping: mp.mapping, group: $("#group").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? Math.round(exp * 100) : undefined });
+      last = r;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${r.summary.payouts} run${r.summary.payouts === 1 ? "" : "s"}, ${r.summary.rows} employee rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#recon").innerHTML = r.reconciliation.map((x) => `<tr><td>${esc(x.id)}</td><td>${esc(x.deposit || "—")}</td><td class="n">${x.stated === null ? "—" : money(x.stated, x.currency)}</td><td class="n">${money(x.journalled, x.currency)}</td><td${x.agrees === false ? ' class="short"' : ""}>${x.agrees === null ? "no total typed" : x.agrees ? "yes" : "NO"}</td></tr>`).join("") || `<tr><td colspan="5">No pay runs found.</td></tr>`;
+      $("#remit").innerHTML = r.remit.map((x) => `<tr><td>${esc(x.id)}</td><td class="n">${x.rows}</td><td class="n">${money(x.fit)}</td><td class="n">${money(x.fica)}</td><td class="n"><strong>${money(x.form941)}</strong></td><td class="n">${money(x.state)}</td><td class="n">${money(x.unemp)}</td><td class="n">${money(x.retire)}</td></tr>`).join("") || `<tr><td colspan="8">No runs found.</td></tr>`;
+      $("#journals").innerHTML = r.journals.flatMap((j) => j.lines.map((l) => `<tr><td>${esc(j.narration)}</td><td>${esc(j.date)}</td><td>${esc(l.account)}</td><td class="n">${l.debit ? money(l.debit, j.currency) : ""}</td><td class="n">${l.credit ? money(l.credit, j.currency) : ""}</td><td>${esc(l.memo)}</td></tr>`)).join("") || `<tr><td colspan="6">No journals.</td></tr>`;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s); fix them before posting.` : `Built ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"} from ${r.summary.rows} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      run(text); record("file_validated");
+    });
+    const example = (id, make, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-ok", sampleReport, "Worked example: a synthetic payroll register for two made-up employees across three pay dates; the names and amounts are not real.");
+    example("#load-broken", sampleBrokenReport, "Worked example: the same register after a hand edit, with typical faults.");
+    $("#reset-map").addEventListener("click", () => { $("#mapping").value = mappingText(defaultMapping()); });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Read, check and build journals."; });
+    $("#download-findings").addEventListener("click", () => { if (last) download("payroll-findings.csv", findingsCsv(last), "text/csv"); });
+    const out = (id, name, make, type, count) => $(id).addEventListener("click", () => {
+      if (!last || !last.journals.length) return;
+      count();
+      download(name, make(last.journals, { taxRate: $("#tax-rate").value.trim() || undefined, dateOrder: $("#date-order").value }), type);
+    });
+    out("#dl-xero", "payroll-xero-journal.csv", toXeroJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-qbo", "payroll-qbo-journal.csv", toQboJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-iif", "payroll-journal.iif", toIif, "text/plain", () => record("journal_downloaded"));
+    out("#dl-csv", "payroll-journal.csv", journalsCsv, "text/csv", () => record("csv_downloaded"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+      <li><a href="../npm-deployment-evidence/" data-pf-to="npm-deployment-evidence">npm Deployment Evidence</a></li>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+      <li><a href="../ofx-file-check/" data-pf-to="ofx-file-check">OFX File Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=payroll-register-to-journal">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/?pfEmbed=1&quot; title=&quot;Payroll register to Xero / QuickBooks journal — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="payroll-register-to-journal"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/" data-pf-embed-title="Payroll register to Xero / QuickBooks journal — free, private" data-pf-embed-slug="payroll-register-to-journal"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="payroll-register-to-journal" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="payroll-register-to-journal" data-pf-link-amount=""></script>
+</body>
+</html>

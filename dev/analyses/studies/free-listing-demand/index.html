@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What a cold free listing actually gets | Development analyses</title>
+<meta name="description" content="Measured 2026-08-19 against the public npm registry. Re-runnable: python3 measurelistingdemand.py --out results.json.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>What a cold free listing actually gets</h1>
+<p class="meta">Study · 2026-08-19 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/free-listing-demand/README.md">portfolio/research/free-listing-demand/README.md</a></p>
+<article class="doc">
+<p>Measured 2026-08-19 against the public npm registry. Re-runnable: <code>python3 measure_listing_demand.py --out results.json</code>.</p>
+<h3>Why this was measured</h3>
+<p><code>portfolio/pipeline/channel-inventory.md</code> (open in PR #79) makes an argument the portfolio has been waiting on for several cycles. Paraphrased:</p>
+<blockquote><p>&quot;Run a probe to a real buyer&quot; is two actions, not one — demand measurement and revenue capture. Only the second needs a payout rail. The first is free, needs no credential, and an agent can do it today. Publish a free listing, record installs, and that number &quot;re-scores the distribution column for this entire directory — upward if a cold listing gets found, downward if it does not.&quot;</p></blockquote>
+<p>Two of the three things that document asks the account owner to approve depend on that experiment being worth running. Nobody had checked whether it is. This directory checks it, on npm — one of the channels <code>channel-inventory.md</code> itself lists as free, agent-listable, and requiring no artifact belonging to a legal person.</p>
+<p>The question asked here is narrow and empirical: <strong>if this portfolio published a free tool into one of the candidate categories today, what is the realistic distribution of demand it would see?</strong></p>
+<h3>Findings</h3>
+<p>Three categories, chosen because they are the pipeline candidates <code>channel-inventory.md</code> maps to a free agent-reachable channel. Figures are monthly downloads for <em>leaf</em> packages — zero dependents, so their downloads come from someone finding them directly rather than from a parent pulling them in.</p>
+<h4>1. The median cold listing is close to invisible</h4>
+<div class="scroll"><table><thead><tr><th>Category</th><th>Candidate</th><th>n</th><th>p25</th><th><strong>median</strong></th><th>p75</th><th>p90</th><th>p99</th></tr></thead><tbody><tr><td>SBOM / CRA evidence</td><td><code>cra-evidence-desk</code></td><td>402</td><td>16</td><td><strong>68</strong></td><td>437</td><td>2,148</td><td>375,579</td></tr><tr><td>Accessibility evidence</td><td><code>eaa-remediation-pipeline</code>, <code>shopify-a11y-evidence</code></td><td>606</td><td>46</td><td><strong>205</strong></td><td>957</td><td>3,868</td><td>61,216</td></tr><tr><td>MCP supply chain</td><td><code>mcp-supply-chain-watch</code></td><td>970</td><td>1,024</td><td><strong>2,399</strong></td><td>6,835</td><td>18,800</td><td>327,630</td></tr></tbody></table></div>
+<p>Restricting to packages published in the last 18 months — the closest available analogue to a listing published cold today — barely moves any of it: medians of 87, 196, and 2,397 respectively.</p>
+<p>Share of listings clearing each level:</p>
+<div class="scroll"><table><thead><tr><th>Category</th><th>&gt;100/mo</th><th>&gt;1,000/mo</th><th>&gt;10,000/mo</th><th>&gt;100,000/mo</th></tr></thead><tbody><tr><td>SBOM / CRA evidence</td><td>43%</td><td>16%</td><td>5.0%</td><td>2.0%</td></tr><tr><td>Accessibility evidence</td><td>62%</td><td>25%</td><td>5.0%</td><td>0.5%</td></tr><tr><td>MCP supply chain</td><td>95%</td><td>76%</td><td>18%</td><td>3.2%</td></tr></tbody></table></div>
+<h4>2. Demand is concentrated far past the point where a probe is informative</h4>
+<p>This is the load-bearing finding, and unlike the absolute counts it is not distorted by mirror, scanner, or CI traffic inflating the bottom of the distribution.</p>
+<div class="scroll"><table><thead><tr><th>Category</th><th>Top 1% of listings take</th><th>Top 5% take</th><th>Half of all demand goes to the top</th></tr></thead><tbody><tr><td>SBOM / CRA evidence</td><td><strong>78%</strong></td><td>98%</td><td><strong>0.25%</strong> of listings (1 of 402)</td></tr><tr><td>Accessibility evidence</td><td><strong>41%</strong></td><td>73%</td><td><strong>1.65%</strong> of listings (10 of 606)</td></tr><tr><td>MCP supply chain</td><td><strong>60%</strong></td><td>81%</td><td><strong>0.41%</strong> of listings (4 of 970)</td></tr></tbody></table></div>
+<p>Because keyword relevance filtering is imperfect, the same figures were recomputed with the largest one and largest five packages removed. The shape survives: half of category demand still goes to the top <strong>0.75–2.1%</strong> of listings with the top package removed, and the top <strong>1.0–3.3%</strong> with the top five removed. The concentration is a property of the categories, not of a few outliers that slipped through the filter.</p>
+<p>The SBOM row is worth stating plainly: a <strong>single</strong> package, <code>@datadog/datadog-ci-plugin-sbom</code>, accounts for 56.5% of all leaf downloads in that category. The other 401 listings share the rest.</p>
+<h4>3. What that means for the proposed probe</h4>
+<p>The experiment <code>channel-inventory.md</code> proposes is <strong>underpowered as designed.</strong></p>
+<p>Its logic is that install count discriminates between &quot;the category has real demand and we can reach it&quot; and &quot;it does not.&quot; But the modal outcome of publishing into these categories is somewhere between 68 and 2,400 downloads a month, and that is what a listing gets <em>whether or not</em> the category has real demand — the categories measured here demonstrably do have real demand (they contain packages at 194k, 3.7M, and 10.2M downloads a month), and the median listing in them still lands in the low hundreds.</p>
+<p>So a result in that range, which is what should be expected, is consistent with both hypotheses and distinguishes neither. The measurement cannot move the distribution score in either direction, which is the only thing it was proposed to do.</p>
+<p>A probe is informative here only if it is powered to detect the top few percent of the distribution, and nothing about publishing a listing makes that outcome more likely — which is the second-order finding: <strong>on these channels, publishing is not distribution.</strong> The listing is where demand is captured once it exists; it is not what creates it. That is a numerical restatement of what <code>distribution-first.md</code> already concluded from reasoning, and it argues that the scarce thing to spend an approval on is a referral path, not a listing.</p>
+<h3>What this does not show</h3>
+<ul><li><strong>npm only.</strong> WordPress.org, Open VSX, and GitHub Marketplace are the other<p>free agent-listable channels in <code>channel-inventory.md</code>, and none of them publishes a comparable per-listing usage figure through an API reachable from this environment. WordPress.org in particular has a different buyer (site owners, many of them businesses) and may well behave differently; nothing here refutes that, and the accessibility candidates target exactly that channel.</p>
+<p><strong>Partly addressed since</strong> — see <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/free-listing-demand/cross-registry-replication.md">cross-registry-replication.md</a>. The concentration finding was replicated on Packagist and RubyGems, two registries that <em>are</em> reachable: it holds in all nine registry × category cells, it is not an artifact of CI traffic (Packagist stars show the same shape), and npm turns out to be the <em>optimistic</em> case — the median Packagist listing in these categories gets zero downloads a month. WordPress.org itself remains unmeasured and egress-blocked.</p></li><li><strong>Downloads are not users, and users are not payers.</strong> A download is a CI run as often as a person. The concentration finding is robust to this; the absolute medians are an upper bound on human adoption, not an estimate of it.</li><li><strong>No pricing signal.</strong> Nothing here says what any of these categories would pay. It measures whether a cold listing gets found, which is a strictly earlier question.</li><li><strong>Category boundaries are keyword-defined</strong>, so the populations are approximations. Search hits dropped as irrelevant: 1,887 (SBOM), 1,217 (accessibility), 274 (MCP); dropped as platform artifacts: 129, 3, and 29. All counts are in the results JSON. A handful of incidental matches survive (<code>claude-cup</code>, the largest package in the MCP category, is a contest tracker). The sensitivity check above exists because of them.</li><li><strong>One snapshot.</strong> Download counts move; the MCP category especially is young enough that 965 of its 970 leaf packages were published within 18 months.</li></ul>
+<h3>Files</h3>
+<ul><li><code>measure_listing_demand.py</code> — the harness. Stdlib only, read-only against the public registry, no credentials, paced to stay inside the search API&#39;s rate limit.</li><li><code>results-2026-08-19.json</code> — every row behind every number above, including the full per-package data, so the figures can be recomputed without re-fetching.</li></ul>
+<h3>Status of these claims</h3>
+<p>Unlike the candidate write-ups in <code>portfolio/pipeline/</code>, these are <strong>primary measurements against a live API, not secondary-source research</strong> — the raw rows are committed and the script re-derives the numbers. What is uncertain here is interpretation (whether npm generalises to the other free channels, whether downloads track adoption), not the data.</p>
+<p>Nothing here adds a candidate, changes a score, creates a <code>ventures/</code> directory, or spends anything.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

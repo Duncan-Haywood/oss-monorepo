@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Faire Direct vs Marketplace Fees | When 0% Commission Matters</title>
+  <meta name="description" content="Faire Direct is 0% commission when you bring the retailer. Compare that path to a 15% marketplace first order and reorder on the same wholesale invoice.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/faire-direct-vs-marketplace.html">
+  <meta property="og:title" content="Faire Direct vs Marketplace Fees">
+  <meta property="og:description" content="See how much a Faire Direct link changes net payout versus a marketplace first order on the same wholesale invoice.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Faire Direct?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Faire Direct is Faire's published 0% commission path for retailers you bring to the marketplace with your personalized link. Payment processing still applies. Marketplace orders from retailers who found you on Faire pay the standard commission, and a first marketplace order also includes the one-time new-customer fee."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Faire Direct cheaper than the marketplace?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the same invoice, Direct has no commission, so net payout is higher before you count the work of finding the retailer yourself. Use the calculator with your own cost and payout speed. This page does not tell you which path to use."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the Faire first-order fee matter if a retailer reorders?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The new-customer fee is one-time. The brand calculator amortizes it across the opening order plus the reorders you expect from that retailer, and compares that lifetime to sending every order through Faire Direct or your own invoice. Enter the reorder count you actually see — this page does not forecast repeat purchase."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f4efe6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    .eyebrow { font-size: .78rem; letter-spacing: .08em; font-weight: 700; color: #6a5840; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; background: #fffdf8; border: 1px solid #ded5c8; border-radius: 12px; overflow: hidden; }
+    th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #eee4d6; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/faire-direct-vs-marketplace.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Faire Direct vs Marketplace Fees — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../faire-wholesale-calculator/">Faire Seller Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Faire Direct vs Marketplace Fees</span></span></nav>
+  <p class="eyebrow">FAIRE DIRECT VS MARKETPLACE</p>
+  <h1>The 15% is not the whole decision. The first-order fee and Direct are.</h1>
+  <p>
+    Faire publishes a 15% marketplace commission. That number is what most “Faire fees”
+    pages stop at. A brand pricing an opening order also pays a one-time new-customer fee
+    (Faire’s North America help article lists $10; outside North America it is an extra 10%
+    on that first order). A retailer you already know can order through your
+    <strong>Faire Direct</strong> link at 0% commission. Processing still comes out of
+    every Faire payout.
+  </p>
+  <p>
+    The <a href="./">Faire seller fee calculator</a> runs those three paths — plus an
+    off-Faire invoice — on one wholesale order. The table below is the default example
+    ($20 wholesale × 10 units, $8 cost, $15 shipping both ways, 60-day payout). Replace
+    the numbers on the calculator with your payout summary.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Commission shape</th>
+        <th scope="col">What changes on the same invoice</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Marketplace first order</td>
+        <td>15% + new-customer fee</td>
+        <td>The expensive introduction. Price wholesale so this path still clears your floor.</td>
+      </tr>
+      <tr>
+        <td>Marketplace reorder</td>
+        <td>15% only</td>
+        <td>Same retailer, no new-customer fee. This is the repeating Faire path.</td>
+      </tr>
+      <tr>
+        <td>Faire Direct</td>
+        <td>0% commission</td>
+        <td>You brought the retailer. Processing remains. Use this to price existing accounts you move onto Faire.</td>
+      </tr>
+      <tr>
+        <td>Own invoice</td>
+        <td>None unless you charge cards</td>
+        <td>A comparison only — you keep payment risk and collections. Not a recommendation to leave Faire.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Payment processing is the other lever. Faire’s public North America article lists
+    3.5% + $0.30 next day, 2.4% + $0.30 at 30 days, and 1.9% + $0.30 at 60 days.
+    The calculator’s payout-speed table holds the order still and changes only that line.
+    If you expect the same retailer to come back, set <strong>expected reorders</strong>
+    on the calculator: the first-order fee is then shown amortized across that
+    relationship, next to the same number of Direct or off-Faire invoices.
+  </p>
+  <p>
+    Independent retailers have a different job: landed cost versus shelf price after
+    opening-order discounts and unsold units. That is the
+    <a href="retailer.html">retailer margin calculator</a>.
+    Brands deciding whether a seasonal 0% window still pays after a deeper
+    retailer discount use
+    <a href="should-i-list-during-faire-open-house.html">Open House vs everyday first order</a>.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is Faire Direct?</h3>
+  <p>Faire Direct is Faire's published 0% commission path for retailers you bring to the marketplace with your personalized link. Payment processing still applies. Marketplace orders from retailers who found you on Faire pay the standard commission, and a first marketplace order also includes the one-time new-customer fee.</p>
+  <h3>Is Faire Direct cheaper than the marketplace?</h3>
+  <p>On the same invoice, Direct has no commission, so net payout is higher before you count the work of finding the retailer yourself. Use the calculator with your own cost and payout speed. This page does not tell you which path to use.</p>
+  <h3>Does the Faire first-order fee matter if a retailer reorders?</h3>
+  <p>The new-customer fee is one-time. The brand calculator amortizes it across the opening order plus the reorders you expect from that retailer, and compares that lifetime to sending every order through Faire Direct or your own invoice. Enter the reorder count you actually see — this page does not forecast repeat purchase.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is. It is not tax, financial, or business advice. Verify every fee against Faire’s current help articles and your own payout summary. Not affiliated with Faire Wholesale, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. The <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p><a href="./">Back to the brand calculator</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../restaurant-delivery-commission-analyzer/" data-pf-to="restaurant-delivery-commission-analyzer">Restaurant Delivery Commission Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../returns-policy-cost-analyzer/" data-pf-to="returns-policy-cost-analyzer">What do returns really cost your store?</a></li>
+      <li><a href="../reverb-fee-calculator/" data-pf-to="reverb-fee-calculator">Reverb Fee Calculator</a></li>
+      <li><a href="../rv-rental-host-profit-calculator/" data-pf-to="rv-rental-host-profit-calculator">RV rental profit calculator: is renting out your camper worth it? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=faire-wholesale-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="faire-wholesale-calculator"></script>
+</body>
+</html>

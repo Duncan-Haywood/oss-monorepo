@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a pilot car escort run really make: a worked example</title>
+  <meta name="description" content="How to work out what a pilot car or oversize-load escort run really earns: loaded and deadhead miles, a minimum charge, driver hours, meals, hotel, tolls…">
+  <meta property="og:title" content="How much does a pilot car escort run really make: a worked example">
+  <meta property="og:description" content="How to work out what a pilot car or oversize-load escort run really earns: loaded and deadhead miles, a minimum charge, driver hours, meals, hotel, tolls…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/how-much-does-a-pilot-car-escort-run-really-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a pilot car escort run so it makes money?","acceptedAnswer":{"@type":"Answer","text":"Start from what the truck is really doing, not the miles on the permit: the loaded miles with the load plus the deadhead to the start point and home from the end point, the driver hours including waiting, tolls, meals and hotel nights on a multi-day move. Add fuel and wear for every mile driven, card fees, the vehicle's cost per run and a share of your yearly insurance, certifications and equipment. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest total price, or per-mile rate."}},{"@type":"Question","name":"Why does a short escort run lose money?","acceptedAnswer":{"@type":"Answer","text":"Because the miles and hours around the load are not billed. A 140-mile run with 60 empty miles to get there and home and five hours of driver time quotes $252 at $1.80 a loaded mile, so most operators set a minimum or day rate. The minimum has to cover the deadhead, the hours and a share of the yearly overhead, not just the fuel."}},{"@type":"Question","name":"How many escort runs a year do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Take what one run earns above its direct costs, which is everything except the yearly insurance, certification and equipment share, and divide your yearly overhead by that. The calculator shows the runs a year at your price and warns if it is more than the runs you expect."}},{"@type":"Question","name":"Should I take the long run or the short run?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per run and profit per driver hour. If your days are the limit, the run with the higher profit per driver hour is the better use of a day, even if another run makes more money by itself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/how-much-does-a-pilot-car-escort-run-really-make.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does a pilot car escort run really make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pilot-car-escort-run-profit-calculator/">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does a pilot car escort run really make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← Pilot Car Escort Run Profit Calculator</a></p>
+    <h1>How much does a pilot car escort run really make?</h1>
+    <p>A 140-mile escort at $1.80 a mile sounds like $252, and a $450 day rate sounds better. After the empty miles, the hours and the yearly overhead it keeps about a quarter of that.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A short run has 140 loaded miles at $1.80 a mile, which quotes <strong>$252.00</strong>, but the minimum charge is $450, so the run bills <strong>$450.00</strong>. The truck also drives 60 empty miles to the start and home from the end, 200 miles in all, over 5 driver hours. Driver pay at $22 an hour is <strong>$110.00</strong>. Fuel at 17 mpg and $3.70 a gallon is <strong>$43.53</strong>, wear at $0.18 a mile is $36.00, meals are $45.00 for the day, tolls are $12.00 and card fees are 3% of the bill, <strong>$13.50</strong>.</p>
+    <p>The vehicle cost $38,000 and should run 1,500 runs, which is <strong>$25.33</strong> a run. Yearly insurance ($3,200), certifications ($900) and equipment ($1,400) are $5,500 over 120 runs, <strong>$45.83</strong> on each run.</p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Per run</th></tr></thead><tbody>
+<tr><td>Billed</td><td><strong>$450.00</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$331.20</strong></td></tr>
+<tr><td>True profit</td><td><strong>$118.80</strong></td></tr>
+<tr><td>Margin</td><td>26.4%</td></tr>
+<tr><td>Profit per driver hour</td><td><strong>$23.76</strong></td></tr>
+    </tbody></table></div>
+    <p>At 120 runs that is $14,256 of profit a year. The business needs about <strong>33</strong> runs a year just to cover the yearly overhead.</p>
+  </section>
+  <section class="card">
+    <h2>What the quote has to be</h2>
+    <p>For a 30% margin after 3% card fees, the costs that do not move with price ($317.70) are divided by 0.67, which gives a total of <strong>$474.17</strong> for the run, $24.17 more than the $450.00 billed. At 140 loaded miles that is <strong>$3.39</strong> a loaded mile. The $450 minimum would have to rise to cover it.</p>
+    <h2 style="margin-top:20px">Comparing two runs</h2>
+    <p>A long two-day run has 420 loaded miles at $2.40, which bills $1008.00, with 120 empty miles, 13 driver hours and a hotel night. It makes <strong>$175.86</strong> against <strong>$118.80</strong> for the short run, but only <strong>$13.53</strong> per driver hour against <strong>$23.76</strong>. If your days are the limit, the short run is the better use of a day.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a pilot car escort run so it makes money?</h3>
+    <p>Start from what the truck is really doing, not the miles on the permit: the loaded miles with the load plus the deadhead to the start point and home from the end point, the driver hours including waiting, tolls, meals and hotel nights on a multi-day move. Add fuel and wear for every mile driven, card fees, the vehicle's cost per run and a share of your yearly insurance, certifications and equipment. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest total price, or per-mile rate.</p>
+    <h3>Why does a short escort run lose money?</h3>
+    <p>Because the miles and hours around the load are not billed. A 140-mile run with 60 empty miles to get there and home and five hours of driver time quotes $252 at $1.80 a loaded mile, so most operators set a minimum or day rate. The minimum has to cover the deadhead, the hours and a share of the yearly overhead, not just the fuel.</p>
+    <h3>How many escort runs a year do I need to break even?</h3>
+    <p>Take what one run earns above its direct costs, which is everything except the yearly insurance, certification and equipment share, and divide your yearly overhead by that. The calculator shows the runs a year at your price and warns if it is more than the runs you expect.</p>
+    <h3>Should I take the long run or the short run?</h3>
+    <p>Compare profit per run and profit per driver hour. If your days are the limit, the run with the higher profit per driver hour is the better use of a day, even if another run makes more money by itself.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, insurance or financial advice. Not affiliated with any permit service, carrier or state agency. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aba-authorization-tracker/" data-pf-to="aba-authorization-tracker">ABA authorization tracker: units, expirations and reauth dates — free, private</a></li>
+      <li><a href="../adjunct-course-offer-calculator/" data-pf-to="adjunct-course-offer-calculator">Adjunct course offer calculator</a></li>
+      <li><a href="../amusement-route-location-calculator/" data-pf-to="amusement-route-location-calculator">Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</a></li>
+      <li><a href="../apparel-decoration-price-calculator/" data-pf-to="apparel-decoration-price-calculator">Screen Printing &amp; Embroidery Price Calculator — cost per shirt, setup &amp; margin</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pilot-car-escort-run-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pilot-car-escort-run-profit-calculator"></script>
+</body>
+</html>

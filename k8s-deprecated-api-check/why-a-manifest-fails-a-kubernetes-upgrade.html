@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why a Manifest That Applied Yesterday Fails After a Kubernetes Upgrade</title>
+  <meta name="description" content="How Kubernetes' API deprecation policy actually works, why a removed apiVersion is a hard failure rather than a warning…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does Kubernetes remove API versions instead of keeping them forever?","acceptedAnswer":{"@type":"Answer","text":"Every API version the server has to understand is code it has to keep correct and secure, and a beta API by definition was never meant to be permanent. Kubernetes' own deprecation policy commits to a minimum notice period — a GA API version is supported for at least 12 months or 3 releases (whichever is longer) after deprecation, and a beta is guaranteed at least 9 months or 3 releases — so there is always a documented window to migrate, but the version is not kept indefinitely."}},{"@type":"Question","name":"What actually happens when you apply a manifest with a removed apiVersion?","acceptedAnswer":{"@type":"Answer","text":"The API server no longer registers that group/version for that kind at all, so kubectl apply, a Helm upgrade, or a controller's own reconcile loop gets back no matches for kind \"X\" in version \"Y\" and the operation fails outright — it is not a warning, and nothing partially applies."}},{"@type":"Question","name":"Does upgrading kubectl or my CI tooling fix this?","acceptedAnswer":{"@type":"Answer","text":"No. The removal happens on the API server side, at the target cluster's Kubernetes version — the manifest's apiVersion field is what has to change, regardless of which kubectl or CI runner applies it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 30px; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    p, li { line-height: 1.6; }
+    code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    a { color: #17604a; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why a Manifest That Applied Yesterday Fails After a Kubernetes Upgrade">
+<meta property="og:description" content="How Kubernetes' API deprecation policy actually works, why a removed apiVersion is a hard failure rather than a warning…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a Manifest That Applied Yesterday Fails After a Kubernetes Upgrade — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../k8s-deprecated-api-check/">Will this manifest survive your next Kubernetes upgrade?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a Manifest That Applied Yesterday Fails After a Kubernetes Upgrade</span></span></nav>
+  <p><a href="./">&larr; Back to Kubernetes Deprecated API Check</a></p>
+  <h1>Why a manifest that applied yesterday fails after a Kubernetes upgrade</h1>
+
+  <div class="card">
+    <h2>The mechanism</h2>
+    <p>Kubernetes' API deprecation policy guarantees a minimum notice window before removing an API version — at least 12 months or 3 releases (whichever is longer) for a version that reached general availability, and at least 9 months or 3 releases for a beta. During that window the old and new versions of an object usually both work, converted automatically by the API server. At the end of it, the API server stops registering the old group/version for that kind entirely.</p>
+    <p>That is not a warning. <code>kubectl apply</code>, a rolling <code>helm upgrade</code>, or a controller's own reconcile loop against a manifest still written in the old <code>apiVersion</code> gets back <code>no matches for kind "X" in version "Y"</code> and the operation fails outright — nothing partially applies. A manifest that was correct on every prior cluster version becomes wrong the instant the cluster crosses the removal release, with no code change of its own.</p>
+  </div>
+
+  <div class="card">
+    <h2>Why this bites during an upgrade specifically</h2>
+    <p>Most teams do not hand-write every manifest's <code>apiVersion</code> fresh each time — it gets copied from an older example, generated once by a scaffolding tool years ago, or left untouched inside a Helm chart or Kustomize base nobody has opened since it was written. It works, for years, right up until a managed control plane (EKS, GKE, AKS) is upgraded past the removal release, at which point the very first deploy after the upgrade is the one that fails — often mid-rollout, on a manifest nobody thought to look at because it had not changed.</p>
+    <p>The well-known removal waves so far: Kubernetes 1.16 removed the <code>extensions/v1beta1</code> and <code>apps/v1beta1</code>/<code>v1beta2</code> workload kinds; 1.22 removed a much larger batch spanning Ingress, RBAC, CRDs, admission webhooks, and more; 1.25 removed <code>PodSecurityPolicy</code>, <code>CronJob</code>'s old batch version, <code>PodDisruptionBudget</code>'s old policy version, and the first Horizontal Pod Autoscaler v2 beta; 1.26 removed the second HPA v2 beta. Each is documented with its exact release number in Kubernetes' own <a href="https://kubernetes.io/docs/reference/using-api/deprecation-guide/" rel="noopener">Deprecated API Migration Guide</a>.</p>
+  </div>
+
+  <div class="card">
+    <h2>What this tool looks for, and why it stops where it does</h2>
+    <p>Rather than trying to predict a future removal, this checks every <code>apiVersion</code> + <code>kind</code> pair in your manifest against a table built only from removals Kubernetes' own guide already documents with a fixed release number. Each entry names the release the old version stopped working and, where one exists, the exact replacement <code>apiVersion</code> to switch to.</p>
+    <p>It reads plain YAML text — <code>apiVersion:</code> and <code>kind:</code> as top-level keys, <code>metadata.name</code> for the report — and nothing else. It has no kubeconfig and makes no API server call, which is what makes it safe to run in CI against a manifest repository with no cluster credentials granted at all.</p>
+  </div>
+
+  <div class="card">
+    <h2>What this is not</h2>
+    <p>This is not a Kubernetes admission controller, a cluster-connected scanner, or a guarantee your manifests will apply cleanly on every future release — the table only covers removals already documented with a release number, not every current beta or every proposed future change. It also does not evaluate Helm template expressions or Kustomize patches; run <code>helm template</code> or <code>kustomize build</code> first and check the rendered output, the same manifest your cluster would actually receive. And it says nothing about whether a rollout itself is safe once it applies — see <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> for readiness probes, disruption budgets, and termination grace periods, a separate failure class from a removed API entirely.</p>
+  </div>
+
+  <div class="card">
+    <h2>Common questions</h2>
+    <h3>Why does Kubernetes remove API versions instead of keeping them forever?</h3>
+    <p>Every API version the server has to understand is code it has to keep correct and secure, and a beta API by definition was never meant to be permanent. Kubernetes' own deprecation policy commits to a minimum notice period — a GA API version is supported for at least 12 months or 3 releases (whichever is longer) after deprecation, and a beta is guaranteed at least 9 months or 3 releases — so there is always a documented window to migrate, but the version is not kept indefinitely.</p>
+    <h3>What actually happens when you apply a manifest with a removed apiVersion?</h3>
+    <p>The API server no longer registers that group/version for that kind at all, so <code>kubectl apply</code>, a Helm upgrade, or a controller's own reconcile loop gets back <code>no matches for kind "X" in version "Y"</code> and the operation fails outright — it is not a warning, and nothing partially applies.</p>
+    <h3>Does upgrading kubectl or my CI tooling fix this?</h3>
+    <p>No. The removal happens on the API server side, at the target cluster's Kubernetes version — the manifest's <code>apiVersion</code> field is what has to change, regardless of which <code>kubectl</code> or CI runner applies it.</p>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+    <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-deprecated-api-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="k8s-deprecated-api-check"></script>
+</body>
+</html>

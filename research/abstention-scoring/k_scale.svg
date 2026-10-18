@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Total payment and verifier rent versus reward scale k in a stylised abstention-scoring model">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Reward scale k: payment and verifier rent (stylised model)</text>
+<line x1="64" x2="624" y1="303.3" y2="303.3" stroke="#ddd"/><text x="58" y="307.3" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="273.2" y2="273.2" stroke="#ddd"/><text x="58" y="277.2" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="243.1" y2="243.1" stroke="#ddd"/><text x="58" y="247.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="203.3" y2="203.3" stroke="#ddd"/><text x="58" y="207.3" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="173.3" y2="173.3" stroke="#ddd"/><text x="58" y="177.3" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="143.2" y2="143.2" stroke="#ddd"/><text x="58" y="147.2" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="103.4" y2="103.4" stroke="#ddd"/><text x="58" y="107.4" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="73.3" y2="73.3" stroke="#ddd"/><text x="58" y="77.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="43.3" y2="43.3" stroke="#ddd"/><text x="58" y="47.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">reward scale k</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">payment (log scale)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,214.7 157.3,176.2 250.7,154.7 344.0,130.6 437.3,112.4 530.7,89.9 624.0,59.6"/>
+<circle cx="64.0" cy="214.7" r="2.5" fill="#c0392b"/>
+<circle cx="157.3" cy="176.2" r="2.5" fill="#c0392b"/>
+<circle cx="250.7" cy="154.7" r="2.5" fill="#c0392b"/>
+<circle cx="344.0" cy="130.6" r="2.5" fill="#c0392b"/>
+<circle cx="437.3" cy="112.4" r="2.5" fill="#c0392b"/>
+<circle cx="530.7" cy="89.9" r="2.5" fill="#c0392b"/>
+<circle cx="624.0" cy="59.6" r="2.5" fill="#c0392b"/>
+<line x1="76" x2="100" y1="58" y2="58" stroke="#c0392b" stroke-width="2"/><text x="106" y="62" font-family="sans-serif" font-size="11">total payment</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,304.4 157.3,217.8 250.7,180.2 344.0,145.3 437.3,122.1 530.7,95.7 624.0,62.5"/>
+<circle cx="64.0" cy="304.4" r="2.5" fill="#1f6fb2"/>
+<circle cx="157.3" cy="217.8" r="2.5" fill="#1f6fb2"/>
+<circle cx="250.7" cy="180.2" r="2.5" fill="#1f6fb2"/>
+<circle cx="344.0" cy="145.3" r="2.5" fill="#1f6fb2"/>
+<circle cx="437.3" cy="122.1" r="2.5" fill="#1f6fb2"/>
+<circle cx="530.7" cy="95.7" r="2.5" fill="#1f6fb2"/>
+<circle cx="624.0" cy="62.5" r="2.5" fill="#1f6fb2"/>
+<line x1="76" x2="100" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="106" y="78" font-family="sans-serif" font-size="11">verifier rent</text>
+</svg>

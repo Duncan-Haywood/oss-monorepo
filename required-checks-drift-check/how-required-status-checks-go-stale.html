@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How a required status check goes stale, and how to fix it</title>
+  <meta name="description" content="A GitHub Actions job rename, a removed job, or a workflow that drops its pull_request trigger all leave branch protection requiring a status that will never…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/how-required-status-checks-go-stale.html">
+  <meta property="og:title" content="How a required status check goes stale">
+  <meta property="og:description" content="Branch protection matches required status checks by exact name. Three ordinary changes can leave a required check nothing will ever satisfy again.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How a required status check goes stale, and how to fix it","acceptedAnswer":{"@type":"Answer","text":"Branch protection's \"Require status checks to pass\" list is a list of names. GitHub never re-derives it from your workflow files — it just waits for something to report a status under each name. Three ordinary changes leave a name nothing will ever satisfy again:"}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 4.6vw, 2.2rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/how-required-status-checks-go-stale.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How a required status check goes stale — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../required-checks-drift-check/">Is a required status check stuck forever on your repo?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How a required status check goes stale</span></span></nav>
+  <p><a href="./">← Required Checks Drift Check</a></p>
+  <h1>How a required status check goes stale, and how to fix it</h1>
+  <p>Branch protection's "Require status checks to pass" list is a list of <strong>names</strong>. GitHub never re-derives it from your workflow files — it just waits for something to report a status under each name. Three ordinary changes leave a name nothing will ever satisfy again:</p>
+  <h2>1. The job was renamed</h2>
+  <pre><code>jobs:
+  build:            # was required as "build"
+    name: Build and Test   # now reports as "Build and Test" instead
+</code></pre>
+  <p>Adding a <code>name:</code> to a job that previously had none — or changing an existing one — changes the check-run name GitHub reports. Branch protection still has the old name. Every new pull request now waits on a status that will never arrive.</p>
+  <h2>2. The job was removed or its id changed</h2>
+  <p>Deleting a job outright, or renaming its job id when it has no <code>name:</code> override, is the same failure by a different route: the name branch protection requires simply stops being produced.</p>
+  <h2>3. The workflow dropped its <code>pull_request</code> trigger</h2>
+  <pre><code>on:
+  push:            # used to also list pull_request
+    branches: [main]
+</code></pre>
+  <p>GitHub can only post a status onto a pull request from a run that pull request triggered. A workflow that only runs <code>on: push</code> can have a job with exactly the right name and still never satisfy a required check on a PR — this looks identical to a rename from the branch-protection screen, but the fix is different: restore the trigger, don't rename anything.</p>
+  <h2>Fixing it</h2>
+  <p>Either remove the stale name from <strong>Settings → Branches → Branch protection rules</strong>, or make a current job report under that exact name again (an explicit <code>name:</code> override is the least disruptive way, since it doesn't require touching the job id or its steps).</p>
+  <p><a href="./">Paste your required checks and workflow YAML into Required Checks Drift Check</a> to find every stale or no-pull-request-trigger name across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>gh api repos/:owner/:repo/branches/:branch/protection &gt; protection.json
+python3 check.py --required-checks protection.json --fail-on-stale</code></pre>
+  <p class="note">That exits with a nonzero status if any required check is stale — wire it into your own CI, or run it once after any branch-protection or workflow change.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Confirm in GitHub's own UI before changing branch protection settings, and verify before relying on the output. This is not a security audit or a compliance attestation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-transitive-pin-check/" data-pf-to="actions-transitive-pin-check">Does your pinned workflow load something unpinned underneath it?</a></li>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=required-checks-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="required-checks-drift-check"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. Cass Information Systems | Freight Accessorial Invoice Auditor</title>
+<meta name="description" content="Cass Information Systems (Cass Freight) is a publicly traded freight audit and payment (FAP) service that processes carrier invoices and pays carriers on a…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/vs-cass.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Cass Information Systems">
+<meta property="og:description" content="Two different shapes: Cass audits and pays freight invoices at scale across a shipper's whole carrier network under an ongoing contracted relationship.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/vs-cass.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Cass Information Systems?","acceptedAnswer":{"@type":"Answer","text":"They serve different shippers. Cass Information Systems (Nasdaq: CASS) is a publicly traded financial services company whose freight business, marketed as Cass Freight, provides freight audit and payment (FAP) processing: it receives carrier invoices, commonly by EDI or a direct feed from the shipper's TMS, audits each line against the shipper's contracted rates at scale, and disburses payment to the carrier on the shipper's behalf, returning consolidated transportation spend data and reporting. It is set up as an ongoing contracted relationship built for shippers with meaningful freight volume across many carriers and lanes — an enterprise engagement with onboarding and integration, not a self-serve signup, and Cass is also known for publishing the monthly Cass Freight Index, a widely cited industry benchmark that is a separate product from the audit-and-payment service. This calculator does none of that. It takes one carrier's invoice — imported as a CSV or pasted rows, or typed by hand — checks each accessorial line against a contract rate card you type once, flat or per unit with a free allowance and a cap, flags duplicates, overages, missing codes, and missing evidence, checks a detention charge against the dock clock and a fuel surcharge against the contracted percent of linehaul, and compares eating a line, billing it to the customer, or paying first and filing for credit — instantly, in the browser, with no account, no integration, and nothing uploaded. A shipper running invoices at scale across many carriers and lanes, who needs the audit automated and the carrier actually paid, is better served by Cass or a comparable FAP provider; a shipper or broker checking one invoice, or one detention or fuel-surcharge line, against contract rates before paying it is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Cass Information Systems?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Cass Information Systems. Cass, Cass Information Systems, and Cass Freight are trademarks of their owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f1e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#5b665e}section{background:#fffdf8;border:1px solid #d8d0c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dcc9;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4dcc9;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5b665e}.fine,.note{font-size:.88rem;color:#5b665e}footer{color:#5b665e;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Cass Information Systems — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freight-accessorial-auditor/">Freight Accessorial Invoice Auditor</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Cass Information Systems</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Freight Accessorial Invoice Auditor</a></p>
+<header>
+<h1>This calculator vs. Cass Information Systems</h1>
+<p class="lede">Two different shapes: Cass Information Systems audits and pays freight invoices at scale across a shipper's whole carrier network, under an ongoing contracted relationship built for larger freight volumes. This page is a free, private worksheet for one question &mdash; does this one carrier's invoice, checked line by line against your own contract rates, actually owe what it billed, before you pay it.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Cass Information Systems</strong> (Nasdaq: CASS) is a publicly
+  traded financial services company whose freight business, marketed as
+  <strong>Cass Freight</strong>, provides freight audit and payment (FAP)
+  processing to shippers: it receives carrier invoices &mdash; commonly by
+  EDI or a direct feed from the shipper's TMS or ERP &mdash; audits each
+  line against the shipper's contracted rates at scale, and disburses
+  payment to the carrier on the shipper's behalf, alongside consolidated
+  transportation spend data and reporting across the whole freight network.
+  It is set up as an ongoing contracted relationship built for shippers
+  with meaningful freight volume across many carriers and lanes: onboarding
+  and integration, not a self-serve signup. Cass is also known for
+  publishing the monthly Cass Freight Index, a widely cited industry
+  benchmark of North American freight volumes and expenditures &mdash; a
+  separate product from the audit-and-payment service itself. Cass's own
+  site is not reachable from this session to confirm today's specific plan
+  names, integrations, or pricing, so only its well-documented identity and
+  category are stated here: nothing about it is invented, and no dollar
+  figure for it appears on this page.
+</p>
+<p>
+  This calculator does none of that. It does not integrate with a TMS or
+  ERP, ingest invoices by EDI, or pay a carrier. It takes one carrier's
+  invoice &mdash; imported as a CSV export or pasted rows, or typed by hand
+  line by line &mdash; maps its columns, and checks each accessorial line
+  against a contract rate card you type once: flat amounts, or per-unit
+  rules for hour, minute, day, cwt, pallet, piece, mile, or stop, each with
+  its own free allowance and cap. It flags duplicate lines, amounts above
+  the rate card, missing codes, and missing evidence, checks a detention
+  charge against the dock clock and a fuel surcharge against the contracted
+  percent of linehaul, and compares eating a line, billing it to the
+  customer, or paying first and filing for a credit. It runs free in any
+  browser, keeps no account, and the file you import is read locally and
+  never uploaded.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a shipping operation with freight moving on many carriers and lanes, and want a contracted service to ingest invoices by EDI, audit them at scale, and pay the carrier.</td><td>Cass Information Systems, or a comparable freight audit and payment provider.</td></tr>
+<tr><td>I have one carrier's invoice &mdash; or one broker or small shipper's worth of them &mdash; and want to check it against my own contract rates right now, with no contract of my own to sign.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>I need a detention or storage charge checked against free time and an hourly or daily rate, or a fuel surcharge checked against a contracted percent of linehaul.</td><td>This calculator's detention-clock and fuel-surcharge checks.</td></tr>
+<tr><td>I need my freight invoices actually paid to the carrier on my behalf, not just reviewed.</td><td>Cass Information Systems, or a comparable FAP provider &mdash; this calculator has no payment feature at all.</td></tr>
+<tr><td>Should I eat this accessorial line, bill it to the customer, or pay first and file for a credit?</td><td>This calculator's <a href="should-i-bill-this-accessorial-to-the-customer.html">cash-outcome comparison</a>.</td></tr>
+<tr><td>Do I need a contract, minimum volume, or an EDI integration to use the tool?</td><td>This calculator: no. Cass and comparable FAP providers are sold as an ongoing contracted service.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most freight-paying shippers get different value from each: Cass
+  Information Systems (or a comparable freight audit and payment provider)
+  for automated, at-scale invoice audit and carrier payment across a whole
+  freight network under an ongoing contract, and a private calculator like
+  this one for an instant, no-login check on one invoice or one accessorial
+  line against contract rates before it is paid &mdash; including for a
+  broker or small shipper whose freight volume would not clear a FAP
+  provider's minimum. This page's own figures are a review of the lines
+  you entered, not an audit run, a payment, or a determination that a
+  charge is wrong.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Imported files are read locally and never uploaded.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Cass Information Systems?</h3>
+<p>They serve different shippers. Cass Information Systems (Nasdaq: CASS) is a publicly traded financial services company whose freight business, marketed as Cass Freight, provides freight audit and payment (FAP) processing: it receives carrier invoices, commonly by EDI or a direct feed from the shipper's TMS, audits each line against the shipper's contracted rates at scale, and disburses payment to the carrier on the shipper's behalf, returning consolidated transportation spend data and reporting. It is set up as an ongoing contracted relationship built for shippers with meaningful freight volume across many carriers and lanes &mdash; an enterprise engagement with onboarding and integration, not a self-serve signup, and Cass is also known for publishing the monthly Cass Freight Index, a widely cited industry benchmark that is a separate product from the audit-and-payment service. This calculator does none of that. It takes one carrier's invoice &mdash; imported as a CSV or pasted rows, or typed by hand &mdash; checks each accessorial line against a contract rate card you type once, flat or per unit with a free allowance and a cap, flags duplicates, overages, missing codes, and missing evidence, checks a detention charge against the dock clock and a fuel surcharge against the contracted percent of linehaul, and compares eating a line, billing it to the customer, or paying first and filing for credit &mdash; instantly, in the browser, with no account, no integration, and nothing uploaded. A shipper running invoices at scale across many carriers and lanes, who needs the audit automated and the carrier actually paid, is better served by Cass or a comparable FAP provider; a shipper or broker checking one invoice, or one detention or fuel-surcharge line, against contract rates before paying it is in the right place here.</p>
+<h3>Is this page affiliated with Cass Information Systems?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Cass Information Systems. Cass, Cass Information Systems, and Cass Freight are trademarks of their owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Freight Accessorial Invoice Auditor</a> to check your own invoice, or read <a href="how-to-audit-a-whole-freight-invoice.html">how to audit a whole freight invoice</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against Cass Information Systems &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cloud-egress-calculator/" data-pf-to="cloud-egress-calculator">Cloud Egress Cost Calculator</a></li>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freight-accessorial-auditor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freight-accessorial-auditor"></script>
+</body></html>

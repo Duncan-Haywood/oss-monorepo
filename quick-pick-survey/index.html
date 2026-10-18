@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quick Pick | Pairwise preference survey engine</title>
+  <meta name="description" content="An open-source pairwise-comparison survey engine: pick one of two options, repeat, and it infers a ranked preference ordering with confidence intervals…">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Quick Pick | Pairwise preference survey engine">
+  <meta property="og:description" content="Show two options, pick one. Glicko-2 and Bradley-Terry models turn the picks into a ranked preference ordering with confidence intervals.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quick Pick","applicationCategory":"BusinessApplication","operatingSystem":"Web (self-hosted)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"An open-source pairwise-comparison survey engine that infers a ranked preference ordering from repeated either-or picks."}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink)}
+    main{max-width:860px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:0 0 1rem}
+    h2{margin-top:0}p.lede{font-size:1.15rem;color:var(--muted)}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
+    pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:.75rem;overflow:auto;font-size:.85rem}
+    a{color:var(--accent)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Quick Pick | Pairwise preference survey engine","item":"https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Quick Pick | Pairwise preference survey engine — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Quick Pick | Pairwise preference survey engine</span></span></nav>
+<main>
+  <h1>Ask two options at a time. Learn what people really want.</h1>
+  <p class="lede">Quick Pick shows a respondent two options and asks them to pick one. After enough picks it knows their preference ordering, including trade-offs they could not have stated if you had asked directly.</p>
+  <section>
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Discrete items</strong> (activities, professions) are rated with Glicko-2. Each item carries a rating and a rating deviation, so every ranking comes with a confidence interval. Ratings are stored per respondent, so one person's answers never move another's ranking.</li>
+      <li><strong>Continuous attributes</strong> (income, hours, upside) use a Davidson tie-extended Bradley-Terry model, which includes an explicit "too close to call" outcome.</li>
+      <li><strong>Adaptive question selection</strong> favours the items the model is least sure about, pairs items with close ratings, balances coverage, avoids recent repeats, and randomises which option appears on top so screen position cannot bias the result.</li>
+      <li><strong>Three perspectives</strong> (what you want, what you want in a partner, what you think your partner wants) never share state. Comparing the last two across a linked couple shows where each is wrong about the other.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Status</h2>
+    <p>Prototype. It is a Next.js and Postgres app that you run yourself; this page is a description, not a hosted demo, and no hosted instance is promised. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
+  </section>
+  <section>
+    <h2>Deploy your own copy</h2>
+    <p><a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&amp;root-directory=ventures%2Fquick-pick-survey&amp;env=ADMIN_KEY%2CADMIN_SESSION_SECRET&amp;envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&amp;envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&amp;project-name=quick-pick-survey&amp;stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D">Deploy with Vercel</a> to run your own copy in your own account, with your own database. Nothing passes through the author, and you become the operator of your copy.</p>
+  </section>
+  <section>
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/quick-pick-survey
+npm install
+npx prisma migrate deploy
+npx prisma db seed
+npm run dev</pre>
+    <p>It needs a Postgres database and two environment variables (<code>ADMIN_KEY</code>, <code>ADMIN_SESSION_SECRET</code>). The README in that folder has the full steps and the design documents (architecture, data collection, accessibility).</p>
+  </section>
+  <section>
+    <h2>Privacy and usage</h2>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you. When you self-host the app, what it stores about a respondent is documented in <code>docs/DATA-COLLECTION.md</code>.</p>
+  </section>
+  <section>
+    <h2>Disclaimer</h2>
+    <p>A ranking inferred from a small number of picks is a statistical estimate with uncertainty, not a fact about a person. Do not use it as the sole basis for a hiring, financial, medical or relationship decision.</p>
+    <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  </section>
+  <footer>Related: <a href="../event-seating-chart-optimizer/">Event seating chart optimizer</a>, another tool that turns people's constraints into an ordering. Open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor the creator</a>. Part of the tool catalogue.</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pottery-piece-pricing-calculator/" data-pf-to="pottery-piece-pricing-calculator">How much should I charge for my pottery? Free cost-per-piece calculator</a></li>
+      <li><a href="../prop-firm-challenge-calculator/" data-pf-to="prop-firm-challenge-calculator">Prop Firm Challenge Calculator</a></li>
+      <li><a href="../proposal-maker/" data-pf-to="proposal-maker">Proposal Maker — free client proposal generator, no signup</a></li>
+      <li><a href="../rent-vs-buy-breakeven-calculator/" data-pf-to="rent-vs-buy-breakeven-calculator">Rent vs buy break-even calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=quick-pick-survey">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/?pfEmbed=1&quot; title=&quot;Quick Pick | Pairwise preference survey engine — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="quick-pick-survey"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/" data-pf-embed-title="Quick Pick | Pairwise preference survey engine" data-pf-embed-slug="quick-pick-survey"></script>
+</body>
+</html>

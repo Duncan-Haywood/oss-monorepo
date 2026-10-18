@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-inch rate | Tree Service Bid Calculator</title>
+<meta name="description" content="A flat '$X per inch' rule can't see that wood volume scales with the square of diameter. This free, private browser calculator prices removal by DBH, height…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tree-service-bid-calculator/vs-a-flat-per-inch-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-inch rate">
+<meta property="og:description" content="A 12-inch street pine and a 24-inch backyard oak next to the house both get quoted at the same flat per-inch rate.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-inch rate get a bigger tree wrong?","acceptedAnswer":{"@type":"Answer","text":"Because wood volume, and the climbing and rigging complexity that rides with it, scales with the square of diameter at breast height, not linearly with inches. Using this calculator's own defaults, a 12-inch street pine costs $397.58 to run and this calculator prices it at $530.10 -- $44.18 per inch. A 24-inch backyard oak next to the house, needing a stump grind and a chip-and-haul, costs $4,897.39 to run and this calculator prices it at $6,529.85 -- 12.32 times the pine's price, on twice the diameter."}},{"@type":"Question","name":"What does a flat per-inch rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Access, hazards, stump grinding, and haul. A flat per-inch number has no line for a backyard the crew has to carry brush out of instead of chipping at the tree, no line for a tree next to a structure or power line, no line for grinding the stump, and no line for chipping and hauling versus leaving the wood on site. It also assumes wood volume scales with inches instead of the square of inches, which is wrong on every tree above the size the rate was set on."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own defaults: the 12-inch street pine prices at $530.10, on a job that costs $397.58 to run, at a $44.18-per-inch rate. Apply that same per-inch rate to the 24-inch backyard oak and it quotes at $1,060.21 -- $3,837.18 below the oak's own $4,897.39 break-even cost, before counting the $5,469.65 it falls short of what this calculator prices the oak at ($6,529.85, 12.32 times the pine)."}},{"@type":"Question","name":"Is a flat per-inch rate ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For trees close to the size, species, and access the rate was set on -- typically a small-to-mid street tree with the chipper right there -- a flat per-inch number can land close, because that is probably the tree the rate was set on. The risk is quoting a much larger tree, a hard-access backyard removal, or a tree with hazards or a stump to grind at the same rate, because the rate does not know the diameter squared, the access, or the hazards until someone looks at the tree, and by then the flat number has often already been quoted over the phone."}},{"@type":"Question","name":"Does this calculator know my local labor rates or dump fees?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your dump facility's fees, or what other tree services in your area charge. It takes DBH, height, species, access, haul method, stump grinding, hazard flags, and your own crew rate, burden, equipment cost, overhead, and target margin, and turns that into a price for this tree -- the arithmetic a flat per-inch rate skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#1c261c;background:#eef3ea}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2b6b3a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#4a5848}section{background:#fff;border:1px solid #cfd9c6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #dbe6d3;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #cfd9c6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5848}.fine,.note{font-size:.88rem;color:#4a5848}footer{color:#4a5848;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tree-service-bid-calculator/vs-a-flat-per-inch-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tree-service-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-inch rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tree-service-bid-calculator/">Tree Service Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-inch rate</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Tree Service Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-inch rate</h1>
+<p class="lede">&ldquo;$X a diameter inch, any tree&rdquo; is not a price for a removal &mdash; it is a price for one tree's size, access, and hazards, quietly applied to a tree twice the diameter and four times the trouble.</p>
+</header>
+<section>
+<h2>What a flat per-inch rate is</h2>
+<p>
+A flat per-inch rate is the fastest way to quote a removal over the
+phone: multiply the trunk diameter by a number and read it back.
+Customers like it because it is easy to compare between bids, and it is
+the number a customer holding a competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was usually set for one kind of tree &mdash; a
+small-to-mid street tree the chipper can reach directly &mdash; and then
+reused for every tree afterward, whether or not the next one is twice
+the diameter, tucked in a backyard, growing next to the house, or has a
+stump to grind.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+tree's DBH, height, species, access, haul method, stump grinding, and
+hazard flags (near a structure, near power, dead), plus your own crew
+rate, payroll burden, equipment cost, overhead, and target margin. It
+converts DBH to a size factor using the square of diameter, applies
+species, height, access, and hazard multipliers, and returns the price,
+the price per inch, the effective hourly rate, and the walk-away price
+&mdash; for this tree, not a flat rate for every tree.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-inch rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges twice as much for a tree twice the diameter, even though a tree twice the diameter has roughly four times the wood volume and rigging complexity.</td>
+<td>Converts DBH to a size factor using the square of diameter (the same shape a grinder wheel or a climber actually faces), so hours scale with volume, not inches.</td>
+</tr>
+<tr>
+<td>Charges the same whether the chipper sits right at the tree or the crew has to carry every branch out of a tight backyard.</td>
+<td>Applies an access multiplier &mdash; street, side yard, backyard, tight backyard, or crane required &mdash; on top of the size factor.</td>
+</tr>
+<tr>
+<td>Has no line for a tree next to a structure, near a power line, or standing dead, even though each of those changes how carefully (and slowly) the crew has to work.</td>
+<td>Applies a hazard premium per flag &mdash; near-structure, near-power, dead &mdash; stacked on top of the base removal hours.</td>
+</tr>
+<tr>
+<td>Has no line for grinding the stump or for chipping and hauling versus leaving the wood on site.</td>
+<td>Prices stump grinding by stump face area and haul method by its own share of on-site hours, separate from the removal itself.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the price, the price per inch, and the effective hourly rate, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two trees, one flat rate</h2>
+<p>
+Using this calculator's own defaults for crew rate, burden, equipment,
+overhead, and target margin:
+</p>
+<p>
+A 12-inch street pine, softwood, chipper right at the tree, wood left
+on site, costs <strong>$397.58</strong> to run and this calculator
+prices it at <strong>$530.10</strong> &mdash; <strong>$44.18 per
+inch</strong>. A 24-inch backyard oak &mdash; hardwood, next to the
+house, wood chipped and hauled, stump ground &mdash; costs
+<strong>$4,897.39</strong> to run and this calculator prices it at
+<strong>$6,529.85</strong>, <strong>12.32 times</strong> the pine's
+price on just twice the diameter. Quote the oak at the pine's flat
+<strong>$44.18-per-inch</strong> rate instead, and 24 inches prices at
+<strong>$1,060.21</strong> &mdash; <strong>$3,837.18 below the oak's
+own break-even cost</strong> &mdash; before counting the
+<strong>$5,469.65</strong> it falls short of what this calculator
+prices the oak at. Same rate, one tree that pays and one that loses
+money the moment the ladder goes up against the house.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-inch rate get a bigger tree wrong?</h3>
+<p>Because wood volume, and the climbing and rigging complexity that rides with it, scales with the square of diameter at breast height, not linearly with inches. Using this calculator's own defaults, a 12-inch street pine costs $397.58 to run and this calculator prices it at $530.10 -- $44.18 per inch. A 24-inch backyard oak next to the house, needing a stump grind and a chip-and-haul, costs $4,897.39 to run and this calculator prices it at $6,529.85 -- 12.32 times the pine's price, on twice the diameter.</p>
+<h3>What does a flat per-inch rate usually leave out entirely?</h3>
+<p>Access, hazards, stump grinding, and haul. A flat per-inch number has no line for a backyard the crew has to carry brush out of instead of chipping at the tree, no line for a tree next to a structure or power line, no line for grinding the stump, and no line for chipping and hauling versus leaving the wood on site. It also assumes wood volume scales with inches instead of the square of inches, which is wrong on every tree above the size the rate was set on.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own defaults: the 12-inch street pine prices at $530.10, on a job that costs $397.58 to run, at a $44.18-per-inch rate. Apply that same per-inch rate to the 24-inch backyard oak and it quotes at $1,060.21 -- $3,837.18 below the oak's own $4,897.39 break-even cost, before counting the $5,469.65 it falls short of what this calculator prices the oak at ($6,529.85, 12.32 times the pine).</p>
+<h3>Is a flat per-inch rate ever the right way to quote?</h3>
+<p>For trees close to the size, species, and access the rate was set on -- typically a small-to-mid street tree with the chipper right there -- a flat per-inch number can land close, because that is probably the tree the rate was set on. The risk is quoting a much larger tree, a hard-access backyard removal, or a tree with hazards or a stump to grind at the same rate, because the rate does not know the diameter squared, the access, or the hazards until someone looks at the tree, and by then the flat number has often already been quoted over the phone.</p>
+<h3>Does this calculator know my local labor rates or dump fees?</h3>
+<p>No. It has no data on your local labor market, your dump facility's fees, or what other tree services in your area charge. It takes DBH, height, species, access, haul method, stump grinding, hazard flags, and your own crew rate, burden, equipment cost, overhead, and target margin, and turns that into a price for this tree -- the arithmetic a flat per-inch rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Tree Service Bid Calculator</a> to price your own removal, or read <a href="./how-to-bid-tree-removal.html">how tree services actually bid a removal</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a tree appraisal, a hazard rating, or a recommendation to remove a tree. Verify every figure against your own payroll, insurance, dump tickets, and site conditions, and against a qualified arborist or professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it won you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../vinyl-liner-bid-calculator/" data-pf-to="vinyl-liner-bid-calculator">Vinyl Liner Bid Calculator</a></li>
+      <li><a href="../artificial-turf-bid-calculator/" data-pf-to="artificial-turf-bid-calculator">Artificial Turf Bid Calculator</a></li>
+      <li><a href="../deck-bid-calculator/" data-pf-to="deck-bid-calculator">Deck Bid Calculator</a></li>
+      <li><a href="../deck-staining-bid-calculator/" data-pf-to="deck-staining-bid-calculator">Deck Staining Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tree-service-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tree-service-bid-calculator"></script>
+</body></html>

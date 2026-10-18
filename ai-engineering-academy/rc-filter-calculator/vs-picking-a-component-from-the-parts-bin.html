@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+  <link rel="icon" href="../../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>This calculator vs. picking a resistor or capacitor from the parts bin</title>
+<meta name="description" content="Grabbing a close resistor or capacitor from the parts bin is fast, but the cutoff it actually produces -- and how far that is from the one you designed for --…" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/rc-filter-calculator/vs-picking-a-component-from-the-parts-bin.html">
+<meta property="og:title" content="This calculator vs. picking a resistor or capacitor from the parts bin" />
+<meta property="og:description" content="A close-enough component from the bin can land the real cutoff a factor of 2 or more from what you designed for." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't grabbing a close resistor or capacitor good enough for most filters?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sometimes -- if the application has generous margin, close is fine. The risk is that \"close\" is a guess about the component value, not about the cutoff frequency it produces, and those two aren't the same distance apart. A resistor or capacitor picked because it's \"about right\" from a mixed parts bin can land the real -3 dB cutoff anywhere from a few percent off to a full octave or more away from the one the design actually called for, with nothing about the build itself signaling the mismatch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What actually goes wrong when you round a component value in your head?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three separate mistakes tend to compound: reaching for a value from the wrong decade (10 nF picked up instead of 100 nF is a 10x cutoff error), assuming a value is a standard preferred one when the parts bin only stocks a different series, and -- most often -- never recomputing the cutoff after the substitution at all, so the actual error is simply unknown rather than small."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this calculator replace understanding preferred-value series like E12 and E24?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, and it isn't trying to. Knowing that components come in E12/E24 steps rather than arbitrary values is still useful background. What this tool removes is redoing the arithmetic by hand every time: it solves for the exact component a target cutoff needs, snaps that to the nearest value in the series you'd actually buy, and reports the cutoff and signed error percent that snapped value really produces -- so the gap between \"designed for\" and \"built with\" is a number on the page instead of a guess."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool store or upload the values I enter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The calculator runs entirely in your browser -- the components and target cutoff you enter, and the result it computes, never leave this page, and there is no account, upload, or server involved."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.25rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+  .fine, .note { font-size: 0.86rem; color: var(--muted); }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+</style>
+<link rel="stylesheet" href="../../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/rc-filter-calculator/vs-picking-a-component-from-the-parts-bin.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. picking a resistor or capacitor from the parts bin — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../ai-engineering-academy/">Free Electronics Calculators</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. picking a resistor or capacitor from the parts bin</span></span></nav>
+<main>
+  <h1>This calculator vs. picking a resistor or capacitor from the parts bin</h1>
+  <p class="lede">
+    Grabbing a component that's "about right" is fast, and it's how most
+    prototype filters get built. The part missing from that habit isn't
+    knowledge of the formula -- it's the second calculation nobody does:
+    what cutoff does the part you actually grabbed produce, and how far is
+    that from the one you designed for?
+  </p>
+  <nav class="toolbar">
+    <a href="./">&larr; RC / RL filter cutoff calculator</a> ·
+    <a href="../">All free electronics tools</a>
+  </nav>
+
+  <section aria-labelledby="compare-heading">
+    <h2 id="compare-heading">What each approach actually answers</h2>
+    <p>
+      <strong>Picking a component from the bin</strong> answers "do I have
+      something in roughly the right range?" -- a quick, reasonable first
+      question. What it doesn't answer is the one that decides whether the
+      filter does what you designed it for: the exact value a target cutoff
+      needs is almost never a value that gets sold, so any real build
+      already involves rounding, and rounding by eye means the size of that
+      rounding error is simply unknown until someone sits down with the
+      formula and the actual part.
+    </p>
+    <p>
+      <strong>This calculator</strong> does that second step for you. Give
+      it a target cutoff and one known component, and its design mode
+      solves for the exact value the other component needs, snaps it to the
+      nearest value in the standard series you'd actually buy (E12 for
+      capacitors and inductors, E24 for resistors), and reports the cutoff
+      and signed error percent that snapped value really produces -- so
+      "close enough" is a number you read off the page rather than a guess
+      you carry into the build.
+    </p>
+    <p>Neither replaces the other. You still choose the part; the tool just tells you, before you solder it in, exactly what cutoff that choice gives you.</p>
+  </section>
+
+  <div class="table-wrap">
+  <section aria-labelledby="failures-heading">
+    <h2 id="failures-heading">Where a bin-picked value typically goes wrong</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Habit</th><th scope="col">What it does to the real cutoff</th></tr></thead>
+      <tbody>
+        <tr><td>Grabbing a value from the wrong decade</td><td>A 10 nF part picked up in place of a 100 nF one shifts the cutoff by a factor of 10 -- easy to do by eye when two reels or drawers are labelled similarly.</td></tr>
+        <tr><td>Assuming a value is in the standard series</td><td>Preferred-value resistors step in the E24 series and most stocked capacitors in E12; a value that looks plausible can simply not exist as a part, forcing a substitution nobody planned for.</td></tr>
+        <tr><td>Never recomputing after the substitution</td><td>The single most common gap: a part is swapped in because it's close, and the cutoff it actually produces is never worked back out, so the error is unknown rather than small.</td></tr>
+        <tr><td>Ignoring the part's own tolerance</td><td>A real resistor or capacitor carries its own &plusmn;5% to &plusmn;20% tolerance on top of whatever rounding error the substitution already introduced -- two separate sources of drift that stack rather than cancel.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="fine">This calculator can't stock your parts bin for you -- it can only compute correctly once you tell it which component you actually have or picked. What it removes is redoing the cutoff-frequency arithmetic by hand after that choice.</p>
+  </section>
+  </div>
+
+  <section aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Common questions</h2>
+    <h3>Isn't grabbing a close resistor or capacitor good enough for most filters?</h3>
+    <p>Sometimes -- if the application has generous margin, close is fine. The risk is that "close" is a guess about the component value, not about the cutoff frequency it produces, and those two aren't the same distance apart. A resistor or capacitor picked because it's "about right" from a mixed parts bin can land the real -3 dB cutoff anywhere from a few percent off to a full octave or more away from the one the design actually called for, with nothing about the build itself signaling the mismatch.</p>
+    <h3>What actually goes wrong when you round a component value in your head?</h3>
+    <p>Three separate mistakes tend to compound: reaching for a value from the wrong decade (10 nF picked up instead of 100 nF is a 10x cutoff error), assuming a value is a standard preferred one when the parts bin only stocks a different series, and -- most often -- never recomputing the cutoff after the substitution at all, so the actual error is simply unknown rather than small.</p>
+    <h3>Does this calculator replace understanding preferred-value series like E12 and E24?</h3>
+    <p>No, and it isn't trying to. Knowing that components come in E12/E24 steps rather than arbitrary values is still useful background. What this tool removes is redoing the arithmetic by hand every time: it solves for the exact component a target cutoff needs, snaps that to the nearest value in the series you'd actually buy, and reports the cutoff and signed error percent that snapped value really produces -- so the gap between "designed for" and "built with" is a number on the page instead of a guess.</p>
+    <h3>Does this tool store or upload the values I enter?</h3>
+    <p>No. The calculator runs entirely in your browser -- the components and target cutoff you enter, and the result it computes, never leave this page, and there is no account, upload, or server involved.</p>
+    <p class="note">Open <a href="./">the RC / RL filter cutoff calculator</a> and switch to "I have a target cutoff -- find a component" to try this.</p>
+  </section>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace checking a component's
+      real datasheet or measuring the built circuit. <strong>You are
+      responsible for reviewing and verifying its output before relying on
+      it</strong>, including for anything safety-critical. To the maximum
+      extent permitted by law, the authors accept no liability for any loss
+      or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Part of <a href="../">the free electronics tools</a> from <a href="../">AI Engineering Academy</a>. MIT licensed -- see <a href="LICENSE">LICENSE</a>. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what this tool does.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../../world-clock-widget/" data-pf-to="world-clock-widget">What time is it there — and are they awake?</a></li>
+      <li><a href="../../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../../deploy/?app=ai-engineering-academy">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../../pf-site.js" data-pf-slug="ai-engineering-academy"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contract vs. Salary Rate Calculator (W-2 to 1099) — Free</title>
+  <meta name="description" content="Free W-2 to 1099 rate calculator: find the hourly contract rate that matches a salaried offer after self-employment tax, health insurance, unpaid time off…">
+  <meta property="og:title" content="What hourly rate matches your salary offer? Free contract vs. W-2 calculator">
+  <meta property="og:description" content="Step-by-step break-even contract rate, and what an offered rate really leaves you. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 22l6-6 4 4 7-9' stroke='%23fff' stroke-width='2.500' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Contract vs. Salary Rate Calculator (W-2 to 1099)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the hourly contract rate that matches a salaried job offer after self-employment tax, health insurance, unpaid time off, bench time, lost 401(k) match and expenses. Runs in your browser; nothing is uploaded.", "featureList": "Break-even contract rate, W-2 to 1099 conversion, self-employment tax, benefits replacement, offered-rate comparison, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What hourly rate should a contract pay to match a salaried offer?", "acceptedAnswer": {"@type": "Answer", "text": "Not salary divided by 2,080. A contractor pays both halves of Social Security and Medicare tax, buys their own health cover, gets no paid vacation or holidays, loses weeks between contracts and replaces the retirement match. For a typical software salary that adds roughly 30% to 45% to the naive hourly figure. The tool shows each gap as its own step."}}, {"@type": "Question", "name": "Why is self-employment tax not simply 15.3%?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to 92.35% of net earnings, and the 12.4% Social Security part stops at the annual wage base while the 2.9% Medicare part does not. The tool nets this against the employee half of FICA you stop paying when you leave a W-2 job."}}, {"@type": "Question", "name": "Does the comparison include income tax?", "acceptedAnswer": {"@type": "Answer", "text": "No. Income tax depends on state, filing status and deductions, and it is left out of both sides. This slightly favours the contractor, because half of self-employment tax is deductible and the qualified business income deduction may apply. Ask a CPA for the after-tax picture."}}, {"@type": "Question", "name": "Why count unpaid vacation and gaps between contracts?", "acceptedAnswer": {"@type": "Answer", "text": "A salaried offer pays you through holidays and time off. A contract pays only for hours worked, so every unpaid week raises the rate you need on the weeks you do bill. Enter zero for any you do not expect."}}, {"@type": "Question", "name": "What about corp-to-corp or an S corporation?", "acceptedAnswer": {"@type": "Answer", "text": "The tool models a sole proprietor or single-member LLC taxed as one. An S corporation can lower self-employment tax but adds payroll, reasonable-compensation rules and filing costs, so enter those as business expenses or ask a CPA."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not know your state, your client's terms, worker classification rules or your own benefits. Have an advisor review a real offer before you sign."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"What hourly rate matches your salary offer? Free contract vs. W-2 calculator","item":"https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What hourly rate matches your salary offer? Free contract vs. W-2 calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What hourly rate matches your salary offer? Free contract vs. W-2 calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CONTRACT VS. SALARY RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What hourly rate does a contract need to pay to match your salary offer?</h1>
+    <p>Enter the salaried offer and what you would have to replace as a contractor. It finds the hourly rate that leaves you the same cash, shows how much each gap adds (self-employment tax, health cover, unpaid time off, bench weeks, the lost match, expenses), and tells you what a rate you were actually offered leaves you.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not tax or financial advice.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The salaried offer and your contract assumptions</h2>
+      <div class="grid">
+        <div><label for="salary">Salary offer ($ a year)</label><input id="salary" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="bonusPct">Target bonus (% of salary)</label><input id="bonusPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="equity">Stock or RSUs, cash value per year ($)</label><input id="equity" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="matchPct">401(k) match (% of salary)</label><input id="matchPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="employerHealth">Employer-paid health coverage ($ a year)</label><input id="employerHealth" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="ptoDays">Paid vacation and sick days a year</label><input id="ptoDays" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="holidays">Paid holidays a year</label><input id="holidays" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="hoursPerWeek">Hours you work per week</label><input id="hoursPerWeek" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="benchWeeks">Unbilled weeks a year between contracts</label><input id="benchWeeks" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="expenses">Business expenses as a contractor ($ a year)</label><input id="expenses" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="offeredRate">Contract rate you were offered ($ per hour, 0 to skip)</label><input id="offeredRate" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Tax rates</h2>
+      <div class="grid">
+        <div><label for="ssRate">Social Security rate, each half (%)</label><input id="ssRate" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="medicareRate">Medicare rate, each half (%)</label><input id="medicareRate" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="wageBase">Social Security wage base for the year ($)</label><input id="wageBase" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Find the break-even rate</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What hourly rate should a contract pay to match a salaried offer?</h3>
+      <p>Not salary divided by 2,080. A contractor pays both halves of Social Security and Medicare tax, buys their own health cover, gets no paid vacation or holidays, loses weeks between contracts and replaces the retirement match. For a typical software salary that adds roughly 30% to 45% to the naive hourly figure. The tool shows each gap as its own step.</p>
+      <h3>Why is self-employment tax not simply 15.3%?</h3>
+      <p>It applies to 92.35% of net earnings, and the 12.4% Social Security part stops at the annual wage base while the 2.9% Medicare part does not. The tool nets this against the employee half of FICA you stop paying when you leave a W-2 job.</p>
+      <h3>Does the comparison include income tax?</h3>
+      <p>No. Income tax depends on state, filing status and deductions, and it is left out of both sides. This slightly favours the contractor, because half of self-employment tax is deductible and the qualified business income deduction may apply. Ask a CPA for the after-tax picture.</p>
+      <h3>Why count unpaid vacation and gaps between contracts?</h3>
+      <p>A salaried offer pays you through holidays and time off. A contract pays only for hours worked, so every unpaid week raises the rate you need on the weeks you do bill. Enter zero for any you do not expect.</p>
+      <h3>What about corp-to-corp or an S corporation?</h3>
+      <p>The tool models a sole proprietor or single-member LLC taxed as one. An S corporation can lower self-employment tax but adds payroll, reasonable-compensation rules and filing costs, so enter those as business expenses or ask a CPA.</p>
+      <h3>Is this tax or financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type in. It does not know your state, your client's terms, worker classification rules or your own benefits. Have an advisor review a real offer before you sign.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Income tax, state taxes, the qualified business income deduction, S corporation or corp-to-corp structures, whether the role would really be classified as contract work, the client's payment terms, liability insurance, unemployment eligibility, and benefits the tool does not list (tuition, pension, equity upside). The defaults are placeholders, not your offer: replace each with your own numbers and the current year's tax rates.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy break-even calculator</a>, the <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and the <a href="../locum-tenens-vs-employed-calculator/">locum tenens vs. employed calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p>Contracting in the UK? The <a href="../uk-sole-trader-vs-limited-company-calculator/">sole trader vs limited company calculator</a> compares take-home for 2026/27.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or your accountant. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any tax or legal obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const a = analyze(opts()), b = a.breakEven;
+      let h = `<div class="finding"><h4>Break-even contract rate: ${money2(b.rate)} an hour</h4><p class="stats">That is ${a.multiplier.toFixed(2)}x the naive salary-over-2,080 figure of ${money2(a.naive)}. Billing ${b.weeks.toFixed(1)} weeks of ${(b.hours / b.weeks).toFixed(0)} hours needs about ${money(b.revenue)} of revenue to leave the same cash as the offer (${money(a.fteCash)} after the employee half of FICA).</p></div>`;
+      let prev = 0;
+      h += `<div class="finding"><h4>Where the extra rate comes from</h4>${table(["Step", "Rate", "Added"], a.steps.map((s) => { const d = s.rate - prev; prev = s.rate; return [s.label, money2(s.rate), (d >= 0 ? "+" : "") + money2(d)]; }))}</div>`;
+      if (a.offer) {
+        const o = a.offer;
+        h += `<div class="finding"><h4>${money2(o.rate)} an hour leaves you ${money(Math.abs(o.diff))} a year ${o.diff >= 0 ? "ahead of" : "behind"} the salaried offer</h4><p>Contract cash after expenses, self-employment tax, health cover and match replacement: ${money(o.contractCash)}, against ${money(o.fteCash)} for the job. ${o.shortfallRate > 0 ? `You would need ${money2(o.shortfallRate)} an hour more to break even.` : "It clears break-even."} Before income tax on either side.</p></div>`;
+      }
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../retreat-profit-pricing-calculator/" data-pf-to="retreat-profit-pricing-calculator">Retreat and workshop profit calculator</a></li>
+      <li><a href="../roommate-rent-splitter/" data-pf-to="roommate-rent-splitter">Roommate Rent Splitter — fair rent for unequal rooms</a></li>
+      <li><a href="../rush-job-sequencer/" data-pf-to="rush-job-sequencer">Rush job sequencer</a></li>
+      <li><a href="../schengen-90-180-day-calculator/" data-pf-to="schengen-90-180-day-calculator">Schengen 90/180 day calculator: days left and last exit date. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=contract-vs-fte-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/?pfEmbed=1&quot; title=&quot;What hourly rate matches your salary offer? Free contract vs. W-2 calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="contract-vs-fte-rate-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/" data-pf-embed-title="What hourly rate matches your salary offer? Free contract vs. W-2 calculator" data-pf-embed-slug="contract-vs-fte-rate-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="contract-vs-fte-rate-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="contract-vs-fte-rate-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Physician wRVU Compensation Calculator — Offer Break-Even, Free</title>
+  <meta name="description" content="Free physician wRVU compensation calculator. Compare base-plus-productivity, pure wRVU and fixed salary, find the break-even wRVUs, effective $/wRVU…">
+  <meta property="og:title" content="Physician wRVU Compensation Calculator — free, private">
+  <meta property="og:description" content="Evaluate a physician or APP employment offer: break-even wRVUs, effective dollars per wRVU, shortfall repayment exposure and a two-offer comparison.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Physician wRVU Compensation Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares base-plus-productivity, pure wRVU productivity and fixed-salary pay for a physician or advanced practice provider employment offer, with break-even wRVUs, effective dollars per wRVU, pay per hour, shortfall and clawback exposure, a sensitivity table and a two-offer comparison. Illustrative only; runs in your browser.","featureList":"wRVU break-even, effective dollars per wRVU, comp per hour, shortfall repayment exposure, 80-120% sensitivity table, side-by-side offer comparison, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a wRVU conversion factor?","acceptedAnswer":{"@type":"Answer","text":"It is the dollars you are paid per work relative value unit (wRVU) you personally generate. If your conversion factor is $50 and you generate 8,000 wRVUs, your productivity value is $400,000. The rate is set in your contract, so this tool asks you to type it in rather than assuming a market figure."}},{"@type":"Question","name":"How does a wRVU threshold work?","acceptedAnswer":{"@type":"Answer","text":"In a base-plus-productivity contract you are paid a base salary, and you earn extra only for wRVUs above a threshold. If the base is $300,000 and the factor is $50, the base is worth 6,000 wRVUs of work, so a threshold at 6,000 means the incentive starts exactly where the base is fully earned. Thresholds set higher or lower than that change who carries the risk."}},{"@type":"Question","name":"What is the break-even wRVU count between base pay and pure productivity?","acceptedAnswer":{"@type":"Answer","text":"It is the annual wRVUs at which pure productivity pays the same as the base structure. Below it the guaranteed base pays more; above it productivity does. This tool solves it from the numbers you type and shows how far your expected volume sits above or below it."}},{"@type":"Question","name":"What happens if I miss my wRVU target?","acceptedAnswer":{"@type":"Answer","text":"It depends on the contract. Some pay the base regardless, some carry the gap forward and deduct it from future incentive, and some require you to repay it at the end of the year or if you leave. This tool lets you enter the share you would repay and shows the exposure at 80% to 120% of your expected volume."}},{"@type":"Question","name":"How do I compare two physician offers?","acceptedAnswer":{"@type":"Answer","text":"Enter each offer on its own, choose the pay structure it uses, and compare annual pay, pay per hour worked, effective dollars per wRVU and the year-one cash including any signing bonus. The tool also finds the change in productivity at which the two offers pay the same."}},{"@type":"Question","name":"Is this legal or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is an illustrative calculator that uses only the numbers you type. It does not know your contract's definitions, cannot judge whether a non-compete is enforceable, and includes no compensation survey data. Have a lawyer who reviews physician contracts read the agreement before you sign."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px 16px; }
+    a { color: #1f6a7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17495a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17495a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a66; }
+    .card { background: #fff; border: 1px solid #d5dee3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17495a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .92rem; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bfc8; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6a7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2edf0; color: #17495a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3ebee; }
+    td.n, th.n { text-align: right; white-space: nowrap; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a66; }
+    .finding { border-bottom: 1px solid #e3ebee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #8a2d0b; }
+    .pill.medium { background: #fdf0d5; color: #6f5310; }
+    .pill.info { background: #e3ebef; color: #17495a; }
+    .stats { font-size: .95rem; color: #2f3b45; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dee3; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .hl { background: #e8f3f5; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Physician wRVU Compensation Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Physician wRVU Compensation Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Physician wRVU Compensation Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PHYSICIAN WRVU COMPENSATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is this wRVU offer really worth?</h1>
+    <p>For employed physicians and advanced practice providers weighing an offer: type the terms from the contract and
+    see annual pay under <strong>base then productivity</strong>, <strong>pure productivity</strong> and
+    <strong>fixed salary</strong>, the <strong>break-even wRVUs</strong>, effective dollars per wRVU, pay per hour
+    worked, <strong>shortfall and clawback exposure</strong>, and a side-by-side comparison of two offers.</p>
+    <p class="note"><strong>Estimate only, not legal or financial advice.</strong> Every rate here is one you type from
+    your own contract or a survey you have licensed; this tool ships no benchmark or market figure. Nothing you type
+    leaves this browser.</p>
+  </header>
+
+  <section class="card">
+    <h2>Offer A</h2>
+      <h3>Pay terms</h3>
+      <div class="grid">
+        <div><label for="a-base">Base salary ($/yr, as written for your FTE)</label><input type="number" id="a-base" step="any" min="0" placeholder="e.g. 300000" inputmode="decimal"></div>
+        <div><label for="a-cf">wRVU conversion factor ($ per wRVU)</label><input type="number" id="a-cf" step="any" min="0" placeholder="from the contract" inputmode="decimal"></div>
+        <div><label for="a-threshold">wRVU threshold / target (annual)</label><input type="number" id="a-threshold" step="any" min="0" placeholder="e.g. 6000" inputmode="decimal"></div>
+        <div><label for="a-pureCf">Pure-productivity factor ($/wRVU, blank = same)</label><input type="number" id="a-pureCf" step="any" min="0" placeholder="optional" inputmode="decimal"></div>
+        <div><label for="a-fixedSalary">Fixed-salary alternative ($/yr, blank = base)</label><input type="number" id="a-fixedSalary" step="any" min="0" placeholder="optional" inputmode="decimal"></div>
+        <div><label for="a-repayPct">Share of a wRVU shortfall you repay (%)</label><input type="number" id="a-repayPct" step="any" min="0" placeholder="0 = base guaranteed" inputmode="decimal"></div>
+        <div><label for="a-quality">Quality / bonus (% of clinical pay)</label><input type="number" id="a-quality" step="any" min="0" placeholder="e.g. 10" inputmode="decimal"></div>
+        <div><label for="a-qualityEarned">Share of quality bonus you expect to earn (%)</label><input type="number" id="a-qualityEarned" step="any" min="0" placeholder="blank = 100" inputmode="decimal"></div>
+      </div>
+      <h3>Volume and hours</h3>
+      <div class="grid">
+        <div><label for="a-wrvus">Expected annual wRVUs</label><input type="number" id="a-wrvus" step="any" min="0" placeholder="or fill the four boxes below" inputmode="decimal"></div>
+        <div><label for="a-days">Clinic days per week</label><input type="number" id="a-days" step="any" min="0" placeholder="e.g. 4" inputmode="decimal"></div>
+        <div><label for="a-patients">Patients per clinic day</label><input type="number" id="a-patients" step="any" min="0" placeholder="e.g. 20" inputmode="decimal"></div>
+        <div><label for="a-wpv">Average wRVUs per visit</label><input type="number" id="a-wpv" step="any" min="0" placeholder="e.g. 1.3" inputmode="decimal"></div>
+        <div><label for="a-weeks">Weeks worked per year</label><input type="number" id="a-weeks" step="any" min="0" placeholder="blank = 46" inputmode="decimal"></div>
+        <div><label for="a-fte">FTE</label><input type="number" id="a-fte" step="any" min="0" placeholder="1 = full time" inputmode="decimal"></div>
+        <div><label for="a-hoursPerWeek">Hours per week worked (all duties)</label><input type="number" id="a-hoursPerWeek" step="any" min="0" placeholder="blank = 40 x FTE" inputmode="decimal"></div>
+      </div>
+      <h3>Bonuses, benefits and exit terms</h3>
+      <div class="grid">
+        <div><label for="a-signing">Signing bonus ($)</label><input type="number" id="a-signing" step="any" min="0" placeholder="e.g. 50000" inputmode="decimal"></div>
+        <div><label for="a-clawbackMonths">Clawback period (months)</label><input type="number" id="a-clawbackMonths" step="any" min="0" placeholder="e.g. 24" inputmode="decimal"></div>
+        <div><label for="a-leaveMonth">If you left at month (optional)</label><input type="number" id="a-leaveMonth" step="any" min="0" placeholder="e.g. 14" inputmode="decimal"></div>
+        <div><label for="a-retention">Retention bonus ($ total)</label><input type="number" id="a-retention" step="any" min="0" placeholder="e.g. 30000" inputmode="decimal"></div>
+        <div><label for="a-yearsStay">Years you expect to stay</label><input type="number" id="a-yearsStay" step="any" min="0" placeholder="blank = 3" inputmode="decimal"></div>
+        <div><label for="a-call">Call pay ($/yr)</label><input type="number" id="a-call" step="any" min="0" placeholder="e.g. 15000" inputmode="decimal"></div>
+        <div><label for="a-cme">CME allowance ($/yr)</label><input type="number" id="a-cme" step="any" min="0" placeholder="e.g. 4000" inputmode="decimal"></div>
+        <div><label for="a-tailCost">Malpractice tail cost ($)</label><input type="number" id="a-tailCost" step="any" min="0" placeholder="if claims-made" inputmode="decimal"></div>
+        <div><label for="a-nonCompeteMonths">Months a non-compete would keep you out of the area</label><input type="number" id="a-nonCompeteMonths" step="any" min="0" placeholder="0 if none" inputmode="decimal"></div>
+        <div><label for="a-clawbackType">Clawback type</label><select id="a-clawbackType"><option value="pro-rata">Pro-rata (shrinks over the period)</option><option value="cliff">Cliff (all or nothing until it ends)</option></select></div>
+        <div><label for="a-tailPayer">Who pays for tail coverage</label><select id="a-tailPayer"><option value="employer">Employer pays</option><option value="you">You pay</option><option value="split">Split 50/50</option></select></div>
+      </div>
+      <div class="grid"><div><label for="a-structure">Structure this offer uses (for the comparison)</label><select id="a-structure"><option value="base-plus-productivity">Base guaranteed, then productivity above threshold</option><option value="pure-productivity">Pure productivity</option><option value="fixed-salary">Fixed salary</option></select></div></div>
+
+    <div class="checkbox-row"><input type="checkbox" id="compare-on"><label for="compare-on">Compare with a second offer</label></div>
+  </section>
+
+  <section class="card" id="offer-b" hidden>
+    <h2>Offer B</h2>
+      <h3>Pay terms</h3>
+      <div class="grid">
+        <div><label for="b-base">Base salary ($/yr, as written for your FTE)</label><input type="number" id="b-base" step="any" min="0" placeholder="e.g. 300000" inputmode="decimal"></div>
+        <div><label for="b-cf">wRVU conversion factor ($ per wRVU)</label><input type="number" id="b-cf" step="any" min="0" placeholder="from the contract" inputmode="decimal"></div>
+        <div><label for="b-threshold">wRVU threshold / target (annual)</label><input type="number" id="b-threshold" step="any" min="0" placeholder="e.g. 6000" inputmode="decimal"></div>
+        <div><label for="b-pureCf">Pure-productivity factor ($/wRVU, blank = same)</label><input type="number" id="b-pureCf" step="any" min="0" placeholder="optional" inputmode="decimal"></div>
+        <div><label for="b-fixedSalary">Fixed-salary alternative ($/yr, blank = base)</label><input type="number" id="b-fixedSalary" step="any" min="0" placeholder="optional" inputmode="decimal"></div>
+        <div><label for="b-repayPct">Share of a wRVU shortfall you repay (%)</label><input type="number" id="b-repayPct" step="any" min="0" placeholder="0 = base guaranteed" inputmode="decimal"></div>
+        <div><label for="b-quality">Quality / bonus (% of clinical pay)</label><input type="number" id="b-quality" step="any" min="0" placeholder="e.g. 10" inputmode="decimal"></div>
+        <div><label for="b-qualityEarned">Share of quality bonus you expect to earn (%)</label><input type="number" id="b-qualityEarned" step="any" min="0" placeholder="blank = 100" inputmode="decimal"></div>
+      </div>
+      <h3>Volume and hours</h3>
+      <div class="grid">
+        <div><label for="b-wrvus">Expected annual wRVUs</label><input type="number" id="b-wrvus" step="any" min="0" placeholder="or fill the four boxes below" inputmode="decimal"></div>
+        <div><label for="b-days">Clinic days per week</label><input type="number" id="b-days" step="any" min="0" placeholder="e.g. 4" inputmode="decimal"></div>
+        <div><label for="b-patients">Patients per clinic day</label><input type="number" id="b-patients" step="any" min="0" placeholder="e.g. 20" inputmode="decimal"></div>
+        <div><label for="b-wpv">Average wRVUs per visit</label><input type="number" id="b-wpv" step="any" min="0" placeholder="e.g. 1.3" inputmode="decimal"></div>
+        <div><label for="b-weeks">Weeks worked per year</label><input type="number" id="b-weeks" step="any" min="0" placeholder="blank = 46" inputmode="decimal"></div>
+        <div><label for="b-fte">FTE</label><input type="number" id="b-fte" step="any" min="0" placeholder="1 = full time" inputmode="decimal"></div>
+        <div><label for="b-hoursPerWeek">Hours per week worked (all duties)</label><input type="number" id="b-hoursPerWeek" step="any" min="0" placeholder="blank = 40 x FTE" inputmode="decimal"></div>
+      </div>
+      <h3>Bonuses, benefits and exit terms</h3>
+      <div class="grid">
+        <div><label for="b-signing">Signing bonus ($)</label><input type="number" id="b-signing" step="any" min="0" placeholder="e.g. 50000" inputmode="decimal"></div>
+        <div><label for="b-clawbackMonths">Clawback period (months)</label><input type="number" id="b-clawbackMonths" step="any" min="0" placeholder="e.g. 24" inputmode="decimal"></div>
+        <div><label for="b-leaveMonth">If you left at month (optional)</label><input type="number" id="b-leaveMonth" step="any" min="0" placeholder="e.g. 14" inputmode="decimal"></div>
+        <div><label for="b-retention">Retention bonus ($ total)</label><input type="number" id="b-retention" step="any" min="0" placeholder="e.g. 30000" inputmode="decimal"></div>
+        <div><label for="b-yearsStay">Years you expect to stay</label><input type="number" id="b-yearsStay" step="any" min="0" placeholder="blank = 3" inputmode="decimal"></div>
+        <div><label for="b-call">Call pay ($/yr)</label><input type="number" id="b-call" step="any" min="0" placeholder="e.g. 15000" inputmode="decimal"></div>
+        <div><label for="b-cme">CME allowance ($/yr)</label><input type="number" id="b-cme" step="any" min="0" placeholder="e.g. 4000" inputmode="decimal"></div>
+        <div><label for="b-tailCost">Malpractice tail cost ($)</label><input type="number" id="b-tailCost" step="any" min="0" placeholder="if claims-made" inputmode="decimal"></div>
+        <div><label for="b-nonCompeteMonths">Months a non-compete would keep you out of the area</label><input type="number" id="b-nonCompeteMonths" step="any" min="0" placeholder="0 if none" inputmode="decimal"></div>
+        <div><label for="b-clawbackType">Clawback type</label><select id="b-clawbackType"><option value="pro-rata">Pro-rata (shrinks over the period)</option><option value="cliff">Cliff (all or nothing until it ends)</option></select></div>
+        <div><label for="b-tailPayer">Who pays for tail coverage</label><select id="b-tailPayer"><option value="employer">Employer pays</option><option value="you">You pay</option><option value="split">Split 50/50</option></select></div>
+      </div>
+      <div class="grid"><div><label for="b-structure">Structure this offer uses (for the comparison)</label><select id="b-structure"><option value="base-plus-productivity">Base guaranteed, then productivity above threshold</option><option value="pure-productivity">Pure productivity</option><option value="fixed-salary">Fixed salary</option></select></div></div>
+
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your offer terms and click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result (illustrative)</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead id="structure-head"></thead><tbody id="structure-table"></tbody></table></div></div>
+    <h3>Break-even wRVUs</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><tbody id="breakeven-table"></tbody></table></div></div>
+    <h3>Sensitivity: what if your wRVUs land at 80% to 120% of expected</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead id="sens-head"></thead><tbody id="sens-table"></tbody></table></div></div>
+    <h3>One-time items</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><tbody id="onetime-table"></tbody></table></div></div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card" id="compare-report" aria-live="polite" hidden>
+    <h2>Offer A vs Offer B (each on the structure you chose for it)</h2>
+    <p class="stats" id="compare-stats"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Measure</th><th class="n">Offer A</th><th class="n">Offer B</th><th class="n">A minus B</th></tr></thead><tbody id="compare-table"></tbody></table></div></div>
+    <p class="note" id="compare-cross"></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Your contract's definitions.</strong> How a wRVU is measured, whether the threshold prorates for
+      leave, what counts as a shortfall and when it is reconciled are all in the agreement. This tool takes your numbers as given.</li>
+      <li><strong>Benchmarks.</strong> No survey data is included. If you compare your rate with MGMA, AMGA or
+      another survey, use a figure you are licensed to see and type it in yourself.</li>
+      <li><strong>Taxes, benefits and retirement.</strong> Everything is pre-tax. Health insurance, retirement
+      match, disability and life cover, and state tax are not modelled.</li>
+      <li><strong>Non-competes.</strong> The tool shows the income at stake for the months you enter. Whether a
+      restriction is enforceable depends on your state and is a question for a lawyer.</li>
+      <li><strong>Clawback wording.</strong> Repayment may be the gross amount, may accelerate on termination for
+      cause, and may or may not apply if the employer ends the contract. Read the clause.</li>
+      <li><strong>Hours.</strong> Pay per hour uses the hours you enter for all duties. Call hours, charting and
+      administrative time only count if you include them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a wRVU conversion factor?</h3>
+    <p>It is the dollars you are paid per work relative value unit (wRVU) you personally generate. If your conversion factor is $50 and you generate 8,000 wRVUs, your productivity value is $400,000. The rate is set in your contract, so this tool asks you to type it in rather than assuming a market figure.</p>
+    <h3>How does a wRVU threshold work?</h3>
+    <p>In a base-plus-productivity contract you are paid a base salary, and you earn extra only for wRVUs above a threshold. If the base is $300,000 and the factor is $50, the base is worth 6,000 wRVUs of work, so a threshold at 6,000 means the incentive starts exactly where the base is fully earned. Thresholds set higher or lower than that change who carries the risk.</p>
+    <h3>What is the break-even wRVU count between base pay and pure productivity?</h3>
+    <p>It is the annual wRVUs at which pure productivity pays the same as the base structure. Below it the guaranteed base pays more; above it productivity does. This tool solves it from the numbers you type and shows how far your expected volume sits above or below it.</p>
+    <h3>What happens if I miss my wRVU target?</h3>
+    <p>It depends on the contract. Some pay the base regardless, some carry the gap forward and deduct it from future incentive, and some require you to repay it at the end of the year or if you leave. This tool lets you enter the share you would repay and shows the exposure at 80% to 120% of your expected volume.</p>
+    <h3>How do I compare two physician offers?</h3>
+    <p>Enter each offer on its own, choose the pay structure it uses, and compare annual pay, pay per hour worked, effective dollars per wRVU and the year-one cash including any signing bonus. The tool also finds the change in productivity at which the two offers pay the same.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It is an illustrative calculator that uses only the numbers you type. It does not know your contract's definitions, cannot judge whether a non-compete is enforceable, and includes no compensation survey data. Have a lawyer who reviews physician contracts read the agreement before you sign.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a lawyer who reviews physician employment contracts or a qualified financial adviser. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming every term against your own agreement before you sign. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comp_estimated</code>, <code>offers_compared</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../travel-nurse-contract-comparison-calculator/">travel nurse contract comparison calculator</a> for locum and travel offers, the <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a> for a quick two-offer crossover, and the <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a> for salaried offers with equity.</p>
+    <p>Weighing a quota-based sales offer instead? See the <a href="../sales-commission-plan-comparison-calculator/">sales commission plan comparison calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { physicianComp, compareOffers, STRUCTURES, STRUCTURE_LABELS, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const NUM = ["base", "cf", "threshold", "pureCf", "fixedSalary", "repayPct", "quality", "qualityEarned", "wrvus", "days", "patients", "wpv", "weeks", "fte", "hoursPerWeek", "signing", "clawbackMonths", "leaveMonth", "retention", "yearsStay", "call", "cme", "tailCost", "nonCompeteMonths"];
+    const SEL = ["clawbackType", "tailPayer", "structure"];
+    const $ = (sel) => document.querySelector(sel);
+    const get = (p, k) => document.getElementById(`${p}-${k}`);
+    const collect = (p) => Object.fromEntries([...NUM, ...SEL].map((k) => [k, get(p, k).value]));
+    const status = $("#form-status"), report = $("#report"), cmpReport = $("#compare-report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const fmt = (x) => Math.round(x).toLocaleString("en-US");
+    const pct = (x) => `${(x * 100).toFixed(1)}%`;
+    const row = (label, ...cells) => `<tr><th scope="row">${label}</th>${cells.map((c) => `<td class="n">${c}</td>`).join("")}</tr>`;
+
+    function renderFindings(list) {
+      $("#report-findings").innerHTML = list.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function renderOffer(r) {
+      const n = r.inputs, be = r.breakEvens;
+      const A = r.results["base-plus-productivity"];
+      $("#report-stats").innerHTML = r.wrvus > 0
+        ? `Expected <strong>${fmt(r.wrvus)}</strong> wRVUs${n.fte !== 1 ? ` (${fmt(r.wrvusPerFte)} per 1.0 FTE)` : ""}. Base plus productivity pays about <strong>${money(A.totalAnnual)}</strong> a year all in, <strong>${money2(A.perHour)}</strong> an hour, effectively <strong>${money2(A.perWrvu)}</strong> per wRVU.`
+        : "Enter expected wRVUs to see results.";
+      $("#structure-head").innerHTML = `<tr><th>Per year</th>${STRUCTURES.map((s) => `<th class="n">${esc(STRUCTURE_LABELS[s])}</th>`).join("")}</tr>`;
+      const cols = (f) => STRUCTURES.map((s) => f(r.results[s]));
+      $("#structure-table").innerHTML = [
+        row("Clinical pay (incl. quality bonus)", ...cols((x) => money(x.clinical))),
+        row("Incentive above threshold", ...cols((x) => money(x.incentive))),
+        row("Call pay + CME", ...cols(() => money(n.call + n.cme))),
+        row("<strong>Total annual comp</strong> (one-time items spread)", ...cols((x) => `<strong>${money(x.totalAnnual)}</strong>`)),
+        row("Year-one cash (incl. signing bonus)", ...cols((x) => money(x.yearOneCash))),
+        row("Effective $ per wRVU (clinical pay)", ...cols((x) => money2(x.perWrvu))),
+        row(`Comp per hour (${fmt(A.hours)} hours)`, ...cols((x) => money2(x.perHour))),
+        row("Shortfall exposure at expected wRVUs", ...cols((x) => (x.structure === "base-plus-productivity" ? money(x.shortfall) : "n/a"))),
+      ].join("");
+      const w = (x) => (x === null || x === undefined ? "none" : `${fmt(x)} wRVUs`);
+      $("#breakeven-table").innerHTML = [
+        row("Incentive starts (your threshold)", w(be.incentiveStart)),
+        row("wRVUs your base is worth at the conversion factor", w(be.impliedThreshold)),
+        row("Pure productivity overtakes base-then-productivity", w(be.pureOvertakesBase)),
+        row("Pure productivity overtakes the fixed salary", w(be.pureOvertakesFixed)),
+        row("Base-then-productivity overtakes the fixed salary", w(be.baseOvertakesFixed)),
+        row("Your expected volume above the threshold", be.marginOverThreshold === null ? "n/a" : pct(be.marginOverThreshold)),
+      ].join("");
+      $("#sens-head").innerHTML = `<tr><th>wRVUs</th><th class="n">Expected</th><th class="n">Base + productivity</th><th class="n">Pure productivity</th><th class="n">Fixed</th><th class="n">Shortfall exposure</th><th class="n">Repaid</th></tr>`;
+      $("#sens-table").innerHTML = r.sensitivity.map((s) => `<tr${s.step === 1 ? ' class="hl"' : ""}><th scope="row">${Math.round(s.step * 100)}%</th><td class="n">${fmt(s.wrvus)}</td><td class="n">${money(s.rows["base-plus-productivity"].totalAnnual)}</td><td class="n">${money(s.rows["pure-productivity"].totalAnnual)}</td><td class="n">${money(s.rows["fixed-salary"].totalAnnual)}</td><td class="n">${money(s.shortfall)}</td><td class="n">${money(s.repayment)}</td></tr>`).join("");
+      const c = r.clawback.map((x) => `${money(x.exposure)} at month ${x.months}`).join(", ");
+      $("#onetime-table").innerHTML = [
+        row("Signing bonus", money(r.oneTime.signing)),
+        row("Signing bonus you would repay if you left", n.signing > 0 && n.clawbackMonths > 0 ? c : "n/a"),
+        row("Retention bonus", money(r.oneTime.retention)),
+        row("Tail coverage you pay", money(r.oneTime.tailYouPay)),
+        row("Non-compete: income at stake", n.nonCompeteMonths > 0 ? money(r.nonCompeteAtStake) : "none entered"),
+      ].join("");
+      renderFindings(r.findings);
+    }
+
+    function renderCompare(c) {
+      const sa = c.a.selected, sb = c.b.selected;
+      const line = (label, x, y, f) => row(label, f(x), f(y), f(x - y));
+      $("#compare-stats").innerHTML = c.winner === "tie" ? "The two offers pay the same per year." : `Offer <strong>${c.winner}</strong> pays about <strong>${money(Math.abs(c.diffTotal))}</strong> more per year (${money2(Math.abs(c.diffPerHour))} an hour).`;
+      $("#compare-table").innerHTML = [
+        row("Structure", esc(STRUCTURE_LABELS[sa.structure]), esc(STRUCTURE_LABELS[sb.structure]), ""),
+        line("Expected wRVUs", c.a.wrvus, c.b.wrvus, fmt),
+        line("Total annual comp", sa.totalAnnual, sb.totalAnnual, money),
+        line("Year-one cash", sa.yearOneCash, sb.yearOneCash, money),
+        line("Effective $ per wRVU", sa.perWrvu, sb.perWrvu, money2),
+        line("Comp per hour", sa.perHour, sb.perHour, money2),
+        line("Shortfall exposure at 80% of wRVUs", c.a.worstCaseShortfall * (sa.structure === "base-plus-productivity" ? 1 : 0), c.b.worstCaseShortfall * (sb.structure === "base-plus-productivity" ? 1 : 0), money),
+        line("Non-compete income at stake", c.a.nonCompeteAtStake, c.b.nonCompeteAtStake, money),
+      ].join("");
+      $("#compare-cross").textContent = c.crossoverScale === null
+        ? "Across 0% to 300% of each offer's expected wRVUs, neither offer overtakes the other."
+        : `If both offers' wRVUs moved by the same proportion, they would pay the same at ${(c.crossoverScale * 100).toFixed(0)}% of expected (A at ${fmt(c.crossoverWrvus.a)} wRVUs, B at ${fmt(c.crossoverWrvus.b)}).`;
+    }
+
+    function run() {
+      const compare = $("#compare-on").checked;
+      renderOffer(physicianComp(collect("a")));
+      report.hidden = false;
+      cmpReport.hidden = !compare;
+      if (compare) { renderCompare(compareOffers(collect("a"), collect("b"))); record("offers_compared"); }
+      status.textContent = "";
+      record("comp_estimated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#compare-on").addEventListener("change", (e) => { $("#offer-b").hidden = !e.target.checked; });
+    $("#calculate").addEventListener("click", run);
+
+    const EXAMPLE_A = { base: "320000", cf: "50", threshold: "6400", wrvus: "7600", quality: "10", qualityEarned: "80", signing: "50000", clawbackMonths: "24", retention: "30000", yearsStay: "3", call: "12000", cme: "4000", tailCost: "30000", tailPayer: "employer", nonCompeteMonths: "12", repayPct: "50", weeks: "46", fte: "1", structure: "base-plus-productivity" };
+    const EXAMPLE_B = { base: "0", cf: "56", threshold: "0", wrvus: "7600", quality: "5", qualityEarned: "100", signing: "20000", clawbackMonths: "12", yearsStay: "3", call: "0", cme: "3000", tailCost: "30000", tailPayer: "you", weeks: "46", fte: "1", structure: "pure-productivity" };
+    function fill(p, values) {
+      for (const k of [...NUM, ...SEL]) get(p, k).value = "";
+      get(p, "clawbackType").value = "pro-rata";
+      get(p, "tailPayer").value = "employer";
+      get(p, "structure").value = "base-plus-productivity";
+      for (const [k, v] of Object.entries(values)) get(p, k).value = v;
+    }
+    $("#load-example").addEventListener("click", () => {
+      fill("a", EXAMPLE_A);
+      fill("b", EXAMPLE_B);
+      $("#compare-on").checked = true;
+      $("#offer-b").hidden = false;
+      run();
+      record("example_loaded");
+      status.textContent = "Worked example: a base-plus-productivity offer against a pure-productivity offer at a higher factor, same expected wRVUs. Example numbers are made up for illustration.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      fill("a", {}); fill("b", {});
+      report.hidden = true; cmpReport.hidden = true;
+      status.textContent = "Enter your offer terms and click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rental-dscr-calculator/" data-pf-to="rental-dscr-calculator">Rental Property DSCR Calculator — free, private, in your browser</a></li>
+      <li><a href="../rental-property-schedule-e-categorizer/" data-pf-to="rental-property-schedule-e-categorizer">Rental Property Schedule E Categorizer — free, private, in your browser</a></li>
+      <li><a href="../rental-rent-optimizer/" data-pf-to="rental-rent-optimizer">Rental Rent Optimizer — free, private, in your browser</a></li>
+      <li><a href="../rmd-calculator/" data-pf-to="rmd-calculator">RMD Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=physician-wrvu-compensation-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/?pfEmbed=1&quot; title=&quot;Physician wRVU Compensation Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="physician-wrvu-compensation-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/" data-pf-embed-title="Physician wRVU Compensation Calculator — free, private" data-pf-embed-slug="physician-wrvu-compensation-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="physician-wrvu-compensation-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="physician-wrvu-compensation-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

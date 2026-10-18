@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. Helcim's Rate Calculator | Card Processing Fee Audit</title>
+  <meta name="description" content="Helcim's Rate Calculator quotes what you'd pay if you switched to Helcim. This tool audits the statement you already have, from any processor.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/card-processing-fee-audit/vs-helcim-rate-calculator.html">
+  <meta property="og:title" content="This tool vs. Helcim's Rate Calculator | Card Processing Fee Audit">
+  <meta property="og:description" content="One quotes a single vendor's future price. The other splits the bill you already have into what any processor must pass through and what it keeps.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between this tool and Helcim's Rate Calculator?","acceptedAnswer":{"@type":"Answer","text":"Helcim's Rate Calculator is a sales quote tool: you enter your country, industry, projected monthly card volume and average transaction size, and it estimates what Helcim itself would charge you under its own interchange-plus pricing, in-person and online. It answers what one specific vendor would charge for volume you have not run yet. This tool answers a different question: for a statement you already have, from whichever processor issued it, how much is network interchange nobody can discount and how much is that processor's own markup and monthly fees, so you can judge the bill you are actually paying rather than a projection from a single vendor."}},{"@type":"Question","name":"Does this tool require picking an industry or projecting future volume like Helcim's calculator does?","acceptedAnswer":{"@type":"Answer","text":"No. It reads five numbers off a statement for a month that already happened — card sales, transaction count, total fees, the card-present share, and the flat monthly fees — and never asks which processor issued it or what industry the business is in. Helcim's calculator instead needs a projected monthly volume and average ticket to price a Helcim account that does not exist yet."}},{"@type":"Question","name":"Can I use Helcim's own published rates inside this tool?","acceptedAnswer":{"@type":"Answer","text":"Yes. Helcim publishes interchange-plus pricing starting at interchange plus 0.40% plus 8 cents in person and interchange plus 0.50% plus 25 cents online. Enter those as the competing quote's markup fields and this tool re-prices your actual statement's volume under them, on the same pass-through estimate as your current bill, so the two numbers you are comparing are the two processors' markups rather than two different pass-through assumptions."}},{"@type":"Question","name":"Is this page affiliated with Helcim?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Helcim Inc. Helcim and Rate Calculator are named here only to describe what this tool is for and how the two differ."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16232b; background: #f4f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f6f5c; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d6cfc2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5b6a72; background: #e9efe9; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #1f6f5c; color: #f4fbf7; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5b6a72; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5b6a72; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/card-processing-fee-audit/vs-helcim-rate-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/card-processing-fee-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. Helcim's Rate Calculator | Card Processing Fee Audit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../card-processing-fee-audit/">Card processing fee audit</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. Helcim's Rate Calculator | Card Processing Fee Audit</span></span></nav>
+  <p><a href="./">&larr; Card processing fee audit</a></p>
+  <h1>This tool vs. Helcim's Rate Calculator</h1>
+  <p>
+    Helcim publishes a free
+    <a href="https://www.helcim.com/pricing/" rel="nofollow noopener">Rate Calculator</a>
+    on its pricing page: pick a country and industry, enter a projected monthly
+    card volume and average transaction size, and it estimates what Helcim's
+    own interchange-plus pricing would charge &mdash; currently interchange
+    plus 0.40% plus 8&cent; in person and interchange plus 0.50% plus 25&cent;
+    online, tiered down further as volume grows. It is forward-looking and
+    single-vendor: a quote for a Helcim account that does not exist yet, built
+    from numbers you project rather than numbers you already have.
+  </p>
+  <p>
+    That makes Helcim's tool the right choice for <strong>"what would Helcim
+    specifically charge me."</strong> This tool answers a different question:
+    <strong>for the statement you already have, from whichever processor
+    issued it, how much of the bill is network interchange nobody can
+    discount and how much is that processor's own markup</strong> &mdash; so
+    you can judge the account you are actually on, not a projection from one
+    vendor you have not switched to.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What would Helcim specifically charge for volume I have not run yet?</td>
+        <td>Helcim's own Rate Calculator.</td>
+      </tr>
+      <tr>
+        <td>Of the bill I already have, from any processor, how much is unavoidable network cost and how much is markup?</td>
+        <td>This tool's pass-through and markup bands.</td>
+      </tr>
+      <tr>
+        <td>Is a competing interchange-plus quote &mdash; Helcim's published rate or anyone else's &mdash; actually better on my own volume?</td>
+        <td>This tool's re-priced comparison, using the same pass-through estimate for both quotes.</td>
+      </tr>
+      <tr>
+        <td>Do I need to pick an industry, project a future volume, or share who my processor is?</td>
+        <td>No, for this tool. Helcim's calculator asks for the first two to build its quote.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Audit your own statement</a>
+  <p>
+    This tool needs no account and no industry classification: it is a static
+    page, the arithmetic runs in your browser, and your numbers stay on your
+    device &mdash; there is no network request in the page at all, so nothing
+    about your card volume is ever sent anywhere, including to Helcim or any
+    other processor.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is the difference between this tool and Helcim's Rate Calculator?</h3>
+  <p>Helcim's Rate Calculator is a sales quote tool: you enter your country, industry, projected monthly card volume and average transaction size, and it estimates what Helcim itself would charge you under its own interchange-plus pricing, in-person and online. It answers what one specific vendor would charge for volume you have not run yet. This tool answers a different question: for a statement you already have, from whichever processor issued it, how much is network interchange nobody can discount and how much is that processor's own markup and monthly fees, so you can judge the bill you are actually paying rather than a projection from a single vendor.</p>
+  <h3>Does this tool require picking an industry or projecting future volume like Helcim's calculator does?</h3>
+  <p>No. It reads five numbers off a statement for a month that already happened &mdash; card sales, transaction count, total fees, the card-present share, and the flat monthly fees &mdash; and never asks which processor issued it or what industry the business is in. Helcim's calculator instead needs a projected monthly volume and average ticket to price a Helcim account that does not exist yet.</p>
+  <h3>Can I use Helcim's own published rates inside this tool?</h3>
+  <p>Yes. Helcim publishes interchange-plus pricing starting at interchange plus 0.40% plus 8 cents in person and interchange plus 0.50% plus 25 cents online. Enter those as the competing quote's markup fields and this tool re-prices your actual statement's volume under them, on the same pass-through estimate as your current bill, so the two numbers you are comparing are the two processors' markups rather than two different pass-through assumptions.</p>
+  <h3>Is this page affiliated with Helcim?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Helcim Inc. Helcim and Rate Calculator are named here only to describe what this tool is for and how the two differ.</p>
+  <footer><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+    kind, express or implied. It is not financial, accounting, or legal advice, and it does not replace
+    a qualified professional. <strong>You are responsible for reviewing and verifying its output before
+    relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum
+    extent permitted by law, the authors accept no liability for any loss or damage arising from its
+    use. Helcim's published rates are quoted from its own pricing page as of this writing and change at
+    Helcim's discretion &mdash; verify the current figure on helcim.com before relying on it, and this
+    tool's own pass-through estimate is a band, not a lookup of the rates on any account.
+    <p class="support">Free and open source. If it found money on your statement, the
+      <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash;
+      <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+      optional and never changes what the tool does.</p></footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../self-employed-schedule-c-categorizer/" data-pf-to="self-employed-schedule-c-categorizer">Self-Employed Schedule C Categorizer — free, private, in your browser</a></li>
+      <li><a href="../self-employment-tax-calculator/" data-pf-to="self-employment-tax-calculator">Self-Employment Tax Calculator 2026 — free, in your browser</a></li>
+      <li><a href="../self-storage-rate-increase-calculator/" data-pf-to="self-storage-rate-increase-calculator">Self-Storage Rate Increase Calculator</a></li>
+      <li><a href="../seller-net-sheet/" data-pf-to="seller-net-sheet">Seller Net Sheet Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=card-processing-fee-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="card-processing-fee-audit"></script>
+</body>
+</html>

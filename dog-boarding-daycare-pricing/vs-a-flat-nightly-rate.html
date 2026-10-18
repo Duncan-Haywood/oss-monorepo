@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a flat nightly rate — pricing by cost and occupancy, not a guess</title>
+  <meta name="description" content="How pricing a dog boarding or daycare stay from staff time, supplies, overhead, and occupancy differs from picking one flat nightly rate because that is what…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html">
+  <meta property="og:title" content="This calculator vs. a flat nightly rate">
+  <meta property="og:description" content="A flat nightly rate copied from a competitor prices no dog, no facility, and no month in particular.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is wrong with just picking a flat nightly rate?","acceptedAnswer":{"@type":"Answer","text":"Nothing is wrong with landing on one number to quote -- that is what every facility does in the end. What a flat rate picked by matching a competitor's posted price does not do is tell you whether that number covers your own staff time, supplies, and overhead, whether a second dog on the same reservation is priced right, whether a long stay should be discounted and by how much without giving away margin on the nights every stay has in common, or whether your facility's occupancy at that rate actually breaks even in a real month. A flat rate is an answer with no arithmetic behind it; this calculator supplies the arithmetic and lets you land on whatever number you want afterward."}},{"@type":"Question","name":"Isn't matching what other local facilities charge a reasonable way to set a rate?","acceptedAnswer":{"@type":"Answer","text":"It tells you what the market will tolerate, which is real information -- but it says nothing about whether that rate covers your specific costs. Two facilities charging the same $35 a night can have completely different margins if one pays more per hour for staff, carries higher rent, or runs at a lower occupancy. Matching a competitor's rate without checking it against your own cost stack and occupancy is how a facility ends up busy and unprofitable at the same time."}},{"@type":"Question","name":"Does this calculator tell me what to actually charge?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. It has no data on what any other facility charges, does not recommend a market rate, and does not know your local competition. It takes the costs and assumptions you supply -- staff time, wage, supplies, overhead, discounts, occupancy -- and does the arithmetic honestly. The rate you land on, and whether it beats or matches a competitor, is your decision."}},{"@type":"Question","name":"Why does occupancy matter if my nightly rate already covers my costs?","acceptedAnswer":{"@type":"Answer","text":"Because a per-stay price only covers the cost of the dogs you actually have. Fixed costs -- rent, utilities, insurance, software -- keep accruing whether a run is filled or empty, so a rate that comfortably covers cost per dog-day can still leave the facility unprofitable for the month if too many runs sit empty. A flat nightly rate answers \"is this one stay priced right?\"; it cannot answer \"is this month going to work?\", which is a question about occupancy across the whole facility, not about any one reservation."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2a1d; background: #eef7ec; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #255c1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cfe8c7; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #2f6b25; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #255c1f; color: #eef7ec; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4b6b45; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4b6b45; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat nightly rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dog-boarding-daycare-pricing/">Dog Boarding &amp; Daycare Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat nightly rate</span></span></nav>
+  <p><a href="./">← Dog boarding &amp; daycare pricing calculator</a></p>
+  <h1>This calculator vs. a flat nightly rate</h1>
+  <p>
+    The fastest way to price a dog boarding stay is to see what other local
+    facilities charge and pick a similar number. It is also the most common
+    way, and it names no product or company this page could be affiliated
+    with -- it is a habit every independent facility owner already has, not
+    a piece of software. This page compares that habit to using this
+    calculator's cost-and-occupancy model instead.
+  </p>
+  <p>
+    A flat rate copied from a competitor answers one question: <strong>what
+    does the market seem to tolerate?</strong> It cannot answer a different
+    one, which is the one that actually decides whether the business
+    works: <strong>does this rate cover what a stay of mine actually
+    costs, and does my own occupancy at that rate add up to a month that
+    pays?</strong>
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Flat competitor rate</th><th scope="col">This calculator</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What does the market seem to tolerate?</td>
+        <td>Answers it directly.</td>
+        <td>Does not know your competitors' rates at all.</td>
+      </tr>
+      <tr>
+        <td>Does the rate cover my own staff time, supplies, and overhead?</td>
+        <td>No way to check -- it is one number with no arithmetic behind it.</td>
+        <td>Builds the rate from your own cost inputs, so the answer is always yes by construction.</td>
+      </tr>
+      <tr>
+        <td>Is a second dog on the same reservation priced right?</td>
+        <td>Usually just doubled, or discounted by feel.</td>
+        <td>A named multi-dog discount percentage, applied consistently.</td>
+      </tr>
+      <tr>
+        <td>Should a long stay be discounted, and by how much?</td>
+        <td>Often a flat percentage off the whole stay, which gives away margin on nights that cost the same as a short booking.</td>
+        <td>A threshold-based discount: full rate up to a set night count, discount only beyond it.</td>
+      </tr>
+      <tr>
+        <td>Does my facility's occupancy at this rate actually break even?</td>
+        <td>Not answered by a nightly rate at all -- that is a whole-facility, whole-month question.</td>
+        <td>Computes the break-even occupancy percentage and profit or shortfall at a projected occupancy.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price your own reservation and occupancy</a>
+  <p>
+    This tool needs no account and names no competitor: it is a static page,
+    the arithmetic runs in your browser, and your reservation and facility
+    numbers stay on your device -- nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is wrong with just picking a flat nightly rate?</h3>
+  <p>Nothing is wrong with landing on one number to quote -- that is what every facility does in the end. What a flat rate picked by matching a competitor's posted price does not do is tell you whether that number covers your own staff time, supplies, and overhead, whether a second dog on the same reservation is priced right, whether a long stay should be discounted and by how much without giving away margin on the nights every stay has in common, or whether your facility's occupancy at that rate actually breaks even in a real month. A flat rate is an answer with no arithmetic behind it; this calculator supplies the arithmetic and lets you land on whatever number you want afterward.</p>
+  <h3>Isn't matching what other local facilities charge a reasonable way to set a rate?</h3>
+  <p>It tells you what the market will tolerate, which is real information -- but it says nothing about whether that rate covers your specific costs. Two facilities charging the same $35 a night can have completely different margins if one pays more per hour for staff, carries higher rent, or runs at a lower occupancy. Matching a competitor's rate without checking it against your own cost stack and occupancy is how a facility ends up busy and unprofitable at the same time.</p>
+  <h3>Does this calculator tell me what to actually charge?</h3>
+  <p>No, and it is not trying to. It has no data on what any other facility charges, does not recommend a market rate, and does not know your local competition. It takes the costs and assumptions you supply -- staff time, wage, supplies, overhead, discounts, occupancy -- and does the arithmetic honestly. The rate you land on, and whether it beats or matches a competitor, is your decision.</p>
+  <h3>Why does occupancy matter if my nightly rate already covers my costs?</h3>
+  <p>Because a per-stay price only covers the cost of the dogs you actually have. Fixed costs -- rent, utilities, insurance, software -- keep accruing whether a run is filled or empty, so a rate that comfortably covers cost per dog-day can still leave the facility unprofitable for the month if too many runs sit empty. A flat nightly rate answers "is this one stay priced right?"; it cannot answer "is this month going to work?", which is a question about occupancy across the whole facility, not about any one reservation.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not legal, tax, financial, or business advice, and it is not a quote from any facility, platform, or company. This page names no specific competitor, product, or company -- it compares against the generic habit of matching a posted local rate. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mobile-welding-job-price-calculator/" data-pf-to="mobile-welding-job-price-calculator">What should I charge for a mobile welding job? Free calculator</a></li>
+      <li><a href="../mrr-waterfall-calculator/" data-pf-to="mrr-waterfall-calculator">MRR Waterfall Calculator</a></li>
+      <li><a href="../music-teacher-studio-profit-calculator/" data-pf-to="music-teacher-studio-profit-calculator">Music Teacher Studio Profit Calculator — free, private</a></li>
+      <li><a href="../nail-tech-booth-rent-calculator/" data-pf-to="nail-tech-booth-rent-calculator">Booth rent, commission or employee: what does a nail tech really take home per hour worked?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dog-boarding-daycare-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dog-boarding-daycare-pricing"></script>
+</body>
+</html>

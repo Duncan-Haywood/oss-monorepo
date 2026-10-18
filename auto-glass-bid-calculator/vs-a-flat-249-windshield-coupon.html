@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $249 windshield coupon | Auto Glass Bid Calculator</title>
+<meta name="description" content="A flat '$249 windshield installed' coupon is priced for one job: economy aftermarket glass, no ADAS camera, in-shop.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat $249 windshield coupon">
+<meta property="og:description" content="An economy in-shop windshield with no ADAS camera and a mobile OEM windshield with static-and-dynamic calibration are not the same job.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat $249 windshield coupon get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a windshield's cost is mostly the glass, the moldings, the urethane kit, and — on most vehicles built since roughly 2018 — the ADAS camera or sensor calibration that replacing the glass requires. None of that scales with a single flat number the way a coupon rate assumes. Economy aftermarket glass with no ADAS camera, done in-shop, is one job; OEM glass with a static-and-dynamic calibration, done mobile and billed through insurance, is a different job entirely. A flat coupon charges both the same."}},{"@type":"Question","name":"What job is the $249 number actually built around?","acceptedAnswer":{"@type":"Answer","text":"One specific job: economy aftermarket glass, no ADAS camera or sensor on it, done in the shop, paid in cash. It is a marketing price meant to get the phone to ring, not a number derived from any particular vehicle's glass cost or calibration requirement."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped job presets, at a $28 hourly wage, 22% payroll burden, 14% overhead, and a 32% target margin: even the coupon's own job — economy aftermarket glass, no ADAS, in-shop — costs $428.77 to run, so the $249 coupon is $179.77 under that job's own cost before overhead or margin ever enter into it, and this calculator prices the job at $630.55. A common ADAS sedan — OEM-equivalent aftermarket glass, dynamic calibration, mobile service, billed through insurance — costs $773.57 to run against the same $249 coupon, a $524.57 shortfall, and this calculator prices it at $1,137.60. A vehicle with both a camera and a radar mounted to the glass — OEM glass, static-and-dynamic calibration, mobile, insurance — costs $1,266.70 to run, a $1,017.70 shortfall against the coupon, and this calculator prices it at $1,862.80."}},{"@type":"Question","name":"Is a flat coupon rate ever the right way to quote a windshield?","acceptedAnswer":{"@type":"Answer","text":"Not on this calculator's own numbers — even the exact job the $249 rate names does not clear its own cost, let alone a target margin. A coupon can work as a below-cost loss leader meant to get the phone to ring, as long as the shop knows that is what it is doing and does not extend the same number to a calibration job or a mobile trip. The risk is quoting an ADAS or mobile job at the coupon rate sight unseen, because the rate does not know whether a camera is mounted to the glass until someone looks."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local glass, labor, or calibration-sublet rates, and it is not a determination that any ADAS or safety system is functioning correctly after the work. It takes the glass position, source, ADAS calibration requirement, and service type you enter, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this job — the arithmetic a flat coupon skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1a5f8a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .bad { color: #a2332a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $249 windshield coupon — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../auto-glass-bid-calculator/">Auto Glass Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $249 windshield coupon</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Auto Glass Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $249 windshield coupon</h1>
+<p class="lede">"$249 windshield installed" is not a price for a windshield &mdash; it is a price for one job with no ADAS camera and no trip, quietly applied to every calibration and mobile job the truck pulls up to.</p>
+</header>
+<section>
+<h2>What a flat $249 windshield coupon is</h2>
+<p>
+A flat coupon rate is the fastest thing a shop can put on a search ad or a
+storefront banner: one number, read back as the whole job. It is also the
+number customers already compare between competing quotes, since "windshield
+installed" sounds like one job whatever vehicle it is on.
+</p>
+<p>
+The number behind it was set for one job &mdash; economy aftermarket glass,
+no ADAS camera or sensor on it, done in the shop, paid in cash &mdash; and
+then reused for every windshield afterward, whether or not the next vehicle
+carries a forward-facing camera at all.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+glass position, the glass source, whether an ADAS camera or sensor requires
+calibration, whether the job is mobile or in-shop, and how it is paid, plus
+your loaded labor and overhead. It prices the glass, the calibration, and
+the trip separately, and returns a walk-away price for the job you
+describe &mdash; for this vehicle, not a generic one. If a calibration
+requirement is selected but never priced, it says so before the bid goes
+out.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$249 coupon</th><th class="num" scope="col">Break-even cost</th><th class="num" scope="col">Walk-away price</th><th scope="col">Actual result</th></tr>
+</thead>
+<tbody>
+<tr><td>The coupon's own job: economy aftermarket, no ADAS, in-shop, cash</td><td class="num">$249.00</td><td class="num">$428.77</td><td class="num">$630.55</td><td class="bad">$179.77 under this job's own cost</td></tr>
+<tr><td>OEE windshield, dynamic calibration, mobile, insurance &mdash; common ADAS sedan</td><td class="num">$249.00</td><td class="num">$773.57</td><td class="num">$1,137.60</td><td class="bad">$524.57 under cost</td></tr>
+<tr><td>OEM windshield, static + dynamic calibration, mobile, insurance &mdash; camera and radar both on the glass</td><td class="num">$249.00</td><td class="num">$1,266.70</td><td class="num">$1,862.80</td><td class="bad">$1,017.70 under cost</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own shipped job presets at a $28 hourly wage, 22% payroll burden, 14% overhead on direct cost, and a 32% target margin &mdash; the form's own defaults, not a number invented for this page. Open the calculator's job presets to check any row yourself.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat $249 coupon does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate whether or not a forward-facing camera or radar unit is mounted to or sighted through the glass, even though most vehicles built since roughly 2018 carry one.</td>
+<td>Prices ADAS calibration as its own line &mdash; none, dynamic, static, or both &mdash; with starting hours and a sublet or equipment cost, and flags a bid where a required calibration was never actually priced.</td>
+</tr>
+<tr>
+<td>Prices "a windshield" at one glass-source tier, so an OEM windshield is quoted the same as economy aftermarket glass, even though OEM glass alone can cost more than the entire coupon.</td>
+<td>Applies the glass source's own starting cost &mdash; economy aftermarket, OEM-equivalent aftermarket, or OEM &mdash; so a costlier tier shows up as more material, not a rounding error.</td>
+</tr>
+<tr>
+<td>Has no separate line for a mobile trip, ignoring the trip fee and the technician's travel hours a customer who drives to the shop never generates.</td>
+<td>Prices a trip fee and trip hours only when the job is mobile, and drops both for an in-shop swap.</td>
+</tr>
+<tr>
+<td>Bakes payroll burden into a round coupon number nobody re-derives, so the rate quietly drifts from the technician's real loaded cost.</td>
+<td>Loads the entered hourly wage by the entered payroll-burden percentage every time, so labor cost tracks the actual burden rather than a memorized rate.</td>
+</tr>
+<tr>
+<td>Gives one number regardless of how the job is paid, with no way to show a customer what a cash discount actually saves or what an insurer is being billed versus what the customer collects.</td>
+<td>Applies a cash discount to the target-margin price and reports the savings separately for a cash job, or splits the same price into the customer's deductible and the insurer's bill for an insurance job.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat coupon rate is not wrong because it is simple &mdash; it is wrong
+when it is applied outside the one job it was built for, and nothing about
+a search ad tells you when that has happened. This calculator does not
+replace judgment about your market; it replaces the arithmetic a flat
+coupon skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat $249 windshield coupon get the price wrong?</h3>
+<p>Because a windshield's cost is mostly the glass, the moldings, the urethane kit, and &mdash; on most vehicles built since roughly 2018 &mdash; the ADAS camera or sensor calibration that replacing the glass requires. None of that scales with a single flat number the way a coupon rate assumes. Economy aftermarket glass with no ADAS camera, done in-shop, is one job; OEM glass with a static-and-dynamic calibration, done mobile and billed through insurance, is a different job entirely. A flat coupon charges both the same.</p>
+<h3>What job is the $249 number actually built around?</h3>
+<p>One specific job: economy aftermarket glass, no ADAS camera or sensor on it, done in the shop, paid in cash. It is a marketing price meant to get the phone to ring, not a number derived from any particular vehicle's glass cost or calibration requirement.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped job presets, at a $28 hourly wage, 22% payroll burden, 14% overhead, and a 32% target margin: even the coupon's own job &mdash; economy aftermarket glass, no ADAS, in-shop &mdash; costs $428.77 to run, so the $249 coupon is $179.77 under that job's own cost before overhead or margin ever enter into it, and this calculator prices the job at $630.55. A common ADAS sedan &mdash; OEM-equivalent aftermarket glass, dynamic calibration, mobile service, billed through insurance &mdash; costs $773.57 to run against the same $249 coupon, a $524.57 shortfall, and this calculator prices it at $1,137.60. A vehicle with both a camera and a radar mounted to the glass &mdash; OEM glass, static-and-dynamic calibration, mobile, insurance &mdash; costs $1,266.70 to run, a $1,017.70 shortfall against the coupon, and this calculator prices it at $1,862.80.</p>
+<h3>Is a flat coupon rate ever the right way to quote a windshield?</h3>
+<p>Not on this calculator's own numbers &mdash; even the exact job the $249 rate names does not clear its own cost, let alone a target margin. A coupon can work as a below-cost loss leader meant to get the phone to ring, as long as the shop knows that is what it is doing and does not extend the same number to a calibration job or a mobile trip. The risk is quoting an ADAS or mobile job at the coupon rate sight unseen, because the rate does not know whether a camera is mounted to the glass until someone looks.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local glass, labor, or calibration-sublet rates, and it is not a determination that any ADAS or safety system is functioning correctly after the work. It takes the glass position, source, ADAS calibration requirement, and service type you enter, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this job &mdash; the arithmetic a flat coupon skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat coupon rate is a bad-faith practice &mdash; it is a common, honest way to advertise that works until the job stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Auto Glass Bid Calculator</a> and price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not automotive, legal, tax, financial, or engineering advice, and it does not tell you what to charge or determine that any ADAS or safety system is functioning correctly after the work. Verify every figure against your own supplier invoice, calibration-center quote, and insurance network rates, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pressure-washing-bid-calculator/" data-pf-to="pressure-washing-bid-calculator">Pressure Washing Bid Calculator</a></li>
+      <li><a href="../radon-mitigation-bid-calculator/" data-pf-to="radon-mitigation-bid-calculator">Radon Mitigation Bid Calculator</a></li>
+      <li><a href="../solar-panel-cleaning-quote-planner/" data-pf-to="solar-panel-cleaning-quote-planner">How much to charge to clean solar panels, free calculator</a></li>
+      <li><a href="../spray-foam-bid-calculator/" data-pf-to="spray-foam-bid-calculator">Spray Foam Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=auto-glass-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="auto-glass-bid-calculator"></script>
+</body></html>

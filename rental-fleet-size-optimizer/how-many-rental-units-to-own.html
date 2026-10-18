@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Many Rental Units To Own, And Why The Last One Rarely Pays</title>
+  <meta name="description" content="How many tents, kayaks or tool kits should a rental business own? Each extra unit is needed on fewer days than the one before.">
+  <meta property="og:title" content="How Many Rental Units To Own, And Why The Last One Rarely Pays">
+  <meta property="og:description" content="The tenth unit added $994 a year in the example; the eleventh added $192; the twelfth cost $370. Here is how to find your own stopping point.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/how-many-rental-units-to-own.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I own enough units for my busiest weekend?", "acceptedAnswer": {"@type": "Answer", "text": "Only if a unit earns its yearly cost on the days it is out. A unit bought for the busiest weekend is rented only on the few days when everything else is already rented, so it needs a very high rate on those days to cover twelve months of owning it. Work out the rental days a unit needs in a year to break even, then compare it with how many days the last unit would really be out."}}, {"@type": "Question", "name": "Does the average rental length or the mix of lengths matter more?", "acceptedAnswer": {"@type": "Answer", "text": "For the any-hour model only the average matters. For the day-by-day model the mix matters a little, because many short rentals free units sooner than a few long ones, but the average is still what drives how many units are out at once. Enter your real mix if you know it and a single average if you do not."}}, {"@type": "Question", "name": "Why does a unit that is rented 40 percent of the time still lose money?", "acceptedAnswer": {"@type": "Answer", "text": "Utilisation is not profit. A unit that is out 146 days a year at a margin of about $78 a day earns about $11,300, so it pays a $1,100 owning cost many times over. A unit out 10 days earns about $780 and does not. The tool compares the days the next unit would add with the days it needs."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #0f5a6e; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dce5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5563; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/how-many-rental-units-to-own.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Many Rental Units To Own, And Why The Last One Rarely Pays — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../rental-fleet-size-optimizer/">Rental Fleet Size Optimizer — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Many Rental Units To Own, And Why The Last One Rarely Pays</span></span></nav>
+  <p><a href="./">&larr; Rental fleet size optimizer</a></p>
+  <h1>How many rental units to own, and why the last one rarely pays</h1>
+  <p>Every rental business that owns identical units, whether party tents, kayaks, scaffold sets or camera bodies, faces the same quiet decision each time it buys one. Too few and the busiest days turn customers away. Too many and units sit in the shed earning nothing while their insurance, storage and depreciation run. The honest way to see the trade-off is a curve: the yearly profit of owning one unit, two, three and so on. It rises, peaks and falls, and the peak is where to stop.</p>
+  <p><a class="cta" href="./">Open the free fleet size optimizer</a></p>
+
+  <h2>Why each extra unit earns less</h2>
+  <p>The first unit is out almost every day there is a request. The tenth is only needed on the days when nine others are already out. Those days are few, so the tenth unit is rented a handful of times a year, while it costs exactly as much to own as the first. Demand also comes in seasons, which makes it worse: a fleet sized for the summer peak is mostly idle in the off-season. The useful number is the extra profit of the <em>next</em> unit, and the right fleet is the largest one whose next unit still earns more than it costs.</p>
+
+  <h2>A worked example</h2>
+  <p>An invented party-tent business gets 2.4 rental requests a day for 150 peak days, 1 a day for 61 shoulder days and 0.15 a day for the 154 days of off-season. Rentals last one day (25 percent of them), two (45), three (20) or seven (10), an average of 2.45 days. It charges $85 per tent per day, spends $18 on cleaning and delivery per rental, and each tent costs $1,100 a year to own. All of these figures are invented for the example. Treating bookings as arriving at any hour, the Erlang loss formula gives:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Tents</th><th class="n">Turned away</th><th class="n">Profit per year</th><th class="n">This tent adds</th></tr></thead>
+    <tbody>
+      <tr><td>6</td><td class="n">21.1%</td><td class="n">$60,021</td><td class="n">$5,902</td></tr>
+      <tr><td>8</td><td class="n">9.4%</td><td class="n">$67,764</td><td class="n">$3,219</td></tr>
+      <tr><td>10</td><td class="n">3.2%</td><td class="n">$70,779</td><td class="n">$994</td></tr>
+      <tr><td>11</td><td class="n">1.7%</td><td class="n">$70,972</td><td class="n">$192</td></tr>
+      <tr><td>12</td><td class="n">0.8%</td><td class="n">$70,602</td><td class="n">&minus;$370</td></tr>
+    </tbody>
+  </table></div>
+  <p>The sixth tent adds $5,902 a year. The eleventh adds $192, and the twelfth costs $370 more than it brings in, so the best fleet is 11 tents. Notice how little is at stake near the top: the profit at 10, 11 and 12 tents is within about $400 a year, so the choice among them can safely be made on things the model does not see, such as your cash or your storage space. Notice also what a unit must earn: at $85 less $7 of per-rental cost spread over the average rental, a tent needs about 15 rental days a year (14.2, rounded up) to cover its $1,100.</p>
+  <p>If the same business books by calendar date, so that a tent returned on Friday can go out again on Friday, a simulation of 200 years gives a slightly lower best fleet of 10 tents, because fewer requests are turned away at every size. The tool computes both and uses the one that matches how you book.</p>
+
+  <h2>Finding your own stopping point</h2>
+  <ol>
+    <li>Write down your seasons, how many days each lasts, and how many rental requests a day you get in each. Count the requests you turned away too.</li>
+    <li>List how long rentals last and what share of rentals are each length.</li>
+    <li>Put a yearly figure on owning one unit: depreciation or finance, storage, insurance, upkeep.</li>
+    <li>Read the curve and stop where the next unit adds less than zero.</li>
+    <li>Check the demand table: if 15 percent less demand moves the answer by one unit, you have room; if it moves it by three, be careful.</li>
+  </ol>
+  <p>The optimizer does steps 4 and 5, and it also shows what a bad year (one in ten) looks like and what a limit on turned-away customers would cost.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I own enough units for my busiest weekend?</h3>
+  <p>Only if a unit earns its yearly cost on the days it is out. A unit bought for the busiest weekend is rented only on the few days when everything else is already rented, so it needs a very high rate on those days to cover twelve months of owning it. Work out the rental days a unit needs in a year to break even, then compare it with how many days the last unit would really be out.</p>
+  <h3>Does the average rental length or the mix of lengths matter more?</h3>
+  <p>For the any-hour model only the average matters. For the day-by-day model the mix matters a little, because many short rentals free units sooner than a few long ones, but the average is still what drives how many units are out at once. Enter your real mix if you know it and a single average if you do not.</p>
+  <h3>Why does a unit that is rented 40 percent of the time still lose money?</h3>
+  <p>Utilisation is not profit. A unit that is out 146 days a year at a margin of about $78 a day earns about $11,300, so it pays a $1,100 owning cost many times over. A unit out 10 days earns about $780 and does not. The tool compares the days the next unit would add with the days it needs.</p>
+  <p>Pricing a single rental rather than sizing the fleet? The <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a> prices one rental job and shows what it earns.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or business advice. The example business, demand and prices are invented. Real demand differs from a model; verify the output against your own records or a qualified adviser. You remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out.</p>
+    <p><a href="./">Use the optimizer</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../junk-car-buyer-offer-calculator/" data-pf-to="junk-car-buyer-offer-calculator">What can you pay for this junk car? A calculator for scrap and salvage buyers</a></li>
+      <li><a href="../kids-birthday-party-package-profit-calculator/" data-pf-to="kids-birthday-party-package-profit-calculator">Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party</a></li>
+      <li><a href="../laser-cutting-engraving-job-price-calculator/" data-pf-to="laser-cutting-engraving-job-price-calculator">Laser Cutting &amp; Engraving Job Price Calculator — free, private</a></li>
+      <li><a href="../lash-studio-service-profit-calculator/" data-pf-to="lash-studio-service-profit-calculator">Lash studio service profit calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rental-fleet-size-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="rental-fleet-size-optimizer"></script>
+</body>
+</html>

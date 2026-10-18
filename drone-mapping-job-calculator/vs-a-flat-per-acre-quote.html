@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-acre quote | Drone Mapping Job Calculator</title>
+<meta name="description" content="A flat 'dollars per acre' drone mapping quote cannot see the overlap spec, and overlap is the term that moves a mapping job most.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/vs-a-flat-per-acre-quote.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-acre quote">
+<meta property="og:description" content="Two 100-acre sites can cost very different amounts to fly and process depending on overlap alone.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/vs-a-flat-per-acre-quote.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-acre rate get a drone mapping quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver most of the time is the overlap specification, not acreage. Image count goes as 1/((1-front)x(1-side)), so going from 70/70 to 80/80 overlap on the exact same site is 2.19x the images to fly and process -- a job whose footprint did not change at all. A per-acre rate has no line for overlap, so it charges a 70/70 flight and an 80/80 flight of the same site identically."}},{"@type":"Question","name":"What does a per-acre rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Front and side overlap, ground sample distance, and the processing time that follows image count. A finer GSD needs a lower altitude, a lower altitude means a smaller footprint per frame, and a smaller footprint means more flight lines and more exposures -- all before acreage enters the arithmetic at all. Acreage says nothing about which resolution or overlap a given job was agreed to."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own 100-acre worked example (Mavic 3E at 120 m, 40% target margin): a 70/70 flight prices at $618.72 -- $6.19 an acre. Setting a per-acre rate from that job and applying it to the identical 100-acre site flown at 80/80 still quotes $618.72, because acreage did not change. The 80/80 flight's own price at the same 40% margin is $754.03, so the flat rate is $135.30 short. Quoted at the flat rate, the realized margin on the 80/80 job falls from the intended 40% to about 26.9% -- more than 13 points of margin given up on a job that looked identical on paper."}},{"@type":"Question","name":"Is a flat per-acre rate ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- same overlap, same altitude, same camera, similar site shape -- a per-acre rate can land close, because none of the terms that actually move cost are varying. The risk is applying the same rate outside that band without noticing, because the rate does not know which overlap or altitude a new job was agreed to and neither does the pilot until the flight is actually planned."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local field or processing rates. It takes your camera's sensor geometry, the site area, altitude, overlap settings, and your own hourly rates, and turns that into ground sample distance, image count, airtime, and a price at your target margin -- the arithmetic a flat per-acre rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#13405a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#45535e}section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccd4da;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#45535e}.fine,.note{font-size:.88rem;color:#45535e}footer{color:#45535e;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-acre quote — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../drone-mapping-job-calculator/">Drone Mapping Job Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-acre quote</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Drone Mapping Job Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-acre quote</h1>
+<p class="lede">&ldquo;$X an acre&rdquo; is not a price for a mapping flight &mdash; it is a price for one specific overlap setting, altitude, and camera, quietly applied to every site that calls in, however that site is actually going to be flown.</p>
+</header>
+<section>
+<h2>What a flat per-acre rate is</h2>
+<p>
+A flat per-acre rate is the fastest way to quote aerial mapping work:
+multiply the site's acreage by a number and read off a price. It is the
+number a client holding a competitor's quote will ask you to match,
+whatever overlap or resolution the job actually needs.
+</p>
+<p>
+The number behind it was set for one flight &mdash; one overlap setting,
+one altitude, one camera &mdash; and then reused for every site afterward,
+whether or not the next job is flown anything like the one the rate was
+built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter your
+camera's sensor width, true focal length and image dimensions, the site
+area, altitude, front and side overlap, ground speed, battery window, and
+your field and processing rates. It computes ground sample distance,
+flight-line spacing, image count, airtime, sorties, and processing hours
+from those terms directly, then prices the job at your target margin
+&mdash; for this flight, not a generic one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-acre rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/acre at 70/70 overlap and 80/80 overlap on the identical site, even though 80/80 is 2.19x the images to capture and process.</td>
+<td>Prices image count, flight lines, and processing hours directly from the overlap you enter, so a higher-overlap flight of the same site costs more.</td>
+</tr>
+<tr>
+<td>Has no line for altitude or ground sample distance, regardless of whether the client asked for a coarse GSD or a fine one.</td>
+<td>Computes GSD from sensor width, focal length, and altitude, and flags a target GSD that would need more altitude than the 400 ft Part 107 ceiling allows.</td>
+</tr>
+<tr>
+<td>Has no line for battery swaps, ground control points, or the processing time that follows image count.</td>
+<td>Prices sorties, battery swaps, ground control, and processing hours separately, so a longer or more image-heavy flight costs more than a short one.</td>
+</tr>
+<tr>
+<td>Gives the pilot a number to quote, not a number to check a quote against.</td>
+<td>Reports the price at your target margin and the dollar gap against a flat per-acre rate, so a shopped price can be scored before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>The same 100 acres, the same flat rate</h2>
+<p>
+Using this calculator's own shipped example (Mavic 3E, 120 m altitude,
+40% target margin, the same field and processing rates throughout):
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Flight</th><th scope="col">Images</th><th scope="col">This calculator's price</th><th scope="col">The flat $6.19/acre rate</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>100 acres at 70/70 overlap &mdash; the flight the rate is set from</td><td>234</td><td>$618.72 ($6.19/acre)</td><td>$618.72 (exactly $6.19/acre &mdash; this rate is fit to this flight)</td><td>No gap on the flight the rate was built on.</td></tr>
+<tr><td>The identical 100-acre site, flown at 80/80 overlap</td><td>513 (2.19&times;)</td><td>$754.03 at the same 40% margin</td><td>$618.72 &mdash; acreage did not change, so the flat rate does not either</td><td>The flat rate is $135.30 short. Quoted at it anyway, the realized margin on this flight falls from 40% to about 26.9%.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">The $6.19/acre rate is not invented &mdash; it is this calculator's own price on the 70/70 flight, divided by that flight's acreage. It fits that one flight by construction. Applied to the identical site flown at 80/80, it never sees that overlap moved at all, because acreage &mdash; the only input a per-acre rate reads &mdash; stayed at 100 either way. Run your own site and overlap settings in the calculator to see where they fall.</p>
+</section>
+<p>
+A flat per-acre rate is not wrong because it is simple &mdash; it is wrong
+when it is applied outside the one flight it was built for, and nothing
+about a per-acre number tells you when that has happened. This calculator
+does not know your local market; it replaces the arithmetic a per-acre
+rate skips.
+</p>
+<section id="faq">
+<h2>Common questions</h2>
+<h3>Why does a flat per-acre rate get a drone mapping quote wrong?</h3>
+<p>Because the cost driver most of the time is the overlap specification, not acreage. Image count goes as 1/((1-front)x(1-side)), so going from 70/70 to 80/80 overlap on the exact same site is 2.19x the images to fly and process -- a job whose footprint did not change at all. A per-acre rate has no line for overlap, so it charges a 70/70 flight and an 80/80 flight of the same site identically.</p>
+<h3>What does a per-acre rate usually leave out entirely?</h3>
+<p>Front and side overlap, ground sample distance, and the processing time that follows image count. A finer GSD needs a lower altitude, a lower altitude means a smaller footprint per frame, and a smaller footprint means more flight lines and more exposures -- all before acreage enters the arithmetic at all. Acreage says nothing about which resolution or overlap a given job was agreed to.</p>
+<h3>How big is the gap in practice?</h3>
+<p>On this calculator's own 100-acre worked example (Mavic 3E at 120 m, 40% target margin): a 70/70 flight prices at $618.72 -- $6.19 an acre. Setting a per-acre rate from that job and applying it to the identical 100-acre site flown at 80/80 still quotes $618.72, because acreage did not change. The 80/80 flight's own price at the same 40% margin is $754.03, so the flat rate is $135.30 short. Quoted at the flat rate, the realized margin on the 80/80 job falls from the intended 40% to about 26.9% -- more than 13 points of margin given up on a job that looked identical on paper.</p>
+<h3>Is a flat per-acre rate ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs -- same overlap, same altitude, same camera, similar site shape -- a per-acre rate can land close, because none of the terms that actually move cost are varying. The risk is applying the same rate outside that band without noticing, because the rate does not know which overlap or altitude a new job was agreed to and neither does the pilot until the flight is actually planned.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local field or processing rates. It takes your camera's sensor geometry, the site area, altitude, overlap settings, and your own hourly rates, and turns that into ground sample distance, image count, airtime, and a price at your target margin -- the arithmetic a flat per-acre rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Drone Mapping Job Calculator</a> to price your own flight, or read <a href="./how-much-to-charge-for-drone-mapping.html">how much you should charge for drone mapping</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not aviation, legal, safety, surveying or financial advice, it is not a flight plan, and it grants no airspace authorisation. It does not know your terrain, obstacles, airspace, weather, battery health or aircraft endurance. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for planning and flying the actual mission safely, and for complying with 14 CFR Part 107 and every other rule that applies where you fly. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+<p class="seo-link"><a href="./how-much-to-charge-for-drone-mapping.html">How much should you charge for drone mapping?</a> &mdash; the worked example line by line, and why quoting by the acre loses money.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../party-bus-charter-profit-calculator/" data-pf-to="party-bus-charter-profit-calculator">Party Bus Charter Profit Calculator — true profit, margin and lowest quote per charter</a></li>
+      <li><a href="../patent-maintenance-fee-planner/" data-pf-to="patent-maintenance-fee-planner">Patent Maintenance Fee Planner</a></li>
+      <li><a href="../pawn-loan-profit-calculator/" data-pf-to="pawn-loan-profit-calculator">Pawn loan profit calculator for pawnbrokers</a></li>
+      <li><a href="../pay-application-generator/" data-pf-to="pay-application-generator">Progress billing and retainage, worked out line by line — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=drone-mapping-job-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="drone-mapping-job-calculator"></script>
+</body></html>

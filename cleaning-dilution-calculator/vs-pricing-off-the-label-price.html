@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. pricing off the label price | Cleaning Chemical Dilution Cost Calculator</title>
+<meta name="description" content="Reading the concentrate's label price as the diluted product's cost skips two things that both move the real number: mixing labor and waste.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/vs-pricing-off-the-label-price.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. pricing off the label price | Cleaning Chemical Dilution Cost Calculator">
+<meta property="og:description" content="The concentrate's per-ounce label price only prices the chemical. Mixing labor and a waste allowance are real costs a job still has to cover…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ventures/cleaning-dilution-calculator/vs-pricing-off-the-label-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does it mean to price off the label price?","acceptedAnswer":{"@type":"Answer","text":"Taking the concentrate's container price and size, dividing to get a cost per ounce, and using that figure — scaled by the label's dilution ratio — as the price of the ready-to-use gallon. It answers what the chemical itself costs. It does not answer what the batch costs, because mixing labor and any waste allowance are not in that arithmetic anywhere."}},{"@type":"Question","name":"How far off is pricing from the label alone?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default example — a 1:32 dilution from a $32, 128 fl oz container, 3 minutes of mixing at a $22/hour loaded labor rate, and a 5% waste allowance — the label-only chemical cost for a 5-gallon job comes to $5.00. This calculator's ready-to-use cost for the same job is about $11.05, once mixing labor and waste are counted. The label price alone is less than half the real cost of that job."}},{"@type":"Question","name":"Why does mixing labor change the price so much?","acceptedAnswer":{"@type":"Answer","text":"Because it is a real cost the label price has no field for. On the default example, 4 fl oz of concentrate costs $1.00 by the label, and three minutes of mixing at $22/hour loaded labor costs $1.10 — more than the chemical itself. A cheap concentrate does not make a batch cheap if someone spends real minutes mixing it."}},{"@type":"Question","name":"Why does the waste allowance matter too?","acceptedAnswer":{"@type":"Answer","text":"Because it describes volume that is mixed but never delivered — spillage, dead space in a sprayer or mop bucket, the last inch nobody pours out. The label price assumes every ounce mixed reaches the job; a waste allowance grosses the batch cost up so the gallons that actually get used still cover what the whole batch cost to make."}},{"@type":"Question","name":"Is pricing off the label ever close enough?","acceptedAnswer":{"@type":"Answer","text":"For a very fast, low-labor mix with negligible spillage, the gap can be small. The risk is that the label price cannot tell you when that is true — it looks identical whether mixing took thirty seconds or five minutes, and whether the bucket was topped off precisely or slopped over twice."}},{"@type":"Question","name":"Does this calculator know my local labor rate or supplier price?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on wages, supplier pricing, or waste rates in your market. It takes the container price, dilution ratio, mixing minutes, labor rate, and waste allowance you enter and turns them into a ready-to-use cost — the arithmetic the label price alone skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#172b2a;background:#e9f1ee}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#ab5227;overflow-wrap:anywhere}.eyebrow{font-weight:700;color:#ab5227;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4e6661}section{background:#fff;border:1px solid #c9d9d4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15352a12;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c9d9d4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4e6661}.fine,.note{font-size:.88rem;color:#4e6661}footer{color:#4e6661;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. pricing off the label price | Cleaning Chemical Dilution Cost Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cleaning-dilution-calculator/">Cleaning Chemical Dilution Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. pricing off the label price | Cleaning Chemical Dilution Cost Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Cleaning Chemical Dilution Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. pricing off the label price</h1>
+<p class="lede">The concentrate label prices the chemical. It has no field for the minutes someone spends mixing it, or the ounces that never make it out of the bucket &mdash; and both are real costs a job still has to cover.</p>
+</header>
+<section>
+<h2>What pricing off the label price is</h2>
+<p>
+It is the fast way to answer "what does this cost": take the container's
+price and size, divide for a cost per ounce, and scale that by the label's
+dilution ratio to get a price per ready-to-use gallon or bucket. It needs no
+stopwatch and no separate line for waste, which is exactly why it is the
+default habit &mdash; the label already has the ratio printed on it, so the
+arithmetic feels complete.
+</p>
+<p>
+It prices the chemical correctly. It does not price the batch, because
+mixing labor and any spillage or dead space in the bucket or sprayer never
+enter that arithmetic anywhere.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+concentrate ratio from the label, the container's price and size, the
+bucket or job size, optional mixing minutes and a loaded labor rate, and a
+waste allowance for what does not make it out of the bucket. It returns the
+ready-to-use cost per gallon and per bucket or job &mdash; chemical, labor,
+and waste together &mdash; plus how many whole containers of concentrate
+the job actually needs to buy.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What pricing off the label does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Prices the chemical from the label's dilution ratio and container price, and stops there.</td>
+<td>Adds mixing labor from the minutes and loaded rate you enter, and a waste allowance for what never reaches the job, on top of the same chemical arithmetic.</td>
+</tr>
+<tr>
+<td>On the default example &mdash; a $32, 128 fl oz container at 1:32, 3 minutes of mixing at $22/hour, 5% waste, a 5-gallon job &mdash; the label-only chemical cost comes to $5.00.</td>
+<td>This calculator's ready-to-use cost for the same job is about $11.05 &mdash; more than double the label-only figure, because labor and waste are real costs the label price has nowhere to put.</td>
+</tr>
+<tr>
+<td>Treats a fast, careful mix and a slow, sloppy one as the same price, because neither shows up in the label's ratio.</td>
+<td>Prices the minutes and the spillage you actually enter, so a slower mix or a wetter job site changes the number instead of disappearing into it.</td>
+</tr>
+<tr>
+<td>Gives a per-ounce or per-gallon rate to reuse across jobs by memory.</td>
+<td>Also reports how many whole containers of concentrate the job needs to buy and what is left over, since concentrate only comes in whole containers and a job's usable gallons rarely divide evenly into them.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Pricing off the label price is not wrong about the chemical &mdash; it is
+silent about labor and waste, and a bid built only on the label price is
+short by whatever those two actually cost on the job. This calculator does
+not know your market rate; it replaces the arithmetic the label price
+leaves out.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>What does it mean to price off the label price?</h3>
+<p>Taking the concentrate's container price and size, dividing to get a cost per ounce, and using that figure &mdash; scaled by the label's dilution ratio &mdash; as the price of the ready-to-use gallon. It answers what the chemical itself costs. It does not answer what the batch costs, because mixing labor and any waste allowance are not in that arithmetic anywhere.</p>
+<h3>How far off is pricing from the label alone?</h3>
+<p>On this calculator's own default example &mdash; a 1:32 dilution from a $32, 128 fl oz container, 3 minutes of mixing at a $22/hour loaded labor rate, and a 5% waste allowance &mdash; the label-only chemical cost for a 5-gallon job comes to $5.00. This calculator's ready-to-use cost for the same job is about $11.05, once mixing labor and waste are counted. The label price alone is less than half the real cost of that job.</p>
+<h3>Why does mixing labor change the price so much?</h3>
+<p>Because it is a real cost the label price has no field for. On the default example, 4 fl oz of concentrate costs $1.00 by the label, and three minutes of mixing at $22/hour loaded labor costs $1.10 &mdash; more than the chemical itself. A cheap concentrate does not make a batch cheap if someone spends real minutes mixing it.</p>
+<h3>Why does the waste allowance matter too?</h3>
+<p>Because it describes volume that is mixed but never delivered &mdash; spillage, dead space in a sprayer or mop bucket, the last inch nobody pours out. The label price assumes every ounce mixed reaches the job; a waste allowance grosses the batch cost up so the gallons that actually get used still cover what the whole batch cost to make.</p>
+<h3>Is pricing off the label ever close enough?</h3>
+<p>For a very fast, low-labor mix with negligible spillage, the gap can be small. The risk is that the label price cannot tell you when that is true &mdash; it looks identical whether mixing took thirty seconds or five minutes, and whether the bucket was topped off precisely or slopped over twice.</p>
+<h3>Does this calculator know my local labor rate or supplier price?</h3>
+<p>No. It has no data on wages, supplier pricing, or waste rates in your market. It takes the container price, dilution ratio, mixing minutes, labor rate, and waste allowance you enter and turns them into a ready-to-use cost &mdash; the arithmetic the label price alone skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that pricing off the label price is a bad-faith practice &mdash; it is a common, honest shortcut that works until mixing labor or waste on a given job stops being negligible. This page describes where that shortcut breaks down, not a fault in anyone who uses it. The $5.00 and $11.05 figures above are this calculator's own arithmetic on its own default example, matching the worked example already published on the calculator's own page, not a claim about any specific operator's real costs.</p>
+</section>
+<p><a href="./">Open the Cleaning Chemical Dilution Cost Calculator</a> and price your own batch.</p>
+<footer>
+<p><strong>No warranty.</strong> This free page is not legal, tax, financial, engineering, or safety advice, and it does not determine safe handling, PPE, storage, compatibility, or regulatory requirements. Follow the product label and Safety Data Sheet. Verify every figure against your own costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+      <li><a href="../window-cleaning-bid-calculator/" data-pf-to="window-cleaning-bid-calculator">Window Cleaning Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cleaning-dilution-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cleaning-dilution-calculator"></script>
+</body>
+</html>

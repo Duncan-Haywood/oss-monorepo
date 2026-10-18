@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does the $800 de minimis exemption still apply? | Import Landed Cost Calculator</title>
+  <meta name="description" content="The $800 duty-free de minimis exemption no longer covers many imports as of 2025. See what changed, how to check your own shipments…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/does-the-de-minimis-exemption-still-apply.html">
+  <meta property="og:title" content="Does the de minimis exemption still apply?">
+  <meta property="og:description" content="The $800 duty-free de minimis exemption no longer covers many imports as of 2025. See what changed and what it costs a small importer who assumed the old rule…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the $800 de minimis exemption still apply to my shipment?","acceptedAnswer":{"@type":"Answer","text":"For a growing set of countries and shipment types, no — the exemption that let shipments valued under $800 enter the US duty-free has been narrowed or eliminated since 2025, most visibly for goods originating in or shipped from China and Hong Kong. Coverage has changed more than once and varies by origin country and shipment type, so check current CBP guidance or ask your customs broker for your specific lane rather than assuming either the old or the new rule applies by default."}},{"@type":"Question","name":"What changes for a small seller who used to ship duty-free under $800?","acceptedAnswer":{"@type":"Answer","text":"A shipment that used to clear with zero duty, zero tariff, and no processing fee now goes through the same arithmetic as a larger, always-dutiable shipment: duty on the customs value, any applicable supplemental or Section 301 tariff, and a Merchandise Processing Fee (flat for an informal entry, percentage-based with a floor and ceiling for a formal one). On the worked example above — a $200 item, $20 freight, no supplemental tariff, informal entry, air freight — that is $14.22 of fees that used to be $0."}},{"@type":"Question","name":"How do I find out for sure whether my shipment is covered?","acceptedAnswer":{"@type":"Answer","text":"This page and this calculator are not a customs classification or compliance determination — they price the arithmetic once you know your rates. Confirm your shipment's actual de minimis status, HTS classification, and duty rate with a licensed customs broker or directly against current CBP guidance before you rely on either the old or the new assumption in your pricing."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2028; background: #f2f0f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; background: #fdfcff; } th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #d6d0e6; } th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #5b566c; } footer { margin-top: 28px; font-size: .82rem; color: #5b566c; }
+    .callout { background: #ece6fb; border: 1px solid #c9baf0; border-radius: 10px; padding: 12px 14px; font-size: .92rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/does-the-de-minimis-exemption-still-apply.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does the de minimis exemption still apply? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../import-landed-cost-calculator/">Import Landed Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does the de minimis exemption still apply?</span></span></nav>
+  <p><a href="./">← Import landed cost calculator</a></p>
+  <h1>Does the $800 de minimis exemption still apply?</h1>
+  <p>Until 2025, a shipment valued at $800 or less could generally enter the US without paying duty at all — the
+    "de minimis" exemption. That coverage has been narrowed or eliminated for a growing set of countries and
+    shipment types since then, most visibly for goods originating in or shipped from China and Hong Kong, and the
+    rules have changed more than once. If you built your pricing around shipping small parcels duty-free, that
+    assumption is exactly the kind of thing worth re-checking before your next order lands.</p>
+  <p class="callout"><strong>Not a customs broker or compliance service.</strong> This page and this calculator are not a customs broker, freight forwarder, or licensed customs classification service. They do not determine your HTS code, your duty rate, or your compliance obligations, and coverage of the de minimis exemption varies by origin country and shipment type and continues to change — verify your own shipment's status with a licensed customs broker or current CBP guidance.</p>
+  <h2>What it costs when the exemption no longer applies</h2>
+  <p>A worked example: a $200 item, $20 freight to the US, no supplemental tariff, an informal entry, shipped by
+    air (no Harbor Maintenance Fee). At a 3% duty rate on the $220 customs value:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item cost</td><td>$200.00</td></tr>
+      <tr><td>Freight</td><td>$20.00</td></tr>
+      <tr><td>Duty (3% of $220 customs value)</td><td>$6.60</td></tr>
+      <tr><td>Merchandise Processing Fee (informal, flat)</td><td>$2.62</td></tr>
+      <tr><td>Customs broker fee</td><td>$5.00</td></tr>
+      <tr><td><strong>Total landed cost</strong></td><td><strong>$234.22</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p>That is <strong>$14.22</strong> of duty and fees on a shipment that would have landed at exactly $220 under
+    the old duty-free exemption — a 4.61% tariff burden on the $200 item cost that a seller pricing off the
+    old assumption would not have budgeted for. On a shipment with a nonzero Section 301 or supplemental rate,
+    or a higher duty rate, that gap is larger. Run your own numbers on the
+    <a href="./?itemCost=200&amp;freightCost=20&amp;insuranceCost=0&amp;quantity=1&amp;dutyRatePct=3&amp;supplementalRatePct=0&amp;brokerFee=5&amp;entryType=informal&amp;oceanFreight=0">calculator, pre-filled with this example</a>.</p>
+  <h2>Common questions</h2>
+  <h3>Does the $800 de minimis exemption still apply to my shipment?</h3>
+  <p>For a growing set of countries and shipment types, no &mdash; the exemption that let shipments valued under
+    $800 enter the US duty-free has been narrowed or eliminated since 2025, most visibly for goods originating in
+    or shipped from China and Hong Kong. Coverage has changed more than once and varies by origin country and
+    shipment type, so check current CBP guidance or ask your customs broker for your specific lane rather than
+    assuming either the old or the new rule applies by default.</p>
+  <h3>What changes for a small seller who used to ship duty-free under $800?</h3>
+  <p>A shipment that used to clear with zero duty, zero tariff, and no processing fee now goes through the same
+    arithmetic as a larger, always-dutiable shipment: duty on the customs value, any applicable supplemental or
+    Section 301 tariff, and a Merchandise Processing Fee (flat for an informal entry, percentage-based with a
+    floor and ceiling for a formal one). On the worked example above &mdash; a $200 item, $20 freight, no
+    supplemental tariff, informal entry, air freight &mdash; that is $14.22 of fees that used to be $0.</p>
+  <h3>How do I find out for sure whether my shipment is covered?</h3>
+  <p>This page and this calculator are not a customs classification or compliance determination &mdash; they
+    price the arithmetic once you know your rates. Confirm your shipment's actual de minimis status, HTS
+    classification, and duty rate with a licensed customs broker or directly against current CBP guidance before
+    you rely on either the old or the new assumption in your pricing.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not customs, legal, tax, or financial advice, and it does not replace a licensed customs broker or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=import-landed-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="import-landed-cost-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I add a Shopify upsell? | Checkout vs one-click leftover</title>
+  <meta name="description" content="Compare skipping a Shopify add-on with a checkout upsell and a post-purchase one-click on the same prepaid order.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/should-i-add-a-shopify-upsell.html">
+  <meta property="og:title" content="Should I add a Shopify upsell?">
+  <meta property="og:description" content="See whether an 18% checkout add-on still beats a 12% one-click after a 2% extra abandon and a second card swipe.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify checkout vs post-purchase upsell",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "skip vs checkout add-on vs one-click, extra checkout abandon leftover, second swipe leftover, drop that ties one-click, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I add a Shopify post-purchase upsell?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A one-click add-on after they already paid keeps the hero leftover and adds a second swipe. On the calculator defaults ($48 item, $18 add-on at 10% off, 2.9%+$0.30, 18% checkout take, 12% one-click take, 2% extra abandon) skipping keeps $31.74, the checkout offer expects $32.74, and one-click expects $32.82. That is arithmetic on your inputs, not advice to install an upsell app."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a Shopify checkout upsell beat a post-purchase offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The first swipe saves a second $0.30 and one plan allocation. A 2% extra abandon can wipe that lead. On the defaults, checkout keeps $0.99 more than skipping if they still pay, but after the 2% drop one-click keeps $0.08 more ($32.82 vs $32.74). Drop the extra abandon to 0% and checkout expects $33.41."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does a Shopify upsell lose money?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the add-on leftover after the discount, second card fee, and extra pack is negative, or when the checkout offer's extra abandon zeros tickets that would have completed. Checkout take has to land about 7.0% on the defaults before it matches skipping. Recovering a cart they already left is a different comparison."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/should-i-add-a-shopify-upsell.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I add a Shopify upsell? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I add a Shopify upsell?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether a Shopify upsell still beats skipping the offer.</h1>
+    <p>
+      Checkout apps pitch a one-swipe add-on. Post-purchase apps pitch
+      a one-click after they already paid. The missing pieces are the
+      second $0.30, the extra pack, and the carts that bounce because
+      you asked at checkout. The table keeps the same prepaid hero
+      order, then compares skipping, adding before they pay, and a
+      second swipe.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, add-on and take rates</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Add-on price <input id="addOnPrice" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+        <label>Add-on cost <input id="addOnCost" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Add-on discount (%) <input id="addOnDiscountPct" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+        <label>Checkout take (%) <input id="checkoutTakePct" type="number" min="0" max="100" step="0.1" value="18" inputmode="decimal"></label>
+        <label>One-click take (%) <input id="postPurchaseTakePct" type="number" min="0" max="100" step="0.1" value="12" inputmode="decimal"></label>
+        <label>Extra checkout abandon (%) <input id="checkoutDropPct" type="number" min="0" max="100" step="0.1" value="2" inputmode="decimal"></label>
+        <label>Add-on packaging <input id="addOnPackagingCost" type="number" min="0" step="0.01" value="0.50" inputmode="decimal"></label>
+        <label>Add-on extra label <input id="addOnShippingCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+        <label>Monthly checkouts <input id="monthlyUpsellCheckouts" type="number" min="1" step="1" value="80" inputmode="numeric"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9" inputmode="decimal"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30" inputmode="decimal"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14" inputmode="decimal"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Ship packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39" inputmode="decimal"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100" inputmode="numeric"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Skip vs add-on</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by one-click versus skipping</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Skip leftover</dt><dd id="skipProfit"></dd>
+        <dt>Checkout if they add</dt><dd id="combinedProfit"></dd>
+        <dt>Checkout after abandon</dt><dd id="checkoutExpected"></dd>
+        <dt>One-click leftover</dt><dd id="postExpected"></dd>
+        <dt>Second-swipe leftover</dt><dd id="addOnProfit"></dd>
+        <dt>Drop that ties one-click</dt><dd id="breakEvenDrop"></dd>
+        <dt>Monthly gap vs skipping</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same checkout, three ways the add-on lands</h2>
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Take</th>
+            <th scope="col">If they add</th>
+            <th scope="col">Expected</th>
+            <th scope="col">vs skip</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table></div>
+      <p class="note">Checkout extra abandon zeros the whole ticket for that share. One-click never risks the hero leftover; it pays a second $0.30. Card fees sit on whatever you charge. Transparent arithmetic from your inputs — not Shopify checkout-extensibility or an upsell-app schedule.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “Shopify post purchase upsell” because a $18
+      add-on looks like free leftover and a one-click after they paid
+      looks free. A second 2.9% + $0.30 on $16.20 is $0.77. A $0.50
+      extra pack is not the hero box. A 2% extra abandon on a $31.74
+      ticket is $0.63 — enough to flip a thin checkout lead.
+    </p>
+    <p>
+      On the defaults — $48 item, $6 shipping charged, $18 add-on at
+      10% off ($16.20), $6 add-on cost, Basic 2.9% + $0.30, $14 cost,
+      $5 + $1 ship, $39 / 100 plan, 18% checkout take, 12% one-click
+      take, 2% extra abandon, 80 checkouts — skipping keeps $31.74.
+      If they add at checkout the combined leftover is $40.97. After
+      the 18% take and 2% drop, checkout expects $32.74 ($0.99 more).
+      One-click expects $32.82 ($1.07 more, $8.93 on the second
+      swipe) — $0.08 more than checkout, $85.73 / month versus
+      skipping. Checkout take has to land about 7.0% before it
+      matches skipping. One-click take has to land about 11.1%
+      before it matches the checkout offer. Extra abandon can rise
+      to about 1.8% before checkout matches one-click. Drop the
+      extra abandon to 0% and checkout expects $33.41 against
+      $32.82 on one-click.
+    </p>
+    <p>
+      It does not tell you to install an upsell app, and it is not
+      tax or financial advice. A cart they already left is a
+      different question —
+      <a href="should-i-recover-abandoned-checkouts-on-shopify.html">leave vs recovery emails vs a coupon</a>.
+      A subscribe-and-save on the same SKU is on
+      <a href="should-i-offer-subscriptions-on-shopify.html">one-time vs monthly vs a prepaid pack</a>.
+      A checkout they already completed is on
+      <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments vs the card</a>.
+      The main <a href="./">Shopify fee calculator</a> still compares
+      Shopify Payments with PayPal.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I add a Shopify post-purchase upsell?</h3>
+  <p>A one-click add-on after they already paid keeps the hero leftover and adds a second swipe. On the calculator defaults ($48 item, $18 add-on at 10% off, 2.9%+$0.30, 18% checkout take, 12% one-click take, 2% extra abandon) skipping keeps $31.74, the checkout offer expects $32.74, and one-click expects $32.82. That is arithmetic on your inputs, not advice to install an upsell app.</p>
+  <h3>Does a Shopify checkout upsell beat a post-purchase offer?</h3>
+  <p>The first swipe saves a second $0.30 and one plan allocation. A 2% extra abandon can wipe that lead. On the defaults, checkout keeps $0.99 more than skipping if they still pay, but after the 2% drop one-click keeps $0.08 more ($32.82 vs $32.74). Drop the extra abandon to 0% and checkout expects $33.41.</p>
+  <h3>When does a Shopify upsell lose money?</h3>
+  <p>When the add-on leftover after the discount, second card fee, and extra pack is negative, or when the checkout offer's extra abandon zeros tickets that would have completed. Checkout take has to land about 7.0% on the defaults before it matches skipping. Recovering a cart they already left is a different comparison.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, offer, and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from installing an upsell app because a $18 add-on looked like free leftover, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareUpsell } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "addOnPrice", "addOnCost",
+      "addOnDiscountPct", "checkoutTakePct", "postPurchaseTakePct",
+      "checkoutDropPct", "addOnPackagingCost", "addOnShippingCost",
+      "monthlyUpsellCheckouts", "paymentsRate", "paymentsFixed",
+      "costOfGoods", "shippingCost", "packagingCost", "otherCost",
+      "monthlyPlan", "monthlyOrders",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareUpsell(readInput());
+        const extra = result.extraOnPost;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by one-click versus skipping" :
+          extra < 0 ? "one-click keeps less than skipping" :
+          "one-click and skipping keep the same";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("skipProfit").textContent = money(result.skip.expectedProfit);
+        document.getElementById("combinedProfit").textContent = money(result.combinedProfit);
+        document.getElementById("checkoutExpected").textContent = money(result.checkout.expectedProfit);
+        document.getElementById("postExpected").textContent = money(result.post.expectedProfit);
+        document.getElementById("addOnProfit").textContent = money(result.addOnProfit);
+        document.getElementById("breakEvenDrop").textContent = Number.isFinite(result.breakEvenCheckoutDropPct)
+          ? `${result.breakEvenCheckoutDropPct.toFixed(1)}%`
+          : "n/a";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnPost >= 0
+            ? `${money(result.monthlyExtraOnPost)} more`
+            : `${money(-result.monthlyExtraOnPost)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${Math.abs(row.expectedProfit - best) < 1e-9 ? "best" : ""}"><td>${row.label}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.vsSkip)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["skipProfit", "combinedProfit", "checkoutExpected", "postExpected", "addOnProfit", "breakEvenDrop", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "upsell_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", () => {
+      const filled = applyPlanPreset(readInput(), document.getElementById("plan").value);
+      ["paymentsRate", "paymentsFixed", "monthlyPlan"].forEach((id) => {
+        document.getElementById(id).value = filled[id];
+      });
+      update();
+      recordCompare();
+    });
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-nightly-rate-optimizer/" data-pf-to="str-nightly-rate-optimizer">STR Nightly Rate Optimizer — free, private, in your browser</a></li>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shopify-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="shopify-fee-calculator" data-pf-jobs-amount="#profit"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="shopify-fee-calculator" data-pf-link-amount="#profit"></script>
+</body>
+</html>

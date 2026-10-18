@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge surface reachability | Development analyses</title>
+<meta name="description" content="Measured 2026-08-21. 20 code forges plus a control, each surface probed separately. Anonymous read-only requests; no credential sent, no account, no publication, no spend.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>Forge surface reachability</h1>
+<p class="meta">Study · 2026-08-21 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/forge-surface-reachability/README.md">portfolio/research/forge-surface-reachability/README.md</a></p>
+<article class="doc">
+<p><strong>Measured 2026-08-21. 20 code forges plus a control, each surface probed separately. Anonymous read-only requests; no credential sent, no account, no publication, no spend.</strong></p>
+<p>Reproduce:</p>
+<pre><code>python3 probe_forges.py --probe --as-of 2026-08-21 -o results-2026-08-21.json
+python3 search_registers.py --search --as-of 2026-08-21 -o register-search-2026-08-21.json</code></pre>
+<p>Re-derive every table below with no network at all:</p>
+<pre><code>python3 probe_forges.py     --recompute-from results-2026-08-21.json
+python3 search_registers.py --recompute-from register-search-2026-08-21.json
+python3 -m unittest discover -s portfolio/research/forge-surface-reachability   # 22 tests</code></pre>
+<h3>The question</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/egress-reachability"><code>egress-reachability/</code></a> closed with a methodological rule and an amendment that found a new surface:</p>
+<blockquote><p>A verdict belongs to a surface and never to a host, and a recorded denial is only as broad as the surface it was measured on.</p>
+<p><strong>Amended 2026-08-20:</strong> the three GitHub scope-denials are verdicts about the <em>HTTP</em> surface. Git&#39;s smart-HTTP transport is a fourth surface and is not scoped — full-history <code>git clone</code> of repositories this session has no scope over succeeds.</p></blockquote>
+<p>That amendment was measured on <strong>one forge</strong>: its results file (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/egress-reachability/git-surface-2026-08-20.json"><code>git-surface-2026-08-20.json</code></a>) holds three targets, all <code>github.com</code> or <code>codeload.github.com</code>. It is correct about GitHub and it is one sentence away from being read as <em>&quot;git works&quot;</em> — and <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/register-change-rate"><code>register-change-rate/</code></a> had already begun building on it, correctly, by cloning nine GitHub mirrors.</p>
+<p>Whether git is a <em>transport the environment permits</em> or a <em>surface that happens to be allowed on one host</em> is not a detail. It decides which primary sources a product built here can read, and it is one command to check. Nobody had.</p>
+<h3>Result: git is allowlisted host-by-host, exactly like HTTP</h3>
+<div class="scroll"><table><thead><tr><th></th><th>count</th></tr></thead><tbody><tr><td>forges probed</td><td>20</td></tr><tr><td>git surface <strong>reachable</strong></td><td><strong>4</strong></td></tr><tr><td>git surface <strong>egress-denied</strong></td><td><strong>16</strong></td></tr><tr><td>hosts whose surfaces disagree with each other</td><td>1 (GitHub)</td></tr><tr><td>control (<code>example.com</code>) denied on every surface</td><td>yes</td></tr></tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Host</th><th>Forge</th><th><code>git</code></th><th><code>api</code></th><th><code>raw</code></th></tr></thead><tbody><tr><td><code>github.com</code></td><td>GitHub</td><td>reachable</td><td><strong>scope_denied</strong></td><td>reachable</td></tr><tr><td><code>codeload.github.com</code></td><td>GitHub archive</td><td>reachable</td><td>—</td><td>—</td></tr><tr><td><code>gitlab.com</code></td><td>GitLab.com</td><td>reachable</td><td><strong>reachable</strong></td><td><strong>reachable</strong></td></tr><tr><td><code>bitbucket.org</code></td><td>Bitbucket Cloud</td><td>reachable</td><td>reachable</td><td>reachable</td></tr><tr><td><code>codeberg.org</code></td><td>Codeberg (Forgejo)</td><td>egress_denied</td><td>egress_denied</td><td>—</td></tr><tr><td><code>gitea.com</code></td><td>Gitea</td><td>egress_denied</td><td>egress_denied</td><td>—</td></tr><tr><td><code>git.sr.ht</code></td><td>SourceHut</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>salsa.debian.org</code></td><td>Debian Salsa</td><td>egress_denied</td><td>egress_denied</td><td>—</td></tr><tr><td><code>gitlab.gnome.org</code></td><td>GNOME</td><td>egress_denied</td><td>egress_denied</td><td>—</td></tr><tr><td><code>gitlab.freedesktop.org</code></td><td>freedesktop.org</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>framagit.org</code></td><td>Framagit</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>invent.kde.org</code></td><td>KDE Invent</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>opendev.org</code></td><td>OpenDev</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>git.kernel.org</code></td><td>kernel.org cgit</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>git.savannah.gnu.org</code></td><td>GNU Savannah</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>git.launchpad.net</code></td><td>Launchpad</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>git.code.sf.net</code></td><td>SourceForge</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>huggingface.co</code></td><td>Hugging Face datasets</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>android.googlesource.com</code></td><td>Google Git</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>go.googlesource.com</code></td><td>Go (Gerrit)</td><td>egress_denied</td><td>—</td><td>—</td></tr><tr><td><code>example.com</code></td><td><strong>CONTROL</strong></td><td>egress_denied</td><td>egress_denied</td><td>—</td></tr></tbody></table></div>
+<p>Four of five GitLab Community Edition instances are denied while <code>gitlab.com</code> is reachable, so the allowance tracks <strong>the host</strong>, not the forge software and not the protocol. <code>git</code> gets no special treatment; it is simply another surface, and the four hosts where it answers are hosts this environment already allows.</p>
+<p><strong>What this corrects.</strong> Nothing in the prior finding was wrong. But &quot;git is a fourth surface and is not scoped&quot; describes GitHub&#39;s <em>scope</em> gate, not the <em>egress</em> gate, and the two are different mechanisms — the sixteen denials above are all egress, at CONNECT, identical to the control. A session that reads the amendment as licence to reach arbitrary git hosts will be wrong sixteen times out of twenty. Three of the denied hosts are ones a data-hungry candidate would reach for first: <code>huggingface.co</code> (whose datasets are git repositories, and which the 92-host table records as HTTP-denied — now confirmed denied on git too), <code>git.kernel.org</code>, and the Google Gerrit hosts.</p>
+<h3>The one genuinely new capability: GitLab.com is fully reachable</h3>
+<p><code>gitlab.com</code> sits in the 92-host table as <code>reachable</code>, measured against <code>https://gitlab.com/</code> — the bare root, and nothing below it. No surface beneath it had ever been probed, and no conclusion was ever drawn from the row.</p>
+<p>All three of its surfaces answer:</p>
+<ul><li><strong>git</strong> — anonymous <code>ls-remote</code> and blobless <code>clone</code> of unrelated public repositories.</li><li><strong><code>/api/v4/</code></strong> — answers <code>200</code> anonymously, with <strong>no token</strong>, including full-text project search over public projects.</li><li><strong>raw file</strong> — <code>200</code>.</li></ul>
+<p>That makes GitLab.com <strong>the only forge in the table reachable on every surface.</strong> GitHub is the reverse case and the only host whose surfaces disagree: reachable on git, scope-denied on its REST and archive surfaces.</p>
+<h4>Applying it: a named open question in <code>register-change-rate</code>, retired</h4>
+<p>That directory ends by naming its own weakest claim and the reason it could not be fixed:</p>
+<blockquote><p>The finding that no licensing, permitting, or safety register mirrors to git is the weakest claim here and is stated as &quot;none found by hand&quot; throughout. <strong>A real answer needs repository search, which is scope-denied from this session</strong> — if that is ever granted, this probe takes a longer target list unchanged.</p></blockquote>
+<p>Repository search is scope-denied <em>on GitHub</em>. It is not denied on GitLab.com. <code>search_registers.py</code> runs 22 terms across the three verticals <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/candidates/public-record-watch.md"><code>public-record-watch</code></a> names, plus three control terms on the software-security vertical where <code>register-change-rate</code> <em>did</em> find live mirrors:</p>
+<div class="scroll"><table><thead><tr><th>Vertical</th><th>terms</th><th>raw hits</th><th>keyword &quot;data-like&quot;</th><th>register mirrors, hand-read</th></tr></thead><tbody><tr><td><strong>control</strong> (software-security)</td><td>3</td><td>40</td><td>38</td><td><strong>yes — see below</strong></td></tr><tr><td>public-office</td><td>5</td><td>35</td><td>5</td><td><strong>0</strong></td></tr><tr><td>sanctions</td><td>5</td><td>26</td><td>6</td><td><strong>0</strong></td></tr><tr><td>device-safety</td><td>5</td><td>32</td><td>0</td><td><strong>0</strong></td></tr><tr><td>licensing / permitting</td><td>4</td><td>34</td><td>10</td><td><strong>0</strong></td></tr></tbody></table></div>
+<p>Zero terms errored. <strong>The control found real register data</strong>, which is what makes the four zeros evidence rather than a broken query.</p>
+<p><strong>The <code>data-like</code> column over-counts badly and the hand-read column is the answer.</strong> It is a keyword filter (<code>data</code>, <code>registry</code>, <code>register</code>, <code>mirror</code>, …) and on the licensing rows it matched ten projects that are all software-*licence* collisions — <code>cryptavault</code> (&quot;AGPL-3.0+ licensed&quot;), <code>olm-converter-software</code> (&quot;a professional tool&quot;), <code>brandfuzzysearch-llm</code>. The column is kept because it is what the script computes and a reviewer should see the same number the code produces, not a number the prose asserts.</p>
+<p>Read by hand, the candidate-vertical hits are hobby projects and dead scrapers: the newest sanctions hit is <code>tibhar940/ofac</code>, last touched <strong>2022-03-14</strong>; the only topically-correct licensing hit is <code>crocokyle/HIState-ProLicense-Scraper</code>, last touched <strong>2021-01-16</strong>; <code>github-mirroring-2021/bigger312--Sanctions-Lists</code> is a mirror of a mirror that stopped in 2021. Not one is an official register, and not one is live.</p>
+<p><strong>So <code>register-change-rate</code>&#39;s weakest claim survives the first real search anybody has been able to give it.</strong> That is worth landing precisely because it is a negative result: the next session to notice that gap now finds it checked rather than re-deriving the same search. The claim is <em>strengthened, not settled</em> — GitLab.com is one corpus, GitHub&#39;s search is still scope-denied, and sixteen forges cannot be searched at all. The honest form of the finding is now:</p>
+<blockquote><p>No official licensing, permitting, safety, sanctions or public-office register mirrors to git — none found by hand on GitHub, and none found by <strong>search</strong> on GitLab.com.</p></blockquote>
+<h4>A second reachable advisory corpus, as a by-product</h4>
+<p>The control terms surfaced <a href="https://gitlab.com/gitlab-org/security-products/gemnasium-db"><code>gitlab-org/security-products/gemnasium-db</code></a>, which is live and clonable from here: a blobless <code>--depth 400</code> clone lands in seconds and carries per-CVE YAML sharded by ecosystem (<code>go/github.com/axllent/mailpit/CVE-2026-67447.yml</code>), with changes on <strong>at least 17 distinct days</strong> in the trailing 180 (a floor, not a count — the clone was depth-capped, so older commits inside the window were not fetched). <code>gitlab-org/advisories-community</code> is a second, also live.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/substitute-supply"><code>substitute-supply/</code></a> and the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/rescore-2026-08-20.md">2026-08-20 rescore</a> both record <code>cra-evidence-desk</code>&#39;s archive half as &quot;public advisory data.&quot; This is one more independent, reachable instance of exactly that, on a host nobody had looked at — which makes the <em>defensibility</em> reading stronger, not weaker, and is recorded here for that reason rather than as an opportunity.</p>
+<h3>What this does <strong>not</strong> change</h3>
+<p><strong>No score moves, and that is deliberate.</strong> The 2026-08-20 rescore wrote down the category error this directory could most easily commit, and it applies verbatim:</p>
+<blockquote><p>The egress policy constrains <strong>what an agent session in this sandbox can build and measure</strong>. It says nothing about what a deployed product could fetch from ordinary hosting. […] reachability belongs in <code>time_to_revenue</code> reasoning at most.</p></blockquote>
+<p>Everything above is a fact about this environment on 2026-08-21. A product deployed on ordinary hosting reaches Codeberg and <code>huggingface.co</code> fine. Nothing here is evidence about any candidate&#39;s market, and nothing here is a new candidate — <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/CLAUDE.md">CLAUDE.md</a>&#39;s intake gate is closed and this pass adds nothing to <code>portfolio/pipeline/candidates/</code>.</p>
+<p><strong>No new ask for the account owner.</strong> This is strictly a narrowing of what was already believed, plus one surface that turned out to be open without anyone granting anything. Issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a>&#39;s queue is unchanged by it.</p>
+<h3>Status of these claims</h3>
+<p>Measurements of <strong>these 20 hosts and 22 search terms on 2026-08-21</strong>, from this environment. Every request was an anonymous read. Nothing was published, registered, signed up for, cloned with write access, or paid for; no credential was sent — <code>probe_forges.py</code> sets <code>GIT_TERMINAL_PROMPT=0</code> and an empty credential helper specifically so that an origin&#39;s auth demand is recorded as <em>reachable</em> rather than answered.</p>
+<p>The denial classifier is lifted verbatim from <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/egress-reachability/consolidate.py"><code>egress-reachability/consolidate.py</code></a>, including its finding that an egress denial can arrive <strong>as a real HTTP 403</strong> that a status code alone cannot distinguish from an origin&#39;s own 403. Five tests pin that behaviour. The control (<code>example.com</code>) is denied on every surface, which is the only reason any denial above is evidence about its host — per <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/primary-source-egress"><code>primary-source-egress/</code></a>, whose whole finding was that nobody had run one.</p>
+<p>The weakest claim here is the register search: one corpus, one day, 22 terms chosen by hand. A term this pass did not think of would not appear, and the <code>data-like</code> filter demonstrably over-matches. It is stated as &quot;none found by search on GitLab.com&quot; everywhere above, and never as &quot;none exist.&quot;</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

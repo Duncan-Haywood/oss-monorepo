@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much to Charge for Window Tinting | Pricing Guide</title>
+<meta name="description" content="Why the same seven-window vehicle prices at $189.14 in dyed film, $261.59 in carbon, and $370.27 in ceramic -- and why a front-two-only job floors at a $120…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="How much to charge for window tinting">
+<meta property="og:description" content="Film tier alone moves the same seven-pane kit from $189.14 to $370.27. A worked example, the removal-time trap…">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/how-much-to-charge-for-window-tinting.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to tint a car window?","acceptedAnswer":{"@type":"Answer","text":"It depends on pane count, film tier, and whether old tint has to come off first -- there is no single per-vehicle number. At this calculator's own shop-rate defaults ($28/hr installer rate, a 15% waste factor, $12 booth overhead, a 35% target margin), a full seven-pane kit in ceramic film with no removal prices at $370.27, the same kit in dyed film prices at $189.14, and a front-two-only dyed job with no removal floors at the $120.00 minimum job fee."}},{"@type":"Question","name":"How much does film tier change the price?","acceptedAnswer":{"@type":"Answer","text":"On the same seven-pane kit with no removal, dyed film prices at $189.14, carbon at $261.59, and ceramic at $370.27 -- ceramic runs nearly twice a dyed quote on identical glass, because ceramic film costs $5.50 per square foot against dyed film's $1.75."}},{"@type":"Question","name":"Does stripping old tint change the price much?","acceptedAnswer":{"@type":"Answer","text":"Yes. Adding removal to the same ceramic seven-pane kit adds 82 minutes of strip time, most of it the rear windshield's defroster grid, on top of 120 install minutes -- raising labor cost from $56.00 to $94.27 and the final price from $370.27 to $429.14."}},{"@type":"Question","name":"Why does a small job floor at a minimum instead of pricing lower?","acceptedAnswer":{"@type":"Answer","text":"Because the pane and film math alone can price below what it costs to open the bay for the day. A front-two-only dyed job with no removal prices at $60.46 on materials and labor alone, well under a $120.00 minimum job fee, so the minimum applies and the customer is quoted $120.00 instead."}},{"@type":"Question","name":"Is a flat per-vehicle price ever close to right?","acceptedAnswer":{"@type":"Answer","text":"Only for a narrow band of near-identical jobs. A $200 flat per-vehicle rate overcharges the front-two-only dyed job by $80.00 and undercharges the default full ceramic kit by $170.27 -- and a flat number cannot tell you which side of that line a given vehicle falls on."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #161a22; background: #eef2f7; }
+  body { max-width: 800px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1c4fa0; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.8rem, 5.5vw, 2.7rem); line-height: 1.05; margin: .3rem 0; letter-spacing: -.05em; color: #12203e; }
+  h2 { margin-top: 1.8em; color: #12203e; }
+  h3 { font-size: 1rem; margin-top: 1.3em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #48536a; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d5e6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #48536a; }
+  .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 7px; background: #1c4fa0; color: #fff; text-decoration: none; font-weight: 700; }
+  .key { border-left: 4px solid #1c4fa0; background: #dfe8f7; padding: 12px 15px; margin: 1.2em 0; }
+  .fine, .note { font-size: .88rem; color: #48536a; }
+  footer { border-top: 1px solid #c9d5e6; padding-top: 18px; margin-top: 2em; font-size: .85rem; color: #48536a; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/how-much-to-charge-for-window-tinting.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much to charge for window tinting — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../window-tinting-bid-calculator/">Window Tinting Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much to charge for window tinting</span></span></nav>
+<p><a href="./">&larr; Window Tinting Bid Calculator</a></p>
+<h1>How much to charge for window tinting</h1>
+<p class="lede">A posted "$180 sedan / $220 SUV" price list gives you one number for the whole vehicle class. It cannot tell you that film tier alone can move the same seven-window job by nearly $200, or that a light two-window job should be priced at a minimum instead of the pane math.</p>
+<p><a class="cta" href="./">Open the free window tinting bid calculator</a></p>
+
+<h2>Film tier moves the price more than pane count alone suggests</h2>
+<p>Take one job -- a full seven-pane kit (two front doors, two rear doors, two rear quarters, one rear windshield), no old tint to strip -- and change only the film:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Film tier</th><th>Cost per sq ft</th><th>Film cost (31.4 sq ft)</th><th>Price</th></tr></thead>
+<tbody>
+<tr><td>Dyed</td><td>$1.75</td><td>$54.94</td><td><strong>$189.14</strong></td></tr>
+<tr><td>Carbon</td><td>$3.25</td><td>$102.03</td><td><strong>$261.59</strong></td></tr>
+<tr><td>Ceramic / nano-ceramic</td><td>$5.50</td><td>$172.67</td><td><strong>$370.27</strong></td></tr>
+</tbody>
+</table></div>
+</div>
+<div class="key"><p><strong>Same glass, same labor -- $189.14 to $370.27, on film tier alone.</strong> A price list that quotes one number per vehicle size cannot see which film the customer picked, and ceramic's cost-per-square-foot is over three times dyed's.</p></div>
+
+<h2>The full breakdown, at the default job</h2>
+<p>This calculator's own default job -- the full seven-pane kit above, in ceramic, with no removal -- breaks down like this at $28/hr installer rate, a 15% waste factor, $12 booth overhead, and a 35% target margin:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Line</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Glass area with 15% cutting waste</td><td>31.4 sq ft</td></tr>
+<tr><td>Film cost (ceramic, $5.50/sq ft)</td><td>$172.67</td></tr>
+<tr><td>Install labor (120 min &times; $28/hr)</td><td>$56.00</td></tr>
+<tr><td>Booth / shop overhead</td><td>$12.00</td></tr>
+<tr><td>Direct cost</td><td>$240.67</td></tr>
+<tr><td>Margin (35%, taken on price)</td><td>$129.59</td></tr>
+<tr><td><strong>Price</strong></td><td><strong>$370.27</strong></td></tr>
+</tbody>
+</table></div>
+</div>
+
+<h2>Stripping old tint first adds real time, not a flat fee</h2>
+<p>Removal is counted in minutes per pane, not as a percentage add-on -- and it is not evenly spread across the vehicle. The rear windshield's defroster grid means the old film has to come off with a heat gun and patience instead of a fast peel, so it alone adds 30 minutes where a door window adds 8:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th></th><th>No removal</th><th>With removal</th></tr></thead>
+<tbody>
+<tr><td>Removal minutes</td><td>0</td><td>82</td></tr>
+<tr><td>Total labor minutes</td><td>120</td><td>202</td></tr>
+<tr><td>Labor cost</td><td>$56.00</td><td>$94.27</td></tr>
+<tr><td>Direct cost</td><td>$240.67</td><td>$278.94</td></tr>
+<tr><td><strong>Price</strong></td><td><strong>$370.27</strong></td><td><strong>$429.14</strong></td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Old tint alone -- same panes, same film, same everything else -- adds $58.87 to the job. A shop that prices removal as "a little extra" rather than counting the minutes, especially on the rear windshield, is the shop eating that gap.</p>
+
+<h2>Why a small job floors at a minimum instead of pricing lower</h2>
+<p>Run the pane-and-film math on a light job -- front two windows only, dyed film, no removal -- and it prices well under what it costs to open the bay:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Line</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Film cost (dyed, 9.2 sq ft)</td><td>$16.10</td></tr>
+<tr><td>Install labor (24 min)</td><td>$11.20</td></tr>
+<tr><td>Booth / shop overhead</td><td>$12.00</td></tr>
+<tr><td>Direct cost</td><td>$39.30</td></tr>
+<tr><td>Price at 35% margin (pane/film math alone)</td><td>$60.46</td></tr>
+<tr><td>Minimum job fee</td><td>$120.00</td></tr>
+<tr><td><strong>Price charged</strong></td><td><strong>$120.00</strong></td></tr>
+</tbody>
+</table></div>
+</div>
+<p>The minimum job fee exists for exactly this case: a job small enough that the pane math alone would undercharge for the time it takes to schedule, set up, and run the bay. Without a floor, the lightest jobs on the board would be the least profitable ones.</p>
+
+<h2>Common questions</h2>
+<h3>How much should I charge to tint a car window?</h3>
+<p>It depends on pane count, film tier, and whether old tint has to come off first -- there is no single per-vehicle number. At this calculator's own shop-rate defaults ($28/hr installer rate, a 15% waste factor, $12 booth overhead, a 35% target margin), a full seven-pane kit in ceramic film with no removal prices at $370.27, the same kit in dyed film prices at $189.14, and a front-two-only dyed job with no removal floors at the $120.00 minimum job fee.</p>
+<h3>How much does film tier change the price?</h3>
+<p>On the same seven-pane kit with no removal, dyed film prices at $189.14, carbon at $261.59, and ceramic at $370.27 -- ceramic runs nearly twice a dyed quote on identical glass, because ceramic film costs $5.50 per square foot against dyed film's $1.75.</p>
+<h3>Does stripping old tint change the price much?</h3>
+<p>Yes. Adding removal to the same ceramic seven-pane kit adds 82 minutes of strip time, most of it the rear windshield's defroster grid, on top of 120 install minutes -- raising labor cost from $56.00 to $94.27 and the final price from $370.27 to $429.14.</p>
+<h3>Why does a small job floor at a minimum instead of pricing lower?</h3>
+<p>Because the pane and film math alone can price below what it costs to open the bay for the day. A front-two-only dyed job with no removal prices at $60.46 on materials and labor alone, well under a $120.00 minimum job fee, so the minimum applies and the customer is quoted $120.00 instead.</p>
+<h3>Is a flat per-vehicle price ever close to right?</h3>
+<p>Only for a narrow band of near-identical jobs. A $200 flat per-vehicle rate overcharges the front-two-only dyed job by $80.00 and undercharges the default full ceramic kit by $170.27 -- and a flat number cannot tell you which side of that line a given vehicle falls on.</p>
+
+<h2>Price your own job</h2>
+<p>The calculator prices film cost, install time, and removal time from the exact panes you select, then floors the result at your minimum job fee. It runs entirely in your browser.</p>
+<p><a class="cta" href="./">Open the free window tinting bid calculator</a></p>
+<p class="note">Want the full flat-rate comparison? See <a href="vs-a-flat-per-vehicle-size-price.html">this calculator vs. a flat per-vehicle price</a>.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This guide and the calculator it describes are provided free and as-is, without warranty of any kind, express or implied. They are not legal, safety, or automotive advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This is a pricing worksheet only. It does not check your state's window tint darkness (VLT%) law, medical-exemption rules, reflectivity limits, or any other film-legality requirement, and it does not replace your own judgment about scope or warranty terms. Nothing leaves your browser: no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+      <li><a href="../window-cleaning-bid-calculator/" data-pf-to="window-cleaning-bid-calculator">Window Cleaning Bid Calculator</a></li>
+      <li><a href="../asbestos-abatement-bid-calculator/" data-pf-to="asbestos-abatement-bid-calculator">Asbestos Abatement Bid Calculator</a></li>
+      <li><a href="../attic-insulation-bid-calculator/" data-pf-to="attic-insulation-bid-calculator">Attic Insulation Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=window-tinting-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="window-tinting-bid-calculator"></script>
+</body>
+</html>

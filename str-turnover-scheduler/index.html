@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STR Turnover Scheduler</title>
+  <meta name="description" content="Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings…">
+  <meta property="og:title" content="Airbnb turnover cleaning schedule and crew size — free, private">
+  <meta property="og:description" content="Paste your calendar feeds. See who cleans what, which turnovers will fail, and how many cleaners you need. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "STR Turnover Scheduler", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many cleaners do I need for my Airbnb listings?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how many checkouts land on the same day and how tight the check-in windows are, not on the number of listings. This page simulates your own calendars with one cleaner, two, three and so on, and shows the smallest crew with no late cleans."}}, {"@type": "Question", "name": "What is a same-day turnover and why is it risky?", "acceptedAnswer": {"@type": "Answer", "text": "A same-day turnover is a checkout and the next check-in on the same date. The clean has to fit between the two times. If the window is shorter than the clean, no crew size fixes it; the page flags those stays so you can move the check-in time or block the night."}}, {"@type": "Question", "name": "How do I get my Airbnb or VRBO calendar into this page?", "acceptedAnswer": {"@type": "Answer", "text": "Each platform gives an iCal export link for a listing. Open the link, copy the text it shows (it starts with BEGIN:VCALENDAR) and paste it here, one calendar after another with the listing name on a line above each. Or paste lines of property, check-in, check-out. Nothing is uploaded."}}, {"@type": "Question", "name": "What if the same booking appears in two calendars?", "acceptedAnswer": {"@type": "Answer", "text": "Identical stays are counted once. Stays that overlap without matching are listed as double bookings, because the two platforms disagree about who has the unit."}}, {"@type": "Question", "name": "Does it message my cleaners or book anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. It builds the schedule and downloads it as a CSV, a text message per cleaner and a calendar file. You send it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Airbnb turnover cleaning schedule and crew size — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Airbnb turnover cleaning schedule and crew size — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Airbnb turnover cleaning schedule and crew size — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">STR TURNOVER SCHEDULER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Know who cleans what, which turnovers will fail, and how many cleaners you need.</h1>
+    <p>Paste your <strong>Airbnb, VRBO or Booking.com calendar feeds</strong>. The page builds one clean per checkout, assigns it to a cleaner with travel time, checks every same-day window against how long the clean takes, flags <strong>double bookings</strong>, and finds the <strong>smallest crew</strong> that clears every deadline.</p>
+    <p class="note">Calendars are read in this browser tab and never leave your device. It plans; it does not book or message anyone.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your calendars</h2>
+    <p class="note">iCal text (starts with BEGIN:VCALENDAR), one listing after another with the listing name on a line above each, or lines of <code>property,check-in,check-out</code> with dates as YYYY-MM-DD.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".ics,.csv,.txt,text/calendar,text/csv,text/plain">
+    <label for="paste">…or paste the feeds</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="# Harbor Loft&#10;BEGIN:VCALENDAR&#10;BEGIN:VEVENT&#10;DTSTART;VALUE=DATE:20261012&#10;DTEND;VALUE=DATE:20261015&#10;..."></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Properties and crew</h2>
+    <label for="props">Properties: one per line as name, clean hours, cleaning fee, checkout time, check-in time</label>
+    <textarea id="props" spellcheck="false" wrap="off"></textarea>
+    <div class="grid">
+      <div><label for="cleaners">Cleaners available</label><input id="cleaners" inputmode="numeric" value="2"></div>
+      <div><label for="shift">Shift (start–end hour)</label><input id="shift" value="9-17"></div>
+      <div><label for="travel">Travel between units (minutes)</label><input id="travel" inputmode="numeric" value="20"></div>
+      <div><label for="rate">Cleaner pay per hour</label><input id="rate" inputmode="decimal" value="25"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="paytravel" checked><label for="paytravel">Pay cleaners for travel time</label></div>
+    <p>
+      <button type="button" id="validate">Build the schedule</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the feeds, then click Build the schedule.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div id="report-findings"></div>
+    <h3>Crew size</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Cleaners</th><th scope="col" class="n">Late cleans</th><th scope="col" class="n">Past shift end</th><th scope="col" class="n">Paid hours</th></tr></thead><tbody id="sweep"></tbody></table></div></div>
+    <h3>Schedule</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Property</th><th scope="col">Cleaner</th><th scope="col">Cleaning</th><th scope="col">Window</th><th scope="col">Flag</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>Cleaning fee margin</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Property</th><th scope="col" class="n">Cleans</th><th scope="col" class="n">Fees charged</th><th scope="col" class="n">Labour</th><th scope="col" class="n">Margin</th></tr></thead><tbody id="econ"></tbody></table></div></div>
+    <p><button type="button" id="dl-csv">Download schedule (CSV)</button> <button type="button" class="secondary" id="dl-text">Download message per cleaner</button> <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Jobs:</strong> one clean per checkout. Its window runs from checkout time to the next check-in time at that property (a same-day turnover has hours; a vacant gap has days; no next booking means no deadline).</li>
+      <li><strong>Assignment:</strong> day by day, the most urgent clean first, each given to the cleaner who can finish it earliest after travel. A clean with slack waits for tomorrow rather than run past the shift; one that cannot wait is placed anyway and flagged.</li>
+      <li><strong>Crew size:</strong> the same calendars are simulated with 1, 2, 3 and more cleaners; the smallest with no late cleans and no overtime is the answer. This is a fast heuristic, not a proof of the optimum, so treat a crew one larger as the safe side.</li>
+      <li><strong>Not decided:</strong> whether your cleaners are employees or contractors, overtime or pay-rule compliance, local rental rules, supply and laundry logistics, guest early check-in or late checkout requests, and anything not in the feeds. A feed that is stale or missing a booking gives a wrong schedule.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many cleaners do I need for my Airbnb listings?</h3>
+    <p>It depends on how many checkouts land on the same day and how tight the check-in windows are, not on the number of listings. This page simulates your own calendars with one cleaner, two, three and so on, and shows the smallest crew with no late cleans.</p>
+    <h3>What is a same-day turnover and why is it risky?</h3>
+    <p>A same-day turnover is a checkout and the next check-in on the same date. The clean has to fit between the two times. If the window is shorter than the clean, no crew size fixes it; the page flags those stays so you can move the check-in time or block the night.</p>
+    <h3>How do I get my Airbnb or VRBO calendar into this page?</h3>
+    <p>Each platform gives an iCal export link for a listing. Open the link, copy the text it shows (it starts with BEGIN:VCALENDAR) and paste it here, one calendar after another with the listing name on a line above each. Or paste lines of property, check-in, check-out. Nothing is uploaded.</p>
+    <h3>What if the same booking appears in two calendars?</h3>
+    <p>Identical stays are counted once. Stays that overlap without matching are listed as double bookings, because the two platforms disagree about who has the unit.</p>
+    <h3>Does it message my cleaners or book anything?</h3>
+    <p>No. It builds the schedule and downloads it as a CSV, a text message per cleaner and a calendar file. You send it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your property manager, your cleaners' agreements, or your own judgment. Check every schedule against the live platform calendars before sending it.</p>
+    <p><strong>Not affiliated with any booking platform.</strong> This tool is independent; it is not sponsored, endorsed or connected to Airbnb, VRBO, Booking.com or any channel manager.</p>
+    <p><strong>Guest data.</strong> A calendar feed can carry guest names and phone fragments. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your feeds. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your calendars are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>example_loaded</code>, <code>schedule_downloaded</code>, <code>messages_downloaded</code>, <code>calendar_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../str-cleaning-fee-pricing-calculator/">cleaning fee pricing calculator</a>, the <a href="../str-nightly-rate-optimizer/">nightly rate optimizer</a>, the <a href="../str-host-payout-calculator/">host payout calculator</a> and the <a href="../str-occupancy-tax-calculator/">occupancy tax calculator</a> cover the money side of the same listings; the <a href="../str-turnover-crew-planner/">turnover crew planner</a> chooses which of a day's typed turnovers a cleaning company should take.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleBookings, DEFAULT_PROPS, scheduleCsv, cleanerText, icsExport, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#props").value = DEFAULT_PROPS;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const shift = $("#shift").value.split(/[-–]/).map((x) => parseFloat(x));
+      const r = analyze(text, $("#props").value, { cleaners: parseInt($("#cleaners").value, 10) || 1, shiftStart: shift[0] >= 0 ? shift[0] : 9, shiftEnd: shift[1] > 0 ? shift[1] : 17, travelMin: parseFloat($("#travel").value) || 0, hourlyRate: parseFloat($("#rate").value) || 0, payTravel: $("#paytravel").checked });
+      last = r;
+      if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return; }
+      const s = r.summary;
+      const crewText = s.minCrew ? `${s.minCrew} cleaner${s.minCrew === 1 ? "" : "s"} clear every deadline` : "no crew size clears every deadline (see the flagged stays)";
+      $("#report-stats").innerHTML = `<strong>${s.cleans} cleans</strong> across ${s.properties} properties, ${s.from} to ${s.to} · ${s.sameDay} same-day turnovers · <strong>${crewText}</strong> · with ${s.crew}: ${s.late} late, ${s.overtime} past shift end · labour ${money(s.cost)} against ${money(s.fees)} in cleaning fees`;
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>No conflicts found.</p></div>`;
+      $("#sweep").innerHTML = r.sweep.rows.map((x) => `<tr><td class="n">${x.crew}</td><td class="n">${x.late}</td><td class="n">${x.overtime}</td><td class="n">${x.hours.toFixed(1)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.start || x.date)}</td><td>${esc(x.property)}</td><td>${x.cleaner ? "Cleaner " + x.cleaner : "unassigned"}</td><td>${esc(x.start.slice(11))}–${esc(x.end)}</td><td>${esc(x.window)}</td><td>${esc(x.flag)}</td></tr>`).join("");
+      $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.property)}</td><td class="n">${x.cleans}</td><td class="n">${money(x.fees)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.margin)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${s.cleans} cleans scheduled.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the feeds first."; return; }
+      run(text); record("schedule_built");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleBookings(); $("#file").value = ""; $("#props").value = DEFAULT_PROPS;
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up listings with same-day turnovers, a blocked night, a duplicate stay and a double booking. Two cleaners run late; the crew table shows three are needed.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the feeds, then click Build the schedule."; });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("schedule_downloaded"); download("turnover-schedule.csv", scheduleCsv(last), "text/csv"); } });
+    $("#dl-text").addEventListener("click", () => { if (last) { record("messages_downloaded"); download("cleaner-messages.txt", cleanerText(last), "text/plain"); } });
+    $("#dl-ics").addEventListener("click", () => { if (last) { record("calendar_downloaded"); download("cleaning-schedule.ics", icsExport(last), "text/calendar"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fba-reimbursement-claim-finder/" data-pf-to="fba-reimbursement-claim-finder">FBA Reimbursement Claim Finder — free, private, in your browser</a></li>
+      <li><a href="../free-shipping-threshold-optimizer/" data-pf-to="free-shipping-threshold-optimizer">What should your free shipping minimum be?</a></li>
+      <li><a href="../freelance-platform-fee-calculator/" data-pf-to="freelance-platform-fee-calculator">Upwork vs. Fiverr Fee Calculator</a></li>
+      <li><a href="../glamping-unit-payback-calculator/" data-pf-to="glamping-unit-payback-calculator">Glamping unit payback calculator: does the site pay for itself? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=str-turnover-scheduler">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/?pfEmbed=1&quot; title=&quot;Airbnb turnover cleaning schedule and crew size — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="str-turnover-scheduler"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/str-turnover-scheduler/" data-pf-embed-title="Airbnb turnover cleaning schedule and crew size — free, private" data-pf-embed-slug="str-turnover-scheduler"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="str-turnover-scheduler" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="str-turnover-scheduler" data-pf-link-amount=""></script>
+</body>
+</html>

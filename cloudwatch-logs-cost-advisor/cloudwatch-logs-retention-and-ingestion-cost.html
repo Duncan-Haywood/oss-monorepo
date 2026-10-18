@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CloudWatch Logs Cost: Retention, Ingestion and Infrequent Access</title>
+  <meta name="description" content="Why CloudWatch Logs bills are mostly ingestion, what retention policies actually save, how to find never-expire and dead log groups…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/cloudwatch-logs-retention-and-ingestion-cost.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my CloudWatch Logs bill so high?", "acceptedAnswer": {"@type": "Answer", "text": "Usually ingestion. Standard class ingestion is $0.50 per GB, billed once when data arrives, while archived storage is $0.03 per GB-month. A group ingesting 2,400 GB a month costs about $1,200 in ingestion and under $30 a month to keep a month of it."}}, {"@type": "Question", "name": "Does shortening retention cut the bill?", "acceptedAnswer": {"@type": "Answer", "text": "Only the storage line, which is small unless a group has never expired for years. Set a retention policy on every group, but the large saving is almost always logging less: lower log levels, no health-check lines, no request or response bodies."}}, {"@type": "Question", "name": "What is the Infrequent Access log class?", "acceptedAnswer": {"@type": "Answer", "text": "A class priced at $0.25 per GB ingested, half of Standard. It lacks metric filters, subscription filters, Live Tail and export, and the class can only be chosen when the log group is created."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/cloudwatch-logs-retention-and-ingestion-cost.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="CloudWatch Logs Cost: Retention, Ingestion and Infrequent Access">
+<meta property="og:description" content="Why CloudWatch Logs bills are mostly ingestion, what retention policies actually save, how to find never-expire and dead log groups…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CloudWatch Logs Cost: Retention, Ingestion and Infrequent Access — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloudwatch-logs-cost-advisor/">Why is your CloudWatch Logs bill so high?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CloudWatch Logs Cost: Retention, Ingestion and Infrequent Access</span></span></nav>
+  <p class="note"><a href="./">CloudWatch Logs Cost Advisor</a> · guide</p>
+  <h1>CloudWatch Logs cost: retention, ingestion and Infrequent Access</h1>
+  <p>Short answer: <strong>the bill is mostly ingestion</strong>. Retention policies are worth setting everywhere, but they trim the small line; the large saving comes from logging less.</p>
+
+  <h2>What it costs (us-east-1 list prices, illustrative)</h2>
+  <ul>
+    <li><strong>Standard ingestion:</strong> $0.50 per GB, once, when the data arrives.</li>
+    <li><strong>Infrequent Access ingestion:</strong> $0.25 per GB, with fewer features, chosen at group creation.</li>
+    <li><strong>Storage:</strong> $0.03 per GB-month of archived data, for as long as the retention allows.</li>
+  </ul>
+
+  <h2>Where the money is</h2>
+  <ul>
+    <li><strong>Chatty groups:</strong> access logs, debug-level application logs and Kubernetes container logs. One group at 2,400 GB a month is $1,200 a month before any storage.</li>
+    <li><strong>Never-expire groups:</strong> a group created with no retention keeps everything forever, so storage grows every month.</li>
+    <li><strong>Dead groups:</strong> a retired Lambda or service whose group still holds hundreds of GB.</li>
+  </ul>
+
+  <h2>Measure and fix</h2>
+  <ol>
+    <li>List groups: <code>aws logs describe-log-groups --query 'logGroups[].[logGroupName,storedBytes,retentionInDays,creationTime]' --output text</code>. No <code>retentionInDays</code> means never expires.</li>
+    <li>Ingested GB per group: the <code>IncomingBytes</code> metric (namespace <code>AWS/Logs</code>) summed over 30 days, divided by 1e9.</li>
+    <li>Paste rows into the <a href="./">advisor</a> or run <code>node cli.mjs analyze groups.csv</code>. It prints a <code>put-retention-policy</code> command per group worth changing.</li>
+    <li>Export anything you must keep to S3 first. A retention policy deletes older events, and that cannot be undone.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>Why is my CloudWatch Logs bill so high?</h3>
+  <p>Usually ingestion. Standard class ingestion is $0.50 per GB, billed once when data arrives, while archived storage is $0.03 per GB-month. A group ingesting 2,400 GB a month costs about $1,200 in ingestion and under $30 a month to keep a month of it.</p>
+  <h3>Does shortening retention cut the bill?</h3>
+  <p>Only the storage line, which is small unless a group has never expired for years. Set a retention policy on every group, but the large saving is almost always logging less: lower log levels, no health-check lines, no request or response bodies.</p>
+  <h3>What is the Infrequent Access log class?</h3>
+  <p>A class priced at $0.25 per GB ingested, half of Standard. It lacks metric filters, subscription filters, Live Tail and export, and the class can only be chosen when the log group is created.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current AWS documentation and for your own retention obligations. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../codeowners-shadow-check/" data-pf-to="codeowners-shadow-check">CODEOWNERS Shadow Checker</a></li>
+      <li><a href="../cookie-security-check/" data-pf-to="cookie-security-check">Cookie Security Checker</a></li>
+      <li><a href="../cors-misconfig-check/" data-pf-to="cors-misconfig-check">CORS Misconfiguration Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloudwatch-logs-cost-advisor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloudwatch-logs-cost-advisor"></script>
+</body>
+</html>

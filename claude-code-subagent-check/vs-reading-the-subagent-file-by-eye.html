@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Subagent Check vs. reading the subagent file by eye</title>
+<meta name="description" content="Reading a short subagent definition catches an obviously empty tools list. It reliably misses a description that reads fine to a person but carries no trigger…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/vs-reading-the-subagent-file-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Claude Code Subagent Check vs. reading the subagent file by eye">
+<meta property="og:description" content="Reading a subagent file yourself catches an obviously empty tools list. It cannot reliably catch a description with no trigger cue…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/vs-reading-the-subagent-file-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just read the subagent file myself?","acceptedAnswer":{"@type":"Answer","text":"For a file with an obviously empty tools list or a missing description, yes -- that case is visible on a single read. What reading does not reliably catch is a description that reads as perfectly good prose to a person but carries no concrete trigger cue an orchestrator matches on, a tool name duplicated inside a long comma-separated list, a name that doesn't match its own filename, or an unrecognized model alias that looks like a real one. Those need the same fixed checks run against the frontmatter every time, not judged by eye."}},{"@type":"Question","name":"Why is a description that reads fine but won't trigger delegation hard to catch by eye?","acceptedAnswer":{"@type":"Answer","text":"Because \"this subagent handles code review\" and \"use PROACTIVELY when a PR is opened\" are both grammatically fine, readable sentences -- the difference is whether the wording gives the orchestrator a concrete condition to match a request against, not whether it reads well. A person skimming the frontmatter judges the sentence as prose; this tool checks it for length, a trigger-cue pattern, and distinctive vocabulary, the same way for every subagent."}},{"@type":"Question","name":"Why is a duplicate tool name in a long list easy to miss?","acceptedAnswer":{"@type":"Answer","text":"A tools field with a dozen comma-separated names is read left to right for the names that matter, not compared entry by entry against itself. A name repeated once in the middle of the list -- often from copying and editing a sibling subagent's frontmatter -- does not stand out visually the way a missing or malformed field does."}},{"@type":"Question","name":"What about a name that doesn't match its own filename?","acceptedAnswer":{"@type":"Answer","text":"The frontmatter's name field and the file's own filename are two separate strings in two separate places -- one inside the YAML block, one in the file browser or path -- and nothing forces a reader comparing them from memory to notice a mismatch, especially after a rename. This tool checks the two strings against each other directly."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit anyone writing a Claude Code subagent definition already has -- reading the frontmatter and prompt by eye before trusting it to be picked up. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted text in your own browser, and nothing you paste is ever uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Claude Code Subagent Check vs. reading the subagent file by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../claude-code-subagent-check/">Claude Code Subagent Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Claude Code Subagent Check vs. reading the subagent file by eye</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Claude Code Subagent Check</a></p>
+<header>
+<h1>Claude Code Subagent Check vs. reading the subagent file by eye</h1>
+<p class="lede">Reading a short subagent definition with an obviously empty tools list catches that list. It reliably misses a description that reads fine to a person but carries no trigger cue an orchestrator matches on, a duplicated tool name buried in a long comma-separated list, a name that doesn't match its own filename, and an unrecognized model alias that looks plausible &mdash; which is what this free, no-upload checker computes exactly, in one pass.</p>
+</header>
+<section>
+<h2>Where reading it yourself stops being enough</h2>
+<p>
+  Anyone writing a subagent definition already does this: read the frontmatter and the prompt body and
+  decide whether it looks right before trusting the orchestrator to pick it up. For a file with an
+  obviously empty <code>tools</code> field, that read catches it. The problem is the other checks below
+  are not the kind of thing a skim of readable prose and a comma-separated list reliably surfaces.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Reading the subagent file yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>The <code>tools</code> field isn't empty or missing.</td><td>Works. This is the one case a plain read reliably catches.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>The <code>name</code> field is kebab-case and matches the file's own filename.</td><td>Two separate strings in two separate places; a rename to one and not the other is easy to miss.</td><td>Compared directly, every time.</td></tr>
+<tr><td>The <code>description</code> gives the orchestrator a concrete trigger cue, not just readable prose about what the subagent does.</td><td>"Handles code review" and "use PROACTIVELY when a PR is opened" both read as fine sentences to a person.</td><td>Checked for length, a trigger-cue pattern, and distinctive vocabulary, the same way every time.</td></tr>
+<tr><td>No tool name is duplicated, and every one is recognized, across a long comma-separated <code>tools</code> list.</td><td>Read left to right for the names that matter; a repeat from copying a sibling's frontmatter doesn't stand out.</td><td>Every entry compared against every other entry, and checked against a documented list.</td></tr>
+<tr><td>The <code>model</code> alias is one this tool recognizes, as a caution against a typo.</td><td>Requires recognizing the current set of aliases from memory.</td><td>Checked against a dated reference list automatically.</td></tr>
+<tr><td>The prompt body isn't missing or near-empty.</td><td>Visible at a glance for an entirely blank body; a few thin sentences can still read as "something is there."</td><td>Checked against a length threshold, every time.</td></tr>
+<tr><td>Re-checking an entire subagent definition again after editing the frontmatter.</td><td>Read start to finish again, remembered by hand.</td><td>One paste, every field, every time.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A quick read is still the fastest way to catch an obviously empty field in a short file, and this
+  checker is not doing anything a careful review couldn't &mdash; it is reading the same frontmatter and
+  prompt body a careful review would, just checking every field against fixed rules automatically instead
+  of judging the description's wording and comparing the tools list by eye.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses text you paste entirely in your own browser. It never sends your subagent definition anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just read the subagent file myself?</h3>
+<p>For a file with an obviously empty tools list or a missing description, yes -- that case is visible on a single read. What reading does not reliably catch is a description that reads as perfectly good prose to a person but carries no concrete trigger cue an orchestrator matches on, a tool name duplicated inside a long comma-separated list, a name that doesn't match its own filename, or an unrecognized model alias that looks like a real one. Those need the same fixed checks run against the frontmatter every time, not judged by eye.</p>
+<h3>Why is a description that reads fine but won't trigger delegation hard to catch by eye?</h3>
+<p>Because "this subagent handles code review" and "use PROACTIVELY when a PR is opened" are both grammatically fine, readable sentences -- the difference is whether the wording gives the orchestrator a concrete condition to match a request against, not whether it reads well. A person skimming the frontmatter judges the sentence as prose; this tool checks it for length, a trigger-cue pattern, and distinctive vocabulary, the same way for every subagent.</p>
+<h3>Why is a duplicate tool name in a long list easy to miss?</h3>
+<p>A tools field with a dozen comma-separated names is read left to right for the names that matter, not compared entry by entry against itself. A name repeated once in the middle of the list -- often from copying and editing a sibling subagent's frontmatter -- does not stand out visually the way a missing or malformed field does.</p>
+<h3>What about a name that doesn't match its own filename?</h3>
+<p>The frontmatter's name field and the file's own filename are two separate strings in two separate places -- one inside the YAML block, one in the file browser or path -- and nothing forces a reader comparing them from memory to notice a mismatch, especially after a rename. This tool checks the two strings against each other directly.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit anyone writing a Claude Code subagent definition already has -- reading the frontmatter and prompt by eye before trusting it to be picked up. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted text in your own browser, and nothing you paste is ever uploaded.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee of how Claude Code will delegate to or run this subagent, and it does not replace testing the subagent in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking any finding against Claude Code's current documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your subagent definition is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../canonical-tag-check/" data-pf-to="canonical-tag-check">Canonical Tag Checker</a></li>
+      <li><a href="../caption-quality-check/" data-pf-to="caption-quality-check">Caption Quality Checker</a></li>
+      <li><a href="../cargo-audit-triage/" data-pf-to="cargo-audit-triage">Which cargo audit findings actually matter?</a></li>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=claude-code-subagent-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="claude-code-subagent-check"></script>
+</body></html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Mercari Take Per Sale? (Worked Examples)</title>
+  <meta name="description" content="Mercari's current and legacy US seller fees worked through: the 10% fee on item price plus buyer-paid shipping (since Jan 6, 2025)…">
+  <meta property="og:title" content="How Much Does Mercari Take Per Sale?">
+  <meta property="og:description" content="The current 10% fee on item price plus buyer-paid shipping, the legacy pre-2025 schedule, and worked examples of each.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/how-much-does-mercari-take.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Mercari take on a $50 sale?","acceptedAnswer":{"@type":"Answer","text":"Under the current schedule (listings created or updated on or after January 6, 2025): 10% of $50, which is $5.00, leaving a $45.00 payout, assuming no buyer-paid shipping."}},{"@type":"Question","name":"How much does Mercari take when the buyer pays for shipping?","acceptedAnswer":{"@type":"Answer","text":"The 10% fee applies to the item price plus the buyer-paid shipping combined. A $20 item with $6 buyer-paid shipping pays 10% of $26, which is $2.60 — not 10% of the $20 item price alone."}},{"@type":"Question","name":"What was Mercari's fee before January 6, 2025?","acceptedAnswer":{"@type":"Answer","text":"A 10% selling fee on the item price only, plus a separate payment processing fee of 2.9% of the item price plus buyer-paid shipping, plus a flat $0.50 per order. A listing made before that date keeps this schedule until it is edited."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #131b2e; background: #eef2f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #c6d3e3; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #dde8f8; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #f3f7fd; border: 1px solid #c6d3e3; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #1c5ea3; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #3d4a60; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/how-much-does-mercari-take.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Mercari Take Per Sale? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../mercari-fee-calculator/">Mercari Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Mercari Take Per Sale?</span></span></nav>
+  <p><a href="./">&larr; Back to the Mercari fee calculator</a></p>
+  <h1>How much does Mercari take per sale?</h1>
+  <p>Mercari changed its US seller fee structure for listings created or updated on or after <strong>January 6, 2025</strong>. The current schedule is a single <strong>10% selling fee</strong>, charged on the item price <strong>plus</strong> any shipping the buyer paid, with no separate payment processing fee. A listing made before that date keeps the old schedule — 10% on the item price only, plus a payment processing fee of 2.9% of the combined total plus a flat $0.50 — until you edit it.</p>
+
+  <h2>The current-schedule formula</h2>
+  <p><code>fee = 10% &times; (item price + buyer-paid shipping)</code></p>
+  <p><code>payout = item price + buyer-paid shipping − fee − your own shipping-label cost</code></p>
+  <p>Mercari also charges the <em>buyer</em> a separate 3.6% Buyer Protection Fee, on top of what they pay — it never reduces the seller's payout, and is not part of this formula at all.</p>
+
+  <h2>Worked example 1: $50 item, no buyer-paid shipping</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item price</td><td>$50.00</td></tr>
+      <tr><td>Selling fee (10% of $50.00)</td><td>$5.00</td></tr>
+      <tr><td>Payout</td><td>$45.00</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Worked example 2: the fee reaches shipping too</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item price</td><td>$20.00</td></tr>
+      <tr><td>Buyer-paid shipping</td><td>$6.00</td></tr>
+      <tr><td>Combined</td><td>$26.00</td></tr>
+      <tr><td>Selling fee (10% of $26.00)</td><td>$2.60</td></tr>
+      <tr><td>Payout</td><td>$23.40</td></tr>
+    </tbody>
+  </table></div>
+  <p>Not $2.00 (10% of the $20 item price alone) — the fee is on the combined $26.00. This is the detail sellers most often get wrong on a listing where the buyer pays shipping separately.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The legacy schedule: 10% + 2.9% + $0.50</h2>
+    <p>A listing created before January 6, 2025 that has not since been edited still runs the old schedule: 10% of the <strong>item price only</strong>, plus a payment processing fee of 2.9% of the combined item-plus-shipping total, plus a flat $0.50 per order. On the same $50 item with no shipping, that is $5.00 selling fee + ($50 &times; 2.9% + $0.50) = $1.95 processing fee = <strong>$6.95 total</strong>, for a $43.05 payout — $1.95 less than the current schedule pays on the same sale, because the current schedule dropped the processing fee entirely.</p>
+    <p>The comparison flips when most of the price is shipping: the legacy schedule only taxes shipping at 2.9%, while the current schedule taxes it at the full 10%, so a listing with a large buyer-paid shipping charge can net more under the old schedule. Use the calculator's "Compare both schedules" button to check a specific sale rather than assuming either direction.</p>
+  </div>
+
+  <h2>Do this with your own listings</h2>
+  <p>The <a href="./">Mercari fee calculator</a> runs this same arithmetic on your own item price, shipping, and costs, solves for the price you need to hit a target profit, and compares both schedules side by side. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much does Mercari take on a $50 sale?</h3>
+  <p>Under the current schedule (listings created or updated on or after January 6, 2025): 10% of $50, which is $5.00, leaving a $45.00 payout, assuming no buyer-paid shipping.</p>
+  <h3>How much does Mercari take when the buyer pays for shipping?</h3>
+  <p>The 10% fee applies to the item price plus the buyer-paid shipping combined. A $20 item with $6 buyer-paid shipping pays 10% of $26, which is $2.60 — not 10% of the $20 item price alone.</p>
+  <h3>What was Mercari's fee before January 6, 2025?</h3>
+  <p>A 10% selling fee on the item price only, plus a separate payment processing fee of 2.9% of the item price plus buyer-paid shipping, plus a flat $0.50 per order. A listing made before that date keeps this schedule until it is edited.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice. Rates change and are set by Mercari, not by this site. Verify every figure against your own Mercari payout statement before you price a listing. Not affiliated with, endorsed by, or sponsored by Mercari; Mercari is a trademark of its owner, named here only to describe the published fee schedule.</p>
+    <p><a href="./">Open the calculator</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mercari-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="mercari-fee-calculator"></script>
+</body>
+</html>

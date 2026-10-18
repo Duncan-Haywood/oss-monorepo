@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>&ldquo;Add to Home Screen&rdquo; Not Showing? Checklist for Chrome PWA Installability</title>
+  <meta name="description" content="Chrome silently withholds the install prompt when a manifest fails any one of five criteria, with no console warning by default.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/add-to-home-screen-not-showing.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does Chrome not tell me why Add to Home Screen isn't showing?","acceptedAnswer":{"@type":"Answer","text":"Chrome evaluates the manifest silently and simply withholds the beforeinstallprompt event and the omnibox install icon when any criterion fails — there is no console error or warning by default. The one built-in way to see the reason is DevTools' Application panel, under Manifest, which lists \"Installability\" errors when you open it on the page in question."}},{"@type":"Question","name":"My manifest looks correct. What usually causes this anyway?","acceptedAnswer":{"@type":"Answer","text":"The two most common causes are a display mode that defaults to \"browser\" because the display field was left out entirely, and an icon that is listed in the manifest but 404s or is smaller than 192x192 when actually fetched — both invisible from reading the manifest file itself, because the file can look complete while the field is absent or the icon file is missing on disk."}},{"@type":"Question","name":"Does the manifest have to be linked from every page, or just the homepage?","acceptedAnswer":{"@type":"Answer","text":"Only the page a visitor is on needs the <link rel=\"manifest\"> tag for Chrome to evaluate installability on that page. A manifest linked only from the homepage means a visitor who lands on an inner page first, from a search result or a shared link, gets no install prompt at all on that page even though the site is installable elsewhere."}},{"@type":"Question","name":"I fixed the manifest and it still won't install. What else blocks it?","acceptedAnswer":{"@type":"Answer","text":"Chrome also debounces the prompt per origin: once a visitor dismisses beforeinstallprompt or after enough page visits without installing, Chrome stops firing it for a while as an anti-annoyance measure. If every documented criterion checks out and it still will not prompt on a fresh profile or an incognito window, that engagement heuristic — not the manifest — is the remaining suspect."}},{"@type":"Question","name":"Do I need a service worker for the install prompt to appear?","acceptedAnswer":{"@type":"Answer","text":"Not for Chrome's current installability criteria, which this checklist covers in full. Some other browsers and some older Chrome versions did require a registered service worker with a fetch handler. If a specific target browser still enforces that, it will not show up in a manifest-only check like this one — verify the actual prompt in that browser directly."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+    body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+    h2 { margin-top: 28px; }
+    h3 { margin-top: 20px; font-size: 1.05rem; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #8886; vertical-align: top; }
+    th { text-transform: uppercase; font-size: .75rem; letter-spacing: .04em; opacity: .75; }
+    pre { background: rgba(127,127,127,0.12); border-radius: 8px; padding: 14px; overflow-x: auto; font-size: .88rem; line-height: 1.5; }
+    code { overflow-wrap: anywhere; }
+    .note { border: 1px solid #8886; border-left: 4px solid; border-radius: 6px; padding: 12px 14px; margin: 16px 0; }
+    footer { margin-top: 32px; border-top: 1px solid #8886; padding-top: 16px; font-size: .86rem; opacity: .85; }
+    a.back { display: inline-block; margin-bottom: 12px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/add-to-home-screen-not-showing.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="“Add to Home Screen” Not Showing? Checklist for Chrome PWA Installability">
+<meta property="og:description" content="Chrome silently withholds the install prompt when a manifest fails any one of five criteria, with no console warning by default.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="“Add to Home Screen” Not Showing? Checklist for Chrome PWA Installability — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pwa-installability-check/">PWA Installability Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">“Add to Home Screen” Not Showing? Checklist for Chrome PWA Installability</span></span></nav>
+  <a class="back" href="./">&larr; Back to PWA Installability Checker</a>
+  <h1>&ldquo;Add to Home Screen&rdquo; not showing? Here&rsquo;s the checklist Chrome actually runs</h1>
+
+  <p>The manifest looks right. You&rsquo;ve read it three times. Chrome still won&rsquo;t offer to
+  install the page, and &mdash; this is the part that costs the hour &mdash; <strong>it never says
+  why</strong>. The install prompt (<code>beforeinstallprompt</code>, and the install icon in the
+  omnibox) is withheld silently whenever any one of five documented criteria fails. No console
+  warning by default, no network error, nothing in the Elements panel.</p>
+
+  <p>This is the checklist Chrome evaluates, in order, with the failure each step actually looks like
+  in practice &mdash; not just what the spec says should be true.</p>
+
+  <h2>See the real reason first, before guessing</h2>
+
+  <p>Open Chrome DevTools on the page in question, go to <strong>Application &rarr; Manifest</strong>,
+  and look under &ldquo;Installability&rdquo;. Chrome lists the specific criterion it failed there,
+  even though it never surfaces it anywhere a user or a CI log would see. That panel and the
+  <a href="./">checklist on this page</a> check the same five criteria; the difference is that DevTools
+  needs the page open in a real Chrome window, and this tool works from a CLI fetch (usable in CI,
+  against a staging URL, or against a page you can&rsquo;t easily open in a browser).</p>
+
+  <h2>The five criteria, in the order that catches people</h2>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>#</th><th>Criterion</th><th>What it looks like when it silently fails</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>A <code>&lt;link rel=&quot;manifest&quot;&gt;</code> tag exists on <em>this</em> page</td>
+        <td>The manifest is linked from the homepage but not from the page the visitor actually landed
+        on &mdash; a blog post, a pricing page reached from search.</td></tr>
+      <tr><td>2</td><td>The manifest URL returns valid JSON</td>
+        <td>A trailing comma or a build step that emits the file with a wrong <code>Content-Type</code>
+        so some fetchers refuse to parse it.</td></tr>
+      <tr><td>3</td><td><code>name</code> or <code>short_name</code> is set</td>
+        <td>Rare on its own, but shows up in a hand-trimmed manifest that dropped both while removing
+        other fields.</td></tr>
+      <tr><td>4</td><td><code>display</code> is <code>standalone</code>, <code>fullscreen</code>, or
+        <code>minimal-ui</code></td>
+        <td><strong>The most common cause.</strong> The field is left out entirely, which the spec
+        defaults to <code>"browser"</code> &mdash; and <code>"browser"</code> is explicitly excluded
+        from what Chrome will install. The manifest reads as complete because nothing is
+        <em>wrong</em>, only absent.</td></tr>
+      <tr><td>5</td><td>An icon of at least 192&times;192 (or <code>sizes: "any"</code>) actually
+        loads</td>
+        <td><strong>The second most common cause.</strong> The manifest lists the icon path
+        correctly, but the file 404s (moved during a deploy, wrong build output directory) or the
+        <code>sizes</code> attribute says <code>192x192</code> while the actual image file is
+        smaller. Reading the manifest JSON alone cannot catch either &mdash; the file has to be
+        fetched.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <p><strong>Why #4 and #5 are the ones that waste an hour:</strong> both pass a glance at the
+    manifest file. The field is either present-but-wrong (an icon path that 404s) or silently
+    defaulted (a missing <code>display</code>), so scanning the JSON by eye finds nothing to fix.
+    Both require actually <em>fetching</em> what the manifest points at &mdash; which is what
+    the <a href="./">CLI on this page</a> does, and what reading the file in an editor cannot.</p>
+  </div>
+
+  <h2>Two notices that do not block the prompt, and one thing that isn&rsquo;t on this list</h2>
+
+  <p>A missing 512&times;512 icon, a missing <code>start_url</code>, and missing
+  <code>theme_color</code>/<code>background_color</code> are real gaps &mdash; they affect the
+  splash screen and richer install UI &mdash; but none of them withholds the install prompt on their
+  own. If the checklist above is clean and the prompt still doesn&rsquo;t appear, these are not the
+  cause.</p>
+
+  <p>A <strong>service worker</strong> is not on this checklist because it is not part of Chrome&rsquo;s
+  current installability criteria. It used to be, in older Chrome versions and in some other
+  browsers&rsquo; implementations, so if your target is one of those, verify the prompt directly in
+  that browser &mdash; a manifest-only check like this one has no way to see it.</p>
+
+  <h2>If the checklist is clean and it still won&rsquo;t prompt</h2>
+
+  <p>Chrome debounces <code>beforeinstallprompt</code> per origin as an anti-annoyance measure: once a
+  visitor dismisses it, or after enough visits without installing, Chrome stops firing the event for a
+  while. Test in a fresh profile or an Incognito window before concluding the manifest is still at
+  fault &mdash; a clean report from this checklist and a suppressed prompt from engagement heuristics
+  look identical from the manifest&rsquo;s side.</p>
+
+  <h2>Check yours</h2>
+
+  <pre><code>node ventures/pwa-installability-check/check.mjs https://example.com/ --json</code></pre>
+  <p>Paste the output into the <a href="./">report viewer</a> for a plain-English breakdown of exactly
+  which of the five criteria failed, or read the exit code directly (<code>0</code> installable by
+  this checklist, <code>1</code> otherwise) to use it as a CI gate against a regression.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Why does Chrome not tell me why Add to Home Screen isn't showing?</h3>
+  <p>Chrome evaluates the manifest silently and simply withholds the beforeinstallprompt event and the
+  omnibox install icon when any criterion fails &mdash; there is no console error or warning by
+  default. The one built-in way to see the reason is DevTools' Application panel, under Manifest,
+  which lists "Installability" errors when you open it on the page in question.</p>
+
+  <h3>My manifest looks correct. What usually causes this anyway?</h3>
+  <p>The two most common causes are a display mode that defaults to "browser" because the display
+  field was left out entirely, and an icon that is listed in the manifest but 404s or is smaller than
+  192x192 when actually fetched &mdash; both invisible from reading the manifest file itself, because
+  the file can look complete while the field is absent or the icon file is missing on disk.</p>
+
+  <h3>Does the manifest have to be linked from every page, or just the homepage?</h3>
+  <p>Only the page a visitor is on needs the &lt;link rel=&quot;manifest&quot;&gt; tag for Chrome to evaluate
+  installability on that page. A manifest linked only from the homepage means a visitor who lands on
+  an inner page first, from a search result or a shared link, gets no install prompt at all on that
+  page even though the site is installable elsewhere.</p>
+
+  <h3>I fixed the manifest and it still won't install. What else blocks it?</h3>
+  <p>Chrome also debounces the prompt per origin: once a visitor dismisses beforeinstallprompt or after
+  enough page visits without installing, Chrome stops firing it for a while as an anti-annoyance
+  measure. If every documented criterion checks out and it still will not prompt on a fresh profile or
+  an incognito window, that engagement heuristic &mdash; not the manifest &mdash; is the remaining
+  suspect.</p>
+
+  <h3>Do I need a service worker for the install prompt to appear?</h3>
+  <p>Not for Chrome's current installability criteria, which this checklist covers in full. Some other
+  browsers and some older Chrome versions did require a registered service worker with a fetch
+  handler. If a specific target browser still enforces that, it will not show up in a manifest-only
+  check like this one &mdash; verify the actual prompt in that browser directly.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+    kind, express or implied. It is not engineering advice, and it does not replace testing the actual
+    install prompt in a real browser. <strong>You are responsible for reviewing and verifying anything
+    here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no
+    liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Google or the Chrome team. Chrome is a
+    trademark of Google LLC, used here only to identify the browser behaviour being described.</p>
+    <p><a href="./">&larr; Back to the tool</a> &middot;
+    <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support on GitHub Sponsors</a>
+    (optional)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pwa-installability-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pwa-installability-check"></script>
+</body>
+</html>

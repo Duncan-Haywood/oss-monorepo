@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Transactional Email Provider by Send Volume</title>
+  <meta name="description" content="Why transactional email bills jump at certain send volumes, why Amazon SES is cheap and Postmark is not, and what matters more than the per-email price.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/email-api-pricing-calculator/how-to-choose-a-transactional-email-provider.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do email API prices differ so much at the same volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some providers sell tiered monthly plans with an included volume and a steep overage rate, while Amazon SES sells raw sending at about ten cents per thousand and leaves deliverability tooling, logs and support to you. At 100,000 emails a month the gap between the cheapest and most expensive list price can be ten times."}}, {"@type": "Question", "name": "What matters more than the per-email price?", "acceptedAnswer": {"@type": "Answer", "text": "Deliverability and time. A provider that lands receipts and password resets in the inbox, with clear bounce handling and logs, saves more than a few dollars a month. Check shared versus dedicated IP, log retention and how fast support answers."}}, {"@type": "Question", "name": "When should I switch providers?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means moving templates, DNS records (SPF, DKIM, DMARC) and warming a new sending reputation. Run the calculator with your growth rate before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/email-api-pricing-calculator/how-to-choose-a-transactional-email-provider.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose a Transactional Email Provider by Send Volume">
+<meta property="og:description" content="Why transactional email bills jump at certain send volumes, why Amazon SES is cheap and Postmark is not, and what matters more than the per-email price.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/email-api-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose a Transactional Email Provider by Send Volume — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../email-api-pricing-calculator/">What will transactional email cost at your send volume, and who is cheapest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose a Transactional Email Provider by Send Volume</span></span></nav>
+  <p><a href="./">← Email API Pricing Calculator</a></p>
+  <h1>How to choose a transactional email provider by send volume</h1>
+  <p>Put your emails per month and growth rate into the <a href="./">calculator</a> to price Resend, Postmark, SendGrid, Mailgun, Amazon SES and Brevo side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do email API prices differ so much at the same volume?</h2>
+  <p>Some providers sell tiered monthly plans with an included volume and a steep overage rate, while Amazon SES sells raw sending at about ten cents per thousand and leaves deliverability tooling, logs and support to you. At 100,000 emails a month the gap between the cheapest and most expensive list price can be ten times.</p>
+  <h2>What matters more than the per-email price?</h2>
+  <p>Deliverability and time. A provider that lands receipts and password resets in the inbox, with clear bounce handling and logs, saves more than a few dollars a month. Check shared versus dedicated IP, log retention and how fast support answers.</p>
+  <h2>When should I switch providers?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means moving templates, DNS records (SPF, DKIM, DMARC) and warming a new sending reputation. Run the calculator with your growth rate before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../upstash-redis-bill-estimator/" data-pf-to="upstash-redis-bill-estimator">What will your Upstash Redis bill be, and should you go fixed?</a></li>
+      <li><a href="../uptime-monitoring-pricing-calculator/" data-pf-to="uptime-monitoring-pricing-calculator">What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</a></li>
+      <li><a href="../vercel-bill-estimator/" data-pf-to="vercel-bill-estimator">What will your Vercel bill be, and what cuts it most?</a></li>
+      <li><a href="../video-hosting-pricing-calculator/" data-pf-to="video-hosting-pricing-calculator">What will video hosting cost for your minutes stored and watched, and who is cheapest?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=email-api-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="email-api-pricing-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Container Load Planner — 3D load planning for containers, trucks and pallets</title>
+  <meta name="description" content="Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer…">
+  <meta property="og:title" content="Container Load Planner — free, private, in your browser">
+  <meta property="og:description" content="Will it fit? A 3D packing planner for containers, trucks and pallets with rotation, weight and stacking limits, a to-scale view and a loading list.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Container Load Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter cargo lines with size, weight, quantity, rotation and stacking limits, and pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck, pallet or custom size. A 3D packing heuristic reports units packed and left over, volume and weight use, how many containers the whole load needs, to-scale top and side views, a loading list, and a comparison with other containers and with palletising. Runs entirely in your browser; nothing is uploaded.", "featureList": "3D load planning, container and pallet packing, orientation and stacking constraints, payload limit, multi-container plan, to-scale top and side views, loading list CSV, container comparison, metric and imperial units, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many pallets fit in a 40 ft container?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the pallet size, its height and whether it may be stacked. Euro pallets (120 x 80 cm) fit about 25 on the floor of a nominal 40 ft container, in a mix of lengthwise and crosswise rows, so about 50 if they can be stacked two high; 48 x 40 inch pallets fit about 20 on the floor. A nominal 20 ft container takes about 11 Euro pallets or 10 of the 48 x 40 size on the floor. Enter your own pallet size, weight and stacking limit and the planner packs it rather than quoting a rule of thumb."}}, {"@type": "Question", "name": "How does the planner pack a container?", "acceptedAnswer": {"@type": "Answer", "text": "It is a constructive 3D bin packing heuristic. Units are placed one at a time at the lowest free corner where they stay inside the walls, overlap nothing, rest on the floor or on units below with at least 75 percent of the base supported, respect the rotations each line allows, and keep the weight under the payload. Each placement is slid against the walls and neighbours. The search repeats that with different corner rules and unit orderings, including seeded random ones, and keeps the packing with the most volume, then the most units."}}, {"@type": "Question", "name": "Is this the best possible packing?", "acceptedAnswer": {"@type": "Answer", "text": "Not guaranteed. Optimal 3D packing is an NP-hard problem, so the planner is a heuristic that tries many orderings and keeps the best; on regular loads it often finds a perfect fit, on awkward mixes it can leave a little room that a skilled loader would use. Treat the unit counts as a planning estimate and keep a margin."}}, {"@type": "Question", "name": "What do upright only, can rotate and highest layer mean?", "acceptedAnswer": {"@type": "Answer", "text": "Upright only keeps the height you entered vertical and lets the unit turn on its vertical axis. Can rotate allows all six orientations. Fixed keeps the unit exactly as entered. Highest layer is the highest level a unit may sit at, with 1 meaning floor only. Weight allowed on top is the most weight that may rest on one unit, counting everything above it; 0 means nothing may be put on it."}}, {"@type": "Question", "name": "How many containers do I need for the whole load?", "acceptedAnswer": {"@type": "Answer", "text": "The planner fills one container at a time, then repeats on what is left, and reports the number of containers, how full each is, and a lower bound from total volume and total weight. It then tries to merge the last two containers into one. Because it is a heuristic the count may be one higher than the best possible; the lower bound shows how close it is."}}, {"@type": "Question", "name": "What does swapping to a 40 ft high cube or to pallets change?", "acceptedAnswer": {"@type": "Answer", "text": "The comparison runs the same cargo through every standard size and through pallets. A high cube adds height, which helps only if your units can stack. Palletising packs your cartons onto 48 x 40 inch pallets within a height cap, then packs the loaded pallets into each container; it usually costs some volume to the pallet deck but makes the load faster to handle. The table shows the container count and fill for each so you can weigh it against your own quotes."}}, {"@type": "Question", "name": "Does this check that my load is safe or legal?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning aid. It does not check load securing, axle weights, centre of gravity, pallet overhang, hazardous goods rules, or any road, rail, sea or air limit, and it uses nominal container sizes that you can edit. Your carrier, forwarder or loading supervisor decides what can be shipped."}}, {"@type": "Question", "name": "Is my cargo list uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The planner runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #cargo td { padding: 4px 3px; }
+    #cargo input, #cargo select { padding: 6px 6px; font-size: 14px; }
+    #cargo td.nm input { min-width: 130px; }
+    #cargo td.num input { width: 66px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 90px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .seg { display: inline-flex; gap: 16px; margin: 4px 0; }
+    .seg label { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    .seg input { width: auto; }
+    canvas { width: 100%; display: block; background: #f7f9fb; border: 1px solid #d9dfe6; border-radius: 8px; margin: 6px 0 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 4px; font-size: .88rem; }
+    .legend span.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid #0003; }
+    tr.rec td { background: #eef6ee; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f4a5d; }
+    .ghost { color: #4c5a68; }
+    .sr { position: absolute; left: -9999px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Container Load Planner — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/container-load-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Container Load Planner — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Container Load Planner — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CONTAINER LOAD PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will it fit in the container?</h1>
+    <p>List your <strong>cartons or pallets</strong> with size, weight and quantity, pick a <strong>20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck, pallet</strong> or your own size, and see what <strong>fits, what is left over</strong> and <strong>how many containers the whole load needs</strong>, with a to-scale top and side view and a loading list.</p>
+    <p class="note">A planning aid, not a load-securing, axle-weight or legal certificate. New to this? Read <a href="./how-to-plan-a-container-load.html">how to plan a container load, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Units and container</h2>
+    <div class="seg" role="radiogroup" aria-label="Units">
+      <label for="u-metric"><input type="radio" name="units" id="u-metric" value="metric" checked> Metric (cm, kg)</label>
+      <label for="u-imperial"><input type="radio" name="units" id="u-imperial" value="imperial"> Imperial (in, lb)</label>
+    </div>
+    <div class="row4">
+      <div><label for="preset">Container or truck</label>
+        <select id="preset"></select></div>
+      <div><label for="cL">Inside length (<span class="lu">cm</span>)</label><input id="cL" inputmode="decimal"></div>
+      <div><label for="cW">Inside width (<span class="lu">cm</span>)</label><input id="cW" inputmode="decimal"></div>
+      <div><label for="cH">Inside height (<span class="lu">cm</span>)</label><input id="cH" inputmode="decimal"></div>
+      <div><label for="cP">Payload limit (<span class="wu">kg</span>)</label><input id="cP" inputmode="decimal"></div>
+    </div>
+    <p class="note" id="preset-note"></p>
+
+    <h2 style="margin-top:18px">2. Your cargo</h2>
+    <div class="scroll">
+      <div class="pf-table-scroll"><table id="cargo">
+        <thead><tr>
+          <th>Cargo line</th><th class="n">Length (<span class="lu">cm</span>)</th><th class="n">Width (<span class="lu">cm</span>)</th><th class="n">Height (<span class="lu">cm</span>)</th>
+          <th class="n">Weight each (<span class="wu">kg</span>)</th><th class="n">Qty</th><th>Rotation</th><th class="n" title="Highest layer a unit may sit at; 1 = floor only; blank = no limit">Highest layer</th><th class="n" title="Most weight that may rest on one unit; 0 = nothing on top; blank = no limit">Max on top (<span class="wu">kg</span>)</th><th><span class="sr">Remove</span></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+    <p class="note">Rotation: <strong>upright</strong> keeps the height you enter vertical (it may turn on its vertical axis), <strong>any</strong> allows all six orientations, <strong>fixed</strong> keeps it exactly as entered. <strong>Highest layer</strong> 1 means floor only. <strong>Max on top</strong> is the most weight that may rest on one unit; 0 means nothing on top. Leave a box blank for no limit.</p>
+    <button type="button" class="secondary" id="add-line">Add a line</button>
+    <details style="margin-top:14px">
+      <summary>Paste lines from a spreadsheet</summary>
+      <label for="paste">name, length, width, height, weight, quantity, rotation, highest layer, max on top (comma or tab separated)</label>
+      <textarea id="paste" spellcheck="false" placeholder="Carton A,60,40,40,18,90,upright,,&#10;Glassware,45,35,35,9,40,upright,2,5"></textarea>
+      <button type="button" class="secondary" id="paste-fill">Replace the table with these lines</button>
+    </details>
+    <details style="margin-top:14px">
+      <summary>Pallet settings, for the “pack on pallets” comparison</summary>
+      <div class="row4">
+        <div><label for="pL">Pallet length (<span class="lu">cm</span>)</label><input id="pL" inputmode="decimal"></div>
+        <div><label for="pW">Pallet width (<span class="lu">cm</span>)</label><input id="pW" inputmode="decimal"></div>
+        <div><label for="pDeck">Pallet deck height (<span class="lu">cm</span>)</label><input id="pDeck" inputmode="decimal"></div>
+        <div><label for="pCap">Loaded pallet height cap (<span class="lu">cm</span>)</label><input id="pCap" inputmode="decimal"></div>
+        <div><label for="pTare">Empty pallet weight (<span class="wu">kg</span>)</label><input id="pTare" inputmode="decimal"></div>
+        <div><label for="pPay">Goods per pallet, at most (<span class="wu">kg</span>)</label><input id="pPay" inputmode="decimal"></div>
+      </div>
+      <label for="pDouble" class="check"><input type="checkbox" id="pDouble" aria-label="Allow loaded pallets to be stacked two high"> Allow loaded pallets to be stacked two high (only if your goods can bear it)</label>
+    </details>
+    <button type="button" id="analyze">Plan the load</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your cargo and pick a container, then click Plan the load.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <div id="csel-wrap" hidden>
+      <label for="csel">Show container</label>
+      <select id="csel"></select>
+    </div>
+    <h3>Top view <span class="ghost" style="font-weight:400">(back wall on the left, doors on the right; to scale)</span></h3>
+    <canvas id="view-top" role="img" aria-label="Top-down to-scale view of the load"></canvas>
+    <h3>Side view <span class="ghost" style="font-weight:400">(looking from the left wall; to scale)</span></h3>
+    <canvas id="view-side" role="img" aria-label="Side-on to-scale view of the load"></canvas>
+    <div class="legend" id="legend"></div>
+
+    <h3>Each cargo line</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="pt"><thead><tr><th>Line</th><th class="n">Ordered</th><th class="n">In this container</th><th class="n">In all containers</th><th class="n">Left over from this container</th><th>Note</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h3>Containers for the whole load</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ct"><thead><tr><th class="n">#</th><th>Contents</th><th class="n">Units</th><th class="n">Volume used</th><th class="n">Weight</th><th class="n">% of payload</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="floor"></p>
+
+    <h3>Loading list <span class="ghost" style="font-weight:400">(back wall first)</span></h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="lt"><thead><tr><th class="n">Step</th><th>Line</th><th class="n">From back (<span class="lu">cm</span>)</th><th class="n">From left (<span class="lu">cm</span>)</th><th class="n">Height (<span class="lu">cm</span>)</th><th>As placed (L × W × H)</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="lt-note"></p>
+    <button type="button" id="download">Download the loading list (CSV)</button>
+
+    <h3>What if I swap?</h3>
+    <p class="note">The same cargo through every standard size, loose and on pallets. Container counts and fill only; it prices nothing, so weigh it against your own quotes.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cmp"><thead><tr><th>Option</th><th class="n">Containers</th><th class="n">Average fill</th><th class="n">Last container</th><th>Note</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="cmp-status"></p>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Packing:</strong> a constructive 3D bin packing heuristic with extreme-point placement. Units go in one at a time at the lowest free corner where they are inside the walls, overlap nothing, and rest on the floor or on units below with at least 75% of their base supported. Each is slid back against the walls and neighbours. The search repeats with three corner rules and several unit orderings, including seeded random ones, and keeps the packing with the most packed volume, then the most units. It is repeatable: the same input gives the same plan.</p>
+    <p><strong>Constraints:</strong> allowed rotations, highest layer, weight allowed on top (spread over the units underneath in proportion to the area they carry) and the payload limit. A separate checker re-verifies every plan for bounds, overlap, payload, orientation, support, layers and load before it is drawn.</p>
+    <p><strong>Whole load:</strong> one container at a time, then what is left, then an attempt to merge the last two. The lower bound is the larger of total volume over container volume and total weight over payload.</p>
+    <p><strong>Not modelled:</strong> load securing and bracing, axle and gross weights, centre of gravity, pallet overhang, dunnage and gaps for lashing, door and forklift clearances, hazardous or temperature-controlled goods, carrier or legal limits, and rates. Container sizes and payloads are nominal figures you can edit; check your equipment. Unverified against a real loading: tested on hand-computed fits and on random loads checked for overlap, bounds, weight and rotation.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many pallets fit in a 40 ft container?</h3>
+    <p>It depends on the pallet size, its height and whether it may be stacked. Euro pallets (120 x 80 cm) fit about 25 on the floor of a nominal 40 ft container, in a mix of lengthwise and crosswise rows, so about 50 if they can be stacked two high; 48 x 40 inch pallets fit about 20 on the floor. A nominal 20 ft container takes about 11 Euro pallets or 10 of the 48 x 40 size on the floor. Enter your own pallet size, weight and stacking limit and the planner packs it rather than quoting a rule of thumb.</p>
+    <h3>How does the planner pack a container?</h3>
+    <p>It is a constructive 3D bin packing heuristic. Units are placed one at a time at the lowest free corner where they stay inside the walls, overlap nothing, rest on the floor or on units below with at least 75 percent of the base supported, respect the rotations each line allows, and keep the weight under the payload. Each placement is slid against the walls and neighbours. The search repeats that with different corner rules and unit orderings, including seeded random ones, and keeps the packing with the most volume, then the most units.</p>
+    <h3>Is this the best possible packing?</h3>
+    <p>Not guaranteed. Optimal 3D packing is an NP-hard problem, so the planner is a heuristic that tries many orderings and keeps the best; on regular loads it often finds a perfect fit, on awkward mixes it can leave a little room that a skilled loader would use. Treat the unit counts as a planning estimate and keep a margin.</p>
+    <h3>What do upright only, can rotate and highest layer mean?</h3>
+    <p>Upright only keeps the height you entered vertical and lets the unit turn on its vertical axis. Can rotate allows all six orientations. Fixed keeps the unit exactly as entered. Highest layer is the highest level a unit may sit at, with 1 meaning floor only. Weight allowed on top is the most weight that may rest on one unit, counting everything above it; 0 means nothing may be put on it.</p>
+    <h3>How many containers do I need for the whole load?</h3>
+    <p>The planner fills one container at a time, then repeats on what is left, and reports the number of containers, how full each is, and a lower bound from total volume and total weight. It then tries to merge the last two containers into one. Because it is a heuristic the count may be one higher than the best possible; the lower bound shows how close it is.</p>
+    <h3>What does swapping to a 40 ft high cube or to pallets change?</h3>
+    <p>The comparison runs the same cargo through every standard size and through pallets. A high cube adds height, which helps only if your units can stack. Palletising packs your cartons onto 48 x 40 inch pallets within a height cap, then packs the loaded pallets into each container; it usually costs some volume to the pallet deck but makes the load faster to handle. The table shows the container count and fill for each so you can weigh it against your own quotes.</p>
+    <h3>Does this check that my load is safe or legal?</h3>
+    <p>No. It is a planning aid. It does not check load securing, axle weights, centre of gravity, pallet overhang, hazardous goods rules, or any road, rail, sea or air limit, and it uses nominal container sizes that you can edit. Your carrier, forwarder or loading supervisor decides what can be shipped.</p>
+    <h3>Is my cargo list uploaded?</h3>
+    <p>No. The planner runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or safety advice, is not a load-securing, axle-weight or regulatory compliance certificate, and does not replace your carrier, forwarder or a qualified loading supervisor. Results are a planning estimate from the figures you type; container sizes and payloads vary by equipment. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any shipping line, carrier, forwarder, marketplace or equipment maker, and none is named or ranked here. The example cargo is invented, and no freight rate is stated or implied.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a> for choosing carton sizes, the <a href="../warehouse-slotting-optimizer/">warehouse slotting optimizer</a> for deciding which shelf each SKU belongs on, the <a href="../parcel-dim-weight-calculator/">dimensional weight calculator</a> for one parcel, the <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> for pallets, the <a href="../import-landed-cost-calculator/">import landed cost calculator</a> and the <a href="../3pl-quote-normalizer/">3PL quote normalizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const COLORS = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#56b4e9", "#d55e00", "#7a7a1f", "#8a5cf6", "#2c8c99", "#b5446e"];
+    const letter = (i) => (i < 26 ? String.fromCharCode(65 + i) : String(i + 1));
+    const colorOf = (i) => COLORS[i % COLORS.length];
+    let sys = SYSTEMS.metric;
+    let last = null, shown = 0, plan = null, lines = null;
+
+    // ----- fields in display units -----
+    const round = (x, d) => String(+x.toFixed(d));
+    const lenF = (mm) => round(mm / sys.mm, 1);
+    const wtF = (kg) => round(kg / sys.kg, sys.id === "metric" ? 1 : 1);
+    const num = (id) => { const v = $("#" + id).value.trim(); return v === "" ? NaN : Number(v.replace(/,/g, "")); };
+
+    function setContainerFields(c) {
+      $("#cL").value = lenF(c.l); $("#cW").value = lenF(c.w); $("#cH").value = lenF(c.h); $("#cP").value = wtF(c.payload);
+    }
+    function setPalletFields(p) {
+      $("#pL").value = lenF(p.l); $("#pW").value = lenF(p.w); $("#pDeck").value = lenF(p.deck); $("#pCap").value = lenF(p.heightCap);
+      $("#pTare").value = wtF(p.tare); $("#pPay").value = wtF(p.payload); $("#pDouble").checked = !!p.doubleStack;
+    }
+    const PALLET_PRESET = { id: "pallet", name: "Standard pallet 48 × 40 in", l: DEFAULTS.pallet.l, w: DEFAULTS.pallet.w, h: DEFAULTS.pallet.heightCap - DEFAULTS.pallet.deck, payload: DEFAULTS.pallet.payload };
+    function fillPresets() {
+      const sel = $("#preset");
+      const cur = sel.value || "40hc";
+      sel.innerHTML = [...PRESETS, PALLET_PRESET].map((p) => `<option value="${p.id}">${esc(p.name)}</option>`).join("") + '<option value="custom">Custom size</option>';
+      sel.value = cur;
+    }
+    function presetById(id) { return id === "pallet" ? PALLET_PRESET : PRESETS.find((p) => p.id === id); }
+    function showPresetNote() {
+      const id = $("#preset").value;
+      $("#preset-note").textContent = id === "custom"
+        ? "Custom size: type the inside dimensions and the payload limit you plan to load to."
+        : id === "pallet"
+          ? "Standard 48 × 40 in pallet; the height shown is the room above the deck under a 72 in loaded height cap. Edit any figure, and set the payload to what your pallet is rated for."
+          : "Nominal inside dimensions and a planning payload that are commonly quoted for this equipment. Check them against your actual container, trailer or truck, and edit any figure.";
+    }
+    function applyUnitsLabels() {
+      document.querySelectorAll(".lu").forEach((e) => { e.textContent = sys.len; });
+      document.querySelectorAll(".wu").forEach((e) => { e.textContent = sys.wt; });
+    }
+
+    // ----- cargo table -----
+    function rowHtml(r = {}) {
+      const v = (k) => esc(r[k] ?? "");
+      const sel = (r.rotation || "upright");
+      return `<tr>
+        <td class="nm"><input data-k="name" aria-label="Cargo line name" value="${v("name")}"></td>
+        <td class="num"><input data-k="l" inputmode="decimal" aria-label="Length" value="${v("l")}"></td>
+        <td class="num"><input data-k="w" inputmode="decimal" aria-label="Width" value="${v("w")}"></td>
+        <td class="num"><input data-k="h" inputmode="decimal" aria-label="Height" value="${v("h")}"></td>
+        <td class="num"><input data-k="weight" inputmode="decimal" aria-label="Weight each" value="${v("weight")}"></td>
+        <td class="num"><input data-k="qty" inputmode="numeric" aria-label="Quantity" value="${v("qty")}"></td>
+        <td><select data-k="rotation" aria-label="Rotation">${["upright", "any", "fixed"].map((o) => `<option value="${o}"${o === sel ? " selected" : ""}>${o}</option>`).join("")}</select></td>
+        <td class="num"><input data-k="maxLayers" inputmode="numeric" aria-label="Highest layer" value="${v("maxLayers")}"></td>
+        <td class="num"><input data-k="maxTop" inputmode="decimal" aria-label="Maximum weight on top" value="${v("maxTop")}"></td>
+        <td><button type="button" class="secondary small" data-del aria-label="Remove this line">Remove</button></td>
+      </tr>`;
+    }
+    const body = $("#cargo tbody");
+    function addRow(r) { body.insertAdjacentHTML("beforeend", rowHtml(r)); }
+    function readRows() {
+      return [...body.querySelectorAll("tr")].map((tr) => {
+        const o = {};
+        tr.querySelectorAll("[data-k]").forEach((el) => { o[el.dataset.k] = el.value; });
+        return o;
+      }).filter((o) => ["name", "l", "w", "h", "weight"].some((k) => String(o[k] ?? "").trim() !== ""));
+    }
+    function fillFromText(text) {
+      const r = parseCargo(text, sys);
+      if (r.error) return r;
+      body.innerHTML = "";
+      for (const l of r.lines) addRow({ name: l.name, l: lenF(l.dims[0]), w: lenF(l.dims[1]), h: lenF(l.dims[2]), weight: wtF(l.weight), qty: l.qty, rotation: l.rotation, maxLayers: Number.isFinite(l.maxLayers) ? l.maxLayers : "", maxTop: Number.isFinite(l.maxTop) ? wtF(l.maxTop) : "" });
+      return r;
+    }
+    body.addEventListener("click", (e) => { const b = e.target.closest("[data-del]"); if (b) b.closest("tr").remove(); });
+    $("#add-line").addEventListener("click", () => addRow({ qty: 1 }));
+    $("#paste-fill").addEventListener("click", () => {
+      const r = fillFromText($("#paste").value);
+      status.textContent = r.error ? r.error : `Loaded ${r.lines.length} line${r.lines.length === 1 ? "" : "s"} from the pasted text.` + (r.warnings.length ? " " + r.warnings.join(" ") : "");
+    });
+
+    // ----- unit toggle: convert what is typed so the same cargo stays the same cargo -----
+    function convertAll(from, to) {
+      const fl = from.mm / to.mm, fw = from.kg / to.kg; // value in `from` units -> `to` units
+      const conv = (el, f, d) => { const v = Number(el.value); if (el.value.trim() !== "" && Number.isFinite(v)) el.value = round(v * f, d); };
+      const dl = 1;
+      for (const id of ["cL", "cW", "cH", "pL", "pW", "pDeck", "pCap"]) conv($("#" + id), fl, dl);
+      for (const id of ["cP", "pTare", "pPay"]) conv($("#" + id), fw, 1);
+      body.querySelectorAll("tr").forEach((tr) => {
+        for (const k of ["l", "w", "h"]) conv(tr.querySelector(`[data-k="${k}"]`), fl, dl);
+        for (const k of ["weight", "maxTop"]) conv(tr.querySelector(`[data-k="${k}"]`), fw, 1);
+      });
+    }
+    document.querySelectorAll('input[name="units"]').forEach((r) => r.addEventListener("change", () => {
+      const to = SYSTEMS[document.querySelector('input[name="units"]:checked').value];
+      if (to === sys) return;
+      const from = sys; sys = to; applyUnitsLabels(); convertAll(from, to);
+      if (!report.hidden) status.textContent = "Units changed. Click Plan the load to refresh the result.";
+    }));
+
+    $("#preset").addEventListener("change", () => {
+      const p = presetById($("#preset").value);
+      if (p) setContainerFields(p);
+      showPresetNote();
+    });
+    for (const id of ["cL", "cW", "cH", "cP"]) $("#" + id).addEventListener("input", () => {
+      const p = presetById($("#preset").value);
+      if (p) {
+        const same = Math.abs(num("cL") - Number(lenF(p.l))) < 1e-9 && Math.abs(num("cW") - Number(lenF(p.w))) < 1e-9 && Math.abs(num("cH") - Number(lenF(p.h))) < 1e-9 && Math.abs(num("cP") - Number(wtF(p.payload))) < 1e-9;
+        if (!same) { $("#preset").value = "custom"; showPresetNote(); }
+      }
+    });
+
+    // ----- reading the form -----
+    function readContainer() {
+      const L = num("cL"), W = num("cW"), H = num("cH"), P = num("cP");
+      if (![L, W, H].every((x) => Number.isFinite(x) && x > 0)) return { error: "Container length, width and height must be positive numbers." };
+      if (!Number.isFinite(P) || P <= 0) return { error: "Payload limit must be a positive number." };
+      const id = $("#preset").value;
+      const name = id === "custom" ? "Custom container" : (presetById(id) || {}).name;
+      return { container: { id, name, l: toMm(L, sys), w: toMm(W, sys), h: toMm(H, sys), payload: toKg(P, sys) } };
+    }
+    function readPallet() {
+      const g = (id) => num(id);
+      const vals = { l: g("pL"), w: g("pW"), deck: g("pDeck"), heightCap: g("pCap"), tare: g("pTare"), payload: g("pPay") };
+      if (!Object.values(vals).every((x) => Number.isFinite(x) && x > 0)) return { error: "Pallet settings need positive numbers." };
+      const p = { l: toMm(vals.l, sys), w: toMm(vals.w, sys), deck: toMm(vals.deck, sys), heightCap: toMm(vals.heightCap, sys), tare: toKg(vals.tare, sys), payload: toKg(vals.payload, sys), doubleStack: $("#pDouble").checked };
+      if (p.heightCap <= p.deck) return { error: "The loaded pallet height cap must be above the deck height." };
+      return { pallet: p };
+    }
+    function readLines() {
+      const rows = readRows();
+      if (!rows.length) return { error: "Add at least one cargo line." };
+      const out = [], errs = [];
+      rows.forEach((r, i) => {
+        const b = buildLine(r, sys, i);
+        if (b.error) errs.push(b.error); else out.push(b.line);
+      });
+      if (errs.length) return { error: errs[0] + (errs.length > 1 ? ` (and ${errs.length - 1} more)` : "") };
+      const f = finishLines(out);
+      return f.error ? { error: f.error } : { lines: f.lines };
+    }
+
+    // ----- drawing -----
+    function draw(canvas, cont, placements, view) {
+      const cssW = Math.max(280, canvas.clientWidth || canvas.parentElement.clientWidth || 600);
+      const padL = 8, padT = 22, padR = 8, padB = 8;
+      const acrossMm = cont.l, downMm = view === "top" ? cont.w : cont.h;
+      const scale = (cssW - padL - padR) / acrossMm;
+      const cssH = Math.round(downMm * scale + padT + padB);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+      canvas.style.height = cssH + "px";
+      const g = canvas.getContext("2d");
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.clearRect(0, 0, cssW, cssH);
+      g.fillStyle = "#eef2f6"; g.fillRect(padL, padT, acrossMm * scale, downMm * scale);
+      g.font = "12px system-ui, sans-serif"; g.fillStyle = "#4c5a68"; g.textBaseline = "alphabetic";
+      g.textAlign = "left"; g.fillText(`${lenText(cont.l, sys)} ${sys.len} long`, padL, 14);
+      g.textAlign = "right"; g.fillText(`${lenText(view === "top" ? cont.w : cont.h, sys)} ${sys.len} ${view === "top" ? "wide" : "high"}`, cssW - padR, 14);
+      for (const r of viewRects(placements, view)) {
+        const x = padL + r.a * scale;
+        const y = view === "top" ? padT + r.b * scale : padT + (downMm - r.b - r.db) * scale;
+        const w = r.da * scale, h = r.db * scale;
+        g.fillStyle = colorOf(r.line); g.fillRect(x, y, w, h);
+        g.strokeStyle = "#ffffff"; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, Math.max(0, w - 1), Math.max(0, h - 1));
+        if (w >= 15 && h >= 15) {
+          g.fillStyle = "#ffffff"; g.font = "bold 11px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+          g.fillText(letter(r.line), x + w / 2, y + h / 2);
+        }
+      }
+      g.strokeStyle = "#1f4a5d"; g.lineWidth = 2; g.strokeRect(padL, padT, acrossMm * scale, downMm * scale);
+    }
+
+    function renderContainer(i) {
+      shown = i;
+      const c = plan.containers[i];
+      draw($("#view-top"), plan.container, c.placements, "top");
+      draw($("#view-side"), plan.container, c.placements, "side");
+      $("#view-top").setAttribute("aria-label", `Top-down to-scale view of container ${i + 1}: ${c.count} units, ${pct(c.util)} of the volume`);
+      $("#view-side").setAttribute("aria-label", `Side-on to-scale view of container ${i + 1}: ${c.count} units, load height ${lenText(c.usedHeight, sys)} ${sys.len}`);
+      $("#legend").innerHTML = lines.map((l, k) => c.counts[k] ? `<span><span class="sw" style="background:${colorOf(k)}"></span>${letter(k)} · ${esc(l.name)} × ${c.counts[k]}</span>` : "").join("");
+      const order = loadingOrder(c.placements);
+      const MAXROWS = 200;
+      $("#lt tbody").innerHTML = order.slice(0, MAXROWS).map((p) => `<tr><td class="n">${p.step}</td><td>${letter(p.line)} · ${esc(lines[p.line].name)}</td><td class="n">${lenText(p.x, sys)}</td><td class="n">${lenText(p.y, sys)}</td><td class="n">${lenText(p.z, sys)}</td><td>${esc(dimsText([p.l, p.w, p.h], sys))} ${sys.len}</td></tr>`).join("");
+      $("#lt-note").textContent = order.length > MAXROWS ? `Showing the first ${MAXROWS} of ${order.length} units for container ${i + 1}; the CSV has every unit in every container.` : `Container ${i + 1}: ${order.length} units. Positions are the near-left-bottom corner of each unit measured from the back wall, the left wall and the floor.`;
+      // per-line table for this container
+      $("#pt tbody").innerHTML = lines.map((l, k) => {
+        const all = plan.containers.reduce((s, ct) => s + ct.counts[k], 0);
+        const unfit = plan.unfit.find((u) => u.line === k);
+        const here = c.counts[k];
+        const leftHere = unfit ? 0 : l.qty - plan.containers.slice(0, i + 1).reduce((s, ct) => s + ct.counts[k], 0);
+        const note = unfit ? `<span class="pill high">${unfit.reason === "weight" ? "heavier than the payload" : "too big for this container"}</span>` : (leftHere > 0 ? '<span class="pill info">goes in a later container</span>' : "");
+        return `<tr><td><span class="sw" style="display:inline-block;width:12px;height:12px;background:${colorOf(k)};border-radius:3px;vertical-align:-1px"></span> ${letter(k)} · ${esc(l.name)}</td><td class="n">${l.qty}</td><td class="n">${here}</td><td class="n">${all}</td><td class="n">${unfit ? l.qty : leftHere}</td><td>${note}</td></tr>`;
+      }).join("");
+    }
+
+    function render() {
+      const c0 = plan.containers[0];
+      const cont = plan.container;
+      const total = plan.totalUnits;
+      $("#notices").innerHTML = notices.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const left = total - (c0 ? c0.count : 0);
+      const big = c0 ? [
+        [`${c0.count} of ${total}`, "Units in the first container"],
+        [String(left), left ? "Left over from the first container" : "Left over: nothing"],
+        [pct(c0.util, 1), "Volume used in the first container"],
+        [`${wtText(c0.weight, sys)} ${sys.wt}`, `Weight, ${pct(c0.payloadPct)} of the ${wtText(cont.payload, sys)} ${sys.wt} payload`],
+        [String(plan.containersNeeded), `Container${plan.containersNeeded === 1 ? "" : "s"} for the whole load`],
+      ] : [["0", "Nothing could be placed"]];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      const unfitUnits = plan.unfit.reduce((s, u) => s + u.qty, 0);
+      let verdict;
+      if (!c0) verdict = "Nothing fits this container. Check the dimensions, the rotation setting and the payload.";
+      else if (plan.containersNeeded === 1 && !unfitUnits) verdict = `Everything fits in one ${cont.name}: ${pct(c0.util, 1)} of the volume and ${pct(c0.payloadPct)} of the payload, with the load running ${lenText(c0.usedLength, sys)} ${sys.len} from the back wall.`;
+      else verdict = `The whole load needs ${plan.containersNeeded} × ${cont.name} (volume and weight alone say at least ${plan.lowerBound}). ${total - unfitUnits - (c0 ? c0.count : 0) > 0 ? `${left - unfitUnits} units do not fit in the first and go in later ones.` : ""}${unfitUnits ? ` ${unfitUnits} unit${unfitUnits === 1 ? "" : "s"} cannot go in this container at all.` : ""}`;
+      $("#verdict").textContent = verdict;
+      $("#ct tbody").innerHTML = plan.containers.map((c, i) => `<tr><td class="n">${i + 1}</td><td>${esc(lines.map((l, k) => c.counts[k] ? `${letter(k)}×${c.counts[k]}` : "").filter(Boolean).join("  "))}</td><td class="n">${c.count}</td><td class="n">${pct(c.util, 1)}</td><td class="n">${wtText(c.weight, sys)} ${sys.wt}</td><td class="n">${pct(c.payloadPct)}</td></tr>`).join("");
+      $("#floor").textContent = `Lower bound from total volume and total weight: ${plan.lowerBound} container${plan.lowerBound === 1 ? "" : "s"}. Search: ${plan.containers.reduce((s, c) => s + c.attempts, 0)} packing passes.`;
+      const sel = $("#csel");
+      sel.innerHTML = plan.containers.map((c, i) => `<option value="${i}">Container ${i + 1} of ${plan.containers.length} — ${c.count} units, ${pct(c.util)} full</option>`).join("");
+      $("#csel-wrap").hidden = plan.containers.length < 2;
+      if (c0) { renderContainer(0); }
+      report.hidden = false;
+    }
+
+    function renderCompare(cmpr, pal) {
+      const rows = cmpr.options;
+      let best = null;
+      for (const o of rows) {
+        // fewest units left out, then fewest containers, then least container volume
+        o.key = [o.plan.unfit.reduce((s, u) => s + u.qty, 0), o.plan.containersNeeded, o.plan.containersNeeded * o.container.volume];
+        if (!best || o.key[0] - best.key[0] || o.key[1] - best.key[1] || o.key[2] - best.key[2]) {
+          if (!best || o.key[0] < best.key[0] || (o.key[0] === best.key[0] && (o.key[1] < best.key[1] || (o.key[1] === best.key[1] && o.key[2] < best.key[2])))) best = o;
+        }
+      }
+      $("#cmp tbody").innerHTML = rows.map((o) => {
+        const p = o.plan, unfit = p.unfit.reduce((s, u) => s + u.qty, 0);
+        const notes = [];
+        if (unfit) notes.push(`${unfit} unit${unfit === 1 ? "" : "s"} cannot go in at all`);
+        if (o === best) notes.push("fewest containers");
+        return `<tr${o === best ? ' class="rec"' : ""}><td>${esc(o.label)}</td><td class="n">${p.containersNeeded}</td><td class="n">${pct(p.avgUtil)}</td><td class="n">${p.containersNeeded ? pct(p.lastUtil) : "—"}</td><td>${esc(notes.join("; "))}</td></tr>`;
+      }).join("");
+      $("#cmp-status").textContent = pal.pallets
+        ? `On pallets: ${pal.pallets} loaded pallet${pal.pallets === 1 ? "" : "s"} carrying ${pal.plan.packedUnits} units${pal.loose.length ? `, plus ${pal.loose.length} line${pal.loose.length === 1 ? "" : "s"} that cannot go on a pallet and ship loose` : ""}. Each pallet deck takes ${$("#pDeck").value} ${sys.len} of height.`
+        : "No cargo could be put on a pallet with these settings, so the pallet rows are omitted.";
+    }
+
+    let notices = [];
+    function run() {
+      const lr = readLines(); if (lr.error) { status.textContent = lr.error; report.hidden = true; return false; }
+      const cr = readContainer(); if (cr.error) { status.textContent = cr.error; report.hidden = true; return false; }
+      lines = lr.lines;
+      const units = lines.reduce((s, l) => s + l.qty, 0);
+      plan = planLoad(lines, cr.container, { restarts: suggestRestarts(units) });
+      notices = [];
+      for (let i = 0; i < plan.containers.length; i++) {
+        const v = verifyPacking(plan.container, lines, plan.containers[i].placements);
+        if (!v.ok) notices.push(`Internal self-check failed for container ${i + 1}: ${v.errors[0]}. Please do not rely on that plan.`);
+      }
+      for (const u of plan.unfit) notices.push(`${lines[u.line].name}: ${u.qty} unit${u.qty === 1 ? "" : "s"} cannot go in this container (${u.reason === "weight" ? "one unit is heavier than the payload" : "it does not fit inside in any allowed rotation"}).`);
+      if (plan.containers.length >= 200) notices.push("Stopped at 200 containers.");
+      last = { units };
+      render();
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      // The comparison re-plans everything several times; let the result paint first.
+      $("#cmp tbody").innerHTML = ""; $("#cmp-status").textContent = "Comparing containers and pallets…";
+      setTimeout(() => {
+        const pr = readPallet();
+        if (pr.error) { $("#cmp-status").textContent = pr.error; return; }
+        const custom = $("#preset").value === "custom" ? cr.container : null;
+        const cmpr = compareOptions(lines, { restarts: Math.max(2, Math.floor(suggestRestarts(units) / 3)), pallet: pr.pallet, custom });
+        renderCompare(cmpr, cmpr.pallet);
+      }, 30);
+      return true;
+    }
+
+    const later = (fn) => { status.textContent = "Packing…"; setTimeout(fn, 20); };
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#csel").addEventListener("change", (e) => renderContainer(Number(e.target.value)));
+    $("#load-example").addEventListener("click", () => {
+      $("#preset").value = "40ft"; setContainerFields(presetById("40ft")); showPresetNote();
+      fillFromText(sampleCargo(sys));
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: invented cargo, not a real shipment."; } });
+    });
+    $("#clear-all").addEventListener("click", () => { body.innerHTML = ""; addRow({ qty: 1 }); report.hidden = true; plan = null; status.textContent = "Add your cargo and pick a container, then click Plan the load."; });
+    $("#download").addEventListener("click", () => {
+      if (!plan) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(plan, lines, sys)], { type: "text/csv" }));
+      a.download = "container-load-plan.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    window.addEventListener("resize", () => { if (plan && plan.containers[shown] && !report.hidden) renderContainer(shown); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+
+    // ----- start -----
+    fillPresets();
+    setContainerFields(presetById("40hc"));
+    showPresetNote();
+    setPalletFields({ ...DEFAULTS.pallet });
+    addRow({ qty: 1 });
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=container-load-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/container-load-planner/?pfEmbed=1&quot; title=&quot;Container Load Planner — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="container-load-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/" data-pf-embed-title="Container Load Planner — free, private, in your browser" data-pf-embed-slug="container-load-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="container-load-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="container-load-planner" data-pf-link-amount=""></script>
+</body>
+</html>

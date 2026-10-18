@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
+  <meta name="description" content="Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue…">
+  <meta property="og:title" content="Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year">
+  <meta property="og:description" content="Per push vs per inch vs seasonal flat vs capped vs hybrid on your own route, with truck, fuel, blade, deadhead and salt priced in…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Snow Plow Contract Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a market rate or professional advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every price, depth, storm count and cost in the answer is a number you typed. It does not look up what other contractors charge and gives no legal, tax, insurance or contract advice. It does the arithmetic on your own route so you can see what each contract model would pay you in a low, normal and high snow year."}}, {"@type": "Question", "name": "Should I price a snow plow contract per push or seasonal?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how many storms the winter brings. A per-push price pays for every visit, so a heavy winter earns more. A seasonal flat price is fixed, so it pays best in a low-snow year and can lose money in a high one. The calculator shows effective hourly for each model in a low, normal and high year, the storm count where a model first falls under your target, and the flat price that loses money in a high year."}}, {"@type": "Question", "name": "What is the walk-away price for a seasonal contract?", "acceptedAnswer": {"@type": "Answer", "text": "Normal-year cost to run the route plus the normal-year hours multiplied by your target hourly and a floor percent (75 percent by default). Below it the contract costs you more than it is worth to you, so you decline or switch to per-push or a capped or hybrid structure."}}, {"@type": "Question", "name": "Does it upload my sites or past seasons?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the numbers and text you enter, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year","item":"https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SNOW PLOW CONTRACT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Which snow plow contract pays you the most per hour: per push, per inch or seasonal?</h1>
+    <p>List your sites and the storms you expect in a low, a normal and a high snow year. See <strong>expected season revenue and effective hourly under every contract model</strong>, <strong>the storm count where each one stops paying</strong>, <strong>the seasonal flat price you need in a low year versus the price that loses money in a high year</strong> and <strong>a walk-away price</strong>. Paste past seasons and see <strong>which model really paid best per hour</strong>.</p>
+    <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no legal, tax, insurance or contract advice: every price, depth, storm count and cost is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your sites</h2>
+    <label for="sites-input">One row per site: name, hours to push it once at normal depth, per-push price, seasonal flat price, per-inch price, trigger depth in inches, pounds of salt per application. Up to 200 sites.</label>
+    <textarea id="sites-input" spellcheck="false">name,hours,perPush,seasonalFlat,perInch,trigger,saltLbs
+Maple Plaza lot,1.5,230,3200,60,2,150
+Dental office,0.75,130,1500,36,2,60
+Oak Ridge HOA,3,420,5600,100,3,300
+</textarea>
+    <h2>2. Storms you expect</h2>
+    <p class="note">Count storms (the same storm hits every site). A storm shallower than a site's trigger depth is not plowed there. Probabilities weight the three years for the expected figures.</p>
+    <p>
+      <label for="low-light">Low year: light storms</label><input type="number" id="low-light" value="6" min="0" step="1" inputmode="numeric">
+      <label for="low-medium">medium</label><input type="number" id="low-medium" value="3" min="0" step="1" inputmode="numeric">
+      <label for="low-heavy">heavy</label><input type="number" id="low-heavy" value="0" min="0" step="1" inputmode="numeric">
+    </p>
+    <p>
+      <label for="normal-light">Normal year: light storms</label><input type="number" id="normal-light" value="10" min="0" step="1" inputmode="numeric">
+      <label for="normal-medium">medium</label><input type="number" id="normal-medium" value="6" min="0" step="1" inputmode="numeric">
+      <label for="normal-heavy">heavy</label><input type="number" id="normal-heavy" value="2" min="0" step="1" inputmode="numeric">
+    </p>
+    <p>
+      <label for="high-light">High year: light storms</label><input type="number" id="high-light" value="14" min="0" step="1" inputmode="numeric">
+      <label for="high-medium">medium</label><input type="number" id="high-medium" value="10" min="0" step="1" inputmode="numeric">
+      <label for="high-heavy">heavy</label><input type="number" id="high-heavy" value="5" min="0" step="1" inputmode="numeric">
+    </p>
+    <p>
+      <label for="light-depth">Light storm depth (in)</label><input type="number" id="light-depth" value="2" min="0" step="0.5" inputmode="decimal">
+      <label for="medium-depth">Medium depth (in)</label><input type="number" id="medium-depth" value="4" min="0" step="0.5" inputmode="decimal">
+      <label for="heavy-depth">Heavy depth (in)</label><input type="number" id="heavy-depth" value="8" min="0" step="0.5" inputmode="decimal">
+      <label for="light-time">Light time multiplier</label><input type="number" id="light-time" value="0.8" min="0" step="0.1" inputmode="decimal">
+      <label for="medium-time">Medium time multiplier</label><input type="number" id="medium-time" value="1" min="0" step="0.1" inputmode="decimal">
+      <label for="heavy-time">Heavy time multiplier</label><input type="number" id="heavy-time" value="1.5" min="0" step="0.1" inputmode="decimal">
+    </p>
+    <p>
+      <label for="prob-low">Chance of a low year (%)</label><input type="number" id="prob-low" value="25" min="0" step="5" inputmode="numeric">
+      <label for="prob-normal">Normal (%)</label><input type="number" id="prob-normal" value="50" min="0" step="5" inputmode="numeric">
+      <label for="prob-high">High (%)</label><input type="number" id="prob-high" value="25" min="0" step="5" inputmode="numeric">
+    </p>
+    <h2>3. Your costs and target</h2>
+    <p>
+      <label for="truck">Truck and driver ($/h)</label><input type="number" id="truck" value="55" min="0" step="1" inputmode="numeric">
+      <label for="fuel">Fuel ($/h)</label><input type="number" id="fuel" value="15" min="0" step="1" inputmode="numeric">
+      <label for="blade">Blade and equipment wear ($/h)</label><input type="number" id="blade" value="5" min="0" step="1" inputmode="numeric">
+      <label for="deadhead">Deadhead per site visit (min)</label><input type="number" id="deadhead" value="12" min="0" step="1" inputmode="numeric">
+      <label for="saltcost">Salt cost ($/lb)</label><input type="number" id="saltcost" value="0.1" min="0" step="0.01" inputmode="decimal">
+      <label for="target">Target profit per hour ($)</label><input type="number" id="target" value="35" min="0" step="1" inputmode="numeric">
+      <label for="walkaway">Walk-away floor (% of target)</label><input type="number" id="walkaway" value="75" min="0" step="5" inputmode="numeric">
+    </p>
+    <h2>4. Contract terms</h2>
+    <p>
+      <label for="tierbreak">Per-inch tier break (in)</label><input type="number" id="tierbreak" value="6" min="0" step="0.5" inputmode="decimal">
+      <label for="tieruplift">Price uplift past the break (%)</label><input type="number" id="tieruplift" value="25" min="0" step="5" inputmode="numeric">
+      <label for="cap">Capped flat: storms covered per site</label><input type="number" id="cap" value="10" min="0" step="1" inputmode="numeric">
+      <label for="hybridbase">Hybrid: base as % of the flat</label><input type="number" id="hybridbase" value="40" min="0" step="5" inputmode="numeric">
+      <label for="hybridpush">Hybrid: % of the per-push price</label><input type="number" id="hybridpush" value="60" min="0" step="5" inputmode="numeric">
+    </p>
+    <p>
+      <button type="button" id="compare-go">Compare contract models</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="compare-card" hidden aria-live="polite">
+    <h2>The comparison</h2>
+    <p id="summary"></p>
+    <h3>What each snow year costs you to run</h3>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Year</th><th>Plows</th><th>Hours</th><th>Cost to run (truck, fuel, blade, salt)</th></tr></thead>
+      <tbody id="season-rows"></tbody>
+    </table></div></div>
+    <h3>Contract models on the whole route</h3>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Model</th><th>Expected revenue</th><th>Low year /h</th><th>Normal /h</th><th>High year /h</th><th>Falls under target at</th><th>Loses money at</th></tr></thead>
+      <tbody id="model-rows"></tbody>
+    </table></div></div>
+    <h3>The seasonal flat price</h3>
+    <p id="flat-summary"></p>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Site</th><th>Your flat price</th><th>Hits target: low year</th><th>Hits target: normal</th><th>Hits target: high year</th><th>Loses money in a high year below</th><th>Walk-away price</th></tr></thead>
+      <tbody id="site-rows"></tbody>
+    </table></div></div>
+    <p class="note">Storm counts and hours are your own estimates; real winters vary. A price here is a starting point for your contract, not a promise.</p>
+  </section>
+
+  <section class="card">
+    <h2>5. Audit past seasons by contract model</h2>
+    <label for="audit-input">One row per site and season: site, contract model (any label), revenue you collected, hours you actually spent, optional season. Net hourly takes off your truck, fuel and blade cost per hour from section 3; enter revenue after the salt you bought. Up to 500 rows.</label>
+    <textarea id="audit-input" spellcheck="false" placeholder="Maple Plaza lot,per-push,5400,31,2025-26&#10;Oak Ridge HOA,seasonal,6800,92,2025-26"></textarea>
+    <p>
+      <button type="button" id="audit-go">Audit seasons</button>
+      <button type="button" class="secondary" id="audit-clear">Clear rows</button>
+    </p>
+    <p class="note" id="audit-status"></p>
+    <div id="audit-card" hidden aria-live="polite">
+      <p id="audit-summary"></p>
+      <h3>By contract model</h3>
+      <div class="tablewrap"><div class="pf-table-scroll"><table>
+        <thead><tr><th>Model</th><th>Rows</th><th>Revenue</th><th>Hours</th><th>Gross per hour</th><th>Net per hour</th></tr></thead>
+        <tbody id="bymodel-rows"></tbody>
+      </table></div></div>
+      <h3>Site-seasons, worst first</h3>
+      <div class="tablewrap"><div class="pf-table-scroll"><table>
+        <thead><tr><th>#</th><th>Site</th><th>Model</th><th>Revenue</th><th>Hours</th><th>Net per hour</th><th>Short of target</th></tr></thead>
+        <tbody id="audit-rows"></tbody>
+      </table></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command:</p>
+    <pre class="cmd">node cli.mjs compare --sites sites.csv --normal 12,6,3 --target 35
+node cli.mjs audit seasons.csv --target 35 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-price-a-snow-plow-contract-per-push-vs-seasonal.html">How to price a snow plow contract: per push vs seasonal</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div></div>
+    <p class="note">The answer is exact for the numbers you type. It does not know going rates, your local market, your contract terms, or how a winter will actually turn out.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this a market rate or professional advice?</h3>
+    <p>No. Every price, depth, storm count and cost in the answer is a number you typed. It does not look up what other contractors charge and gives no legal, tax, insurance or contract advice. It does the arithmetic on your own route so you can see what each contract model would pay you in a low, normal and high snow year.</p>
+    <h3>Should I price a snow plow contract per push or seasonal?</h3>
+    <p>It depends on how many storms the winter brings. A per-push price pays for every visit, so a heavy winter earns more. A seasonal flat price is fixed, so it pays best in a low-snow year and can lose money in a high one. The calculator shows effective hourly for each model in a low, normal and high year, the storm count where a model first falls under your target, and the flat price that loses money in a high year.</p>
+    <h3>What is the walk-away price for a seasonal contract?</h3>
+    <p>Normal-year cost to run the route plus the normal-year hours multiplied by your target hourly and a floor percent (75 percent by default). Below it the contract costs you more than it is worth to you, so you decline or switch to per-push or a capped or hybrid structure.</p>
+    <h3>Does it upload my sites or past seasons?</h3>
+    <p>No. The browser page works on the numbers and text you enter, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, insurance or investment advice, it is not a market rate or a price survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter, for your contract terms, insurance and liability for snow and ice, and for any local rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any plow manufacturer, salt supplier, landscaping association or field-service software company; no product names are used to imply otherwise.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>audit_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../snow-removal-bid-calculator/">Snow Removal Bid Calculator</a> (prices one property's winter and its break-even storm count), <a href="../ice-dam-removal-bid-calculator/">Ice Dam Removal Bid Calculator</a>, <a href="../lawn-care-bid-calculator/">Lawn Care Bid Calculator</a> and <a href="../route-account-pruner/">Route Account Pruner</a>.</p>
+    <p class="support">Free and open source. If this earned you a better contract, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, summarizeCompare, parseSites, parseSeasons, audit, summarizeAudit, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const triple = (p) => [$(`#${p}-light`).value, $(`#${p}-medium`).value, $(`#${p}-heavy`).value].join(",");
+    const options = () => ({
+      lowEvents: triple("low"), normalEvents: triple("normal"), highEvents: triple("high"),
+      probs: [$("#prob-low").value, $("#prob-normal").value, $("#prob-high").value].join(","),
+      lightDepth: $("#light-depth").value, mediumDepth: $("#medium-depth").value, heavyDepth: $("#heavy-depth").value,
+      lightTime: $("#light-time").value, mediumTime: $("#medium-time").value, heavyTime: $("#heavy-time").value,
+      truckRate: $("#truck").value, fuelPerHr: $("#fuel").value, bladeWearPerHr: $("#blade").value,
+      deadheadMin: $("#deadhead").value, saltCostPerLb: $("#saltcost").value, targetHourly: $("#target").value,
+      walkAwayPct: $("#walkaway").value, tierBreakInches: $("#tierbreak").value, tierUpliftPct: $("#tieruplift").value,
+      capEvents: $("#cap").value, hybridBasePct: $("#hybridbase").value, hybridPushPct: $("#hybridpush").value,
+    });
+
+    const hourly = (v) => (v === null ? "n/a" : money(v));
+    const stormsAt = (v, lose) => (lose ? "every storm" : v === null ? "not within 6x" : `${v.toFixed(1)} storms`);
+
+    function renderCompare() {
+      const status = $("#status");
+      const parsed = parseSites($("#sites-input").value);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let c;
+      try {
+        c = compare(parsed.sites, options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarizeCompare(c);
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#season-rows").innerHTML = ["low", "normal", "high"].map((y) => `<tr><td>${y}</td><td>${c.seasons[y].plows.toFixed(0)}</td><td>${c.seasons[y].hours.toFixed(1)}</td><td>${money(c.seasons[y].cost)}</td></tr>`).join("");
+      const cls = (m, y) => (m.meetsTarget[y] ? "gain" : "error");
+      $("#model-rows").innerHTML = c.models.map((m) => `<tr><td>${escapeHtml(m.label)}</td><td>${money(m.revenue.weighted)}</td>${["low", "normal", "high"].map((y) => `<td class="${cls(m, y)}">${hourly(m.effective[y])}</td>`).join("")}<td>${stormsAt(m.targetStorms, false)}</td><td>${stormsAt(m.breakEvenStorms, m.losesEveryStorm)}</td></tr>`).join("");
+      const f = c.flat;
+      $("#flat-summary").textContent = `Quoting ${money(f.current)} in seasonal flats across all sites: it ${f.clearsTargetInLowYear ? "clears" : "misses"} your target in a low year (needs ${money(f.neededForTarget.low)}) and ${f.losesMoneyInHighYear ? "loses money" : "stays in the black"} in a high year (loses money below ${money(f.loseMoneyBelow.high)}, needs ${money(f.neededForTarget.high)} for target). Walk-away price: ${money(f.walkAway)}.`;
+      $("#site-rows").innerHTML = c.perSite.map((p) => `<tr><td>${escapeHtml(p.name)}</td><td>${money(p.current)}</td><td>${money(p.neededForTarget.low)}</td><td>${money(p.neededForTarget.normal)}</td><td>${money(p.neededForTarget.high)}</td><td>${money(p.loseMoneyBelow.high)}</td><td>${money(p.walkAway)}</td></tr>`).join("");
+      $("#compare-card").hidden = false;
+      record("compare_run");
+    }
+
+    function renderAudit() {
+      const status = $("#audit-status");
+      const text = $("#audit-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some season rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseSeasons(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.rows.length) {
+        status.innerHTML = `<span class="error">No season rows found.</span>`;
+        return;
+      }
+      let a;
+      try {
+        a = audit(parsed, options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarizeAudit(a);
+      $("#audit-summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#bymodel-rows").innerHTML = a.byModel.map((g) => `<tr><td>${escapeHtml(g.model)}</td><td>${g.count}</td><td>${money(g.revenue)}</td><td>${g.hours}</td><td>${money(g.gross)}</td><td>${money(g.net)}</td></tr>`).join("");
+      $("#audit-rows").innerHTML = a.rows.map((r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.model)}</td><td>${money(r.revenue)}</td><td>${r.hours}</td><td>${money(r.net)}</td><td>${r.atTarget ? "at target" : money(r.shortfall)}</td></tr>`).join("");
+      $("#audit-card").hidden = false;
+      record("audit_run");
+    }
+
+    $("#compare-go").addEventListener("click", renderCompare);
+    $("#audit-go").addEventListener("click", renderAudit);
+
+    const SEASONS_EXAMPLE = `site,model,revenue,hours,season
+Maple Plaza lot,per-push,5400,31,2025-26
+Dental office,per-push,2600,17,2025-26
+Oak Ridge HOA,seasonal,6800,92,2025-26
+Elm Street church,seasonal,2900,36,2025-26
+Harbor Dental,per-inch,3100,24,2025-26
+Cedar Ridge condos,per-inch,4400,41,2025-26
+Mill Road offices,hybrid,4800,38,2025-26
+Pine Court HOA,hybrid,3600,30,2025-26
+Lakeview strip mall,per-push,6100,35,2025-26
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      const set = (id, v) => { $(`#${id}`).value = v; };
+      $("#sites-input").value = `name,hours,perPush,seasonalFlat,perInch,trigger,saltLbs
+Maple Plaza lot,1.5,230,3200,60,2,150
+Dental office,0.75,130,1500,36,2,60
+Oak Ridge HOA,3,420,5600,100,3,300
+`;
+      [["low-light", 6], ["low-medium", 3], ["low-heavy", 0], ["normal-light", 10], ["normal-medium", 6], ["normal-heavy", 2],
+        ["high-light", 14], ["high-medium", 10], ["high-heavy", 5], ["light-depth", 2], ["medium-depth", 4], ["heavy-depth", 8],
+        ["light-time", 0.8], ["medium-time", 1], ["heavy-time", 1.5], ["prob-low", 25], ["prob-normal", 50], ["prob-high", 25],
+        ["truck", 55], ["fuel", 15], ["blade", 5], ["deadhead", 12], ["saltcost", 0.1], ["target", 35], ["walkaway", 75],
+        ["tierbreak", 6], ["tieruplift", 25], ["cap", 10], ["hybridbase", 40], ["hybridpush", 60]].forEach(([id, v]) => set(id, v));
+      $("#audit-input").value = SEASONS_EXAMPLE;
+      renderCompare();
+      renderAudit();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#status").textContent = "";
+      $("#compare-card").hidden = true;
+    });
+    $("#audit-clear").addEventListener("click", () => {
+      $("#audit-input").value = "";
+      $("#audit-status").textContent = "";
+      $("#audit-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fence-bid-calculator/" data-pf-to="fence-bid-calculator">Fence Bid Calculator</a></li>
+      <li><a href="../forestry-mulching-bid-calculator/" data-pf-to="forestry-mulching-bid-calculator">Forestry Mulching Bid Calculator</a></li>
+      <li><a href="../holiday-light-bid-calculator/" data-pf-to="holiday-light-bid-calculator">Holiday Light Bid Calculator</a></li>
+      <li><a href="../hot-tub-bid-calculator/" data-pf-to="hot-tub-bid-calculator">Hot Tub Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=snow-plow-contract-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/?pfEmbed=1&quot; title=&quot;Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="snow-plow-contract-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/" data-pf-embed-title="Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year" data-pf-embed-slug="snow-plow-contract-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="snow-plow-contract-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="snow-plow-contract-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How often should you re-check a vendor's terms and privacy pages? | Vendor Change Watch</title>
+<meta name="description" content="A 'last updated' date on a vendor's terms, privacy policy, or subprocessor list tells you nothing about what changed or when you last actually read it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/how-often-to-recheck-vendor-pages.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How often should you re-check a vendor's terms and privacy pages?">
+<meta property="og:description" content="A 'last updated' date does not tell you what changed. A cadence by vendor risk tier, and the events that should trigger a check outside that schedule.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/how-often-to-recheck-vendor-pages.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How often should I re-check a vendor's terms of service?","acceptedAnswer":{"@type":"Answer","text":"There is no single right answer, but a practical default is to match the check to risk: vendors that touch regulated data, hold a subprocessor role, or sit deep in your supply chain get checked monthly; core SaaS vendors with broad access to your data get checked quarterly; low-risk tools with no data access get checked twice a year or simply after a news event names them. A calendar reminder is enough to trigger the check — it is the fetch and the comparison that are worth automating, not the schedule itself."}},{"@type":"Question","name":"Does a vendor's own 'last updated' date tell me anything?","acceptedAnswer":{"@type":"Answer","text":"It tells you the page changed at some point, not what changed, not whether the change affects you, and not whether it happened before or after you last actually read the page. Many vendors also bump that date on formatting-only edits, so treating it as a signal either over-alerts on cosmetic changes or, worse, trains a reviewer to stop trusting the date at all. A source-linked diff against your own last capture answers the question the date cannot: what changed since I looked."}},{"@type":"Question","name":"What should trigger an immediate re-check outside the normal schedule?","acceptedAnswer":{"@type":"Answer","text":"Four events are worth an off-cycle check regardless of a vendor's normal cadence: a public security incident or breach disclosure involving the vendor or one of its own subprocessors; an acquisition or merger, which frequently rewrites data-handling and subprocessor terms; a pricing or plan change announcement, which sometimes ships alongside quiet terms edits in the same release; and a contract renewal or procurement review, where you want the current text on record regardless of when it last changed."}},{"@type":"Question","name":"Should every vendor get the same re-check cadence?","acceptedAnswer":{"@type":"Answer","text":"No. A vendor with no access to your data and no subprocessor role carries a different risk than one that stores regulated records or sits in your product's own data path. Checking both on the same calendar either wastes review time on the low-risk vendor or, more commonly, lets the high-risk one go unchecked for as long as the slowest tier in a flat schedule."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #1f6f8b; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 28ch; color: #1c3f5f; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c3f5f10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #1c3f5f; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+  @media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How often should you re-check a vendor's terms and privacy pages? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vendor-change-watch/">See exactly what changed in a vendor's terms</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How often should you re-check a vendor's terms and privacy pages?</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vendor Change Watch</a></p>
+<header>
+<h1>How often should you re-check a vendor's terms and privacy pages?</h1>
+<p class="lede">A &ldquo;last updated&rdquo; date tells you a page changed at some point &mdash; not what changed, not whether it matters, and not whether it happened before or after you last actually read it. Below is a practical cadence by vendor risk, and the events worth checking on regardless of schedule.</p>
+</header>
+
+<section>
+<h2>A cadence by risk, not one calendar for every vendor</h2>
+<p>
+  Checking every vendor on the same schedule either wastes review time on
+  low-risk tools or lets a high-risk one go unwatched for as long as the
+  slowest tier allows. A vendor that stores regulated data, acts as a
+  subprocessor to your own product, or sits deep in a supply chain carries
+  more exposure from a quiet change than a marketing tool with no access to
+  your data at all.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Vendor risk tier</th><th scope="col">Example</th><th scope="col">Suggested cadence</th></tr></thead>
+<tbody>
+<tr><td>High &mdash; processes regulated data, or is itself a subprocessor in your data path</td><td>Payment processor, a data processor named in your own DPA, an infrastructure host</td><td>Monthly</td></tr>
+<tr><td>Medium &mdash; core SaaS vendor with broad account or data access, not itself regulated</td><td>CRM, support desk, analytics platform your team logs into daily</td><td>Quarterly</td></tr>
+<tr><td>Low &mdash; limited or no access to your data</td><td>A marketing site tool, an internal wiki with no customer data</td><td>Twice a year, or after a triggering event below</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">These are starting points, not a compliance requirement &mdash; your own contract, regulator, or internal policy may set a stricter cadence for a given vendor. Tighten the tier rather than loosen it if the two disagree.</p>
+</section>
+
+<section>
+<h2>Four events worth an off-schedule check</h2>
+<p>A fixed cadence misses changes that cluster around specific events. Check outside the normal schedule when:</p>
+<ul>
+<li><strong>A security incident or breach is disclosed</strong> involving the vendor or one of its own subprocessors &mdash; terms and subprocessor lists are often revised in the same news cycle.</li>
+<li><strong>The vendor is acquired or merges</strong> &mdash; ownership changes frequently bring rewritten data-handling, retention, or subprocessor terms within weeks.</li>
+<li><strong>A pricing or plan change ships</strong> &mdash; terms edits sometimes land in the same release as a pricing announcement, and get less scrutiny riding alongside it.</li>
+<li><strong>A contract renews, or a procurement review starts</strong> &mdash; capture the current text on record regardless of when it last changed, so the review has a dated snapshot rather than a memory of what the terms used to say.</li>
+</ul>
+</section>
+
+<section>
+<h2>Why the date on the page is not the signal</h2>
+<p>
+  A &ldquo;last updated&rdquo; date is the vendor's own claim about when the
+  page changed, worded however they choose to word it, and it is common for
+  the same date to cover a formatting fix and a substantive clause rewrite
+  alike. It also says nothing about when <em>you</em> last read the page, so
+  a date from six months ago could sit in front of a change you have already
+  seen, or behind one you have not. What actually answers the question is a
+  diff against your own last capture: the section that changed, the words
+  that moved, and the two timestamps of when each capture happened.
+</p>
+<p class="note">
+  A first capture of a page is reported as <em>captured</em>, never as
+  &ldquo;unchanged&rdquo; &mdash; there is nothing yet to compare it against,
+  and a check with no basis for comparison must never read as stability. See
+  <a href="./">Vendor Change Watch</a> to capture a page and get that diff on
+  your own schedule, in the browser or from the command line.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>How often should I re-check a vendor's terms of service?</h3>
+<p>There is no single right answer, but a practical default is to match the check to risk: vendors that touch regulated data, hold a subprocessor role, or sit deep in your supply chain get checked monthly; core SaaS vendors with broad access to your data get checked quarterly; low-risk tools with no data access get checked twice a year or simply after a news event names them. A calendar reminder is enough to trigger the check &mdash; it is the fetch and the comparison that are worth automating, not the schedule itself.</p>
+<h3>Does a vendor's own 'last updated' date tell me anything?</h3>
+<p>It tells you the page changed at some point, not what changed, not whether the change affects you, and not whether it happened before or after you last actually read the page. Many vendors also bump that date on formatting-only edits, so treating it as a signal either over-alerts on cosmetic changes or, worse, trains a reviewer to stop trusting the date at all. A source-linked diff against your own last capture answers the question the date cannot: what changed since I looked.</p>
+<h3>What should trigger an immediate re-check outside the normal schedule?</h3>
+<p>Four events are worth an off-cycle check regardless of a vendor's normal cadence: a public security incident or breach disclosure involving the vendor or one of its own subprocessors; an acquisition or merger, which frequently rewrites data-handling and subprocessor terms; a pricing or plan change announcement, which sometimes ships alongside quiet terms edits in the same release; and a contract renewal or procurement review, where you want the current text on record regardless of when it last changed.</p>
+<h3>Should every vendor get the same re-check cadence?</h3>
+<p>No. A vendor with no access to your data and no subprocessor role carries a different risk than one that stores regulated records or sits in your product's own data path. Checking both on the same calendar either wastes review time on the low-risk vendor or, more commonly, lets the high-risk one go unchecked for as long as the slowest tier in a flat schedule.</p>
+<p class="note">Want the mechanics of the diff itself, not the cadence? See <a href="./">the tool's own FAQ</a>, or how this compares to a general-purpose watcher on <a href="./vs-changedetection-io.html">this tool vs. changedetection.io</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This free tool and this page are provided as-is, without warranty of any kind, express or implied. It is not legal, compliance, procurement, or security advice, and it does not replace a qualified professional or a real contract review. The cadence above is a starting point, not a guarantee that following it would have caught any specific change. You are responsible for setting a review schedule appropriate to your own vendors and obligations.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your reports and run the CLI yourself.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>optional support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../grant-writer-proposal-price-calculator/" data-pf-to="grant-writer-proposal-price-calculator">Grant Writer Proposal Price Calculator — free</a></li>
+      <li><a href="../gtin-list-check/" data-pf-to="gtin-list-check">GTIN List Check — free, private, in your browser</a></li>
+      <li><a href="../gumroad-sales-to-journal/" data-pf-to="gumroad-sales-to-journal">Gumroad sales export to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../hubspot-contacts-csv-check/" data-pf-to="hubspot-contacts-csv-check">HubSpot Contacts CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-change-watch">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vendor-change-watch"></script>
+</body></html>

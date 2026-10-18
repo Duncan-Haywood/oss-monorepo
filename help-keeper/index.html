@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Help Keeper — Self-Hosted Help Center, a Help Scout Docs Alternative</title>
+  <meta name="description" content="A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find.">
+  <meta property="og:title" content="Help Keeper — a help center that tells you what to write next">
+  <meta property="og:description" content="Ranked search that forgives typos, article feedback and a content-gap report in one zero-dependency Node server. No per-seat fee.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/help-keeper/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Help Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted help center: Markdown articles, collections, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find, with no per-seat fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Help Scout Docs, Document360, Intercom Articles or GitBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need a team of editors with separate logins, translations, versioning workflows or an AI chatbot. They charge by the month, often per author, and your content and search data live on their servers. Help Keeper is one small Node server in your own account: Markdown articles, collections, ranked search that forgives typos, helpful votes and a report of what people searched for and did not find, with no per-seat fee. It suits a product or shop with a few dozen to a few hundred articles and one or two writers."}}, {"@type": "Question", "name": "What is the content-gap report?", "acceptedAnswer": {"@type": "Answer", "text": "Every search is counted without any identity. The report lists searches that matched none of your articles in full, and searches people ran three or more times but rarely opened a result for, biggest first, each with a link to start an article with that title. It also lists articles readers marked not helpful and the comments they left. It tells you what to write next, which is usually the cheapest way to reduce support email."}}, {"@type": "Question", "name": "How does the search work, and is it AI?", "acceptedAnswer": {"@type": "Answer", "text": "It is classic ranked search, not a language model. Words are reduced to their stems, scored with BM25 across the title, headings, tags and body (title matches count most), articles that match every word outrank partial ones, and words that are not in your articles are matched to the closest word you do use, so a typo like pasword still finds password. Everything runs on your server with no outside service."}}, {"@type": "Question", "name": "Can I use it with Support Desk or my own site?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add your support email or contact link in the admin and every no-result page and article ends with a Still stuck link. A JSON endpoint, /api/search?q=, returns titles, links and excerpts and allows cross-origin requests, so you can put a search box in your app or suggest articles in your support replies."}}, {"@type": "Question", "name": "Is it good for SEO?", "acceptedAnswer": {"@type": "Answer", "text": "Published articles have clean addresses, a sitemap, a robots file, a canonical link when you set PUBLIC_URL, a description taken from the article and Article structured data. Search result pages and draft previews are marked noindex. Pages are plain server-rendered HTML with no scripts."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Your articles, aggregate counts of normalized search words with no identity (queries that look like an email address, a URL or a long number are dropped), view and vote counts, and short comments from readers who say an article was not helpful, in one JSON file you control. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 150px; font: 14px ui-monospace, monospace; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    mark { background: #fff0a8; }
+    .hit { border-left: 4px solid #2342b8; padding-left: 12px; margin: 10px 0; }
+    .gap { color: #a3191f; font-weight: 600; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Help Keeper — a help center that tells you what to write next","item":"https://duncan-haywood.github.io/monorepo-projects/help-keeper/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/help-keeper/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/help-keeper/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Help Keeper — a help center that tells you what to write next — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Help Keeper — a help center that tells you what to write next</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main>
+  <h1>A help center that tells you what to write next.</h1>
+  <p>Help Keeper is the open-source help site for a small product or shop. Write articles in Markdown, give customers a search that forgives typos, and read a weekly list of what they searched for and did not find. Below is the search the server uses, running on sample articles you can replace. Everything on this page runs in your browser; nothing you type is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the search and the gap report</h2>
+    <label for="arts">Your articles (separate with a line of <code>=====</code>; first line <code># Title</code>)</label>
+    <textarea id="arts" spellcheck="false"># How to reset your password
+Click **Forgot password** on the login page and we email you a reset link that expires in one hour.
+=====
+# Download your invoices
+Open Settings, then Billing, and choose an invoice to download it as a PDF. Billing happens monthly.
+=====
+# Export your data
+Go to Settings, then Data, and export everything as a CSV. Large exports are emailed to you.
+=====
+# Change your email address
+Open Settings, then Profile. We send a confirmation link to the new address.</textarea>
+    <label for="q">Search</label>
+    <input id="q" value="pasword reset" autocomplete="off">
+    <div id="results" aria-live="polite"></div>
+    <label for="log">What visitors typed last week (one search per line)</label>
+    <textarea id="log" spellcheck="false" style="min-height:110px">cancel subscription
+pasword reset
+dark mode
+cancel subscription
+invoice pdf
+delete my account
+cancel subscription</textarea>
+    <h3>Content gaps</h3>
+    <p class="note">Searches no article answers in full, most frequent first. These are your next articles.</p>
+    <ul id="gaps"></ul>
+    <p class="note">The server uses this exact code. It ranks with BM25 over the title, headings, tags and body, stems words, and matches words you have not used to the closest word you have. It is classic search, not a language model.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Help Keeper</th></tr></thead><tbody>
+      <tr><td>Help Scout Docs, Document360, Intercom Articles, HelpDocs</td><td>Monthly fees, often per author; your content and search data live with them</td><td>Your server, unlimited articles, no seat fee</td></tr>
+      <tr><td>Docusaurus, MkDocs, a static docs site</td><td>No customer feedback, and no idea what people searched for and did not find</td><td>Votes, comments and a content-gap report built in</td></tr>
+      <tr><td>A Notion or Google Docs page</td><td>Weak search, no analytics, awkward to brand or embed</td><td>Search, collections, clean addresses and a sitemap</td></tr>
+    </tbody></table></div>
+    <p class="note">Honest limits: one admin key (no separate editor logins or approval workflow), no translations or article versions, no image uploads (link to https images), and search is keyword-based rather than semantic. For a large team or a big documentation set, use a full documentation platform.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/help-keeper
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) SITE_NAME="Acme Help" CONTACT=help@acme.com node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), write or import articles, and link to the site from your product. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Help Scout Docs, Document360, Intercom Articles or GitBook?</h3>
+    <p>Those are polished and the right call if you need a team of editors with separate logins, translations, versioning workflows or an AI chatbot. They charge by the month, often per author, and your content and search data live on their servers. Help Keeper is one small Node server in your own account: Markdown articles, collections, ranked search that forgives typos, helpful votes and a report of what people searched for and did not find, with no per-seat fee. It suits a product or shop with a few dozen to a few hundred articles and one or two writers.</p>
+    <h3>What is the content-gap report?</h3>
+    <p>Every search is counted without any identity. The report lists searches that matched none of your articles in full, and searches people ran three or more times but rarely opened a result for, biggest first, each with a link to start an article with that title. It also lists articles readers marked not helpful and the comments they left. It tells you what to write next, which is usually the cheapest way to reduce support email.</p>
+    <h3>How does the search work, and is it AI?</h3>
+    <p>It is classic ranked search, not a language model. Words are reduced to their stems, scored with BM25 across the title, headings, tags and body (title matches count most), articles that match every word outrank partial ones, and words that are not in your articles are matched to the closest word you do use, so a typo like pasword still finds password. Everything runs on your server with no outside service.</p>
+    <h3>Can I use it with Support Desk or my own site?</h3>
+    <p>Yes. Add your support email or contact link in the admin and every no-result page and article ends with a Still stuck link. A JSON endpoint, /api/search?q=, returns titles, links and excerpts and allows cross-origin requests, so you can put a search box in your app or suggest articles in your support replies.</p>
+    <h3>Is it good for SEO?</h3>
+    <p>Published articles have clean addresses, a sitemap, a robots file, a canonical link when you set PUBLIC_URL, a description taken from the article and Article structured data. Search result pages and draft previews are marked noindex. Pages are plain server-rendered HTML with no scripts.</p>
+    <h3>What does it store?</h3>
+    <p>Your articles, aggregate counts of normalized search words with no identity (queries that look like an email address, a URL or a long number are dropped), view and vote counts, and short comments from readers who say an article was not helpful, in one JSON file you control. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../support-desk/">Support Desk</a> answers customer email, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs a status page and <a href="../form-inbox/">Form Inbox</a> collects website forms.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any help center you run, responsible for its content, a privacy notice and data-protection rules where you and your readers live. Search results and the gap report are heuristics and can be wrong. This is not legal, tax, or financial advice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
+  </main>
+  <script type="module">
+    import { buildIndex, search, snippet, tokens } from "./search.mjs";
+    import { plain } from "./markdown.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let first = true;
+    const docs = () => $("arts").value.split(/^={5,}\s*$/m).map((d, i) => {
+      const body = d.trim(), h = /^#\s+(.+)$/m.exec(body);
+      return h ? { id: String(i), title: h[1].trim(), headings: [], tags: [], body: plain(body.replace(/^#\s+.+\n?/m, "")) } : null;
+    }).filter(Boolean);
+    const run = () => {
+      const ds = docs(), ix = buildIndex(ds), q = $("q").value, out = $("results"), byId = Object.fromEntries(ds.map((d) => [d.id, d]));
+      out.innerHTML = "";
+      const rs = q.trim() ? search(ix, q, { limit: 5 }) : [];
+      if (q.trim() && !rs.length) { const p = document.createElement("p"); p.className = "gap"; p.textContent = "Nothing matched: this search would be logged as a content gap."; out.append(p); }
+      for (const r of rs) {
+        const d = byId[r.id], div = document.createElement("div"), b = document.createElement("b"), p = document.createElement("p");
+        div.className = "hit"; b.textContent = d.title + (r.matchedAll ? "" : " (partial match)");
+        for (const s of snippet(d.body, q)) { if (s.hit) { const m = document.createElement("mark"); m.textContent = s.text; p.append(m); } else p.append(document.createTextNode(s.text)); }
+        div.append(b, p); out.append(div);
+      }
+      const counts = new Map();
+      for (const line of $("log").value.split("\n")) {
+        const key = line.trim().toLowerCase().replace(/\s+/g, " "); if (key.length < 2) continue;
+        if (!counts.has(key)) { const r = search(ix, key, { limit: 5 }); counts.set(key, { n: 0, answered: r.some((x) => x.matchedAll) }); }
+        counts.get(key).n++;
+      }
+      const gaps = [...counts].filter(([, v]) => !v.answered).sort((a, b) => b[1].n - a[1].n);
+      $("gaps").innerHTML = "";
+      for (const [k, v] of gaps) { const li = document.createElement("li"); li.textContent = `${k} (${v.n} time${v.n === 1 ? "" : "s"})`; $("gaps").append(li); }
+      if (!gaps.length) { const li = document.createElement("li"); li.textContent = "None: every search matched an article in full."; $("gaps").append(li); }
+      if (!first) record("search"); first = false;
+    };
+    for (const id of ["arts", "q", "log"]) $(id).addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../support-desk/" data-pf-to="support-desk">Support Desk — a help desk you host yourself</a></li>
+      <li><a href="../survey-keeper/" data-pf-to="survey-keeper">Survey Keeper — an NPS survey that says why the score is what it is</a></li>
+      <li><a href="../testimonial-keeper/" data-pf-to="testimonial-keeper">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a></li>
+      <li><a href="../trial-converter/" data-pf-to="trial-converter">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=help-keeper">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/help-keeper/?pfEmbed=1&quot; title=&quot;Help Keeper — a help center that tells you what to write next — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="help-keeper"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/help-keeper/" data-pf-embed-title="Help Keeper — a help center that tells you what to write next" data-pf-embed-slug="help-keeper"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="help-keeper" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="help-keeper" data-pf-link-amount=""></script>
+</body>
+</html>

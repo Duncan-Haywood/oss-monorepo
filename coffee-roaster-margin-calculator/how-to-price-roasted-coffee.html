@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Price Roasted Coffee: A Worked Example</title>
+  <meta name="description" content="How to price roasted coffee: roast loss, cost per roasted pound, retail vs wholesale margin and a cheaper blend for the same cup score…">
+  <meta property="og:title" content="How To Price Roasted Coffee: A Worked Example">
+  <meta property="og:description" content="Roast loss, channel margin and blending, worked through for a 12 oz bag. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/how-to-price-roasted-coffee.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does roast loss do to my pricing?", "acceptedAnswer": {"@type": "Answer", "text": "Every roasted pound needs more than a pound of green. At 15% loss, $5.10 green becomes $6.00 per roasted pound before anything else is added."}}, {"@type": "Question", "name": "Is wholesale worth it for a small roaster?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on profit per roasting hour, not margin alone. A lower-priced wholesale bag can still earn well when it costs almost nothing to ship and sell, and a retail bag that needs shipping and a payment fee can earn less than it looks."}}, {"@type": "Question", "name": "Can a blend be cheaper than a single origin at the same cup score?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, when a cheap coffee and a high-scoring coffee average to the target. The optimizer finds the cheapest such mix and shows the saving."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a1f18; background: #f7f2ec; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #7a3e12; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e1d5c8; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #7a3e12; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #5a4a3e; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/how-to-price-roasted-coffee.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Price Roasted Coffee: A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../coffee-roaster-margin-calculator/">Coffee Roaster Margin Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Price Roasted Coffee: A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Coffee roaster margin calculator</a></p>
+  <h1>How to price roasted coffee, with a worked example</h1>
+  <p>Most small roasters price a bag by looking at the shop down the road. The number that should come first is what a bag costs you, and the part people miss is that you pay for coffee that evaporates. Here is the arithmetic for a 12 oz bag, and the same figures are in the free calculator.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+  <h2>A worked example</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Step</th><th>Working</th><th>Result</th></tr>
+    <tr><td>Green coffee</td><td>$5.10 per lb</td><td>$5.10</td></tr>
+    <tr><td>Roast loss 15%</td><td>5.10 / 0.85</td><td>$6.00 per roasted lb</td></tr>
+    <tr><td>Labor and gas</td><td>0.40 + 0.10</td><td>$6.50 per roasted lb</td></tr>
+    <tr><td>12 oz of coffee</td><td>6.50 &times; 12 / 16</td><td>$4.88</td></tr>
+    <tr><td>Bag, label and valve</td><td></td><td>$0.90</td></tr>
+    <tr><td>Card fees at $16</td><td>2.9% + $0.30</td><td>$0.76</td></tr>
+    <tr><td>Profit on a $16 bag</td><td>16 &minus; 4.88 &minus; 0.90 &minus; 0.76</td><td>$9.46 (59.1%)</td></tr>
+  </table></div>
+  <p>Add $5.50 of postage that the customer does not pay for and the same bag earns about $3.96. Wholesale at $9.60 with no postage and no card fee earns $3.82 a bag, close to that, which is why it pays to look at profit per roasted pound and per roasting hour rather than at margin alone.</p>
+  <h2>Blending for cost</h2>
+  <p>If a cheap Brazil scores 82 and an Ethiopia scores 89, a mix averages between them. The calculator checks every blend in 5% steps for the cheapest one that still meets your target score, and tells you how much green to weigh out for the batch.</p>
+  <h2>Questions</h2>
+  <h3>What does roast loss do to my pricing?</h3>
+  <p>Every roasted pound needs more than a pound of green. At 15% loss, $5.10 green becomes $6.00 per roasted pound before anything else is added.</p>
+  <h3>Is wholesale worth it for a small roaster?</h3>
+  <p>It depends on profit per roasting hour, not margin alone. A lower-priced wholesale bag can still earn well when it costs almost nothing to ship and sell, and a retail bag that needs shipping and a payment fee can earn less than it looks.</p>
+  <h3>Can a blend be cheaper than a single origin at the same cup score?</h3>
+  <p>Yes, when a cheap coffee and a high-scoring coffee average to the target. The optimizer finds the cheapest such mix and shows the saving.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is; not legal or financial advice. Check every figure before relying on it. Prices and scores here are invented examples.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is the optional way to say thanks.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../car-wash-membership-calculator/" data-pf-to="car-wash-membership-calculator">Car Wash Membership Calculator — free, private, in your browser</a></li>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+      <li><a href="../childcare-enrollment-mix-optimizer/" data-pf-to="childcare-enrollment-mix-optimizer">Childcare enrollment mix optimizer</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=coffee-roaster-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="coffee-roaster-margin-calculator"></script>
+</body>
+</html>

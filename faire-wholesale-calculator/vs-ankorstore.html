@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This Calculator vs Ankorstore | Faire Seller Fee Calculator</title>
+  <meta name="description" content="Ankorstore is a separate B2B wholesale marketplace connecting brands and retailers across Europe, sold through its own commission structure.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/vs-ankorstore.html">
+  <meta property="og:title" content="This Calculator vs Ankorstore">
+  <meta property="og:description" content="Ankorstore is a different wholesale marketplace with its own fee structure. This calculator prices a Faire order specifically — first order, reorder…">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Ankorstore the same thing as Faire?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Both are B2B wholesale marketplaces connecting independent brands with retailers, but they are separate companies with separate commission structures, separate retailer bases, and separate payout mechanics. Ankorstore was founded in France in 2019 and reached unicorn status backed by Index Ventures, focused heavily on European brands and retailers; Faire is a separate marketplace with its own published North American fee schedule. A brand selling on both would owe each marketplace its own fees on its own orders — this calculator does not combine or convert between the two."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this calculator work out my Ankorstore fees too?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. This calculator's commission, new-customer fee, and payout-speed math is built specifically from Faire's own published North America fee schedule. Ankorstore publishes its own separate rates, which change independently of Faire's and are not reachable from this session to confirm today's figures, so none of Ankorstore's numbers are entered here or invented on this page. If you sell on Ankorstore, use its own current rate card and calculator."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f4efe6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    .eyebrow { font-size: .78rem; letter-spacing: .08em; font-weight: 700; color: #6a5840; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; background: #fffdf8; border: 1px solid #ded5c8; border-radius: 12px; overflow: hidden; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee4d6; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
+    @media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/vs-ankorstore.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This Calculator vs Ankorstore — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../faire-wholesale-calculator/">Faire Seller Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This Calculator vs Ankorstore</span></span></nav>
+  <p class="eyebrow">THIS CALCULATOR VS ANKORSTORE</p>
+  <h1>Two different marketplaces. This tool prices Faire orders specifically.</h1>
+  <p>
+    <strong>Ankorstore</strong> is a separate B2B wholesale marketplace, not a
+    competitor to this calculator — it is a competitor to Faire itself.
+    Founded in France in November 2019, Ankorstore grew to unicorn status on
+    a large funding round led by Index Ventures, and connects independent
+    brands with retailers mainly across Europe, with its own commission
+    structure that it has continued to change (it simplified its pricing and
+    moved to 0% commission on reorders in January 2026, according to its own
+    published updates). Ankorstore's current full rate card is not reachable
+    from this session to confirm today's exact figures, so none of its
+    numbers are entered here or invented on this page — only its
+    well-documented identity and category are stated.
+  </p>
+  <p>
+    This calculator does not price an Ankorstore order at all. It is built
+    specifically from <strong>Faire's</strong> own published North America
+    fee schedule — the 15% marketplace commission, the one-time $10
+    new-customer fee on a retailer's first order, Faire Direct's 0%
+    commission for retailers you bring yourself, and Faire's payout-speed
+    processing rates — and turns one wholesale invoice into net payout,
+    margin, and ROI across those Faire-specific paths. A brand selling
+    through both marketplaces owes each one its own separate fees on its own
+    orders; this tool does not combine, convert, or compare the two
+    marketplaces' rates against each other.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Question</th>
+        <th scope="col">Where to answer it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What does my Faire order net after commission, the new-customer fee, and payout speed?</td>
+        <td>This calculator &mdash; free, instant, private, no account.</td>
+      </tr>
+      <tr>
+        <td>What does my Ankorstore order net after its commission and payout terms?</td>
+        <td>Ankorstore's own current rate card and calculator &mdash; this tool does not model Ankorstore's fees.</td>
+      </tr>
+      <tr>
+        <td>Should I sell on Faire, Ankorstore, both, or neither?</td>
+        <td>That is a market-fit and reach decision this page does not make. Compare each marketplace's own published terms and your own retailer mix.</td>
+      </tr>
+      <tr>
+        <td>Is Faire Direct cheaper than a Faire marketplace order?</td>
+        <td>See <a href="faire-direct-vs-marketplace.html">Faire Direct vs Marketplace</a> on this same calculator.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <h2>Common questions</h2>
+  <h3>Is Ankorstore the same thing as Faire?</h3>
+  <p>No. Both are B2B wholesale marketplaces connecting independent brands with retailers, but they are separate companies with separate commission structures, separate retailer bases, and separate payout mechanics. Ankorstore was founded in France in 2019 and reached unicorn status backed by Index Ventures, focused heavily on European brands and retailers; Faire is a separate marketplace with its own published North American fee schedule. A brand selling on both would owe each marketplace its own fees on its own orders — this calculator does not combine or convert between the two.</p>
+  <h3>Does this calculator work out my Ankorstore fees too?</h3>
+  <p>No. This calculator's commission, new-customer fee, and payout-speed math is built specifically from Faire's own published North America fee schedule. Ankorstore publishes its own separate rates, which change independently of Faire's and are not reachable from this session to confirm today's figures, so none of Ankorstore's numbers are entered here or invented on this page. If you sell on Ankorstore, use its own current rate card and calculator.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is. It is not tax, financial, or business advice. Verify every fee against each marketplace's own current help articles and your own payout summary. Not affiliated with Ankorstore or Faire Wholesale, Inc. — both names are used only to describe what this calculator is and is not.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. The <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p><a href="./">Back to the brand calculator</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../restaurant-delivery-commission-analyzer/" data-pf-to="restaurant-delivery-commission-analyzer">Restaurant Delivery Commission Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../returns-policy-cost-analyzer/" data-pf-to="returns-policy-cost-analyzer">What do returns really cost your store?</a></li>
+      <li><a href="../reverb-fee-calculator/" data-pf-to="reverb-fee-calculator">Reverb Fee Calculator</a></li>
+      <li><a href="../rv-rental-host-profit-calculator/" data-pf-to="rv-rental-host-profit-calculator">RV rental profit calculator: is renting out your camper worth it? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=faire-wholesale-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="faire-wholesale-calculator"></script>
+</body>
+</html>

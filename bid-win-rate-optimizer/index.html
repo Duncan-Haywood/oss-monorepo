@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bid Win-Rate Optimizer — find the markup that earns the most from your quotes</title>
+  <meta name="description" content="Free bid win-rate calculator for contractors, agencies and freelancers. Paste your past quotes (price, won or lost…">
+  <meta property="og:title" content="Bid Win-Rate Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own won and lost quotes into a win-probability curve and the markup that maximises expected profit, with honest uncertainty.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bid Win-Rate Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your past quotes with won or lost and your cost per job. Fits how your win chance falls as your markup rises, finds the markup that maximises expected profit inside the range you have quoted, shows what a few percent more or less would do, and back-tests whether price explains your wins at all. Runs entirely in your browser.", "featureList": "bid win rate calculator, win probability by markup, optimal markup for quotes, logistic regression, bootstrap range, contractor pricing, proposal pricing, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a bid win rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is the share of your quotes that customers accept. If you quote 50 jobs and win 20, your win rate is 40%. The useful question is how that rate changes with price: a 10% higher quote usually wins less often, and this tool measures how much less from your own history."}}, {"@type": "Question", "name": "How do I find the best price to quote?", "acceptedAnswer": {"@type": "Answer", "text": "Expected profit per bid is your profit if you win multiplied by the chance you win. A higher quote earns more when it wins but wins less often, so there is a sweet spot. This tool fits your win chance as a function of your markup with a logistic curve and finds the markup where expected profit is highest, searching only inside the markups you have actually quoted."}}, {"@type": "Question", "name": "Why does it ask for my cost on each job?", "acceptedAnswer": {"@type": "Answer", "text": "Because a $3,000 job and a $30,000 job are not comparable by price alone. Dividing each quote by your cost gives the markup, which is what a customer is really weighing against other bids. With costs the curve is about markup and works across job sizes. Without them it uses raw prices and warns you when your jobs vary a lot in size."}}, {"@type": "Question", "name": "How many bids do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 30 bids with a result, at least 8 wins and 8 losses, and quotes that vary: four or more distinct markup levels with a typical spread of about 3% or more. If you always quote the same markup, nothing in your history can say what would happen at another, so the tool refuses instead of guessing. More is better: 100 bids give a much tighter answer than 30."}}, {"@type": "Question", "name": "Why might the result be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Quotes are not random. If you bid higher on easy repeat customers and lower on competitive tenders, the curve mixes job type with price and can even slope the wrong way; the tool flags that. It also cannot see who you bid against, how fast you answered, or your reputation. Treat the answer as a hypothesis for a small, reversible change in your markup, not a number to bet the business on."}}, {"@type": "Question", "name": "What counts as a win?", "acceptedAnswer": {"@type": "Answer", "text": "Whatever you choose: accepted, awarded, booked or signed. Use 1 or 0, or words such as won, lost, yes, no, accepted, declined. Bids still pending should be left out, and quotes that got no reply are best counted as lost only if you would not expect one any more."}}, {"@type": "Question", "name": "Is my bid history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bids. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Bid Win-Rate Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bid Win-Rate Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Bid Win-Rate Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">BID WIN-RATE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are you quoting too low, or too high?</h1>
+    <p>Paste or upload your past quotes: <strong>price, won or lost, and your cost for the job</strong>. The tool fits a <strong>win-probability curve</strong> (logistic regression) of how often you win at each markup, finds the <strong>markup with the highest expected profit inside the range you have actually quoted</strong>, shows what a few percent more or less would do to your win chance and profit, and <strong>back-tests whether price explains your wins at all</strong>. If your quotes never varied, it says so instead of guessing.</p>
+    <p class="note">Your bids never leave this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your bids</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: quote, won, cost)</label>
+    <textarea id="rows" spellcheck="false" placeholder="quote,won,cost&#10;13000,1,10000&#10;15800,0,11000"></textarea>
+    <div class="row3">
+      <div><label for="jobcost">Your cost on the next job</label><input id="jobcost" inputmode="decimal" placeholder="defaults to your median job cost (needed without a cost column)"></div>
+      <div><label for="usual">Your usual markup % (optional)</label><input id="usual" inputmode="decimal" placeholder="e.g. 30 (defaults to your median markup)"></div>
+    </div>
+    <p class="note">Won can be 1/0, won/lost, yes/no, accepted/declined. Leave out bids still pending. Markup means (quote − cost) ÷ cost. With a cost on every row the curve is about markup and works across job sizes; without it the tool uses raw prices and is only as good as your jobs are similar. Rows are read in the order given (oldest first) so the back-test can score your most recent bids. At least 30 bids with 8 wins and 8 losses, at four or more different markups.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-typed">Example with job types</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your bids, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Win chance by markup</h3>
+    <div class="legend note"><span>Bars: share you won in each quarter of your quotes</span><span>Dots: what the fitted curve says for that quarter</span></div>
+    <div id="chart"></div>
+    <h3>What a price change would do</h3>
+    <p class="note">Around your usual quote, from the fitted curve. Rows marked "outside" are beyond the markups you have quoted: read them as a guess, not a result.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="sc"><thead><tr><th>Change</th><th class="n">Quote</th><th class="n">Win chance</th><th class="n" id="profit-h">Expected profit per bid</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <div id="seg" hidden>
+      <h3>By job type</h3>
+      <div id="seg-note" class="note"></div>
+      <div class="scroll"><div class="pf-table-scroll"><table id="seg-t"><thead><tr><th>Job type</th><th class="n">Bids</th><th class="n">Won</th><th class="n">Your usual markup</th><th class="n">Best markup</th><th class="n">80% range</th><th class="n">Profit gain per bid</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download scenarios CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> P(win) = 1 ÷ (1 + e^−(a + b × x)), where x is ln(quote ÷ cost) when every bid has a cost, else ln(quote). Fitted by Newton-Raphson on the log-likelihood with a tiny ridge so perfectly separated data cannot push the slope to infinity; the 95% interval uses the inverse Hessian. <strong>Best quote:</strong> expected profit per bid is (quote − cost) × P(win), searched on a fine grid only between the lowest and highest markup in your data. The 80% ranges and the chance the best quote beats your usual one come from 300 seeded bootstrap resamples (wins and losses resampled separately), so a result is reproducible. <strong>Back-test:</strong> the first 75% of rows fit the model, the last 25% are scored by log-loss against simply assuming your overall win rate.</p>
+    <p><strong>Not modelled:</strong> who you bid against, how quickly you replied, your reputation, job type, repeat customers, scope changes after the win, or the cost of preparing each bid. Quotes are not random, so this is correlation, not an experiment. <strong>Unverified:</strong> checked against simulated bids with known curves in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a bid win rate?</h3>
+    <p>It is the share of your quotes that customers accept. If you quote 50 jobs and win 20, your win rate is 40%. The useful question is how that rate changes with price: a 10% higher quote usually wins less often, and this tool measures how much less from your own history.</p>
+    <h3>How do I find the best price to quote?</h3>
+    <p>Expected profit per bid is your profit if you win multiplied by the chance you win. A higher quote earns more when it wins but wins less often, so there is a sweet spot. This tool fits your win chance as a function of your markup with a logistic curve and finds the markup where expected profit is highest, searching only inside the markups you have actually quoted.</p>
+    <h3>Why does it ask for my cost on each job?</h3>
+    <p>Because a $3,000 job and a $30,000 job are not comparable by price alone. Dividing each quote by your cost gives the markup, which is what a customer is really weighing against other bids. With costs the curve is about markup and works across job sizes. Without them it uses raw prices and warns you when your jobs vary a lot in size.</p>
+    <h3>How many bids do I need?</h3>
+    <p>At least 30 bids with a result, at least 8 wins and 8 losses, and quotes that vary: four or more distinct markup levels with a typical spread of about 3% or more. If you always quote the same markup, nothing in your history can say what would happen at another, so the tool refuses instead of guessing. More is better: 100 bids give a much tighter answer than 30.</p>
+    <h3>Why might the result be wrong?</h3>
+    <p>Quotes are not random. If you bid higher on easy repeat customers and lower on competitive tenders, the curve mixes job type with price and can even slope the wrong way; the tool flags that. It also cannot see who you bid against, how fast you answered, or your reputation. Treat the answer as a hypothesis for a small, reversible change in your markup, not a number to bet the business on.</p>
+    <h3>What counts as a win?</h3>
+    <p>Whatever you choose: accepted, awarded, booked or signed. Use 1 or 0, or words such as won, lost, yes, no, accepted, declined. Bids still pending should be left out, and quotes that got no reply are best counted as lost only if you would not expect one any more.</p>
+    <h3>Is my bid history uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bids. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the bids you supply; they do not guarantee what will happen when you change a price. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any estimating, proposal or CRM vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your bids are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../price-elasticity-estimator/">price elasticity estimator</a>, the <a href="../contractor-bid-readiness/">contractor bid readiness check</a>, the <a href="../project-estimate-calibrator/">project estimate calibrator</a> and the <a href="../change-order-margin-calculator/">change order margin calculator</a>. Wondering when to chase a quote? The <a href="../quote-follow-up-timing/">quote follow-up timing</a> tool shows how win and loss chances build up over the days after you send one.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, analyzeSegments, reportCsv, sampleText, sampleTextTyped, num, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(r) {
+      const W = 900, H = 260, L = 48, R = 12, T = 12, B = 44;
+      const n = r.bands.length, slot = (W - L - R) / n, bw = slot * 0.5;
+      const y = (v) => T + (H - T - B) * (1 - v);
+      const label = (b) => (b.from * 100).toFixed(0) + "–" + (b.to * 100).toFixed(0) + (r.hasCost ? "% markup" : "");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of bids won in each quarter of quotes, with the fitted win chance">` +
+        [0, 0.25, 0.5, 0.75, 1].map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(t * 100)}%</text>`).join("") +
+        r.bands.map((b, i) => {
+          const cx = L + slot * i + slot / 2;
+          return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${y(b.observed).toFixed(1)}" width="${bw.toFixed(1)}" height="${(H - B - y(b.observed)).toFixed(1)}" fill="#1f5f86" fill-opacity=".85"/>` +
+            `<circle cx="${cx.toFixed(1)}" cy="${y(b.fitted).toFixed(1)}" r="5" fill="#b5533c"/>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 26}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(label(b))}</text>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 11}" font-size="11" text-anchor="middle" fill="#4c5a68">${b.n} bids, won ${esc(pct(b.observed, 0))}</text>`;
+        }).join("") + `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const jc = $("#jobcost").value.trim() === "" ? undefined : Number($("#jobcost").value);
+      const um = $("#usual").value.trim() === "" ? undefined : 1 + Number($("#usual").value) / 100;
+      const r = analyze(parsed.rows, { hasCost: parsed.hasCost, jobCost: jc, usualMarkup: um, currentPrice: um });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [pct(r.winRate, 0), `Overall win rate (${r.wins} won of ${r.n})`],
+        [`${pct(r.sens.base, 0)} → ${pct(r.sens.up10, 0)}`, `Win chance at your usual quote, then with 10% more (95% slope interval ${r.ci95[0].toFixed(1)} to ${r.ci95[1].toFixed(1)})`],
+      ];
+      if (r.optimum) {
+        big.push([r.hasCost ? pct(r.optimum.markup, 0) + " markup" : money(r.optimum.price), `Best quote in your tested range${r.hasCost ? ` (about ${money(r.optimum.price)} on a ${money(r.jobCost)} job)` : ""}; 80% of resamples: ${r.hasCost ? pct(r.optimum.markupRange80[0], 0) + " to " + pct(r.optimum.markupRange80[1], 0) : money(r.optimum.priceRange80[0]) + " to " + money(r.optimum.priceRange80[1])}`]);
+        big.push([money(r.optimum.gain), `Expected profit gain per bid vs your usual quote (80%: ${money(r.optimum.gainRange80[0])} to ${money(r.optimum.gainRange80[1])}; better in ${pct(r.optimum.pGain, 0)} of resamples)`]);
+      } else big.push(["—", "Enter your cost on the next job to see the best quote"]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "unidentified"];
+      const msg = r.verdict === "usable" ? "Higher quotes clearly won less often, and price helped predict held-out bids. Still a hypothesis: try a small change in markup before relying on it." : r.verdict === "weak" ? "The data leans toward higher quotes winning less, but the interval is wide or the hold-out did not confirm it. Collect more bids or vary your quotes more before acting." : "The data does not show a believable win curve. Do not set prices from this result.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#chart").innerHTML = chart(r);
+      const sg = parsed.hasSegments ? analyzeSegments(parsed.rows) : null;
+      $("#seg").hidden = !sg;
+      if (sg) {
+        if (sg.error) { $("#seg-note").textContent = sg.error; $("#seg-t tbody").innerHTML = ""; }
+        else {
+          $("#seg-note").textContent = `One shared price slope, a separate base win rate per job type. ${sg.differ ? "The types differ clearly in how often you win" : "The types do not differ clearly"} (likelihood-ratio test, p = ${sg.pValue < 0.001 ? "<0.001" : sg.pValue.toFixed(3)}). ${sg.warnings.join(" ")}`;
+          $("#seg-t tbody").innerHTML = sg.segments.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.n}</td><td class="n">${pct(s.winRate, 0)}</td><td class="n">${pct(s.usualMarkup, 0)}</td><td class="n">${pct(s.bestMarkup, 0)}${s.boundary ? " (edge)" : ""}</td><td class="n">${pct(s.markupRange80[0], 0)} to ${pct(s.markupRange80[1], 0)}</td><td class="n">${money(s.gain)}</td></tr>`).join("");
+        }
+      }
+      $("#profit-h").hidden = !r.optimum;
+      $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.change === 0 ? "usual" : (s.change > 0 ? "+" : "") + Math.round(s.change * 100) + "%"}</td><td class="n">${money(s.price)}</td><td class="n">${pct(s.winChance, 0)}</td>${r.optimum ? `<td class="n">${money(s.expectedProfit)}</td>` : ""}<td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
+      $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} bids, scored on the last ${r.holdout.test}. Average log-loss ${r.holdout.logLossModel.toFixed(3)} with price, ${r.holdout.logLossBase.toFixed(3)} assuming only your overall win rate (lower is better). ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the curve."}` : "Not enough bids to hold out a test period.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#jobcost").value = "12000"; $("#usual").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 90 invented bids for one trade, not a real business."; }
+    });
+    $("#load-typed").addEventListener("click", () => {
+      $("#rows").value = sampleTextTyped();
+      $("#jobcost").value = ""; $("#usual").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 150 invented bids across three job types, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your bids, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "bid-price-scenarios.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../vineyard-grape-vs-wine-calculator/" data-pf-to="vineyard-grape-vs-wine-calculator">Sell Grapes or Make Wine Calculator — free, private</a></li>
+      <li><a href="../which-job-first/" data-pf-to="which-job-first">Which Job First? — rank your job list by picking one at a time</a></li>
+      <li><a href="../auto-repair-effective-labor-rate/" data-pf-to="auto-repair-effective-labor-rate">Effective Labor Rate Calculator for Auto Repair Shops</a></li>
+      <li><a href="../bid-leveling-worksheet/" data-pf-to="bid-leveling-worksheet">Bid Leveling Worksheet — free, private, paste-your-bids</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bid-win-rate-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/?pfEmbed=1&quot; title=&quot;Bid Win-Rate Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="bid-win-rate-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/" data-pf-embed-title="Bid Win-Rate Optimizer — free, private, in your browser" data-pf-embed-slug="bid-win-rate-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="bid-win-rate-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="bid-win-rate-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

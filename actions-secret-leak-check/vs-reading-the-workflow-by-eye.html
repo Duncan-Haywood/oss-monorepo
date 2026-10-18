@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This Checker vs. Reading the Workflow by Eye</title>
+  <meta name="description" content="A code reviewer scanning a GitHub Actions workflow diff by eye is checking for an obvious secrets.* echo -- not a base64/hex/substring transform three lines…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/vs-reading-the-workflow-by-eye.html">
+  <meta property="og:title" content="This checker vs. reading the workflow by eye">
+  <meta property="og:description" content="A reviewer skimming a workflow diff catches the secret that is printed directly. Both of the ways GitHub's own masking fails are quieter than that…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't code review catch a transformed secret?","acceptedAnswer":{"@type":"Answer","text":"A reviewer scanning a diff is pattern-matching for the obvious shape -- echo ${{ secrets.TOKEN }} -- which GitHub's own masking already catches anyway. A base64, hex, case-fold, or substring transform three lines away from the secrets: reference does not look like a leak on a quick read; it looks like ordinary string manipulation. Recognising that the transformed output still fully reverses back to the secret requires tracing the value through the transform, which is exactly the kind of mechanical check a reviewer skimming a PR under time pressure is least likely to do."}},{"@type":"Question","name":"Why doesn't code review catch an unmasked $GITHUB_OUTPUT export?","acceptedAnswer":{"@type":"Answer","text":"Writing a value to $GITHUB_ENV or $GITHUB_OUTPUT looks completely ordinary in a diff -- it is how a step is supposed to pass data to the next one. Nothing about the line itself signals that the value being exported was freshly derived from a secret (an OAuth token minted from it, a signed URL, a session cookie) and was therefore never registered on GitHub's masking list. A reviewer would have to know the specific rule (derived values need their own ::add-mask:: call) and trace the value back to its secret source across steps to catch it, which a visual scan does not do."}},{"@type":"Question","name":"Is a human reviewer worse at this than a tool, generally?","acceptedAnswer":{"@type":"Answer","text":"No -- a reviewer catches things a regex scan cannot: whether the transform is even necessary, whether the workflow should be using OIDC instead of a long-lived secret at all, whether the whole step belongs in CI. What this checker adds is narrow and mechanical: two specific, well-documented masking gaps, checked the same way on every line, which is exactly the kind of check that is easy to skip when reading quickly and easy to run automatically."}},{"@type":"Question","name":"Does this replace code review?","acceptedAnswer":{"@type":"Answer","text":"No. It is a static, step-scoped line scanner over workflow YAML text, not a security audit and not a substitute for a reviewer's judgment about whether a secret should be in the workflow at all. Wiring --fail-on-risk into CI catches the two specific patterns it knows before merge; a reviewer is still the one deciding everything else."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 900px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .86rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    a { color: #17324a; }
+    .cta { background: #9a3412; color: #fff; display: inline-block; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/vs-reading-the-workflow-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reading the workflow by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-secret-leak-check/">Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reading the workflow by eye</span></span></nav>
+  <p><a href="./">&larr; Actions Secret Leak Check</a></p>
+  <header>
+    <h1>This checker vs. reading the workflow by eye</h1>
+    <p>Reviewing a workflow diff is the normal way a leaked secret gets caught,
+    and it works well for the obvious case -- a step that echoes
+    <code>secrets.TOKEN</code> straight into the log. GitHub's own masking
+    already closes that one anyway. Both of the gaps this checker exists for
+    are quieter than that, and neither looks wrong on a quick read.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>What reading the diff catches</h2>
+    <p>A reviewer scanning a pull request for a secrets problem is
+    pattern-matching for the shape everyone already knows to look for: a
+    <code>run:</code> line that prints a <code>secrets.*</code> reference
+    directly, or passes it somewhere it obviously should not go. That
+    pattern-match is fast, and it is right often enough that it is the
+    standard first line of defence. It is also, by construction, blind to
+    anything that does not match the pattern.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checker looks for instead</h2>
+    <p>Paste your workflow YAML, or run <code>check.py</code> against a
+    checkout, and it scans every step's text for two specific,
+    well-documented patterns that do not resemble a leak on a visual scan:
+    a value derived from a secret by <code>base64</code>/hex/substring
+    before it is printed, and a value written to
+    <code>$GITHUB_ENV</code>/<code>$GITHUB_OUTPUT</code>/<code>$GITHUB_STATE</code>
+    without a matching <code>::add-mask::</code>. Same rule, applied to
+    every line, every time -- not a replacement for review, a check for the
+    two things review is least likely to catch under time pressure.</p>
+  </section>
+
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Reading the diff by eye</th><th scope="col">This checker</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Catches <code>echo ${{ secrets.TOKEN }}</code> immediately -- and
+        GitHub's own masking already catches it too, so the review effort is
+        spent on a case that was already covered.</td>
+        <td>Does not re-flag what GitHub already masks; it looks specifically
+        for the two documented ways a secret-derived value still reaches a log
+        unmasked.</td>
+      </tr>
+      <tr>
+        <td>A <code>base64</code>/hex/substring transform reads as ordinary
+        string manipulation three lines from the <code>secrets:</code>
+        reference, with nothing to flag it as the same secret in disguise.</td>
+        <td>Recognises the transform functions GitHub itself documents as
+        masking-defeating and flags the derived value regardless of how far
+        it sits from the original reference.</td>
+      </tr>
+      <tr>
+        <td>A write to <code>$GITHUB_OUTPUT</code> looks like completely
+        normal step-to-step data passing -- nothing marks a freshly derived
+        token as something that needed its own <code>::add-mask::</code>
+        call.</td>
+        <td>Flags an export of a secret-derived value that was never
+        registered for masking, whether or not anything downstream ever
+        echoes it.</td>
+      </tr>
+      <tr>
+        <td>Depends on the reviewer already knowing both gaps exist and
+        checking for them on every line of every workflow, every time.</td>
+        <td>Applies the same two checks consistently, and can be wired into
+        CI with <code>--fail-on-risk</code> so a new finding blocks the merge
+        before a reviewer sees it.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why doesn't code review catch a transformed secret?</h3>
+    <p>A reviewer scanning a diff is pattern-matching for the obvious shape --
+    <code>echo ${{ secrets.TOKEN }}</code> -- which GitHub's own masking
+    already catches anyway. A base64, hex, case-fold, or substring transform
+    three lines away from the <code>secrets:</code> reference does not look
+    like a leak on a quick read; it looks like ordinary string manipulation.
+    Recognising that the transformed output still fully reverses back to the
+    secret requires tracing the value through the transform, which is exactly
+    the kind of mechanical check a reviewer skimming a PR under time pressure
+    is least likely to do.</p>
+    <h3>Why doesn't code review catch an unmasked $GITHUB_OUTPUT export?</h3>
+    <p>Writing a value to <code>$GITHUB_ENV</code> or
+    <code>$GITHUB_OUTPUT</code> looks completely ordinary in a diff -- it is
+    how a step is supposed to pass data to the next one. Nothing about the
+    line itself signals that the value being exported was freshly derived
+    from a secret (an OAuth token minted from it, a signed URL, a session
+    cookie) and was therefore never registered on GitHub's masking list. A
+    reviewer would have to know the specific rule (derived values need their
+    own <code>::add-mask::</code> call) and trace the value back to
+    its secret source across steps to catch it, which a visual scan does
+    not do.</p>
+    <h3>Is a human reviewer worse at this than a tool, generally?</h3>
+    <p>No -- a reviewer catches things a regex scan cannot: whether the
+    transform is even necessary, whether the workflow should be using OIDC
+    instead of a long-lived secret at all, whether the whole step belongs in
+    CI. What this checker adds is narrow and mechanical: two specific,
+    well-documented masking gaps, checked the same way on every line, which
+    is exactly the kind of check that is easy to skip when reading quickly
+    and easy to run automatically.</p>
+    <h3>Does this replace code review?</h3>
+    <p>No. It is a static, step-scoped line scanner over workflow YAML text,
+    not a security audit and not a substitute for a reviewer's judgment about
+    whether a secret should be in the workflow at all. Wiring
+    <code>--fail-on-risk</code> into CI catches the two specific patterns it
+    knows before merge; a reviewer is still the one deciding everything
+    else.</p>
+    <p class="note">Nothing here says code review is a bad way to catch a
+    secrets problem -- it is the right first line of defence for the case it
+    is good at. This page describes the two specific, narrow cases that a
+    visual scan is structurally unlikely to catch, not a fault in reviewers.</p>
+  </section>
+
+  <section class="card">
+    <h2>Check your own workflows</h2>
+    <p>Paste your workflow YAML, or run <code>check.py</code> against a
+    checkout, and see whether either pattern is present -- the two checks a
+    diff review is least likely to run.</p>
+    <p><a class="cta" href="./">Open the Actions Secret Leak Check</a></p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it is not a guarantee that your secrets are safe: it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything on this page runs in your browser. Nothing is uploaded, and this page names no specific reviewer, team, or code-review tool.</p>
+    <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-secret-leak-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-secret-leak-check"></script>
+</body>
+</html>

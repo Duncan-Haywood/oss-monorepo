@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Does My Text Bill as Multiple SMS Segments?</title>
+  <meta name="description" content="SMS is billed per segment: 160 characters in GSM-7, 70 once any curly quote or emoji forces UCS-2. Which characters do it and how to fix them.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/why-does-my-text-bill-as-multiple-segments.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many characters fit in one SMS segment?", "acceptedAnswer": {"@type": "Answer", "text": "160 if every character is in the GSM-7 set, 70 if any character is not. Once a message is split into several segments, 153 and 67 fit in each, because a few bytes of every segment carry the join header."}}, {"@type": "Question", "name": "Which characters force UCS-2?", "acceptedAnswer": {"@type": "Answer", "text": "Curly quotes and apostrophes, en and em dashes, the ellipsis character, non-breaking spaces, emoji and non-Latin letters. Plain straight quotes, hyphens and three full stops are all GSM-7."}}, {"@type": "Question", "name": "What do the characters in braces and brackets cost?", "acceptedAnswer": {"@type": "Answer", "text": "The characters ^ { } \\ [ ] ~ | and the euro sign are in the GSM-7 extension table and each counts as two characters, though the message stays GSM-7."}}, {"@type": "Question", "name": "How do I stop my phone or editor adding curly quotes?", "acceptedAnswer": {"@type": "Answer", "text": "Compose the template in a plain-text editor, turn off smart punctuation in your word processor, and run the final text through this calculator before sending it to a provider."}}]}</script>
+  <style>:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:760px;margin:auto;padding:28px}h1,h2{color:#17324a}p{line-height:1.55}footer{margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px;font-size:.86rem;color:#55606f}a{color:#17324a}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/why-does-my-text-bill-as-multiple-segments.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Does My Text Bill as Multiple SMS Segments?">
+<meta property="og:description" content="SMS is billed per segment: 160 characters in GSM-7, 70 once any curly quote or emoji forces UCS-2. Which characters do it and how to fix them.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Does My Text Bill as Multiple SMS Segments? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sms-segment-cost-calculator/">Why does this text bill as 3 segments?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Does My Text Bill as Multiple SMS Segments?</span></span></nav>
+  <p><a href="./">&larr; SMS Segment Cost Calculator</a></p>
+  <h1>Why does my text bill as multiple SMS segments?</h1>
+  <p>Providers charge per segment, not per message. A one-line reminder can bill as three segments because of a single curly apostrophe. <a href="./">Paste your message into the calculator</a> to see its encoding, segment count and the exact characters responsible.</p>
+  <h2>How many characters fit in one SMS segment?</h2>
+  <p>160 if every character is in the GSM-7 set, 70 if any character is not. Once a message is split into several segments, 153 and 67 fit in each, because a few bytes of every segment carry the join header.</p>
+  <h2>Which characters force UCS-2?</h2>
+  <p>Curly quotes and apostrophes, en and em dashes, the ellipsis character, non-breaking spaces, emoji and non-Latin letters. Plain straight quotes, hyphens and three full stops are all GSM-7.</p>
+  <h2>What do the characters in braces and brackets cost?</h2>
+  <p>The characters ^ { } \ [ ] ~ | and the euro sign are in the GSM-7 extension table and each counts as two characters, though the message stays GSM-7.</p>
+  <h2>How do I stop my phone or editor adding curly quotes?</h2>
+  <p>Compose the template in a plain-text editor, turn off smart punctuation in your word processor, and run the final text through this calculator before sending it to a provider.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not telecom-compliance or financial advice, and provider billing rules can change; verify against your provider's documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, and may be slow, moved, or taken offline without notice.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../security-headers-check/" data-pf-to="security-headers-check">Security Headers Checker</a></li>
+      <li><a href="../security-txt-check/" data-pf-to="security-txt-check">security.txt Checker (RFC 9116)</a></li>
+      <li><a href="../sitemap-lastmod-freshness-check/" data-pf-to="sitemap-lastmod-freshness-check">Sitemap lastmod Freshness Check</a></li>
+      <li><a href="../skill-manifest-check/" data-pf-to="skill-manifest-check">Skill Manifest Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sms-segment-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sms-segment-cost-calculator"></script>
+</body>
+</html>

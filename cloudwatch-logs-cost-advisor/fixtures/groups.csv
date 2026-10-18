@@ -1,0 +1,6 @@
+log_group,stored_gb,retention_days,ingested_gb_month,age_days,class
+/aws/lambda/checkout-api,420,never,180,730,standard
+/aws/ecs/web-access,900,365,2400,500,standard
+/aws/eks/prod/application,150,30,640,300,standard
+/aws/lambda/old-etl,35,never,0,900,standard
+/aws/rds/audit,60,90,8,400,ia

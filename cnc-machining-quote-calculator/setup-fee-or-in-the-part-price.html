@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Should a CNC Shop Charge Setup Separately or Build It Into the Part Price?</title>
+  <meta name="description" content="A CNC job shop's setup, programming and first-article time cost the same at 5 pieces as at 500. Whether to bill that as its own line or bury it in the part…">
+  <meta property="og:title" content="Should a CNC shop charge setup separately or build it into the part price?">
+  <meta property="og:description" content="What each choice does to your quote, your reorders and your ability to price a short run — with the arithmetic that decides it.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/setup-fee-or-in-the-part-price.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge setup separately or build it into the part price?","acceptedAnswer":{"@type":"Answer","text":"Both are legitimate and shops do both. A separate setup line keeps the per-part price comparable across quantities and makes a reorder honestly cheaper, which is why it suits shops with repeat business. Burying setup in the part price gives the customer one number to compare against other quotes, which is why it suits one-off and prototype work where the customer is shopping on part price alone. What matters is knowing which you did: a shop that buried setup and then quotes a reorder off the same per-part price is giving away the setup it no longer has to do."}},{"@type":"Question","name":"What actually counts as setup on a CNC job?","acceptedAnswer":{"@type":"Answer","text":"The work that happens once per lot no matter how many parts come out of it. Fixturing and workholding, tool setting and offsets, dialling in the first good part, and the first-article inspection with its paperwork. Programming is in the same family but behaves differently, because a reorder off the same program owes no new CAM time at all while it usually does owe a fresh setup. That is why they are worth tracking as separate numbers even if you bill them as one line."}},{"@type":"Question","name":"How do I work out what the setup fee should be?","acceptedAnswer":{"@type":"Answer","text":"Add the hours: setup, program proveout, and first article. Multiply by your burdened labour rate, and add your machine rate for the hours the machine is tied up and not cutting, because an occupied machine is unavailable for other work. That total is what the lot has to recover before a single part is profitable. If you bill it as its own line, the per-part price only has to clear the variable cost. If you do not, divide it by the lot size and add it to every part."}},{"@type":"Question","name":"Why does the same part cost so much more per piece on a short run?","acceptedAnswer":{"@type":"Answer","text":"Because that flat block is divided by a smaller number. Four hours of setup, programming and first article at a burdened rate is the same dollar figure at 5 pieces as at 500, so it can exceed the machining itself on a short run and round to cents on a long one. This is not a pricing preference, it is arithmetic, and it is the single largest reason a job shop loses money on small orders it quoted off a production price list."}},{"@type":"Question","name":"Is a minimum order quantity better than a setup fee?","acceptedAnswer":{"@type":"Answer","text":"They solve the same problem differently. A minimum order quantity refuses the lot sizes where the flat work dominates, which protects your margin but turns away prototype work that often becomes production work later. A setup fee accepts the small lot and prices it honestly, which keeps the door open at the cost of a quote with two numbers in it. Many shops run both: a setup fee as standard, and a minimum below which the setup fee alone would be more than the customer will entertain."}},{"@type":"Question","name":"Should a repeat order pay setup again?","acceptedAnswer":{"@type":"Answer","text":"Usually some of it. A reorder off an existing program owes no programming and often no first article if the customer accepts the original report, but it almost always owes a fresh setup, because the fixture came off the table and the tools went back in the crib. Shops that keep dedicated fixtures on the shelf for repeat parts are buying down exactly this cost, which is a reason to track setup and programming separately even when you bill them together."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f24; background: #f2f4f6; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #1d3a5c; }
+    h2 { font-size: 1.1rem; margin: 26px 0 8px; color: #1d3a5c; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #4e545c; }
+    .card { background: #fff; border: 1px solid #d5dbe1; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e7ebef; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #454b53; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroller { overflow-x: auto; }
+    a { color: #1a4f7a; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe1; padding-top: 16px; }
+    .cta { background: #1d3a5c; color: #fff; display: inline-block; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/setup-fee-or-in-the-part-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should a CNC shop charge setup separately or build it into the part price? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cnc-machining-quote-calculator/">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should a CNC shop charge setup separately or build it into the part price?</span></span></nav>
+  <header>
+    <p class="note">CNC JOB SHOP QUOTING</p>
+    <h1>Should a CNC shop charge setup separately or build it into the part price?</h1>
+    <p>Setup, programming and first-article inspection cost the same whether the
+    order is 5 pieces or 500. Where you put that money in the quote does not
+    change what it costs you — but it changes what the customer compares, what a
+    reorder is worth, and whether you can still tell a short run from a long one
+    six months later.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>Should I charge setup separately or build it into the part price?</h2>
+    <p>Both are legitimate and shops do both. A separate setup line keeps the per-part price comparable across quantities and makes a reorder honestly cheaper, which is why it suits shops with repeat business. Burying setup in the part price gives the customer one number to compare against other quotes, which is why it suits one-off and prototype work where the customer is shopping on part price alone. What matters is knowing which you did: a shop that buried setup and then quotes a reorder off the same per-part price is giving away the setup it no longer has to do.</p>
+
+    <h2>What actually counts as setup on a CNC job?</h2>
+    <p>The work that happens once per lot no matter how many parts come out of it. Fixturing and workholding, tool setting and offsets, dialling in the first good part, and the first-article inspection with its paperwork. Programming is in the same family but behaves differently, because a reorder off the same program owes no new CAM time at all while it usually does owe a fresh setup. That is why they are worth tracking as separate numbers even if you bill them as one line.</p>
+
+    <h2>How do I work out what the setup fee should be?</h2>
+    <p>Add the hours: setup, program proveout, and first article. Multiply by your burdened labour rate, and add your machine rate for the hours the machine is tied up and not cutting, because an occupied machine is unavailable for other work. That total is what the lot has to recover before a single part is profitable. If you bill it as its own line, the per-part price only has to clear the variable cost. If you do not, divide it by the lot size and add it to every part.</p>
+
+    <h2>Why does the same part cost so much more per piece on a short run?</h2>
+    <p>Because that flat block is divided by a smaller number. Four hours of setup, programming and first article at a burdened rate is the same dollar figure at 5 pieces as at 500, so it can exceed the machining itself on a short run and round to cents on a long one. This is not a pricing preference, it is arithmetic, and it is the single largest reason a job shop loses money on small orders it quoted off a production price list.</p>
+
+    <h2>Is a minimum order quantity better than a setup fee?</h2>
+    <p>They solve the same problem differently. A minimum order quantity refuses the lot sizes where the flat work dominates, which protects your margin but turns away prototype work that often becomes production work later. A setup fee accepts the small lot and prices it honestly, which keeps the door open at the cost of a quote with two numbers in it. Many shops run both: a setup fee as standard, and a minimum below which the setup fee alone would be more than the customer will entertain.</p>
+
+    <h2>Should a repeat order pay setup again?</h2>
+    <p>Usually some of it. A reorder off an existing program owes no programming and often no first article if the customer accepts the original report, but it almost always owes a fresh setup, because the fixture came off the table and the tools went back in the crib. Shops that keep dedicated fixtures on the shelf for repeat parts are buying down exactly this cost, which is a reason to track setup and programming separately even when you bill them together.</p>
+  </section>
+
+  <section class="card">
+    <h2>The same flat block, spread over four lot sizes</h2>
+    <p>Suppose setup, programming and first article come to 6.7 hours. At a
+    burdened labour rate of $35.28 an hour plus a $22 machine rate on the 2.5
+    setup hours, that block is about $291 — the same dollar figure at every
+    quantity below.</p>
+    <div class="scroller">
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr><th class="num">Lot size</th><th class="num">Flat block</th><th class="num">Per part</th><th>What the customer sees</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">5</td><td class="num">$291</td><td class="num">$58.20</td><td>a part price that looks absurd, or a setup line that explains it</td></tr>
+          <tr><td class="num">25</td><td class="num">$291</td><td class="num">$11.64</td><td>still the largest single line in the quote</td></tr>
+          <tr><td class="num">100</td><td class="num">$291</td><td class="num">$2.91</td><td>noticeable, not decisive</td></tr>
+          <tr><td class="num">500</td><td class="num">$291</td><td class="num">$0.58</td><td>rounds away against the machining</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">Those are the example figures from the calculator, not a
+    benchmark. Your own hours and rates will put the crossover somewhere else,
+    which is the number worth knowing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Work it out on your own numbers</h2>
+    <p>The calculator takes your setup, programming and first-article hours, your
+    burdened wage and machine rate, and shows what the flat block costs per part
+    at every standard lot size — alongside what happens to your break-even price
+    when you move that money into a separate setup line.</p>
+    <p><a class="cta" href="./index.html">Open the CNC machining quote calculator</a></p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, engineering, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>The figures on this page are worked examples from the calculator's own
+    default inputs. They are not a survey of what shops charge, a benchmark, or a
+    recommendation about what to bill. Nothing here is an opinion on what any job
+    is worth in your market.</p>
+    <p>Free and open source — <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../boutique-fitness-studio-pricing-planner/" data-pf-to="boutique-fitness-studio-pricing-planner">Is my studio's unlimited membership priced right? Free pricing planner</a></li>
+      <li><a href="../bowling-center-profit-calculator/" data-pf-to="bowling-center-profit-calculator">Bowling center calculator: what utilization do you need to break even? Free, private</a></li>
+      <li><a href="../bridal-hair-makeup-pricing-calculator/" data-pf-to="bridal-hair-makeup-pricing-calculator">Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</a></li>
+      <li><a href="../campground-site-profit-calculator/" data-pf-to="campground-site-profit-calculator">Campground profit calculator: does your park pay? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cnc-machining-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cnc-machining-quote-calculator"></script>
+</body>
+</html>

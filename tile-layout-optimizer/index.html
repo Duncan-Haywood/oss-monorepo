@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tile Layout Optimizer — fewest tiles, fewest cuts, for any room</title>
+  <meta name="description" content="Free tile layout optimizer for tilers, flooring installers and DIYers. Enter the room, any cut-outs and tile sizes; it searches the grid start…">
+  <meta property="og:title" content="Tile Layout Optimizer — free, private, in your browser">
+  <meta property="og:description" content="How many tiles does this room really need? Search the starting line, bond and offcut reuse, compare tile sizes by boxes and cost…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tile Layout Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter a room, any cut-outs and one or more tile sizes. A search over grid start, orientation and brick bond, with offcut reuse packed by a guillotine packer, finds the layout that needs the fewest tiles without thin slivers, compares tile sizes by boxes and cost against the rule of thumb and a corner-start layout, draws it to scale and lists every cut. Runs entirely in your browser; nothing is uploaded.", "featureList": "Tile layout optimization, waste and box count, offcut reuse, brick bond comparison, tile size comparison, to-scale layout drawing, cutting list CSV, metric and imperial units, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much extra tile should I buy?", "acceptedAnswer": {"@type": "Answer", "text": "The common rule is the floor area divided by the tile area plus 10 percent, and more for diagonal or brick layouts. That rule ignores the room: the real number depends on where the grid starts, how the rows are offset and whether offcuts from one wall can be used at another. The optimizer lays out the actual room, packs the cut pieces into tiles and reports the tiles the layout needs; you add your own spare for breakage and future repairs, which is a separate setting here."}}, {"@type": "Question", "name": "Where should I start laying tile in a room?", "acceptedAnswer": {"@type": "Answer", "text": "Not always in the corner. Starting at a wall leaves one wall with whole tiles and the opposite wall with whatever is left over, which can be a thin sliver that is hard to cut and looks bad. Centring the grid puts equal cuts at both walls. The optimizer tries many starting lines in both directions, rejects layouts with a cut narrower than the limit you set, and picks the one that needs the fewest tiles."}}, {"@type": "Question", "name": "Does brick or offset bond use more tile than a straight grid?", "acceptedAnswer": {"@type": "Answer", "text": "Often a little more, because every second row starts and ends with a part tile. Rectangular tiles and planks are usually laid in a half or one-third offset to avoid long joints lining up and to hide slight bow in the tile. The optimizer compares the bonds you allow, so you can see what the pattern costs in tiles for your room instead of guessing."}}, {"@type": "Question", "name": "How does reusing offcuts save tile?", "acceptedAnswer": {"@type": "Answer", "text": "A piece cut off the end of a row at one wall is often exactly the piece you need at the other wall, or a smaller piece can come out of the leftover. The optimizer treats each cut piece as a rectangle to be cut from a whole tile with straight saw cuts and packs them together, allowing for the saw kerf. You can switch reuse off if your tile has a pattern, a directional finish or breaks too easily to be cut twice."}}, {"@type": "Question", "name": "What is the narrowest cut piece I should allow?", "acceptedAnswer": {"@type": "Answer", "text": "Many installers avoid pieces narrower than about 50 mm (2 inches) or a third of the tile, because thin strips crack when cut and are noticeable along a wall. The limit is yours to set. If every layout leaves a narrower piece, the tool says so and shows the layout with the fewest of them rather than pretending a clean one exists."}}, {"@type": "Question", "name": "How do I handle a tub, an island or an L-shaped room?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the room as its bounding rectangle and add each obstruction as a rectangle: how far from the left wall, how far from the back wall, its width and depth. An L-shaped room is a rectangle with one corner taken out. Tiles that a cut-out takes a bite from are counted as using a whole tile, which is a conservative simplification, and tiles under a cut-out are not counted."}}, {"@type": "Question", "name": "Is this plan guaranteed to be the minimum?", "acceptedAnswer": {"@type": "Answer", "text": "No. The search tries many starting positions, orientations and bonds and the packer tries many orderings, but it is a heuristic and not a proof. It reports a lower bound from the area that must be covered so you can see how close the plan is to the best that could exist. An independent checker re-verifies every plan before it is shown."}}, {"@type": "Question", "name": "Is my room or price information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser from the figures you type, nothing is sent to a server, and there are no accounts. Anonymous feature counts stay in local storage on your device and can be switched off."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #tiles td, #cuts td { padding: 4px 3px; }
+    #tiles input { padding: 6px 6px; font-size: 14px; }
+    #tiles td.nm input { min-width: 130px; }
+    #tiles td.num input { width: 74px; }
+    #cuts input { padding: 6px 6px; font-size: 14px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 80px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .okbox { background: #e5f2e5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #1d4a22; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 10px 0 0; }
+    .check input { width: auto; }
+    .seg { display: inline-flex; gap: 16px; margin: 4px 0; }
+    .seg label { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    .seg input { width: auto; }
+    canvas { width: 100%; display: block; background: #f7f9fb; border: 1px solid #d9dfe6; border-radius: 8px; margin: 6px 0 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 4px; font-size: .88rem; }
+    .legend span.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid #0003; }
+    tr.rec td { background: #eef6ee; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f4a5d; }
+    .ghost { color: #4c5a68; }
+    .sr { position: absolute; left: -9999px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tile Layout Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tile Layout Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tile Layout Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">TILE LAYOUT OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many tiles does this room really need?</h1>
+    <p>Enter the <strong>room</strong>, any <strong>cut-outs</strong> and one or more <strong>tile sizes</strong>. The optimizer searches where the grid starts, which way the tile runs and how the rows are offset, reuses offcuts, and shows the layout that needs the <strong>fewest tiles and boxes</strong> without thin slivers, with a to-scale drawing and a cutting list.</p>
+    <p class="note">A planning aid, not installation, structural or purchasing advice. New to this? Read <a href="./how-to-lay-tile-with-less-waste.html">how to lay tile with less waste, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Units and room</h2>
+    <div class="seg" role="radiogroup" aria-label="Units">
+      <label for="u-metric"><input type="radio" name="units" id="u-metric" value="metric" checked> Metric (cm, mm)</label>
+      <label for="u-imperial"><input type="radio" name="units" id="u-imperial" value="imperial"> Imperial (in)</label>
+    </div>
+    <div class="row4">
+      <div><label for="roomW">Room width, left to right (<span class="lu">cm</span>)</label><input id="roomW" inputmode="decimal"></div>
+      <div><label for="roomL">Room length, back to front (<span class="lu">cm</span>)</label><input id="roomL" inputmode="decimal"></div>
+      <div><label for="gap">Gap at the walls (<span class="su">mm</span>)</label><input id="gap" inputmode="decimal"></div>
+    </div>
+    <h3>Cut-outs <span class="ghost" style="font-weight:400">(tub, island, cabinet, or the corner of an L-shaped room; leave blank if none)</span></h3>
+    <div class="scroll">
+      <div class="pf-table-scroll"><table id="cuts">
+        <thead><tr><th>#</th><th class="n">From left wall (<span class="lu">cm</span>)</th><th class="n">From back wall (<span class="lu">cm</span>)</th><th class="n">Width (<span class="lu">cm</span>)</th><th class="n">Depth (<span class="lu">cm</span>)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input data-k="x" inputmode="decimal" aria-label="Cut-out 1 distance from left wall"></td><td><input data-k="y" inputmode="decimal" aria-label="Cut-out 1 distance from back wall"></td><td><input data-k="w" inputmode="decimal" aria-label="Cut-out 1 width"></td><td><input data-k="h" inputmode="decimal" aria-label="Cut-out 1 depth"></td></tr>
+          <tr><td>2</td><td><input data-k="x" inputmode="decimal" aria-label="Cut-out 2 distance from left wall"></td><td><input data-k="y" inputmode="decimal" aria-label="Cut-out 2 distance from back wall"></td><td><input data-k="w" inputmode="decimal" aria-label="Cut-out 2 width"></td><td><input data-k="h" inputmode="decimal" aria-label="Cut-out 2 depth"></td></tr>
+          <tr><td>3</td><td><input data-k="x" inputmode="decimal" aria-label="Cut-out 3 distance from left wall"></td><td><input data-k="y" inputmode="decimal" aria-label="Cut-out 3 distance from back wall"></td><td><input data-k="w" inputmode="decimal" aria-label="Cut-out 3 width"></td><td><input data-k="h" inputmode="decimal" aria-label="Cut-out 3 depth"></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <h2 style="margin-top:18px">2. Tile options</h2>
+    <p class="note">Add the tiles you are choosing between. Each is optimized on its own and ranked by the cost of the boxes (or by tiles bought, if you leave the price blank). Enter each tile's width and length as printed on the box.</p>
+    <div class="scroll">
+      <div class="pf-table-scroll"><table id="tiles">
+        <thead><tr>
+          <th>Tile</th><th class="n">Width (<span class="lu">cm</span>)</th><th class="n">Length (<span class="lu">cm</span>)</th><th class="n">Tiles per box</th><th class="n">Price per box</th><th><span class="sr">Remove</span></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+    <button type="button" class="secondary" id="add-tile">Add a tile option</button>
+    <details style="margin-top:14px">
+      <summary>Paste tile options from a spreadsheet</summary>
+      <label for="paste">name, width, length, tiles per box, price per box (comma or tab separated)</label>
+      <textarea id="paste" spellcheck="false" placeholder="Plank,20,120,6,62&#10;Large format,60,60,4,68"></textarea>
+      <button type="button" class="secondary" id="paste-fill">Replace the table with these tiles</button>
+    </details>
+
+    <h2 style="margin-top:18px">3. Laying rules</h2>
+    <div class="row4">
+      <div><label for="grout">Grout joint (<span class="su">mm</span>)</label><input id="grout" inputmode="decimal"></div>
+      <div><label for="kerf">Saw cut width (<span class="su">mm</span>)</label><input id="kerf" inputmode="decimal"></div>
+      <div><label for="minCut">Narrowest cut piece you accept (<span class="su">mm</span>)</label><input id="minCut" inputmode="decimal"></div>
+      <div><label for="spare">Spare for breakage (%)</label><input id="spare" inputmode="decimal"></div>
+      <div><label for="ruleWaste">Rule-of-thumb waste for comparison (%)</label><input id="ruleWaste" inputmode="decimal"></div>
+    </div>
+    <p class="note" style="margin-bottom:0">Bonds to try:</p>
+    <label for="b-straight" class="check"><input type="checkbox" id="b-straight" checked aria-label="Try the straight grid"> Straight (stacked) grid</label>
+    <label for="b-half" class="check"><input type="checkbox" id="b-half" checked aria-label="Try the half offset brick bond"> Brick, half offset</label>
+    <label for="b-third" class="check"><input type="checkbox" id="b-third" checked aria-label="Try the one-third offset brick bond"> Brick, one-third offset</label>
+    <label for="rot" class="check"><input type="checkbox" id="rot" checked aria-label="Allow turning the tile through 90 degrees"> Allow turning the tiles 90° (untick for a fixed direction, such as wood-look planks that must run lengthways)</label>
+    <label for="reuse" class="check"><input type="checkbox" id="reuse" checked aria-label="Reuse offcuts"> Reuse offcuts (pack cut pieces into shared tiles)</label>
+    <label for="offturn" class="check"><input type="checkbox" id="offturn" aria-label="Allow offcuts to be turned when reused"> Allow offcuts to be turned when reused (plain tile only; leave off for patterned or directional tile)</label>
+    <button type="button" id="analyze">Find the best layout</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the room and at least one tile, then click Find the best layout.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+
+    <h3>Tile options compared</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cmp"><thead><tr><th>Tile</th><th class="n">Tiles in the layout</th><th class="n">Boxes to buy</th><th class="n">Box cost</th><th class="n">Rule of thumb</th><th class="n">Corner start, no reuse</th><th>Layout</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="cmp-note"></p>
+
+    <div id="sel-wrap">
+      <label for="sel">Show the layout for</label>
+      <select id="sel"></select>
+    </div>
+    <p id="layout-text"></p>
+    <canvas id="view" role="img" aria-label="To-scale drawing of the tile layout"></canvas>
+    <div class="legend" id="legend"></div>
+
+    <h3>Other layouts for this tile <span class="ghost" style="font-weight:400">(best of each direction and bond)</span></h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="alt"><thead><tr><th>Layout</th><th class="n">Tiles</th><th class="n">Cut pieces</th><th class="n">Narrowest cut</th><th class="n">Slivers</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h3>Cutting list</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ct"><thead><tr><th class="n">Tile to cut</th><th class="n">Piece</th><th>Cut size (across × along the tile)</th><th class="n">Goes at: from left (<span class="lu">cm</span>)</th><th class="n">from back (<span class="lu">cm</span>)</th><th>Turned</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="ct-note"></p>
+    <button type="button" id="download">Download the cutting list (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Floor:</strong> the room rectangle, inset by the wall gap, minus your cut-outs. Lengths are held as whole numbers (hundredths of a millimetre) so every figure can be checked exactly.</p>
+    <p><strong>Layout search:</strong> for each tile option, the tile may run either way, the rows are straight or offset by a half or a third of a tile, and the grid is started at many positions in both directions, including against a wall and centred. Every candidate is turned into whole tiles, cut pieces and awkward pieces where a cut-out bites a tile. The leaders are refined with small shifts.</p>
+    <p><strong>Offcut reuse:</strong> the cut pieces are packed into tiles by a guillotine packer: straight saw cuts only, the saw width allowed for, best-fit placement, and many seeded random orderings. It is repeatable: the same input gives the same plan.</p>
+    <p><strong>Choosing:</strong> layouts with a cut narrower than your limit are set aside whenever a clean layout exists; then the fewest tiles wins, then the fewest cuts, then the widest narrowest cut. If every layout has a sliver you are told, and the one with the fewest is shown.</p>
+    <p><strong>Checking:</strong> a separate checker rebuilds the grid from the chosen layout and confirms that every part of the floor that is not a grout joint is covered exactly once, that no piece touches a cut-out or the walls' gap, that every cut sits inside one purchased tile without overlapping another piece, and that the tile count adds up. A lower bound from the area that must be covered shows how close the plan can be to the best possible.</p>
+    <p><strong>Not modelled:</strong> diagonal and herringbone layouts, tile thickness, uneven or out-of-square walls, doorway thresholds, patterned tile matching, shade variation between boxes, curved cuts, and extra breakage for difficult material. A tile with a cut-out in it counts as one whole tile and is never used for offcuts. Prices are only what you type. Unverified on a real floor: tested on hand-computed rooms and on random rooms checked for coverage, overlap and cutting.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much extra tile should I buy?</h3>
+    <p>The common rule is the floor area divided by the tile area plus 10 percent, and more for diagonal or brick layouts. That rule ignores the room: the real number depends on where the grid starts, how the rows are offset and whether offcuts from one wall can be used at another. The optimizer lays out the actual room, packs the cut pieces into tiles and reports the tiles the layout needs; you add your own spare for breakage and future repairs, which is a separate setting here.</p>
+    <h3>Where should I start laying tile in a room?</h3>
+    <p>Not always in the corner. Starting at a wall leaves one wall with whole tiles and the opposite wall with whatever is left over, which can be a thin sliver that is hard to cut and looks bad. Centring the grid puts equal cuts at both walls. The optimizer tries many starting lines in both directions, rejects layouts with a cut narrower than the limit you set, and picks the one that needs the fewest tiles.</p>
+    <h3>Does brick or offset bond use more tile than a straight grid?</h3>
+    <p>Often a little more, because every second row starts and ends with a part tile. Rectangular tiles and planks are usually laid in a half or one-third offset to avoid long joints lining up and to hide slight bow in the tile. The optimizer compares the bonds you allow, so you can see what the pattern costs in tiles for your room instead of guessing.</p>
+    <h3>How does reusing offcuts save tile?</h3>
+    <p>A piece cut off the end of a row at one wall is often exactly the piece you need at the other wall, or a smaller piece can come out of the leftover. The optimizer treats each cut piece as a rectangle to be cut from a whole tile with straight saw cuts and packs them together, allowing for the saw kerf. You can switch reuse off if your tile has a pattern, a directional finish or breaks too easily to be cut twice.</p>
+    <h3>What is the narrowest cut piece I should allow?</h3>
+    <p>Many installers avoid pieces narrower than about 50 mm (2 inches) or a third of the tile, because thin strips crack when cut and are noticeable along a wall. The limit is yours to set. If every layout leaves a narrower piece, the tool says so and shows the layout with the fewest of them rather than pretending a clean one exists.</p>
+    <h3>How do I handle a tub, an island or an L-shaped room?</h3>
+    <p>Enter the room as its bounding rectangle and add each obstruction as a rectangle: how far from the left wall, how far from the back wall, its width and depth. An L-shaped room is a rectangle with one corner taken out. Tiles that a cut-out takes a bite from are counted as using a whole tile, which is a conservative simplification, and tiles under a cut-out are not counted.</p>
+    <h3>Is this plan guaranteed to be the minimum?</h3>
+    <p>No. The search tries many starting positions, orientations and bonds and the packer tries many orderings, but it is a heuristic and not a proof. It reports a lower bound from the area that must be covered so you can see how close the plan is to the best that could exist. An independent checker re-verifies every plan before it is shown.</p>
+    <h3>Is my room or price information uploaded?</h3>
+    <p>No. Everything runs in your browser from the figures you type, nothing is sent to a server, and there are no accounts. Anonymous feature counts stay in local storage on your device and can be switched off.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, construction or installation advice and does not replace a qualified tiler, your tile maker's instructions or your supplier's own estimate. Results are a planning estimate from the figures you type; real rooms are rarely square. You are responsible for reviewing and verifying its output, and for buying enough tile.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tile maker, retailer or installer, and none is named or ranked here. The example room, tiles and prices are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../flooring-bid-calculator/">flooring bid calculator</a> and the <a href="../kitchen-tile-backsplash-bid-calculator/">kitchen tile backsplash bid calculator</a> for pricing the job, the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and boards, and the <a href="../carpet-install-bid-calculator/">carpet install bid calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { SYSTEMS, BONDS, buildProblem, planAll, verifyPlan, viewItems, cutList, reportCsv, sampleInput, parseTiles, layoutText, lenText, areaText, fmtNum, fmtInt, pct, money, fromU } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const COLORS = ["#e69f00", "#56b4e9", "#cc79a7", "#009e73", "#d55e00", "#8a5cf6", "#7a7a1f", "#2c8c99", "#b5446e", "#6b8e23"];
+    let sys = SYSTEMS.metric;
+    let last = null; // { problem, all, sys }
+
+    const round = (x, d) => String(+x.toFixed(d));
+    const num = (id) => { const v = $("#" + id).value.trim(); return v === "" ? NaN : Number(v.replace(/,/g, "")); };
+    const DEF = { metric: { grout: 3, gap: 10, kerf: 2, minCut: 50 }, imperial: { grout: 0.125, gap: 0.375, kerf: 0.0625, minCut: 2 } };
+
+    function applyUnitsLabels() {
+      document.querySelectorAll(".lu").forEach((e) => { e.textContent = sys.len; });
+      document.querySelectorAll(".su").forEach((e) => { e.textContent = sys.small; });
+    }
+
+    // ----- tile table -----
+    function rowHtml(r = {}) {
+      const v = (k) => esc(r[k] ?? "");
+      return `<tr>
+        <td class="nm"><input data-k="name" aria-label="Tile name" value="${v("name")}"></td>
+        <td class="num"><input data-k="w" inputmode="decimal" aria-label="Tile width" value="${v("w")}"></td>
+        <td class="num"><input data-k="h" inputmode="decimal" aria-label="Tile length" value="${v("h")}"></td>
+        <td class="num"><input data-k="perBox" inputmode="numeric" aria-label="Tiles per box" value="${v("perBox")}"></td>
+        <td class="num"><input data-k="boxPrice" inputmode="decimal" aria-label="Price per box" value="${v("boxPrice")}"></td>
+        <td><button type="button" class="secondary small" data-del aria-label="Remove this tile option">Remove</button></td>
+      </tr>`;
+    }
+    const body = $("#tiles tbody");
+    function addRow(r) { body.insertAdjacentHTML("beforeend", rowHtml(r)); }
+    const numOrNaN = (s) => (String(s ?? "").trim() === "" ? NaN : Number(String(s).replace(/[$,\s]/g, "")));
+    function readTiles() {
+      return [...body.querySelectorAll("tr")].map((tr) => {
+        const o = {};
+        tr.querySelectorAll("[data-k]").forEach((el) => { o[el.dataset.k] = el.value; });
+        return { name: o.name, w: numOrNaN(o.w), h: numOrNaN(o.h), perBox: numOrNaN(o.perBox), boxPrice: numOrNaN(o.boxPrice) };
+      }).filter((o) => String(o.name ?? "").trim() !== "" || Number.isFinite(o.w) || Number.isFinite(o.h));
+    }
+    function readCutouts() {
+      return [...document.querySelectorAll("#cuts tbody tr")].map((tr) => {
+        const o = {};
+        tr.querySelectorAll("[data-k]").forEach((el) => { o[el.dataset.k] = numOrNaN(el.value); });
+        return o;
+      });
+    }
+    body.addEventListener("click", (e) => { const b = e.target.closest("[data-del]"); if (b) b.closest("tr").remove(); });
+    $("#add-tile").addEventListener("click", () => addRow({}));
+    $("#paste-fill").addEventListener("click", () => {
+      const t = parseTiles($("#paste").value);
+      if (!t.length) { status.textContent = "Paste one tile per line: name, width, length, tiles per box, price per box."; return; }
+      body.innerHTML = "";
+      for (const x of t) addRow({ name: x.name, w: Number.isFinite(x.w) ? x.w : "", h: Number.isFinite(x.h) ? x.h : "", perBox: Number.isFinite(x.perBox) ? x.perBox : "", boxPrice: Number.isFinite(x.boxPrice) ? x.boxPrice : "" });
+      status.textContent = `Loaded ${t.length} tile option${t.length === 1 ? "" : "s"} from the pasted text.`;
+    });
+
+    // ----- units: convert what is typed so the same room stays the same room -----
+    function convertAll(from, to) {
+      const fl = from.mm / to.mm, fs = from.smallMm / to.smallMm;
+      const conv = (el, f, d) => { const v = Number(el.value); if (el.value.trim() !== "" && Number.isFinite(v)) el.value = round(v * f, d); };
+      for (const id of ["roomW", "roomL"]) conv($("#" + id), fl, 1);
+      for (const id of ["gap", "grout", "kerf", "minCut"]) conv($("#" + id), fs, to.id === "metric" ? 1 : 3);
+      document.querySelectorAll("#cuts input").forEach((el) => conv(el, fl, 1));
+      body.querySelectorAll("tr").forEach((tr) => { for (const k of ["w", "h"]) conv(tr.querySelector(`[data-k="${k}"]`), fl, 1); });
+    }
+    document.querySelectorAll('input[name="units"]').forEach((r) => r.addEventListener("change", () => {
+      const to = SYSTEMS[document.querySelector('input[name="units"]:checked').value];
+      if (to === sys) return;
+      const from = sys; sys = to; applyUnitsLabels(); convertAll(from, to);
+      if (!report.hidden) status.textContent = "Units changed. Click Find the best layout to refresh the result.";
+    }));
+
+    function setDefaults() { const d = DEF[sys.id]; for (const k of Object.keys(d)) $("#" + k).value = d[k]; $("#spare").value = 5; $("#ruleWaste").value = 10; }
+    function fillExample() {
+      const s = sampleInput(sys);
+      $("#roomW").value = s.roomW; $("#roomL").value = s.roomL;
+      $("#gap").value = s.gap; $("#grout").value = s.grout; $("#kerf").value = s.kerf; $("#minCut").value = s.minCut;
+      $("#spare").value = s.spare; $("#ruleWaste").value = s.ruleWaste;
+      document.querySelectorAll("#cuts input").forEach((e) => { e.value = ""; });
+      s.cutouts.forEach((c, i) => { const tr = document.querySelectorAll("#cuts tbody tr")[i]; for (const k of ["x", "y", "w", "h"]) tr.querySelector(`[data-k="${k}"]`).value = c[k]; });
+      body.innerHTML = ""; for (const t of s.tiles) addRow(t);
+      $("#b-straight").checked = $("#b-half").checked = $("#b-third").checked = true;
+      $("#rot").checked = true; $("#reuse").checked = true; $("#offturn").checked = false;
+    }
+
+    function readForm() {
+      return {
+        roomW: num("roomW"), roomL: num("roomL"), gap: num("gap"), grout: num("grout"), kerf: num("kerf"), minCut: num("minCut"),
+        spare: num("spare"), ruleWaste: num("ruleWaste"),
+        cutouts: readCutouts(), tiles: readTiles(),
+        bonds: BONDS.map((b) => b.id).filter((id) => $("#b-" + id).checked),
+        rotation: $("#rot").checked ? "either" : "fixed", reuse: $("#reuse").checked, offcutRotate: $("#offturn").checked,
+      };
+    }
+
+    // ----- drawing -----
+    function draw(problem, plan) {
+      const canvas = $("#view"), ctx = canvas.getContext("2d");
+      const W = problem.room.w, L = problem.room.l;
+      const cssW = Math.max(300, Math.min(1000, canvas.parentElement.clientWidth - 2));
+      const k = (cssW - 20) / W;
+      const cssH = Math.round(L * k + 20);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = cssW * dpr; canvas.height = cssH * dpr; canvas.style.height = cssH + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+      const ox = 10, oy = 10;
+      ctx.fillStyle = "#e9edf1"; ctx.fillRect(ox, oy, W * k, L * k);
+      const items = viewItems(problem, plan);
+      for (const it of items) {
+        const x = ox + it.x0 * k, y = oy + it.y0 * k, w = (it.x1 - it.x0) * k, h = (it.y1 - it.y0) * k;
+        ctx.fillStyle = it.kind === "full" ? "#fdfdfb" : it.kind === "complex" ? "#c9b6e4" : it.shared ? COLORS[it.bin % COLORS.length] : "#f4cf8f";
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = it.sliver ? "#c0301f" : "#6c8896";
+        ctx.lineWidth = it.sliver ? 2 : 0.6;
+        ctx.strokeRect(x + 0.5, y + 0.5, Math.max(0, w - 1), Math.max(0, h - 1));
+        if (it.shared && w > 22 && h > 14) { ctx.fillStyle = "#1b1f2a"; ctx.font = "11px system-ui, sans-serif"; ctx.fillText("#" + (it.bin + 1), x + 3, y + 12); }
+      }
+      for (const c of problem.cutouts) {
+        const x = ox + c.x0 * k, y = oy + c.y0 * k, w = (c.x1 - c.x0) * k, h = (c.y1 - c.y0) * k;
+        ctx.fillStyle = "#9aa7b3"; ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "#4c5a68"; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+      }
+      ctx.strokeStyle = "#1f4a5d"; ctx.lineWidth = 2; ctx.strokeRect(ox, oy, W * k, L * k);
+    }
+    function legend(plan) {
+      const items = [["#fdfdfb", "Whole tile"], ["#f4cf8f", "Cut piece, one tile each"], ["#c9b6e4", "Tile with a bite from a cut-out"], ["#9aa7b3", "Cut-out"]];
+      const shared = plan.bins.filter((b) => b.placed.length > 1).length;
+      let h = items.map(([c, t]) => `<span><span class="sw" style="background:${c}"></span>${t}</span>`).join("");
+      if (shared) h += `<span><span class="sw" style="background:${COLORS[0]}"></span>Pieces sharing a tile share a colour and a number (${shared} shared tile${shared === 1 ? "" : "s"})</span>`;
+      if (plan.slivers) h += `<span><span class="sw" style="background:#fff;border:2px solid #c0301f"></span>Narrower than your limit</span>`;
+      $("#legend").innerHTML = h;
+    }
+
+    // ----- rendering a result -----
+    function showOption(i) {
+      const { problem, all } = last;
+      const r = all.results[i];
+      const plan = r.best;
+      $("#layout-text").innerHTML = `<strong>${esc(r.tile.name)}:</strong> ${esc(layoutText(problem, plan, sys))}. ` +
+        (plan.slivers ? `<span class="pill high">${plan.slivers} narrow cut${plan.slivers === 1 ? "" : "s"}</span>` : `<span class="pill good">no cut narrower than your limit</span>`);
+      draw(problem, plan); legend(plan);
+      $("#alt tbody").innerHTML = r.alternatives.map((a) =>
+        `<tr${a === r.alternatives[0] ? ' class="rec"' : ""}><td>${esc(layoutText(problem, a, sys).split(";")[0])}</td><td class="n">${fmtInt(a.tiles)}</td><td class="n">${fmtInt(a.cutCount)}</td><td class="n">${a.narrowest == null ? "–" : lenText(a.narrowest, sys)}</td><td class="n">${fmtInt(a.slivers)}</td></tr>`).join("");
+      const rows = cutList(problem, plan, sys);
+      const f = (u) => fmtNum(fromU(u, sys.mm), 1);
+      $("#ct tbody").innerHTML = rows.slice(0, 400).map((x) => `<tr><td class="n">${x.tile}</td><td class="n">${x.n} of ${x.of}</td><td>${esc(x.cut)}</td><td class="n">${f(x.fromLeft)}</td><td class="n">${f(x.fromBack)}</td><td>${x.turned ? "yes" : ""}</td></tr>`).join("");
+      $("#ct-note").textContent = rows.length
+        ? `${plan.bins.length} tile${plan.bins.length === 1 ? "" : "s"} to cut for ${rows.length} piece${rows.length === 1 ? "" : "s"}` + (rows.length > 400 ? " (first 400 shown; the CSV has them all)." : ". Pieces sharing a tile number come out of the same tile.") + (plan.complex ? ` ${plan.complex} tile${plan.complex === 1 ? "" : "s"} with a bite taken by a cut-out are cut one each and are not listed.` : "")
+        : "No cut pieces: every tile is whole." + (plan.complex ? ` ${plan.complex} tile(s) need an irregular cut around a cut-out.` : "");
+      last.shown = i;
+    }
+
+    function run() {
+      const raw = readForm();
+      const { problem, errors } = buildProblem(raw, sys);
+      if (errors.length) { status.textContent = errors[0]; report.hidden = true; return false; }
+      const all = planAll(problem);
+      // independent check of every plan before it is drawn
+      const bad = all.results.filter((r) => !verifyPlan(problem, r.tile, r.best).ok);
+      last = { problem, all, shown: 0 };
+      report.hidden = false;
+      const top = all.results[all.order[0]];
+      const best = top.best, buy = top.buy;
+      const notices = [];
+      if (bad.length) notices.push(`<div class="warn">The independent checker rejected the plan for ${bad.map((b) => esc(b.tile.name)).join(", ")}. Do not rely on those figures; please report it.</div>`);
+      else notices.push(`<div class="okbox">Independent check passed: every plan covers the floor exactly once, cuts fit inside the tiles they come from, and the tile counts add up.</div>`);
+      if (best.slivers) notices.push(`<div class="warn">Every layout of ${esc(top.tile.name)} leaves at least one cut narrower than your ${lenText(problem.minCut, sys)} limit. The layout shown has the fewest (${best.slivers}); consider another tile size or a smaller limit.</div>`);
+      $("#notices").innerHTML = notices.join("");
+      const saveVsThumb = top.thumb.bought - buy.bought;
+      $("#big").innerHTML = [
+        [fmtInt(best.tiles), `tiles in the layout (${esc(top.tile.name)})`],
+        [buy.boxes != null ? `${fmtInt(buy.boxes)} boxes` : fmtInt(buy.withSpare), buy.boxes != null ? `to buy with ${fmtNum(problem.spare, 0)}% spare (${fmtInt(buy.bought)} tiles)` : `tiles to buy with ${fmtNum(problem.spare, 0)}% spare`],
+        [buy.cost != null ? money(buy.cost) : "–", buy.cost != null ? "box cost" : "enter a box price to see the cost"],
+        [saveVsThumb > 0 ? `${fmtInt(saveVsThumb)} fewer` : saveVsThumb < 0 ? `${fmtInt(-saveVsThumb)} more` : "same", "tiles bought than the rule of thumb"],
+        [pct(1 - best.usedArea / (best.tiles * best.tileArea), 1), "of the layout tile area is unused offcut"],
+      ].map(([a, b]) => `<div><strong>${a}</strong>${b}</div>`).join("");
+      const naiveExtra = top.naiveBuy.bought - buy.bought;
+      $("#verdict").innerHTML = `The best option is <strong>${esc(top.tile.name)}</strong> at <strong>${fmtInt(best.tiles)} tiles</strong> in the layout. The lower bound from the area that must be covered is ${fmtInt(best.lowerBound)}, so the plan is ${best.tiles === best.lowerBound ? "at that bound, which cannot be beaten" : `${fmtInt(best.tiles - best.lowerBound)} above it`}. Starting in a corner with a straight grid and no offcut reuse would need ${fmtInt(top.naive.tiles)}, which is ${naiveExtra > 0 ? fmtInt(naiveExtra) + " more tiles bought" : "no more"} once spare is added. The floor to cover is ${areaText(problem.floor, sys)}.`;
+      $("#cmp tbody").innerHTML = all.order.map((i, rank) => {
+        const r = all.results[i];
+        return `<tr${rank === 0 ? ' class="rec"' : ""}><td>${esc(r.tile.name)} <span class="ghost">${lenText(r.tile.w, sys)} × ${lenText(r.tile.h, sys)}</span>${rank === 0 ? ' <span class="pill good">best</span>' : ""}${r.best.slivers ? ' <span class="pill high">narrow cuts</span>' : ""}</td><td class="n">${fmtInt(r.best.tiles)}</td><td class="n">${r.buy.boxes != null ? fmtInt(r.buy.boxes) : "–"}</td><td class="n">${r.buy.cost != null ? money(r.buy.cost) : "–"}</td><td class="n">${fmtInt(r.thumb.tilesNeeded)} tiles${r.thumb.cost != null ? " · " + money(r.thumb.cost) : ""}</td><td class="n">${fmtInt(r.naive.tiles)} tiles${r.naiveBuy.cost != null ? " · " + money(r.naiveBuy.cost) : ""}</td><td>${esc(layoutText(problem, r.best, sys).split(";")[0])}</td></tr>`;
+      }).join("");
+      $("#cmp-note").textContent = `Tiles in the layout is what the room needs before spare. Box cost adds ${fmtNum(problem.spare, 0)}% spare and rounds up to whole boxes. Rule of thumb is floor area over tile area plus ${fmtNum(problem.ruleWaste, 0)}%, rounded up to boxes with no spare. Ranked by box cost where prices are entered, otherwise by tiles bought. Prices are only what you type.`;
+      $("#sel").innerHTML = all.order.map((i) => `<option value="${i}">${esc(all.results[i].tile.name)}</option>`).join("");
+      $("#sel-wrap").hidden = all.results.length < 2;
+      showOption(all.order[0]);
+      status.textContent = `Searched ${fmtInt(all.results.reduce((s, r) => s + r.searched, 0))} starting layouts across ${all.results.length} tile option${all.results.length === 1 ? "" : "s"}.`;
+      return true;
+    }
+    $("#sel").addEventListener("change", () => showOption(Number($("#sel").value)));
+    window.addEventListener("resize", () => { if (last && !report.hidden) showOption(last.shown); });
+
+    const later = (fn) => { status.textContent = "Searching layouts…"; setTimeout(fn, 20); };
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      document.querySelector("#u-metric").checked = true; sys = SYSTEMS.metric; applyUnitsLabels();
+      fillExample();
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented room and invented tile prices. " + status.textContent; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["roomW", "roomL"]) $("#" + id).value = "";
+      document.querySelectorAll("#cuts input").forEach((e) => { e.value = ""; });
+      body.innerHTML = ""; addRow({});
+      setDefaults(); report.hidden = true; last = null;
+      status.textContent = "Enter the room and at least one tile, then click Find the best layout.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const r = last.all.results[last.shown];
+      const blob = new Blob([reportCsv(last.problem, r, sys)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "tile-cutting-list.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+
+    applyUnitsLabels(); setDefaults(); addRow({});
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../basement-finishing-bid-calculator/" data-pf-to="basement-finishing-bid-calculator">Basement Finishing Bid Calculator</a></li>
+      <li><a href="../cabinet-refinishing-bid-calculator/" data-pf-to="cabinet-refinishing-bid-calculator">Cabinet Refinishing Bid Calculator</a></li>
+      <li><a href="../carpet-install-bid-calculator/" data-pf-to="carpet-install-bid-calculator">Carpet Installation Bid Calculator</a></li>
+      <li><a href="../countertop-bid-calculator/" data-pf-to="countertop-bid-calculator">Quartz &amp; Granite Countertop Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tile-layout-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/?pfEmbed=1&quot; title=&quot;Tile Layout Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tile-layout-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/" data-pf-embed-title="Tile Layout Optimizer — free, private, in your browser" data-pf-embed-slug="tile-layout-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tile-layout-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tile-layout-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

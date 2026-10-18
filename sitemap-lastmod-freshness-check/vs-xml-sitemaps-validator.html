@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator</title>
+  <meta name="description" content="XML-Sitemaps.com's free Sitemap Validator checks a sitemap.xml against the sitemap protocol's XML schema -- well-formedness, required tags…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/vs-xml-sitemaps-validator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator">
+  <meta property="og:description" content="One validates sitemap XML structure. The other checks whether the lastmod dates inside a structurally valid sitemap are actually telling the truth.">
+  <meta property="og:url" content="./vs-xml-sitemaps-validator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Sitemap lastmod Freshness Check or XML-Sitemaps.com's Sitemap Validator?","acceptedAnswer":{"@type":"Answer","text":"Different jobs, and many sites need both. XML-Sitemaps.com's Sitemap Validator checks that your sitemap.xml is well-formed and structurally correct per the sitemap protocol's XML schema — the right first check for a newly generated or hand-edited sitemap. Sitemap lastmod Freshness Check assumes the XML is structurally fine and checks a different property entirely: whether the <lastmod> dates inside it are individually valid, internally consistent, plausible, and (via the CLI) actually confirmed by each page's own HTTP Last-Modified response header."}},{"@type":"Question","name":"Does XML-Sitemaps.com's validator check lastmod freshness or the freshness-faking pattern?","acceptedAnswer":{"@type":"Answer","text":"Based on its own public description, its Sitemap Validator checks XML syntax and schema conformance — structure, not the semantic plausibility of individual field values across the file, and it does not fetch each listed URL's own page to cross-check the date against reality. It is a schema validator, not a lastmod-truthfulness checker, which is a different and narrower job than this tool does."}},{"@type":"Question","name":"Is XML-Sitemaps.com's tool free?","acceptedAnswer":{"@type":"Answer","text":"Yes, based on its own public listing — the Sitemap Validator needs no account for a basic check. Sitemap lastmod Freshness Check is also free, with no account, and the two are not competing on price — the difference is what each one actually checks."}},{"@type":"Question","name":"Is this page affiliated with XML-Sitemaps.com?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by XML-Sitemaps.com. XML-Sitemaps.com and its Sitemap Validator are named here only to describe what that tool does and how it differs from this one, based on its own public description."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator</span></span></nav>
+  <p><a href="./">&larr; Sitemap lastmod Freshness Check</a></p>
+  <h1>Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator</h1>
+  <p>
+    <strong>XML-Sitemaps.com's Sitemap Validator</strong> is a well-known free tool in the SEO
+    community for checking a <code>sitemap.xml</code> file's own structure: is it well-formed XML,
+    does it declare the right namespace, are the required tags present, and does it stay within the
+    sitemap protocol's size and URL-count limits. For catching a hand-edit or a generator bug that
+    produced broken XML, it is a solid, established first check.
+  </p>
+  <p>
+    Sitemap lastmod Freshness Check assumes your XML is already structurally fine and checks a
+    completely different property: whether the <strong>&lt;lastmod&gt; values themselves</strong> are
+    telling the truth. A sitemap can be perfectly valid XML — every tag closed, every namespace
+    correct — and still have every single &lt;lastmod&gt; set to today's date regardless of whether
+    the page changed, or set to a date in 2099, or list the same URL twice with two different dates.
+    None of that is an XML-schema violation, so a schema validator has no reason to flag it — and this
+    tool exists specifically for that gap.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I just generated or hand-edited a sitemap.xml and want to know if the XML itself is valid.</td>
+        <td>XML-Sitemaps.com's Sitemap Validator — structural/schema validation is its job.</td>
+      </tr>
+      <tr>
+        <td>My sitemap validates fine, but I suspect the &lt;lastmod&gt; dates are wrong, uniform, or fake.</td>
+        <td>Sitemap lastmod Freshness Check — this is exactly the property a schema validator does not look at.</td>
+      </tr>
+      <tr>
+        <td>I want to know if a URL's &lt;lastmod&gt; claim is actually confirmed by the live page.</td>
+        <td>Sitemap lastmod Freshness Check's CLI — <code>node check.mjs &lt;sitemap-url&gt;</code> fetches each URL's real HTTP <code>Last-Modified</code> header and cross-checks it. A schema validator has no live-page step at all.</td>
+      </tr>
+      <tr>
+        <td>I want this checked automatically on every build, before it ships.</td>
+        <td>Sitemap lastmod Freshness Check's CLI exits non-zero on a finding, wireable into any CI as an ordinary step, with no account or hosted service in the loop.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither tool replaces the other. Run a schema validator first if you have any doubt the XML
+    itself is well-formed — a broken sitemap will confuse both tools and every crawler equally. Once
+    the structure is confirmed sound, this tool answers the question a schema check was never built
+    to ask: do the dates inside it actually mean anything?
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Sitemap lastmod Freshness Check or XML-Sitemaps.com's Sitemap Validator?</h3>
+  <p>Different jobs, and many sites need both. XML-Sitemaps.com's Sitemap Validator checks that your sitemap.xml is well-formed and structurally correct per the sitemap protocol's XML schema — the right first check for a newly generated or hand-edited sitemap. Sitemap lastmod Freshness Check assumes the XML is structurally fine and checks a different property entirely: whether the &lt;lastmod&gt; dates inside it are individually valid, internally consistent, plausible, and (via the CLI) actually confirmed by each page's own HTTP Last-Modified response header.</p>
+  <h3>Does XML-Sitemaps.com's validator check lastmod freshness or the freshness-faking pattern?</h3>
+  <p>Based on its own public description, its Sitemap Validator checks XML syntax and schema conformance — structure, not the semantic plausibility of individual field values across the file, and it does not fetch each listed URL's own page to cross-check the date against reality. It is a schema validator, not a lastmod-truthfulness checker, which is a different and narrower job than this tool does.</p>
+  <h3>Is XML-Sitemaps.com's tool free?</h3>
+  <p>Yes, based on its own public listing — the Sitemap Validator needs no account for a basic check. Sitemap lastmod Freshness Check is also free, with no account, and the two are not competing on price — the difference is what each one actually checks.</p>
+  <h3>Is this page affiliated with XML-Sitemaps.com?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by XML-Sitemaps.com. XML-Sitemaps.com and its Sitemap Validator are named here only to describe what that tool does and how it differs from this one, based on its own public description.</p>
+  <p class="note">More: <a href="why-sitemap-lastmod-matters.html">why sitemap lastmod freshness matters</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether the sitemap you provided satisfies specific, mechanically checkable rules about its &lt;lastmod&gt; values, not a legal opinion or a ranking guarantee. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a faked freshness signal before Google did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sitemap-lastmod-freshness-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sitemap-lastmod-freshness-check"></script>
+</body>
+</html>

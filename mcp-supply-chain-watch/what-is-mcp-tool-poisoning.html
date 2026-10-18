@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is an MCP tool poisoning attack? | MCP Supply-Chain Watch</title>
+  <meta name="description" content="A plain explanation of MCP tool poisoning (a rug-pull attack on Model Context Protocol servers): what changes…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/what-is-mcp-tool-poisoning.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%234338ca'/%3E%3Cpath d='M8 16h16M16 8v16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta property="og:title" content="What is an MCP tool poisoning attack?">
+  <meta property="og:description" content="How a Model Context Protocol server can add instructions aimed at the calling model after approval, and how to catch it from two manifest captures.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is an MCP tool poisoning attack?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An MCP tool poisoning attack (sometimes called a rug-pull) is when a connected Model Context Protocol server changes a tool's description or inputSchema after an agent team has already reviewed and approved it. The new text targets the calling model, not the human who approved the tool — phrasing like an instruction to ignore prior guidance, or to send a result somewhere the human never authorized. Because the server was already trusted, the change can take effect on the very next call, with no fresh approval step in between."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does this target the description field specifically?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A tool's name and inputSchema are usually what a human reviewer scans when approving a server. The description is longer, more often skimmed than re-read on every call — and it is also text the calling model reads as part of deciding how to use the tool. A server that wants to influence the model rather than the reviewer has a direct incentive to put that influence where a human is least likely to notice it change."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How would I actually catch this?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Capture the full tool manifest — every tool's name, description, and inputSchema — at approval time and keep it. Before trusting the server again, or on a schedule, capture it a second time and diff the two. A description that changed and now reads like an instruction to the model is the signal to review first; a changed inputSchema is the next most sensitive; everything else is lower-priority drift. That diff needs no live connection to the server once both captures exist."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does catching a description change mean the server is malicious?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A legitimate server can rewrite a description for clarity, and the rewritten text can coincidentally match a phrase a pattern-based check flags. Treat a flagged change as something to review, not a verdict — look at the specific wording yourself before deciding whether to re-approve, roll back, or contact the server's maintainer."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e1b3a; background: #eef0fc; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 48px; line-height: 1.6; }
+    h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); letter-spacing: -.03em; margin-bottom: 6px; }
+    h2 { margin-top: 1.8em; font-size: 1.2rem; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4338ca; margin: 0 0 10px; }
+    .cta { display: inline-block; margin-top: 10px; padding: 10px 16px; border-radius: 8px; background: #4338ca; color: #fff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 40px; font-size: .82rem; color: #3a3670; border-top: 1px solid #c7caf0; padding-top: 16px; }
+    footer a { color: #4338ca; }
+    code { background: #f3f3fc; padding: .1em .35em; border-radius: 4px; font-size: .92em; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/what-is-mcp-tool-poisoning.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is an MCP tool poisoning attack? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../mcp-supply-chain-watch/">MCP Supply-Chain Watch — compare MCP tool manifests for drift</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is an MCP tool poisoning attack?</span></span></nav>
+  <p class="eyebrow">MCP SUPPLY-CHAIN WATCH — REFERENCE</p>
+  <h1>What is an MCP tool poisoning attack?</h1>
+  <p>
+    An MCP tool poisoning attack (sometimes called a rug-pull) is when a
+    connected Model Context Protocol server changes a tool's
+    <code>description</code> or <code>inputSchema</code> after an agent team
+    has already reviewed and approved it. The new text targets the calling
+    model, not the human who approved the tool — phrasing like an
+    instruction to ignore prior guidance, or to send a result somewhere the
+    human never authorized. Because the server was already trusted, the
+    change can take effect on the very next call, with no fresh approval
+    step in between.
+  </p>
+
+  <h2>Why does this target the description field specifically?</h2>
+  <p>
+    A tool's name and <code>inputSchema</code> are usually what a human
+    reviewer scans when approving a server. The description is longer, more
+    often skimmed than re-read on every call — and it is also text the
+    calling model reads as part of deciding how to use the tool. A server
+    that wants to influence the model rather than the reviewer has a direct
+    incentive to put that influence where a human is least likely to notice
+    it change.
+  </p>
+
+  <h2>How would I actually catch this?</h2>
+  <p>
+    Capture the full tool manifest — every tool's name, description, and
+    <code>inputSchema</code> — at approval time and keep it. Before trusting
+    the server again, or on a schedule, capture it a second time and diff
+    the two. A description that changed and now reads like an instruction to
+    the model is the signal to review first; a changed <code>inputSchema</code>
+    is the next most sensitive; everything else is lower-priority drift. That
+    diff needs no live connection to the server once both captures exist.
+  </p>
+
+  <h2>Does catching a description change mean the server is malicious?</h2>
+  <p>
+    A legitimate server can rewrite a description for clarity, and the
+    rewritten text can coincidentally match a phrase a pattern-based check
+    flags. Treat a flagged change as something to review, not a verdict —
+    look at the specific wording yourself before deciding whether to
+    re-approve, roll back, or contact the server's maintainer.
+  </p>
+
+  <p><a class="cta" href="./index.html">Compare two manifest captures →</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational, not security or compliance advice. It does not replace a qualified professional, and it does not certify that any server or tool is safe.</p>
+    <p>Part of <a href="./">MCP Supply-Chain Watch</a>, a free, local-first manifest comparison tool. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../osha-trir-dart-calculator/" data-pf-to="osha-trir-dart-calculator">OSHA TRIR &amp; DART Rate Calculator</a></li>
+      <li><a href="../paddle-payout-to-journal/" data-pf-to="paddle-payout-to-journal">Paddle earnings export to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../paid-sick-leave-accrual-calculator/" data-pf-to="paid-sick-leave-accrual-calculator">Paid sick leave accrual calculator by state. Free, private</a></li>
+      <li><a href="../patreon-payout-to-journal/" data-pf-to="patreon-payout-to-journal">Patreon earnings export to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mcp-supply-chain-watch">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="mcp-supply-chain-watch"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I Only Charge Material Cost for Paving Fabric? | Asphalt Driveway Paving Bid Calculator</title>
+  <meta name="description" content="Paving fabric over cracks on a 2,150 sq ft mill-and-overlay costs $1,182.50 in material but should add $1,905.14 to the price once overhead and margin are…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/should-i-only-charge-material-cost-for-paving-fabric.html">
+  <meta property="og:title" content="Should I Only Charge Material Cost for Paving Fabric?">
+  <meta property="og:description" content="Fabric's $0.55/sq ft material cost is not what fabric should add to the price. On a 2,150 sq ft job this calculator's own arithmetic adds $1,905.14 to the…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I only charge material cost for paving fabric?","acceptedAnswer":{"@type":"Answer","text":"No. At this calculator's own default crew rates (16% overhead, 28% target margin), adding paving fabric to a 2,150 square foot mill-and-overlay costs $1,182.50 in material (2,150 sq ft x $0.55/sq ft) but should add $1,905.14 to the price. Charging only the $1,182.50 material line leaves $722.64 of overhead and margin uncollected on that job."}},{"@type":"Question","name":"Where does the extra $722.64 come from?","acceptedAnswer":{"@type":"Answer","text":"Overhead first, then margin, in that order. The $1,182.50 of fabric material raises total cost by $1,371.70 once 16% overhead is applied on top of it ($1,182.50 + $189.20 overhead). Because price is total cost divided by (1 minus the 28% target margin), that $1,371.70 of added cost turns into $1,905.14 of added price — not the $1,182.50 the material alone cost."}},{"@type":"Question","name":"Does fabric change the price on every job?","acceptedAnswer":{"@type":"Answer","text":"No. Fabric is its own checkbox, off by default, and adds nothing when left unchecked. It only changes the price on the square footage it actually covers — this calculator's own fabric-over-cracks preset covers a 2,000 square foot driveway plus a 150 square foot apron, 2,150 square feet in total."}},{"@type":"Question","name":"Is this specific to fabric, or true of any add-on?","acceptedAnswer":{"@type":"Answer","text":"Any material line added after the estimate is drafted has the same gap: overhead and margin are set as a share of total cost and total price, not of the base scope alone, so a cost added without re-running the calculation is added at its raw material price — short by whatever overhead and margin that line was supposed to carry."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2420; background: #eceae4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 48px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #6b4f1d; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; background: #fff; margin: 1em 0; }
+    th, td { padding: 9px 8px; text-align: right; border-bottom: 1px solid #d8d3c4; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    .gap { color: #8a2a2a; font-weight: 700; }
+    .note { font-size: .9rem; color: #5a564c; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/should-i-only-charge-material-cost-for-paving-fabric.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I Only Charge Material Cost for Paving Fabric? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../asphalt-driveway-pave-bid-calculator/">Asphalt Driveway Paving Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I Only Charge Material Cost for Paving Fabric?</span></span></nav>
+  <p><a href="index.html">← Asphalt driveway paving bid calculator</a></p>
+  <h1>Should I only charge material cost for paving fabric?</h1>
+  <p>Paving fabric over cracks has a sticker price: <strong>$0.55 a square foot</strong> in this calculator's own default rates. On this calculator's fabric-over-cracks preset — a 2,000 sq ft mill-and-overlay plus a 150 sq ft apron, 2,150 sq ft of paved area — that is <strong>$1,182.50</strong> of material. It is not what fabric should add to the price you send.</p>
+  <a class="cta" href="index.html">Open the free asphalt driveway paving bid calculator</a>
+
+  <h2>The material line and the price line are not the same number</h2>
+  <p>Using this calculator's own default crew rates (16% overhead, 28% target margin) on its 2,150 sq ft mill-and-overlay preset:</p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th>Fabric</th><th>Total cost</th><th>Price</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Without fabric</td><td>$6,274.40</td><td>$8,714.45</td></tr>
+      <tr><td>With fabric</td><td>$7,646.10</td><td>$10,619.59</td></tr>
+      <tr><td>Difference</td><td>$1,371.70</td><td class="gap">$1,905.14</td></tr>
+    </tbody>
+  </table></div>
+  <p>The $1,182.50 of fabric material raises total cost by $1,371.70, not $1,182.50 — 16% overhead applies to the added material the same as it applies to everything else in the job ($1,182.50 &times; 1.16 = $1,371.70). Then, because price is total cost divided by (1 &minus; 28%), that $1,371.70 of added cost turns into <strong>$1,905.14</strong> of added price. Charging only the $1,182.50 material line — writing "+fabric, $1,182.50" on the bid instead of re-running the job through the calculator — leaves <span class="gap">$722.64</span> of overhead and margin uncollected on this one job.</p>
+
+  <h2>Overhead and margin apply to every dollar of scope, not just labor</h2>
+  <p>It is easy to treat overhead and margin as something that lives on the labor and the base mix tons, and to pass a late add-on through at its raw material cost because it feels like "just materials." This calculator does not draw that line: overhead is a percentage of total direct cost, and price is total cost marked up to the target margin, whichever line the cost sits on. A material cost added after the estimate is drafted — fabric, a permit fee, extra gravel — carries the same overhead and margin share as everything already in the bid, or the bid quietly stops hitting its own target margin on the jobs that use it.</p>
+
+  <h2>How to use the comparison</h2>
+  <p>Open the <a href="index.html">asphalt driveway paving bid calculator</a>, load the "2,000 sq ft mill-and-overlay, 2.5 in, fabric over cracks" preset, and toggle the fabric checkbox on and off to see the price move by $1,905.14 rather than by the $1,182.50 material line alone. This is the same arithmetic as <a href="how-much-to-charge-to-pave-a-driveway.html">how much to charge to pave a driveway</a> and <a href="vs-a-flat-rate-per-square-foot.html">this calculator vs. a flat rate per square foot</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I only charge material cost for paving fabric?</h3>
+  <p>No. At this calculator's own default crew rates (16% overhead, 28% target margin), adding paving fabric to a 2,150 square foot mill-and-overlay costs $1,182.50 in material (2,150 sq ft x $0.55/sq ft) but should add $1,905.14 to the price. Charging only the $1,182.50 material line leaves $722.64 of overhead and margin uncollected on that job.</p>
+  <h3>Where does the extra $722.64 come from?</h3>
+  <p>Overhead first, then margin, in that order. The $1,182.50 of fabric material raises total cost by $1,371.70 once 16% overhead is applied on top of it ($1,182.50 + $189.20 overhead). Because price is total cost divided by (1 minus the 28% target margin), that $1,371.70 of added cost turns into $1,905.14 of added price — not the $1,182.50 the material alone cost.</p>
+  <h3>Does fabric change the price on every job?</h3>
+  <p>No. Fabric is its own checkbox, off by default, and adds nothing when left unchecked. It only changes the price on the square footage it actually covers — this calculator's own fabric-over-cracks preset covers a 2,000 square foot driveway plus a 150 square foot apron, 2,150 square feet in total.</p>
+  <h3>Is this specific to fabric, or true of any add-on?</h3>
+  <p>Any material line added after the estimate is drafted has the same gap: overhead and margin are set as a share of total cost and total price, not of the base scope alone, so a cost added without re-running the calculation is added at its raw material price — short by whatever overhead and margin that line was supposed to carry.</p>
+
+  <p class="note"><strong>No warranty.</strong> This free page is not paving, construction, legal, tax, or financial advice. You are responsible for reviewing and verifying its output before relying on it. It is hosted best-effort with no SLA: it may be slow, broken, moved, or taken offline without notice. Nothing you type on the calculator is ever sent anywhere. Free and open source — the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pole-barn-bid-calculator/" data-pf-to="pole-barn-bid-calculator">Pole Barn Bid Calculator</a></li>
+      <li><a href="../retaining-wall-bid-calculator/" data-pf-to="retaining-wall-bid-calculator">Retaining Wall Bid Calculator</a></li>
+      <li><a href="../shed-install-bid-calculator/" data-pf-to="shed-install-bid-calculator">Shed Install Bid Calculator</a></li>
+      <li><a href="../asphalt-sealcoat-bid-calculator/" data-pf-to="asphalt-sealcoat-bid-calculator">Asphalt Sealcoating Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=asphalt-driveway-pave-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="asphalt-driveway-pave-bid-calculator"></script>
+</body>
+</html>

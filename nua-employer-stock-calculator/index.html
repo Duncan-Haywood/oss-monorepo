@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NUA Employer Stock Calculator</title>
+  <meta name="description" content="Free NUA calculator: compare taking employer stock out of your 401(k) with net unrealized appreciation treatment against rolling everything to an IRA…">
+  <meta property="og:title" content="NUA or IRA rollover? Work out the tax on your employer stock — free, private">
+  <meta property="og:description" content="Enter stock value and plan cost basis. See the tax now, the tax at sale and the after-tax result of both routes.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NUA Employer Stock Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is net unrealized appreciation (NUA)?", "acceptedAnswer": {"@type": "Answer", "text": "NUA is the growth in your employer's stock while it sat in your 401(k): the market value when it leaves the plan minus the plan's average cost basis. If you take the shares out in kind in a qualifying lump-sum distribution, you pay ordinary income tax only on the cost basis now, and the NUA is taxed as a long-term capital gain when you sell, whenever that is."}}, {"@type": "Question", "name": "What is a lump-sum distribution for NUA?", "acceptedAnswer": {"@type": "Answer", "text": "The entire balance of all of the employer's plans of the same type, paid out within a single calendar year, after a triggering event such as separation from service, reaching age 59½, disability or death. A partial distribution generally loses NUA treatment. Ask the plan administrator to confirm before you act."}}, {"@type": "Question", "name": "Is there a 10% penalty on an NUA distribution?", "acceptedAnswer": {"@type": "Answer", "text": "The 10% additional tax can apply to the cost basis you are taxed on now if you are under 59½, unless an exception applies, for example separation from service in or after the year you turn 55. The NUA itself is not hit by it. This page asks your age and whether you separated at 55 or later and adds the 10% when it applies."}}, {"@type": "Question", "name": "When does NUA beat an IRA rollover?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly when the cost basis is a small share of the stock's value and your ordinary tax rate is well above the long-term capital gains rate. A rollover defers all tax, but every dollar comes out later as ordinary income. The table on this page shows how the gap moves as basis share rises."}}, {"@type": "Question", "name": "Does this tell me what to do?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a worksheet that does arithmetic on the figures you enter. Rules differ by plan and by state, and the decision is often irreversible, so check the result with a tax professional and your plan administrator before distributing shares."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #7a3e0a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #3b2a14; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #3b2a14; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"NUA or IRA rollover? Work out the tax on your employer stock — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NUA or IRA rollover? Work out the tax on your employer stock — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">NUA or IRA rollover? Work out the tax on your employer stock — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">NUA EMPLOYER STOCK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>NUA or IRA rollover: which leaves you with more after tax?</h1>
+    <p>If your 401(k) holds your employer's stock, you can take the shares out in kind and pay <strong>ordinary tax only on the cost basis</strong>, leaving the <strong>net unrealized appreciation</strong> to be taxed as a long-term gain when you sell. Or you can roll it all to an IRA and pay ordinary rates on every dollar later. Enter your figures and see both.</p>
+    <p class="note">The numbers stay in this browser tab. It does arithmetic on what you type; it is a worksheet, not tax advice, and the decision is hard to undo.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your figures</h2>
+    <div class="grid">
+      <div><label for="value">Market value of the employer stock, dollars</label><input id="value" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="basis">Cost basis of that stock in the plan, dollars</label><input id="basis" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="age">Your age</label><input id="age" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="sep55">Separated from the employer in or after the year you turned 55?</label><select id="sep55"><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="lump">Will you take the whole plan balance out in one calendar year?</label><select id="lump"><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="ord">Ordinary tax rate this year, percent</label><input id="ord" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="ltcg">Long-term capital gains rate, percent</label><input id="ltcg" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="ret">Ordinary tax rate on IRA withdrawals later, percent</label><input id="ret" inputmode="decimal" value="" placeholder=""></div>
+      <div><label for="state">State tax rate, percent (optional)</label><input id="state" inputmode="decimal" value="0" placeholder=""></div>
+      <div><label for="growth">Expected yearly growth of the stock, percent</label><input id="growth" inputmode="decimal" value="0" placeholder=""></div>
+      <div><label for="years">Years you would hold it after the distribution</label><input id="years" inputmode="decimal" value="0" placeholder=""></div>
+      <div><label for="fund">Yearly return on the money you use to pay the tax now, percent (blank = same as growth)</label><input id="fund" inputmode="decimal" value="" placeholder=""></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare the two routes</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Compare the two routes.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>NUA route minus rollover, after tax</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>How the answer moves with the share of value that is basis</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Basis share of value</th><th scope="col" class="n">NUA route, net</th><th scope="col" class="n">IRA rollover, net</th><th scope="col" class="n">NUA advantage</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>NUA route:</strong> tax now = cost basis at your ordinary rate (plus the 10% additional tax when it applies), then the NUA taxed at the long-term rate at sale, and growth after distribution taxed long term if held over a year, ordinary if not. The tax paid now is charged the return you give it.</li>
+      <li><strong>Rollover:</strong> no tax now; the whole grown value is taxed at your later ordinary rate.</li>
+      <li><strong>Not decided:</strong> whether your plan allows an in-kind distribution; whether your distribution qualifies as a lump sum; net investment income tax, bracket effects, IRMAA, state rules, required distributions, estate treatment; and whether holding one stock is wise.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is net unrealized appreciation (NUA)?</h3>
+    <p>NUA is the growth in your employer's stock while it sat in your 401(k): the market value when it leaves the plan minus the plan's average cost basis. If you take the shares out in kind in a qualifying lump-sum distribution, you pay ordinary income tax only on the cost basis now, and the NUA is taxed as a long-term capital gain when you sell, whenever that is.</p>
+    <h3>What is a lump-sum distribution for NUA?</h3>
+    <p>The entire balance of all of the employer's plans of the same type, paid out within a single calendar year, after a triggering event such as separation from service, reaching age 59½, disability or death. A partial distribution generally loses NUA treatment. Ask the plan administrator to confirm before you act.</p>
+    <h3>Is there a 10% penalty on an NUA distribution?</h3>
+    <p>The 10% additional tax can apply to the cost basis you are taxed on now if you are under 59½, unless an exception applies, for example separation from service in or after the year you turn 55. The NUA itself is not hit by it. This page asks your age and whether you separated at 55 or later and adds the 10% when it applies.</p>
+    <h3>When does NUA beat an IRA rollover?</h3>
+    <p>Roughly when the cost basis is a small share of the stock's value and your ordinary tax rate is well above the long-term capital gains rate. A rollover defers all tax, but every dollar comes out later as ordinary income. The table on this page shows how the gap moves as basis share rises.</p>
+    <h3>Does this tell me what to do?</h3>
+    <p>No. It is a worksheet that does arithmetic on the figures you enter. Rules differ by plan and by state, and the decision is often irreversible, so check the result with a tax professional and your plan administrator before distributing shares.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a tax professional or your plan administrator. Treat its output as a worksheet to check, not a recommendation to distribute or sell anything.</p>
+    <p><strong>Your figures.</strong> Account values are sensitive. This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../rmd-calculator/">RMD calculator</a>, the <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a> and the <a href="../espp-tax-calculator/">ESPP tax calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars, pctText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { value: "value", basis: "basis", age: "age", ord: "ordinaryPct", ltcg: "ltcgPct", ret: "retirementPct", state: "statePct", growth: "growthPct", years: "years", fund: "taxFundPct" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => {
+      const o = { separatedAt55: $("#sep55").value, lumpSum: $("#lump").value };
+      for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value;
+      return o;
+    };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = (r.s.advantage >= 0 ? "NUA ahead by " : "Rollover ahead by ") + dollars(Math.abs(r.s.advantage));
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${pctText(x.basisShare)}</td><td class="n">${dollars(x.nuaNet)}</td><td class="n">${dollars(x.iraNet)}</td><td class="n">${dollars(x.advantage)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      $("#sep55").value = SAMPLE.separatedAt55; $("#lump").value = SAMPLE.lumpSum;
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $500,000 of stock with a $100,000 basis, age 56, separated at 55.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = "Fill in the figures, then click Compare the two routes."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("nua-summary.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("nua-sensitivity.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../powder-coating-job-price-calculator/" data-pf-to="powder-coating-job-price-calculator">Powder Coating Job Price Calculator — free, private</a></li>
+      <li><a href="../ppf-ceramic-coating-price-calculator/" data-pf-to="ppf-ceramic-coating-price-calculator">PPF and Ceramic Coating Bid Calculator — free, private</a></li>
+      <li><a href="../private-chef-service-price-calculator/" data-pf-to="private-chef-service-price-calculator">Private Chef Service Price Calculator — free, private</a></li>
+      <li><a href="../private-pilot-training-cost-calculator/" data-pf-to="private-pilot-training-cost-calculator">Private pilot training cost calculator: what will your license really cost? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=nua-employer-stock-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/?pfEmbed=1&quot; title=&quot;NUA or IRA rollover? Work out the tax on your employer stock — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="nua-employer-stock-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/" data-pf-embed-title="NUA or IRA rollover? Work out the tax on your employer stock — free, private" data-pf-embed-slug="nua-employer-stock-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="nua-employer-stock-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="nua-employer-stock-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

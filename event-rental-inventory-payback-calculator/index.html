@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</title>
+  <meta name="description" content="Free calculator for party and event rental companies. Enter what each item costs, what a rental earns, how often it goes out, handling, breakage and storage…">
+  <meta property="og:title" content="Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next">
+  <meta property="og:description" content="Free calculator for party and event rental companies. Enter what each item costs, what a rental earns, how often it goes out, handling, breakage and storage…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Event Rental Inventory Payback Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for party and event rental companies: payback, yearly return, break-even rentals per unit and the lowest rental price for every chair, table, linen or floor you own or plan to buy, ranked so you know what to buy next. Runs in your browser; nothing is uploaded.","featureList":"rental inventory payback calculator, party rental ROI per item, chair and table rental pricing, what to buy next rental business, break-even rentals per unit"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which rental item should I buy next?","acceptedAnswer":{"@type":"Answer","text":"Rank every item by what a year of rentals returns on the money tied up in it: rentals times price, minus handling, card fees, losses and storage, divided by what the units cost. The item at the top returns the most on each dollar. This assumes the extra units rent as often as the ones you own, so check how often you are already sold out before you add stock."}},{"@type":"Question","name":"How do I know if a rental item has paid for itself?","acceptedAnswer":{"@type":"Answer","text":"Divide what the units cost by the cash they bring in a year after handling, card fees, breakage and storage. That is the payback in years. Compare it with the useful life: an item that pays back in three years but wears out in three has returned nothing."}},{"@type":"Question","name":"What should I charge to rent an item so it pays back in two years?","acceptedAnswer":{"@type":"Answer","text":"Work backwards: the yearly share of the purchase cost needed for the payback you want, plus storage and expected losses, spread over the rentals each unit gets, plus the handling cost of each rental, divided by one minus your card fee. The calculator shows that lowest price for every item."}},{"@type":"Question","name":"How many times a year does a rental item have to go out to break even?","acceptedAnswer":{"@type":"Answer","text":"Add the item's yearly wear (cost divided by useful life), storage and expected losses per unit, then divide by what one rental earns after handling and card fees. Below that number of rentals per unit the item loses money even if it is always in use for a customer."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this tax, insurance or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Depreciation for tax, sales tax on rentals and insurance depend on where you operate. Check with an accountant or your insurer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+      input.cell { padding: 6px 7px; min-width: 70px; }
+    td.name input { min-width: 150px; }
+  </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next","item":"https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</span></span></nav>
+  <header>
+    <p class="note">EVENT RENTAL INVENTORY PAYBACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which rental items pay for themselves? Payback, return and what to buy next</h1>
+    <p>For party, tent and event rental companies. List the chairs, tables, linens and floors you own or plan to buy. The tool counts <strong>handling per rental, card fees, breakage and loss, storage and each item's wear</strong>, then ranks every item by <strong>return on the money tied up</strong>, shows payback and break-even rentals per unit, and finds the <strong>lowest rental price</strong> that pays an item back in the years you choose.</p>
+    <p class="note">The method with a worked example: <a href="./which-rental-items-pay-for-themselves.html">which rental items pay for themselves</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Your rules</h2>
+    <div class="row3">
+      <div><label for="pc">Card fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3" inputmode="decimal"></div>
+      <div><label for="ty">Payback you want (years)</label><input type="number" id="ty" min="0.25" step="0.25" max="20" value="2" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Your items</h2>
+    <p class="note">One row per kind of item. Rentals per unit per year is how many events each unit goes out to. Handling is the washing, pressing, loading and counting cost for one unit on one rental. Loss and damage is the share of units broken or missing in a year.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="items"><thead><tr><th>Item</th><th class="num">Units owned</th><th class="num">Cost per unit ($)</th><th class="num">Price per unit per rental ($)</th><th class="num">Rentals per unit per year</th><th class="num">Handling per rental ($)</th><th class="num">Loss and damage (% of units a year)</th><th class="num">Storage per unit per year ($)</th><th class="num">Useful life (years)</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" class="secondary" id="add-row">Add an item</button>
+    <button type="button" id="solve">Rank my inventory</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the rows, then click Rank my inventory.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="out"><thead><tr><th>Rank</th><th>Item</th><th class="num">Invested</th><th class="num">Cash a year</th><th class="num">Return</th><th class="num">Payback (years)</th><th class="num">Break-even rentals per unit</th><th class="num">Lowest price for your payback</th><th class="num">Profit a year after wear</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">Returns assume extra units rent as often as the ones you own. If you already turn away orders for an item the return on more of it is real; if the stock sits idle on busy weekends it is not.</p>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Cash a year</strong> for an item is units × rentals × price, minus handling on every rental, card fees on the revenue, the units lost or broken each year at replacement cost, and storage. <strong>Payback</strong> is what the units cost divided by that cash. <strong>Profit after wear</strong> also takes off cost ÷ useful life. <strong>Break-even rentals</strong> is the number of rentals per unit where that profit is zero.</p>
+    <p><strong>Lowest price:</strong> the price at which cash a year equals cost ÷ the payback you want. The test suite checks that renting at exactly that price pays back in exactly that time for hundreds of random items.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which rental item should I buy next?</h3>
+    <p>Rank every item by what a year of rentals returns on the money tied up in it: rentals times price, minus handling, card fees, losses and storage, divided by what the units cost. The item at the top returns the most on each dollar. This assumes the extra units rent as often as the ones you own, so check how often you are already sold out before you add stock.</p>
+    <h3>How do I know if a rental item has paid for itself?</h3>
+    <p>Divide what the units cost by the cash they bring in a year after handling, card fees, breakage and storage. That is the payback in years. Compare it with the useful life: an item that pays back in three years but wears out in three has returned nothing.</p>
+    <h3>What should I charge to rent an item so it pays back in two years?</h3>
+    <p>Work backwards: the yearly share of the purchase cost needed for the payback you want, plus storage and expected losses, spread over the rentals each unit gets, plus the handling cost of each rental, divided by one minus your card fee. The calculator shows that lowest price for every item.</p>
+    <h3>How many times a year does a rental item have to go out to break even?</h3>
+    <p>Add the item's yearly wear (cost divided by useful life), storage and expected losses per unit, then divide by what one rental earns after handling and card fees. Below that number of rentals per unit the item loses money even if it is always in use for a customer.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this tax, insurance or business advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Depreciation for tax, sales tax on rentals and insurance depend on where you operate. Check with an accountant or your insurer.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, insurance or financial advice. <strong>Use at your own risk.</strong> Check taxes, insurance and your contracts with an accountant or adviser.</p>
+    <p><strong>Independent.</strong> Not affiliated with any rental software, equipment maker or industry association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>inventory_ranked</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tool: the <a href="../tent-rental-job-profit-calculator/">tent rental job profit calculator</a>, for the profit on a single job.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const COLS = [["units", "Units owned"], ["unitCost", "Cost per unit"], ["price", "Price per unit per rental"], ["rentals", "Rentals per unit per year"], ["handling", "Handling per rental"], ["lossPct", "Loss and damage percent"], ["storage", "Storage per unit per year"], ["lifeYears", "Useful life in years"]];
+    let R = null;
+    function addRow(it) {
+      const tr = document.createElement("tr");
+      const n = $("#items tbody").children.length + 1;
+      tr.innerHTML = '<td class="name"><input type="text" class="cell" data-k="name" maxlength="60" aria-label="Item ' + n + ' name" value="' + esc(it.name) + '"></td>' +
+        COLS.map(([k, l]) => '<td><input type="number" class="cell" data-k="' + k + '" min="0" step="any" aria-label="Item ' + n + " " + l + '" value="' + esc(it[k]) + '" inputmode="decimal"></td>').join("") +
+        '<td><button type="button" class="secondary rm" aria-label="Remove item ' + n + '">Remove</button></td>';
+      tr.querySelector(".rm").addEventListener("click", () => { tr.remove(); });
+      $("#items tbody").appendChild(tr);
+    }
+    function setRows(items) { $("#items tbody").innerHTML = ""; items.forEach(addRow); }
+    function read() {
+      const items = [...$("#items tbody").children].map((tr) => {
+        const o = {};
+        tr.querySelectorAll("input[data-k]").forEach((el) => { o[el.dataset.k] = el.dataset.k === "name" ? el.value : Number(el.value); });
+        return o;
+      });
+      return { items, processPct: Number($("#pc").value), targetYears: Number($("#ty").value) };
+    }
+    function fill(s) { $("#pc").value = s.processPct; $("#ty").value = s.targetYears; setRows(s.items); }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const t = R.totals;
+      $("#big").innerHTML = [[money(t.invested), "tied up in inventory"], [money(t.cash), "cash a year after handling, losses and storage"], [pct(t.roi), "return a year on the money tied up"], [t.paybackYears === null ? "never" : t.paybackYears.toFixed(1), "years for the whole inventory to pay back"], [esc(R.best.name), "earns the most per dollar"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const c = (x) => '<td class="num">' + x + "</td>";
+      $("#out tbody").innerHTML = R.ranked.map((x) => "<tr><td>" + x.rank + "</td><td>" + esc(x.name) + "</td>" + c(money(x.invested)) + c(money(x.cash)) + c(pct(x.roi)) + c(x.paybackYears === null ? "never" : x.paybackYears.toFixed(1)) + c(x.breakevenRentals === null ? "n/a" : x.breakevenRentals.toFixed(1)) + c(cents(x.minPrice)) + c(money(x.profit)) + "</tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    $("#add-row").addEventListener("click", () => addRow({ name: "New item", units: 10, unitCost: 20, price: 2, rentals: 10, handling: 0.2, lossPct: 3, storage: 0.5, lifeYears: 5 }));
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("inventory_ranked"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: five items for a mid-size rental company, invented numbers. Replace them with yours."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("rental-inventory-payback.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("rental-inventory-scenario.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(sampleInput());
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wedding-videographer-profit-calculator/" data-pf-to="wedding-videographer-profit-calculator">Wedding Videographer Profit Calculator — free</a></li>
+      <li><a href="../worker-classification-checker/" data-pf-to="worker-classification-checker">Is your 1099 contractor really an employee? Free checker</a></li>
+      <li><a href="../yoga-pilates-studio-class-profit-calculator/" data-pf-to="yoga-pilates-studio-class-profit-calculator">Yoga &amp; Pilates Studio Class Profit Calculator — free, private</a></li>
+      <li><a href="../401k-loan-vs-withdrawal-calculator/" data-pf-to="401k-loan-vs-withdrawal-calculator">401(k) loan vs withdrawal calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=event-rental-inventory-payback-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/?pfEmbed=1&quot; title=&quot;Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="event-rental-inventory-payback-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/" data-pf-embed-title="Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next" data-pf-embed-slug="event-rental-inventory-payback-calculator"></script>
+</body>
+</html>

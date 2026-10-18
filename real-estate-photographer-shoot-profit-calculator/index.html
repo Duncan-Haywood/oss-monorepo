@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Real Estate Photographer Shoot Profit Calculator — Hourly Earnings by Package</title>
+  <meta name="description" content="Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time…">
+  <meta property="og:title" content="Real Estate Photographer Shoot Profit Calculator — free, private">
+  <meta property="og:description" content="True hourly earnings per listing package, add-on profit and edit-vs-outsource break-even.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Real Estate Photographer Shoot Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "True hourly earnings for each real estate photography package after drive, shoot, editing and admin time, with the fee that reaches a target hourly rate and an edit-or-outsource comparison. Runs in your browser.", "featureList": "Hourly earnings by package tier, fee for target hourly, add-on profit, edit vs outsource break-even, monthly profit and shoots to cover overhead, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Real Estate Photographer Shoot Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "True hourly earnings for each real estate photography package after drive, shoot, editing and admin time, with the fee that reaches a target hourly rate and an edit-or-outsource comparison. Runs in your browser.", "featureList": "Hourly earnings by package tier, fee for target hourly, add-on profit, edit vs outsource break-even, monthly profit and shoots to cover overhead"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f4c59; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8fa7b2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #8a2f0c; }
+    .pill.medium { background: #fdf0d5; color: #6b500c; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Real Estate Photographer Shoot Profit Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should a real estate photographer charge?","acceptedAnswer":{"@type":"Answer","text":"That depends on your market, but the useful number is what each package earns per hour of total time, not per shoot. A cheap small-condo package that needs a 40-minute drive can pay less per hour than a large house at triple the fee. Enter your own prices and times above."}},{"@type":"Question","name":"Is it worth outsourcing real estate photo editing?","acceptedAnswer":{"@type":"Answer","text":"When your editing time, priced at the hourly rate you want to earn, costs more than the service charges per photo, outsourcing frees hours. It only pays if you resell those hours as shoots. The calculator shows the per-photo comparison and the monthly value."}},{"@type":"Question","name":"Which add-ons are worth selling?","acceptedAnswer":{"@type":"Answer","text":"Each add-on earns its fee minus extra on-site time, extra editing time and direct cost. Raise the percentage of shoots that buy it and watch the average profit per shoot change."}},{"@type":"Question","name":"How many shoots a month do I need?","acceptedAnswer":{"@type":"Answer","text":"The month summary shows profit after overhead and the number of shoots at which pay above your target hourly covers your fixed monthly costs."}},{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Prices and business decisions are yours."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Real Estate Photographer Shoot Profit Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Real Estate Photographer Shoot Profit Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">REAL ESTATE PHOTOGRAPHY PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a $175 listing shoot really pay you per hour?</h1>
+    <p>Enter your package fees and how long a shoot really takes. See the <strong>true hourly earnings of each package tier</strong> after drive, shoot, editing and admin time, the fee that reaches your hourly target, what drone, twilight and floor-plan add-ons add, and whether outsourcing your editing frees time worth more than it costs.</p>
+    <p class="note">Nothing you type leaves this tab. The numbers shown first are an example, not a benchmark: replace them with your own.</p>
+  </header>
+  <section class="card">
+    <h2>1. Your price list and shoot times</h2>
+    <div class="grid">
+      <div><label for="t1Fee">Tier 1 package fee (Small condo or apartment)</label><input type="number" id="t1Fee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t1Photos">Tier 1: photos delivered</label><input type="number" id="t1Photos" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t1ShootMin">Tier 1: minutes on site</label><input type="number" id="t1ShootMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t2Fee">Tier 2 package fee (Typical house)</label><input type="number" id="t2Fee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t2Photos">Tier 2: photos delivered</label><input type="number" id="t2Photos" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t2ShootMin">Tier 2: minutes on site</label><input type="number" id="t2ShootMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t3Fee">Tier 3 package fee (Large house)</label><input type="number" id="t3Fee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t3Photos">Tier 3: photos delivered</label><input type="number" id="t3Photos" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t3ShootMin">Tier 3: minutes on site</label><input type="number" id="t3ShootMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t4Fee">Tier 4 package fee (Luxury or estate)</label><input type="number" id="t4Fee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t4Photos">Tier 4: photos delivered</label><input type="number" id="t4Photos" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="t4ShootMin">Tier 4: minutes on site</label><input type="number" id="t4ShootMin" min="0" step="any" inputmode="decimal"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. Travel, editing and costs</h2>
+    <div class="grid">
+      <div><label for="driveMinutes">Drive minutes, one way (average)</label><input type="number" id="driveMinutes" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="adminMinutes">Admin minutes per shoot (booking, upload, delivery, invoice)</label><input type="number" id="adminMinutes" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="editMinutesPerPhoto">Your editing minutes per delivered photo</label><input type="number" id="editMinutesPerPhoto" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="outsourceCostPerPhoto">Editing service price per photo</label><input type="number" id="outsourceCostPerPhoto" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="editInHouse">Who edits? 1 = you, 0 = a service</label><input type="number" id="editInHouse" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="milesOneWay">Miles one way (average)</label><input type="number" id="milesOneWay" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="mileageCost">Cost per mile (fuel + wear)</label><input type="number" id="mileageCost" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="gearCostPerShoot">Gear wear, cards and software per shoot</label><input type="number" id="gearCostPerShoot" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="paymentFeePct">Card fee on the invoice (%)</label><input type="number" id="paymentFeePct" min="0" step="any" inputmode="decimal"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>3. Add-ons</h2>
+    <div class="grid">
+      <div><label for="droneFee">Drone: fee</label><input type="number" id="droneFee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="droneMin">Drone: extra minutes on site</label><input type="number" id="droneMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="droneEditMin">Drone: extra editing minutes</label><input type="number" id="droneEditMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="droneCost">Drone: direct cost per use</label><input type="number" id="droneCost" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="droneTakePct">Drone: % of shoots that buy it</label><input type="number" id="droneTakePct" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="twilightFee">Twilight: fee</label><input type="number" id="twilightFee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="twilightMin">Twilight: extra minutes on site</label><input type="number" id="twilightMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="twilightEditMin">Twilight: extra editing minutes</label><input type="number" id="twilightEditMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="twilightCost">Twilight: direct cost per use</label><input type="number" id="twilightCost" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="twilightTakePct">Twilight: % of shoots that buy it</label><input type="number" id="twilightTakePct" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="floorplanFee">Floor plan: fee</label><input type="number" id="floorplanFee" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="floorplanMin">Floor plan: extra minutes on site</label><input type="number" id="floorplanMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="floorplanEditMin">Floor plan: extra editing minutes</label><input type="number" id="floorplanEditMin" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="floorplanCost">Floor plan: direct cost per use</label><input type="number" id="floorplanCost" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="floorplanTakePct">Floor plan: % of shoots that buy it</label><input type="number" id="floorplanTakePct" min="0" step="any" inputmode="decimal"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>4. Goals and mix</h2>
+    <div class="grid">
+      <div><label for="targetHourly">Target earnings per hour of total time</label><input type="number" id="targetHourly" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="shootsPerMonth">Shoots per month</label><input type="number" id="shootsPerMonth" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="monthlyOverhead">Monthly overhead (insurance, software, hosting, marketing)</label><input type="number" id="monthlyOverhead" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="mix1">Mix: % of shoots at tier 1</label><input type="number" id="mix1" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="mix2">Mix: % at tier 2</label><input type="number" id="mix2" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="mix3">Mix: % at tier 3</label><input type="number" id="mix3" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="mix4">Mix: % at tier 4</label><input type="number" id="mix4" min="0" step="any" inputmode="decimal"></div>
+    </div>
+    <p><button type="button" id="go">Calculate</button><button type="button" class="secondary" id="reset">Reset to example</button></p>
+    <p class="note" id="status">Edit any number and click Calculate. The page starts with an example.</p>
+  </section>
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="findings"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Tier</th><th class="n" scope="col">Hours worked</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">Fee for target</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>Your month at this mix</h3>
+    <p class="stats" id="month"></p>
+  </section>
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Hours worked</strong> = round-trip drive + on-site time + editing time + admin, plus the expected extra time from add-ons at your take rates.</li>
+      <li><strong>Profit</strong> = package fee + expected add-on fees − mileage − gear wear − editing service cost (if outsourced) − add-on direct costs − card fees.</li>
+      <li><strong>Per hour</strong> = profit ÷ all hours worked, not just the hours on site.</li>
+      <li><strong>Fee for target</strong> = the package fee that earns your target per hour for that tier, holding add-ons and costs fixed.</li>
+      <li><strong>Edit vs outsource</strong> = your editing minutes per photo priced at your target rate, against the service price per photo.</li>
+      <li><strong>Not modelled:</strong> income tax and self-employment tax, rush fees, reshoots, MLS licensing terms, travel surcharges, second-shooter pay and seasonality.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a real estate photographer charge?</h3>
+    <p>That depends on your market, but the useful number is what each package earns per hour of total time, not per shoot. A cheap small-condo package that needs a 40-minute drive can pay less per hour than a large house at triple the fee. Enter your own prices and times above.</p>
+    <h3>Is it worth outsourcing real estate photo editing?</h3>
+    <p>When your editing time, priced at the hourly rate you want to earn, costs more than the service charges per photo, outsourcing frees hours. It only pays if you resell those hours as shoots. The calculator shows the per-photo comparison and the monthly value.</p>
+    <h3>Which add-ons are worth selling?</h3>
+    <p>Each add-on earns its fee minus extra on-site time, extra editing time and direct cost. Raise the percentage of shoots that buy it and watch the average profit per shoot change.</p>
+    <h3>How many shoots a month do I need?</h3>
+    <p>The month summary shows profit after overhead and the number of shoots at which pay above your target hourly covers your fixed monthly costs.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Prices and business decisions are yours.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>reset</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a photo business? See the <a href="../wedding-photographer-profit-calculator/">wedding photographer profit calculator</a> and the <a href="../photo-addon-pricing-calculator/">photo add-on pricing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { estimate, money, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    const fill = () => keys.forEach((k) => ($("#" + k).value = DEFAULTS[k]));
+    const read = () => Object.fromEntries(keys.map((k) => [k, $("#" + k).value]));
+    function run() {
+      const e = estimate(read());
+      if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
+      $("#rows").innerHTML = e.cases.map((c) => `<tr><th scope="row">Tier ${c.tier}</th><td class="n">${c.hours}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.cost)}</td><td class="n">${money(c.profit)}</td><td class="n">${money(c.hourly)}</td><td class="n">${money(c.feeForTarget)}</td></tr>`).join("");
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const m = e.month;
+      $("#month").textContent = `At ${e.o.shootsPerMonth} shoots a month you work about ${m.hours} hours and keep ${money(m.profit)} after overhead: ${money(m.effectiveHourly)} an hour. ` + (m.shootsToCoverOverhead === null ? "At this mix each shoot earns less than your target hourly, so more shoots never cover overhead." : `Pay above your target covers monthly overhead from about ${m.shootsToCoverOverhead} shoots.`);
+      $("#report").hidden = false; $("#status").textContent = "Updated."; return true;
+    }
+    $("#go").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#reset").addEventListener("click", () => { fill(); if (run()) record("reset"); });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(); run();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../grease-trap-pumping-price-calculator/" data-pf-to="grease-trap-pumping-price-calculator">Grease Trap Pumping Price Calculator — free, private</a></li>
+      <li><a href="../h1b-weighted-lottery-odds-calculator/" data-pf-to="h1b-weighted-lottery-odds-calculator">H-1B weighted lottery odds by wage level — free, private</a></li>
+      <li><a href="../hearing-aid-dispensing-margin-calculator/" data-pf-to="hearing-aid-dispensing-margin-calculator">Hearing aid dispensing margin calculator</a></li>
+      <li><a href="../hoa-reserve-fund-calculator/" data-pf-to="hoa-reserve-fund-calculator">HOA Reserve Fund Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=real-estate-photographer-shoot-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/?pfEmbed=1&quot; title=&quot;Real Estate Photographer Shoot Profit Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="real-estate-photographer-shoot-profit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/" data-pf-embed-title="Real Estate Photographer Shoot Profit Calculator — free, private" data-pf-embed-slug="real-estate-photographer-shoot-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="real-estate-photographer-shoot-profit-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="real-estate-photographer-shoot-profit-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

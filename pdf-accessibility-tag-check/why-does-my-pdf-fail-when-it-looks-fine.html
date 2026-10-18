@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why Does a PDF That Looks Fine Fail This Accessibility Check?</title>
+<meta name="description" content="A PDF can render perfectly and still fail every PDF/UA or Section 508 structural check, because those checks read the tag tree, not the page.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/why-does-my-pdf-fail-when-it-looks-fine.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why does a PDF that looks fine fail this accessibility check?">
+<meta property="og:description" content="PDF/UA and Section 508 grade a document's internal tag structure, not how it renders. A PDF can look identical to a tagged one and still have no structure tree…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/why-does-my-pdf-fail-when-it-looks-fine.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does a PDF that looks fine fail this accessibility check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because PDF/UA and Section 508's tagging requirement is about a structure tree stored inside the file, not about how the page renders. A PDF viewer paints a page from raw drawing instructions -- position this text run here, draw this image there -- and can produce a perfectly readable page with no structure tree at all. A screen reader does not see the rendered page; it reads the tag tree, and if that tree is missing, incomplete, or never marked current, there is nothing for it to read regardless of how the page looks to a sighted reviewer." }
+    },
+    {
+      "@type": "Question",
+      "name": "How can a document have no text layer if I can read the text on the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The page you see is usually a scanned image of a printed document, not real text -- common for signed forms, older records, and anything run through a copier before being saved as a PDF. Visually the words are sharp and legible; structurally the page is one large picture with no text-show operator anywhere in its content stream, so nothing can be selected, searched, copied, or read aloud. The fix is OCR: running the page through optical character recognition to add a real, invisible text layer underneath the image." }
+    },
+    {
+      "@type": "Question",
+      "name": "My PDF has alt text on some images -- why is that still flagged?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A partial-alt-text finding is document-wide: it counts every image in the file against every non-empty /Alt string found anywhere in the structure tree, because matching a specific alt-text entry to the exact image it labels needs the marked-content ID chain this tool does not walk. If the counts are close, most images are likely labelled and a manual pass can confirm which ones are not; if the alt-text count is far below the image count, most images still have nothing, even though the file clearly has alt text on some of them." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4.2vw, 2.2rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why does a PDF that looks fine fail this accessibility check? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pdf-accessibility-tag-check/">PDF Accessibility Tag Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why does a PDF that looks fine fail this accessibility check?</span></span></nav>
+<p><a href="index.html">&larr; Back to the PDF Accessibility Tag Checker</a></p>
+<h1>Why does a PDF that looks fine fail this accessibility check?</h1>
+
+<p>
+  Because PDF/UA and Section 508's tagging requirement is about a structure tree stored inside the
+  file, not about how the page renders. A PDF viewer paints a page from raw drawing instructions --
+  position this text run here, draw this image there -- and can produce a perfectly readable page
+  with no structure tree at all. A screen reader does not see the rendered page; it reads the tag
+  tree, and if that tree is missing, incomplete, or never marked current, there is nothing for it to
+  read regardless of how the page looks to a sighted reviewer.
+</p>
+<p>
+  This gap is why a document can pass every eyeball review a team gives it and still fail a structural
+  check outright: the two are looking at different things. Below is what each of this tool's six
+  findings actually means and, where there is one, the ordinary fix.
+</p>
+
+<h2>Not a tagged PDF</h2>
+<p>
+  The document catalog has no <code>/StructTreeRoot</code> at all, or has one but never declares
+  <code>/MarkInfo /Marked true</code> -- so a reader cannot trust that whatever tree exists is complete
+  or current. This is by far the most common finding, because tagging is opt-in at export time in most
+  authoring tools: a Word document saved as PDF without "Best for electronic distribution and
+  accessibility" checked, or a design tool's PDF export run without its accessibility pass, both produce
+  a visually normal document with nothing structural underneath. The fix happens upstream, at export --
+  in Word, Export &gt; Options &gt; "Document structure tags for accessibility"; in Acrobat Pro, the
+  Accessibility &gt; "Autotag Document" or "Make Accessible" wizard adds a tree to a PDF that already
+  exists.
+</p>
+
+<h2>No document title or no declared language</h2>
+<p>
+  Both are single dictionary entries -- <code>/Title</code> in the Document Information dictionary,
+  <code>/Lang</code> in the document catalog -- and both are invisible in a normal read-through because
+  neither one renders on the page. Without a title, a screen reader announces the file name instead
+  (<code>scan0047.pdf</code> is not useful to anyone); without a declared language, assistive
+  technology has no signal for which pronunciation rules to load, even in a document written entirely
+  in one language throughout.
+</p>
+
+<h2>How can a document have no text layer if I can read the text on the page?</h2>
+<p>
+  The page you see is usually a scanned image of a printed document, not real text -- common for
+  signed forms, older records, and anything run through a copier before being saved as a PDF. Visually
+  the words are sharp and legible; structurally the page is one large picture with no text-show
+  operator anywhere in its content stream, so nothing can be selected, searched, copied, or read aloud.
+  The fix is OCR: running the page through optical character recognition to add a real, invisible text
+  layer underneath the image.
+</p>
+
+<h2>My PDF has alt text on some images -- why is that still flagged?</h2>
+<p>
+  A partial-alt-text finding is document-wide: it counts every image in the file against every
+  non-empty <code>/Alt</code> string found anywhere in the structure tree, because matching a specific
+  alt-text entry to the exact image it labels needs the marked-content ID chain this tool does not
+  walk. If the counts are close, most images are likely labelled and a manual pass can confirm which
+  ones are not; if the alt-text count is far below the image count, most images still have nothing,
+  even though the file clearly has alt text on some of them.
+</p>
+
+<h2>Unlabeled form fields</h2>
+<p>
+  An interactive form field can look perfectly labelled on the page -- a text box sitting right next to
+  the words "Last name" -- while carrying no <code>/TU</code> (alternate field name) on itself or any
+  ancestor field. The visible label and the field are two separate objects with no structural
+  connection between them; a sighted user's eye makes the association a screen reader cannot. The fix
+  is setting each field's tooltip/alternate name in the PDF form editor so the connection exists in the
+  file, not just on the page.
+</p>
+
+<h2>Check your own document</h2>
+<p>
+  <a href="./">Drop a PDF into the checker</a> to see exactly which of these findings apply to it, with
+  the specific evidence behind each one, or scan a whole folder at once with the CLI:
+</p>
+<pre><code>node cli/check.mjs ./document-library/ --json</code></pre>
+<p class="note">Neither the browser page nor the CLI uploads the file anywhere -- see the disclaimer below.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific set of automatable PDF
+  structural signals -- tagging, title, language, an approximate image/alt-text count, form-field labels,
+  and whether a page has a text layer. It is not a full PDF/UA or Section 508 conformance audit, cannot
+  judge whether alt text is accurate or reading order is correct, and does not replace a manual or
+  assistive-technology review.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal, accessibility-consulting, or compliance advice, and it does not
+  replace a qualified accessibility review or a real assistive-technology test.
+  <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for
+  meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors
+  accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The PDF you choose is read entirely in your own tab and
+  is never uploaded to this site or anywhere else. The CLI reads files directly on your own machine.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+      <li><a href="../ofx-file-check/" data-pf-to="ofx-file-check">OFX File Check — free, private, in your browser</a></li>
+      <li><a href="../osha-trir-dart-calculator/" data-pf-to="osha-trir-dart-calculator">OSHA TRIR &amp; DART Rate Calculator</a></li>
+      <li><a href="../paddle-payout-to-journal/" data-pf-to="paddle-payout-to-journal">Paddle earnings export to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pdf-accessibility-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pdf-accessibility-tag-check"></script>
+</body>
+</html>

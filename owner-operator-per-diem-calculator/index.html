@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Owner Operator Per Diem Calculator — Per Diem vs Receipts and Tax Saved</title>
+  <meta name="description" content="Free owner-operator per diem calculator: full and travel days away from home, the M&amp;IE rate, the 80% DOT limit, per diem versus meal receipts…">
+  <meta property="og:title" content="Owner Operator Per Diem Calculator — free, private, in your browser">
+  <meta property="og:description" content="Per diem or receipts, which deduction is larger, and what it saves in tax. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Owner Operator Per Diem Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Computes an owner-operator truck driver's per diem meal deduction from days away from home, applies the 80 percent DOT limit, compares it with actual receipts and estimates the self-employment and income tax saved. Runs entirely in your browser.", "featureList": "Owner operator per diem calculator, per diem versus receipts comparison, 80 percent DOT hours of service limit, self-employment tax estimate, marginal bracket savings, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can an owner-operator deduct per diem?", "acceptedAnswer": {"@type": "Answer", "text": "A self-employed truck driver who is away from home overnight for work can generally deduct meals and incidental expenses, either with actual receipts or a per diem rate, subject to the 80% DOT hours-of-service limit. Verify the current rules and rates with the IRS and a tax professional."}}, {"@type": "Question", "name": "Can a W-2 company driver deduct per diem?", "acceptedAnswer": {"@type": "Answer", "text": "Generally not as an unreimbursed employee expense, but rules changed under 2025 legislation: verify with the IRS and a tax professional before relying on any answer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 900px; margin: auto; padding: 28px 16px; }
+    a { color: #8a5a12; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #2b4a38; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b4a38; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4f5b54; }
+    .card { background: #fff; border: 1px solid #c9d2c6; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .warn { border-color: #b8860b; background: #fff8e6; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9fb0a2; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2b4a38; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4ece6; color: #2b4a38; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3e8e3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #hero { font-size: 2rem; font-weight: 800; color: #2b4a38; margin: 4px 0; }
+    .err { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #c9d2c6; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Owner Operator Per Diem Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Owner Operator Per Diem Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Owner Operator Per Diem Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">OWNER-OPERATOR PER DIEM CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Per diem or receipts: which meal deduction is bigger for an owner-operator?</h1>
+    <p>Enter the days you were away from home, and the page works out the <strong>per diem deduction</strong> (full days plus travel days at 75%), applies the <strong>80% DOT hours-of-service limit</strong>, compares it with the <strong>actual meal receipts</strong> you enter, shows the larger figure, and estimates the <strong>self-employment tax</strong> (15.3% × 92.35%) and income tax it saves.</p>
+    <p class="note">Independent of the IRS, GSA and DOT. Not tax advice.</p>
+  </header>
+
+  <section class="card warn">
+    <h2>Verify every default before you rely on it</h2>
+    <p>The rates and percentages below are starting points read from memory, not live figures. <strong>Verify them against the current GSA and IRS notices</strong>: the transportation-industry M&amp;IE per diem rate (this page starts at <strong>$80/day</strong> within the continental US and <strong>$86/day</strong> outside it), the <strong>75%</strong> travel-day share, the <strong>80%</strong> DOT limit, and the Social Security wage base for the year. This page makes no network calls and cannot look any of them up.</p>
+    <p><strong>Employees:</strong> W-2 company drivers generally cannot deduct meals as unreimbursed employee expenses, but verify; rules changed under 2025 legislation. This tool is for self-employed owner-operators.</p>
+  </section>
+
+  <section class="card">
+    <h2>1. Days away from home</h2>
+    <div class="grid">
+      <div><label for="fullDays">Full days away</label><input id="fullDays" type="number" min="0" max="366" step="1" value="220" inputmode="numeric"></div>
+      <div><label for="partialDays">Travel (partial) days</label><input id="partialDays" type="number" min="0" max="366" step="1" value="30" inputmode="numeric"></div>
+      <div><label for="rateKind">Rate to start from</label>
+        <select id="rateKind"><option value="80">CONUS, $80/day (verify)</option><option value="86">OCONUS, $86/day (verify)</option><option value="custom">Other / current notice</option></select></div>
+      <div><label for="dailyRate">M&amp;IE rate per day ($)</label><input id="dailyRate" type="number" min="0" step="0.01" value="80" inputmode="decimal"></div>
+      <div><label for="partialPct">Travel day share (%)</label><input id="partialPct" type="number" min="0" max="100" step="1" value="75" inputmode="decimal"></div>
+      <div><label for="dotPct">DOT hours-of-service limit (%)</label><input id="dotPct" type="number" min="0" max="100" step="1" value="80" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Receipts and tax inputs</h2>
+    <div class="grid">
+      <div><label for="receipts">Actual meal receipts for the year ($)</label><input id="receipts" type="number" min="0" step="0.01" value="9000" inputmode="decimal"></div>
+      <div><label for="netProfit">Net profit before this deduction ($)</label><input id="netProfit" type="number" min="0" step="1" value="80000" inputmode="decimal"></div>
+      <div><label for="otherWages">Other wages already under the Social Security cap ($)</label><input id="otherWages" type="number" min="0" step="1" value="0" inputmode="decimal"></div>
+      <div><label for="wageBase">Social Security wage base ($, verify the year)</label><input id="wageBase" type="number" min="0" step="1" value="184500" inputmode="decimal"></div>
+      <div><label for="marginalRate">Your federal marginal bracket (%)</label><input id="marginalRate" type="number" min="0" max="100" step="1" value="22" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load the example</button>
+    </p>
+    <p class="note" id="form-status" aria-live="polite">Change any figure; the result updates. Leave profit at 0 to skip the tax estimate.</p>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <h2>Result</h2>
+    <p class="note" id="heroLabel">Larger meal deduction</p>
+    <p id="hero">—</p>
+    <p id="verdict"></p>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Method</th><th class="n" scope="col">Before DOT limit</th><th class="n" scope="col">Deduction</th></tr></thead>
+      <tbody>
+        <tr><td>Per diem (full + travel days)</td><td class="n" id="perDiemGross">—</td><td class="n" id="perDiemDeduction">—</td></tr>
+        <tr><td>Actual receipts</td><td class="n" id="receiptsGross">—</td><td class="n" id="receiptsDeduction">—</td></tr>
+      </tbody></table></div>
+    <h3>Estimated tax effect</h3>
+    <div class="pf-table-scroll"><table><tbody>
+      <tr><td>Self-employment tax before</td><td class="n" id="seBefore">—</td></tr>
+      <tr><td>Self-employment tax after</td><td class="n" id="seAfter">—</td></tr>
+      <tr><td>Self-employment tax saved</td><td class="n" id="seSaving">—</td></tr>
+      <tr><td>Federal income tax saved at your bracket</td><td class="n" id="incomeSaving">—</td></tr>
+      <tr><td><strong>Estimated total saved</strong></td><td class="n" id="totalSaving"><strong>—</strong></td></tr>
+    </tbody></table></div>
+    <p class="note">Self-employment tax is 15.3% of 92.35% of net profit, with the 12.4% Social Security part stopping at the wage base. Income tax saved is your bracket times the deduction plus half the self-employment tax saved. State tax, the qualified business income deduction, additional Medicare tax and phase-outs are not modeled.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this does and does not say</h2>
+    <ul>
+      <li><strong>Per diem</strong> is days away times the M&amp;IE rate, with travel days at 75%, then the 80% limit. Keep a log of dates and places; a per diem still needs records of when you were away.</li>
+      <li><strong>Receipts</strong> are the actual meal costs, also limited to 80%, and you must be able to document them. The page shows the larger figure; whether you may use either method for your situation is a question for a tax professional.</li>
+      <li><strong>Not checked:</strong> your eligibility, tax home, state rules, whether the rates here are current, and any 2025 or later legislation. W-2 company drivers: verify; rules changed under 2025 legislation.</li>
+    </ul>
+    <p>Read more: <a href="can-an-owner-operator-deduct-per-diem.html">Can an owner-operator deduct per diem?</a></p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can an owner-operator deduct per diem?</h3>
+    <p>A self-employed truck driver who is away from home overnight for work can generally deduct meals and incidental expenses, either with actual receipts or a per diem rate, subject to the 80% DOT hours-of-service limit. Verify the current rules and rates with the IRS and a tax professional.</p>
+    <h3>Can a W-2 company driver deduct per diem?</h3>
+    <p>Generally not as an unreimbursed employee expense, but rules changed under 2025 legislation: verify with the IRS and a tax professional before relying on any answer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice and does not replace a qualified tax professional. Results are arithmetic on the figures you type. <strong>You are responsible for verifying every rate and rule, and the output, before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for loss arising from its use.</p>
+    <p><strong>Not affiliated with</strong> the IRS, the General Services Administration (GSA) or the US Department of Transportation (DOT). Those names are used only to say which published rates and rules the figures come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser; no network calls are made, and there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>per_diem_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be turned off below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a> costs a week of running, and the <a href="../ifta-quarterly-fuel-tax-calculator/">IFTA quarterly fuel tax calculator</a> works out the fuel tax return.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculatePerDiem, sampleInputs, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    const FIELDS = ["fullDays", "partialDays", "dailyRate", "partialPct", "dotPct", "receipts", "netProfit", "otherWages", "wageBase", "marginalRate"];
+    const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const BLANK = ["perDiemGross", "perDiemDeduction", "receiptsGross", "receiptsDeduction", "seBefore", "seAfter", "seSaving", "incomeSaving", "totalSaving"];
+
+    function read() { const o = {}; for (const f of FIELDS) o[f] = $(f).value; return o; }
+
+    function render() {
+      const r = calculatePerDiem(read());
+      if (r.error) {
+        $("form-status").className = "note err";
+        $("form-status").textContent = r.error;
+        $("hero").textContent = "—"; $("verdict").textContent = "";
+        for (const id of BLANK) $(id).textContent = "—";
+        return;
+      }
+      $("form-status").className = "note";
+      $("form-status").textContent = "Figures update as you type. Verify the rates before relying on them.";
+      const v = r.inputs;
+      $("hero").textContent = money(r.deduction);
+      $("perDiemGross").textContent = money(r.perDiemGross);
+      $("perDiemDeduction").textContent = money(r.perDiemDeduction);
+      $("receiptsGross").textContent = money(v.receipts);
+      $("receiptsDeduction").textContent = money(r.receiptsDeduction);
+      const name = r.method === "per-diem" ? "The per diem" : r.method === "receipts" ? "Your receipts" : "Both methods";
+      $("verdict").textContent = r.method === "equal"
+        ? `Both methods give the same deduction. Per diem needs a log of the days; receipts need the receipts.`
+        : `${name} gives the larger deduction, by ${money(r.difference)}. Larger on paper is only defensible with the records for that method; verify with a tax professional.`;
+      if (r.taxEstimated) {
+        $("seBefore").textContent = money(r.seTaxBefore);
+        $("seAfter").textContent = money(r.seTaxAfter);
+        $("seSaving").textContent = money(r.seSaving);
+        $("incomeSaving").textContent = money(r.incomeTaxSaving);
+        $("totalSaving").textContent = money(r.totalSaving);
+      } else {
+        for (const id of ["seBefore", "seAfter", "seSaving", "incomeSaving", "totalSaving"]) $(id).textContent = "—";
+      }
+    }
+
+    function setAll(o) { for (const f of FIELDS) $(f).value = o[f]; }
+
+    $("rateKind").addEventListener("change", () => {
+      const k = $("rateKind").value;
+      if (k !== "custom") { $("dailyRate").value = k === "86" ? DEFAULTS.oconusRate : DEFAULTS.conusRate; render(); }
+    });
+    for (const f of FIELDS) $(f).addEventListener("input", () => { if (f === "dailyRate") $("rateKind").value = "custom"; render(); });
+    $("calc").addEventListener("click", () => { render(); record("per_diem_calculated"); });
+    $("load-example").addEventListener("click", () => { setAll(sampleInputs()); $("rateKind").value = "80"; render(); record("example_loaded"); });
+    $("optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    render();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+      <li><a href="../3pl-quote-normalizer/" data-pf-to="3pl-quote-normalizer">3PL Quote Normalizer</a></li>
+      <li><a href="../car-hauler-load-planner/" data-pf-to="car-hauler-load-planner">Car hauler load planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=owner-operator-per-diem-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/?pfEmbed=1&quot; title=&quot;Owner Operator Per Diem Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="owner-operator-per-diem-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/" data-pf-embed-title="Owner Operator Per Diem Calculator — free, private, in your browser" data-pf-embed-slug="owner-operator-per-diem-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="owner-operator-per-diem-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="owner-operator-per-diem-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

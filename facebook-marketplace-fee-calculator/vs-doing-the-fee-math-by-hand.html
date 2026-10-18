@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facebook Marketplace Fee Calculator vs. doing the fee math by hand</title>
+  <meta name="description" content="Working out a Facebook Marketplace payout in your head means remembering the 10% rate, the $0.80 minimum below an $8 total…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html">
+  <meta property="og:title" content="Facebook Marketplace Fee Calculator vs. doing the fee math by hand">
+  <meta property="og:description" content="Mental math gets the 10% rate right and quietly drops the $0.80 minimum, the shipping-in-the-base rule, or the dispute penalty.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does doing this math by hand usually miss?","acceptedAnswer":{"@type":"Answer","text":"Most often the $0.80 minimum fee on a small shipped sale -- 10% of a $5 total is $0.50, but the fee actually charged is $0.80, and a quick mental calculation defaults to the flat percentage. Buyer-paid shipping and any sales tax Facebook collected also count toward the fee base, not just the item price, which a mental estimate built around \"10% of what I'm charging for the item\" leaves out."}},{"@type":"Question","name":"Isn't 10% simple enough to do in your head?","acceptedAnswer":{"@type":"Answer","text":"The percentage itself is simple. What is not simple in your head is remembering, on every single sale, to check whether the $0.80 minimum applies instead, whether shipping and tax belong in the base, and whether a dispute penalty changes the number -- four rules to hold at once rather than one."}},{"@type":"Question","name":"When is doing it by hand the right call?","acceptedAnswer":{"@type":"Answer","text":"For a quick, rough estimate where being off by the price of a coffee does not matter. For pricing a listing to hit a specific take-home number, or checking a payout that already landed, the minimum-fee floor and the dispute penalty are exactly the kind of detail mental math drops first."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. Item prices, costs, and payouts are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16202e; background: #eef4f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; }
+    section.card { background: #fff; border: 1px solid #c3d7e6; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #0a2a4a10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c3d7e6; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #47576b; }
+    .note { font-size: .9rem; color: #47576b; }
+    footer { margin-top: 28px; font-size: .82rem; color: #47576b; border-top: 1px solid #c3d7e6; padding-top: 16px; }
+    footer p { margin: .6rem 0; }
+    a { color: #0a5cad; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Facebook Marketplace Fee Calculator vs. doing the fee math by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Facebook Marketplace Fee Calculator vs. doing the fee math by hand</span></span></nav>
+  <p class="note"><a href="./">&larr; Facebook Marketplace fee calculator</a></p>
+  <h1>Facebook Marketplace Fee Calculator vs. doing the fee math by hand</h1>
+  <p>Facebook's shipped-order fee is one rule with three exceptions: 10% of the buyer-paid total, an $0.80 minimum below an $8 total, and a $20 penalty on a disputed order. Holding all three in your head on every sale is where a mental estimate usually loses to a payout statement.</p>
+
+  <section class="card">
+    <h2>What mental math gets right, and what it drops</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Rule</th><th>Doing it by hand</th><th>This calculator</th></tr></thead>
+      <tbody>
+        <tr><td>10% shipped-order rate</td><td>Usually remembered</td><td>Applied every time</td></tr>
+        <tr><td>Shipping and tax count toward the fee base</td><td>Often forgotten -- easy to fee only the item price</td><td>Included by default</td></tr>
+        <tr><td>$0.80 minimum below an $8 total</td><td>The rule most often skipped entirely</td><td>Applied automatically, and flagged when it is the binding fee</td></tr>
+        <tr><td>$20 dispute penalty</td><td>Rarely factored in until it happens</td><td>An explicit toggle</td></tr>
+        <tr><td>Price for a target profit</td><td>Requires solving the fee formula backwards by hand</td><td>Solved directly, across the minimum-fee floor</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>A concrete example</h2>
+    <p>A $5 item with no buyer-paid shipping: a mental estimate of "10% of $5" gives $0.50, and a payout of $4.50. The fee Facebook actually charges is the $0.80 minimum, since 10% of a $5 total falls short of it -- so the real payout is $4.20, thirty cents lower than the quick estimate. On a single sale that is small change; run the same shortcut across a weekend of listings and it adds up to a number a seller notices on the deposit.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What does doing this math by hand usually miss?</h3>
+  <p>Most often the $0.80 minimum fee on a small shipped sale -- 10% of a $5 total is $0.50, but the fee actually charged is $0.80, and a quick mental calculation defaults to the flat percentage. Buyer-paid shipping and any sales tax Facebook collected also count toward the fee base, not just the item price, which a mental estimate built around "10% of what I'm charging for the item" leaves out.</p>
+  <h3>Isn't 10% simple enough to do in your head?</h3>
+  <p>The percentage itself is simple. What is not simple in your head is remembering, on every single sale, to check whether the $0.80 minimum applies instead, whether shipping and tax belong in the base, and whether a dispute penalty changes the number -- four rules to hold at once rather than one.</p>
+  <h3>When is doing it by hand the right call?</h3>
+  <p>For a quick, rough estimate where being off by the price of a coffee does not matter. For pricing a listing to hit a specific take-home number, or checking a payout that already landed, the minimum-fee floor and the dispute penalty are exactly the kind of detail mental math drops first.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. Item prices, costs, and payouts are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. Verify every figure against Facebook's own Commerce/Seller Help pages or your own payout statement before pricing a listing.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>This page compares against doing the arithmetic yourself -- it names no specific product or company, so there is nothing here to be affiliated with.</p>
+    <p><a href="../where-to-sell-calculator/">Comparing channels instead of doing your own arithmetic?</a> See the where-to-sell calculator.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../print-on-demand-profit-calculator/" data-pf-to="print-on-demand-profit-calculator">Print-on-Demand Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../reseller-books/" data-pf-to="reseller-books">Reseller Books — all your marketplaces in one set of books</a></li>
+      <li><a href="../restaurant-delivery-commission-analyzer/" data-pf-to="restaurant-delivery-commission-analyzer">Restaurant Delivery Commission Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../returns-policy-cost-analyzer/" data-pf-to="returns-policy-cost-analyzer">What do returns really cost your store?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=facebook-marketplace-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="facebook-marketplace-fee-calculator"></script>
+</body>
+</html>

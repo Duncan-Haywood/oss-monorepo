@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="70" y="22" font-size="14" font-weight="bold">Sinks whose fan-in cone changed, per simulation survivor</text>
+<line x1="70" x2="630" y1="290.0" y2="290.0" stroke="#ddd"/><text x="62" y="294.0" text-anchor="end">0</text>
+<line x1="70" x2="630" y1="257.9" y2="257.9" stroke="#ddd"/><text x="62" y="261.9" text-anchor="end">1</text>
+<line x1="70" x2="630" y1="178.9" y2="178.9" stroke="#ddd"/><text x="62" y="182.9" text-anchor="end">10</text>
+<line x1="70" x2="630" y1="76.1" y2="76.1" stroke="#ddd"/><text x="62" y="80.1" text-anchor="end">100</text>
+<text x="70" y="326" fill="#2a7f62">equivalent (n=16)</text>
+<circle cx="78" cy="290.0" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="89" cy="193.6" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="100" cy="193.6" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="111" cy="193.6" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="122" cy="127.9" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="133" cy="127.9" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="144" cy="127.9" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="155" cy="127.9" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="166" cy="127.9" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="177" cy="125.2" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="188" cy="119.0" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="199" cy="58.7" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="210" cy="58.7" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="221" cy="58.4" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="232" cy="58.4" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<circle cx="243" cy="58.4" r="4.5" fill="#2a7f62" fill-opacity="0.8"/>
+<text x="260" y="326" fill="#c0612b">undecided (n=9)</text>
+<circle cx="268" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="279" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="290" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="301" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="312" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="323" cy="257.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="334" cy="127.9" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="345" cy="125.2" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<circle cx="356" cy="89.3" r="4.5" fill="#c0612b" fill-opacity="0.8"/>
+<text x="450" y="326" fill="#6a3d9a">killed (n=2)</text>
+<circle cx="458" cy="257.9" r="4.5" fill="#6a3d9a" fill-opacity="0.8"/>
+<circle cx="469" cy="74.3" r="4.5" fill="#6a3d9a" fill-opacity="0.8"/>
+<text x="14" y="170.0" transform="rotate(-90 14 170.0)" text-anchor="middle">changed sinks (of 196)</text></svg>

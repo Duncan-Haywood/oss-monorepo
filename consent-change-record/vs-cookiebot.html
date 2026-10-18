@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consent Change Record vs. Cookiebot</title>
+<meta name="description" content="Cookiebot is a paid consent management platform: it crawls your whole site on a schedule, auto-categorizes every cookie and tracker it finds…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/vs-cookiebot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Consent Change Record vs. Cookiebot">
+<meta property="og:description" content="Cookiebot scans and manages consent for a whole site on an ongoing subscription. This page diffs two trace snapshots you already have, for free…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Cookiebot?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs. Cookiebot (from Usercentrics) is a consent management platform: it crawls a site's pages on a recurring schedule, auto-detects and categorizes the cookies and trackers it finds, renders the consent banner itself, and blocks scripts from firing until a visitor consents, across a whole domain, sold as an ongoing subscription tier. This tool does not crawl anything, does not detect trackers on its own, and does not render or manage a banner. You paste two dated trace exports you already captured — one from before a consent choice, one from after — and it reports which requests and storage keys actually changed between them, entirely in your browser. A site that needs its consent banner built, its scripts auto-blocked, and its whole domain rescanned on a schedule is the case Cookiebot is built for. An agency or reviewer that already has two traces of one consent sequence and wants a fast, free, source-linked record of what that banner actually did is the case this tool is built for — including checking whether a Cookiebot-managed banner is blocking what it claims to."}},{"@type":"Question","name":"Is this page affiliated with Cookiebot?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its owner, Usercentrics. Cookiebot is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182522; background: #edf3ed; }
+  body { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; line-height: 1.55; }
+  a { color: #1e40af; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.6vw, 2.3rem); line-height: 1.1; margin: .4rem 0; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 62ch; color: #547064; }
+  section { background: #fff; border: 1px solid #c8d8ce; border-radius: 14px; padding: 1.1rem 1.3rem; margin: 1.25rem 0; box-shadow: 0 8px 24px #17382a12; }
+  h2 { margin-top: 0; font-size: 1.15rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8e4dd; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #547064; }
+  .fine, .note { font-size: .88rem; color: #547064; }
+  footer { font-size: .86rem; color: #547064; }
+  footer p { margin: .6rem 0; }
+  code { background: #e4ede4; padding: 1px 5px; border-radius: 4px; font-size: .92em; color: #182522; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/vs-cookiebot.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Consent Change Record vs. Cookiebot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../consent-change-record/">Consent Change Record</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Consent Change Record vs. Cookiebot</span></span></nav>
+<main>
+<p><a href="./">&larr; Consent Change Record</a></p>
+<header>
+<h1>Consent Change Record vs. Cookiebot</h1>
+<p class="lede">Different jobs: Cookiebot crawls a whole domain on a schedule, auto-detects trackers, and manages the banner that blocks them. This page compares two trace snapshots you already captured of <em>one</em> consent sequence and reports what actually changed &mdash; free, local, no account.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Cookiebot</strong>, from Usercentrics, is a consent management
+  platform (CMP). Its scanner crawls a site's pages on a recurring schedule,
+  auto-detects and categorizes the cookies and trackers it finds against its
+  own database, and generates a cookie declaration page. Its banner blocks
+  third-party scripts from firing until a visitor consents, supports IAB TCF,
+  and covers a whole domain as an ongoing subscription tier scaled to page
+  count. It is sold as recurring software; its own pricing is not something
+  this session can verify, so no figure for it is stated here.
+</p>
+<p>
+  This tool does none of that. It does not crawl a site, does not maintain a
+  tracker database, and does not render or manage a consent banner. It takes
+  exactly two inputs &mdash; a <code>before</code> and <code>after</code> JSON
+  trace you already captured around one consent choice (the requests fired
+  and the storage keys written in each state) &mdash; and reports what
+  changed between them: which requests appear only after consent, which fire
+  regardless, and which storage keys were added. Comparison runs in your
+  browser tab; nothing you paste is uploaded, and the tool never contacts the
+  site itself. There is no account, no scheduled crawl, and no per-domain
+  subscription.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need a consent banner built, scripts auto-blocked, and my whole site rescanned for new trackers on a schedule.</td><td>Cookiebot, or a comparable CMP &mdash; ongoing crawling and banner management is not something this tool does.</td></tr>
+<tr><td>I have two dated traces of one consent sequence and want to know exactly what changed, right now, for free.</td><td>This tool &mdash; paste both, get a source-linked diff, nothing uploaded.</td></tr>
+<tr><td>My site already runs Cookiebot &mdash; how do I check its banner is actually blocking what it claims to?</td><td>This tool. A CMP's own dashboard reports its configuration, not what a real before/after trace observed; the two can drift once a tag is added outside the CMP.</td></tr>
+<tr><td>I want automatic tracker detection and categorization across every page of my domain.</td><td>Cookiebot or a comparable scanner &mdash; this tool has no crawler and no tracker database; it only diffs traces you supply.</td></tr>
+<tr><td>Do I need to create an account, install a script tag, or pay per page scanned to use it?</td><td>This tool: no, ever. Cookiebot is used through a subscription tied to a site's page count.</td></tr>
+<tr><td>How do I capture and compare a consent sequence myself?</td><td>See <a href="what-did-my-cookie-banner-actually-change.html">what did my cookie banner actually change</a>.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most teams get different value from each: Cookiebot (or a comparable CMP)
+  to build and run the banner and auto-block scripts across a whole site as a
+  paid subscription, and a free tool like this one for a fast, private,
+  source-linked answer to "what did this one consent sequence actually do" &mdash;
+  useful on its own for a small agency, and useful as an independent spot
+  check even for a site that already pays for a CMP.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the comparison runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or Cookiebot?</h3>
+<p>They do different jobs. Cookiebot (from Usercentrics) is a consent management platform: it crawls a site's pages on a recurring schedule, auto-detects and categorizes the cookies and trackers it finds, renders the consent banner itself, and blocks scripts from firing until a visitor consents, across a whole domain, sold as an ongoing subscription tier. This tool does not crawl anything, does not detect trackers on its own, and does not render or manage a banner. You paste two dated trace exports you already captured &mdash; one from before a consent choice, one from after &mdash; and it reports which requests and storage keys actually changed between them, entirely in your browser. A site that needs its consent banner built, its scripts auto-blocked, and its whole domain rescanned on a schedule is the case Cookiebot is built for. An agency or reviewer that already has two traces of one consent sequence and wants a fast, free, source-linked record of what that banner actually did is the case this tool is built for &mdash; including checking whether a Cookiebot-managed banner is blocking what it claims to.</p>
+<h3>Is this page affiliated with Cookiebot?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its owner, Usercentrics. Cookiebot is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+<p class="note"><a href="./">Open Consent Change Record</a> to compare your own two traces.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, privacy, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every trace you paste stays on this device, and this page makes no live comparison against Cookiebot &mdash; it is a static page describing publicly documented facts about Cookiebot's product category.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental and may be slow, broken, moved, or taken offline without notice. Keep your own copies of any report you export.</p>
+<p>Free and open source. <a href="LICENSE" rel="noopener">MIT licensed</a> &mdash; optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=consent-change-record">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="consent-change-record"></script>
+</body>
+</html>

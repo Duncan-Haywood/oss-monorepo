@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloud Egress Cost Calculator for S3 Storage</title>
+  <meta name="description" content="Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/">
+  <meta property="og:title" content="Cloud Egress Cost Calculator">
+  <meta property="og:description" content="See the monthly cost of storage and outbound transfer before migrating a workload.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cloud Egress Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for comparing object storage, request, and data egress costs.","featureList":"Two-provider monthly comparison, annualized savings, break-even outbound transfer, copyable decision summary, private JSON review export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does S3 egress cost?","acceptedAnswer":{"@type":"Answer","text":"Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices."}},{"@type":"Question","name":"Does a cheaper storage rate still win after egress?","acceptedAnswer":{"@type":"Answer","text":"Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation."}},{"@type":"Question","name":"What outbound volume is the break-even point?","acceptedAnswer":{"@type":"Answer","text":"The volume where storage-and-request savings and the egress-rate gap cancel out: below it the cheaper-storage, pricier-egress option wins; above it, the other one does. Example: 500 GB stored and 2 million requests at $0.006/GB-month storage, $0.36/million requests, and $0.09/GB egress totals $9.12/month at 60 GB outbound — cheaper than $0.023/$0.40/$0 storage's $12.30. Push outbound to 150 GB and the same cheap-egress sheet totals $17.22, more than the $12.30 alternative. The crossover on this pair is 95.33 GB/month; the page computes it for whatever rates and workload you enter."}},{"@type":"Question","name":"Does this include migration cost or contract minimums?","acceptedAnswer":{"@type":"Answer","text":"No. The monthly total is storage, request, and egress charges only — it does not add a one-time data-transfer-out fee for the move itself, a minimum monthly commitment your contract may require, or the engineering time to actually migrate. Check your price sheet and contract for those before deciding on this number alone."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:900px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}
+    p{color:var(--muted)}.lede{max-width:680px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.88rem;margin:11px 0}
+    input{display:block;width:100%;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    textarea{display:block;width:100%;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px;resize:vertical}
+    details.tiers{margin:11px 0}details.tiers summary{color:var(--muted);font-size:.88rem;cursor:pointer}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
+    .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{border-top:4px solid var(--accent);padding:14px;background:#f4f7ff;border-radius:8px}
+    .metric strong{display:block;font-size:1.35rem;color:var(--ink)}.good{color:#126b45!important}
+    .small{font-size:.85rem}.notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}
+    @media(max-width:650px){.grid,.results{grid-template-columns:1fr}}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cloud Egress Cost Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cloud Egress Cost Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cloud Egress Cost Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<main>
+  <h1>Cloud Egress Cost Calculator</h1>
+  <p class="lede">Compare the real monthly cost of an S3-compatible workload. Storage is only one line item: requests and outbound data transfer can decide the migration.</p>
+  <p class="notice"><strong>Bring your own price sheet.</strong> Enter the rates you were quoted. This tool does not fetch provider pricing or claim a provider's current prices.</p>
+    <p class="small"><a href="does-a-cdn-cut-s3-egress.html">Does a CDN still cut S3 egress?</a> — cache hits vs origin-only on the same download volume.</p>
+    <p class="small"><a href="does-a-replica-beat-cross-region-pull.html">Does a replica still beat a cross-region pull?</a> — seed plus storage vs paying transfer every month.</p>
+    <p class="small"><a href="does-infrequent-access-still-beat-standard.html">Does infrequent access still beat standard after restore?</a> — cheaper storage vs retrieve fees on one store.</p>
+    <p class="small"><a href="vs-aws-pricing-calculator.html">This calculator vs. the AWS Pricing Calculator</a> — two different jobs, and when to use each.</p>
+    <p class="small"><a href="vs-google-cloud-pricing-calculator.html">This calculator vs. the Google Cloud Pricing Calculator</a> — which question each tool is actually for.</p>
+    <p class="small"><a href="vs-azure-pricing-calculator.html">This calculator vs. the Azure Pricing Calculator</a> — Microsoft's schedule vs a two-provider comparison.</p>
+    <p class="small"><a href="vs-a-spreadsheet.html">This calculator vs. estimating it in a spreadsheet</a> — the free allowance and rate steps a flat formula skips.</p>
+
+  <section class="panel">
+    <h2>Workload</h2>
+    <div class="grid">
+      <label>Stored data (GB)<input id="storage" type="number" min="0" step="any" value="500" inputmode="decimal"></label>
+      <label>Requests (million/month)<input id="requests" type="number" min="0" step="any" value="2" inputmode="decimal"></label>
+      <label>Outbound data (GB/month)<input id="egress" type="number" min="0" step="any" value="100" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Option A</h2>
+      <label>Name<input id="aName" value="Current provider"></label>
+      <label>Storage $/GB-month<input id="aStorage" type="number" min="0" step="any" value="0.023" inputmode="decimal"></label>
+      <label>Requests $/million<input id="aRequests" type="number" min="0" step="any" value="0.40" inputmode="decimal"></label>
+      <label>Egress $/GB<input id="aEgress" type="number" min="0" step="any" value="0.09" inputmode="decimal"></label>
+      <label>Free egress (GB/month)<input id="aFree" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+      <details class="tiers">
+        <summary>Graduated rates (optional)</summary>
+        <label for="aTiers">One band per line: size in GB, then the rate that band bills at. A bare rate on the last line covers everything beyond. Bands count from the end of the free allowance, the way price sheets are published.
+          <textarea id="aTiers" rows="3" placeholder="10240 0.09&#10;40960 0.085&#10;0.05"></textarea>
+        </label>
+      </details>
+      <p id="aFreeNote" class="small"></p>
+    </div>
+    <div class="panel">
+      <h2>Option B</h2>
+      <label>Name<input id="bName" value="Alternative provider"></label>
+      <label>Storage $/GB-month<input id="bStorage" type="number" min="0" step="any" value="0.006" inputmode="decimal"></label>
+      <label>Requests $/million<input id="bRequests" type="number" min="0" step="any" value="0.36" inputmode="decimal"></label>
+      <label>Egress $/GB<input id="bEgress" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+      <label>Free egress (GB/month)<input id="bFree" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+      <details class="tiers">
+        <summary>Graduated rates (optional)</summary>
+        <label for="bTiers">One band per line: size in GB, then the rate that band bills at. A bare rate on the last line covers everything beyond. Bands count from the end of the free allowance, the way price sheets are published.
+          <textarea id="bTiers" rows="3" placeholder="10240 0.09&#10;40960 0.085&#10;0.05"></textarea>
+        </label>
+      </details>
+      <p id="bFreeNote" class="small"></p>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Monthly comparison</h2>
+    <div class="results">
+      <div class="metric"><span id="aLabel">Option A</span><strong id="aTotal">$0.00</strong><span class="small">per month</span></div>
+      <div class="metric"><span id="bLabel">Option B</span><strong id="bTotal">$0.00</strong><span class="small">per month</span></div>
+      <div class="metric"><span>Difference</span><strong id="difference">$0.00</strong><span id="verdict" class="small" role="status" aria-live="polite">Enter rates to compare</span></div>
+    </div>
+    <p id="annualImpact" class="small"></p>
+    <p id="breakEven" class="small"></p>
+    <button id="copySummary" type="button">Copy decision summary</button>
+    <button id="copyShareLink" type="button">Copy share link</button>
+    <button id="export" type="button">Download private review JSON</button>
+    <span id="exportStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous calculation events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only calculations, copied summaries, and exports. No inputs, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How much does S3 egress cost?</h3>
+  <p>Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>Does a cheaper storage rate still win after egress?</h3>
+  <p>Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation.</p>
+  <h3>What outbound volume is the break-even point?</h3>
+  <p>The volume where storage-and-request savings and the egress-rate gap cancel out: below it the cheaper-storage, pricier-egress option wins; above it, the other one does. Example: 500 GB stored and 2 million requests at $0.006/GB-month storage, $0.36/million requests, and $0.09/GB egress totals $9.12/month at 60 GB outbound — cheaper than $0.023/$0.40/$0 storage's $12.30. Push outbound to 150 GB and the same cheap-egress sheet totals $17.22, more than the $12.30 alternative. The crossover on this pair is 95.33 GB/month; the page computes it for whatever rates and workload you enter.</p>
+  <h3>Does this include migration cost or contract minimums?</h3>
+  <p>No. The monthly total is storage, request, and egress charges only — it does not add a one-time data-transfer-out fee for the move itself, a minimum monthly commitment your contract may require, or the engineering time to actually migrate. Check your price sheet and contract for those before deciding on this number alone.</p>
+
+  <p class="small">Comparing CDN vendors rather than cloud egress? <a href="../cdn-bandwidth-pricing-calculator/">Price CloudFront, Google Cloud CDN, Fastly, Bunny and KeyCDN at your GB-per-month bandwidth</a>.</p>
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Normalizing a fulfillment quote instead of a cloud storage bill? The <a href="../3pl-quote-normalizer/">3PL quote normalizer</a> puts a third-party logistics quote's receiving, storage, pick-and-pack, shipping, returns, and minimums on the same monthly basis as your in-house cost &mdash; nothing uploaded.</p>
+    <p>Pricing a vector database instead of object storage? The <a href="../vector-db-cost-calculator/">Vector Database Cost Calculator</a> turns your vector count, dimension, and metadata size into a storage estimate and compares monthly cost across providers the same bring-your-own-rates way this page does.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { compareScenarios, decisionSummary, reviewRecord, parseEgressTiers } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+  import { encodeInputs, decodeInputs } from "./share.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "aFree", "aTiers", "bStorage", "bRequests", "bEgress", "bFree", "bTiers"];
+  let usageTimer;
+
+  // Reads each option's egress charge back to the user in the terms they
+  // entered it: what the allowance absorbed, and — when a graduated sheet is
+  // in play — how many gigabytes landed in each band. The band split is the
+  // whole reason to type a sheet rather than an average rate, so showing it is
+  // what makes the number checkable against an invoice.
+  function freeNote(option) {
+    const parts = [];
+    if (option.freeEgressGb > 0) {
+      if (option.billableEgressGb <= 0) {
+        return `Entire ${option.egressGb} GB outbound is inside the ${option.freeEgressGb} GB free allowance — $0.00 egress.`;
+      }
+      parts.push(`${option.freeEgressGb} GB free, ${option.billableEgressGb} GB billed`);
+    }
+    if (option.egressTiers.length > 1 && option.egressBreakdown.length > 0) {
+      const bands = option.egressBreakdown
+        .map((band) => `${band.gb} GB at ${money(band.rate)}/GB`)
+        .join(", ");
+      parts.push(`across ${option.egressBreakdown.length} band${option.egressBreakdown.length === 1 ? "" : "s"}: ${bands}`);
+    } else if (parts.length > 0) {
+      parts.push("at the entered rate");
+    }
+    return parts.length === 0 ? "" : `${parts.join(" ")}.`;
+  }
+
+  // A rate sheet is free text, so a typo is a user error rather than a bug.
+  // Naming the option keeps the message actionable when only one panel is bad.
+  function tiersFor(letter, label) {
+    try {
+      return parseEgressTiers($(`${letter}Tiers`).value);
+    } catch (error) {
+      throw new Error(`${label} graduated rates: ${error.message}`);
+    }
+  }
+
+  function money(value) {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+  }
+
+  function workload() {
+    return {
+      storageGb: +$("storage").value,
+      requestsMillion: +$("requests").value,
+      egressGb: +$("egress").value,
+    };
+  }
+
+  function calculate(track = false) {
+    try {
+      const load = workload();
+      const result = compareScenarios({
+        first: { ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
+      });
+      const firstName = $("aName").value || "Option A";
+      const secondName = $("bName").value || "Option B";
+      $("aLabel").textContent = firstName;
+      $("bLabel").textContent = secondName;
+      $("aTotal").textContent = money(result.first.total);
+      $("bTotal").textContent = money(result.second.total);
+      $("aFreeNote").textContent = freeNote(result.first);
+      $("bFreeNote").textContent = freeNote(result.second);
+      $("difference").textContent = money(result.savings);
+      $("verdict").textContent = result.cheaper === "tie"
+        ? "Same monthly total"
+        : `${result.cheaper === "first" ? firstName : secondName} is cheaper`;
+      $("verdict").className = "small good";
+      $("annualImpact").textContent = result.savings === 0
+        ? "No annual difference at these rates."
+        : `Annual impact: ${money(result.annualSavings)} saved, ${result.savingsPercentage.toFixed(1)}% below the more expensive option.`;
+      const cheaperName = result.cheaper === "first" ? firstName : secondName;
+      $("breakEven").textContent = result.breakEvenEgressGb == null
+        ? ""
+        : `Break-even outbound transfer: ${result.breakEvenEgressGb.toFixed(1)} GB/month. Above that, ${cheaperName === firstName ? secondName : firstName} is cheaper.`;
+      clearTimeout(usageTimer);
+      if (track) usageTimer = setTimeout(() => countUsage("calculation"), 800);
+    } catch (error) {
+      // A rejected input (a negative rate, non-numeric text) must not leave
+      // the last valid comparison on screen next to a silent failure -- a
+      // visitor who misses the message in #verdict could read the stale
+      // per-option totals and difference as the answer for the invalid
+      // inputs now in the form.
+      $("aTotal").textContent = "";
+      $("bTotal").textContent = "";
+      $("difference").textContent = "";
+      $("verdict").textContent = error.message;
+      $("verdict").className = "small";
+      $("annualImpact").textContent = "";
+      $("breakEven").textContent = "";
+      $("aFreeNote").textContent = "";
+      $("bFreeNote").textContent = "";
+    }
+  }
+
+  ids.concat(["aName", "bName"]).forEach((id) => $(id).addEventListener("input", () => calculate(true)));
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (event) => setUsageEnabled(event.target.checked));
+  calculate();
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
+  $("copySummary").addEventListener("click", async () => {
+    try {
+      const load = workload();
+      const text = decisionSummary({
+        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
+      });
+      await copyText(text);
+      $("exportStatus").textContent = "Copied";
+      countUsage("summary_copied");
+    } catch (error) {
+      $("exportStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
+
+  $("export").addEventListener("click", () => {
+    try {
+      const load = workload();
+      const record = reviewRecord({
+        ...load,
+        first: { name: $("aName").value, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { name: $("bName").value, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
+      });
+      const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "cloud-egress-review.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      $("exportStatus").textContent = "Downloaded locally";
+      countUsage("review-export");
+    } catch (error) {
+      $("exportStatus").textContent = error.message;
+    }
+  });
+
+  // Every field the share link carries, read raw the way `encodeInputs`
+  // expects — plain strings, not the `+value` coercion the calculation
+  // functions above use, so a blank field encodes as "blank" rather than 0.
+  function readShareInput() {
+    const out = {};
+    for (const id of ids.concat(["aName", "bName"])) out[id] = $(id).value;
+    return out;
+  }
+
+  // Restoring a shared link sets each field's value directly and skips any id
+  // the link did not carry, so the recipient's own page defaults stand for
+  // whatever the sender left alone.
+  function applyShared(incoming) {
+    for (const id of ids.concat(["aName", "bName"])) {
+      if (id in incoming) $(id).value = incoming[id];
+    }
+  }
+
+  function shareUrl() {
+    const { origin, pathname } = window.location;
+    return `${origin}${pathname}#${encodeInputs(readShareInput())}`;
+  }
+
+  $("copyShareLink").addEventListener("click", async () => {
+    try {
+      await copyText(shareUrl());
+      $("exportStatus").textContent = "Link copied — the rates travel in the link, not to a server";
+      countUsage("share_link_copied");
+    } catch (error) {
+      $("exportStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
+
+  // A shared comparison arrives in the fragment, which browsers never send to
+  // a server. `search` is accepted too, so a link that lost its # on the way
+  // through a messaging app still opens on the sender's rates.
+  const incomingShare = decodeInputs(window.location.hash || window.location.search);
+  if (Object.keys(incomingShare).length > 0) {
+    applyShared(incomingShare);
+    calculate();
+    countUsage("shared_link_opened");
+    $("exportStatus").textContent = "Opened from a shared link — verify every rate before relying on it.";
+  }
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-egress-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/?pfEmbed=1&quot; title=&quot;Cloud Egress Cost Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cloud-egress-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/" data-pf-embed-title="Cloud Egress Cost Calculator" data-pf-embed-slug="cloud-egress-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cloud-egress-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StockX vs. GOAT Seller Fees | Worked Example</title>
+  <meta name="description" content="Illustrative worked example: the same $200 sneaker sale priced through StockX's seller-level fee and through GOAT's tiered commission and cash-out fee.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/vs-goat-seller-fees.html">
+  <meta property="og:title" content="StockX vs. GOAT: the same sale, both fee structures">
+  <meta property="og:description" content="One $200 pair, priced through StockX's seller-level fee and GOAT's tiered commission plus cash-out fee.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is StockX or GOAT cheaper for selling sneakers?","acceptedAnswer":{"@type":"Answer","text":"On the illustrative worked example here — a $200 pair, sold at a mid seller tier with no Fast Shipping, and an illustrative 20% GOAT commission tier — StockX nets about $21 more: $48 profit against $26.90. StockX's seller fee drops as your Seller Level rises, while GOAT's commission is tiered by sale price band and is often higher at lower price points, so the gap and even its direction depend on your own seller level and the sale price. Neither rate here is a published schedule — replace both with the numbers on your own seller dashboard before trusting the comparison."}},{"@type":"Question","name":"Why isn't there one fixed percentage for each marketplace?","acceptedAnswer":{"@type":"Answer","text":"Both platforms tier their seller-side fee rather than charging one flat percentage. StockX's seller fee falls as your account's Seller Level rises and falls further with Fast Shipping enrollment. GOAT's commission is tiered by the item's sale price band, and it also deducts a separate cash-out fee when funds are transferred out. A single quoted percentage for either platform is only ever true for one seller, at one price, on one day."}},{"@type":"Question","name":"Is this page affiliated with GOAT?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by GOAT (Global Online Auction Technology / GOAT Group). GOAT is a trademark of its owner, named here only to describe what this comparison is about, using an illustrative fee structure rather than a claim about GOAT's current published rates."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #0d2038; background: #eaf1fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.6; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin-bottom: .3em; color: #0d3d7a; }
+    h2 { margin-top: 1.8em; font-size: 1.2rem; }
+    a { color: #1857a8; }
+    table { width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: .94rem; background: #fbfdff; }
+    th, td { padding: 8px 6px; border-bottom: 1px solid #c0d3ee; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    caption { text-align: left; font-size: .85rem; color: #4a5f7d; padding-bottom: 6px; }
+    .lede { font-size: 1.06rem; }
+    .wins { font-weight: 600; }
+    footer { margin-top: 2.5em; font-size: .82rem; color: #4a5f7d; border-top: 1px solid #c0d3ee; padding-top: 1em; }
+    @media (max-width: 480px) { table { display: block; overflow-x: auto; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/vs-goat-seller-fees.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="StockX vs. GOAT: the same sale, both fee structures — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../stockx-seller-payout-calculator/">StockX Seller Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">StockX vs. GOAT: the same sale, both fee structures</span></span></nav>
+  <p><a href="./">← StockX seller payout calculator</a></p>
+  <h1>StockX vs. GOAT: the same sale, both fee structures</h1>
+  <p class="lede">
+    Every rate below is an illustrative example, not either marketplace's
+    published fee schedule — both are inputs you should replace with your own
+    seller dashboard numbers. What the worked example is useful for is the
+    <em>shape</em> of the two fee structures: StockX tiers its seller fee by
+    your own Seller Level and Fast Shipping enrollment, while GOAT tiers its
+    commission by the item's sale price and bills a separate cash-out fee.
+    Not affiliated with GOAT.
+  </p>
+
+  <h2>The item</h2>
+  <p>
+    A pair that sells for $200 on either platform. It cost $120 to acquire,
+    plus $2 in packaging either way. On StockX, illustrative numbers: a 9%
+    seller fee (no Fast Shipping), a 3% payment processing fee, and $6 to
+    ship to a verification center. On GOAT, illustrative numbers: a 20%
+    commission at this price band, a 2.9% + $0.30 cash-out fee, and a $5
+    shipping cost. Same pair, same price, same acquisition cost — only the
+    platform and its fee structure change.
+  </p>
+
+  <h2>Fee by fee</h2>
+  <div class="pf-table-scroll"><table>
+    <caption>Illustrative rates, not published schedules. Both are inputs you can change on the calculator.</caption>
+    <thead>
+      <tr><th>On a $200 sale</th><th>StockX</th><th>GOAT</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Seller fee / commission</td><td>$18.00 <small>(9% seller fee)</small></td><td>$40.00 <small>(20% commission)</small></td></tr>
+      <tr><td>Payment / cash-out fee</td><td>$6.00 <small>(3% processing)</small></td><td>$6.10 <small>(2.9% + $0.30)</small></td></tr>
+      <tr><td>Shipping</td><td>$6.00</td><td>$5.00</td></tr>
+      <tr><td>Other per-sale costs</td><td>$2.00</td><td>$2.00</td></tr>
+      <tr><td><strong>Total fees</strong></td><td class="wins"><strong>$32.00</strong></td><td><strong>$53.10</strong></td></tr>
+      <tr><td>Net payout</td><td class="wins">$168.00</td><td>$146.90</td></tr>
+      <tr><td>Net profit</td><td class="wins">$48.00</td><td>$26.90</td></tr>
+      <tr><td>Margin</td><td class="wins">24.0%</td><td>13.5%</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    The structural difference matters more than the single-sale gap. StockX's
+    seller fee is a percentage of the sale price that falls as your account's
+    Seller Level rises, and Fast Shipping knocks a further discount off that
+    same rate — so a high-volume seller pays a lower rate than the 9% used
+    here. GOAT's commission is tiered by the sale price band rather than by
+    seller history, and it bills a separate cash-out fee whenever funds are
+    transferred out, on top of the commission. Two sellers moving the
+    identical pair keep different amounts on either platform, for different
+    reasons. On this illustrative example, <strong>StockX nets about $21
+    more</strong>.
+  </p>
+
+  <h2>What would close the gap</h2>
+  <p>
+    Holding every rate fixed, GOAT would need to sell this pair for about
+    <strong>$227</strong> — roughly $27, or about 14%, more than the $200
+    asked on StockX — to net a similar profit. Whether GOAT's audience for a
+    given pair actually clears a higher price than StockX's bid/ask market is
+    a judgement about that specific release, not something either fee
+    schedule can answer.
+  </p>
+
+  <h2>What the fee comparison cannot tell you</h2>
+  <p>
+    Worth being direct about, because it is the honest half of this page.
+    Fees are one input into which platform nets more on a given pair — they
+    are not the only one:
+  </p>
+  <ul>
+    <li><strong>Neither platform's current fee schedule is quoted here.</strong>
+      StockX's seller-level bands and GOAT's commission tiers both change over
+      time, and neither publishes a static rate an outside page can read
+      live. Replace every rate above with the line on your own seller
+      dashboard or payout statement before trusting the comparison.</li>
+    <li><strong>Seller level and cash-out timing are yours, not a constant.</strong>
+      A seller further along StockX's level ladder, or enrolled in Fast
+      Shipping, pays less than the 9% used here. A seller who lets GOAT
+      balance accrue rather than cashing out on every sale may avoid the
+      cash-out fee entirely on some sales.</li>
+    <li><strong>Neither platform's authentication process, audience, or
+      typical sell-through speed is compared here.</strong> This page prices
+      one hypothetical sale on each platform's fee structure — it says
+      nothing about which one authenticates faster, which one's buyers pay
+      more for a given release, or which one sells a given pair sooner.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>Is StockX or GOAT cheaper for selling sneakers?</h3>
+  <p>On the illustrative worked example here — a $200 pair, sold at a mid seller tier with no Fast Shipping, and an illustrative 20% GOAT commission tier — StockX nets about $21 more: $48 profit against $26.90. StockX's seller fee drops as your Seller Level rises, while GOAT's commission is tiered by sale price band and is often higher at lower price points, so the gap and even its direction depend on your own seller level and the sale price. Neither rate here is a published schedule — replace both with the numbers on your own seller dashboard before trusting the comparison.</p>
+  <h3>Why isn't there one fixed percentage for each marketplace?</h3>
+  <p>Both platforms tier their seller-side fee rather than charging one flat percentage. StockX's seller fee falls as your account's Seller Level rises and falls further with Fast Shipping enrollment. GOAT's commission is tiered by the item's sale price band, and it also deducts a separate cash-out fee when funds are transferred out. A single quoted percentage for either platform is only ever true for one seller, at one price, on one day.</p>
+  <h3>Is this page affiliated with GOAT?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by GOAT (Global Online Auction Technology / GOAT Group). GOAT is a trademark of its owner, named here only to describe what this comparison is about, using an illustrative fee structure rather than a claim about GOAT's current published rates.</p>
+
+  <h2>Run your own sale through it</h2>
+  <p>
+    <a href=".">Price this sale on the StockX calculator →</a> The StockX
+    side of the table above is exactly what it computes — enter your own
+    sale price, Seller Level fee, and Fast Shipping status to replace the
+    9% used here. This page has no GOAT-side calculator: it is a static
+    worked example, not a second tool, so the GOAT numbers above are yours
+    to recompute against your own listing.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an authentication, inventory, or sourcing tool of any kind. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source — <a href="LICENSE">MIT licensed</a>.
+    <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and changes nothing about the tool.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../esthetician-studio-profit-calculator/" data-pf-to="esthetician-studio-profit-calculator">Esthetician Studio Profit Calculator — free, private</a></li>
+      <li><a href="../etsy-ads-roi-analyzer/" data-pf-to="etsy-ads-roi-analyzer">Etsy Ads ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../etsy-listing-csv-check/" data-pf-to="etsy-listing-csv-check">Etsy Listing CSV Check — free, private, in your browser</a></li>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=stockx-seller-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="stockx-seller-payout-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MRR Waterfall Calculator vs. tracking MRR in a spreadsheet</title>
+  <meta name="description" content="A spreadsheet can hold the same waterfall this calculator does. What it doesn't do on its own is stop new or expansion MRR from leaking into a gross-retention…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mrr-waterfall-calculator/vs-tracking-mrr-in-a-spreadsheet.html">
+  <meta property="og:title" content="MRR Waterfall Calculator vs. tracking MRR in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can reproduce this calculator's arithmetic. What it doesn't enforce is the one rule that actually decides whether gross revenue retention means…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet compute the same waterfall?","acceptedAnswer":{"@type":"Answer","text":"Yes. Starting MRR plus new, expansion, and reactivation, minus contraction and churn, is ordinary addition and subtraction. The retention percentages and the quick ratio are ordinary division. Every formula this calculator runs can be written in a spreadsheet cell."}},{"@type":"Question","name":"What does a spreadsheet not enforce that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"That new, expansion, and reactivation MRR never enter the gross revenue retention formula. A spreadsheet has no rule against summing the wrong column into the wrong cell, and the easiest mistake to make by hand is building one retention formula, copying it, and only changing the numerator -- which silently turns gross retention into a second copy of net retention. This calculator computes both from the same six inputs with the exclusion built into the code, not into a formula a future edit can quietly break."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when you need more than one period side by side, a cohort-level breakdown by signup month, or a chart of the trend over time. This calculator answers one period at a time and does not store or chart history. A spreadsheet you build yourself can track as many periods and cohorts as you want."}},{"@type":"Question","name":"Is my MRR data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. The six numbers you type in are never sent anywhere, and the optional usage counter records only which features were used and the day, never your MRR figures."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: -.04em; line-height: 1.1; }
+    section.card { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #1c232010; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fff; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5967; }
+    .note { font-size: .85rem; color: #4f5967; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+    footer a { color: #1a5a8a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mrr-waterfall-calculator/vs-tracking-mrr-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mrr-waterfall-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MRR Waterfall Calculator vs. tracking MRR in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../mrr-waterfall-calculator/">MRR Waterfall Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">MRR Waterfall Calculator vs. tracking MRR in a spreadsheet</span></span></nav>
+  <p><a href="./">&larr; MRR waterfall calculator</a></p>
+  <h1>MRR Waterfall Calculator vs. tracking MRR in a spreadsheet</h1>
+  <p>Most SaaS operators already track MRR in a spreadsheet: a column for starting MRR, one each for new, expansion, contraction, and churn, and a formula or two for the totals. Every one of those formulas is ordinary arithmetic. Where a spreadsheet formula goes wrong is not the arithmetic &mdash; it's keeping new, expansion, and reactivation MRR out of gross revenue retention specifically, which is the one rule that makes gross retention mean something different from net retention.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every formula this calculator runs &mdash; the waterfall total, gross and net revenue retention, and the quick ratio. Building it correctly means writing two separate retention formulas (one excluding growth, one including it), remembering to cap only the gross one at 100%, and never letting a copy-and-edit of one formula quietly turn into the other.</p>
+  <p><strong>This calculator</strong> keeps the six inputs, the full waterfall, and both retention percentages on one screen, with the exclusion rule built into <a href="./">the tool itself</a> rather than into a formula that can drift.</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>What's my gross revenue retention this period, excluding growth?</td><td>This calculator's readout &mdash; the exclusion is enforced in code, not a formula.</td></tr>
+  <tr><td>What's my net revenue retention, including expansion and winbacks?</td><td>The same readout, computed independently from the same six inputs.</td></tr>
+  <tr><td>How do I compare several periods or cohorts side by side?</td><td>A spreadsheet you build yourself &mdash; this tool answers one period at a time.</td></tr>
+  <tr><td>Am I over- or under-charging existing customers on price?</td><td>The <a href="../subscription-price-impact/">subscription price impact calculator</a>.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Worked example</h2>
+  <p>Starting MRR of $10,000, with $1,200 in new MRR, $1,500 in expansion, $100 reactivated, $400 in contraction, and $600 churned this period:</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Line</th><th scope="col">Amount</th></tr></thead>
+  <tbody>
+  <tr><td>Starting MRR</td><td>$10,000.00</td></tr>
+  <tr><td>+ New / Expansion / Reactivation</td><td>+$2,800.00</td></tr>
+  <tr><td>- Contraction / Churn</td><td>-$1,000.00</td></tr>
+  <tr><td>= Ending MRR</td><td>$11,800.00</td></tr>
+  <tr><td>Gross revenue retention</td><td>90.0%</td></tr>
+  <tr><td>Net revenue retention</td><td>106.0%</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  <p>A single retention formula built by copying one cell and swapping the numerator would report the same 106% for both rows, hiding the fact that this period actually lost 10% of its starting base to real churn and contraction &mdash; the exact distinction a board update or investor update needs, and the one a rebuilt spreadsheet formula most often collapses into one number.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these numbers in a spreadsheet, not a competing calculator or platform.</p>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet compute the same waterfall?</h3>
+  <p>Yes. Starting MRR plus new, expansion, and reactivation, minus contraction and churn, is ordinary addition and subtraction. The retention percentages and the quick ratio are ordinary division. Every formula this calculator runs can be written in a spreadsheet cell.</p>
+  <h3>What does a spreadsheet not enforce that this calculator does?</h3>
+  <p>That new, expansion, and reactivation MRR never enter the gross revenue retention formula. A spreadsheet has no rule against summing the wrong column into the wrong cell, and the easiest mistake to make by hand is building one retention formula, copying it, and only changing the numerator -- which silently turns gross retention into a second copy of net retention. This calculator computes both from the same six inputs with the exclusion built into the code, not into a formula a future edit can quietly break.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when you need more than one period side by side, a cohort-level breakdown by signup month, or a chart of the trend over time. This calculator answers one period at a time and does not store or chart history. A spreadsheet you build yourself can track as many periods and cohorts as you want.</p>
+  <h3>Is my MRR data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. The six numbers you type in are never sent anywhere, and the optional usage counter records only which features were used and the day, never your MRR figures.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every MRR figure stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers.</p>
+    <p>Free and open source. If it saved you from a spreadsheet retention mix-up, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-welding-job-price-calculator/" data-pf-to="mobile-welding-job-price-calculator">What should I charge for a mobile welding job? Free calculator</a></li>
+      <li><a href="../music-teacher-studio-profit-calculator/" data-pf-to="music-teacher-studio-profit-calculator">Music Teacher Studio Profit Calculator — free, private</a></li>
+      <li><a href="../nail-tech-booth-rent-calculator/" data-pf-to="nail-tech-booth-rent-calculator">Booth rent, commission or employee: what does a nail tech really take home per hour worked?</a></li>
+      <li><a href="../nanny-tax-calculator/" data-pf-to="nanny-tax-calculator">Nanny tax calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mrr-waterfall-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="mrr-waterfall-calculator"></script>
+</body>
+</html>

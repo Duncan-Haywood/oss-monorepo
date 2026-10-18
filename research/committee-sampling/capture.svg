@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Probability that Byzantine members hold a committee majority against committee size, exact versus binomial versus Hoeffding bound">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Majority-capture probability vs committee size (N=100, B=30)</text>
+<rect x="64" y="40" width="560" height="284" fill="none" stroke="#999"/>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#eee"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">1e-5.2</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#eee"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">1e-4.1</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#eee"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">1e-3.0</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#eee"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">1e-2.0</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#eee"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">1e-0.9</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#eee"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1e0.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="99.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">11</text>
+<text x="159.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">21</text>
+<text x="278.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">41</text>
+<text x="397.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">61</text>
+<text x="516.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">81</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">99</text>
+<text x="344.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="12">committee size m</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">capture probability (log10)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,92.8 99.7,112.6 159.3,148.3 278.5,254.6"/>
+<circle cx="64.0" cy="92.8" r="3" fill="#1f6fb2"/>
+<circle cx="99.7" cy="112.6" r="3" fill="#1f6fb2"/>
+<circle cx="159.3" cy="148.3" r="3" fill="#1f6fb2"/>
+<circle cx="278.5" cy="254.6" r="3" fill="#1f6fb2"/>
+<rect x="434" y="48" width="12" height="10" fill="#1f6fb2"/><text x="452" y="57" font-family="sans-serif" font-size="11">hypergeometric (exact)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,92.0 99.7,108.9 159.3,133.8 278.5,179.7 397.6,223.5 516.8,266.4 624.0,304.4"/>
+<circle cx="64.0" cy="92.0" r="3" fill="#c0392b"/>
+<circle cx="99.7" cy="108.9" r="3" fill="#c0392b"/>
+<circle cx="159.3" cy="133.8" r="3" fill="#c0392b"/>
+<circle cx="278.5" cy="179.7" r="3" fill="#c0392b"/>
+<circle cx="397.6" cy="223.5" r="3" fill="#c0392b"/>
+<circle cx="516.8" cy="266.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="304.4" r="3" fill="#c0392b"/>
+<rect x="434" y="63" width="12" height="10" fill="#c0392b"/><text x="452" y="72" font-family="sans-serif" font-size="11">binomial (with replacement)</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,59.6 99.7,70.6 159.3,88.9 278.5,125.7 397.6,162.4 516.8,199.1 624.0,232.1"/>
+<circle cx="64.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="99.7" cy="70.6" r="3" fill="#2e8b57"/>
+<circle cx="159.3" cy="88.9" r="3" fill="#2e8b57"/>
+<circle cx="278.5" cy="125.7" r="3" fill="#2e8b57"/>
+<circle cx="397.6" cy="162.4" r="3" fill="#2e8b57"/>
+<circle cx="516.8" cy="199.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="232.1" r="3" fill="#2e8b57"/>
+<rect x="434" y="78" width="12" height="10" fill="#2e8b57"/><text x="452" y="87" font-family="sans-serif" font-size="11">Hoeffding bound</text>
+</svg>

@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CNC Machining Quote Calculator — Cost Per Part, Setup &amp; Lot Size</title>
+  <meta name="description" content="Free CNC machining quote calculator for job shops: work out your real cost per part from bar or plate yield, cycle time, setup and programming…">
+  <meta property="og:title" content="CNC Machining Quote Calculator — cost per part, setup &amp; lot size">
+  <meta property="og:description" content="What does that part actually cost you to make? Bar or plate yield, cycle time, setup and programming…">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"CNC Machining Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Costs one CNC machining job from the material yield of a bar or a sheet, the cycle and handling time per part, the flat per-lot work (setup, programming, first-article inspection), perishable tooling per part, and outside processes with their lot minimums. Reports cost per part, break-even price, margin at the quoted price, and the same part costed at every standard lot size. Entirely client-side; nothing is uploaded."}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f24; background: #f2f4f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1d3a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4e545c; }
+    .card { background: #fff; border: 1px solid #d5dbe1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3a5c10; margin: 18px 0; }
+    fieldset { border: 1px solid #d5dbe1; border-radius: 10px; margin: 0 0 16px; padding: 8px 14px 16px; }
+    legend { font-size: .82rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #1d3a5c; padding: 0 6px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .9rem; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7480; border-radius: 7px; font: 15px system-ui, sans-serif; color: #1b1f24; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 16px; }
+    /* display:grid outranks the user agent's [hidden]{display:none}, so the
+       stock-form groups the script hides would otherwise render anyway. */
+    .grid[hidden] { display: none; }
+    .hint { font-weight: 400; color: #4e545c; font-size: .82rem; display: block; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3a5c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; font-size: .95rem; }
+    button.secondary { background: #e4e9ee; color: #17304c; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e7ebef; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #454b53; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.quoted td { background: #eef5fc; font-weight: 700; }
+    tfoot td { border-top: 2px solid #c8d0d8; border-bottom: 0; font-weight: 700; }
+    .headline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 6px; }
+    .headline div { background: #f5f8fa; border: 1px solid #d5dbe1; border-radius: 10px; padding: 12px 14px; }
+    .headline .big { font-size: 1.6rem; font-weight: 800; color: #14532d; display: block; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .headline .big.loss { color: #8a2c0c; }
+    .headline .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #454b53; }
+    .finding { border-bottom: 1px solid #e7ebef; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fbe3dc; color: #8a2c0c; }
+    .pill.medium { background: #fbeecd; color: #6b4e08; }
+    .pill.low { background: #e5e7ee; color: #353b47; }
+    .pill.info { background: #e4e9ee; color: #1d3a5c; }
+    .error { color: #8a2c0c; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe1; padding-top: 16px; }
+    footer a, main a, section a { color: #1a4f7a; }
+    @media (max-width: 560px) { body { padding: 20px 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"CNC Machining Quote Calculator — cost per part, setup \u0026 lot size","item":"https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Already quoting out of a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Most job shops are, and it is a reasonable thing to do — a sheet holds the history, the customers and the estimates you built over years, and this page holds none of that. What a sheet makes easy is the four costing errors above, all of which move the cost the same way on short runs. This calculator vs. quoting in a spreadsheet sets out what each tool is for, and shows the same $38 part price earning 57.4% margin at 50 pieces and losing 19.3% at 10."}},{"@type":"Question","name":"How do you calculate a CNC machining price per part?","acceptedAnswer":{"@type":"Answer","text":"Add the material actually consumed, the machine and operator time for the cycle plus handling, the perishable tooling worn making the part, and any outside process. Then add the work that happens once per lot no matter how many parts you make — setup, program proveout, first-article inspection — and divide that by the lot size. Add your overhead as a percentage of that direct cost, and the result is your cost per part. Price above it by the margin you need. This calculator does that arithmetic on your own numbers; what the customer will pay is a separate question it cannot answer."}},{"@type":"Question","name":"Why is a 5-piece order so much more per part than 500?","acceptedAnswer":{"@type":"Answer","text":"Because setup, programming and the first-article report cost the same at either quantity. Four hours of dialling in a fixture and proving out a program is four hours whether you then cut 5 parts or 500. Spread over 5 pieces that can exceed the machining itself; over 500 it rounds to cents. Quoting both off one price list is the most common way a job shop loses money on the short run, which is why the break table on this page costs the same part at every standard lot size."}},{"@type":"Question","name":"How much material do I actually pay for on a machining job?","acceptedAnswer":{"@type":"Answer","text":"Whole stock units, not the weight of the parts. A 12 ft bar that yields 53 pieces costs the same whether you cut 31 out of it or 53, so material cost per part is a step function rather than a rate: the 32nd part costs nothing in material and the 54th costs a whole new bar. This calculator computes yield from the bar length less your chuck grip and end loss, divided by the part length plus the parting cut — or from a plain rectangular nest for plate, tried both ways round — and then charges you for the bars or sheets you actually have to buy."}},{"@type":"Question","name":"How should I handle scrap allowance when quoting?","acceptedAnswer":{"@type":"Answer","text":"As an integer, because that is what it is. To ship 10 good parts at a 3% fallout you do not start 10.3 parts, you start 11 — which is a 10% hit on material, machine time and outside-process cost, not 3%. The common shortcut of multiplying the quantity by one plus the scrap rate also understates it at any quantity: at a 10% fallout, 100 good parts need 112 starts, not 110. This calculator uses the yield form and rounds up, and tells you the effective rate when the rounding makes it materially worse than what you entered."}},{"@type":"Question","name":"Should I bill setup as a separate line or bury it in the part price?","acceptedAnswer":{"@type":"Answer","text":"Either works, and the calculator shows the consequence of each. A separate setup line keeps the per-part price comparable between quantities and matters most on repeats: a second order off the same program owes no new programming and often a shorter setup, so a shop that buried those in the per-part price has to explain why the reorder is cheaper. Enter what you actually bill as a setup fee and the break-even figure adjusts to only the flat work the per-part price still has to carry."}},{"@type":"Question","name":"Does anything I type here get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. Your shop rates and a customer's part dimensions never leave the device. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts are stored the same local way and can be switched off."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CNC Machining Quote Calculator — cost per part, setup &amp; lot size — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">CNC JOB SHOP QUOTING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does that part actually cost you to make?</h1>
+    <p>A job-costing calculator for CNC machine shops. Put in your stock and how
+    many parts come out of it, your cycle time, your setup and programming hours,
+    your tooling life and any outside process, and get the real cost per part, the
+    break-even price, the margin at what you were about to quote, and the same
+    part costed at every lot size from a one-off to 500. The quantity curve is the
+    whole point: a 5-off is not a 500-off with a smaller number on it.</p>
+    <p class="note">Everything runs in this browser. Your shop rates, your
+    material prices and your customer's part dimensions are never uploaded — see
+    the privacy note in the footer.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>Your numbers</h2>
+    <form id="job-form">
+      <fieldset>
+        <legend>The order</legend>
+        <div class="grid">
+          <div>
+            <label for="quantity">Good parts to ship
+              <span class="hint">The quantity on the purchase order.</span></label>
+            <input type="number" id="quantity" min="1" step="1" value="50" inputmode="numeric">
+          </div>
+          <div>
+            <label for="pricePerPart">Price per part you were going to quote
+              <span class="hint">Leave at 0 if you only want the cost.</span></label>
+            <input type="number" id="pricePerPart" min="0" step="0.01" value="38" inputmode="decimal">
+          </div>
+          <div>
+            <label for="setupFeeCharged">Setup billed as its own line ($)
+              <span class="hint">0 if setup is inside the part price.</span></label>
+            <input type="number" id="setupFeeCharged" min="0" step="1" value="0" inputmode="numeric">
+          </div>
+          <div>
+            <label for="scrapPct">Scrap / fallout allowance (%)
+              <span class="hint">Parts you expect to lose at the machine.</span></label>
+            <input type="number" id="scrapPct" min="0" max="99" step="0.5" value="3" inputmode="decimal">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Material</legend>
+        <div class="grid">
+          <div>
+            <label for="stockForm">How you buy the material</label>
+            <select id="stockForm">
+              <option value="bar" selected>Bar — parts cut along a length</option>
+              <option value="plate">Plate or sheet — parts nested out of it</option>
+              <option value="supplied">Known cost per part (casting, blank, customer-supplied)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid" id="fs-stock">
+          <div>
+            <label for="stockUnitCost" id="label-stockUnitCost">Cost of one bar ($)
+              <span class="hint">What your supplier invoices for one length.</span></label>
+            <input type="number" id="stockUnitCost" min="0" step="0.01" value="118" inputmode="decimal">
+          </div>
+          <div>
+            <label for="partLengthIn" id="label-partLengthIn">Part length along the bar (in)
+              <span class="hint">Finished length plus any facing stock.</span></label>
+            <input type="number" id="partLengthIn" min="0" step="0.001" value="2.5" inputmode="decimal">
+          </div>
+        </div>
+        <div class="grid" id="fs-bar">
+          <div>
+            <label for="barLengthIn">Bar length (in)
+              <span class="hint">144 for a 12 ft length.</span></label>
+            <input type="number" id="barLengthIn" min="0" step="0.1" value="144" inputmode="decimal">
+          </div>
+          <div>
+            <label for="barEndLossIn">Chuck grip and unusable end (in)
+              <span class="hint">Taken off the length once.</span></label>
+            <input type="number" id="barEndLossIn" min="0" step="0.1" value="4" inputmode="decimal">
+          </div>
+          <div>
+            <label for="partingAllowanceIn">Parting cut per part (in)
+              <span class="hint">Blade width plus facing allowance.</span></label>
+            <input type="number" id="partingAllowanceIn" min="0" step="0.001" value="0.14" inputmode="decimal">
+          </div>
+        </div>
+        <div class="grid" id="fs-plate" hidden>
+          <div>
+            <label for="sheetLengthIn">Sheet length (in)</label>
+            <input type="number" id="sheetLengthIn" min="0" step="0.1" value="48" inputmode="decimal">
+          </div>
+          <div>
+            <label for="sheetWidthIn">Sheet width (in)</label>
+            <input type="number" id="sheetWidthIn" min="0" step="0.1" value="24" inputmode="decimal">
+          </div>
+          <div>
+            <label for="partWidthIn">Part width (in)
+              <span class="hint">The blank, not the finished feature.</span></label>
+            <input type="number" id="partWidthIn" min="0" step="0.001" value="3" inputmode="decimal">
+          </div>
+          <div>
+            <label for="nestGapIn">Gap between parts (in)
+              <span class="hint">Kerf plus whatever the nest needs.</span></label>
+            <input type="number" id="nestGapIn" min="0" step="0.001" value="0.25" inputmode="decimal">
+          </div>
+        </div>
+        <div class="grid" id="fs-supplied" hidden>
+          <div>
+            <label for="materialCostPerPart">Material cost per part ($)
+              <span class="hint">0 if the customer supplies it free.</span></label>
+            <input type="number" id="materialCostPerPart" min="0" step="0.01" value="6.5" inputmode="decimal">
+          </div>
+        </div>
+        <p class="note" id="yield-note"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Machining time</legend>
+        <div class="grid">
+          <div>
+            <label for="cycleMinutesPerPart">Cycle time per part (min)
+              <span class="hint">Spindle start to spindle stop.</span></label>
+            <input type="number" id="cycleMinutesPerPart" min="0" step="0.1" value="4.2" inputmode="decimal">
+          </div>
+          <div>
+            <label for="handlingMinutesPerPart">Load, unload and deburr at the machine (min)</label>
+            <input type="number" id="handlingMinutesPerPart" min="0" step="0.1" value="0.8" inputmode="decimal">
+          </div>
+          <div>
+            <label for="machineBurdenPerHour">Machine rate ($/h)
+              <span class="hint">The machine itself — depreciation, power, maintenance, floor. Not the operator.</span></label>
+            <input type="number" id="machineBurdenPerHour" min="0" step="0.5" value="22" inputmode="decimal">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your shop</legend>
+        <div class="grid">
+          <div>
+            <label for="hourlyWage">Machinist hourly wage ($/h)</label>
+            <input type="number" id="hourlyWage" min="0" max="100000" step="0.5" value="28" inputmode="decimal">
+          </div>
+          <div>
+            <label for="burdenRate">Payroll burden (%)
+              <span class="hint">Taxes, comp, benefits, paid time off.</span></label>
+            <input type="number" id="burdenRate" min="0" max="500" step="1" value="26" inputmode="numeric">
+          </div>
+          <div>
+            <label for="overheadRate">Overhead on direct cost (%)
+              <span class="hint">Rent, front office, software, insurance.</span></label>
+            <input type="number" id="overheadRate" min="0" max="500" step="1" value="18" inputmode="numeric">
+          </div>
+          <div>
+            <label for="targetMargin">Target net margin (%)</label>
+            <input type="number" id="targetMargin" min="0" max="99.9" step="1" value="35" inputmode="numeric">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Work that happens once per lot</legend>
+        <div class="grid">
+          <div>
+            <label for="setupHours">Setup hours
+              <span class="hint">Fixturing, tool setting, dialling in.</span></label>
+            <input type="number" id="setupHours" min="0" step="0.25" value="2.5" inputmode="decimal">
+          </div>
+          <div>
+            <label for="programmingHours">Programming hours
+              <span class="hint">CAM and proveout, once for this part.</span></label>
+            <input type="number" id="programmingHours" min="0" step="0.25" value="3" inputmode="decimal">
+          </div>
+          <div>
+            <label for="amortiseProgrammingOverParts">Parts you expect off this program
+              <span class="hint">Including future reorders. Leave equal to the order for a one-time job.</span></label>
+            <input type="number" id="amortiseProgrammingOverParts" min="1" step="1" value="50" inputmode="numeric">
+          </div>
+          <div>
+            <label for="firstArticleHours">First-article inspection hours
+              <span class="hint">Layout, report, and any FAI paperwork.</span></label>
+            <input type="number" id="firstArticleHours" min="0" step="0.25" value="1.25" inputmode="decimal">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tooling, inspection and outside processes</legend>
+        <div class="grid">
+          <div>
+            <label for="toolCostPerCuttingEdge">Cost of one insert edge or endmill ($)</label>
+            <input type="number" id="toolCostPerCuttingEdge" min="0" step="0.01" value="9.4" inputmode="decimal">
+          </div>
+          <div>
+            <label for="partsPerCuttingEdge">Parts per edge before it is changed</label>
+            <input type="number" id="partsPerCuttingEdge" min="1" step="1" value="60" inputmode="numeric">
+          </div>
+          <div>
+            <label for="inspectionMinutesPerPart">In-process inspection per part (min)</label>
+            <input type="number" id="inspectionMinutesPerPart" min="0" step="0.1" value="0.6" inputmode="decimal">
+          </div>
+          <div>
+            <label for="outsideCostPerPart">Outside process per part ($)
+              <span class="hint">Anodise, heat treat, plate, passivate. 0 if none.</span></label>
+            <input type="number" id="outsideCostPerPart" min="0" step="0.01" value="0" inputmode="decimal">
+          </div>
+          <div>
+            <label for="outsideLotMinimum">Outside process lot minimum ($)
+              <span class="hint">The vendor's minimum charge per batch.</span></label>
+            <input type="number" id="outsideLotMinimum" min="0" step="1" value="0" inputmode="numeric">
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit">Cost this job</button>
+      <button type="button" class="secondary" id="example">Load the worked example</button>
+      <button type="button" class="secondary" id="save">Save my numbers</button>
+      <button type="button" class="secondary" id="forget">Forget my numbers</button>
+      <button type="button" class="secondary" id="copyLink">Copy shareable link</button>
+      <p class="note" id="save-status" role="status"></p>
+      <p class="note" id="link-status" role="status"></p>
+      <p class="error" id="form-error" role="alert"></p>
+    </form>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>This job</h2>
+    <div class="headline">
+      <div><span class="cap">Cost per part</span><span class="big" id="out-cost"></span></div>
+      <div><span class="cap">Break-even price</span><span class="big" id="out-breakeven"></span></div>
+      <div><span class="cap">Price at your target margin</span><span class="big" id="out-target"></span></div>
+      <div><span class="cap">Margin at your quote</span><span class="big" id="out-margin"></span></div>
+    </div>
+    <p class="note" id="out-summary"></p>
+
+    <h3>Worth reading before this quote goes out</h3>
+    <div id="findings"></div>
+
+    <h3>Where the money goes</h3>
+    <div class="scroller">
+      <div class="pf-table-scroll"><table>
+        <caption class="note" style="text-align:left;padding:6px 0">Every figure is for the whole lot. Flat lines cost the same at any quantity.</caption>
+        <thead>
+          <tr><th>Cost line</th><th class="num">This lot</th><th class="num">Per part</th><th>Scales with</th></tr>
+        </thead>
+        <tbody id="breakdown"></tbody>
+        <tfoot>
+          <tr><td>Direct cost</td><td class="num" id="out-direct"></td><td class="num" id="out-direct-pp"></td><td></td></tr>
+          <tr><td id="label-overhead">Overhead</td><td class="num" id="out-overhead"></td><td class="num" id="out-overhead-pp"></td><td></td></tr>
+          <tr><td>Total cost</td><td class="num" id="out-total"></td><td class="num" id="out-total-pp"></td><td></td></tr>
+        </tfoot>
+      </table></div>
+    </div>
+
+    <h3>The same part at every lot size</h3>
+    <p class="note">Recomputed from scratch at each quantity, so the material
+    steps and the amortised setup are both real rather than interpolated.</p>
+    <div class="scroller">
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th class="num">Lot</th>
+            <th class="num">Starts</th>
+            <th class="num">Stock units</th>
+            <th class="num">Flat work per part</th>
+            <th class="num">Cost per part</th>
+            <th class="num">Price at target</th>
+            <th class="num">Margin at your quote</th>
+          </tr>
+        </thead>
+        <tbody id="breaks"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How this is worked out</h2>
+    <h3>Material is a step, not a rate</h3>
+    <p>A bar that yields 53 parts costs the same whether you cut 31 or 53 out of
+    it. So the material figure here is the number of whole bars or sheets you
+    have to buy, not the weight of the finished parts — and when the stock you
+    are buying holds more parts than you are starting, the tool says so, because
+    that material is already paid for.</p>
+    <h3>Scrap is an integer</h3>
+    <p>To ship 10 good parts at a 3% fallout you start 11, which is a 10% hit and
+    not a 3% one. The shortcut of multiplying by one plus the scrap rate
+    understates it at every quantity: at 10% fallout, 100 good parts need 112
+    starts. This page uses the yield form and rounds up to a whole part.</p>
+    <h3>Setup, programming and first article are per lot</h3>
+    <p>They cost the same at 5 pieces as at 500, which is the entire reason a
+    short run is expensive per part. Programming is spread over the parts you
+    expect off the program rather than only this lot, because a reorder owes no
+    new CAM time. Whether to bill that block as its own line or fold it into the
+    part price is a real decision with consequences either way —
+    <a href="./setup-fee-or-in-the-part-price.html">setup fee or in the part
+    price</a> works through what each choice does to your quote and your
+    reorders.</p>
+    <h3>An outside-process minimum behaves like a second setup</h3>
+    <p>Anodising at $2.10 a part with a $75 lot minimum is $15.00 a part on a
+    5-piece run. The minimum, not the rate, is what prices a short run, and the
+    tool charges it on the parts you send out rather than the parts you ship —
+    a plater does not refund the ones you scrap afterwards.</p>
+    <h3>Already quoting out of a spreadsheet?</h3>
+    <p>Most job shops are, and it is a reasonable thing to do — a sheet holds
+    the history, the customers and the estimates you built over years, and this
+    page holds none of that. What a sheet makes easy is the four costing errors
+    above, all of which move the cost the same way on short runs.
+    <a href="./vs-quoting-in-a-spreadsheet.html">This calculator vs. quoting in
+    a spreadsheet</a> sets out what each tool is for, and shows the same $38
+    part price earning 57.4% margin at 50 pieces and losing 19.3% at 10.</p>
+    <h3>What it does not do</h3>
+    <p>It does not know what your market pays, what your material is worth today,
+    what a reasonable cycle time is for your machine, or what your competitor
+    quoted. Every number above comes from your own invoices, payroll, tooling
+    records and machine monitor. It is arithmetic on your figures, not a
+    benchmark.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions shops ask</h2>
+
+    <h3>How do you calculate a CNC machining price per part?</h3>
+    <p>Add the material actually consumed, the machine and operator time for the
+    cycle plus handling, the perishable tooling worn making the part, and any
+    outside process. Then add the work that happens once per lot no matter how
+    many parts you make — setup, program proveout, first-article inspection — and
+    divide that by the lot size. Add your overhead as a percentage of that direct
+    cost, and the result is your cost per part. Price above it by the margin you
+    need. This calculator does that arithmetic on your own numbers; what the
+    customer will pay is a separate question it cannot answer.</p>
+
+    <h3>Why is a 5-piece order so much more per part than 500?</h3>
+    <p>Because setup, programming and the first-article report cost the same at
+    either quantity. Four hours of dialling in a fixture and proving out a program
+    is four hours whether you then cut 5 parts or 500. Spread over 5 pieces that
+    can exceed the machining itself; over 500 it rounds to cents. Quoting both off
+    one price list is the most common way a job shop loses money on the short run,
+    which is why the break table on this page costs the same part at every
+    standard lot size.</p>
+
+    <h3>How much material do I actually pay for on a machining job?</h3>
+    <p>Whole stock units, not the weight of the parts. A 12 ft bar that yields 53
+    pieces costs the same whether you cut 31 out of it or 53, so material cost per
+    part is a step function rather than a rate: the 32nd part costs nothing in
+    material and the 54th costs a whole new bar. This calculator computes yield
+    from the bar length less your chuck grip and end loss, divided by the part
+    length plus the parting cut — or from a plain rectangular nest for plate,
+    tried both ways round — and then charges you for the bars or sheets you
+    actually have to buy.</p>
+
+    <h3>How should I handle scrap allowance when quoting?</h3>
+    <p>As an integer, because that is what it is. To ship 10 good parts at a 3%
+    fallout you do not start 10.3 parts, you start 11 — which is a 10% hit on
+    material, machine time and outside-process cost, not 3%. The common shortcut
+    of multiplying the quantity by one plus the scrap rate also understates it at
+    any quantity: at a 10% fallout, 100 good parts need 112 starts, not 110. This
+    calculator uses the yield form and rounds up, and tells you the effective rate
+    when the rounding makes it materially worse than what you entered.</p>
+
+    <h3>Should I bill setup as a separate line or bury it in the part price?</h3>
+    <p>Either works, and the calculator shows the consequence of each. A separate
+    setup line keeps the per-part price comparable between quantities and matters
+    most on repeats: a second order off the same program owes no new programming
+    and often a shorter setup, so a shop that buried those in the per-part price
+    has to explain why the reorder is cheaper. Enter what you actually bill as a
+    setup fee and the break-even figure adjusts to only the flat work the per-part
+    price still has to carry.</p>
+
+    <h3>Does anything I type here get uploaded?</h3>
+    <p>No. Every calculation runs in this browser, and nothing you enter is sent
+    anywhere — there are no accounts, no cookies, and no analytics vendor. Your
+    shop rates and a customer's part dimensions never leave the device. If you use
+    the save button, your numbers are written to this browser's own local storage
+    on this device only, and the forget button deletes them. Anonymous feature
+    counts are stored the same local way and can be switched off.</p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, engineering, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>This calculator produces arithmetic observations from numbers you supply. It does not determine what your work is worth in your market, does not read your supplier invoices, does not verify that a cycle time or a tool life is achievable on your machine, and does not assess whether any tolerance, material certification, inspection standard, export control, or wage rule applies to the job. Nothing here is an opinion on whether a part can be made to its drawing.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your shop rates, material prices and part dimensions are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. <em>Copy shareable link</em> puts the same numbers in the URL fragment (after the <code>#</code>) rather than uploading them — a fragment is never sent to a server, so the link only carries your numbers if you send it yourself. Anonymous feature events (<code>quote</code>, <code>example_loaded</code>, <code>inputs_saved</code>, <code>link_copied</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
+    <p>Working out the hourly rate those wage and overhead figures should be? The <a href="../shop-rate-calculator/">shop rate calculator</a> derives a burdened rate from your payroll and overhead. Nesting blanks out of sheet goods? <a href="../cut-list-optimizer/">Cut list optimizer</a> does the real layout this page only estimates. Quoting decorated garments out of the same shop? The <a href="../apparel-decoration-price-calculator/">apparel decoration price calculator</a> is the same flat-setup-plus-machine-time arithmetic for a screen-print, embroidery or DTF run. Finishing parts in-house? The <a href="../powder-coating-job-price-calculator/">powder coating job price calculator</a> prices the coat from powder use, oven batches and colour setup. Cutting sheet goods on a laser instead? The <a href="../laser-cutting-engraving-job-price-calculator/">laser cutting and engraving job price calculator</a> prices the job from nesting, cut and engrave time and setup.</p>
+    <p>Free and open source. If this helped you price the next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeMachiningJob, partsPerStockUnit } from "./calculator.mjs";
+    import { readUsage, recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
+
+    const DRAFT_KEY = "cnc-machining-quote-inputs";
+    const $ = (sel) => document.querySelector(sel);
+
+    const FIELDS = [
+      "quantity", "pricePerPart", "setupFeeCharged", "scrapPct",
+      "stockUnitCost", "partLengthIn",
+      "barLengthIn", "barEndLossIn", "partingAllowanceIn",
+      "sheetLengthIn", "sheetWidthIn", "partWidthIn", "nestGapIn",
+      "materialCostPerPart",
+      "cycleMinutesPerPart", "handlingMinutesPerPart", "machineBurdenPerHour",
+      "hourlyWage", "burdenRate", "overheadRate", "targetMargin",
+      "setupHours", "programmingHours", "amortiseProgrammingOverParts", "firstArticleHours",
+      "toolCostPerCuttingEdge", "partsPerCuttingEdge", "inspectionMinutesPerPart",
+      "outsideCostPerPart", "outsideLotMinimum",
+    ];
+
+    // A 304 stainless turned part on a 12 ft bar, anodised outside with a lot
+    // minimum, at a lot size small enough that the flat work still shows.
+    const EXAMPLE = {
+      quantity: 25, pricePerPart: 42, setupFeeCharged: 0, scrapPct: 3,
+      stockForm: "bar", stockUnitCost: 118, partLengthIn: 2.5,
+      barLengthIn: 144, barEndLossIn: 4, partingAllowanceIn: 0.14,
+      sheetLengthIn: 48, sheetWidthIn: 24, partWidthIn: 3, nestGapIn: 0.25,
+      materialCostPerPart: 6.5,
+      cycleMinutesPerPart: 4.2, handlingMinutesPerPart: 0.8, machineBurdenPerHour: 22,
+      hourlyWage: 28, burdenRate: 26, overheadRate: 18, targetMargin: 35,
+      setupHours: 2.5, programmingHours: 3, amortiseProgrammingOverParts: 25,
+      firstArticleHours: 1.25,
+      toolCostPerCuttingEdge: 9.4, partsPerCuttingEdge: 60, inspectionMinutesPerPart: 0.6,
+      outsideCostPerPart: 2.1, outsideLotMinimum: 75,
+    };
+
+    const LINE_LABELS = {
+      material: ["Material", "whole bars or sheets"],
+      runLabour: ["Run labour", "parts started"],
+      runMachine: ["Machine time", "parts started"],
+      tooling: ["Perishable tooling", "parts started"],
+      inspection: ["In-process inspection", "parts shipped"],
+      outside: ["Outside process", "parts started, or the lot minimum"],
+      setupLabour: ["Setup labour", "flat per lot"],
+      setupMachine: ["Machine tied up in setup", "flat per lot"],
+      programming: ["Programming (this lot's share)", "flat per lot"],
+      firstArticle: ["First-article inspection", "flat per lot"],
+    };
+    // Variable lines first, then the flat ones, so the block that causes the
+    // quantity curve reads as a block.
+    const LINE_ORDER = [
+      "material", "runLabour", "runMachine", "tooling", "inspection", "outside",
+      "setupLabour", "setupMachine", "programming", "firstArticle",
+    ];
+
+    // Sign outside the symbol ("-$9.24", never "$-9.24"), and never on a value
+    // that rounds away to zero at the requested precision.
+    const money = (n, places = 2) => {
+      const value = Number(n) || 0;
+      const text = `$${Math.abs(value).toFixed(places)}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = (n) => `${(Number(n) || 0).toFixed(1)}%`;
+
+    function readInputs() {
+      const values = Object.fromEntries(FIELDS.map((id) => [id, Number($(`#${id}`).value)]));
+      values.stockForm = $("#stockForm").value;
+      return values;
+    }
+
+    function writeInputs(values) {
+      for (const id of FIELDS) {
+        if (values[id] !== undefined && values[id] !== null) $(`#${id}`).value = values[id];
+      }
+      if (values.stockForm) $("#stockForm").value = values.stockForm;
+      showStockFields();
+    }
+
+    // Only the selected stock form's inputs are on screen. They stay in the DOM
+    // rather than being removed, so a saved draft round-trips every form's
+    // numbers and switching back does not silently reset them.
+    function showStockFields() {
+      const form = $("#stockForm").value;
+      $("#fs-stock").hidden = form === "supplied";
+      $("#fs-bar").hidden = form !== "bar";
+      $("#fs-plate").hidden = form !== "plate";
+      $("#fs-supplied").hidden = form !== "supplied";
+      $("#label-stockUnitCost").firstChild.textContent =
+        form === "plate" ? "Cost of one sheet ($)" : "Cost of one bar ($)";
+      $("#label-partLengthIn").firstChild.textContent =
+        form === "plate" ? "Part length (in)" : "Part length along the bar (in)";
+      showYield();
+    }
+
+    // The yield figure is the one input people get wrong, and it is cheap to
+    // show before they press the button.
+    function showYield() {
+      const values = readInputs();
+      const note = $("#yield-note");
+      if (values.stockForm === "supplied") {
+        note.textContent = "";
+        return;
+      }
+      const per = partsPerStockUnit(values);
+      const unit = values.stockForm === "plate" ? "sheet" : "bar";
+      note.textContent = per > 0
+        ? `At these dimensions one ${unit} yields ${per} part${per === 1 ? "" : "s"}.`
+        : `No whole part fits one ${unit} at these dimensions — check the part against the stock.`;
+    }
+
+    function severityPill(severity) {
+      const label = { high: "Fix", medium: "Check", low: "Note", info: "FYI" }[severity] || "Note";
+      return `<span class="pill ${severity}">${label}</span>`;
+    }
+
+    const escape = (s) =>
+      String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    function renderFindings(findings) {
+      if (!findings.length) {
+        $("#findings").innerHTML =
+          '<p class="note">Nothing flagged. The quote clears your cost and your target margin, the material yield is efficient, and no lot minimum is distorting the price.</p>';
+        return;
+      }
+      $("#findings").innerHTML = findings
+        .map(
+          (f) => `<div class="finding"><h4>${severityPill(f.severity)}${escape(f.title)}</h4>
+            <p class="note">${escape(f.detail)}</p></div>`,
+        )
+        .join("");
+    }
+
+    function renderBreakdown(result) {
+      const qty = result.quantity;
+      $("#breakdown").innerHTML = LINE_ORDER.filter(
+        (key) => result.lines[key] !== 0 || ["material", "runLabour", "setupLabour"].includes(key),
+      )
+        .map((key) => {
+          const [label, scales] = LINE_LABELS[key];
+          const total = result.lines[key];
+          return `<tr><td>${label}</td><td class="num">${money(total)}</td><td class="num">${money(
+            total / qty,
+          )}</td><td class="note">${scales}</td></tr>`;
+        })
+        .join("");
+
+      $("#out-direct").textContent = money(result.directCost);
+      $("#out-direct-pp").textContent = money(result.directCost / qty);
+      $("#label-overhead").textContent = `Overhead (${pct(Number($("#overheadRate").value) || 0)} of direct)`;
+      $("#out-overhead").textContent = money(result.overheadCost);
+      $("#out-overhead-pp").textContent = money(result.overheadCost / qty);
+      $("#out-total").textContent = money(result.totalCost);
+      $("#out-total-pp").textContent = money(result.costPerPart);
+    }
+
+    function renderBreaks(result) {
+      $("#breaks").innerHTML = result.table
+        .map(
+          (row) => `<tr class="${row.isQuoted ? "quoted" : ""}">
+            <td class="num">${row.quantity}</td>
+            <td class="num">${row.starts}</td>
+            <td class="num">${row.stockUnitsNeeded === null ? "—" : row.stockUnitsNeeded}</td>
+            <td class="num">${money(row.perLotCostPerPart)}</td>
+            <td class="num">${money(row.costPerPart)}</td>
+            <td class="num">${money(row.targetPricePerPart)}</td>
+            <td class="num">${
+              row.marginAtQuotedPrice === null ? "—" : pct(row.marginAtQuotedPrice)
+            }</td>
+          </tr>`,
+        )
+        .join("");
+    }
+
+    function render(result) {
+      $("#out-cost").textContent = money(result.costPerPart);
+      $("#out-breakeven").textContent = money(result.breakEvenPricePerPart);
+      $("#out-target").textContent = money(result.targetPricePerPart);
+
+      const marginEl = $("#out-margin");
+      if (result.quotedPricePerPart > 0) {
+        marginEl.textContent = pct(result.marginPct);
+        marginEl.classList.toggle("loss", result.profit < 0);
+      } else {
+        marginEl.textContent = "—";
+        marginEl.classList.remove("loss");
+      }
+
+      const pieces = [
+        `Shipping ${result.quantity} good part${result.quantity === 1 ? "" : "s"} means starting ${result.starts}.`,
+      ];
+      if (result.stockUnitsNeeded !== null && result.partsPerStockUnit > 0) {
+        pieces.push(
+          `That is ${result.stockUnitsNeeded} stock unit${result.stockUnitsNeeded === 1 ? "" : "s"} at ${result.partsPerStockUnit} parts each.`,
+        );
+      }
+      pieces.push(`${result.runHours.toFixed(2)} machine hours on the job.`);
+      if (result.quotedPricePerPart > 0) {
+        pieces.push(
+          `At ${money(result.quotedPricePerPart)} a part${
+            result.setupFeeCharged > 0 ? ` plus ${money(result.setupFeeCharged)} setup` : ""
+          } the lot brings in ${money(result.revenue)} and ${
+            result.profit < 0 ? "loses" : "makes"
+          } ${money(Math.abs(result.profit))}.`,
+        );
+      }
+      $("#out-summary").textContent = pieces.join(" ");
+
+      renderFindings(result.findings);
+      renderBreakdown(result);
+      renderBreaks(result);
+      $("#results").hidden = false;
+    }
+
+    function quote() {
+      const values = readInputs();
+      const error = $("#form-error");
+      if (!Number.isFinite(values.quantity) || values.quantity < 1) {
+        error.textContent = "Enter how many good parts the order is for — at least one.";
+        return;
+      }
+      error.textContent = "";
+      render(computeMachiningJob(values));
+      recordUsage("quote");
+    }
+
+    $("#job-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      quote();
+    });
+
+    $("#stockForm").addEventListener("change", showStockFields);
+    for (const id of ["barLengthIn", "barEndLossIn", "partLengthIn", "partingAllowanceIn",
+      "sheetLengthIn", "sheetWidthIn", "partWidthIn", "nestGapIn"]) {
+      $(`#${id}`).addEventListener("input", showYield);
+    }
+
+    $("#example").addEventListener("click", () => {
+      writeInputs(EXAMPLE);
+      quote();
+      recordUsage("example_loaded");
+    });
+
+    $("#save").addEventListener("click", () => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs()));
+        $("#save-status").textContent = "Saved to this browser on this device only.";
+        recordUsage("inputs_saved");
+      } catch {
+        $("#save-status").textContent = "This browser would not let the page save anything.";
+      }
+    });
+
+    $("#forget").addEventListener("click", () => {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* nothing to forget */
+      }
+      $("#save-status").textContent = "Forgotten.";
+    });
+
+    $("#copyLink").addEventListener("click", async () => {
+      const query = encodeInputs(readInputs());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ""}`;
+      history.replaceState(null, "", url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        $("#link-status").textContent = "Link copied. Nothing was uploaded — the numbers are in the link itself.";
+      } catch {
+        $("#link-status").textContent = "Copy was blocked — the link is now in your address bar.";
+      }
+      recordUsage("link_copied");
+    });
+
+    function refreshOptOut() {
+      const off = usageOptedOut();
+      $("#optout").textContent = off ? "Turn usage counting back on" : "Turn usage counting off";
+      const counts = readUsage();
+      const total = Object.entries(counts)
+        .filter(([key]) => key !== "last_day")
+        .reduce((sum, [, value]) => sum + (Number(value) || 0), 0);
+      $("#optout-status").textContent = off
+        ? "Counting is off, and anything already counted was deleted."
+        : `Counting is on. ${total} event${total === 1 ? "" : "s"} counted in this browser.`;
+    }
+
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(!usageOptedOut());
+      refreshOptOut();
+    });
+
+    // Restore a saved draft, if there is one, before the first paint.
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          writeInputs(parsed);
+          $("#save-status").textContent = "Restored the numbers you saved on this device.";
+        }
+      }
+    } catch {
+      /* a corrupt draft is not worth mentioning to the visitor */
+    }
+
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. `formValues` -- not a plain object spread -- is what
+    // makes that true: it writes every field, so one the link omitted is
+    // cleared rather than left showing the recipient's own saved draft.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length) {
+      writeInputs(formValues(fromLink));
+      $("#link-status").textContent = "Opened a shared quote. Review the numbers before you use them.";
+      quote();
+    }
+
+    showStockFields();
+    refreshOptOut();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../boutique-fitness-studio-pricing-planner/" data-pf-to="boutique-fitness-studio-pricing-planner">Is my studio's unlimited membership priced right? Free pricing planner</a></li>
+      <li><a href="../bowling-center-profit-calculator/" data-pf-to="bowling-center-profit-calculator">Bowling center calculator: what utilization do you need to break even? Free, private</a></li>
+      <li><a href="../bridal-hair-makeup-pricing-calculator/" data-pf-to="bridal-hair-makeup-pricing-calculator">Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</a></li>
+      <li><a href="../campground-site-profit-calculator/" data-pf-to="campground-site-profit-calculator">Campground profit calculator: does your park pay? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cnc-machining-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/?pfEmbed=1&quot; title=&quot;CNC Machining Quote Calculator — cost per part, setup &amp; lot size — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cnc-machining-quote-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/" data-pf-embed-title="CNC Machining Quote Calculator — cost per part, setup &amp; lot size" data-pf-embed-slug="cnc-machining-quote-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cnc-machining-quote-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

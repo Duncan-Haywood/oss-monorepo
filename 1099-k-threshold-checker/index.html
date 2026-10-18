@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1099-K Threshold Checker — Will You Get One for 2026?</title>
+  <meta name="description" content="Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year.">
+  <meta property="og:title" content="1099-K Threshold Checker">
+  <meta property="og:description" content="The federal 1099-K threshold has changed four times since 2022. This free checker applies the right figure for the year and platform you enter…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"1099-K Threshold Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based checker that estimates whether a marketplace or payment app is likely to issue a Form 1099-K, per platform and tax year, against the federal threshold and four states' stricter thresholds."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 1099-K threshold for 2026?","acceptedAnswer":{"@type":"Answer","text":"More than $20,000 in gross payments and more than 200 transactions from the same platform in the year. The One Big Beautiful Bill Act (OBBBA, signed 2025-07-04) restored this figure after a since-repealed law would have phased it down to $600. Both conditions must be exceeded — a platform that paid you $25,000 across 50 transactions has not crossed the federal threshold."}},{"@type":"Question","name":"Why did my platform send me a 1099-K for 2024 when I made less than $20,000?","acceptedAnswer":{"@type":"Answer","text":"For tax year 2024 specifically, the IRS had announced a real $5,000 threshold with no transaction-count minimum (Notice 2023-74), and platforms actually issued forms under it. The 2025 law that restored $20,000/200 going forward applies retroactively to 2024 too, but the IRS confirmed a platform that already sent a 2024 form under the $5,000 rule did not have to withdraw or correct it — so a form that already arrived for 2024 stays valid even though the current standing threshold is higher."}},{"@type":"Question","name":"Do amounts from different platforms add together?","acceptedAnswer":{"@type":"Answer","text":"No. The threshold applies separately to each Third Party Settlement Organization (TPSO) — each marketplace or payment app checks its own total paid to you, on its own. $15,000 from eBay and $15,000 from Etsy in the same year does not combine into $30,000 for either platform's own reporting decision. Enter each platform as its own row."}},{"@type":"Question","name":"I'm under the threshold everywhere. Does that mean I owe no tax on this income?","acceptedAnswer":{"@type":"Answer","text":"No. Whether a 1099-K is issued and whether the income is taxable are two separate questions. Business income is reportable whether or not any form documents it. This checker only estimates the paperwork question — it is not tax advice about what to report."}},{"@type":"Question","name":"Does crossing the threshold guarantee a form arrives, or does staying under it guarantee one will not?","acceptedAnswer":{"@type":"Answer","text":"Neither is guaranteed. A platform can choose to issue a 1099-K below the federal or state threshold (some do, for internal reasons or backup withholding), and a platform that should issue one can still make a filing error. This tool estimates the legal threshold, not any specific platform's actual behavior."}},{"@type":"Question","name":"My state isn't Maryland, Massachusetts, Vermont, or Virginia. Does it have its own threshold?","acceptedAnswer":{"@type":"Answer","text":"Possibly, but this tool has not independently verified all fifty states' own reporting statutes — only these four, which are confirmed to set a threshold stricter than the federal one. If your state is not listed, this checker applies the federal threshold only; check your state's own department of revenue if you want to rule out a state-specific rule."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:1100px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:760px; font:700 clamp(2rem,5.5vw,3.6rem)/1.02 Georgia,serif; letter-spacing:-.03em; margin:0 0 16px; } h2 { font:700 1.5rem Georgia,serif; } .intro { max-width:720px; color:var(--muted); font-size:1.1rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:720px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #3c2e1812; }
+    .row { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; align-items:end; } label { display:grid; gap:5px; color:var(--muted); font-size:.85rem; } input, select { width:100%; padding:11px; border:1px solid #bdb4a5; border-radius:8px; font:inherit; color:var(--ink); background:white; }
+    button { border:0; border-radius:8px; padding:12px 16px; font-weight:700; cursor:pointer; background:var(--ink); color:white; } button.secondary { background:#e7dfd0; color:var(--ink); } button.danger { background:#fff; color:#a42c22; border:1px solid #a42c22; padding:6px 10px; font-weight:600; } .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; } th,td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); } th { color:var(--muted); font-size:.78rem; text-transform:uppercase; } .status { font-weight:700; } .likely { color:#a42c22; } .unlikely { color:#3a6b4c; } .unknown { color:#5b6b63; }
+    .privacy { font-size:.9rem; color:var(--muted); } footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    .settings-row { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:520px; }
+    .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
+    @media(max-width:900px) { .row { grid-template-columns:repeat(2,1fr); } .row button { grid-column:span 2; } table { font-size:.86rem; } th:nth-child(2),td:nth-child(2) { display:none; } .settings-row { grid-template-columns:1fr; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"1099-K Threshold Checker","item":"https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="1099-K Threshold Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">1099-K Threshold Checker</span></span></nav><main>
+  <h1>Will you get a 1099-K this year?</h1>
+  <p class="intro">A private checker for gig and marketplace sellers (eBay, Etsy, Poshmark, Venmo, PayPal, Cash App, StockX, and others). The federal reporting threshold has changed four times since 2022 — enter what a platform paid you and get a per-platform answer against the right year's figure, plus four states' own stricter rule.</p>
+  <p class="value"><strong>After using this, you can now</strong> see which of your platforms are likely to send a 1099-K and which are not, per platform and per year, which used to mean re-deriving four years of threshold whiplash by hand. See <a href="why-did-the-1099-k-threshold-keep-changing.html">the full threshold timeline explained</a>, or <a href="vs-checking-the-threshold-yourself.html">how this compares to checking it yourself</a>.</p>
+  <p class="privacy">Already have a 1099-K in hand and want to know what it means for your taxable profit — backing out refunds, fees, and cost of goods? The <a href="../1099k-reconciliation-worksheet/">1099-K reconciliation worksheet</a> handles that side of the same question — nothing uploaded there either.</p>
+  <p class="privacy">Selling on platforms in the EU instead? The EU equivalent is DAC7: the <a href="../dac7-seller-reporting-checker/">DAC7 seller reporting checker</a> shows whether a platform will report your sales to the tax authority.</p>
+  <p class="privacy">Selling into several states, not just several platforms? A 1099-K is about payment reporting, not sales tax — the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> answers the separate question of which states you may owe sales tax registration in.</p>
+
+  <section class="card">
+    <h2>Tax year</h2>
+    <div class="settings-row">
+      <label>Tax year (year you were paid)<input id="taxYear" type="number" step="1" min="2015" max="2099" inputmode="numeric"></label>
+      <div></div>
+    </div>
+    <p class="privacy" id="year-note"></p>
+  </section>
+
+  <section class="card"><h2>Add a platform</h2><p class="privacy">Each platform is checked on its own — amounts from different platforms are never added together, because that is not how the threshold works.</p><form id="source-form"><div class="row">
+    <label>Platform<input name="platform" required placeholder="eBay"></label>
+    <label>Your state, if it has a stricter rule<select name="state" id="stateSelect"></select></label>
+    <label>Gross payments this year ($)<input name="grossPayments" type="number" min="0" step="0.01" value="0" required inputmode="decimal"></label>
+    <label>Transaction count (optional for 2024)<input name="transactionCount" type="number" min="0" step="1" placeholder="e.g. 340" inputmode="numeric"></label>
+  </div><div class="actions"><button type="submit">Add platform</button><button class="secondary" type="button" id="sample">Load sample platforms</button> <button class="secondary" type="button" id="clear">Clear all saved platforms</button></div></form></section>
+
+  <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h2>Results</h2><div><button class="secondary" id="export">Export CSV</button></div></div><p id="empty" class="privacy">No platforms yet. Add the first one above, or load sample platforms to see how the results read.</p><p id="sample-note" class="privacy" role="status" hidden></p><div style="overflow:auto"><div class="pf-table-scroll"><table hidden id="table"><thead><tr><th>Platform</th><th>State</th><th>Paid</th><th>Transactions</th><th>Likely?</th><th>Furnish deadline</th><th></th></tr></thead><tbody></tbody></table></div></div></section>
+
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Platform names and amounts stay on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 1099-K threshold for 2026?</h3>
+    <p>More than $20,000 in gross payments and more than 200 transactions from the same platform in the year. The One Big Beautiful Bill Act (OBBBA, signed 2025-07-04) restored this figure after a since-repealed law would have phased it down to $600. Both conditions must be exceeded — a platform that paid you $25,000 across 50 transactions has not crossed the federal threshold.</p>
+    <h3>Why did my platform send me a 1099-K for 2024 when I made less than $20,000?</h3>
+    <p>For tax year 2024 specifically, the IRS had announced a real $5,000 threshold with no transaction-count minimum (Notice 2023-74), and platforms actually issued forms under it. The 2025 law that restored $20,000/200 going forward applies retroactively to 2024 too, but the IRS confirmed a platform that already sent a 2024 form under the $5,000 rule did not have to withdraw or correct it — so a form that already arrived for 2024 stays valid even though the current standing threshold is higher.</p>
+    <h3>Do amounts from different platforms add together?</h3>
+    <p>No. The threshold applies separately to each Third Party Settlement Organization (TPSO) — each marketplace or payment app checks its own total paid to you, on its own. $15,000 from eBay and $15,000 from Etsy in the same year does not combine into $30,000 for either platform's own reporting decision. Enter each platform as its own row.</p>
+    <h3>I'm under the threshold everywhere. Does that mean I owe no tax on this income?</h3>
+    <p>No. Whether a 1099-K is issued and whether the income is taxable are two separate questions. Business income is reportable whether or not any form documents it. This checker only estimates the paperwork question — it is not tax advice about what to report.</p>
+    <h3>Does crossing the threshold guarantee a form arrives, or does staying under it guarantee one will not?</h3>
+    <p>Neither is guaranteed. A platform can choose to issue a 1099-K below the federal or state threshold (some do, for internal reasons or backup withholding), and a platform that should issue one can still make a filing error. This tool estimates the legal threshold, not any specific platform's actual behavior.</p>
+    <h3>My state isn't Maryland, Massachusetts, Vermont, or Virginia. Does it have its own threshold?</h3>
+    <p>Possibly, but this tool has not independently verified all fifty states' own reporting statutes — only these four, which are confirmed to set a threshold stricter than the federal one. If your state is not listed, this checker applies the federal threshold only; check your state's own department of revenue if you want to rule out a state-specific rule.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not legal, financial, or tax advice, and it does not know what any specific platform actually did or will do. It is not the IRS TIN Matching program, and it does not file anything. A "likely" or "unlikely" estimate is a starting point for your own review, not a determination. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<p class="support">Free and open source. If it saved you from an unpleasant surprise in January, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+    // Remember the visitor's usage-counting choice between visits, before
+    // anything is recorded or the control could otherwise be read in its
+    // default state. Same pattern as the sibling 1099-vendor-tracker's
+    // identical block: a control that silently forgets a visitor's opt-out
+    // is worse than no control at all.
+    (() => {
+      const usagePreference = '1099-k-threshold-checker-usage-preference';
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { checkAll, removeSource, sampleSources, toCsv, loadSources, federalEraNote, STATE_OPTIONS } from './calc.mjs';
+  const form=document.querySelector('#source-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='1099-k-threshold-checker-sources';
+  const stateSelect=document.querySelector('#stateSelect');
+  stateSelect.innerHTML = STATE_OPTIONS.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
+  const taxYearInput=document.querySelector('#taxYear'), yearNote=document.querySelector('#year-note');
+  const nowYear = new Date().getFullYear();
+  taxYearInput.value = String(nowYear);
+  const readSources=()=>{try{return loadSources(localStorage.getItem(storageKey));}catch{return [];}};
+  const saveSources=()=>{try{localStorage.setItem(storageKey,JSON.stringify(sources));}catch{} };
+  let sources=readSources();
+  const track=(event)=>{if(document.querySelector('#usage').checked&&!navigator.doNotTrack&&!navigator.globalPrivacyControl){try{const key='1099-k-threshold-checker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
+  const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const currentOptions=()=>({taxYear:Number(taxYearInput.value)||nowYear});
+  const statusClass=(row)=>row.likely===null?'unknown':row.likely?'likely':'unlikely';
+  const render=()=>{
+    const options=currentOptions();
+    const eraNote = federalEraNote(options.taxYear);
+    yearNote.innerHTML = eraNote ? `<span class="note">${escapeHtml(eraNote)}</span>` : `Using the federal threshold that applied to payments made in ${options.taxYear}.`;
+    const rows=checkAll(sources, options);
+    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.platform||'')}</td><td>${escapeHtml(r.state||'—')}</td><td>${Number(r.grossPayments||0).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td>${r.deadline||'—'}</td><td><button type="button" class="danger" data-remove="${r.sourceIndex}">Remove</button></td></tr>`).join('');
+    table.hidden=!rows.length; empty.hidden=!!rows.length; return rows;
+  };
+  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));sources.push(data);saveSources();form.reset();render();track('source_added');});
+  document.querySelector('#clear').onclick=()=>{sources=[];try{localStorage.removeItem(storageKey);}catch{} note('');render();};
+  taxYearInput.addEventListener('change',render);
+  const note=(text)=>{const el=document.querySelector('#sample-note');el.textContent=text;el.hidden=!text;};
+  document.querySelector('#sample').onclick=()=>{if(sources.length){note('The checker already has platforms in it. Clear all saved platforms first if you want to see the sample.');return;}sources=sampleSources();saveSources();note('Showing four sample platforms — a federal-threshold trigger, a miss, a state-only trigger, and a near-miss. Clear all saved platforms to remove them.');render();track('sample_loaded');};
+  document.querySelector('#export').onclick=()=>{const rows=checkAll(sources, currentOptions());const blob=new Blob([toCsv(rows)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='1099-k-threshold-check.csv';a.click();URL.revokeObjectURL(a.href);track('exported');};
+  tbody.addEventListener('click',event=>{const button=event.target.closest('[data-remove]');if(!button)return;sources=removeSource(sources,Number(button.dataset.remove));saveSources();render();track('source_removed');});
+  render();
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../1099-vendor-tracker/" data-pf-to="1099-vendor-tracker">1099-NEC Vendor Tracker</a></li>
+      <li><a href="../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099-k-threshold-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/?pfEmbed=1&quot; title=&quot;1099-K Threshold Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="1099-k-threshold-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/" data-pf-embed-title="1099-K Threshold Checker" data-pf-embed-slug="1099-k-threshold-checker"></script>
+</body></html>

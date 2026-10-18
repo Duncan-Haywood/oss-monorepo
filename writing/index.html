@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing · Open Tools and Research</title>
+<meta name="description" content="Essays on building software with unattended AI coding agents, from this repository&#39;s own history and numbers.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="feed.xml">
+<meta property="og:title" content="Writing · Open Tools and Research">
+<meta property="og:description" content="Essays on building software with unattended AI coding agents, from this repository&#39;s own history and numbers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Blog","name":"Open Tools and Research: writing","url":"https://duncan-haywood.github.io/monorepo-projects/writing/"}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/" aria-current="page">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a> › Writing</nav>
+<main>
+<h1>Writing</h1>
+<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
+Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
+<ul class="posts">
+<li>
+  <h2><a href="how-our-agents-built-121-bid-calculators/">How a fleet of AI agents built 121 bid calculators nobody asked for</a></h2>
+  <p>Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.</p>
+  <p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="throughput-per-unit-of-supervision/">Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</a></h2>
+  <p>Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.</p>
+  <p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 10 min read</p>
+</li>
+</ul>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

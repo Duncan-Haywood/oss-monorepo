@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. checking each state's law by hand — Salary Range Posting Check</title>
+<meta name="description" content="Searching 'does [state] require a salary range in job postings' one state at a time gets you an answer for each state alone.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/vs-checking-each-states-law-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking each state's law by hand">
+<meta property="og:description" content="A one-off search answers 'does Colorado require a pay range?' It does not tell you whether the posting you already drafted has one…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't searching \"does [state] require a salary range in job postings\" enough?","acceptedAnswer":{"@type":"Answer","text":"It answers the single-state legal question, and plenty of free pages already answer it correctly. What it does not do is look at your actual posting text and tell you whether it already has a range in the shape the law expects — that is a second, separate step a search result cannot do for you."}},{"@type":"Question","name":"What does a one-off search not give you that this tool does?","acceptedAnswer":{"@type":"Answer","text":"Two things bundled together: a scan of the exact wording you already drafted (does it read as a range, a single figure, or nothing), and the requirement for every state the role could be filled from checked in one pass — rather than one search per state and a manual re-read of your draft against each answer."}},{"@type":"Question","name":"Why does this matter more for a remote or multi-state posting?","acceptedAnswer":{"@type":"Answer","text":"A single-state posting only needs one search. A remote posting open to candidates in ten states needs ten separate lookups done correctly and then cross-referenced against one draft by hand — exactly the kind of repetitive check that is easy to get half-right under deadline pressure, and easy to re-run here in one pass."}},{"@type":"Question","name":"Does this replace reading the actual law that applies to you?","acceptedAnswer":{"@type":"Answer","text":"No, and it says so on every page. It names the public law for each state so the next step is reading that law's current text or your state labor agency's guidance, not a general search that may surface an outdated summary."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/vs-checking-each-states-law-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. checking each state's law by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../salary-range-posting-check/">Does your job posting state a pay range?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. checking each state's law by hand</span></span></nav>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. checking each state's law by hand</h1>
+<p class="lede">The usual way to answer "does my posting need a salary range?" is to search "does [state] require a salary range in job postings," read whichever page ranks first, and eyeball your own draft against it. That answers the legal question well enough most of the time. It does not scan the posting you actually wrote, and it does not scale past one or two states.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A one-off search</strong> is free and needs no tool: type the state name, read the first confident-sounding answer. It works fine for a single-state posting and a careful reader.</p>
+<p><strong>This checker</strong> scans the exact text you drafted for a stated range, checks it against every state the role could be filled from in one pass, and names the specific law, effective date, and threshold for each state that requires one — from one paste rather than several searches and a manual re-read.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Does Colorado require a posted pay range?</td><td>Either one. A single search answers this, and so does this checker's table.</td></tr>
+<tr><td>Does the posting I already wrote actually have a range in it?</td><td>This checker. A search engine has never seen your draft; it can only tell you the rule, not whether your wording satisfies it.</td></tr>
+<tr><td>A remote posting is open to candidates in six states — which ones need a range?</td><td>This checker, in one pass. Six separate searches plus a manual cross-check against one draft is the same task done the slow way.</td></tr>
+<tr><td>Is anything I paste uploaded anywhere?</td><td>Neither. A search involves no tool of ours at all, and this checker runs entirely in your browser.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't searching "does [state] require a salary range in job postings" enough?</h3>
+<p>It answers the single-state legal question, and plenty of free pages already answer it correctly. What it does not do is look at your actual posting text and tell you whether it already has a range in the shape the law expects — that is a second, separate step a search result cannot do for you.</p>
+<h3>What does a one-off search not give you that this tool does?</h3>
+<p>Two things bundled together: a scan of the exact wording you already drafted (does it read as a range, a single figure, or nothing), and the requirement for every state the role could be filled from checked in one pass — rather than one search per state and a manual re-read of your draft against each answer.</p>
+<h3>Why does this matter more for a remote or multi-state posting?</h3>
+<p>A single-state posting only needs one search. A remote posting open to candidates in ten states needs ten separate lookups done correctly and then cross-referenced against one draft by hand — exactly the kind of repetitive check that is easy to get half-right under deadline pressure, and easy to re-run here in one pass.</p>
+<h3>Does this replace reading the actual law that applies to you?</h3>
+<p>No, and it says so on every page. It names the public law for each state so the next step is reading that law's current text or your state labor agency's guidance, not a general search that may surface an outdated summary.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not legal advice, and they do not replace a qualified employment attorney. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Checking each state's law by hand" describes a manual habit anyone can do with a search engine, not any company's product or service.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you paste is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../xero-bank-statement-csv-check/" data-pf-to="xero-bank-statement-csv-check">Xero Bank Statement CSV Check — free, private, in your browser</a></li>
+      <li><a href="../youtube-adsense-payout-to-journal/" data-pf-to="youtube-adsense-payout-to-journal">YouTube AdSense payments to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../youtube-chapters-check/" data-pf-to="youtube-chapters-check">YouTube Chapters Check — free, private, in your browser</a></li>
+      <li><a href="../zoho-crm-import-csv-check/" data-pf-to="zoho-crm-import-csv-check">Zoho CRM Import CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=salary-range-posting-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="salary-range-posting-check"></script>
+</body>
+</html>

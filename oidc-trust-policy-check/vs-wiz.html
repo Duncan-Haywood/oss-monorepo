@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. Wiz | GitHub Actions OIDC Trust Policy Checker</title>
+  <meta name="description" content="Wiz is a paid, ongoing cloud security platform (CNAPP) that continuously inventories a cloud account's IAM roles and trust relationships alongside dozens of…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/vs-wiz.html">
+  <meta property="og:title" content="This checker vs. Wiz">
+  <meta property="og:description" content="Two different layers: Wiz continuously inventories a whole cloud account's IAM roles and trust relationships as part of a paid platform.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Wiz check GitHub Actions OIDC trust policy conditions the same way this tool does?","acceptedAnswer":{"@type":"Answer","text":"Not in the way this tool does. Wiz is a cloud-native application protection platform (CNAPP): per its own public material, it connects to a customer's cloud accounts (AWS, Azure, GCP and others) and continuously maps relationships across every role, permission, and resource to surface risks such as over-permissive trust policies, alongside a broad range of other cloud misconfigurations, vulnerabilities and exposed secrets. Wiz's own security research team has specifically written about the exact class of bug this tool checks for -- a GitHub Actions OIDC trust policy whose sub condition is missing or too broad, letting an unintended repository assume the role -- as one finding among the many categories its platform inventories across a whole account. This tool does the opposite and narrower thing: it makes no connection to any cloud account and holds no ongoing inventory. You paste one IAM role trust policy, and it classifies that policy's sub and aud conditions against the specific wildcard and operator-semantics traps documented for this exact misconfiguration, entirely offline."}},{"@type":"Question","name":"Should I use this tool or Wiz?","acceptedAnswer":{"@type":"Answer","text":"They work at different layers, and a team can reasonably use both. Wiz connects to a cloud account on an ongoing, agentless basis and correlates findings across IAM, workloads, data, and vulnerabilities into one graph, as part of a paid enterprise platform; no public price list exists on Wiz's own site, so no dollar figure is stated here as verified fact. This tool needs no cloud account connection, no agent, and no ongoing subscription: paste one trust policy and get its sub/aud conditions classified in your browser, free, in under a second, with nothing uploaded. A platform team standardizing least-privilege across every role in a large cloud estate is better served by Wiz or a comparable CNAPP; a developer wiring up one new GitHub Actions OIDC role right now, who wants an immediate, free, local answer to whether its trust policy is scoped correctly, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Wiz?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Wiz, Inc. Wiz is a trademark of its owner, named here only to describe what this tool is and is not, based on Wiz's own publicly documented product and research."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #4c1d95; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/vs-wiz.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Wiz — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../oidc-trust-policy-check/">GitHub Actions OIDC Trust Policy Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Wiz</span></span></nav>
+  <p class="note"><a href="./">&larr; GitHub Actions OIDC Trust Policy Checker</a></p>
+  <h1>This checker vs. Wiz</h1>
+  <p class="note">Two different layers: Wiz continuously inventories a whole cloud account's IAM roles and trust relationships, alongside dozens of other cloud risk categories, as part of a paid platform. This tool reads one pasted trust policy's GitHub Actions OIDC conditions, once, locally &mdash; no account, no cloud connection, nothing installed.</p>
+
+  <section class="card">
+    <h2>What each product is for</h2>
+    <p>
+      <strong>Wiz</strong> is a cloud-native application protection platform
+      (CNAPP). Per its own public material, it connects agentlessly to a
+      customer's AWS, Azure, GCP, or other cloud accounts and builds a graph
+      correlating roles, permissions, workloads, data, vulnerabilities, and
+      exposed secrets across the whole environment, surfacing risks such as
+      over-permissive IAM trust policies as one of many finding types. Wiz's
+      own security research team has published specifically on GitHub
+      Actions OIDC trust-policy misconfigurations &mdash; a missing or
+      wildcarded <code>sub</code> condition letting an unintended repository
+      assume a role &mdash; as one instance of the broader IAM risk category
+      its platform inventories continuously. Wiz publishes no public price
+      list on its own site, so no dollar figure for it is stated here as
+      verified fact; only its well-documented product category (an
+      enterprise, account-connected CNAPP) is described.
+    </p>
+    <p>
+      This tool does none of what Wiz does. It connects to no cloud account,
+      runs no agent, and holds no ongoing inventory of anything. You paste
+      one AWS IAM role trust policy &mdash; the one federating GitHub
+      Actions over OIDC &mdash; and it classifies that policy's
+      <code>sub</code> and <code>aud</code> conditions against the specific
+      wildcard-scope and operator-semantics traps this misconfiguration
+      class is known for: no <code>sub</code> condition at all, a wildcard
+      reaching past one repository, <code>repo:owner/name:*</code> admitting
+      a fork's pull request, a negated operator, a missing or wildcarded
+      <code>aud</code>, and a literal <code>*</code> under
+      <code>StringEquals</code> that makes the role unassumable rather than
+      open. It runs free in your browser (or as a zero-dependency CLI), with
+      nothing uploaded and no network calls of its own.
+    </p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want continuous, account-wide inventory of every IAM role's trust relationships, correlated against workloads, secrets, and vulnerabilities &mdash; not just one GitHub Actions role.</td><td>Wiz, or a comparable CNAPP &mdash; that is the ongoing, cross-account job it is built for.</td></tr>
+          <tr><td>I just wrote (or inherited) one AWS IAM role trust policy for GitHub Actions OIDC and want to know right now whether its sub/aud conditions actually pin it to my repo.</td><td>This tool &mdash; paste the policy, get the findings, free, no account.</td></tr>
+          <tr><td>I want an agent or connected account that watches my whole cloud estate for new over-permissive roles as they're created.</td><td>Wiz &mdash; this tool has no memory between runs and connects to nothing.</td></tr>
+          <tr><td>I don't want to connect a cloud account or install anything to check one trust policy that names my own AWS account id.</td><td>This tool &mdash; it never makes a network call, and nothing you paste is uploaded.</td></tr>
+          <tr><td>I want correlated findings across IAM, secrets, vulnerabilities, and data exposure in one graph.</td><td>Wiz &mdash; this tool checks one narrow, specific misconfiguration class and nothing else.</td></tr>
+          <tr><td>What exactly is the sub/wildcard trap, and how do I fix it?</td><td>This tool's own <a href="sub-claim-and-wildcard-traps.html">sub-claim and wildcard traps explainer</a>.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p>
+      A team can reasonably use both: Wiz for continuous, account-wide cloud
+      security posture management, and this tool as a fast, zero-account,
+      zero-network check of one trust policy's OIDC conditions the moment
+      it's written. This page does not evaluate Wiz's detection accuracy or
+      coverage and makes no claim about it either way &mdash; it only
+      describes Wiz's documented product category and states what this tool
+      does differently. A clean result from either one is not a complete
+      security assessment on its own.
+    </p>
+    <p class="note">This tool needs no account and no sign-in: it is a static page, the check runs in your browser (or as a stdlib-only CLI script), and it keeps working with the network connection off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does Wiz check GitHub Actions OIDC trust policy conditions the same way this tool does?</h3>
+    <p>Not in the way this tool does. Wiz is a cloud-native application protection platform (CNAPP): per its own public material, it connects to a customer's cloud accounts (AWS, Azure, GCP and others) and continuously maps relationships across every role, permission, and resource to surface risks such as over-permissive trust policies, alongside a broad range of other cloud misconfigurations, vulnerabilities and exposed secrets. Wiz's own security research team has specifically written about the exact class of bug this tool checks for -- a GitHub Actions OIDC trust policy whose sub condition is missing or too broad, letting an unintended repository assume the role -- as one finding among the many categories its platform inventories across a whole account. This tool does the opposite and narrower thing: it makes no connection to any cloud account and holds no ongoing inventory. You paste one IAM role trust policy, and it classifies that policy's sub and aud conditions against the specific wildcard and operator-semantics traps documented for this exact misconfiguration, entirely offline.</p>
+    <h3>Should I use this tool or Wiz?</h3>
+    <p>They work at different layers, and a team can reasonably use both. Wiz connects to a cloud account on an ongoing, agentless basis and correlates findings across IAM, workloads, data, and vulnerabilities into one graph, as part of a paid enterprise platform; no public price list exists on Wiz's own site, so no dollar figure is stated here as verified fact. This tool needs no cloud account connection, no agent, and no ongoing subscription: paste one trust policy and get its sub/aud conditions classified in your browser, free, in under a second, with nothing uploaded. A platform team standardizing least-privilege across every role in a large cloud estate is better served by Wiz or a comparable CNAPP; a developer wiring up one new GitHub Actions OIDC role right now, who wants an immediate, free, local answer to whether its trust policy is scoped correctly, is in the right place here.</p>
+    <h3>Is this page affiliated with Wiz?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Wiz, Inc. Wiz is a trademark of its owner, named here only to describe what this tool is and is not, based on Wiz's own publicly documented product and research.</p>
+    <p class="note">Open the <a href="./">GitHub Actions OIDC Trust Policy Checker</a> to check your own policy, or read <a href="sub-claim-and-wildcard-traps.html">sub-claim and wildcard traps</a> for the full mechanism.</p>
+  </section>
+
+  <footer>
+    <p><strong>Evidence, not a determination.</strong> This checks a specific set of documented conditions on one trust policy. It is not a full security assessment, cannot see the permissions the role grants once assumed, and cannot see a pattern it does not check for. A clean report describes what these conditions say, not a guarantee that the setup is secure.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review or penetration test. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for having authorisation to review any policy you paste into it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+    <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded, and it makes no network calls of its own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Wiz &mdash; it is a static page describing publicly documented facts.</p>
+    <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=oidc-trust-policy-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="oidc-trust-policy-check"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet</title>
+<meta name="description" content="A spreadsheet checks that quantity times rate adds up. It rarely checks the quantity against your WMS snapshots and order export, a duplicate across every row…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/vs-reviewing-3pl-invoices-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet">
+<meta property="og:description" content="A spreadsheet confirms quantity times rate. This checker also tests the quantity against your own records, duplicates, unlisted charges…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/vs-reviewing-3pl-invoices-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just check my 3PL invoice in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Yes, and a careful spreadsheet catches the arithmetic: quantity times rate, and the total. What a spreadsheet built for one month rarely holds is the logic around it: a duplicate test across every row, a storage count compared with the average of daily WMS snapshots, an account minimum judged against the corrected charges, a surcharge tested as a percent of the right base, and a rule for charges that are not in the rate card. Each is a few formulas, and each has to be rebuilt or re-checked every month."}},{"@type":"Question","name":"What does a spreadsheet usually miss on a 3PL invoice?","acceptedAnswer":{"@type":"Answer","text":"The checks that depend on a second document. A line can multiply correctly and still be wrong because the quantity is higher than your order export or your inventory snapshots support, or because the rate is last year's. A minimum billed on top of charges that already reach it adds up fine on its own. A duplicate line looks ordinary read alone. These only show when each line is compared with the contract and with your records."}},{"@type":"Question","name":"How does the checker decide what is recoverable?","acceptedAnswer":{"@type":"Answer","text":"For each line it multiplies the contract rate by the quantity your own records support, then adds up the rate difference, the quantity difference and any arithmetic difference. A repeated line and a charge with no matching fee in the rate card are recoverable in full. A minimum is judged against the corrected total of the other lines, and surcharges against the corrected base. Where you enter no count, the billed quantity is taken as given and the page says so."}},{"@type":"Question","name":"Does the checker replace reading the contract?","acceptedAnswer":{"@type":"Answer","text":"No. It finds lines worth questioning and names the record that would settle each one. A written amendment, a tiered rate, a free-storage window or a different counting rule can explain a line, so the dispute note asks the 3PL to review and send supporting detail rather than asserting an error. You remain responsible for checking each finding against your agreement before you send anything."}},{"@type":"Question","name":"Is my invoice uploaded when I use the checker?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser and the rate card, counts and invoice lines are never sent anywhere. A spreadsheet kept in a shared drive may be visible to others; the checker's share link, by contrast, holds your inputs in the link itself, so send it only to people who may see them."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f1e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:30ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#4b5650}section{background:#fffdf8;border:1px solid #d8d0c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dcc9;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4dcc9;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4b5650}.fine,.note{font-size:.88rem;color:#4b5650}footer{color:#4b5650;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3pl-invoice-audit-checker/">3PL Invoice Audit Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; 3PL Invoice Audit Checker</a></p>
+<header>
+<h1>3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet</h1>
+<p class="lede">A spreadsheet confirms that quantity times rate adds up. It rarely tests the quantity against your own WMS snapshots and order export, a duplicate across every row, an account minimum against the corrected charges, a surcharge against the right base, or a charge that is not in the rate card &mdash; which is what this free, no-upload checker does on every line.</p>
+</header>
+<section>
+<h2>Where a spreadsheet stops being enough</h2>
+<p>
+  Most brands that watch their 3PL bill already have a sheet: the invoice lines in one tab, the contract rates in another, a column that
+  multiplies one by the other. That catches a rate that is plainly wrong. The leaks that cost real money sit in the comparison with
+  something outside the sheet, and building each comparison once for one month is easy; rebuilding it correctly every month is where it drifts.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you are trying to catch</th><th scope="col">A spreadsheet you build yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>A rate above the contract.</td><td>Works, if the contract column is current and every description is mapped to the right rate by hand.</td><td>Maps each description to a rate-card fee and computes (billed rate &minus; contract rate) &times; quantity.</td></tr>
+<tr><td>Storage billed on more pallets than you held.</td><td>Needs the daily WMS snapshots averaged first, then compared with the billed count, then priced.</td><td>Takes your average on-hand, prices the gap at the contract rate, and names the WMS snapshot as the proving record.</td></tr>
+<tr><td>The same line billed twice.</td><td>Needs a count-if across every row; easy to leave out, and a second identical line looks ordinary on its own.</td><td>Flags a repeat of description, quantity, rate and amount and treats the whole repeat as recoverable.</td></tr>
+<tr><td>A charge that is not in the rate card.</td><td>Shows up as a blank in the contract column, if anyone looks for blanks.</td><td>Lists it as recoverable in full, pending a written agreement, with the contract schedule as the proving record.</td></tr>
+<tr><td>An account minimum billed on top of charges that already reach it.</td><td>Adds up correctly, so it passes unless someone remembers to compare the total with the minimum.</td><td>Judges the minimum against the corrected charges and flags the whole line, or only the excess over the true shortfall.</td></tr>
+<tr><td>A fuel or handling surcharge on the wrong base.</td><td>Needs the right subset of lines summed first, then multiplied by the contracted percent.</td><td>Tests the surcharge as a percent of the corrected receiving, pick, pack, returns and kitting charges.</td></tr>
+<tr><td>A ranked list and a message to send.</td><td>Sort and write it yourself each month.</td><td>Ranks lines by dollars, names the record behind each, and writes a dispute note you can edit.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A spreadsheet you trust, with the checks above built in, does the same arithmetic. This checker is the version with the rules already
+  written, nothing to rebuild next month, and the invoice kept in your browser.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Your invoice is never uploaded.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just check my 3PL invoice in a spreadsheet?</h3>
+<p>Yes, and a careful spreadsheet catches the arithmetic: quantity times rate, and the total. What a spreadsheet built for one month rarely holds is the logic around it: a duplicate test across every row, a storage count compared with the average of daily WMS snapshots, an account minimum judged against the corrected charges, a surcharge tested as a percent of the right base, and a rule for charges that are not in the rate card. Each is a few formulas, and each has to be rebuilt or re-checked every month.</p>
+<h3>What does a spreadsheet usually miss on a 3PL invoice?</h3>
+<p>The checks that depend on a second document. A line can multiply correctly and still be wrong because the quantity is higher than your order export or your inventory snapshots support, or because the rate is last year's. A minimum billed on top of charges that already reach it adds up fine on its own. A duplicate line looks ordinary read alone. These only show when each line is compared with the contract and with your records.</p>
+<h3>How does the checker decide what is recoverable?</h3>
+<p>For each line it multiplies the contract rate by the quantity your own records support, then adds up the rate difference, the quantity difference and any arithmetic difference. A repeated line and a charge with no matching fee in the rate card are recoverable in full. A minimum is judged against the corrected total of the other lines, and surcharges against the corrected base. Where you enter no count, the billed quantity is taken as given and the page says so.</p>
+<h3>Does the checker replace reading the contract?</h3>
+<p>No. It finds lines worth questioning and names the record that would settle each one. A written amendment, a tiered rate, a free-storage window or a different counting rule can explain a line, so the dispute note asks the 3PL to review and send supporting detail rather than asserting an error. You remain responsible for checking each finding against your agreement before you send anything.</p>
+<h3>Is my invoice uploaded when I use the checker?</h3>
+<p>No. Everything runs in your browser and the rate card, counts and invoice lines are never sent anywhere. A spreadsheet kept in a shared drive may be visible to others; the checker's share link, by contrast, holds your inputs in the link itself, so send it only to people who may see them.</p>
+<p class="note">
+  Ready to check an invoice? Open the <a href="./">3PL Invoice Audit Checker</a>. Auditing carrier charges instead? See the <a href="../freight-accessorial-auditor/">freight accessorial auditor</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page names no specific product or company and makes no network call of any kind &mdash; it is a static page describing a manual review method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-invoice-audit-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3pl-invoice-audit-checker"></script>
+</body></html>

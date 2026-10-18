@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does Overtime Include Fringe Benefits on Certified Payroll?</title>
+  <meta name="description" content="Why cash-in-lieu-of-fringe gets the overtime premium on a Davis-Bacon job and a bona fide plan contribution does not, under 29 CFR 5.32 and 778.7…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/does-overtime-include-fringe-benefits-on-certified-payroll.html">
+  <meta property="og:title" content="Does Overtime Include Fringe Benefits on Certified Payroll?">
+  <meta property="og:description" content="Cash-in-lieu-of-fringe gets the overtime premium. A bona fide plan contribution does not. Most payroll defaults get this backwards.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Check whether certified payroll overtime correctly includes cash-in-lieu-of-fringe",
+    "description": "Separate a classification's fringe into a bona fide plan portion and a cash portion, then apply the overtime premium only where it is owed.",
+    "step": [
+      { "@type": "HowToStep", "name": "Split the fringe", "text": "Identify how much of the required fringe is contributed to a bona fide plan (trustee, health, pension, apprenticeship fund) versus paid directly to the worker in cash." },
+      { "@type": "HowToStep", "name": "Exclude the plan contribution from the regular rate", "text": "Bona fide plan contributions under 29 CFR 5.32 and 778.7 are owed at the same rate on every hour worked and never get a time-and-a-half premium." },
+      { "@type": "HowToStep", "name": "Include cash-in-lieu-of-fringe in the regular rate", "text": "Cash paid instead of a plan contribution counts toward the FLSA regular rate, so it must get the same overtime premium as the base wage." }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; }
+    .example { background: #fff; border: 1px solid #c4cedb; border-radius: 12px; padding: 16px 18px; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/does-overtime-include-fringe-benefits-on-certified-payroll.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does Overtime Include Fringe Benefits on Certified Payroll? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../certified-payroll-calculator/">Certified Payroll Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does Overtime Include Fringe Benefits on Certified Payroll?</span></span></nav>
+  <p><a href="./">← Certified payroll calculator</a></p>
+  <h1>Does overtime include fringe benefits on certified payroll?</h1>
+  <p>On a Davis-Bacon or prevailing-wage contract, a wage determination sets a required <strong>base rate</strong> and a required <strong>fringe benefit rate</strong> for each classification. A contractor can meet the fringe portion by contributing to a bona fide plan — health insurance, a pension, an approved apprenticeship fund — by paying it straight to the worker in cash instead, or by some mix of both. Which one a contractor picks changes the overtime math, and it is a distinction most payroll defaults get wrong.</p>
+  <p>Under 29 CFR 5.32 and the FLSA "regular rate" definition it borrows from 29 CFR 778.7, a bona fide plan contribution is <strong>excluded</strong> from the regular rate used to compute overtime. It is owed at the same rate for every hour worked, straight-time or overtime, and never gets a time-and-a-half premium. Cash paid in lieu of fringe is <strong>included</strong> in the regular rate — it is treated the same as the base wage for overtime purposes, so it does get the premium on hours over 40.</p>
+  <div class="example">
+    <p><strong>Worked example.</strong> A worker's base rate is $28/hr, with $8.50/hr paid into a bona fide health plan and $2/hr paid in cash instead of a plan contribution. On 6 overtime hours, the correct overtime rate is <code>($28 + $2) × 1.5 = $45/hr</code>. A payroll system that only applies the premium to the base rate — paying $28 × 1.5 + $2 = $44/hr instead — underpays by $1/hr on every overtime hour: $6 for this worker, this week, and it compounds across every classification and every week the same shortcut runs.</p>
+  </div>
+  <p>Two things this rule does not do:</p>
+  <ol>
+    <li>It does not change how much fringe is owed in total — a bona fide contribution and cash-in-lieu-of-fringe both count toward satisfying the required fringe rate. It only changes whether that portion gets an overtime premium.</li>
+    <li>It does not apply to fringe that is never actually paid or contributed. A wage determination's fringe rate is a floor on total compensation, not automatically satisfied by naming a plan that receives nothing.</li>
+  </ol>
+  <p><a href="./">Open the calculator</a>, split this week's fringe into its bona fide and cash portions, and see the correct overtime rate next to what the common shortcut would have paid. Nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic and a plain-language summary of a federal regulation, not legal or compliance advice. It does not replace a qualified payroll or compliance professional, and it does not determine whether a specific contract or plan qualifies as bona fide. Verify every figure and your actual obligation before relying on it. The authors accept no liability for loss arising from its use.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../startup-exit-waterfall-calculator/" data-pf-to="startup-exit-waterfall-calculator">Startup Exit Waterfall Calculator — free, private, in your browser</a></li>
+      <li><a href="../startup-option-value-calculator/" data-pf-to="startup-option-value-calculator">Startup Stock Option Value Calculator — free, private, in your browser</a></li>
+      <li><a href="../state-residency-day-counter/" data-pf-to="state-residency-day-counter">State Residency Day Counter — free, private, in your browser</a></li>
+      <li><a href="../stripe-churn-cohort-analyzer/" data-pf-to="stripe-churn-cohort-analyzer">Stripe Churn and Cohort Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=certified-payroll-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="certified-payroll-calculator"></script>
+</body>
+</html>

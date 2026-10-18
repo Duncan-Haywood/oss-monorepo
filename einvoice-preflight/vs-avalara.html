@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. Avalara | E-invoice Preflight</title>
+<meta name="description" content="Avalara is a cloud tax-compliance platform covering calculation, returns filing, exemption certificates, and e-invoicing, sold as an ongoing account.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/vs-avalara.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Avalara">
+<meta property="og:description" content="Two different shapes: Avalara is an ongoing tax-compliance platform. This page is a free, local, no-account preflight check for one invoice file before you…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/vs-avalara.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Avalara?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a business that files real returns will likely end up using something like Avalara alongside a tool like this one, not instead of it. Avalara is a cloud tax-compliance platform founded in 2004, covering sales and use tax calculation, returns filing, exemption certificate management, VAT/GST, and e-invoicing across many countries, sold as an ongoing subscription account and integrated into ERP, accounting, and ecommerce systems. This checker does one narrower thing: it reads a single JSON, UBL, CII (XRechnung), or Factur-X/ZUGFeRD PDF invoice you drop into the browser or pipe through the CLI, and reports which specific fields, totals, VAT arithmetic, or payment instructions would fail — with a rule ID and a plain-language fix — before you submit it anywhere. It runs free, keeps no account, submits nothing to a tax authority or exchange network, and uploads nothing you drop. A business that needs to calculate tax across jurisdictions, file returns, manage exemption certificates, or route e-invoices through a compliance network needs Avalara or a comparable platform; a developer, bookkeeper, or ERP integrator who wants an instant, local answer to \"would this specific invoice file pass\" before it reaches that network is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Avalara?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Avalara. Avalara is a trademark of its owner, named here only to describe what this checker is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Avalara — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../einvoice-preflight/">E-invoice Preflight — catch defects before submission</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Avalara</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>This checker vs. Avalara</h1>
+<p class="lede">Two different shapes: Avalara is an ongoing cloud platform for calculating and filing tax, plus e-invoicing, across a business's whole operation. This page is a free, local, no-account check of one invoice file's fields and arithmetic before it goes anywhere near a submission network.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Avalara</strong> is a cloud-based tax-compliance platform founded
+  in 2004. It automates the end-to-end indirect-tax lifecycle — sales and
+  use tax calculation, returns filing, exemption certificate management,
+  VAT/GST across many countries, and e-invoicing — and integrates with ERP,
+  accounting, and ecommerce systems most businesses already run. It is sold
+  as an ongoing subscription account. Avalara's own current pricing is not
+  reachable from this session to confirm today's plan names or dollar
+  figures, so no price for it is invented here: only its well-documented
+  identity and category — a cloud tax-compliance platform sold as a
+  subscription account — are stated, and no dollar amount for Avalara
+  appears on this page.
+</p>
+<p>
+  This checker does none of what Avalara does. It does not calculate tax
+  owed, file a return, manage exemption certificates, or transmit anything
+  to a tax authority or exchange network. It reads one invoice file — JSON,
+  UBL XML, UN/CEFACT CII (XRechnung CII / Factur-X), or a Factur-X / ZUGFeRD
+  / XRechnung PDF — either dropped into the browser or piped through the
+  CLI, and reports the specific fields, VAT arithmetic, IBAN/BIC/RF digits,
+  or payment instructions that would fail, each with a rule ID and a
+  suggested fix, plus a downloadable remediation CSV. It runs free, keeps
+  no account, and uploads nothing you drop or paste — the browser page never
+  contacts a server. It is a preflight observation, not a declaration that
+  an invoice is legally valid or ready to submit.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need to calculate sales/use tax or VAT across jurisdictions and file returns.</td><td>Avalara, or a comparable tax-compliance platform — that is not something this checker does.</td></tr>
+<tr><td>Would this specific JSON, UBL, CII, or Factur-X invoice file pass validation before I submit it?</td><td>This checker — free, instant, local, no account.</td></tr>
+<tr><td>Which exact field, total, or VAT digit is wrong, and what is the fix?</td><td>This checker's rule IDs (INV-001 through INV-054) and its <a href="what-does-this-e-invoice-error-code-mean.html">rule reference</a>.</td></tr>
+<tr><td>I need exemption-certificate management or a compliance network integration into my ERP.</td><td>Avalara, or a comparable platform.</td></tr>
+<tr><td>How is a mixed-VAT-rate tax breakdown actually calculated?</td><td>This checker's own <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This checker: no. Avalara is used through a subscription account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most teams get different value from each: Avalara (or a comparable
+  platform) for calculating and filing tax and routing e-invoices across an
+  entire operation as an ongoing subscription, and a free local checker like
+  this one for an instant, no-login answer to whether one specific invoice
+  file is well-formed before it reaches that pipeline. This page's own rule
+  IDs are a preflight observation, not a tax or legal determination.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the checks run in your browser (or locally via the CLI), and once the page has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this checker or Avalara?</h3>
+<p>They do different jobs, and a business that files real returns will likely end up using something like Avalara alongside a tool like this one, not instead of it. Avalara is a cloud tax-compliance platform founded in 2004, covering sales and use tax calculation, returns filing, exemption certificate management, VAT/GST, and e-invoicing across many countries, sold as an ongoing subscription account and integrated into ERP, accounting, and ecommerce systems. This checker does one narrower thing: it reads a single JSON, UBL, CII (XRechnung), or Factur-X/ZUGFeRD PDF invoice you drop into the browser or pipe through the CLI, and reports which specific fields, totals, VAT arithmetic, or payment instructions would fail — with a rule ID and a plain-language fix — before you submit it anywhere. It runs free, keeps no account, submits nothing to a tax authority or exchange network, and uploads nothing you drop. A business that needs to calculate tax across jurisdictions, file returns, manage exemption certificates, or route e-invoices through a compliance network needs Avalara or a comparable platform; a developer, bookkeeper, or ERP integrator who wants an instant, local answer to "would this specific invoice file pass" before it reaches that network is in the right place here.</p>
+<h3>Is this page affiliated with Avalara?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Avalara. Avalara is a trademark of its owner, named here only to describe what this checker is and is not.</p>
+<p class="note">
+  Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally, and this page makes no comparison in the sense of pulling live data from Avalara — it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../time-tracker/" data-pf-to="time-tracker">Time Tracker — free billable hours timer, no signup</a></li>
+      <li><a href="../upwork-earnings-to-journal/" data-pf-to="upwork-earnings-to-journal">Upwork earnings to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../vcard-contacts-check/" data-pf-to="vcard-contacts-check">vCard Contacts Check — free, private, in your browser</a></li>
+      <li><a href="../vendor-change-evidence/" data-pf-to="vendor-change-evidence">Vendor Change Evidence</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=einvoice-preflight">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="einvoice-preflight"></script>
+</body></html>

@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free freight, 3PL and cloud cost calculators | Open Tools and Research</title>
+  <meta name="description" content="Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/logistics/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free freight, 3PL and cloud cost calculators">
+  <meta property="og:description" content="Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/logistics/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-logistics.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Free freight, 3PL and cloud cost calculators — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Free freight, 3PL and cloud cost calculators","url":"https://duncan-haywood.github.io/monorepo-projects/c/logistics/","description":"Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Logistics, freight \u0026 cloud cost","item":"https://duncan-haywood.github.io/monorepo-projects/c/logistics/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":36,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/","name":"3PL Invoice Audit Checker"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/","name":"3PL Quote Normalizer"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/car-hauler-load-planner/","name":"Car hauler load planner"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/","name":"Cloud Egress Cost Calculator"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/container-demurrage-detention-calculator/","name":"Demurrage and detention calculator — price a late container before it is late"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/container-load-planner/","name":"Container Load Planner — free, private, in your browser"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/","name":"Equipment Auction Buyer's Premium Calculator — free, no sign-up"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/fleet-ev-vs-diesel-tco-calculator/","name":"Is an electric fleet cheaper than diesel? Free TCO calculator"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/form-2290-hvut-calculator/","name":"Form 2290 HVUT Calculator — free, private"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/","name":"Freight Accessorial Invoice Auditor"},{"@type":"ListItem","position":11,"url":"https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/","name":"Freight Broker Load Margin Calculator — free, private, in your browser"},{"@type":"ListItem","position":12,"url":"https://duncan-haywood.github.io/monorepo-projects/fuel-surcharge-schedule-calculator/","name":"Fuel Surcharge Calculator — free, private"},{"@type":"ListItem","position":13,"url":"https://duncan-haywood.github.io/monorepo-projects/hos-trip-planner/","name":"HOS Trip Planner — free, private"},{"@type":"ListItem","position":14,"url":"https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/","name":"IFTA Quarterly Fuel Tax Calculator"},{"@type":"ListItem","position":15,"url":"https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/","name":"Import Landed Cost Calculator"},{"@type":"ListItem","position":16,"url":"https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/","name":"Invoice Factoring Cost Calculator — free, private"},{"@type":"ListItem","position":17,"url":"https://duncan-haywood.github.io/monorepo-projects/lcl-vs-fcl-container-calculator/","name":"LCL vs FCL Calculator — free, private"},{"@type":"ListItem","position":18,"url":"https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/","name":"LTL Freight Class Estimator"},{"@type":"ListItem","position":19,"url":"https://duncan-haywood.github.io/monorepo-projects/lumper-fee-reimbursement-calculator/","name":"Lumper Fee Reimbursement Calculator — free, private"},{"@type":"ListItem","position":20,"url":"https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/","name":"Medical Courier Route Margin Calculator"},{"@type":"ListItem","position":21,"url":"https://duncan-haywood.github.io/monorepo-projects/mobile-tire-van-job-picker/","name":"Which jobs should a one-van mobile tire business run today?"},{"@type":"ListItem","position":22,"url":"https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/","name":"Owner Operator Cost Per Mile Calculator"},{"@type":"ListItem","position":23,"url":"https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/","name":"Which loads should you chain, and what's the lowest rate each is worth?"},{"@type":"ListItem","position":24,"url":"https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/","name":"Owner Operator Per Diem Calculator — free, private, in your browser"},{"@type":"ListItem","position":25,"url":"https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/","name":"Dimensional Weight Calculator"},{"@type":"ListItem","position":26,"url":"https://duncan-haywood.github.io/monorepo-projects/parcel-late-delivery-refund-finder/","name":"Parcel Late-Delivery Refund Finder — free, private, in your browser"},{"@type":"ListItem","position":27,"url":"https://duncan-haywood.github.io/monorepo-projects/route-stop-optimizer/","name":"Route Stop Optimizer — free, private, in your browser"},{"@type":"ListItem","position":28,"url":"https://duncan-haywood.github.io/monorepo-projects/scrap-metal-yard-payout-calculator/","name":"Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire"},{"@type":"ListItem","position":29,"url":"https://duncan-haywood.github.io/monorepo-projects/self-storage-unit-mix-optimizer/","name":"Self-storage unit mix optimizer"},{"@type":"ListItem","position":30,"url":"https://duncan-haywood.github.io/monorepo-projects/shipping-box-size-optimizer/","name":"Shipping Box Size Optimizer — free, private, in your browser"},{"@type":"ListItem","position":31,"url":"https://duncan-haywood.github.io/monorepo-projects/tow-motor-club-call-calculator/","name":"Tow Motor Club Call Calculator — free, private, in your browser"},{"@type":"ListItem","position":32,"url":"https://duncan-haywood.github.io/monorepo-projects/tow-truck-rate-calculator/","name":"Tow truck rate calculator, free"},{"@type":"ListItem","position":33,"url":"https://duncan-haywood.github.io/monorepo-projects/truck-detention-pay-calculator/","name":"Truck Detention Pay Calculator — free"},{"@type":"ListItem","position":34,"url":"https://duncan-haywood.github.io/monorepo-projects/ucr-fee-calculator/","name":"UCR Fee Calculator — free, private"},{"@type":"ListItem","position":35,"url":"https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/","name":"Vector Database Cost Calculator"},{"@type":"ListItem","position":36,"url":"https://duncan-haywood.github.io/monorepo-projects/warehouse-slotting-optimizer/","name":"Warehouse slotting optimizer"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Logistics, freight &amp; cloud cost</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Logistics, freight &amp; cloud cost</p>
+      <h1>Free freight, 3PL and cloud cost calculators</h1>
+      <p class="lede">Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.</p>
+      <p class="count">36 free tools · no account · nothing you type is uploaded</p>
+    </header>
+
+    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these 36 tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>
+
+    <main>
+      <ul class="cards">
+          <li class="card">
+            <a href="../../3pl-invoice-audit-checker/" data-tool="3pl-invoice-audit-checker" data-pf-to="3pl-invoice-audit-checker">
+              <h3>3PL Invoice Audit Checker</h3>
+            </a>
+            <p>Check a 3PL invoice against your contract rate card and your own records. Flags rates above contract, duplicate lines, charges not in the rate card, minimum double billing and…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../3pl-quote-normalizer/" data-tool="3pl-quote-normalizer" data-pf-to="3pl-quote-normalizer">
+              <h3>3PL Quote Normalizer</h3>
+            </a>
+            <p>Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.</p>
+            <p class="meta">15 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../car-hauler-load-planner/" data-tool="car-hauler-load-planner" data-pf-to="car-hauler-load-planner">
+              <h3>Car hauler load planner</h3>
+            </a>
+            <p>Free car hauler load planner: paste the vehicles on your dispatch board with pickup and drop miles, describe your two-deck trailer, and get the cars to carry, the deck for each…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../cloud-egress-calculator/" data-tool="cloud-egress-calculator" data-pf-to="cloud-egress-calculator">
+              <h3>Cloud Egress Cost Calculator</h3>
+            </a>
+            <p>Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.</p>
+            <p class="meta">8 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../container-demurrage-detention-calculator/" data-tool="container-demurrage-detention-calculator" data-pf-to="container-demurrage-detention-calculator">
+              <h3>Demurrage and detention calculator — price a late container before it is late</h3>
+            </a>
+            <p>Free calculator for importers and forwarders: what will demurrage and detention cost on your containers? Enter your dates, free days and tiered per-day rates to see the bill, the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../container-load-planner/" data-tool="container-load-planner" data-pf-to="container-load-planner">
+              <h3>Container Load Planner — free, private, in your browser</h3>
+            </a>
+            <p>Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck or pallet…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../equipment-auction-buyer-premium-calculator/" data-tool="equipment-auction-buyer-premium-calculator" data-pf-to="equipment-auction-buyer-premium-calculator">
+              <h3>Equipment Auction Buyer's Premium Calculator — free, no sign-up</h3>
+            </a>
+            <p>Free calculator for farm and heavy-equipment auction bidders: turns a hammer price into the true out-the-door total, including a capped buyer's premium, online-bidding premium…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../fleet-ev-vs-diesel-tco-calculator/" data-tool="fleet-ev-vs-diesel-tco-calculator" data-pf-to="fleet-ev-vs-diesel-tco-calculator">
+              <h3>Is an electric fleet cheaper than diesel? Free TCO calculator</h3>
+            </a>
+            <p>Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../form-2290-hvut-calculator/" data-tool="form-2290-hvut-calculator" data-pf-to="form-2290-hvut-calculator">
+              <h3>Form 2290 HVUT Calculator — free, private</h3>
+            </a>
+            <p>Free Form 2290 heavy highway vehicle use tax calculator for owner-operators and small fleets: tax by weight category, partial-year proration by first-use month, logging and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../freight-accessorial-auditor/" data-tool="freight-accessorial-auditor" data-pf-to="freight-accessorial-auditor">
+              <h3>Freight Accessorial Invoice Auditor</h3>
+            </a>
+            <p>Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.</p>
+            <p class="meta">8 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../freight-broker-load-margin-calculator/" data-tool="freight-broker-load-margin-calculator" data-pf-to="freight-broker-load-margin-calculator">
+              <h3>Freight Broker Load Margin Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../fuel-surcharge-schedule-calculator/" data-tool="fuel-surcharge-schedule-calculator" data-pf-to="fuel-surcharge-schedule-calculator">
+              <h3>Fuel Surcharge Calculator — free, private</h3>
+            </a>
+            <p>Free fuel surcharge calculator for truckers and brokers: enter the DOE diesel price, the peg, the mpg basis and your trip, and see what each fuel surcharge program pays against…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../hos-trip-planner/" data-tool="hos-trip-planner" data-pf-to="hos-trip-planner">
+              <h3>HOS Trip Planner — free, private</h3>
+            </a>
+            <p>Free hours-of-service trip planner for owner-operators and dispatchers: enter your remaining drive, window and cycle clocks and your stops, and see the schedule with required…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ifta-quarterly-fuel-tax-calculator/" data-tool="ifta-quarterly-fuel-tax-calculator" data-pf-to="ifta-quarterly-fuel-tax-calculator">
+              <h3>IFTA Quarterly Fuel Tax Calculator</h3>
+            </a>
+            <p>Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../import-landed-cost-calculator/" data-tool="import-landed-cost-calculator" data-pf-to="import-landed-cost-calculator">
+              <h3>Import Landed Cost Calculator</h3>
+            </a>
+            <p>Free landed cost calculator for small e-commerce importers: enter your item cost, freight, duty rate, and Section 301/supplemental tariff rate to see total landed cost, cost per…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../invoice-factoring-cost-calculator/" data-tool="invoice-factoring-cost-calculator" data-pf-to="invoice-factoring-cost-calculator">
+              <h3>Invoice Factoring Cost Calculator — free, private</h3>
+            </a>
+            <p>Free invoice factoring calculator: enter advance rate, fee per period and days to pay, and see the true cost, percent of invoice, annualised rate and rebate. Compare several…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../lcl-vs-fcl-container-calculator/" data-tool="lcl-vs-fcl-container-calculator" data-pf-to="lcl-vs-fcl-container-calculator">
+              <h3>LCL vs FCL Calculator — free, private</h3>
+            </a>
+            <p>Free LCL vs FCL calculator for importers: enter your CBM, weight and the quotes you have, and see whether a shared container or a 20ft, 40ft or 40ft high-cube is cheaper, the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ltl-freight-class-estimator/" data-tool="ltl-freight-class-estimator" data-pf-to="ltl-freight-class-estimator">
+              <h3>LTL Freight Class Estimator</h3>
+            </a>
+            <p>Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../lumper-fee-reimbursement-calculator/" data-tool="lumper-fee-reimbursement-calculator" data-pf-to="lumper-fee-reimbursement-calculator">
+              <h3>Lumper Fee Reimbursement Calculator — free, private</h3>
+            </a>
+            <p>Free lumper fee calculator for truckers and owner-operators: enter the lumper receipt, the dock wait and each way the broker might pay you back, and see what you are really out…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../medical-courier-route-margin/" data-tool="medical-courier-route-margin" data-pf-to="medical-courier-route-margin">
+              <h3>Medical Courier Route Margin Calculator</h3>
+            </a>
+            <p>Free medical courier route calculator: margin per stop and vehicle-hour after paid wait, deadhead and overhead — plus the per-stop rate to quote.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../mobile-tire-van-job-picker/" data-tool="mobile-tire-van-job-picker" data-pf-to="mobile-tire-van-job-picker">
+              <h3>Which jobs should a one-van mobile tire business run today?</h3>
+            </a>
+            <p>Paste the day's requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../owner-operator-cpm-calculator/" data-tool="owner-operator-cpm-calculator" data-pf-to="owner-operator-cpm-calculator">
+              <h3>Owner Operator Cost Per Mile Calculator</h3>
+            </a>
+            <p>Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.</p>
+            <p class="meta">6 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../owner-operator-load-chain-planner/" data-tool="owner-operator-load-chain-planner" data-pf-to="owner-operator-load-chain-planner">
+              <h3>Which loads should you chain, and what's the lowest rate each is worth?</h3>
+            </a>
+            <p>Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../owner-operator-per-diem-calculator/" data-tool="owner-operator-per-diem-calculator" data-pf-to="owner-operator-per-diem-calculator">
+              <h3>Owner Operator Per Diem Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Free owner-operator per diem calculator: full and travel days away from home, the M&amp;IE rate, the 80% DOT limit, per diem versus meal receipts, and the estimated self-employment…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../parcel-dim-weight-calculator/" data-tool="parcel-dim-weight-calculator" data-pf-to="parcel-dim-weight-calculator">
+              <h3>Dimensional Weight Calculator</h3>
+            </a>
+            <p>Work out the billable weight of a parcel from its box size, weight and DIM divisor — then see the box size that stops you paying for air, and whether the carton trips an…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../parcel-late-delivery-refund-finder/" data-tool="parcel-late-delivery-refund-finder" data-pf-to="parcel-late-delivery-refund-finder">
+              <h3>Parcel Late-Delivery Refund Finder — free, private, in your browser</h3>
+            </a>
+            <p>Free tool for shippers: drop in your UPS or FedEx shipment report and see which parcels were delivered after the promised day, the shipping charge on each, the last day to file…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../route-stop-optimizer/" data-tool="route-stop-optimizer" data-pf-to="route-stop-optimizer">
+              <h3>Route Stop Optimizer — free, private, in your browser</h3>
+            </a>
+            <p>Free route optimizer for service businesses, couriers and sales reps. Paste your stops with service times and customer time windows to get the order that cuts drive time, split…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../scrap-metal-yard-payout-calculator/" data-tool="scrap-metal-yard-payout-calculator" data-pf-to="scrap-metal-yard-payout-calculator">
+              <h3>Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire</h3>
+            </a>
+            <p>Free scrap metal calculator: type your lots, each yard's per-pound or per-ton prices, the miles and minutes to get there, and see what the load nets at each yard after fuel, time…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../self-storage-unit-mix-optimizer/" data-tool="self-storage-unit-mix-optimizer" data-pf-to="self-storage-unit-mix-optimizer">
+              <h3>Self-storage unit mix optimizer</h3>
+            </a>
+            <p>Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../shipping-box-size-optimizer/" data-tool="shipping-box-size-optimizer" data-pf-to="shipping-box-size-optimizer">
+              <h3>Shipping Box Size Optimizer — free, private, in your browser</h3>
+            </a>
+            <p>Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../tow-motor-club-call-calculator/" data-tool="tow-motor-club-call-calculator" data-pf-to="tow-motor-club-call-calculator">
+              <h3>Tow Motor Club Call Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Free calculator for independent tow and roadside operators: is this Agero, Urgent.ly, Honk or AAA-contractor dispatch worth taking? Cost of the job, profit per truck-hour…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../tow-truck-rate-calculator/" data-tool="tow-truck-rate-calculator" data-pf-to="tow-truck-rate-calculator">
+              <h3>Tow truck rate calculator, free</h3>
+            </a>
+            <p>Price a tow job from your own costs: margin, break-even, ranked levers. Runs in your browser.</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../truck-detention-pay-calculator/" data-tool="truck-detention-pay-calculator" data-pf-to="truck-detention-pay-calculator">
+              <h3>Truck Detention Pay Calculator — free</h3>
+            </a>
+            <p>Free calculator for truck drivers and owner-operators: enter arrival and departure times, free time and the detention rate from your rate confirmation, and get the billable…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ucr-fee-calculator/" data-tool="ucr-fee-calculator" data-pf-to="ucr-fee-calculator">
+              <h3>UCR Fee Calculator — free, private</h3>
+            </a>
+            <p>Free UCR fee calculator for owner-operators, brokers, freight forwarders and small fleets: fee bracket by vehicle count, what one more truck costs, cost per vehicle and per mile…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../vector-db-cost-calculator/" data-tool="vector-db-cost-calculator" data-pf-to="vector-db-cost-calculator">
+              <h3>Vector Database Cost Calculator</h3>
+            </a>
+            <p>Estimate your embedding index's real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../warehouse-slotting-optimizer/" data-tool="warehouse-slotting-optimizer" data-pf-to="warehouse-slotting-optimizer">
+              <h3>Warehouse slotting optimizer</h3>
+            </a>
+            <p>Free warehouse slotting tool for small warehouses, 3PLs and online sellers: enter your shelf grid, each SKU's picks and size, and optionally real orders. Get where every SKU…</p>
+            
+          </li>
+      </ul>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/self-hosted/">Self-hosted business apps</a> <span>(30)</span></li>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../../c/evidence/">Free compliance check and evidence record tools</a> <span>(116)</span></li>
+        <li><a href="../../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(54)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../../c/ci/">Free CI checks and developer gates</a> <span>(173)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/logistics" defer></script>
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>
+</body>
+</html>

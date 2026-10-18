@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. QuoteIQ | Tuckpointing Bid Calculator</title>
+<meta name="description" content="QuoteIQ is a paid subscription CRM for masonry and other trades — quoting, scheduling, invoicing, and inspection forms…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tuckpointing-bid-calculator/vs-quoteiq.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. QuoteIQ">
+<meta property="og:description" content="Two different shapes: QuoteIQ is a paid CRM for running a masonry business's quoting, scheduling, and invoicing.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tuckpointing-bid-calculator/vs-quoteiq.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or QuoteIQ?","acceptedAnswer":{"@type":"Answer","text":"They fit different points in the job, and a masonry contractor of any size may end up using both. QuoteIQ is a paid subscription CRM marketed to masonry and tuckpointing contractors among other trades: customer quoting, scheduling, invoicing, automated marketing, inspection forms with photo evidence attached to an estimate, and an AI estimator that drafts a starting line-item structure from a job description or photo, run as an ongoing account across every job the business takes. This calculator does one narrower thing: starting from wall length and height, method (smear, grind-and-point, or rebuild), access (ground, scaffold, or swing stage), mortar (Type N, historic lime, or color-match), replacement brick, lintels, power wash, and control-joint caulk, it turns that into the per-job price and the walk-away price below which the job loses money. It runs free in any browser, keeps no account, and uploads nothing you type. A masonry business already running quoting, scheduling, invoicing, and photo-documented inspections across a full crew is better served by QuoteIQ or a comparable platform; a mason who wants an instant, private gut-check on what one wall should cost before opening a business system is in the right place here."}},{"@type":"Question","name":"Does this calculator tell the difference between a smear and a grind-and-point job?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that split is usually where a flat per-square-foot special goes wrong. A point-only smear over existing Type N bags is a surface coat with no grind; grind-and-point removes the old joint first, which is a different crew day; cut-out-and-relay is a third one again. This calculator prices each method's hours separately on the same wall, along with a three-method comparison, rather than quoting all three off one blended rate."}},{"@type":"Question","name":"Is this page affiliated with QuoteIQ?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by QuoteIQ. QuoteIQ is named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#2a221c;background:#f2ebe3}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b1f;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#8a4b1f;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#5c5144}section{background:#fff;border:1px solid #d8cbb8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #2a221c0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d8cbb8;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5144}.fine,.note{font-size:.88rem;color:#5c5144}footer{color:#5c5144;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tuckpointing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. QuoteIQ — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tuckpointing-bid-calculator/">Tuckpointing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. QuoteIQ</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Tuckpointing Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. QuoteIQ</h1>
+<p class="lede">Two different shapes: QuoteIQ is a paid, ongoing CRM for running a masonry business's quoting, scheduling, invoicing, and photo-documented inspections across every job. This page is a free, private worksheet for one question &mdash; what should this one wall cost, given its method, access, and mortar, before you quote it.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>QuoteIQ</strong> is a paid subscription CRM marketed to masonry
+  and tuckpointing contractors alongside several other trades. Its
+  publicly described feature set covers customer quoting, scheduling,
+  invoicing, automated marketing and review requests, inspection forms
+  that attach checklist photos to an estimate or invoice, and an AI
+  estimator that drafts a starting line-item structure from a typed job
+  description or a photo. It is sold as an ongoing account for the whole
+  business, not a single-job tool. QuoteIQ's own site is not reachable
+  from this session to confirm today's plan names or dollar figures, so
+  none is invented here: only its well-documented identity and category
+  &mdash; a paid CRM marketed in part to masonry contractors &mdash; are
+  stated, and no dollar amount for QuoteIQ appears on this page.
+</p>
+<p>
+  This calculator does none of what QuoteIQ does. It does not market your
+  services, hold a customer list, or keep an inspection record on a
+  server. It takes one wall's length and height, a pointing method (smear,
+  grind-and-point, or rebuild), an access method (ground, scaffold, or
+  swing stage), a mortar (Type N, historic lime, or color-match),
+  replacement brick, lintels, power wash, and control-joint caulk, and
+  turns that into the per-job price and the walk-away price below which
+  the job loses money &mdash; plus, if you already have a number on the
+  table, a check of whether it clears that floor, a three-method
+  comparison on the same wall, and a printable customer proposal for that
+  one job. It runs free in any browser, keeps no account, and uploads
+  nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a masonry business and need quoting, scheduling, invoicing, and photo-documented inspections in one system across every job.</td><td>QuoteIQ, or a comparable trade CRM &mdash; running a whole business is not something this calculator does.</td></tr>
+<tr><td>What should I charge for this one wall, given its method, access, and mortar, before I quote it?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>How much does a swing stage actually add over working from the ground?</td><td>This calculator's access selector, which changes both equipment cost and hours together, not a flat surcharge.</td></tr>
+<tr><td>Is a grind-and-point job priced differently from a plain smear on the same wall?</td><td>This calculator's method selector and its three-method comparison, not one blended per-foot rate.</td></tr>
+<tr><td>Is the number the owner just countered with still above my walk-away cost?</td><td>This calculator's compare-to-proposed-price check.</td></tr>
+<tr><td>How does the math behind a tuckpointing bid actually work?</td><td>This calculator's own <a href="how-much-to-charge-for-tuckpointing.html">pricing walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. QuoteIQ is used through a paid subscription account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most masonry contractors get different value from each: QuoteIQ (or a
+  comparable CRM) for running quoting, scheduling, invoicing, and
+  inspections across a business and every job it takes, and a private
+  calculator like this one for an instant, no-login gut-check on what one
+  wall should cost before a business system is involved. This page's own
+  figures are a pricing model, not a scheduled job, an invoice, or a
+  signed proposal.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off &mdash; which matters standing on a scaffold with no signal.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or QuoteIQ?</h3>
+<p>They fit different points in the job, and a masonry contractor of any size may end up using both. QuoteIQ is a paid subscription CRM marketed to masonry and tuckpointing contractors among other trades: customer quoting, scheduling, invoicing, automated marketing, inspection forms with photo evidence attached to an estimate, and an AI estimator that drafts a starting line-item structure from a job description or photo, run as an ongoing account across every job the business takes. This calculator does one narrower thing: starting from wall length and height, method (smear, grind-and-point, or rebuild), access (ground, scaffold, or swing stage), mortar (Type N, historic lime, or color-match), replacement brick, lintels, power wash, and control-joint caulk, it turns that into the per-job price and the walk-away price below which the job loses money. It runs free in any browser, keeps no account, and uploads nothing you type. A masonry business already running quoting, scheduling, invoicing, and photo-documented inspections across a full crew is better served by QuoteIQ or a comparable platform; a mason who wants an instant, private gut-check on what one wall should cost before opening a business system is in the right place here.</p>
+<h3>Does this calculator tell the difference between a smear and a grind-and-point job?</h3>
+<p>Yes, and that split is usually where a flat per-square-foot special goes wrong. A point-only smear over existing Type N bags is a surface coat with no grind; grind-and-point removes the old joint first, which is a different crew day; cut-out-and-relay is a third one again. This calculator prices each method's hours separately on the same wall, along with a three-method comparison, rather than quoting all three off one blended rate.</p>
+<h3>Is this page affiliated with QuoteIQ?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by QuoteIQ. QuoteIQ is named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Tuckpointing Bid Calculator</a> to price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not structural, construction, historic-preservation, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. Verify every figure against your own crew rates, material invoices, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against QuoteIQ &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../siding-bid-calculator/" data-pf-to="siding-bid-calculator">Siding Bid Calculator</a></li>
+      <li><a href="../skylight-install-bid-calculator/" data-pf-to="skylight-install-bid-calculator">Skylight Install Bid Calculator</a></li>
+      <li><a href="../soffit-fascia-bid-calculator/" data-pf-to="soffit-fascia-bid-calculator">Soffit and Fascia Bid Calculator</a></li>
+      <li><a href="../stucco-repair-bid-calculator/" data-pf-to="stucco-repair-bid-calculator">Stucco / EIFS Repair Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tuckpointing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tuckpointing-bid-calculator"></script>
+</body></html>

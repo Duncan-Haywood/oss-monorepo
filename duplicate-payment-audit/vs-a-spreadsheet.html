@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. a spreadsheet | Duplicate Payment Audit</title>
+  <meta name="description" content="Sorting an AP export by vendor in a spreadsheet catches an exact repeat. It misses an invoice-number typo, a payment two weeks apart…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This tool vs. a spreadsheet | Duplicate Payment Audit">
+  <meta property="og:description" content="A spreadsheet sort finds the duplicate that is spelled identically and paid on the same day. It does not find a one-digit invoice typo…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just sort my AP export by vendor and scan for repeats?","acceptedAnswer":{"@type":"Answer","text":"Sorting by vendor finds the easy case: the same vendor, the same amount, the same invoice number, sitting a few rows apart. It does not find a duplicate that only looks different because of how it was re-entered — a typo'd invoice number, a payment recorded three weeks later under a new reference, or a partial-amount resubmission — because those rows sort next to entirely unrelated payments instead of next to each other. This tool runs three separate matching passes (exact invoice match, near-identical invoice numbers, and same-amount payments within a date window) across the whole export at once, so a duplicate that a vendor-sort would scatter across hundreds of rows still gets grouped and flagged."}},{"@type":"Question","name":"Why is a typo'd invoice number hard to catch by eye in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"INV-40219 and INV-40129 look identical at a glance in a column of a few hundred rows, and a plain vendor sort places them wherever their own invoice number falls — not next to each other. Catching that by eye means noticing a one-character difference in a string you were not specifically looking for. This tool measures the edit distance between invoice numbers within the same vendor and amount, and flags anything within two characters of another payment as a likely re-entry of the same bill, whether or not the two rows happen to be near each other."}},{"@type":"Question","name":"How does this avoid flagging my rent or a subscription as a duplicate?","acceptedAnswer":{"@type":"Answer","text":"It does not avoid it entirely -- a genuine duplicate and a recurring charge can look identical from amount and vendor alone -- but it does not treat them the same way. An exact invoice-number match or a near-identical invoice number is high confidence, because a real recurring bill is issued under a new invoice number each cycle. A same-amount payment with no invoice link at all, landing within your chosen date window, is labeled \"review\" and says explicitly to check whether that vendor is paid this amount on a regular schedule before treating it as anything else. A spreadsheet sort returns the same rows either way, with no confidence tier to tell you which is which."}},{"@type":"Question","name":"Does this replace the AP ledger or spreadsheet I already keep?","acceptedAnswer":{"@type":"Answer","text":"No. An ongoing ledger that tracks every vendor and every payment over months or years is still the right place to keep that record. This is a one-time check you run against an export from it — did any of these payments go out twice — and it keeps no copy of your data once you close the tab."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}
+    body{max-width:760px;margin:auto;padding:2rem 1rem 4rem}
+    a{color:#8a4a26;overflow-wrap:anywhere}
+    h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.08;margin:.2rem 0 1rem;color:#17324d}
+    h2{color:#17324d;margin-top:2rem}
+    h3{margin:1.4rem 0 .3rem;font-size:1rem}
+    table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+    th,td{text-align:left;border-bottom:1px solid #d8d2c8;padding:.55rem;vertical-align:top}
+    th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5d6973}
+    .cta{display:inline-block;margin:.5rem 0 1.2rem;padding:.7rem 1rem;border-radius:8px;background:#af6035;color:#fff;text-decoration:none;font-weight:700}
+    .note{font-size:.88rem;color:#5d6973}
+    footer{margin-top:2.5rem;border-top:1px solid #d8d2c8;padding-top:1rem;font-size:.88rem;color:#4d5963}
+    @media(max-width:700px){table{font-size:.85rem}}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. a spreadsheet | Duplicate Payment Audit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../duplicate-payment-audit/">Duplicate Payment Audit</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. a spreadsheet | Duplicate Payment Audit</span></span></nav>
+  <p><a href="./">&larr; Duplicate payment audit</a></p>
+  <h1>This tool vs. a spreadsheet</h1>
+  <p>
+    Most small businesses already look for duplicate payments the same way:
+    export the AP history, sort by vendor, and scan for two rows that look
+    alike. That catches the easiest case &mdash; the same vendor, same
+    amount, same invoice number, a few rows apart. It is <strong>much
+    weaker</strong> at the cases that actually cost money: a re-entered
+    invoice number with one digit changed, a resubmission that lands weeks
+    later instead of days, or telling a real duplicate apart from a rent
+    payment that is supposed to repeat.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>The same vendor and invoice number, paid twice, right next to each other after a sort?</td>
+        <td>Either &mdash; a spreadsheet sort finds this fine.</td>
+      </tr>
+      <tr>
+        <td>Same vendor and amount, but the invoice number was re-typed with one digit off?</td>
+        <td>This tool &mdash; it measures the edit distance between invoice numbers and flags a likely re-entry a sort would scatter across the sheet.</td>
+      </tr>
+      <tr>
+        <td>The same bill paid twice, three weeks apart, under a different reference?</td>
+        <td>This tool &mdash; groups by vendor and amount across the whole export, not by adjacency after a sort, and reports the gap in days.</td>
+      </tr>
+      <tr>
+        <td>Is this flagged pair an actual duplicate, or just my recurring rent?</td>
+        <td>This tool's confidence tiers &mdash; an invoice-number match is high confidence, a same-amount/near-date match with no invoice link is labeled &ldquo;review&rdquo; and says so explicitly.</td>
+      </tr>
+      <tr>
+        <td>Building and maintaining the sort, filters, and formulas myself?</td>
+        <td>A spreadsheet &mdash; and re-doing it by hand every time you want to check a new export.</td>
+      </tr>
+      <tr>
+        <td>Is my payment data uploaded anywhere either way?</td>
+        <td>No, on either &mdash; but this tool needs no formulas, no pivot table, and no manual re-sort to check the next export.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Check your AP export now</a>
+  <p>
+    No account and nothing installed: it is a static page, the parsing and
+    matching run in your browser, and your vendor names, amounts, dates, and
+    the file itself stay on this device &mdash; nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Can't I just sort my AP export by vendor and scan for repeats?</h3>
+  <p>Sorting by vendor finds the easy case: the same vendor, the same amount, the same invoice number, sitting a few rows apart. It does not find a duplicate that only looks different because of how it was re-entered — a typo'd invoice number, a payment recorded three weeks later under a new reference, or a partial-amount resubmission — because those rows sort next to entirely unrelated payments instead of next to each other. This tool runs three separate matching passes (exact invoice match, near-identical invoice numbers, and same-amount payments within a date window) across the whole export at once, so a duplicate that a vendor-sort would scatter across hundreds of rows still gets grouped and flagged.</p>
+  <h3>Why is a typo'd invoice number hard to catch by eye in a spreadsheet?</h3>
+  <p>INV-40219 and INV-40129 look identical at a glance in a column of a few hundred rows, and a plain vendor sort places them wherever their own invoice number falls — not next to each other. Catching that by eye means noticing a one-character difference in a string you were not specifically looking for. This tool measures the edit distance between invoice numbers within the same vendor and amount, and flags anything within two characters of another payment as a likely re-entry of the same bill, whether or not the two rows happen to be near each other.</p>
+  <h3>How does this avoid flagging my rent or a subscription as a duplicate?</h3>
+  <p>It does not avoid it entirely -- a genuine duplicate and a recurring charge can look identical from amount and vendor alone -- but it does not treat them the same way. An exact invoice-number match or a near-identical invoice number is high confidence, because a real recurring bill is issued under a new invoice number each cycle. A same-amount payment with no invoice link at all, landing within your chosen date window, is labeled "review" and says explicitly to check whether that vendor is paid this amount on a regular schedule before treating it as anything else. A spreadsheet sort returns the same rows either way, with no confidence tier to tell you which is which.</p>
+  <h3>Does this replace the AP ledger or spreadsheet I already keep?</h3>
+  <p>No. An ongoing ledger that tracks every vendor and every payment over months or years is still the right place to keep that record. This is a one-time check you run against an export from it — did any of these payments go out twice — and it keeps no copy of your data once you close the tab.</p>
+  <p class="note">
+    Weighing a full AP automation platform instead? See <a href="vs-bill-com.html">this tool vs. BILL (Bill.com)</a>. Considering a contingency recovery-audit firm? See <a href="vs-prgx.html">this tool vs. PRGX</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. It does not determine that any payment was fraudulent, wrongful, or actually duplicated &mdash; it flags statistical patterns in your own data for your review. <strong>You are responsible for reviewing and verifying its output</strong> against your vendor statements and accounting records before requesting a refund, credit, or correction from anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it caught a payment that went out twice, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../lot-split-calculator/" data-pf-to="lot-split-calculator">Sell the lot whole or split it?</a></li>
+      <li><a href="../market-event-picker/" data-pf-to="market-event-picker">Which markets and festivals should you work?</a></li>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=duplicate-payment-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="duplicate-payment-audit"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Should I hardwire the EV charger or install a NEMA 14-50 outlet?</title>
+<meta name="description" content="Hardwired EVSE and a NEMA 14-50 receptacle price out only about $111 apart on a typical 48 A install -- the real decision is portability vs.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/should-i-hardwire-or-use-a-nema-14-50.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Should I hardwire the EV charger or install a NEMA 14-50 outlet?">
+<meta property="og:description" content="A plug-in NEMA 14-50 receptacle is not a cheaper hack and a hardwired connection is not automatically the safer choice -- they trade off differently…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I hardwire an EV charger or install a NEMA 14-50 outlet?","acceptedAnswer":{"@type":"Answer","text":"Hardwiring lands the EVSE's conductors directly on a junction box with no plug or receptacle in the circuit, which removes the one connection in the circuit rated for continuous duty that is a plug-and-receptacle pair rather than a fixed splice. A NEMA 14-50 receptacle costs a little more in parts and labor but lets the homeowner unplug the EVSE -- to swap chargers, sell the house without leaving hardware behind, or share the circuit with an RV or welder that also uses a 14-50 plug. Check the charger manufacturer's installation manual first: several EVSE models only warranty one connection type."}},{"@type":"Question","name":"Is a NEMA 14-50 receptacle install more expensive than hardwiring?","acceptedAnswer":{"@type":"Answer","text":"Only slightly. On a typical 48 A install this calculator prices the receptacle version about $111 higher than hardwired, all else equal -- the device itself plus roughly 24 extra minutes of labor to mount and terminate it. That gap is much smaller than what location, run length, or panel work move the price by, so it should not be the deciding factor on its own."}},{"@type":"Question","name":"Does a NEMA 14-50 need to be a special continuous-duty receptacle?","acceptedAnswer":{"@type":"Answer","text":"Use a receptacle and plug listed for the charger's continuous load -- EVSE draws its full rated current for hours at a time, which is harder on contact quality than the intermittent draw a standard 14-50 was originally rated for. Confirm the specific device the manufacturer's installation manual calls for and the adopted code in the jurisdiction; this page does not make that determination for you."}},{"@type":"Question","name":"Can I switch from a plug-in charger to hardwired later?","acceptedAnswer":{"@type":"Answer","text":"Usually, if the run and breaker were already sized for it -- the receptacle gets removed and the conductors land directly on the EVSE's terminal block, which is a smaller job than the original install. Going the other direction (hardwired to plug-in) means adding a receptacle and a compatible EVSE, which is closer to redoing the termination end of the job. Either direction is a real labor item, not a five-minute swap, and should be bid as one."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b2430; background: #eef3f8; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.55; }
+  a { color: #0b6e8a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #10263a; }
+  h2 { font-size: 1.15rem; margin: 1.8em 0 10px; color: #10263a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d7e2ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #10263a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5666; }
+  .note, footer { font-size: .86rem; color: #4a5666; }
+  footer { margin-top: 28px; border-top: 1px solid #d7e2ea; padding-top: 16px; }
+  .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #10263a; color: #f3f7fb; text-decoration: none; font-weight: 650; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/should-i-hardwire-or-use-a-nema-14-50.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I hardwire the EV charger or install a NEMA 14-50 outlet? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ev-charger-bid-calculator/">EV Charger Installation Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I hardwire the EV charger or install a NEMA 14-50 outlet?</span></span></nav>
+<p class="note"><a href="./">&larr; EV charger installation bid calculator</a></p>
+<h1>Should I hardwire the EV charger or install a NEMA 14-50 outlet?</h1>
+<p class="lede">Both connect the same circuit to the same charger, so the decision is not really about price -- the calculator prices the two only about a hundred dollars apart on a typical install. It is about whether the homeowner wants to unplug the EVSE, and about which connection type the charger's own manufacturer warranties.</p>
+<p><a class="cta" href="./">Open the free EV charger bid calculator</a></p>
+
+<section class="card">
+<h2>What actually differs</h2>
+<p><strong>Hardwired.</strong> The circuit conductors land directly on the EVSE's terminal block or junction box -- no plug, no receptacle. There is one fewer connection in the circuit, and it is not the connection type most exposed to a continuous full-amperage load for hours at a time.</p>
+<p><strong>NEMA 14-50 receptacle.</strong> The EVSE plugs in like a range or an RV. That buys portability -- unplug it to swap chargers, take it when you move, or share the circuit with an RV or welder that also uses a 14-50 -- at the cost of one more connection that has to be rated and installed for continuous duty, not just for the occasional high draw a 14-50 was originally used for.</p>
+<p><strong>Manufacturer warranty.</strong> Read the EVSE's installation manual before deciding. Some chargers ship as hardwired-only, some as plug-in-only, and some support both but only warranty one -- this is a real constraint from the manufacturer, not a code question this page can answer.</p>
+</section>
+
+<section class="card">
+<h2>Worked example</h2>
+<p>Same 48 A charger, same 25-foot indoor run, same spare panel slot, same wage and margin settings -- installed both ways, priced by this calculator's own bid engine:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Install type</th><th scope="col">Labor hours</th><th scope="col">Contractor price</th></tr></thead>
+<tbody>
+<tr><td>Hardwired EVSE</td><td>5.65</td><td>$1,263.36</td></tr>
+<tr><td>NEMA 14-50 receptacle</td><td>6.05</td><td>$1,374.04</td></tr>
+</tbody>
+</table></div>
+<p>The receptacle version runs <strong>$110.67</strong> higher -- a $45 listed 14-50 device plus about 24 extra minutes to mount and terminate it, both marked up through the same overhead and margin as the rest of the job. That gap holds roughly steady across runs and locations; it is not the number that should decide this, since a longer run or a trench moves the total by far more than $111 either way.</p>
+</section>
+
+<h2>Common questions</h2>
+<h3>Should I hardwire an EV charger or install a NEMA 14-50 outlet?</h3>
+<p>Hardwiring lands the EVSE's conductors directly on a junction box with no plug or receptacle in the circuit, which removes the one connection in the circuit rated for continuous duty that is a plug-and-receptacle pair rather than a fixed splice. A NEMA 14-50 receptacle costs a little more in parts and labor but lets the homeowner unplug the EVSE -- to swap chargers, sell the house without leaving hardware behind, or share the circuit with an RV or welder that also uses a 14-50 plug. Check the charger manufacturer's installation manual first: several EVSE models only warranty one connection type.</p>
+<h3>Is a NEMA 14-50 receptacle install more expensive than hardwiring?</h3>
+<p>Only slightly. On a typical 48 A install this calculator prices the receptacle version about $111 higher than hardwired, all else equal -- the device itself plus roughly 24 extra minutes of labor to mount and terminate it. That gap is much smaller than what location, run length, or panel work move the price by, so it should not be the deciding factor on its own.</p>
+<h3>Does a NEMA 14-50 need to be a special continuous-duty receptacle?</h3>
+<p>Use a receptacle and plug listed for the charger's continuous load -- EVSE draws its full rated current for hours at a time, which is harder on contact quality than the intermittent draw a standard 14-50 was originally rated for. Confirm the specific device the manufacturer's installation manual calls for and the adopted code in the jurisdiction; this page does not make that determination for you.</p>
+<h3>Can I switch from a plug-in charger to hardwired later?</h3>
+<p>Usually, if the run and breaker were already sized for it -- the receptacle gets removed and the conductors land directly on the EVSE's terminal block, which is a smaller job than the original install. Going the other direction (hardwired to plug-in) means adding a receptacle and a compatible EVSE, which is closer to redoing the termination end of the job. Either direction is a real labor item, not a five-minute swap, and should be bid as one.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This free page is not electrical, engineering, code, legal, tax, or financial advice, and it does not tell you which connection type to install or whether either is code-compliant for a given jurisdiction or charger. It is not a permit load calculation and does not determine NEC or local-code compliance. Verify every figure against your own takeoff, the charger manufacturer's installation manual, the adopted code, and a licensed electrician before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hvac-maintenance-contract-calculator/" data-pf-to="hvac-maintenance-contract-calculator">HVAC Maintenance Contract Pricing Calculator</a></li>
+      <li><a href="../mini-split-bid-calculator/" data-pf-to="mini-split-bid-calculator">Mini-Split Install Bid Calculator</a></li>
+      <li><a href="../security-camera-bid-calculator/" data-pf-to="security-camera-bid-calculator">Security Camera Installation Bid Calculator</a></li>
+      <li><a href="../septic-pumping-bid-calculator/" data-pf-to="septic-pumping-bid-calculator">Septic Pumping Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ev-charger-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ev-charger-bid-calculator"></script>
+</body>
+</html>

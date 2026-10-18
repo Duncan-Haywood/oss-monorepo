@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firebase Rules Checker vs. Requesting the URL By Hand</title>
+<meta name="description" content="Pasting a Realtime Database URL into a browser or curl-ing the Firestore REST API by hand catches an obvious open root.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/vs-requesting-the-url-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does checking a Firebase project by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Appending .json to a Realtime Database URL in a browser, or requesting the Firestore REST documents endpoint with curl, is a real, fast way to confirm the single obvious case -- a root or collection that returns data with no login at all. Anyone who knows the URL shape can do this in one request." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a by-hand request easily misses. (1) A plain .json request on an open Realtime Database pulls every field value under that path, not just key names -- proving the exposure this way means already doing the thing you were checking for; the shallow=true flag most people don't know to add avoids that. (2) A response of null or an empty object looks identical whether the path is genuinely empty or the rule is correctly blocking it, unless you also read the HTTP status code -- easy to skip when eyeballing a browser tab. (3) The Firestore REST endpoint's shape (documents/(default)/documents/<collection>) and its pagination field are not obvious from the console UI, so a first attempt at a manual request often gets the URL wrong before it gets an answer at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A by-hand request is a point-in-time, manual look at one path or collection you remembered to try. Adding a new Firestore collection, or a rules change that is correct everywhere except the newest path, can reopen this exposure at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching the regression the day it ships rather than the next time someone happens to paste a URL into a browser." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/vs-requesting-the-url-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Firebase Rules Checker vs. Requesting the URL By Hand">
+<meta property="og:description" content="Pasting a Realtime Database URL into a browser or curl-ing the Firestore REST API by hand catches an obvious open root.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Firebase Rules Checker vs. Requesting the URL By Hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../firebase-rules-check/">Firebase Security Rules Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Firebase Rules Checker vs. Requesting the URL By Hand</span></span></nav>
+<p><a href="index.html">← Back to the Firebase Security Rules Exposure Checker</a></p>
+<h1>Firebase Rules Checker vs. requesting the URL by hand</h1>
+<p>
+  Pasting a Realtime Database URL into a browser tab, or reaching for curl against the Firestore
+  REST API, is a real and fast way to confirm the single obvious case: a root or collection that
+  returns data with no login at all. Most developers who suspect a problem reach for this first,
+  and it genuinely works for that case. This page is not affiliated with Google or Firebase — it
+  names the Realtime Database and Firestore REST APIs only as the manual method anyone with the
+  project ID could already try, not a product being compared against.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Check</th><th>By hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious open root</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>Confirming exposure without pulling real data</td><td>A plain <code>.json</code> request returns real data — you'd read it to prove the point</td><td>Uses <code>shallow=true</code>: key names only</td></tr>
+    <tr><td>Blocked path vs. genuinely empty one</td><td>Both look empty unless you read the HTTP status</td><td>Reported separately</td></tr>
+    <tr><td>Firestore's REST URL shape and document cap</td><td>Easy to get wrong or pull too much</td><td>One document per collection, correctly formed</td></tr>
+    <tr><td>Several paths/collections at once</td><td>One request at a time</td><td>All named paths in one report</td></tr>
+    <tr><td>Repeatable in CI</td><td>Manual, point-in-time</td><td>Real exit code</td></tr>
+  </tbody>
+</table></div>
+
+<h2>When to still just check the URL</h2>
+<p>
+  If you already suspect a specific path is wide open and just want to confirm it once, requesting
+  the URL directly is fine — it's free and you already have the project ID. The gap this tool
+  closes is doing that safely and completely: a shallow, values-free read of the Realtime Database,
+  a capped read of every Firestore collection you name, a clear blocked-vs-unconfirmed distinction,
+  and an exit code the same check can gate a deploy on next time.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does checking a Firebase project by hand actually show you?</h3>
+<p>Appending <code>.json</code> to a Realtime Database URL in a browser, or requesting the Firestore REST documents endpoint with curl, is a real, fast way to confirm the single obvious case -- a root or collection that returns data with no login at all. Anyone who knows the URL shape can do this in one request.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a by-hand request easily misses. (1) A plain .json request on an open Realtime Database pulls every field value under that path, not just key names -- proving the exposure this way means already doing the thing you were checking for; the shallow=true flag most people don't know to add avoids that. (2) A response of null or an empty object looks identical whether the path is genuinely empty or the rule is correctly blocking it, unless you also read the HTTP status code -- easy to skip when eyeballing a browser tab. (3) The Firestore REST endpoint's shape (documents<wbr>/(default)<wbr>/documents<wbr>/&lt;collection&gt;) and its pagination field are not obvious from the console UI, so a first attempt at a manual request often gets the URL wrong before it gets an answer at all.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A by-hand request is a point-in-time, manual look at one path or collection you remembered to try. Adding a new Firestore collection, or a rules change that is correct everywhere except the newest path, can reopen this exposure at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching the regression the day it ships rather than the next time someone happens to paste a URL into a browser.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any project you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=firebase-rules-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="firebase-rules-check"></script>
+</body>
+</html>

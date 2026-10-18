@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $8-a-stall special | Parking Lot Striping Bid Calculator</title>
+<meta name="description" content="A flat '$8 a stall' or '$400 for a 50-space lot' special cannot see whether the lot is a faded restripe or a new layout with ADA hash, arrows, a fire lane…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat $8-a-stall special">
+<meta property="og:description" content="A 50-stall retail restripe and a 120-stall new layout with ADA hash aisles, two coats, arrows, and a fire lane are not the same job.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per stall get a parking-lot striping bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is restripe versus new layout, ADA hash aisles and signs, stencils and fire-lane footage, and coats -- not a blended stall count. A 120-stall new layout with ADA hash, arrows, a fire lane, and two coats is doing several jobs a 50-stall restripe never touches, none of which scale with stall count the way a per-stall rate assumes."}},{"@type":"Question","name":"What does a flat price per stall usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"New-layout measuring and string-line hours, ADA hash aisle line and signs, arrows and stop-bar stencils, crosswalks, fire-lane and curb footage, and a second coat. A faded restripe with a couple of ADA stalls is doing far less than a new layout with a fire lane and two coats -- and a per-stall number has no line for any of it."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped presets, at its own shipped shop rates: a 50-stall retail restripe prices at $1,126.98, or $22.54 a stall. Applying that same $22.54 rate to a 120-stall new layout with ADA hash, arrows, a fire lane, and two coats quotes $2,704.76, which is $1,877.99 below that job's own $4,582.75 break-even cost, before a dollar of profit, and $3,405.58 below the calculator's own $6,110.34 bid price."}},{"@type":"Question","name":"Is a flat price per stall ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- a restripe, one coat, few ADA stalls, no fire lane -- a per-stall rate can land close, and on this calculator's own restripe preset it is exactly the rate that job supports, because it was set from that job. The risk is applying the same rate outside that band without noticing, because the rate does not know which lot it was built on and neither does the estimator until layout, ADA, stencils, and coats are actually spelled out."}},{"@type":"Question","name":"Does this calculator know what materials or labor cost in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material or labor rates. It takes stall counts, ADA aisles, stencils, fire-lane and curb footage, layout, and coats, plus the labor hours, paint cost, and wage you enter, and turns that into a price for this job -- the arithmetic a flat per-stall rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #ece8dc; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a5a12; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #55504a; }
+  section { background: #fff; border: 1px solid #d8d0be; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c1f240d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d0be; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55504a; }
+  .fine, .note { font-size: .88rem; color: #55504a; }
+  footer { color: #55504a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $8-a-stall special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../parking-lot-striping-bid-calculator/">Parking Lot Striping Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $8-a-stall special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Parking Lot Striping Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $8-a-stall special</h1>
+<p class="lede">&ldquo;$8 a stall&rdquo; or &ldquo;$400 for a 50-space lot&rdquo; is not a price for parking-lot striping &mdash; it is a price for one specific layout, ADA count, and coat count, quietly applied to every lot that calls in.</p>
+</header>
+<section>
+<h2>What a flat price per stall is</h2>
+<p>
+A flat rate per stall is the fastest way to quote a striping job:
+multiply the stall count by a number and read off a price. It is the
+number a property manager holding last year's invoice or a competitor's
+flyer will call and ask you to match, whatever their lot actually needs.
+</p>
+<p>
+The number behind it was set for one job &mdash; a faded restripe
+following existing paint, a couple of ADA stalls, a handful of arrows,
+one coat, no fire lane &mdash; and then reused for every lot afterward,
+whether or not the next job looks anything like the one the rate was
+built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter
+standard and ADA stall counts, arrows, stop bars, crosswalks, handicap
+symbols, fire-lane and curb footage, restripe versus new layout, coats,
+and night work, plus your own labor hours and material costs. It prices
+the layout, the ADA aisles, the stencils, and the coats separately by
+kind, then returns the walk-away price and a bid price above your target
+margin &mdash; for this lot, not a generic one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price per stall does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/stall whether the job follows existing paint or needs a full string-line new layout, even though new-layout hours sit on every stall, not just the extras.</td>
+<td>Prices restripe versus new layout separately, so a new-layout job costs more than a restripe of the same stall count.</td>
+</tr>
+<tr>
+<td>Has no line for ADA hash aisles and signs, regardless of whether the lot carries two ADA stalls or six.</td>
+<td>Prices ADA hash line, symbols, and signs separately by count, so an ADA-heavy lot costs more than one with few accessible stalls.</td>
+</tr>
+<tr>
+<td>Has no line for arrows, stop bars, crosswalks, fire-lane footage, curb paint, or a second coat, regardless of how much the job needs.</td>
+<td>Prices each extra separately &mdash; stencils, fire lane, curb, and second-coat labor &mdash; so a fully-marked lot costs more than a bare restripe.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against a flat per-stall rate, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two lots, the same stall-blind rate</h2>
+<p>
+Using this calculator's own shipped presets, at its own shipped shop rates
+($28/hr crew wage, 28% burden, 15% overhead, a 25% target margin):
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">This calculator's price</th><th scope="col">The flat $22.54/stall rate</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>50-stall retail restripe, 1 coat, 2 ADA, 8 arrows &mdash; the cheap special the rate is set from</td><td>$1,126.98 bid price; $845.24 break-even cost</td><td>$1,126.98 (exactly $22.54/stall &mdash; this rate is fit to this job)</td><td>No gap on the job the rate was built on.</td></tr>
+<tr><td>120-stall new layout, 2 coats, 6 ADA, 24 arrows, 2 crosswalks, fire lane, night work &mdash; where the special loses</td><td>$6,110.34 bid price; $4,582.75 break-even cost</td><td>$2,704.76</td><td>The rate quotes $1,877.99 <strong>below</strong> this job's own break-even cost &mdash; before a dollar of profit &mdash; and $3,405.58 below the calculator's own bid price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">The $22.54/stall rate is not invented &mdash; it is this calculator's own price on the retail-restripe preset, divided by that preset's own stall count. It fits that one job by construction. Applied to the new-layout job, it counts only the stalls and never sees the string-line hours, the extra ADA aisles, the fire lane, the second coat, or the night premium at all. Run your own lot's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat per-stall rate is not wrong because it is simple &mdash; it is
+wrong when it is applied outside the one lot it was built for, and
+nothing about a flat number tells you when that has happened. This
+calculator does not know your local market; it replaces the arithmetic a
+flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per stall get a parking-lot striping bid wrong?</h3>
+<p>Because the cost driver is restripe versus new layout, ADA hash aisles and signs, stencils and fire-lane footage, and coats -- not a blended stall count. A 120-stall new layout with ADA hash, arrows, a fire lane, and two coats is doing several jobs a 50-stall restripe never touches, none of which scale with stall count the way a per-stall rate assumes.</p>
+<h3>What does a flat price per stall usually leave out entirely?</h3>
+<p>New-layout measuring and string-line hours, ADA hash aisle line and signs, arrows and stop-bar stencils, crosswalks, fire-lane and curb footage, and a second coat. A faded restripe with a couple of ADA stalls is doing far less than a new layout with a fire lane and two coats -- and a per-stall number has no line for any of it.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped presets, at its own shipped shop rates: a 50-stall retail restripe prices at $1,126.98, or $22.54 a stall. Applying that same $22.54 rate to a 120-stall new layout with ADA hash, arrows, a fire lane, and two coats quotes $2,704.76, which is $1,877.99 below that job's own $4,582.75 break-even cost, before a dollar of profit, and $3,405.58 below the calculator's own $6,110.34 bid price.</p>
+<h3>Is a flat price per stall ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs -- a restripe, one coat, few ADA stalls, no fire lane -- a per-stall rate can land close, and on this calculator's own restripe preset it is exactly the rate that job supports, because it was set from that job. The risk is applying the same rate outside that band without noticing, because the rate does not know which lot it was built on and neither does the estimator until layout, ADA, stencils, and coats are actually spelled out.</p>
+<h3>Does this calculator know what materials or labor cost in my market?</h3>
+<p>No. It has no data on local material or labor rates. It takes stall counts, ADA aisles, stencils, fire-lane and curb footage, layout, and coats, plus the labor hours, paint cost, and wage you enter, and turns that into a price for this job -- the arithmetic a flat per-stall rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Parking Lot Striping Bid Calculator</a> to price your own job, or read <a href="./how-much-to-charge-to-stripe-a-parking-lot.html">how much to charge to stripe a parking lot</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not a MUTCD plan, an ADA determination, a traffic-engineering stamp, legal, tax, or financial advice, and it does not replace a qualified professional. Verify every figure against your own payroll and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a job.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../asphalt-driveway-pave-bid-calculator/" data-pf-to="asphalt-driveway-pave-bid-calculator">Asphalt Driveway Paving Bid Calculator</a></li>
+      <li><a href="../asphalt-sealcoat-bid-calculator/" data-pf-to="asphalt-sealcoat-bid-calculator">Asphalt Sealcoating Bid Calculator</a></li>
+      <li><a href="../concrete-bid-calculator/" data-pf-to="concrete-bid-calculator">Concrete Bid Calculator</a></li>
+      <li><a href="../concrete-lifting-bid-calculator/" data-pf-to="concrete-lifting-bid-calculator">Concrete Lifting Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=parking-lot-striping-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="parking-lot-striping-bid-calculator"></script>
+</body></html>

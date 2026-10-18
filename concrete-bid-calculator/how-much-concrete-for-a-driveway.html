@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Concrete for a Driveway? Cubic Yards from Length, Width, and Thickness</title>
+  <meta name="description" content="Convert a driveway’s length, width, and thickness into cubic yards — including waste and the quarter-yard increment a ready-mix plant bills.">
+  <meta property="og:title" content="How much concrete for a driveway?">
+  <meta property="og:description" content="Cubic yards from tape-measure sides and thickness, plus waste and the plant’s billed increment.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/how-much-concrete-for-a-driveway.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many cubic yards of concrete for a 20x40 driveway?","acceptedAnswer":{"@type":"Answer","text":"A 20 by 40 foot driveway at 4 inches is 9.88 cubic yards before waste. With a typical 8% waste factor the plant will usually bill 10.75 yards after rounding up to a quarter yard. The same pad at 6 inches is 14.81 yards before waste."}},{"@type":"Question","name":"How do you convert square feet and inches into cubic yards?","acceptedAnswer":{"@type":"Answer","text":"Cubic yards = length in feet × width in feet × thickness in inches ÷ 12 ÷ 27. One cubic yard is 27 cubic feet. Thickness is the term a square-foot rule of thumb drops, and it is the one that changes the ticket."}},{"@type":"Question","name":"Why is a square-foot driveway quote often wrong?","acceptedAnswer":{"@type":"Answer","text":"Concrete is sold by the cubic yard. Two driveways of the same area that differ by two inches of thickness differ by 50% in material. Forms are priced by linear feet of edge, stamped finish takes more labor than broom, and many plants add a short-load fee under about five yards."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c16; background: #f3eee6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 48px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: 1.2rem; margin-top: 1.8rem; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #b7a790; border-radius: 7px; padding: 10px; font: inherit; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: #fff; border: 1px solid #d8cbb8; border-radius: 12px; padding: 16px; }
+    .out { margin-top: 14px; background: #3a2614; color: #f7f1e8; border-radius: 12px; padding: 16px; }
+    .out strong { font-size: 1.6rem; display: block; margin: 4px 0 10px; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5c5348; }
+    a { color: #8a4b12; }
+    @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/how-much-concrete-for-a-driveway.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much concrete for a driveway? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../concrete-bid-calculator/">Concrete Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much concrete for a driveway?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p class="eyebrow">CONCRETE YARDAGE</p>
+  <h1>How much concrete for a driveway?</h1>
+  <p>Concrete is sold by the <strong>cubic yard</strong>, not by the square foot. A 20×40 driveway at 4 inches and the same pad at 6 inches for an RV look identical on a lot sketch and differ by half the material on the ticket. Thickness is the number a “$8 a square foot” quote drops.</p>
+
+  <div class="fields">
+    <label>Length (ft) <input id="lengthFt" type="number" min="0" step="0.5" value="20" inputmode="decimal"></label>
+    <label>Width (ft) <input id="widthFt" type="number" min="0" step="0.5" value="40" inputmode="decimal"></label>
+    <label>Thickness (in) <input id="thicknessIn" type="number" min="0.5" step="0.5" value="4" inputmode="decimal"></label>
+    <label>Waste (%) <input id="wastePct" type="number" min="0" step="0.5" value="8" inputmode="decimal"></label>
+  </div>
+  <div class="out" aria-live="polite">
+    <span>Yards the plant will bill</span>
+    <strong id="ordered">—</strong>
+    <div id="detail"></div>
+  </div>
+
+  <h2>The conversion</h2>
+  <p>Cubic yards = length (ft) × width (ft) × thickness (in) ÷ 12 ÷ 27. One cubic yard is 27 cubic feet. Add waste for over-excavate and spillage — 5–10% is a common starting range, not a rule — then expect the plant to bill the next quarter yard. That rounded-up ticket is what you pay, even if the slab only needed 9.88 yards on paper.</p>
+
+  <h2>Worked 20×40 examples</h2>
+  <p>At 4 inches: 20 × 40 × 4 ÷ 12 ÷ 27 = <strong>9.88 yards</strong> before waste. With 8% waste that is 10.67 yards, billed as <strong>10.75 yards</strong>.</p>
+  <p>At 6 inches: the same driveway is <strong>14.81 yards</strong> before waste. Same forms, same square footage, 50% more concrete. If you quoted the 4-inch square-foot price on a 6-inch spec, the extra yards come out of your pocket.</p>
+
+  <h2>What square-foot quotes miss</h2>
+  <ul>
+    <li>Forms are priced by linear feet of edge, not by area. A long skinny walk has more form per yard than a square patio.</li>
+    <li>Finish labor: stamped and exposed aggregate take two to three times the hours of a broom driveway.</li>
+    <li>Access: a pump is a few hundred dollars; a wheelbarrow run is hours.</li>
+    <li>Short-load fees: many plants add one under about five yards, which is why a small stoop is rarely “cheap per square foot.”</li>
+  </ul>
+  <p>To turn yardage into a bid — forms, finish, access, demo, burden, and the walk-away price — use the <a href="index.html">concrete bid calculator</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>How many cubic yards of concrete for a 20x40 driveway?</h3>
+  <p>A 20 by 40 foot driveway at 4 inches is 9.88 cubic yards before waste. With a typical 8% waste factor the plant will usually bill 10.75 yards after rounding up to a quarter yard. The same pad at 6 inches is 14.81 yards before waste.</p>
+  <h3>How do you convert square feet and inches into cubic yards?</h3>
+  <p>Cubic yards = length in feet × width in feet × thickness in inches ÷ 12 ÷ 27. One cubic yard is 27 cubic feet. Thickness is the term a square-foot rule of thumb drops, and it is the one that changes the ticket.</p>
+  <h3>Why is a square-foot driveway quote often wrong?</h3>
+  <p>Concrete is sold by the cubic yard. Two driveways of the same area that differ by two inches of thickness differ by 50% in material. Forms are priced by linear feet of edge, stamped finish takes more labor than broom, and many plants add a short-load fee under about five yards.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not engineering, structural, or business advice. Confirm mix, thickness, and reinforcement with a qualified professional and the ready-mix plant before you order. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p>Optional <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> never changes what the page does.</p>
+    <p>Nothing leaves your browser. The numbers above are arithmetic on what you typed.</p>
+  </footer>
+
+  <script type="module">
+    import { bagsForVolume, orderYards, slabArea, slabVolumeCuYd } from './calc.mjs';
+
+    const el = id => document.getElementById(id);
+    function update() {
+      try {
+        const squareFeet = slabArea({ lengthFt: el('lengthFt').value, widthFt: el('widthFt').value });
+        const thicknessIn = Number(el('thicknessIn').value);
+        const raw = slabVolumeCuYd({ squareFeet, thicknessIn });
+        const { withWaste, ordered } = orderYards(raw, el('wastePct').value);
+        el('ordered').textContent = `${ordered.toFixed(2)} yd³`;
+        el('detail').textContent = `${squareFeet.toLocaleString('en-US')} sq ft at ${thicknessIn}" = ${raw.toFixed(2)} yd³ in the slab, ${withWaste.toFixed(2)} with waste. About ${bagsForVolume(withWaste * 27)} eighty-pound bags if you did not order a truck.`;
+      } catch (error) {
+        el('ordered').textContent = error.message;
+        el('detail').textContent = '';
+      }
+    }
+    ['lengthFt','widthFt','thicknessIn','wastePct'].forEach(id => {
+      el(id).addEventListener('input', update);
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../concrete-lifting-bid-calculator/" data-pf-to="concrete-lifting-bid-calculator">Concrete Lifting Bid Calculator</a></li>
+      <li><a href="../epoxy-garage-floor-bid-calculator/" data-pf-to="epoxy-garage-floor-bid-calculator">Epoxy Garage Floor Bid Calculator</a></li>
+      <li><a href="../foundation-repair-bid-calculator/" data-pf-to="foundation-repair-bid-calculator">Foundation Repair Bid Calculator</a></li>
+      <li><a href="../french-drain-bid-calculator/" data-pf-to="french-drain-bid-calculator">French Drain Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=concrete-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="concrete-bid-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="concrete-bid-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="concrete-bid-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

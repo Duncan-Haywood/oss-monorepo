@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. dividing your bills by your miles | Owner Operator CPM Calculator</title>
+  <meta name="description" content="Adding up the month's bills and dividing by the miles you ran gives a real number — but it is cost per total mile, and you quote a loaded rate.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html">
+  <meta property="og:title" content="This calculator vs. dividing your bills by your miles | Owner Operator CPM Calculator">
+  <meta property="og:description" content="Cost per total mile is not the rate you quote. Here is the gap, in dollars, plus the three other costs that never show up in a bills-divided-by-miles figure.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is wrong with dividing my monthly bills by my miles?","acceptedAnswer":{"@type":"Answer","text":"Nothing, as arithmetic — it gives you a true cost per total mile, and if you take it off your own settlement statements over a full year it is more trustworthy than anything you can type into a calculator. The problem is that it answers a different question from the one you ask at the load board. Cost lands on every mile you turn, loaded or empty. Revenue lands only on loaded miles. So the number you need when a broker names a rate is cost divided by loaded miles, and the division most people run divides by total miles instead. On a week that is 20% empty, that is a 31 cent per mile gap in the illustrative week on this page — and it is a gap in the direction that makes a losing load look profitable."}},{"@type":"Question","name":"How much does deadhead actually change my break-even rate?","acceptedAnswer":{"@type":"Answer","text":"By the deadhead share, compounding. The relationship is exact: break-even loaded rate equals all-in cost per total mile divided by (1 minus the empty share). In the week worked through on this page — 2,000 loaded miles and 500 empty, so 20% deadhead — a weekly cost of $3,071.15 is $1.23 per total mile and $1.54 per loaded mile. A broker offering $1.65 looks like 42 cents of margin against the first figure and is really 11 cents against the second. Both numbers are correct arithmetic on the same week; only one of them is the rate you are being asked to accept."}},{"@type":"Question","name":"Does a short week really change my cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Sharply, and this is the part a single divided figure hides worst, because it looks like a constant. Your truck payment, insurance and permits do not care how many miles you ran, so the fewer you turn the more of them each mile has to carry. Same bills as the illustrative week above, but 1,200 loaded and 300 empty instead of 2,000 and 500: fixed cost per mile goes from 38 cents to 63 cents, and the break-even loaded rate from $1.54 to $1.85. Nothing changed but the miles. A cost per mile worked out on a good month and then quoted from all year is wrong on every week that is not that month."}},{"@type":"Question","name":"Why does factoring not show up in my cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Because it is charged on revenue, not on cost, so it is not in the pile of bills you are dividing — there is no invoice for it to appear on. It still comes straight off the rate the broker quoted. In the illustrative week, a 3% factoring fee turns an accepted $1.65 into an effective $1.60 per loaded mile, and the week's profit from $228.85 to $129.85. That is 43% of the profit, on a cost line that a bills-divided-by-miles figure cannot contain by construction."}},{"@type":"Question","name":"Should I stop working out my cost per mile from my own statements?","acceptedAnswer":{"@type":"Answer","text":"No — keep doing it, and trust it over this page where the two disagree about what your costs are. Your settlement statements and fuel receipts are measurements of your actual truck; every figure on this page is one you typed, and it has no way to check any of them. What it adds is not better cost data. It is the step after: taking the costs you already know and turning them into the loaded rate you can accept this week, with the empty miles, the short week, the factoring fee and the unreimbursed lumper each put where they actually land instead of averaged into one number."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a5a12; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; margin-top: 2rem; }
+    h3 { font-size: 1rem; margin-top: 1.6rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d2c6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5b54; }
+    td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .note { font-size: .85rem; color: #4f5b54; }
+    .lede { font-size: 1.05rem; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5b54; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. dividing your bills by your miles | Owner Operator CPM Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../owner-operator-cpm-calculator/">Owner Operator Cost Per Mile Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. dividing your bills by your miles | Owner Operator CPM Calculator</span></span></nav>
+  <p class="note"><a href="./">&larr; Owner-Operator Cost Per Mile Calculator</a></p>
+  <h1>This calculator vs. dividing your bills by your miles</h1>
+  <p class="lede">Add up the month&rsquo;s bills, divide by the miles you ran, call that your cost per mile. It is the arithmetic every owner-operator already knows, it is not wrong, and if you take it off your own settlement statements it is better cost data than anything you can type into a web page. It also answers a different question from the one a broker is asking you.</p>
+
+  <h2>Cost rides on every mile. Revenue only rides on the loaded ones.</h2>
+  <p>
+    That one sentence is the whole difference. The division gives you cost per
+    <em>total</em> mile. The number you quote, accept or turn down is a
+    <em>loaded</em> rate. They are not the same figure and the gap is the size
+    of your deadhead.
+  </p>
+  <p>
+    Here is an illustrative week &mdash; <strong>your numbers will differ, and
+    these are not a claim about what anything costs</strong>. 2,000 loaded
+    miles and 500 empty, so 2,500 total and 20% deadhead. 6.5 mpg at $3.90 a
+    gallon. Monthly fixed of $4,100 (truck payment $2,200, insurance $1,100,
+    permits $200, other $600). Reserves of 25&cent; a mile for maintenance,
+    tires and the rest.
+  </p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Figure</th><th scope="col">This week</th><th scope="col">What it is</th></tr></thead>
+      <tbody>
+        <tr><td>Weekly cost, all in</td><td class="num">$3,071.15</td><td>Fuel, reserves, and the monthly fixed bills spread over the week.</td></tr>
+        <tr><td>Bills &divide; miles</td><td class="num">$1.23</td><td>Cost per <strong>total</strong> mile. Correct, and not the rate you quote.</td></tr>
+        <tr><td>Break-even loaded rate</td><td class="num">$1.54</td><td>Cost per <strong>loaded</strong> mile &mdash; the same cost, carried by the 2,000 miles that actually earn.</td></tr>
+        <tr><td>A $1.65 offer looks like</td><td class="num">42&cent;</td><td>&hellip;of margin, measured against the first figure.</td></tr>
+        <tr><td>A $1.65 offer really is</td><td class="num">11&cent;</td><td>&hellip;of margin, measured against the rate you are actually being offered.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <p>
+    The relationship is exact rather than a rule of thumb: the break-even
+    loaded rate is the all-in cost per total mile divided by one minus the
+    empty share. At 20% deadhead that is a 25% markup on the divided figure,
+    every week, in the direction that makes a thin load look fat.
+  </p>
+  <p class="note">
+    Each figure in the table is produced by
+    <a href="calc.mjs">the same <code>calculateWeek</code></a> the calculator
+    runs, from the inputs listed above, and a test in this venture recomputes
+    them and fails if the page and the model ever disagree.
+  </p>
+
+  <h2>Three more things the division cannot see</h2>
+
+  <h3>1. A short week raises your cost per mile without a single bill changing</h3>
+  <p>
+    This is the one that hides best, because a cost per mile worked out once
+    looks like a property of the truck. It is not; it is a property of the
+    week. The truck payment, the insurance and the permits do not care how far
+    you went, so the fewer miles you turn, the more of them each mile carries.
+  </p>
+  <p>
+    Same bills as above, but a 1,500-mile week instead of a 2,500-mile one
+    (1,200 loaded, 300 empty, the same 20% empty share):
+  </p>
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Figure</th><th scope="col">2,500-mile week</th><th scope="col">1,500-mile week</th></tr></thead>
+      <tbody>
+        <tr><td>Fixed cost per mile</td><td class="num">$0.38</td><td class="num">$0.63</td></tr>
+        <tr><td>All-in cost per total mile</td><td class="num">$1.23</td><td class="num">$1.48</td></tr>
+        <tr><td>Break-even loaded rate</td><td class="num">$1.54</td><td class="num">$1.85</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p>
+    A rate you could take all day in the first week loses money in the second,
+    and nothing about your costs changed. Quoting a single remembered cost per
+    mile through a slow month is how that happens without anyone noticing.
+  </p>
+
+  <h3>2. Factoring is charged on revenue, so it is not in the pile you divided</h3>
+  <p>
+    There is no invoice for it to arrive on. It comes off the top of what the
+    broker pays, which means a bills-divided-by-miles figure cannot contain it
+    by construction &mdash; and it is not small. In the 2,500-mile week, taking
+    that $1.65 with a 3% factoring fee:
+  </p>
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Figure</th><th scope="col">No factoring</th><th scope="col">3% factoring</th></tr></thead>
+      <tbody>
+        <tr><td>Effective loaded rate</td><td class="num">$1.65</td><td class="num">$1.60</td></tr>
+        <tr><td>Week&rsquo;s profit</td><td class="num">$228.85</td><td class="num">$129.85</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p>
+    Five cents a mile off the rate, and 43% of the profit off the week. Whether
+    you factor is a cash-flow decision with good reasons on both sides; what it
+    is not is invisible.
+  </p>
+
+  <h3>3. A lumper you paid and did not get back lands on the load, not on an average</h3>
+  <p>
+    Per-mile thinking wants to smear it across the year. The money left this
+    week. A $150 lumper you were not reimbursed for raises the break-even
+    loaded rate on that 2,000-loaded-mile week from $1.54 to $1.61 &mdash;
+    seven cents, on one receipt. Detention and layover work the same way in
+    reverse, and the calculator will tell you whether the detention being
+    offered actually covers the hours you are being asked to sit.
+  </p>
+
+  <h2>What dividing your bills by your miles does better</h2>
+  <p>
+    The honest half, and it matters more than it usually gets said. Where this
+    page and your own arithmetic disagree about <em>what your costs are</em>,
+    your arithmetic wins:
+  </p>
+  <ul>
+    <li><strong>It is a measurement; this page is an estimate.</strong> Your settlement statements, fuel receipts and repair invoices are what actually happened to your truck. Every number on this page is one you typed, and it has no way to check a single one of them.</li>
+    <li><strong>It catches costs you would forget to enter.</strong> A division over a full year sweeps up the annual permit, the DOT physical, the tyre you bought in cash, the week the APU died. A form asks only what it thought to ask.</li>
+    <li><strong>Averaged over a long enough period, it is the better cost base.</strong> A single week is noisy. If you have twelve months of statements, the cost per mile they give you is a sounder input to this page than the figures you would guess &mdash; so bring it here rather than replacing it.</li>
+  </ul>
+  <p>
+    So these are sequential, not competing. Work your real costs out from your
+    own statements; then use this page to turn them into the loaded rate you
+    can accept <em>this</em> week, with the empty miles, the short week, the
+    factoring fee and the unreimbursed lumper each put where they land instead
+    of averaged into one number that is right about last year and silent about
+    the load in front of you.
+  </p>
+  <p class="note">
+    No account, no sign-in, nothing uploaded: the arithmetic runs in your
+    browser and the page keeps working with the connection off.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>What is wrong with dividing my monthly bills by my miles?</h3>
+  <p>Nothing, as arithmetic &mdash; it gives you a true cost per total mile, and if you take it off your own settlement statements over a full year it is more trustworthy than anything you can type into a calculator. The problem is that it answers a different question from the one you ask at the load board. Cost lands on every mile you turn, loaded or empty. Revenue lands only on loaded miles. So the number you need when a broker names a rate is cost divided by loaded miles, and the division most people run divides by total miles instead. On a week that is 20% empty, that is a 31 cent per mile gap in the illustrative week on this page &mdash; and it is a gap in the direction that makes a losing load look profitable.</p>
+  <h3>How much does deadhead actually change my break-even rate?</h3>
+  <p>By the deadhead share, compounding. The relationship is exact: break-even loaded rate equals all-in cost per total mile divided by (1 minus the empty share). In the week worked through on this page &mdash; 2,000 loaded miles and 500 empty, so 20% deadhead &mdash; a weekly cost of $3,071.15 is $1.23 per total mile and $1.54 per loaded mile. A broker offering $1.65 looks like 42 cents of margin against the first figure and is really 11 cents against the second. Both numbers are correct arithmetic on the same week; only one of them is the rate you are being asked to accept.</p>
+  <h3>Does a short week really change my cost per mile?</h3>
+  <p>Sharply, and this is the part a single divided figure hides worst, because it looks like a constant. Your truck payment, insurance and permits do not care how many miles you ran, so the fewer you turn the more of them each mile has to carry. Same bills as the illustrative week above, but 1,200 loaded and 300 empty instead of 2,000 and 500: fixed cost per mile goes from 38 cents to 63 cents, and the break-even loaded rate from $1.54 to $1.85. Nothing changed but the miles. A cost per mile worked out on a good month and then quoted from all year is wrong on every week that is not that month.</p>
+  <h3>Why does factoring not show up in my cost per mile?</h3>
+  <p>Because it is charged on revenue, not on cost, so it is not in the pile of bills you are dividing &mdash; there is no invoice for it to appear on. It still comes straight off the rate the broker quoted. In the illustrative week, a 3% factoring fee turns an accepted $1.65 into an effective $1.60 per loaded mile, and the week's profit from $228.85 to $129.85. That is 43% of the profit, on a cost line that a bills-divided-by-miles figure cannot contain by construction.</p>
+  <h3>Should I stop working out my cost per mile from my own statements?</h3>
+  <p>No &mdash; keep doing it, and trust it over this page where the two disagree about what your costs are. Your settlement statements and fuel receipts are measurements of your actual truck; every figure on this page is one you typed, and it has no way to check any of them. What it adds is not better cost data. It is the step after: taking the costs you already know and turning them into the loaded rate you can accept this week, with the empty miles, the short week, the factoring fee and the unreimbursed lumper each put where they actually land instead of averaged into one number.</p>
+
+  <p class="note">
+    Run your own week in the <a href="./">cost per mile calculator</a>, or read
+    the worked examples on <a href="deadhead-miles.html">how deadhead miles cut
+    a loaded rate</a> and <a href="does-detention-pay-cover-the-wait.html">whether
+    detention pay covers the wait</a>.
+  </p>
+
+  <footer>
+    <p><strong>Illustrative figures only.</strong> Every dollar amount on this page comes from one made-up week, chosen to show the size of an effect. It is not a claim about what fuel, insurance, factoring, lumpers or freight cost, and nothing here is a rate you should quote. Put your own numbers in the calculator.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. Verify every figure against your own fuel receipts, insurance, and notes before relying on it or booking a load.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it kept you off a losing load, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ucr-fee-calculator/" data-pf-to="ucr-fee-calculator">UCR Fee Calculator — free, private</a></li>
+      <li><a href="../vector-db-cost-calculator/" data-pf-to="vector-db-cost-calculator">Vector Database Cost Calculator</a></li>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=owner-operator-cpm-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="owner-operator-cpm-calculator"></script>
+</body>
+</html>

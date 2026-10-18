@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</title>
+<meta name="description" content="Free calculator for storage-unit auction bidders: prices the buyer's premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports">
+<meta property="og:description" content="The 20%-of-value rule most auction forums repeat can bid you past your own break-even before you've paid for a single dump run.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Storage Auction Max Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator for storage-unit auction bidders that prices the buyer's premium, realistic resale recovery rate, resale channel fees, dump cost, cleanout labor, transport, and holding cost, then reports the bid a target margin supports, the break-even bid, and the gap against a flat percent-of-value rule of thumb."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the winning bid what I actually pay?","acceptedAnswer":{"@type":"Answer","text":"No. Lien-auction platforms and most in-person auctioneers charge a buyer's premium on top of your hammer bid, commonly 10-15%. If you bid $400 with a 12% premium, your actual purchase price is $448, not $400. This calculator applies the premium to every figure it reports, so the ceiling it gives you is a hammer bid, and the total-outlay figure next to your planned bid already includes the premium."}},{"@type":"Question","name":"Why isn't the max bid just a percentage of what the contents are worth?","acceptedAnswer":{"@type":"Answer","text":"Because a flat percentage skips two real cuts and ignores a real cost stack. What the contents would fetch new or with time to negotiate is not what a stranger's used goods net on a resale deadline — that is the recovery rate. What they do net is then cut again by resale channel and payment fees. And the cash cost of dump runs, a truck, cleanout labor and holding inventory while you sell it does not scale with the unit's value at all, so a percentage rule has no room for it — which is exactly backwards on a small or hard-to-sell unit, the outcome you cannot rule out sight-unseen."}},{"@type":"Question","name":"What is the difference between the break-even bid and the max bid at my target margin?","acceptedAnswer":{"@type":"Answer","text":"The break-even bid is the hammer price at which this deal nets exactly $0 profit — the absolute ceiling past which every extra dollar is a loss. The max bid at your target margin is lower: it is the bid that leaves your required profit margin on the table, not just avoids a loss. Bidding between the two can still be a real deal, just a thinner one than your target; bidding past the break-even bid is a loss no matter how the resale goes."}},{"@type":"Question","name":"What happens if I don't clean out the unit in time?","acceptedAnswer":{"@type":"Answer","text":"Facilities set a removal window — commonly 24 to 72 hours — and most require a refundable cleanout deposit that you forfeit if you miss it or leave the unit in bad condition, sometimes alongside being barred from future auctions there. This calculator divides your total cleanout labor hours by your crew size to get the wall-clock hours the job actually takes, and flags it when that exceeds the facility's window, so the deposit risk is a number you see before you bid, not a surprise the next morning."}},{"@type":"Question","name":"Does anything about my bid or my numbers get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Usage counting only tallies anonymous feature events, and you can turn it off with the button below."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241f1a;background:#f6f2ea}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:760px}h1{font-size:clamp(1.9rem,5.6vw,3.1rem);line-height:1.04;letter-spacing:-.03em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .86fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e5ddce;border-radius:16px;padding:20px;box-shadow:0 8px 24px #241f1a12;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #efe7d8;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a1f;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #cbbfa0;border-radius:8px;font:inherit;background:#fffdf8}.result{background:#3a2a15;color:#fff;border-color:#3a2a15;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.6rem;font-weight:750;letter-spacing:-.03em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#645941}.result .note{color:#e3d3b2}.err{color:#ffd0d0;font-weight:700}.warn{background:#fff3e0;border:1px solid #e0b071;color:#734a06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#2c1f0e;border-color:#c98f3d;color:#f2dfba}.good{background:#e7f6ec;border:1px solid #8dc9a3;color:#17512f;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #cbbfa0;background:#fff;cursor:pointer;color:#241f1a}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports","item":"https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR STORAGE AUCTION BUYERS</p><h1>The 20%-of-value rule can bid you past your own break-even before you've paid for a dump run.</h1><p class="lede">A lien-auction unit is sold sight-mostly-unseen, and every forum repeats the same rule: don't bid more than 20-30% of what it's worth. That rule skips the buyer's premium charged on top of your bid, prices "worth" at retail instead of realistic resale recovery, and has no room at all for dump, labor, transport and holding cost. This free calculator prices the real cost stack and reports what it actually supports. Nothing you type leaves your browser.</p></header>
+
+<main class="layout">
+<section><h2>This unit</h2>
+<fieldset><legend>What it's worth</legend><div class="fields">
+<label>Estimated retail value ($)<input id="estimatedRetailValue" type="number" min="0" step="50" value="4000" inputmode="numeric"></label>
+<label>Realistic resale recovery (%)<input id="recoveryRatePercent" type="number" min="0" max="100" step="1" value="35" inputmode="numeric"></label>
+<label>Resale channel fees, blended (%)<input id="resaleFeePercent" type="number" min="0" max="100" step="1" value="15" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>The bid</legend><div class="fields">
+<label>Buyer's premium (%)<input id="buyerPremiumPercent" type="number" min="0" step="1" value="12" inputmode="numeric"></label>
+<label>Your planned bid ($)<input id="plannedBid" type="number" min="0" step="5" value="50" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Cleanout</legend><div class="fields">
+<label>Dump fee per load ($)<input id="dumpFeePerLoad" type="number" min="0" step="5" value="90" inputmode="numeric"></label>
+<label>Estimated dump loads<input id="estimatedDumpLoads" type="number" min="0" step="1" value="3" inputmode="numeric"></label>
+<label>Transport / truck cost ($)<input id="transportCost" type="number" min="0" step="5" value="60" inputmode="numeric"></label>
+<label>Cleanout labor (total person-hours)<input id="cleanoutPersonHours" type="number" min="0" step="0.5" value="10" inputmode="decimal"></label>
+<label>Labor rate ($/hour)<input id="laborRatePerHour" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+<label>Crew size (people working at once)<input id="crewSize" type="number" min="1" step="1" value="2" inputmode="numeric"></label>
+<label>Facility's removal window (hours)<input id="cleanoutWindowHours" type="number" min="1" step="1" value="48" inputmode="numeric"></label>
+<label>Cleanout deposit at risk ($)<input id="cleanoutDepositAmount" type="number" min="0" step="10" value="100" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Liquidation</legend><div class="fields">
+<label>Holding cost while reselling ($/month)<input id="holdingCostPerMonth" type="number" min="0" step="5" value="60" inputmode="numeric"></label>
+<label>Months to liquidate<input id="monthsToLiquidate" type="number" min="0" step="0.5" value="2" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Your bar</legend><div class="fields">
+<label>Target gross margin (%)<input id="targetMarginPercent" type="number" min="0" max="100" step="1" value="40" inputmode="numeric"></label>
+<label>Rule-of-thumb bid ceiling (% of value)<input id="naiveRuleBidPercent" type="number" min="0" max="100" step="1" value="20" inputmode="numeric"></label>
+</div></fieldset>
+<p style="margin:6px 0 4px"><button type="button" id="copyLink">Copy shareable link</button></p>
+<p id="shareStatus" class="note" role="status"></p>
+</section>
+
+<section class="result" aria-live="polite"><h2>What to bid</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="maxBidHero" class="big">$0.00</div><p id="maxBidLine" class="note"></p>
+<dl>
+<dt>Break-even bid (0% margin)</dt><dd id="breakEvenOut"></dd>
+<dt>Rule-of-thumb bid (naive)</dt><dd id="naiveRuleOut"></dd>
+<dt>Net resale revenue expected</dt><dd id="netResaleOut"></dd>
+<dt>Cleanout &amp; holding cost (cash)</dt><dd id="nonBidCostOut"></dd>
+<dt>Your planned bid</dt><dd id="plannedBidOut"></dd>
+<dt>Buyer's premium on that bid</dt><dd id="plannedPremiumOut"></dd>
+<dt>Total out-of-pocket at that bid</dt><dd id="plannedOutlayOut"></dd>
+<dt>Profit at that bid</dt><dd id="plannedProfitOut"></dd>
+<dt>Margin at that bid</dt><dd id="plannedMarginOut"></dd>
+<dt>Cleanout wall-clock time needed</dt><dd id="elapsedHoursOut"></dd>
+</dl>
+<p id="lossWarning" class="warn" hidden></p>
+<p id="overbidWarning" class="warn" hidden></p>
+<p id="depositWarning" class="warn" hidden></p>
+<p id="noProfitWarning" class="warn" hidden></p>
+<p id="naiveRuleWarning" class="warn" hidden></p>
+<p id="healthyVerdict" class="good" hidden></p>
+<p class="note">A planning figure from the numbers you typed, not an appraisal or a guarantee of resale. It does not add sales tax, income tax, or your own time spent researching and listing beyond the hourly labor rate you entered.</p>
+</section>
+<section class="card"><p>Bought jewelry or scrap in the unit? The <a href="../scrap-gold-buy-price-calculator/">scrap gold buy price calculator</a> works out what a lot of gold is worth after the refiner's cut and fees.</p></section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your value estimate, bid, and cost numbers are never uploaded, there is no account, and nothing is saved when you close the tab. <em>Copy shareable link</em> is the one way these figures leave this device, and only because you choose to send them: they ride in the page's URL fragment, which a browser never puts in a request line or a Referer header. We count only anonymous local feature events (<code>bid-calculated</code>, <code>overbid-warning-shown</code>, <code>link_copied</code>) so we can tell whether the calculator gets used — no values, bids, or unit details are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Is the winning bid what I actually pay?</h3><p>No. Lien-auction platforms and most in-person auctioneers charge a buyer's premium on top of your hammer bid, commonly 10-15%. If you bid $400 with a 12% premium, your actual purchase price is $448, not $400. This calculator applies the premium to every figure it reports, so the ceiling it gives you is a hammer bid, and the total-outlay figure next to your planned bid already includes the premium.</p>
+<h3>Why isn't the max bid just a percentage of what the contents are worth?</h3><p>Because a flat percentage skips two real cuts and ignores a real cost stack. What the contents would fetch new or with time to negotiate is not what a stranger's used goods net on a resale deadline — that is the recovery rate. What they do net is then cut again by resale channel and payment fees. And the cash cost of dump runs, a truck, cleanout labor and holding inventory while you sell it does not scale with the unit's value at all, so a percentage rule has no room for it — which is exactly backwards on a small or hard-to-sell unit, the outcome you cannot rule out sight-unseen.</p>
+<h3>What is the difference between the break-even bid and the max bid at my target margin?</h3><p>The break-even bid is the hammer price at which this deal nets exactly $0 profit — the absolute ceiling past which every extra dollar is a loss. The max bid at your target margin is lower: it is the bid that leaves your required profit margin on the table, not just avoids a loss. Bidding between the two can still be a real deal, just a thinner one than your target; bidding past the break-even bid is a loss no matter how the resale goes.</p>
+<h3>What happens if I don't clean out the unit in time?</h3><p>Facilities set a removal window — commonly 24 to 72 hours — and most require a refundable cleanout deposit that you forfeit if you miss it or leave the unit in bad condition, sometimes alongside being barred from future auctions there. This calculator divides your total cleanout labor hours by your crew size to get the wall-clock hours the job actually takes, and flags it when that exceeds the facility's window, so the deposit risk is a number you see before you bid, not a surprise the next morning.</p>
+<h3>Does anything about my bid or my numbers get uploaded?</h3><p>No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Usage counting only tallies anonymous feature events, and you can turn it off with the button below.</p>
+</section>
+
+<footer><p>Bidding on real estate at a county sale instead? See the <a href="../tax-deed-auction-max-bid-planner/">tax deed auction max bid planner</a>.</p><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, or legal advice, and it does not replace your own judgment or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation — tax, disposal, or otherwise — it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It cannot see inside the unit, does not know your local lien-sale laws or a given facility's terms, does not estimate item-by-item resale value, and does not place a bid for you. Verify a facility's own auction terms, removal window, and deposit policy directly before you bid — they vary by state and by operator, and this tool does not track either.</p>
+<p>Reselling the contents through a livestream auction instead of a fixed listing? The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices commission on the hammer plus processing on the full checkout total for whatever comes out of the unit — nothing uploaded there either.</p>
+<p>Bidding on a whole pallet or truckload with a line-by-line manifest instead of a storage unit? The <a href="../liquidation-pallet-bid-calculator/">liquidation pallet bid calculator</a> simulates recovery by condition class and returns the max bid for a chance of loss you accept, plus the recovery rate you need to break even and how concentrated the manifest is — nothing uploaded there either.</p>
+<p>Buying a repairable car at auction to fix and resell? The <a href="../auction-car-flip-calculator/">auction car flip calculator</a> solves the max bid with tiered buyer fees, then stress-tests it against repair overruns and a lower resale price — nothing uploaded there either.</p>
+<p>Buying county tax lien certificates instead of the contents of a unit? The <a href="../tax-lien-certificate-yield-calculator/">tax lien certificate yield calculator</a> works out interest by redemption month, fees, premium and the parcel value you need if nobody redeems — nothing uploaded there either.</p>
+<p>Bidding on farm or heavy equipment to run it, not resell it? The <a href="../equipment-auction-buyer-premium-calculator/">equipment auction buyer's premium calculator</a> prices the same buyer's-premium-on-top-of-the-hammer-price shape, plus the online-bidding premium, card surcharge, and sales tax an equipment sale usually adds on top.</p>
+<p class="seo-link">Compare: <a href="./vs-storagetreasures.html">this calculator vs. StorageTreasures</a> or <a href="./vs-bidding-a-flat-percentage.html">this calculator vs. bidding a flat percentage of value</a>. Guide: <a href="./how-long-do-you-have-to-clean-out-a-storage-unit.html">how long do you have to clean out a storage unit you won?</a></p>
+<p>MIT licensed. If it helped you size a bid, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateMaxBid } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, hasSharedInputs, formValues, FIELD_IDS } from './share.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (v) => `$${v.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const percent = (n) => n === null ? 'n/a' : `${n.toFixed(1)}%`;
+const OUT_IDS = ['maxBidLine', 'breakEvenOut', 'naiveRuleOut', 'netResaleOut', 'nonBidCostOut',
+  'plannedBidOut', 'plannedPremiumOut', 'plannedOutlayOut', 'plannedProfitOut', 'plannedMarginOut',
+  'elapsedHoursOut'];
+let counted = false;
+let overbidCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function update(count = false) {
+  try {
+    const r = calculateMaxBid(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('maxBidHero').hidden = false;
+    el('maxBidHero').textContent = money(r.maxBidAtTargetMargin);
+    el('maxBidLine').textContent = `hammer bid that leaves your ${el('targetMarginPercent').value}% target margin`;
+    el('breakEvenOut').textContent = money(r.breakEvenBid);
+    el('naiveRuleOut').textContent = money(r.naiveRuleBid);
+    el('netResaleOut').textContent = money(r.netResaleRevenue);
+    el('nonBidCostOut').textContent = money(r.nonBidCashCost);
+    el('plannedBidOut').textContent = money(Number(el('plannedBid').value) || 0);
+    el('plannedPremiumOut').textContent = money(r.plannedPremiumCost);
+    el('plannedOutlayOut').textContent = money(r.plannedTotalOutlay);
+    el('plannedProfitOut').textContent = money(r.plannedProfit);
+    el('plannedMarginOut').textContent = percent(r.plannedMarginPercent);
+    el('elapsedHoursOut').textContent = `${r.elapsedCleanoutHours.toFixed(1)}h (window: ${el('cleanoutWindowHours').value}h)`;
+
+    // Five separate findings, shown together: a unit can have no profitable
+    // bid at all, a naive rule that overshoots break-even, a planned bid
+    // that is merely thin, one that guarantees a loss, and a cleanout that
+    // does not fit the facility's own window -- none of these imply another.
+    if (r.noProfitablePrice) {
+      el('noProfitWarning').hidden = false;
+      el('noProfitWarning').textContent = `No bid on this unit is profitable at these numbers — the cleanout and holding cost alone (${money(r.nonBidCashCost)}) exceed the net resale revenue you'd realistically expect (${money(r.netResaleRevenue)}). Walk away, or revisit the recovery rate and cost estimates.`;
+    } else {
+      el('noProfitWarning').hidden = true;
+    }
+    if (r.naiveRuleExceedsBreakEven) {
+      el('naiveRuleWarning').hidden = false;
+      el('naiveRuleWarning').textContent = `The ${el('naiveRuleBidPercent').value}%-of-value rule of thumb says bid up to ${money(r.naiveRuleBid)} — that is past this unit's own break-even bid of ${money(r.breakEvenBid)}, a guaranteed loss before cleanout even starts.`;
+    } else {
+      el('naiveRuleWarning').hidden = true;
+    }
+    if (r.plannedExceedsBreakEven) {
+      el('lossWarning').hidden = false;
+      el('lossWarning').textContent = `Your planned bid of ${money(Number(el('plannedBid').value) || 0)} is above this unit's break-even bid of ${money(r.breakEvenBid)} — at this bid the deal loses ${money(Math.abs(r.plannedProfit))} no matter how the resale goes.`;
+    } else {
+      el('lossWarning').hidden = true;
+      if (r.plannedExceedsTarget) {
+        el('overbidWarning').hidden = false;
+        el('overbidWarning').textContent = `Your planned bid clears break-even but misses your ${el('targetMarginPercent').value}% target margin — the max bid that hits it is ${money(r.maxBidAtTargetMargin)}.`;
+      } else {
+        el('overbidWarning').hidden = true;
+      }
+    }
+    if (r.depositAtRisk) {
+      el('depositWarning').hidden = false;
+      el('depositWarning').textContent = `The cleanout needs ${r.elapsedCleanoutHours.toFixed(1)} wall-clock hours with this crew, past the facility's ${el('cleanoutWindowHours').value}-hour window — the ${money(r.cleanoutDepositAmount)} deposit is at real risk unless you add crew or hours before you bid.`;
+    } else {
+      el('depositWarning').hidden = true;
+    }
+    const healthy = !r.plannedExceedsTarget && !r.depositAtRisk && !r.noProfitablePrice;
+    el('healthyVerdict').hidden = !healthy;
+    if (healthy) {
+      el('healthyVerdict').textContent = `This planned bid clears your ${el('targetMarginPercent').value}% target margin and the facility's cleanout window on the numbers you entered.`;
+    }
+
+    if (count && !counted) { recordEvent('bid-calculated'); counted = true; }
+    if (count && (r.plannedExceedsTarget || r.naiveRuleExceedsBreakEven) && !overbidCounted) { recordEvent('overbid-warning-shown'); overbidCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('maxBidHero').hidden = true;
+    for (const id of ['lossWarning', 'overbidWarning', 'depositWarning', 'noProfitWarning', 'naiveRuleWarning', 'healthyVerdict']) el(id).hidden = true;
+    for (const id of OUT_IDS) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => update(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// Seventeen figures is more than anyone reads down a phone, so the whole
+// worksheet goes in the link. It rides in the fragment, which a browser puts
+// in neither a request line nor a Referer header.
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(fieldInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('shareStatus').textContent = 'Link copied. It carries this worksheet, not a usage count.';
+  } catch {
+    el('shareStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A link replaces every field, including the ones it did not carry: see
+// share.mjs for why a plain `Object.entries` of the decoded link is not the
+// supported way in.
+const fromLink = decodeInputs(location.hash || location.search);
+if (hasSharedInputs(fromLink)) {
+  for (const [id, value] of Object.entries(formValues(fromLink))) el(id).value = value;
+  el('shareStatus').textContent = 'Opened a shared worksheet. Check the numbers against this unit before you bid.';
+}
+
+update(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../etsy-ads-roi-analyzer/" data-pf-to="etsy-ads-roi-analyzer">Etsy Ads ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../etsy-listing-csv-check/" data-pf-to="etsy-listing-csv-check">Etsy Listing CSV Check — free, private, in your browser</a></li>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=storage-auction-max-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/?pfEmbed=1&quot; title=&quot;Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="storage-auction-max-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/" data-pf-embed-title="Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports" data-pf-embed-slug="storage-auction-max-bid-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="storage-auction-max-bid-calculator" data-pf-jobs-amount=""></script>
+</body></html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Seasonal Buy Quantity Optimizer — how many units should you order?</title>
+  <meta name="description" content="Free newsvendor calculator for sellers of seasonal, holiday and one-time products. Enter past seasons or a low, likely and high guess, your price…">
+  <meta property="og:title" content="Seasonal Buy Quantity Optimizer — free, private, in your browser">
+  <meta property="og:description" content="How many units to order for a one-shot buy: expected-profit optimum, cautious order, price breaks and minimums handled, back-tested on your own seasons.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Seasonal Buy Quantity Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out how many units to order for a seasonal, holiday or one-time product. Enter past seasons (sold-out seasons handled) or a low, likely and high guess, your price, cost, supplier price breaks and leftover value, and get the order that maximises expected profit, a cautious order, the chance of selling out or losing money, and a back-test on your own history. Runs in your browser.", "featureList": "newsvendor calculator, how many units to order, seasonal inventory buy quantity, supplier price break analysis, minimum order quantity, demand uncertainty, sold-out censored demand, leave-one-out back-test, downside risk, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many units should I order for a seasonal or one-time product?", "acceptedAnswer": {"@type": "Answer", "text": "Order the quantity that maximises expected profit, not the one you expect to sell. The gain from one more unit (price minus cost) is usually different from the loss on a leftover unit (cost minus what leftovers fetch), and demand is uncertain. The best order is the point where the chance of selling out equals the ratio of those two costs, known as the newsvendor rule. This tool applies it to your own numbers and your own sales history."}}, {"@type": "Question", "name": "What is the newsvendor model?", "acceptedAnswer": {"@type": "Answer", "text": "It is the classic inventory model for goods you buy once for a selling period and cannot reorder: fashion drops, holiday stock, event merchandise, perishables. With underage cost cu (profit lost per unit short) and overage cost co (loss per leftover unit), the best order is the demand quantile at cu divided by cu plus co. This tool goes beyond the formula by also handling supplier price breaks, minimum orders, fixed order costs and uncertain demand estimated from few seasons."}}, {"@type": "Question", "name": "How does it estimate demand from past seasons?", "acceptedAnswer": {"@type": "Answer", "text": "It fits a lognormal distribution to your past seasons' units sold. A season that sold out is treated as demand of at least that many units, not as the true figure, using an EM fit for censored data. With only a few seasons the spread of demand is itself uncertain, so the forecast is widened by a Bayesian predictive, and tails are truncated at 3.5 standard deviations. Three seasons is the minimum; five or more make the answer sharper."}}, {"@type": "Question", "name": "What if I have no sales history?", "acceptedAnswer": {"@type": "Answer", "text": "Use the low, likely and high mode. Enter your 10th-percentile, median and 90th-percentile guess for units demanded. People's ranges are usually too narrow, so the tool widens the spread by a factor you can change. A pre-order or waitlist is the best way to replace a guess with data, and the result shows an upper bound on what knowing demand in advance is worth."}}, {"@type": "Question", "name": "How do supplier price breaks change the answer?", "acceptedAnswer": {"@type": "Answer", "text": "A cheaper unit cost at a higher quantity can make ordering more worthwhile even if you will probably not sell it all, because the saving applies to every unit. Because this is not a smooth formula, the tool evaluates the expected profit of every order quantity, including the exact quantity of each break, and shows the best order inside each price tier. Minimum order quantities are respected."}}, {"@type": "Question", "name": "What is the cautious order?", "acceptedAnswer": {"@type": "Answer", "text": "The expected-profit order accepts bad outcomes in some seasons. The cautious order instead maximises the average of the worst 10% of outcomes (conditional value at risk), which protects cash at the cost of some expected profit. The page shows the chance of a loss, the 10th percentile profit and the cash you would put in for each."}}, {"@type": "Question", "name": "How accurate is it, and is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "It is a statistical estimate from the seasons you enter and the assumption that demand is lognormal around a stable level; it cannot see trends, stock-outs outside the ones you flag, competitors or one-off events. A leave-one-out back-test compares its orders with two rules of thumb on your own history. Nothing you type is uploaded: the calculation runs in this browser tab."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .tabs label { display: inline-flex; gap: 6px; font-weight: 400; margin-right: 18px; }
+    .tabs input { width: auto; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Seasonal Buy Quantity Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Seasonal Buy Quantity Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Seasonal Buy Quantity Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SEASONAL BUY QUANTITY OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many should you order?</h1>
+    <p>For anything you buy once per season and cannot reorder: holiday stock, a fashion drop, event merch, a print run. Enter your <strong>past seasons</strong> (a sold-out season counts as "at least this much") or a <strong>low / likely / high guess</strong>, plus price, cost, <strong>supplier price breaks</strong> and what leftovers fetch. The tool finds the <strong>order that earns the most on average</strong>, a <strong>cautious order</strong> that protects your cash, the chance of selling out or losing money, and <strong>back-tests itself on your own seasons</strong>.</p>
+    <p class="note">Your numbers never leave this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Demand</h2>
+    <div class="tabs" role="radiogroup" aria-label="How to describe demand">
+      <label><input type="radio" name="mode" aria-label="I have past seasons" id="mode-history" value="history" checked> I have past seasons</label>
+      <label><input type="radio" name="mode" aria-label="I only have a guess" id="mode-range" value="range"> I only have a guess</label>
+    </div>
+    <div id="history-box">
+      <label for="seasons">Units sold per past season, one per line</label>
+      <textarea id="seasons" spellcheck="false" placeholder="Spring 2024, 610, sold out&#10;Holiday 2024, 380&#10;Spring 2025, 560"></textarea>
+      <p class="note">Optional label first. Add <code>*</code> or "sold out" when you ran out, since real demand was higher. Use comparable seasons (same product type and selling window). Three or more; five or more is much better.</p>
+    </div>
+    <div id="range-box" hidden>
+      <div class="row4">
+        <div><label for="low">Low (1 in 10 chance it is lower)</label><input id="low" inputmode="numeric" placeholder="e.g. 300"></div>
+        <div><label for="likely">Likely (the median)</label><input id="likely" inputmode="numeric" placeholder="e.g. 500"></div>
+        <div><label for="high">High (1 in 10 chance it is higher)</label><input id="high" inputmode="numeric" placeholder="e.g. 800"></div>
+        <div><label for="widen">Widen my range by</label><input id="widen" inputmode="decimal" value="1.3" placeholder="1.3"></div>
+      </div>
+      <p class="note">Guessed ranges are usually too narrow, so the spread is widened by the factor shown (1 = trust your range exactly).</p>
+    </div>
+    <div class="row4">
+      <div><label for="growth">Expected change vs those seasons (%)</label><input id="growth" inputmode="decimal" value="0" placeholder="e.g. 10 for +10%"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Money</h2>
+    <div class="row4">
+      <div><label for="price">Selling price per unit</label><input id="price" inputmode="decimal" placeholder="e.g. 14"></div>
+      <div><label for="salvage">Leftover value per unit</label><input id="salvage" inputmode="decimal" value="0" placeholder="clearance or resale price"></div>
+      <div><label for="holding">Cost to keep or dispose of a leftover</label><input id="holding" inputmode="decimal" value="0" placeholder="storage, disposal"></div>
+      <div><label for="goodwill">Cost of each lost sale (optional)</label><input id="goodwill" inputmode="decimal" value="0" placeholder="goodwill, refund handling"></div>
+      <div><label for="fixed">Fixed cost of placing the order</label><input id="fixed" inputmode="decimal" value="0" placeholder="setup, freight, plates"></div>
+    </div>
+    <label for="breaks">Unit cost, or supplier price breaks (quantity:cost per line)</label>
+    <textarea id="breaks" spellcheck="false" style="min-height:96px" placeholder="100:6.80&#10;300:5.90&#10;600:5.25"></textarea>
+    <p class="note">The whole order is priced at the tier it reaches. The first line's quantity is treated as the minimum order. A single number is a flat unit cost.</p>
+    <button type="button" id="analyze">Find the best order</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter demand and money, then click Find the best order.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Expected profit by order quantity</h3>
+    <div class="legend note"><span>Line: expected profit</span><span>Band: 10th to 90th percentile of outcomes</span><span>Dashed: price breaks</span></div>
+    <div id="chart"></div>
+    <h3>The two orders compared</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cmp"><thead><tr><th></th><th class="n">Quantity</th><th class="n">Expected profit</th><th class="n">Chance of sell-out</th><th class="n">Expected leftover</th><th class="n">Chance of a loss</th><th class="n">Bad-season profit (10th pct)</th><th class="n">Cash in</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Best order inside each price tier</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="tiers"><thead><tr><th class="n">From</th><th class="n">Unit cost</th><th class="n">Best quantity</th><th class="n">Expected profit</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>If demand turns out different</h3>
+    <p class="note">Expected profit of your recommended quantity if true demand is scaled, against the best quantity for that demand.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="sens"><thead><tr><th>Demand</th><th class="n">Profit with your order</th><th class="n">Best order then</th><th class="n">Profit with that</th><th class="n">Regret</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Back-test on your own seasons</h3>
+    <div id="bt-note" class="note"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="bt" hidden><thead><tr><th>Season</th><th class="n">Actual</th><th class="n">Tool ordered</th><th class="n">Profit</th><th class="n">Average rule</th><th class="n">Profit</th><th class="n">Best-ever rule</th><th class="n">Profit</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download profit curve CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Demand:</strong> ln(demand) is treated as normal. From past seasons the mean and spread are fitted by EM so that a sold-out season counts as "demand was at least this". With few seasons the spread is uncertain, so demand is drawn from the Bayesian predictive (scaled inverse chi-squared spread, normal mean), truncated at 3.5 standard deviations. From a low / likely / high guess the median and spread come from your 10th and 90th percentiles, widened by your factor. 4,000 stratified, seeded draws are used, so a result is reproducible. <strong>Profit</strong> for an order q and demand D: price × min(q, D) + (leftover value − holding cost) × leftover − lost-sale cost × shortfall − unit cost at the tier reached × q − fixed cost. Every candidate quantity, including each price-break quantity and the one just below it, is scored on the same draws. The <strong>best order</strong> maximises the average; the <strong>cautious order</strong> maximises the average of the worst 10% of outcomes. The textbook newsvendor quantile is shown as a reference. <strong>Value of knowing demand</strong> is an upper bound from ordering exactly the demand each time. <strong>Back-test:</strong> for each season that did not sell out, demand is fitted from the other seasons, the tool's order is placed, and its profit on the actual demand is compared with ordering the average, and the best, of those other seasons.</p>
+    <p><strong>Not modelled:</strong> trends between seasons, competitors, demand that depends on price or ad spend, partial reorders, staggered deliveries, and discounting during the season. Sold-out seasons not flagged are treated as true demand, which biases the answer down. <strong>Unverified:</strong> checked against the closed-form newsvendor answer and simulated data in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many units should I order for a seasonal or one-time product?</h3>
+    <p>Order the quantity that maximises expected profit, not the one you expect to sell. The gain from one more unit (price minus cost) is usually different from the loss on a leftover unit (cost minus what leftovers fetch), and demand is uncertain. The best order is the point where the chance of selling out equals the ratio of those two costs, known as the newsvendor rule. This tool applies it to your own numbers and your own sales history.</p>
+    <h3>What is the newsvendor model?</h3>
+    <p>It is the classic inventory model for goods you buy once for a selling period and cannot reorder: fashion drops, holiday stock, event merchandise, perishables. With underage cost cu (profit lost per unit short) and overage cost co (loss per leftover unit), the best order is the demand quantile at cu divided by cu plus co. This tool goes beyond the formula by also handling supplier price breaks, minimum orders, fixed order costs and uncertain demand estimated from few seasons.</p>
+    <h3>How does it estimate demand from past seasons?</h3>
+    <p>It fits a lognormal distribution to your past seasons' units sold. A season that sold out is treated as demand of at least that many units, not as the true figure, using an EM fit for censored data. With only a few seasons the spread of demand is itself uncertain, so the forecast is widened by a Bayesian predictive, and tails are truncated at 3.5 standard deviations. Three seasons is the minimum; five or more make the answer sharper.</p>
+    <h3>What if I have no sales history?</h3>
+    <p>Use the low, likely and high mode. Enter your 10th-percentile, median and 90th-percentile guess for units demanded. People's ranges are usually too narrow, so the tool widens the spread by a factor you can change. A pre-order or waitlist is the best way to replace a guess with data, and the result shows an upper bound on what knowing demand in advance is worth.</p>
+    <h3>How do supplier price breaks change the answer?</h3>
+    <p>A cheaper unit cost at a higher quantity can make ordering more worthwhile even if you will probably not sell it all, because the saving applies to every unit. Because this is not a smooth formula, the tool evaluates the expected profit of every order quantity, including the exact quantity of each break, and shows the best order inside each price tier. Minimum order quantities are respected.</p>
+    <h3>What is the cautious order?</h3>
+    <p>The expected-profit order accepts bad outcomes in some seasons. The cautious order instead maximises the average of the worst 10% of outcomes (conditional value at risk), which protects cash at the cost of some expected profit. The page shows the chance of a loss, the 10th percentile profit and the cash you would put in for each.</p>
+    <h3>How accurate is it, and is my data uploaded?</h3>
+    <p>It is a statistical estimate from the seasons you enter and the assumption that demand is lognormal around a stable level; it cannot see trends, stock-outs outside the ones you flag, competitors or one-off events. A leave-one-out back-test compares its orders with two rules of thumb on your own history. Nothing you type is uploaded: the calculation runs in this browser tab.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the numbers you supply; they do not guarantee what you will sell. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any accounting, point-of-sale, inventory or e-commerce vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>optimize_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>, the <a href="../clearance-markdown-planner/">clearance markdown planner</a> and the <a href="../shopify-inventory-reorder-planner/">reorder planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSeasons, parseBreaks, analyze, reportCsv, sampleText, sampleBreaks, num, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id, dflt) => { const t = $(id).value.trim(); return t === "" ? dflt : Number(t); };
+    let last = null;
+
+    function setMode(m) { $("#history-box").hidden = m !== "history"; $("#range-box").hidden = m !== "range"; }
+    document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => setMode(r.value)));
+    const mode = () => document.querySelector('input[name="mode"]:checked').value;
+
+    function chart(r) {
+      const W = 900, H = 300, L = 62, R = 12, T = 12, B = 30;
+      const qs = r.curve.map((c) => c.q), q0 = qs[0], q1 = qs[qs.length - 1];
+      const lo = Math.min(...r.curve.map((c) => c.p10)), hi = Math.max(...r.curve.map((c) => c.p90));
+      const x = (v) => L + ((v - q0) / (q1 - q0 || 1)) * (W - L - R);
+      const y = (v) => T + (H - T - B) * (1 - (v - lo) / (hi - lo || 1));
+      const pts = (k) => r.curve.map((c) => `${x(c.q).toFixed(1)},${y(c[k]).toFixed(1)}`);
+      const band = pts("p90").join(" ") + " " + pts("p10").reverse().join(" ");
+      const ty = [0, 0.5, 1].map((t) => lo + t * (hi - lo));
+      const tx = [0, 0.25, 0.5, 0.75, 1].map((t) => Math.round(q0 + t * (q1 - q0)));
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Expected profit and its 10th to 90th percentile range against order quantity">` +
+        ty.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${esc(money(t))}</text>`).join("") +
+        tx.map((t) => `<text x="${x(t).toFixed(1)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(num(t))}</text>`).join("") +
+        `<polygon points="${band}" fill="#1f5f86" fill-opacity=".12"/>` +
+        r.inputs.tiers.slice(1).filter((t) => t.min > q0 && t.min < q1).map((t) => `<line x1="${x(t.min).toFixed(1)}" x2="${x(t.min).toFixed(1)}" y1="${T}" y2="${H - B}" stroke="#7c5e10" stroke-dasharray="4 4"/>`).join("") +
+        `<polyline fill="none" stroke="#1f5f86" stroke-width="2.5" points="${pts("expProfit").join(" ")}"/>` +
+        `<circle cx="${x(r.best.q).toFixed(1)}" cy="${y(r.best.expProfit).toFixed(1)}" r="6" fill="#1d5a24"/>` +
+        `<circle cx="${x(r.cautious.q).toFixed(1)}" cy="${y(r.cautious.expProfit).toFixed(1)}" r="6" fill="#b5533c"/></svg>`;
+    }
+
+    const cmpRow = (name, c) => `<tr><td>${name}</td><td class="n">${num(c.q)}</td><td class="n">${money(c.expProfit)}</td><td class="n">${pct(c.pSellOut, 0)}</td><td class="n">${num(c.expLeftover)}</td><td class="n">${pct(c.pLoss, 0)}</td><td class="n">${money(c.p10)}</td><td class="n">${money(c.outlay)}</td></tr>`;
+
+    function run() {
+      const tiers = parseBreaks($("#breaks").value);
+      if (tiers.error) { status.textContent = tiers.error; report.hidden = true; return false; }
+      const o = { mode: mode(), tiers: tiers.tiers, price: val("#price", NaN), salvage: val("#salvage", 0), holding: val("#holding", 0), goodwill: val("#goodwill", 0), fixed: val("#fixed", 0), growth: 1 + val("#growth", 0) / 100 };
+      const warnings = [];
+      if (o.mode === "history") {
+        const p = parseSeasons($("#seasons").value);
+        if (p.error) { status.textContent = p.error; report.hidden = true; return false; }
+        o.seasons = p.seasons; warnings.push(...p.warnings);
+      } else {
+        o.range = { low: val("#low", NaN), likely: val("#likely", NaN), high: val("#high", NaN) }; o.widen = val("#widen", 1.3);
+      }
+      const r = analyze(o);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const b = r.best;
+      $("#big").innerHTML = [
+        [num(b.q), `Best order (expected profit ${money(b.expProfit)})`],
+        [num(r.cautious.q), `Cautious order (bad-season profit ${money(r.cautious.p10)})`],
+        [`${num(r.p10)} – ${num(r.p90)}`, `Likely demand: 80% range, median ${num(r.median)}`],
+        [pct(b.pSellOut, 0), `Chance the best order sells out`],
+        [pct(b.pLoss, 0), `Chance the best order loses money`],
+        [money(r.evpi), `Most that knowing demand first (a pre-order list) could add`],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#chart").innerHTML = chart(r);
+      $("#cmp tbody").innerHTML = cmpRow("Best expected profit", b) + cmpRow("Cautious", r.cautious);
+      $("#tiers tbody").innerHTML = r.tierTable.map((t) => `<tr><td class="n">${num(t.min)}</td><td class="n">${money(t.cost)}</td><td class="n">${t.best ? num(t.best.q) : "–"}</td><td class="n">${t.best ? money(t.best.expProfit) : "–"}</td></tr>`).join("");
+      $("#sens tbody").innerHTML = r.sens.map((s) => `<tr><td>${s.scale === 1 ? "as forecast" : Math.round((s.scale - 1) * 100) + "%"}</td><td class="n">${money(s.planProfit)}</td><td class="n">${num(s.bestQty)}</td><td class="n">${money(s.bestProfit)}</td><td class="n">${money(s.regret)}</td></tr>`).join("");
+      const bt = r.backtest;
+      $("#bt").hidden = !bt;
+      if (bt) {
+        $("#bt tbody").innerHTML = bt.rows.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${num(x.actual)}</td><td class="n">${num(x.tool)}</td><td class="n">${money(x.toolProfit)}</td><td class="n">${num(x.avg)}</td><td class="n">${money(x.avgProfit)}</td><td class="n">${num(x.max)}</td><td class="n">${money(x.maxProfit)}</td></tr>`).join("");
+        $("#bt-note").textContent = `Total profit over ${bt.rows.length} seasons: tool ${money(bt.tool)}, order-the-average ${money(bt.avg)}, order-the-best-ever ${money(bt.max)}. ${bt.tool >= Math.max(bt.avg, bt.max) ? "The tool beat both rules of thumb on your history." : "A rule of thumb beat the tool on your history: demand may be trending, so weigh recent seasons or adjust the expected change."}`;
+      } else {
+        $("#bt-note").textContent = o.mode === "range" ? "No back-test without past seasons." : "Needs at least four seasons (three of them not sold out) to back-test.";
+      }
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("optimize_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#mode-history").checked = true; setMode("history");
+      $("#seasons").value = sampleText(); $("#breaks").value = sampleBreaks();
+      $("#price").value = "14"; $("#salvage").value = "3"; $("#holding").value = "0.2"; $("#goodwill").value = "0"; $("#fixed").value = "40"; $("#growth").value = "0";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: seven invented seasons for one product, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { ["#seasons", "#breaks", "#price", "#low", "#likely", "#high"].forEach((s) => { $(s).value = ""; }); report.hidden = true; last = null; status.textContent = "Enter demand and money, then click Find the best order."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "order-quantity-curve.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../hard-money-loan-cost-calculator/" data-pf-to="hard-money-loan-cost-calculator">Hard money loan cost calculator for fix-and-flip</a></li>
+      <li><a href="../heat-pump-vs-furnace-calculator/" data-pf-to="heat-pump-vs-furnace-calculator">Heat Pump vs Furnace Calculator — free, private, in your browser</a></li>
+      <li><a href="../home-office-deduction-calculator/" data-pf-to="home-office-deduction-calculator">Home Office Deduction Calculator — simplified vs regular, free</a></li>
+      <li><a href="../home-sale-exclusion-calculator/" data-pf-to="home-sale-exclusion-calculator">Home Sale Exclusion Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=seasonal-buy-quantity-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/?pfEmbed=1&quot; title=&quot;Seasonal Buy Quantity Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="seasonal-buy-quantity-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/" data-pf-embed-title="Seasonal Buy Quantity Optimizer — free, private, in your browser" data-pf-embed-slug="seasonal-buy-quantity-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="seasonal-buy-quantity-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="seasonal-buy-quantity-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

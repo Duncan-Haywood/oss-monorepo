@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mid-Term Rental Calculator</title>
+  <meta name="description" content="Free mid-term rental calculator: compare a furnished 30-day-plus rental with a long-term lease and with Airbnb-style nightly renting.">
+  <meta property="og:title" content="Mid-term rental vs long-term lease vs Airbnb — free calculator">
+  <meta property="og:description" content="Enter your rent, furnishing cost, utilities and empty days. See which way of renting the unit nets the most, and what would change the answer.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mid-Term Rental Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a mid-term rental more profitable than a long-term lease?","acceptedAnswer":{"@type":"Answer","text":"Often, but not automatically. A furnished 30-day-plus stay usually rents for well above an unfurnished lease, and the owner then pays utilities, supplies, cleaning between stays and furniture wear, and carries empty days between stays. This page puts all of that on one line and shows the monthly rate and the empty-day limit at which the lease would come out level."}},{"@type":"Question","name":"How many empty days can a mid-term rental afford?","acceptedAnswer":{"@type":"Answer","text":"It depends on the rate premium. Enter your numbers and the page reports the longest gap between stays at which the mid-term rental still nets as much as the lease. A premium that looks large at full occupancy can disappear after a couple of weeks of vacancy per stay."}},{"@type":"Question","name":"Does furnishing the unit pay back?","acceptedAnswer":{"@type":"Answer","text":"The page divides the furnishing outlay by the extra monthly income over the lease, before counting furniture wear, and tells you how many months that takes against how long the furniture lasts."}},{"@type":"Question","name":"How does a mid-term rental compare with Airbnb-style nightly renting?","acceptedAnswer":{"@type":"Answer","text":"Nightly renting books more income per occupied night and also brings far more cleanings, more vacancy swings and more guest handling. The page finds the occupancy and nightly rate at which nightly renting only matches the mid-term rental, so you can judge whether your market clears it."}},{"@type":"Question","name":"Who rents mid-term furnished housing?","acceptedAnswer":{"@type":"Answer","text":"Travel nurses and other contract workers, people relocating, people between homes after a move or an insurance claim, and visiting professionals. Many of them have a fixed monthly housing budget; enter it and the page shows whether your rate fits."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f6f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5a3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #153d28; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #153d28; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46584d; }
+    .card { background: #fff; border: 1px solid #d3ddd6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #153d2810; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .92rem; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfb4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ece4; color: #153d28; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3ebe6; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46584d; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf6ee; font-weight: 700; }
+    .finding { border-bottom: 1px solid #e3ebe6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding p { margin: 4px 0 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3ebe6; color: #153d28; }
+    .stats { font-size: 1rem; color: #26372d; }
+    footer { margin-top: 28px; border-top: 1px solid #d3ddd6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Mid-term rental vs long-term lease vs Airbnb — free calculator","item":"https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mid-term rental vs long-term lease vs Airbnb — free calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mid-term rental vs long-term lease vs Airbnb — free calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">MID-TERM RENTAL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Furnish it for 30-day-plus stays, rent it nightly, or lease it out? See what each nets.</h1>
+    <p>One property, three ways to rent it. The page puts the <strong>furnished monthly rate</strong>, <strong>empty days between stays</strong>, utilities, cleaning, furniture wear and platform fees against a plain long-term lease and against nightly renting, then tells you the <strong>rate, vacancy limit and furnishing payback</strong> that decide it.</p>
+    <p class="note">The defaults are a made-up two-bedroom so you can see how it works; replace every number with your own. Nothing is sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your numbers</h2>
+    <h3>Your costs either way</h3>
+    <div class="grid">
+      <div><label for="fixedMonthly">Mortgage, property tax, insurance, HOA ($/mo)</label><input id="fixedMonthly" data-k="fixedMonthly" inputmode="decimal" value="1500"></div>
+      <div><label for="furnishingCost">Furnishing outlay, one time ($)</label><input id="furnishingCost" data-k="furnishingCost" inputmode="decimal" value="12000"></div>
+      <div><label for="furnishingYears">Years the furniture lasts</label><input id="furnishingYears" data-k="furnishingYears" inputmode="decimal" value="7"></div>
+    </div>
+    <h3>Long-term lease (unfurnished)</h3>
+    <div class="grid">
+      <div><label for="ltrRent">Monthly rent ($)</label><input id="ltrRent" data-k="ltrRent" inputmode="decimal" value="1800"></div>
+      <div><label for="ltrVacancyPct">Vacancy (% of the year)</label><input id="ltrVacancyPct" data-k="ltrVacancyPct" inputmode="decimal" value="5"></div>
+      <div><label for="ltrMgmtPct">Management (% of rent)</label><input id="ltrMgmtPct" data-k="ltrMgmtPct" inputmode="decimal" value="0"></div>
+      <div><label for="ltrMaintMonthly">Maintenance reserve ($/mo)</label><input id="ltrMaintMonthly" data-k="ltrMaintMonthly" inputmode="decimal" value="90"></div>
+    </div>
+    <h3>Mid-term rental (furnished, 30+ days)</h3>
+    <div class="grid">
+      <div><label for="mtrRate">Monthly rate for a furnished stay ($)</label><input id="mtrRate" data-k="mtrRate" inputmode="decimal" value="3200"></div>
+      <div><label for="mtrStayMonths">Typical stay (months)</label><input id="mtrStayMonths" data-k="mtrStayMonths" inputmode="decimal" value="3"></div>
+      <div><label for="mtrGapDays">Empty days between stays</label><input id="mtrGapDays" data-k="mtrGapDays" inputmode="decimal" value="10"></div>
+      <div><label for="mtrUtilities">Utilities and internet you pay ($/mo)</label><input id="mtrUtilities" data-k="mtrUtilities" inputmode="decimal" value="300"></div>
+      <div><label for="mtrSupplies">Supplies ($/mo)</label><input id="mtrSupplies" data-k="mtrSupplies" inputmode="decimal" value="60"></div>
+      <div><label for="mtrTurnCost">Clean and restock between stays ($)</label><input id="mtrTurnCost" data-k="mtrTurnCost" inputmode="decimal" value="180"></div>
+      <div><label for="mtrFeePct">Platform fee (% of rent)</label><input id="mtrFeePct" data-k="mtrFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="mtrFeeFixedMonthly">Flat listing fee ($/mo)</label><input id="mtrFeeFixedMonthly" data-k="mtrFeeFixedMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="mtrMgmtPct">Management (% of rent)</label><input id="mtrMgmtPct" data-k="mtrMgmtPct" inputmode="decimal" value="0"></div>
+      <div><label for="mtrInsuranceExtra">Extra insurance ($/mo)</label><input id="mtrInsuranceExtra" data-k="mtrInsuranceExtra" inputmode="decimal" value="40"></div>
+      <div><label for="mtrMaintMonthly">Maintenance reserve ($/mo)</label><input id="mtrMaintMonthly" data-k="mtrMaintMonthly" inputmode="decimal" value="120"></div>
+      <div><label for="guestStipend">Guest's monthly housing budget ($, optional)</label><input id="guestStipend" data-k="guestStipend" inputmode="decimal" value="0"></div>
+    </div>
+    <h3>Short-term rental (nightly)</h3>
+    <div class="grid">
+      <div><label for="strAdr">Average nightly rate ($)</label><input id="strAdr" data-k="strAdr" inputmode="decimal" value="165"></div>
+      <div><label for="strOccPct">Nights booked (%)</label><input id="strOccPct" data-k="strOccPct" inputmode="decimal" value="62"></div>
+      <div><label for="strStayNights">Average stay (nights)</label><input id="strStayNights" data-k="strStayNights" inputmode="decimal" value="3.2"></div>
+      <div><label for="strCleanFeeCharged">Cleaning fee guests pay ($)</label><input id="strCleanFeeCharged" data-k="strCleanFeeCharged" inputmode="decimal" value="110"></div>
+      <div><label for="strCleanCost">What a clean costs you ($)</label><input id="strCleanCost" data-k="strCleanCost" inputmode="decimal" value="95"></div>
+      <div><label for="strFeePct">Platform fee (% of booking)</label><input id="strFeePct" data-k="strFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="strMgmtPct">Management (% of booking)</label><input id="strMgmtPct" data-k="strMgmtPct" inputmode="decimal" value="0"></div>
+      <div><label for="strUtilities">Utilities and internet ($/mo)</label><input id="strUtilities" data-k="strUtilities" inputmode="decimal" value="370"></div>
+      <div><label for="strSupplies">Supplies and linens ($/mo)</label><input id="strSupplies" data-k="strSupplies" inputmode="decimal" value="180"></div>
+      <div><label for="strInsuranceExtra">Extra insurance ($/mo)</label><input id="strInsuranceExtra" data-k="strInsuranceExtra" inputmode="decimal" value="60"></div>
+      <div><label for="strMaintMonthly">Maintenance reserve ($/mo)</label><input id="strMaintMonthly" data-k="strMaintMonthly" inputmode="decimal" value="150"></div>
+    </div>
+    <p>
+      <button type="button" id="compare">Compare</button>
+      <button type="button" class="secondary" id="load-ok">Reset to the example</button>
+    </p>
+    <p class="note" id="form-status">Change any number; the result updates when you click Compare.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite">
+    <h2>2. Result (per month)</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Way of renting</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Operating</th><th scope="col" class="n">Furniture wear</th><th scope="col" class="n">Net before mortgage</th><th scope="col" class="n">After fixed costs</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <div id="report-findings"></div>
+    <h3>Mid-term net against the lease, by empty days and stay length ($/mo; positive means ahead)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead id="grid-head"></thead><tbody id="grid"></tbody></table></div></div>
+    <h3>Monthly rate needed to match the lease, by empty days</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Empty days between stays</th><th scope="col" class="n">Monthly rate that matches the lease</th></tr></thead><tbody id="ladder"></tbody></table></div></div>
+    <p><button type="button" id="copy">Copy summary</button> <button type="button" class="secondary" id="dl-csv">Download comparison (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Mid-term:</strong> each stay earns the monthly rate; the empty days between stays earn nothing while utilities, insurance and maintenance keep running. A clean and restock is charged per stay, platform fees as a share of rent, and the furniture as its price spread over its life.</li>
+      <li><strong>Short-term:</strong> nights booked times the nightly rate, plus the cleaning fee guests pay, less a clean per stay, fees, utilities, supplies and the same furniture charge.</li>
+      <li><strong>Long-term:</strong> rent less vacancy, management and a maintenance reserve; the tenant pays utilities and furnishes the place.</li>
+      <li><strong>Net before mortgage</strong> compares the three on operating results; <strong>after fixed costs</strong> subtracts your mortgage, tax, insurance and HOA, which are the same whichever way you rent.</li>
+      <li><strong>Not decided:</strong> income tax, lodging and occupancy tax, zoning and short-term-rental permits, HOA or lease rules about short stays, tenant-rights rules that can apply to stays of a month or more, the cost of finding guests, bad debt, and local demand. The inputs are your own estimates; a rate you cannot actually get makes the answer wrong.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a mid-term rental more profitable than a long-term lease?</h3>
+    <p>Often, but not automatically. A furnished 30-day-plus stay usually rents for well above an unfurnished lease, and the owner then pays utilities, supplies, cleaning between stays and furniture wear, and carries empty days between stays. This page puts all of that on one line and shows the monthly rate and the empty-day limit at which the lease would come out level.</p>
+    <h3>How many empty days can a mid-term rental afford?</h3>
+    <p>It depends on the rate premium. Enter your numbers and the page reports the longest gap between stays at which the mid-term rental still nets as much as the lease. A premium that looks large at full occupancy can disappear after a couple of weeks of vacancy per stay.</p>
+    <h3>Does furnishing the unit pay back?</h3>
+    <p>The page divides the furnishing outlay by the extra monthly income over the lease, before counting furniture wear, and tells you how many months that takes against how long the furniture lasts.</p>
+    <h3>How does a mid-term rental compare with Airbnb-style nightly renting?</h3>
+    <p>Nightly renting books more income per occupied night and also brings far more cleanings, more vacancy swings and more guest handling. The page finds the occupancy and nightly rate at which nightly renting only matches the mid-term rental, so you can judge whether your market clears it.</p>
+    <h3>Who rents mid-term furnished housing?</h3>
+    <p>Travel nurses and other contract workers, people relocating, people between homes after a move or an insurance claim, and visiting professionals. Many of them have a fixed monthly housing budget; enter it and the page shows whether your rate fits.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a planning estimate from the numbers you enter, and it is not legal, tax, accounting, compliance, or financial advice. It does not replace your accountant, your insurer, your local rules or your own judgment.</p>
+    <p><strong>Not affiliated with any booking platform.</strong> This tool is independent; it is not sponsored, endorsed or connected to Airbnb, VRBO, Furnished Finder, Zillow, Booking.com or any listing site.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compared</code>, <code>example_loaded</code>, <code>summary_copied</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../str-arbitrage-lease-calculator/">STR arbitrage lease calculator</a> for a tenant who sublets by the night, the <a href="../travel-nurse-contract-comparison-calculator/">travel nurse contract comparison</a> from the guest's side, the <a href="../str-nightly-rate-optimizer/">nightly rate optimizer</a>, the <a href="../str-host-payout-calculator/">host payout calculator</a>, the <a href="../str-occupancy-tax-calculator/">occupancy tax calculator</a> and the <a href="../rental-rent-optimizer/">rent optimizer</a> cover the same property from other angles.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, gapGrid, rateLadder, DEFAULTS, summaryText, comparisonCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const fields = [...document.querySelectorAll("input[data-k]")];
+    let last = null;
+
+    function read() { const o = {}; for (const f of fields) o[f.dataset.k] = f.value; return o; }
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run() {
+      const raw = read();
+      const r = compare(raw);
+      last = r;
+      const names = { ltr: "long-term lease", mtr: "mid-term rental", str: "short-term rental" };
+      const best = r.strategies.find((s) => s.key === r.best);
+      $("#report-stats").innerHTML = `<strong>Best after fixed costs: ${names[r.best]}, ${money(best.cash)} a month.</strong> Mid-term is ${r.advantage >= 0 ? "ahead of" : "behind"} the lease by ${money(Math.abs(r.advantage))} a month${r.payback ? `; furnishing pays back in about ${Math.round(r.payback)} months` : ""}.`;
+      $("#rows").innerHTML = r.strategies.map((s) => `<tr${s.key === r.best ? ' class="best"' : ""}><td>${esc(s.name)}</td><td class="n">${money(s.revenue)}</td><td class="n">${money(s.operating)}</td><td class="n">${money(s.furnishing)}</td><td class="n">${money(s.beforeFixed)}</td><td class="n">${money(s.cash)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.level === "high" ? "high" : f.level === "medium" ? "medium" : "info"}">${f.level === "info" ? "note" : "check"}</span>${esc(f.text)}</div>`).join("");
+      const g = gapGrid(raw);
+      $("#grid-head").innerHTML = `<tr><th scope="col">Stay length</th>${g.gaps.map((d) => `<th scope="col" class="n">${d} empty days</th>`).join("")}</tr>`;
+      $("#grid").innerHTML = g.stays.map((s, k) => `<tr><td>${s} month${s === 1 ? "" : "s"}</td>${g.cells[k].map((c) => `<td class="n">${c >= 0 ? "+" : ""}${money(c)}</td>`).join("")}</tr>`).join("");
+      $("#ladder").innerHTML = rateLadder(raw).map((x) => `<tr><td class="n">${x.gap}</td><td class="n">${money(x.rate)}</td></tr>`).join("");
+      $("#form-status").textContent = "Updated.";
+    }
+
+    $("#compare").addEventListener("click", () => { run(); record("compared"); });
+    $("#load-ok").addEventListener("click", () => { for (const f of fields) f.value = DEFAULTS[f.dataset.k]; run(); record("example_loaded"); $("#form-status").textContent = "Back to the made-up example."; });
+    $("#copy").addEventListener("click", async () => { if (!last) return; record("summary_copied"); try { await navigator.clipboard.writeText(summaryText(last)); $("#form-status").textContent = "Summary copied."; } catch { download("midterm-rental-summary.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("rental-comparison.csv", comparisonCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    run();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wholesale-vs-retail-pricing-calculator/" data-pf-to="wholesale-vs-retail-pricing-calculator">Wholesale vs Retail Pricing Calculator — free, private</a></li>
+      <li><a href="../wix-product-csv-check/" data-pf-to="wix-product-csv-check">Wix Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../woocommerce-product-csv-check/" data-pf-to="woocommerce-product-csv-check">WooCommerce Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../workers-comp-audit-dispute-checker/" data-pf-to="workers-comp-audit-dispute-checker">Workers' Comp Audit Dispute Checker — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=midterm-rental-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/?pfEmbed=1&quot; title=&quot;Mid-term rental vs long-term lease vs Airbnb — free calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="midterm-rental-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/midterm-rental-calculator/" data-pf-embed-title="Mid-term rental vs long-term lease vs Airbnb — free calculator" data-pf-embed-slug="midterm-rental-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="midterm-rental-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="midterm-rental-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

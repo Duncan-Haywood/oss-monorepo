@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cleaning Chemical Dilution Cost Calculator</title>
+  <meta name="description" content="Calculate commercial cleaning chemical cost per ready-to-use gallon, bucket, and job from concentrate dilution and supplier price.">
+  <meta property="og:title" content="Cleaning Chemical Dilution Cost Calculator"><meta property="og:description" content="Stop guessing what a diluted gallon costs. Calculate chemical, mixing labor, waste, and bucket cost locally.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cleaning Chemical Dilution Cost Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does mixing labor cost more than the chemical itself?","acceptedAnswer":{"@type":"Answer","text":"On the default example — a 1:32 dilution from a $32, 128 fl oz container — the concentrate works out to 25¢ an ounce, so 4 fl oz of concentrate costs $1.00. Three minutes of mixing at a $22/hour loaded labor rate costs $1.10. A cheap concentrate does not make a batch cheap if someone spends real minutes mixing it: at a decent wage, labor can be the larger half of what a batch actually costs, and a price built on chemical cost alone undercharges for it."}},{"@type":"Question","name":"Why does the waste allowance divide the cost instead of adding a percentage on top?","acceptedAnswer":{"@type":"Answer","text":"Because waste describes volume lost, not an extra fee. Dividing by (1 − waste%) grosses the batch cost up so the ready-to-use gallons you actually deliver still cost what they should, even though some of what you mixed never made it out of the bucket, sprayer, or mop. On the default 5% allowance, the $2.10 combined chemical-and-labor cost becomes a $2.21 batch cost — the extra 11¢ is what one batch's worth of spillage and dead space adds back onto the gallons that do get used."}},{"@type":"Question","name":"What is the difference between cost per gallon and cost per bucket?","acceptedAnswer":{"@type":"Answer","text":"“Ready-to-use water” is how many gallons a single batch of concentrate makes, which is what cost per gallon is measured against. “Bucket or job size” is a separate figure — how many gallons your actual bucket or job uses — and cost per bucket simply scales the per-gallon figure up to that size. Getting the two mixed up under- or over-states a bid by whatever the ratio between them happens to be."}},{"@type":"Question","name":"Why does concentrate cost per ounce use container size, not the amount in one batch?","acceptedAnswer":{"@type":"Answer","text":"Container price and container size set your unit cost — what one fluid ounce of concentrate costs you, however much of it a single batch uses. “Concentrate per batch” is a different field: how many of those ounces one batch actually mixes in. Changing the batch amount changes chemical cost per batch; it does not change what an ounce costs you to buy."}},{"@type":"Question","name":"Are my numbers saved, and can I share them?","acceptedAnswer":{"@type":"Answer","text":"Your last entry is saved in this browser's local storage, so refreshing the page or coming back later restores it — nothing is uploaded. “Copy shareable link” puts the same numbers in the page's URL fragment (after the #) instead, so sending that link to a coworker or supplier opens this page with the exact same job priced, without either of you retyping anything. A link takes priority over a saved draft when you open one."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#172b2a;background:#e9f1ee}body{max-width:920px;margin:auto;padding:28px 16px}header{max-width:650px}h1{font-size:clamp(2.1rem,7vw,4rem);line-height:.98;letter-spacing:-.06em;margin:8px 0 16px}.eyebrow{color:#ab5227;font-size:.78rem;font-weight:800;letter-spacing:.12em}p{line-height:1.5}.layout{display:grid;grid-template-columns:1fr 330px;gap:18px;margin-top:26px}section{background:white;border:1px solid #c9d9d4;border-radius:14px;padding:20px;box-shadow:0 8px 24px #15352a12}h2{margin-top:0;font-size:1.1rem}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:5px;font-weight:650;font-size:.88rem}input{box-sizing:border-box;width:100%;padding:10px;border:1px solid #9db4ad;border-radius:7px;font:inherit}.hint{font-size:.84rem;color:#4e6661}.result{background:#143d35;color:#f1faf7;border-color:#143d35;position:sticky;top:14px}.result a{color:inherit;text-decoration:underline}.big{font-size:2.8rem;font-weight:800;letter-spacing:-.05em;margin:10px 0}dl{display:grid;grid-template-columns:1fr auto;gap:10px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}.callout{background:#e9b46b22;border-left:4px solid #d7793b;padding:10px;font-size:.86rem}.result .callout{background:#ffffff18;border-color:#f1c275}.error{background:#c0392b1a;border-left:4px solid #a93226;color:#7a2415;padding:10px 14px;font-size:.9rem;font-weight:650;border-radius:0 7px 7px 0;margin:0 0 16px}footer{font-size:.82rem;color:#4e6661;margin-top:22px}button{padding:10px 14px;border:1px solid #9db4ad;border-radius:7px;background:#f4f8f6;font:inherit;font-weight:700;cursor:pointer}.status{font-size:.8rem;color:#bce8cf}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cleaning Chemical Dilution Cost Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cleaning Chemical Dilution Cost Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cleaning Chemical Dilution Cost Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header><p class="eyebrow">FOR JANITORIAL OPERATORS</p><h1>What does one ready-to-use gallon really cost?</h1><p>Enter the concentrate ratio from the label and what you paid for the container. See the chemical cost per gallon, bucket, and job, including optional mixing labor and waste. This is a purchasing and pricing aid, not a supplier recommendation. See the <a href="how-much-does-diluted-cleaning-solution-cost.html">full cost guide</a> with a worked example.</p></header>
+  <p class="error" id="error" role="alert" hidden></p>
+  <main class="layout"><section><h2>Concentrate and batch</h2><p class="hint">Use the exact units printed on the product label. A 1:32 label usually means 4 fl oz of concentrate per gallon of water.</p><div class="fields"><label>Concentrate per batch (fl oz)<input id="concentrateOz" type="number" min="0.01" step="any" value="4" inputmode="decimal"></label><label>Ready-to-use water (gallons)<input id="waterGallons" type="number" min="0.01" step="any" value="1" inputmode="decimal"></label><label>Container price ($)<input id="containerCost" type="number" min="0" step="0.01" value="32" inputmode="decimal"></label><label>Container size (fl oz)<input id="containerOz" type="number" min="0.01" step="any" value="128" inputmode="decimal"></label><label>Bucket or job size (gallons)<input id="batchGallons" type="number" min="0.01" step="any" value="5" inputmode="decimal"></label><label>Waste allowance (%)<input id="wasteRate" type="number" min="0" max="99.9" step="1" value="5" inputmode="numeric"></label></div><h2 style="margin-top:25px">Optional mixing labor</h2><div class="fields"><label>Minutes per batch<input id="laborMinutes" type="number" min="0" step="1" value="3" inputmode="numeric"></label><label>Loaded labor rate ($/hour)<input id="laborRate" type="number" min="0" step="0.25" value="22" inputmode="decimal"></label></div><p class="callout"><strong>Safety:</strong> follow the product label and SDS. Never mix chemicals unless the manufacturer explicitly permits it. This calculator does not determine safe handling, PPE, storage, or compatibility.</p></section><section class="result" aria-live="polite"><h2>Ready-to-use cost</h2><div class="big" id="perGallon">$--</div><div>per ready-to-use gallon</div><dl><dt>Chemical in batch</dt><dd id="chemical">$--</dd><dt>Mixing labor</dt><dd id="labor">$--</dd><dt>Waste allowance</dt><dd id="waste">$--</dd><dt>Total batch cost</dt><dd id="batch">$--</dd><dt>Bucket / job cost</dt><dd id="bucket">$--</dd><dt>Concentrate cost / oz</dt><dd id="oz">$--</dd></dl><p class="callout">Use the bucket or job figure in your bid instead of treating cleaning chemical as a flat percentage.</p><h2 style="margin-top:20px;font-size:1rem">What to buy for this job</h2><dl><dt>Concentrate needed</dt><dd id="concentrateNeeded">-- fl oz</dd><dt>Containers to buy</dt><dd id="containersNeeded">--</dd><dt>Purchase cost (whole containers)</dt><dd id="purchaseCost">$--</dd><dt>Leftover after this job</dt><dd id="leftover">-- fl oz</dd></dl><p class="callout">Concentrate is only sold in whole containers, so the purchase cost above can run higher than the smooth per-gallon rate once a job needs more than the containers on hand.</p><button type="button" id="share">Copy shareable link</button><p class="status" id="shareStatus" role="status"></p></section></main>
+  <section style="background:white;border:1px solid #c9d9d4;border-radius:14px;padding:20px;box-shadow:0 8px 24px #15352a12;margin-top:18px" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Why does mixing labor cost more than the chemical itself?</h3>
+    <p>On the default example &mdash; a 1:32 dilution from a $32, 128 fl oz container &mdash; the
+      concentrate works out to 25&cent; an ounce, so 4 fl oz of concentrate costs $1.00. Three minutes of
+      mixing at a $22/hour loaded labor rate costs $1.10. A cheap concentrate does not make a batch cheap
+      if someone spends real minutes mixing it: at a decent wage, labor can be the larger half of what a
+      batch actually costs, and a price built on chemical cost alone undercharges for it.</p>
+
+    <h3>Why does the waste allowance divide the cost instead of adding a percentage on top?</h3>
+    <p>Because waste describes volume lost, not an extra fee. Dividing by (1 &minus; waste%) grosses the
+      batch cost up so the ready-to-use gallons you actually deliver still cost what they should, even
+      though some of what you mixed never made it out of the bucket, sprayer, or mop. On the default 5%
+      allowance, the $2.10 combined chemical-and-labor cost becomes a $2.21 batch cost &mdash; the extra
+      11&cent; is what one batch's worth of spillage and dead space adds back onto the gallons that do get
+      used.</p>
+
+    <h3>What is the difference between cost per gallon and cost per bucket?</h3>
+    <p>&ldquo;Ready-to-use water&rdquo; is how many gallons a single batch of concentrate makes, which is
+      what cost per gallon is measured against. &ldquo;Bucket or job size&rdquo; is a separate figure
+      &mdash; how many gallons your actual bucket or job uses &mdash; and cost per bucket simply scales the
+      per-gallon figure up to that size. Getting the two mixed up under- or over-states a bid by whatever
+      the ratio between them happens to be.</p>
+
+    <h3>Why does concentrate cost per ounce use container size, not the amount in one batch?</h3>
+    <p>Container price and container size set your unit cost &mdash; what one fluid ounce of concentrate
+      costs you, however much of it a single batch uses. &ldquo;Concentrate per batch&rdquo; is a
+      different field: how many of those ounces one batch actually mixes in. Changing the batch amount
+      changes chemical cost per batch; it does not change what an ounce costs you to buy.</p>
+
+    <h3>Are my numbers saved, and can I share them?</h3>
+    <p>Your last entry is saved in this browser's local storage, so refreshing the page or
+      coming back later restores it &mdash; nothing is uploaded. &ldquo;Copy shareable
+      link&rdquo; puts the same numbers in the page's URL fragment (after the <code>#</code>)
+      instead, so sending that link to a coworker or supplier opens this page with the exact
+      same job priced, without either of you retyping anything. A link takes priority over a
+      saved draft when you open one.</p>
+  </section>
+  <p class="note" style="max-width:920px;margin:0 auto;color:#4e6661;font-size:.9rem">Already run a janitorial management platform? See <a href="vs-janitorial-manager.html">this calculator vs. Janitorial Manager</a>. Pricing straight from the concentrate's sticker price? See <a href="vs-pricing-off-the-label-price.html">this calculator vs. pricing off the label price</a>.</p>
+  <footer><label style="display:flex;align-items:center;gap:7px;font-weight:400"><input id="optOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, engineering, or safety advice, and it does not replace a qualified professional or the product label/SDS. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Private by design.</strong> Everything runs in your browser. No data is uploaded, there are no accounts, cookies, or analytics vendors. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Only anonymous feature counts are stored locally and can be disabled above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Pricing a carpet-cleaning stop rather than a chemical batch? The <a href="../carpet-cleaning-bid-calculator/">carpet cleaning bid calculator</a> prices rooms, stairs, pet urine, upholstery, and drive &mdash; nothing uploaded.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+  <script type="module">
+    import { calculateDilution } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
+    const $=id=>document.getElementById(id); const storageKey='cleaning-dilution-draft'; const money=(n) => {
+                                                                                                                                                                               const format = (n) => `$${n.toFixed(2)}`;
+                                                                                                                                                                               const text = format(Math.abs(n));
+                                                                                                                                                                               return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+                                                                                                                                                                             };
+    function currentInputs(){return Object.fromEntries(ids.map(id=>[id,$(id).value]));}
+    // A link wins over a saved draft: opening a link someone sent means seeing
+    // their numbers, not the last job priced on this device.
+    const fromLink=decodeInputs(location.hash); let restored=fromLink;
+    if(Object.keys(fromLink).length===0){try{restored=JSON.parse(localStorage.getItem(storageKey)||'null')||{};}catch{restored={};}}
+    for(const id of ids){if(Object.prototype.hasOwnProperty.call(restored,id))$(id).value=restored[id];}
+    let timer; function update(count=false){try{const result=calculateDilution(Object.fromEntries(ids.map(id=>[id,$(id).value]))); $('error').hidden=true; $('perGallon').textContent=money(result.costPerGallon); $('chemical').textContent=money(result.chemicalCost); $('labor').textContent=money(result.laborCost); $('waste').textContent=money(result.wasteAllowanceCost); $('batch').textContent=money(result.batchCost); $('bucket').textContent=money(result.costPerBucket); $('oz').textContent=money(result.concentrateCostPerOz); $('concentrateNeeded').textContent=`${result.concentrateNeededOz.toFixed(1)} fl oz`; $('containersNeeded').textContent=String(result.containersNeeded); $('purchaseCost').textContent=money(result.containerPurchaseCost); $('leftover').textContent=`${result.leftoverConcentrateOz.toFixed(1)} fl oz`; try{localStorage.setItem(storageKey,JSON.stringify(currentInputs()));}catch{} if(location.hash)history.replaceState(null,'',`${location.pathname}#${encodeInputs(currentInputs())}`); if(count){clearTimeout(timer);timer=setTimeout(()=>recordUsage(localStorage,$('optOut').checked),800)}}catch(error){$('error').textContent=error.message;$('error').hidden=false;$('perGallon').textContent='$--';$('chemical').textContent='$--';$('labor').textContent='$--';$('waste').textContent='$--';$('batch').textContent='$--';$('bucket').textContent='$--';$('oz').textContent='$--';$('concentrateNeeded').textContent='-- fl oz';$('containersNeeded').textContent='--';$('purchaseCost').textContent='$--';$('leftover').textContent='-- fl oz'}}
+    ids.forEach(id=>$(id).addEventListener('input',()=>update(true))); update();
+    $('share').addEventListener('click',async()=>{
+      history.replaceState(null,'',`${location.pathname}#${encodeInputs(currentInputs())}`);
+      try{await navigator.clipboard.writeText(location.href);$('shareStatus').textContent='Link copied — it reopens this page with the same numbers.';}
+      catch{$('shareStatus').textContent='Link is in your address bar — copy it to share these numbers.';}
+    });
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+      <li><a href="../window-cleaning-bid-calculator/" data-pf-to="window-cleaning-bid-calculator">Window Cleaning Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cleaning-dilution-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/?pfEmbed=1&quot; title=&quot;Cleaning Chemical Dilution Cost Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cleaning-dilution-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/" data-pf-embed-title="Cleaning Chemical Dilution Cost Calculator" data-pf-embed-slug="cleaning-dilution-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cleaning-dilution-calculator" data-pf-jobs-amount=""></script>
+</body></html>

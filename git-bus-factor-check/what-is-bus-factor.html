@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is a Bus Factor (Truck Factor) and How Do You Raise It?</title>
+  <meta name="description" content="What a bus factor is, how it is measured from git history, what orphaned and single-owner folders mean…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/what-is-bus-factor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What is a bus factor (truck factor), and how do you raise it?","about":"Measuring and raising the bus factor of a git repository from its commit history","author":{"@type":"Organization","name":"Git Bus Factor Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/what-is-bus-factor.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="What Is a Bus Factor (Truck Factor) and How Do You Raise It?">
+<meta property="og:description" content="What a bus factor is, how it is measured from git history, what orphaned and single-owner folders mean…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Is a Bus Factor (Truck Factor) and How Do You Raise It? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../git-bus-factor-check/">If one person left tomorrow, which folders would nobody understand?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Is a Bus Factor (Truck Factor) and How Do You Raise It?</span></span></nav>
+  <p><a href="./">← Git Bus Factor Check</a></p>
+  <h1>What is a bus factor (truck factor), and how do you raise it?</h1>
+  <p>The bus factor is the smallest number of people who would have to leave before a project stalls because nobody left understands the code. It is a grim name for a planning question: <em>where is our knowledge held by one head?</em></p>
+
+  <h2>How it is measured from git history</h2>
+  <p>Commit history cannot show who understands a file, but it shows who changed it. This tool adds up, per folder, the lines each person added and deleted. A single commit is capped at 500 lines per file so a generated or vendored dump cannot own a folder, and each change loses half its weight every 180 days so recent work counts for more. Bots, lock files, <code>node_modules</code>, <code>vendor</code>, <code>dist</code> and minified files are ignored. The folder's bus factor is the fewest people whose weighted changes reach half of its total. This is a heuristic line scan of history, not a measure of understanding.</p>
+
+  <h2>The three statuses</h2>
+  <ul>
+    <li><strong>orphaned</strong> — the largest contributor to a folder (at least half of it) has made no commit anywhere in the last 90 days. They may have left, moved teams or be on long leave. Find out, and assign an owner.</li>
+    <li><strong>single-owner</strong> — one still-active person holds at least 80 percent of a folder. Nothing is wrong today; one absence away from a problem.</li>
+    <li><strong>shared</strong> — more than one person carries the folder, or no one dominates it.</li>
+  </ul>
+
+  <h2>Five ways to raise it</h2>
+  <ol>
+    <li>Make the second person the reviewer on the next change in every single-owner folder.</li>
+    <li>Pair on one real change there instead of scheduling a handover meeting.</li>
+    <li>Write down what history cannot show: why it was built this way, how it is deployed, where the credentials live.</li>
+    <li>Hand the next bug or on-call rotation for that area to someone new.</li>
+    <li>Re-run the check monthly and watch the flagged list shrink; <code>python3 busfactor.py --fail-on-orphaned</code> works as a CI gate.</li>
+  </ol>
+
+  <h2>What this number does not tell you</h2>
+  <p>Squashed commits credit one author for a team's work, pair programming credits one of two people, a contributor who commits under two emails counts as two, and an expert who reviews but rarely commits is invisible. Use the output to start a conversation about a folder, never to judge a person.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is a heuristic and must not be used on its own to make decisions about hiring, firing, pay or performance. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=git-bus-factor-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="git-bus-factor-check"></script>
+</body>
+</html>

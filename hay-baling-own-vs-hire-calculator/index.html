@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hay Baling Own vs Hire Calculator — Free</title>
+  <meta name="description" content="Free hay baling calculator: should you own a baler or hire a custom baler? Acres, yield, equipment cost, labour and the custom price per bale in…">
+  <meta property="og:title" content="Should I buy a baler or hire custom baling? Free break-even calculator">
+  <meta property="og:description" content="Acres, yield, equipment and the custom price per bale in; own vs hire, break-even acres and a neighbour rate out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a16207'/%3E%3Crect x='6' y='10' width='20' height='13' rx='4' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hay Baling Own vs Hire Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare owning a baler with hiring custom baling from your acres, yield, equipment cost, labour and the custom price per bale, with break-even acres, cost per bale and a rate for baling for neighbours. Runs in your browser; nothing is uploaded.","featureList":"Own vs hire cost, break-even acres, cost per bale, delay loss from waiting on a contractor, neighbour baling rate, sale price needed for a margin, acreage and price sensitivity, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it cheaper to buy a baler or hire custom baling?","acceptedAnswer":{"@type":"Answer","text":"Owning is a fixed yearly cost (depreciation, interest, insurance and housing) plus a variable cost per acre and bale; hiring is a price per bale. Owning wins above the break-even acreage, where the fixed cost is spread over enough bales that your cost per bale drops under the custom price."}},{"@type":"Question","name":"How many acres do I need to justify my own baler?","acceptedAnswer":{"@type":"Answer","text":"Divide the yearly fixed cost of the equipment by what you save per acre by not hiring (custom price per bale times bales per acre, plus the value of timeliness, less your own fuel, repairs, labour and twine or net wrap). The calculator shows that number for your inputs."}},{"@type":"Question","name":"Why count hay lost waiting for a contractor?","acceptedAnswer":{"@type":"Answer","text":"Cut hay that sits through rain or past ideal moisture loses feed value. Entering the share of value lost from waiting puts a price on baling when you are ready rather than when the contractor arrives."}},{"@type":"Question","name":"What should I charge neighbours to bale their hay?","acceptedAnswer":{"@type":"Answer","text":"Baling for others spreads your fixed cost over more bales. The calculator shows the rate per bale that covers your variable cost and your share of ownership at the margin you choose, and compares it to what contractors charge."}},{"@type":"Question","name":"Is this farm business, tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Tax treatment, financing and insurance are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b18; background: #f4f8f3; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #15803d; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14532d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14532d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #57534e; }
+    .card { background: #fff; border: 1px solid #cfe3d0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14532d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c8ac; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #15803d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefdc; color: #14532d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eee3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #57534e; }
+    .finding { border-bottom: 1px solid #e3eee3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #dcfce7; color: #15803d; }
+    .stats { font-size: 1rem; color: #2f2a26; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe3d0; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Should I buy a baler or hire custom baling? Free break-even calculator","item":"https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I buy a baler or hire custom baling? Free break-even calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I buy a baler or hire custom baling? Free break-even calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">HAY BALING OWN VS HIRE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should you buy a baler, or keep paying a custom baler by the bale?</h1>
+    <p>Enter your acres, yield and equipment cost, and the custom price per bale. It compares the year's cost both ways, finds the acreage where owning starts to win, works out your cost per bale and the price that earns your margin, and shows what to charge neighbours so outside work pays for its share of the machine.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-hay">
+      <h2 id="h-hay">1. Your hay</h2>
+      <div class="grid">
+        <div><label for="acres">Acres of hay you make per year</label><input id="acres" type="number" step="any" value="40" inputmode="decimal"></div>
+        <div><label for="tonsPerAcreCut">Yield per cut (tons per acre)</label><input id="tonsPerAcreCut" type="number" step="any" value="1.5" inputmode="decimal"></div>
+        <div><label for="cuts">Cuts per year</label><input id="cuts" type="number" step="any" value="2" inputmode="decimal"></div>
+        <div><label for="baleWeightLb">Bale weight (lb)</label><input id="baleWeightLb" type="number" step="any" value="850" inputmode="decimal"></div>
+        <div><label for="salePricePerBale">What a bale is worth, sold or fed ($)</label><input id="salePricePerBale" type="number" step="any" value="60" inputmode="decimal"></div>
+        <div><label for="targetMarginPct">Profit margin you want (% of price)</label><input id="targetMarginPct" type="number" step="any" value="20" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-own">
+      <h2 id="h-own">2. If you own the equipment</h2>
+      <div class="grid">
+        <div><label for="equipPrice">Price of baler plus the mower and rake it needs ($)</label><input id="equipPrice" type="number" step="any" value="45000" inputmode="decimal"></div>
+        <div><label for="salvagePct">Resale value at the end (% of price)</label><input id="salvagePct" type="number" step="any" value="30" inputmode="decimal"></div>
+        <div><label for="lifeYears">Years you will keep it</label><input id="lifeYears" type="number" step="any" value="12" inputmode="decimal"></div>
+        <div><label for="interestPct">Interest rate on the money tied up (%)</label><input id="interestPct" type="number" step="any" value="7" inputmode="decimal"></div>
+        <div><label for="insHousingPct">Insurance and shed (% of price per year)</label><input id="insHousingPct" type="number" step="any" value="1.5" inputmode="decimal"></div>
+        <div><label for="fuelPerAcre">Fuel per acre per cut ($)</label><input id="fuelPerAcre" type="number" step="any" value="6" inputmode="decimal"></div>
+        <div><label for="repairsPerAcre">Repairs and maintenance per acre per cut ($)</label><input id="repairsPerAcre" type="number" step="any" value="5" inputmode="decimal"></div>
+        <div><label for="hoursPerAcre">Labour hours per acre per cut (mow, rake, bale, haul)</label><input id="hoursPerAcre" type="number" step="any" value="1.4" inputmode="decimal"></div>
+        <div><label for="wage">Value of labour per hour ($)</label><input id="wage" type="number" step="any" value="22" inputmode="decimal"></div>
+        <div><label for="wrapPerBale">Twine or net wrap per bale ($)</label><input id="wrapPerBale" type="number" step="any" value="2.25" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-hire">
+      <h2 id="h-hire">3. If you hire it done, and baling for others</h2>
+      <div class="grid">
+        <div><label for="hireBalePrice">Custom price per bale, wrap included ($)</label><input id="hireBalePrice" type="number" step="any" value="14" inputmode="decimal"></div>
+        <div><label for="hireExtraPerAcre">Extra you pay per acre per cut for mowing or raking ($)</label><input id="hireExtraPerAcre" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="delayLossPct">Hay value lost waiting for a contractor (%)</label><input id="delayLossPct" type="number" step="any" value="8" inputmode="decimal"></div>
+        <div><label for="outsideBales">Bales a year you could bale for neighbours</label><input id="outsideBales" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Compare</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is it cheaper to buy a baler or hire custom baling?</h3>
+      <p>Owning is a fixed yearly cost (depreciation, interest, insurance and housing) plus a variable cost per acre and bale; hiring is a price per bale. Owning wins above the break-even acreage, where the fixed cost is spread over enough bales that your cost per bale drops under the custom price.</p>
+      <h3>How many acres do I need to justify my own baler?</h3>
+      <p>Divide the yearly fixed cost of the equipment by what you save per acre by not hiring (custom price per bale times bales per acre, plus the value of timeliness, less your own fuel, repairs, labour and twine or net wrap). The calculator shows that number for your inputs.</p>
+      <h3>Why count hay lost waiting for a contractor?</h3>
+      <p>Cut hay that sits through rain or past ideal moisture loses feed value. Entering the share of value lost from waiting puts a price on baling when you are ready rather than when the contractor arrives.</p>
+      <h3>What should I charge neighbours to bale their hay?</h3>
+      <p>Baling for others spreads your fixed cost over more bales. The calculator shows the rate per bale that covers your variable cost and your share of ownership at the margin you choose, and compares it to what contractors charge.</p>
+      <h3>Is this farm business, tax or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Tax treatment, financing and insurance are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you can get a contractor when you need one, the weather and forage quality in your fields, the market for your hay, financing and tax treatment of the purchase (including depreciation rules), tractor cost and capacity, insurance, and equipment safety. The defaults are placeholders, not forecasts: check yield, wage and the custom price against your own records and local custom rate surveys.</p>
+    </section>
+    <section class="card">
+      <p>Related farm tools: the <a href="../custom-farm-rate-calculator/">custom farm rate calculator</a>, the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> and the <a href="../cow-calf-breakeven-calculator/">cow-calf break-even calculator</a> and, if you sell the hay you bale, the <a href="../hay-sale-price-calculator/">hay sale price calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licence, insurance or safety obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this settled a buy-or-hire decision, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, compare, breakEven, enterprise, outsideRate, acreageSensitivity, hirePriceSensitivity, delaySensitivity, priceSensitivity } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const mm = (x) => (x === null || x === undefined ? "n/a" : money2(x));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const win = (c) => (c.winner === "own" ? "Own" : "Hire");
+    function run() {
+      const o = opts();
+      const c = compare(o);
+      const be = breakEven(o);
+      const e = enterprise(o);
+      const out = outsideRate(o);
+      let h = "";
+      if (!(c.bales > 0)) { h = '<div class="finding"><span class="pill">No hay</span> Enter acres, yield and cuts above zero.</div>'; $("result").innerHTML = h; $("out").hidden = false; return; }
+      h += `<div class="finding"><h4>Headline</h4><p class="stats"><strong>${c.winner === "own" ? "Owning" : "Hiring"}</strong> is cheaper by <strong>${money(Math.abs(c.saving))}</strong> a year at ${c.acres} acres (${Math.round(c.bales)} bales). Own ${money(c.own)} (${mm(c.ownPerBale)} per bale) vs hire ${money(c.hire)} (${mm(c.hirePerBale)} per bale).</p></div>`;
+      h += `<div class="finding"><h4>Break-even acreage</h4>` + (be.acres === null ? `<p>Hiring costs less per acre than your own running cost (${mm(be.ownVariablePerAcre)} per acre vs ${mm(be.hirePerAcre)} hired), so buying never pays back on these numbers.</p>` : `<p>Owning starts to win above <strong>${be.acres.toFixed(0)} acres</strong> a year (${Math.round(be.bales)} bales). Your running cost is ${mm(be.ownVariablePerAcre)} per acre against ${mm(be.hirePerAcre)} per acre hired, so each acre saves ${mm(be.hirePerAcre - be.ownVariablePerAcre)} toward the ${money(c.fixed)} yearly fixed cost.</p>`) + `</div>`;
+      h += `<div class="finding"><h4>Where the cost goes if you own</h4>${table(["Line", "Per year"], [["Fixed: depreciation, interest, insurance, shed", money(c.fixed)], ["Running: fuel, repairs, labour, wrap", money(c.variable)], ["Total", money(c.own)]])}</div>`;
+      h += `<div class="finding"><h4>Where the cost goes if you hire</h4>${table(["Line", "Per year"], [["Custom baling and extra field work", money(c.hirePrice)], ["Hay value lost waiting (" + o.delayLossPct + "%)", money(c.delay)], ["Total", money(c.hire)]])}</div>`;
+      h += `<div class="finding"><h4>Your own hay</h4><p>Cost per bale ${mm(e.ownPerBale)}. At ${mm(o.salePricePerBale)} a bale you ${e.profit >= 0 ? "make" : "lose"} ${money(Math.abs(e.profit))} a year. The price that earns your ${o.targetMarginPct}% margin is ${mm(e.neededPrice)} per bale.</p></div>`;
+      if (out && out.outside > 0) h += `<div class="finding"><h4>Baling ${Math.round(out.outside)} bales for neighbours</h4><p>Your cost per bale falls from ${mm(out.ownCostPerBaleWithout)} to ${mm(out.ownCostPerBaleWith)}. Charge at least <strong>${mm(out.rate)}</strong> per bale for your ${o.targetMarginPct}% margin${out.belowHire ? ", which is under the " + mm(o.hireBalePrice) + " a contractor charges, so you can win the work" : ", which is above the " + mm(o.hireBalePrice) + " a contractor charges, so you would be priced out"}. Outside profit ${money(out.outsideProfit)} a year.</p></div>`;
+      else h += `<div class="finding"><h4>Baling for neighbours</h4><p>Enter bales you could bale for others in step 3 to see the rate to charge and how it lowers your own cost per bale.</p></div>`;
+      h += `<div class="finding"><h4>If your acreage changes</h4>${table(["Acres", "Own", "Hire", "Cheaper", "Own per bale"], acreageSensitivity(o).map((x) => [Math.round(x.acres), money(x.own), money(x.hire), win(x), mm(x.ownPerBale)]))}</div>`;
+      h += `<div class="finding"><h4>If the custom price changes</h4>${table(["Custom price", "Hire total", "Own total", "Cheaper"], hirePriceSensitivity(o).map((x) => [mm(x.price), money(x.hire), money(x.own), win(x)]))}</div>`;
+      h += `<div class="finding"><h4>If waiting costs more or less hay value</h4>${table(["Value lost", "Hire total", "Own total", "Cheaper"], delaySensitivity(o).map((x) => [x.pct + "%", money(x.hire), money(x.own), win(x)]))}</div>`;
+      h += `<div class="finding"><h4>If hay sells for more or less</h4>${table(["Price per bale", "Yearly profit", "Margin"], priceSensitivity(o).map((x) => [mm(x.price), money(x.profit), x.marginPct === null ? "n/a" : x.marginPct.toFixed(0) + "%"]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("compare_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../franchise-item-19-reality-check/" data-pf-to="franchise-item-19-reality-check">Franchise Item 19 Reality Check — free, private, in your browser</a></li>
+      <li><a href="../franchise-unit-economics-calculator/" data-pf-to="franchise-unit-economics-calculator">Will this franchise pay? Free unit economics calculator</a></li>
+      <li><a href="../ghost-kitchen-brand-picker/" data-pf-to="ghost-kitchen-brand-picker">Ghost kitchen brand picker</a></li>
+      <li><a href="../hydroponic-farm-profit-calculator/" data-pf-to="hydroponic-farm-profit-calculator">Hydroponic farm calculator: how many heads a week to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hay-baling-own-vs-hire-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/?pfEmbed=1&quot; title=&quot;Should I buy a baler or hire custom baling? Free break-even calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="hay-baling-own-vs-hire-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/" data-pf-embed-title="Should I buy a baler or hire custom baling? Free break-even calculator" data-pf-embed-slug="hay-baling-own-vs-hire-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="hay-baling-own-vs-hire-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="hay-baling-own-vs-hire-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Right-Size Kubernetes Resource Requests</title>
+  <meta name="description" content="Why Kubernetes requests drive your bill, how to read kubectl top, why one snapshot is not enough, how to size requests from p95 usage plus headroom…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/how-to-right-size-kubernetes-resource-requests.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between a request and a limit?", "acceptedAnswer": {"@type": "Answer", "text": "The scheduler places a pod using its requests and a node guarantees that much. A limit is a ceiling: crossing the CPU limit throttles the container, crossing the memory limit gets it OOMKilled. Requests decide what you pay for; limits decide what breaks."}}, {"@type": "Question", "name": "What should a request be set to?", "acceptedAnswer": {"@type": "Answer", "text": "A common starting point is observed p95 usage plus headroom, about 20% for CPU and 25% for memory, taken over a period that includes your busiest hour. Memory deserves more care than CPU because running out is a kill, not a slowdown."}}, {"@type": "Question", "name": "Can I trust one kubectl top snapshot?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a single moment. Use it to find the obvious outliers, then confirm with p95 usage from your metrics system over days before lowering anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/how-to-right-size-kubernetes-resource-requests.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Right-Size Kubernetes Resource Requests">
+<meta property="og:description" content="Why Kubernetes requests drive your bill, how to read kubectl top, why one snapshot is not enough, how to size requests from p95 usage plus headroom…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Right-Size Kubernetes Resource Requests — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../k8s-requests-rightsizer/">Are your Kubernetes requests wasting money?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Right-Size Kubernetes Resource Requests</span></span></nav>
+  <p><a href="./">← Back to Kubernetes Requests Rightsizer</a></p>
+  <h1>How to right-size Kubernetes resource requests</h1>
+  <p>Nodes are bought for what pods <strong>request</strong>, not for what they use. Requests are usually guessed once, copied between services and never revisited, so most clusters carry a lot of reserved-but-idle CPU and memory. Shrinking them is the cheapest cost cut in Kubernetes, and also the easiest to get wrong.</p>
+
+  <h2>Requests, limits and what each one costs you</h2>
+  <p>The scheduler packs pods onto nodes by their requests. A request above real usage is capacity you pay for and nothing else can use. A <em>limit</em> is a different thing: a container above its CPU limit is throttled, and above its memory limit it is OOMKilled. So lowering a request saves money, and lowering a memory limit below real peak usage breaks things.</p>
+
+  <h2>Read the usage</h2>
+  <pre>kubectl top pod -A --containers
+kubectl get pods -A -o json</pre>
+  <p>The first gives live CPU and memory per container; the second gives each container's requests and limits. <code>kubectl top</code> is <strong>one sample</strong>. A request has to cover your busiest hour of the busiest week, so a quiet-afternoon snapshot will under-state it. Take p95 (or p99 for critical services) over several days from your metrics system and feed that in as CSV.</p>
+
+  <h2>Usage plus headroom</h2>
+  <p>A simple rule: request = p95 usage x (1 + headroom). About 20% headroom for CPU is common; memory needs more, about 25%, because exceeding it is a kill rather than a slowdown. The analyzer shows the result for every container with the headroom you choose, and the monthly difference at node prices you enter.</p>
+  <pre>node cli.mjs analyze top.txt pods.json --patch</pre>
+
+  <h2>Where shrinking goes wrong</h2>
+  <ul>
+    <li><strong>Memory near the limit</strong>: usage above 85% of the limit leaves no room for a larger request or a leak. Raise the limit together with the request, never shrink it.</li>
+    <li><strong>No requests at all</strong>: the scheduler counts them as zero and those pods are first to be evicted under node pressure.</li>
+    <li><strong>Spiky or batch workloads</strong>: p95 of a mostly idle job hides the burst. Size them for the burst or use autoscaling.</li>
+    <li><strong>Replicas</strong>: the saving multiplies by replica count, which is why a small per-pod change on a 40-replica service is the biggest line on the list.</li>
+  </ul>
+
+  <h2>Change it safely</h2>
+  <p>Apply the patch to the owning Deployment or StatefulSet in staging, watch restarts and throttling for a few days, then roll it out gradually. Vertical Pod Autoscaler in recommendation mode is a good cross-check on the same numbers.</p>
+
+  <h2>What this cannot see</h2>
+  <p>A pasted snapshot is not your traffic. List prices ignore your discounts, node bin-packing and per-node overhead, so the dollar figure is an estimate of requested capacity, not a bill.</p>
+
+  <h2>Common questions</h2>
+  <h3>What is the difference between a request and a limit?</h3>
+  <p>The scheduler places a pod using its requests and a node guarantees that much. A limit is a ceiling: crossing the CPU limit throttles the container, crossing the memory limit gets it OOMKilled. Requests decide what you pay for; limits decide what breaks.</p>
+  <h3>What should a request be set to?</h3>
+  <p>A common starting point is observed p95 usage plus headroom, about 20% for CPU and 25% for memory, taken over a period that includes your busiest hour. Memory deserves more care than CPU because running out is a kill, not a slowdown.</p>
+  <h3>Can I trust one kubectl top snapshot?</h3>
+  <p>No. It is a single moment. Use it to find the obvious outliers, then confirm with p95 usage from your metrics system over days before lowering anything.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice. It makes a recommendation from a snapshot, not a bill, usage must be sampled over a representative period, and you are responsible for verifying its output. Kubernetes and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+      <li><a href="../helm-values-schema-check/" data-pf-to="helm-values-schema-check">Does your values.yaml actually match its own schema?</a></li>
+      <li><a href="../hidden-unicode-check/" data-pf-to="hidden-unicode-check">Hidden Unicode Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-requests-rightsizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="k8s-requests-rightsizer"></script>
+</body>
+</html>

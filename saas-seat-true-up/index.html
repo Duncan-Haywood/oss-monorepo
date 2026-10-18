@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SaaS Seat True-Up Calculator — Find Unused Spend</title>
+  <meta name="description" content="Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="SaaS seat true-up calculator">
+  <meta property="og:description" content="Find unused subscription seats before renewal with a private, browser-local calculator.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a “used” seat?","acceptedAnswer":{"@type":"Answer","text":"Whatever your own review decides, and the definition is the whole game. A seat assigned to someone who left, a seat held for a contractor whose project ended, a seat that has not seen a login in ninety days — all of them are provisioned and billed, and none of them are used in any sense your finance team would recognise. Most vendor admin consoles will export last-login per user; that export, not the assigned-seat count, is the number to type here."}},{"@type":"Question","name":"Why does it show both a remaining-term figure and an annual one?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different questions. The remaining-term figure is what the current contract still commits you to — on the worked example, 6 unused seats at $18 with 4 months left is $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if you renew at the same count. The first is usually sunk; the second is the one you can actually act on, and it is why a seat review is worth doing before the renewal conversation rather than after it."}},{"@type":"Question","name":"What if we are over the purchased count instead of under?","acceptedAnswer":{"@type":"Answer","text":"Then the tool prices the overage rather than the saving, and that is often the more urgent number. Overage is commonly billed at list plus a contracted premium, so there is a field for that premium — leave it at 0% if your agreement charges plain list. Being over is not necessarily bad; it can mean the product is working. It just should not be a surprise on the true-up invoice."}},{"@type":"Question","name":"Does this tell me what to do at renewal?","acceptedAnswer":{"@type":"Answer","text":"No. It sizes the number so you can decide, and a contracted seat minimum — enter it in the field above — is already subtracted from what counts as droppable, so it will not tell you to cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to 14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat released today may have to be re-bought at a worse rate in six months. Read your own agreement for true-up timing and whether reductions are permitted mid-term at all — many contracts allow additions any time and reductions only at renewal."}},{"@type":"Question","name":"What does the contract seat minimum field do?","acceptedAnswer":{"@type":"Answer","text":"It caps how many of the unused seats the tool treats as actually droppable. Some agreements will not let the seat count fall below a floor at renewal no matter how low usage is — enter that floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used, and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no floor."}},{"@type":"Question","name":"Can I use this across several tools at once?","acceptedAnswer":{"@type":"Answer","text":"Run them one at a time and add up the annual figures. Each subscription has its own price, term, and overage treatment, so averaging them together hides the one that matters. In practice a handful of tools usually account for most of the waste, and doing them individually is what makes that visible."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculation runs entirely in your browser. A saved scenario stores only the totals you typed and stays in this browser; reset deletes it. The shareable link carries the same totals in the URL itself, so a scenario is only shared with whoever you send that link to — nothing is uploaded to a server to make the link work. There are no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of this leaves the page."}},{"@type":"Question","name":"Why does it ask for a renewal date and a notice period?","acceptedAnswer":{"@type":"Answer","text":"Because a seat reduction usually cannot happen just because usage is low — most contracts allow it only at renewal, and many require written notice a set number of days before that renewal or the agreement auto-renews at the full purchased count regardless of usage. Enter the renewal date and that notice window (leave both blank if you don’t know or your agreement has none) and the tool checks whether the deadline has already passed. If it has, the saving above is not avoidable this cycle — it tells you that plainly instead of showing a number you cannot actually act on, and estimates when the next window opens assuming an annual term."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#18252b; --muted:#5e6c70; --paper:#f7f3eb; --accent:#af5331; --line:#d9d0c2; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+    main { max-width:980px; margin:auto; padding:52px 20px 40px; } .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+    h1 { max-width:680px; font:800 clamp(2.2rem,6vw,4.8rem)/.98 Georgia,serif; margin:14px 0; } .lede { max-width:650px; color:var(--muted); font-size:1.15rem; }
+    .grid { display:grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap:24px; margin-top:34px; } .panel { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 10px 30px #4b332010; }
+    label { display:block; font-weight:700; margin:15px 0 5px; } input { width:100%; border:1px solid #b9afa1; border-radius:8px; padding:11px; font:inherit; background:white; } button { margin-top:20px; border:0; border-radius:999px; background:var(--accent); color:white; padding:12px 20px; font-weight:800; cursor:pointer; } .actions { display:flex; flex-wrap:wrap; gap:10px; } .actions button { margin-top:16px; } button.secondary { background:#4a5a60; } .status { margin-top:10px; color:var(--muted); font-size:.9rem; min-height:1.2em; }
+    .results { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; } .metric { background:#f1e9dd; border-radius:12px; padding:16px; } .metric strong { display:block; font-size:1.6rem; } .metric span { color:var(--muted); font-size:.9rem; }
+    .callout { margin-top:18px; border-left:4px solid var(--accent); padding:12px 15px; background:#fff5ed; } footer { color:var(--muted); font-size:.85rem; margin-top:32px; } a { color:inherit; }
+    @media (max-width:700px) { main { padding-top:30px; } .grid { grid-template-columns:1fr; } }
+    /* Two 1fr columns leave ~140px each on a 320px phone, and "seat
+       utilization" under a $432.00 needs more than that — the pair pushed the
+       whole page 34px wider than the window, so every figure on it rendered
+       zoomed out. Stacked below that width instead. */
+    @media (max-width:380px) { .results { grid-template-columns:1fr; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"SaaS seat true-up calculator","item":"https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SaaS seat true-up calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SaaS seat true-up calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section><main>
+  <div class="eyebrow">Renewal prep for SaaS operators</div>
+  <h1>Stop renewing seats nobody uses.</h1>
+  <p class="lede">Enter the seats you bought, the seats people actually use, and the per-seat price. Get a private, defensible estimate of avoidable subscription spend before your next renewal conversation.</p>
+  <p class="lede"><a href="./how-many-unused-saas-seats-am-i-paying-for.html">How many unused SaaS seats am I paying for?</a> &middot; <a href="./vs-zylo.html">vs. Zylo</a> &middot; <a href="./vs-vendr.html">vs. Vendr</a> &middot; <a href="./vs-a-spreadsheet.html">vs. a spreadsheet</a></p>
+  <section class="grid">
+    <form class="panel" id="form">
+      <h2>Plan details</h2>
+      <label for="purchased">Seats purchased</label><input id="purchased" type="number" min="0" value="20" required inputmode="decimal">
+      <label for="used">Seats used in the latest review</label><input id="used" type="number" min="0" value="14" required inputmode="decimal">
+      <label for="price">Price per seat per month</label><input id="price" type="number" min="0" step="0.01" value="18" required inputmode="decimal">
+      <label for="months">Months remaining in current term</label><input id="months" type="number" min="0" value="4" required inputmode="decimal">
+      <label for="overageRate">Overage premium above list price (%)</label><input id="overageRate" type="number" min="0" step="0.1" value="0" inputmode="decimal">
+      <p class="status">Leave at 0% when extra seats bill at the same price. Enter the contracted premium when the vendor charges more for unpurchased seats.</p>
+      <label for="seatMinimum">Contract seat minimum (optional)</label><input id="seatMinimum" type="number" min="0" value="0" inputmode="decimal">
+      <p class="status">Some contracts will not let you renew below a minimum seat count. Enter it here so the avoidable figures reflect what you can actually drop, not the full unused count.</p>
+      <label for="renewalDate">Renewal date (optional)</label><input id="renewalDate" type="date">
+      <label for="noticeDays">Notice period required to reduce (days)</label><input id="noticeDays" type="number" min="0" value="0" inputmode="decimal">
+      <p class="status">Many contracts require written notice before renewal to cut seats, or it auto-renews at the full count. Enter the renewal date and that notice window and the tool will say whether there is still time to act.</p>
+      <div class="actions">
+        <button type="submit">Calculate true-up</button>
+        <button type="button" class="secondary" id="save">Save scenario</button>
+        <button type="button" class="secondary" id="copyLink">Copy shareable link</button>
+        <button type="button" class="secondary" id="reset">Reset</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+    <section class="panel" aria-live="polite"><h2>Your review</h2><div class="results">
+      <div class="metric"><strong id="unused">6</strong><span id="unusedLabel">unused seats</span></div><div class="metric"><strong id="utilization">70%</strong><span>seat utilization</span></div>
+      <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">avoidable through renewal</span></div>
+    </div><div class="callout" id="message">A seat review could release $1,296.00 over a full year if the unused seats are not renewed.</div><div class="callout" id="notice" hidden></div></section>
+  </section>
+
+  <section class="panel" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>What counts as a &ldquo;used&rdquo; seat?</h3>
+    <p>Whatever your own review decides, and the definition is the whole game. A seat assigned to
+      someone who left, a seat held for a contractor whose project ended, a seat that has not seen a
+      login in ninety days &mdash; all of them are provisioned and billed, and none of them are used in
+      any sense your finance team would recognise. Most vendor admin consoles will export last-login
+      per user; that export, not the assigned-seat count, is the number to type here.</p>
+
+    <h3>Why does it show both a remaining-term figure and an annual one?</h3>
+    <p>Because they answer different questions. The remaining-term figure is what the current contract
+      still commits you to &mdash; on the worked example, 6 unused seats at $18 with 4 months left is
+      $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if
+      you renew at the same count. The first is usually sunk; the second is the one you can actually
+      act on, and it is why a seat review is worth doing <em>before</em> the renewal conversation rather
+      than after it.</p>
+
+    <h3>What if we are over the purchased count instead of under?</h3>
+    <p>Then the tool prices the overage rather than the saving, and that is often the more urgent
+      number. Overage is commonly billed at list plus a contracted premium, so there is a field for that
+      premium &mdash; leave it at 0% if your agreement charges plain list. Being over is not necessarily
+      bad; it can mean the product is working. It just should not be a surprise on the true-up
+      invoice.</p>
+
+    <h3>Does this tell me what to do at renewal?</h3>
+    <p>No. It sizes the number so you can decide, and a contracted seat minimum &mdash; enter it in the
+      field above &mdash; is already subtracted from what counts as droppable, so it will not tell you to
+      cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to
+      14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat
+      released today may have to be re-bought at a worse rate in six months. Read your own agreement for
+      true-up timing and whether reductions are permitted mid-term at all &mdash; many contracts allow
+      additions any time and reductions only at renewal.</p>
+
+    <h3>What does the contract seat minimum field do?</h3>
+    <p>It caps how many of the unused seats the tool treats as actually droppable. Some agreements will
+      not let the seat count fall below a floor at renewal no matter how low usage is &mdash; enter that
+      floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used,
+      and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the
+      other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no
+      floor.</p>
+
+    <h3>Can I use this across several tools at once?</h3>
+    <p>Run them one at a time and add up the annual figures. Each subscription has its own price, term,
+      and overage treatment, so averaging them together hides the one that matters. In practice a
+      handful of tools usually account for most of the waste, and doing them individually is what makes
+      that visible.</p>
+
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No account and no network requests &mdash; the calculation runs entirely in your browser. A saved
+      scenario stores only the totals you typed and stays in this browser; reset deletes it. The
+      shareable link carries the same totals in the URL itself, so a scenario is only shared with
+      whoever you send that link to &mdash; nothing is uploaded to a server to make the link work. There
+      are no cookies and no analytics vendors, and the anonymous feature counter is local and can be
+      turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of
+      this leaves the page.</p>
+
+    <h3>Why does it ask for a renewal date and a notice period?</h3>
+    <p>Because a seat reduction usually cannot happen just because usage is low &mdash; most contracts
+      allow it only at renewal, and many require written notice a set number of days before that renewal
+      or the agreement auto-renews at the full purchased count regardless of usage. Enter the renewal
+      date and that notice window (leave both blank if you don&rsquo;t know or your agreement has none)
+      and the tool checks whether the deadline has already passed. If it has, the saving above is not
+      avoidable this cycle &mdash; it tells you that plainly instead of showing a number you cannot
+      actually act on, and estimates when the next window opens assuming an annual term.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Saved scenarios store only the totals entered here and stay in this browser. Reset deletes the saved scenario. Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are stored only in this browser and can be disabled with <a href="#" id="disable">turning usage counting off</a>.<p class="support">Free and open source. If it caught an unused seat, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p><p>Selling the subscription rather than buying it? <a href="../subscription-price-impact/">Subscription price impact</a> tests a price increase and shows the maximum churn your recurring revenue can absorb before the change stops paying off.</p><p>Renewal coming up? The <a href="../saas-renewal-planner/">SaaS renewal planner</a> works out each contract's notice deadline and which renewals to negotiate first.</p></footer>
+</main><script type="module">
+  import { calculateTrueUp, formatMoney, reviewMessage, evaluateNoticeDeadline, noticeMessage } from './calc.mjs';
+  import { recordEvent, disableUsage, saveScenario, loadScenario, clearScenario } from './usage.mjs';
+  import { encodeInputs, decodeInputs } from './share.mjs';
+  const form = document.querySelector('#form');
+  const ids = ['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum'];
+  // Carried by a shared link (and so read into it below) but deliberately not
+  // part of `ids`, which also drives "Save scenario" / "Reset" -- a renewal
+  // date is only meaningful for the review the sender is looking at right
+  // now, not one resumed on a later visit. See the comment on share.mjs.
+  const linkOnlyIds = ['renewalDate', 'noticeDays'];
+  const example = [20, 14, 18, 4, 0, 0];
+  const read = id => document.querySelector(`#${id}`).value;
+  const values = () => Object.fromEntries([...ids, ...linkOnlyIds].map(id => [id, read(id)]));
+  const status = text => { document.querySelector('#status').textContent = text; };
+  function render(count = false) {
+    try {
+      const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months'), overageRatePct:read('overageRate'), seatMinimum:read('seatMinimum') });
+      const over = result.extra > 0;
+      document.querySelector('#unused').textContent = over ? result.extra : result.unused;
+      document.querySelector('#unusedLabel').textContent = over ? 'seats over purchased' : 'unused seats';
+      document.querySelector('#utilization').textContent = Number.isFinite(result.utilizationPercent) ? `${result.utilizationPercent.toFixed(1)}%` : 'n/a';
+      document.querySelector('#monthly').textContent = formatMoney(over ? result.monthlyOverage : result.monthlyAvoidable);
+      document.querySelector('#monthlyLabel').textContent = over ? 'extra per month' : 'avoidable per month';
+      document.querySelector('#remaining').textContent = formatMoney(over ? result.remainingOverage : result.remainingAvoidable);
+      document.querySelector('#remainingLabel').textContent = over ? 'extra through remaining term' : 'avoidable through renewal';
+      document.querySelector('#message').textContent = reviewMessage(result);
+      const noticeEl = document.querySelector('#notice');
+      const renewalDate = read('renewalDate');
+      let notice = null;
+      try {
+        notice = evaluateNoticeDeadline({ renewalDate, noticeDays: read('noticeDays') });
+      } catch (noticeError) {
+        notice = null;
+      }
+      const noticeText = noticeMessage(result, notice);
+      if (noticeText) {
+        noticeEl.textContent = noticeText;
+        noticeEl.hidden = false;
+      } else {
+        noticeEl.textContent = '';
+        noticeEl.hidden = true;
+      }
+      if (count) recordEvent('true_up_calculated');
+    } catch (error) {
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid review on screen next to a small error line -- that
+      // reads as if the stale unused-seat count, utilization, and dollar
+      // figures still answer the inputs now in the form. Clear every derived
+      // field and show the message only in its own region.
+      document.querySelector('#unused').textContent = '';
+      document.querySelector('#unusedLabel').textContent = '';
+      document.querySelector('#utilization').textContent = '';
+      document.querySelector('#monthly').textContent = '';
+      document.querySelector('#monthlyLabel').textContent = '';
+      document.querySelector('#remaining').textContent = '';
+      document.querySelector('#remainingLabel').textContent = '';
+      document.querySelector('#message').textContent = error.message;
+      document.querySelector('#notice').textContent = '';
+      document.querySelector('#notice').hidden = true;
+    }
+  }
+  form.addEventListener('submit', event => { event.preventDefault(); render(true); });
+  document.querySelector('#save').addEventListener('click', () => {
+    if (saveScenario(null, values())) {
+      recordEvent('scenario_saved');
+      status('Scenario saved in this browser.');
+    } else {
+      status('This browser could not save the scenario.');
+    }
+  });
+  document.querySelector('#copyLink').addEventListener('click', async () => {
+    const query = encodeInputs(values());
+    const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+    try { history.replaceState(null, '', url); } catch { /* file:// origins may reject it */ }
+    try {
+      await navigator.clipboard.writeText(url);
+      status('Shareable link copied — it carries these numbers only, nothing is uploaded.');
+    } catch {
+      status('Clipboard access was refused; the link is in your address bar instead.');
+    }
+    recordEvent('share_link_copied');
+  });
+  document.querySelector('#reset').addEventListener('click', () => {
+    example.forEach((value, index) => { document.querySelector(`#${ids[index]}`).value = value; });
+    document.querySelector('#renewalDate').value = '';
+    document.querySelector('#noticeDays').value = 0;
+    clearScenario();
+    try { history.replaceState(null, '', location.pathname); } catch { /* file:// origins may reject it */ }
+    render(false);
+    status('Reset to the example scenario.');
+  });
+  // A shared link wins over a saved scenario: someone opening a link a
+  // colleague sent means to review that scenario, not silently resume their
+  // own older one instead.
+  const fromLink = decodeInputs(location.hash);
+  const saved = loadScenario();
+  if (Object.keys(fromLink).length) {
+    [...ids, ...linkOnlyIds].forEach(id => { if (fromLink[id] !== undefined) document.querySelector(`#${id}`).value = fromLink[id]; });
+    recordEvent('scenario_from_link');
+    status('Scenario loaded from a shared link.');
+    render(false);
+  } else if (saved) {
+    ids.forEach(id => { document.querySelector(`#${id}`).value = saved[id]; });
+    recordEvent('scenario_restored');
+    status('Saved scenario restored from this browser.');
+    render(false);
+  }
+  document.querySelector('#disable').addEventListener('click', event => { event.preventDefault(); disableUsage(); });
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+      <li><a href="../equipment-rental-break-even/" data-pf-to="equipment-rental-break-even">Equipment Rental Break-Even Calculator</a></li>
+      <li><a href="../era-835-underpayment-finder/" data-pf-to="era-835-underpayment-finder">835 ERA Underpayment Finder — free, private, in your browser</a></li>
+      <li><a href="../espp-tax-calculator/" data-pf-to="espp-tax-calculator">ESPP Tax Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=saas-seat-true-up">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/?pfEmbed=1&quot; title=&quot;SaaS seat true-up calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="saas-seat-true-up"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/" data-pf-embed-title="SaaS seat true-up calculator" data-pf-embed-slug="saas-seat-true-up"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="saas-seat-true-up" data-pf-jobs-amount=""></script>
+</body></html>

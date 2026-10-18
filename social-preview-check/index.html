@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
+<meta name="description" content="Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Social Preview Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on broken social link previews: missing tags, a relative og:image URL…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Social Preview Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer and image-size tool run in a web browser); a Node.js CLI performs the actual page/image probing",
+  "description": "Fetches a page's Open Graph and Twitter Card meta tags plus the real pixel dimensions of its og:image/twitter:image, and classifies the result into named social-link-preview problems: missing og:title/og:description/image, a relative og:image URL (Open Graph requires it be absolute), an image below Facebook's or Twitter's documented minimum or recommended size, a missing twitter:card, a duplicated meta tag, and an og:url that does not match the checked page. Applies the twitter:image -> og:image fallback chain correctly rather than flagging a missing twitter:image on its own.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "CLI sends real requests to your page and its preview image, reading actual pixel dimensions from the image file's own header (no full download needed)",
+    "Applies the twitter:image -> og:image (and twitter:title/description -> og:title/description) fallback chain platforms document",
+    "Flags a relative og:image URL, which the Open Graph protocol requires to be absolute",
+    "Flags an image below Facebook's documented 200x200 minimum or Twitter's summary_large_image 300x157 minimum",
+    "Flags an image below the 1200x630 / 1200x628 recommended size as a lower-severity notice",
+    "Flags a duplicated og:*/twitter:* tag, a common CMS-plugin-versus-hand-written-tag bug",
+    "Flags an og:url that does not match the URL actually checked",
+    "Browser page also checks any image URL's real dimensions directly, with no CLI needed, since loading an <img> element does not require the target's CORS headers",
+    "CLI makes the actual requests; the report viewer only renders JSON you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does my og:image not show up on LinkedIn or Slack even though it works on Facebook?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The most common cause this tool catches is a relative og:image URL (like /images/preview.png instead of https://example.com/images/preview.png). The Open Graph protocol requires og:image to be an absolute URL, and crawlers differ in how forgivingly they handle a relative one -- some resolve it against the page URL, others simply fail to load an image at all. The second most common cause is the image being below the platform's minimum size, which some crawlers reject outright rather than upscale." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a separate twitter:image tag, or does og:image work on X/Twitter too?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You don't strictly need one. Twitter/X's card renderer falls back to og:image when twitter:image is absent (and to og:title/og:description for those tags too), so a page with only Open Graph tags set can still render correctly there. This tool follows that fallback chain rather than reporting a missing twitter:image as a problem on its own -- it only becomes one if the og:image it falls back to has its own issue (too small, unreachable, relative)." }
+    },
+    {
+      "@type": "Question",
+      "name": "What image size does Facebook actually require?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Facebook's own sharing documentation states a minimum of 200x200 pixels, below which the image is commonly not rendered at all, and a recommended size of 1200x630 pixels (a 1.91:1 ratio) for a full-size preview. Platform rendering behaviour is not contractually guaranteed and can change without notice -- treat these as strong, documented defaults rather than an absolute promise." }
+    },
+    {
+      "@type": "Question",
+      "name": "What image size does Twitter/X's summary_large_image card require?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Twitter's card documentation states a minimum of 300x157 pixels for the large-image card, below which it commonly falls back to a smaller layout or shows nothing, and a recommended size of 1200x628 pixels (roughly a 2:1 ratio)." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of just checking a URL I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Fetching an arbitrary third-party page's HTML from inside a browser tab is blocked by CORS unless that site opts in with an Access-Control-Allow-Origin header, which almost none do -- the same restriction every other response-probing tool in this portfolio runs into. A small local CLI with no such restriction, run from your own machine, does the actual fetching. The one thing the browser CAN do on its own is check an image's real pixel dimensions, since loading an <img> element (unlike a fetch() of its bytes) is not subject to CORS -- this page's third tool does exactly that." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my link preview will definitely render correctly everywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, documented set of Open Graph and Twitter Card patterns from one page fetch -- it is not a guarantee of how any individual platform's crawler will render the result today, since platforms cache aggressively, sometimes require a manual cache-refresh (LinkedIn's Post Inspector, for instance), and can change their rendering rules without notice. Treat a clean report as evidence these specific, well-documented patterns are correct, not a determination that every platform's preview will look a particular way." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea, input[type="url"] { width: 100%; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  textarea { min-height: 160px; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  #image-preview { max-width: 260px; max-height: 200px; border: 1px solid #8886; border-radius: 6px; margin-top: 0.5rem; display: none; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Social Preview Checker","item":"https://duncan-haywood.github.io/monorepo-projects/social-preview-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Social Preview Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Social Preview Checker</span></span></nav>
+<h1>Social Preview Checker</h1>
+<p>
+  Fetches a page's Open Graph and Twitter Card meta tags plus the real pixel dimensions of its preview
+  image, and classifies the result into the problems that actually break a shared link: <strong>missing
+  og:title/og:description/image</strong>, a <strong>relative og:image URL</strong> (Open Graph requires it
+  be absolute), an image <strong>below the platform's size minimum</strong>, a <strong>missing
+  twitter:card</strong>, a <strong>duplicated tag</strong>, and an <strong>og:url that doesn't match</strong>
+  the page you checked. Applies the <code>twitter:image → og:image</code> fallback chain correctly instead
+  of flagging a missing <code>twitter:image</code> as a problem on its own.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your page</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node cli/check.mjs https://example.com/your-page --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/social-preview-check" rel="noopener">check.mjs, probe.mjs, analyze.mjs, metatags.mjs and imagesize.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass and whatever it points its
+    preview image at; nothing goes through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "tags": {...}, "images": {...}}}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (broken)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Tags this tool read</h3>
+  <div class="pf-table-scroll"><table id="tag-table"><tbody></tbody></table></div>
+</section>
+
+<div class="card">
+  <h2>Bonus: check any image URL's real dimensions, no CLI needed</h2>
+  <p class="status-note">
+    Loading an <code>&lt;img&gt;</code> element (unlike fetching its bytes) is not subject to CORS, so this
+    works for a third-party image URL directly in this page -- nothing is uploaded, the image loads straight
+    from its own host to your browser.
+  </p>
+  <input type="url" id="image-url" placeholder="https://example.com/social-image.jpg">
+  <p><button type="button" class="primary" id="check-image">Check image size</button></p>
+  <p class="status-note" id="image-status"></p>
+  <img id="image-preview" alt="">
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why does my og:image not show up on LinkedIn or Slack even though it works on Facebook?</h3>
+  <p>The most common cause this tool catches is a relative og:image URL (like /images/preview.png instead of https://example.com/images/preview.png). The Open Graph protocol requires og:image to be an absolute URL, and crawlers differ in how forgivingly they handle a relative one -- some resolve it against the page URL, others simply fail to load an image at all. The second most common cause is the image being below the platform's minimum size, which some crawlers reject outright rather than upscale. More detail: <a href="social-preview-fallback-rules.html">the fallback chain and size-rule reference</a>.</p>
+  <h3>Do I need a separate twitter:image tag, or does og:image work on X/Twitter too?</h3>
+  <p>You don't strictly need one. Twitter/X's card renderer falls back to og:image when twitter:image is absent (and to og:title/og:description for those tags too), so a page with only Open Graph tags set can still render correctly there. This tool follows that fallback chain rather than reporting a missing twitter:image as a problem on its own -- it only becomes one if the og:image it falls back to has its own issue (too small, unreachable, relative).</p>
+  <h3>What image size does Facebook actually require?</h3>
+  <p>Facebook's own sharing documentation states a minimum of 200x200 pixels, below which the image is commonly not rendered at all, and a recommended size of 1200x630 pixels (a 1.91:1 ratio) for a full-size preview. Platform rendering behaviour is not contractually guaranteed and can change without notice -- treat these as strong, documented defaults rather than an absolute promise.</p>
+  <h3>What image size does Twitter/X's summary_large_image card require?</h3>
+  <p>Twitter's card documentation states a minimum of 300x157 pixels for the large-image card, below which it commonly falls back to a smaller layout or shows nothing, and a recommended size of 1200x628 pixels (roughly a 2:1 ratio).</p>
+  <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
+  <p>Fetching an arbitrary third-party page's HTML from inside a browser tab is blocked by CORS unless that site opts in with an Access-Control-Allow-Origin header, which almost none do -- the same restriction every other response-probing tool in this portfolio runs into. A small local CLI with no such restriction, run from your own machine, does the actual fetching. The one thing the browser CAN do on its own is check an image's real pixel dimensions, since loading an <code>&lt;img&gt;</code> element (unlike a fetch() of its bytes) is not subject to CORS -- this page's third tool does exactly that.</p>
+  <h3>Does a clean report mean my link preview will definitely render correctly everywhere?</h3>
+  <p>No. This checks a specific, documented set of Open Graph and Twitter Card patterns from one page fetch -- it is not a guarantee of how any individual platform's crawler will render the result today, since platforms cache aggressively, sometimes require a manual cache-refresh (LinkedIn's Post Inspector, for instance), and can change their rendering rules without notice. Treat a clean report as evidence these specific, well-documented patterns are correct, not a determination that every platform's preview will look a particular way.</p>
+</section>
+
+<script type="module">
+  import { buildReport, FACEBOOK_MIN, FACEBOOK_RECOMMENDED, TWITTER_LARGE_MIN, TWITTER_LARGE_RECOMMENDED } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), tagTable: $('#tag-table tbody'),
+    imageUrl: $('#image-url'), imageStatus: $('#image-status'), imagePreview: $('#image-preview'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://shop.example.com/products/widget',
+    probe: {
+      ok: true, status: 200,
+      tags: {
+        title: 'Widget — Example Shop', canonical: null,
+        og: { title: 'Widget' },
+        twitter: { card: 'summary_large_image' },
+        duplicates: {},
+      },
+      images: { ogImage: null, twitterImage: null },
+    },
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `The probe did not complete: ${report.probe.error} -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'None of the patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidence)}</p>
+        </div>`).join('');
+
+    const tags = report.probe.tags;
+    els.tagTable.innerHTML = !tags ? '<tr><td>(no tags -- redirect or failed probe)</td></tr>' : [
+      ['<title>', tags.title],
+      ['og:title', tags.og?.title],
+      ['og:description', tags.og?.description],
+      ['og:image', tags.og?.image],
+      ['twitter:card', tags.twitter?.card],
+      ['twitter:image', tags.twitter?.image],
+    ].map(([name, value]) => `<tr><th>${escapeHtml(name)}</th><td>${escapeHtml(value ?? '(not set)')}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || !payload.probe || typeof payload.probe !== 'object') {
+        throw new Error('Expected an object with a "probe" object -- the exact shape "node cli/check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload.probe);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node cli/check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: no preview image at all, and a summary_large_image card with nothing to satisfy it.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+
+  // --- Bonus tool: real image dimensions via <img>, no CORS needed --------
+  function classifyStandaloneImage(width, height) {
+    const notes = [];
+    if (width < FACEBOOK_MIN.width || height < FACEBOOK_MIN.height) {
+      notes.push(`Below Facebook's documented minimum (${FACEBOOK_MIN.width}x${FACEBOOK_MIN.height}) -- may not render at all there.`);
+    } else if (width < FACEBOOK_RECOMMENDED.width || height < FACEBOOK_RECOMMENDED.height) {
+      notes.push(`Below Facebook's recommended size (${FACEBOOK_RECOMMENDED.width}x${FACEBOOK_RECOMMENDED.height}).`);
+    } else {
+      notes.push('Meets Facebook\'s recommended size.');
+    }
+    if (width < TWITTER_LARGE_MIN.width || height < TWITTER_LARGE_MIN.height) {
+      notes.push(`Below Twitter's summary_large_image minimum (${TWITTER_LARGE_MIN.width}x${TWITTER_LARGE_MIN.height}).`);
+    } else if (width < TWITTER_LARGE_RECOMMENDED.width || height < TWITTER_LARGE_RECOMMENDED.height) {
+      notes.push(`Below Twitter's summary_large_image recommended size (${TWITTER_LARGE_RECOMMENDED.width}x${TWITTER_LARGE_RECOMMENDED.height}).`);
+    } else {
+      notes.push('Meets Twitter\'s summary_large_image recommended size.');
+    }
+    return notes;
+  }
+
+  $('#check-image').addEventListener('click', () => {
+    const url = els.imageUrl.value.trim();
+    if (!url) {
+      els.imageStatus.innerHTML = '<span class="error">Paste an image URL first.</span>';
+      return;
+    }
+    els.imageStatus.textContent = 'Loading…';
+    els.imagePreview.style.display = 'none';
+    const img = new Image();
+    img.onload = () => {
+      const { naturalWidth: width, naturalHeight: height } = img;
+      const notes = classifyStandaloneImage(width, height);
+      els.imageStatus.innerHTML = `<strong>${width}x${height}</strong><br>${notes.map(escapeHtml).join('<br>')}`;
+      els.imagePreview.src = url;
+      els.imagePreview.style.display = 'block';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'image_size_checked');
+    };
+    img.onerror = () => {
+      els.imageStatus.innerHTML = '<span class="error">Could not load that URL as an image.</span>';
+    };
+    img.src = url;
+  });
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, documented set of Open Graph and
+  Twitter Card patterns from one page fetch. It is not a guarantee of how any individual platform will render
+  the result today -- platforms cache aggressively and can change rendering rules without notice. A clean
+  report describes what this one fetch found, not a promise about every platform's preview.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express
+  or implied. It is not marketing, SEO, or legal advice, and it does not replace checking each platform's own
+  preview tool before you rely on a link. <strong>You are responsible for reviewing and verifying its output
+  before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's requests go straight from your machine to the
+  URL you name and its preview image -- never through this site. The page you're reading now only parses
+  JSON you paste into it, and loads an image URL you paste into it, locally; nothing is uploaded anywhere
+  this tool controls. The only thing stored is an anonymous local count of which features were used and the
+  day -- no target URLs, no page content, no image URLs, no account, no tracking cookies, no analytics
+  vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+  <p>Also worth a pass on your page: <a href="../structured-data-drift-check/">structured data drift
+  checker</a> covers whether your JSON-LD actually matches your visible text, a different metadata-accuracy
+  question from a social preview. Podcaster? <a href="../podcast-feed-check/">Podcast Feed Validator</a>
+  checks your show's RSS feed against Apple Podcasts' documented requirements, the same "check what you're
+  about to publish" idea applied to a feed instead of a page. See also
+  <a href="./vs-facebook-sharing-debugger.html">how this checker compares to Facebook Sharing Debugger</a>.
+  Already running a whole-site crawler? See
+  <a href="vs-screamingfrog.html">how this checker compares to Screaming Frog SEO Spider</a>.</p>
+    <p>Also: <a href="vs-checking-tags-by-eye.html">Social Preview Checker vs. checking your tags by eye</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=social-preview-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/social-preview-check/?pfEmbed=1&quot; title=&quot;Social Preview Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="social-preview-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/" data-pf-embed-title="Social Preview Checker" data-pf-embed-slug="social-preview-check"></script>
+</body>
+</html>

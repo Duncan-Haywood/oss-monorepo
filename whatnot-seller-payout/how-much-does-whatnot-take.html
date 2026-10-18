@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Whatnot Take Per Sale? (2026 Worked Examples)</title>
+  <meta name="description" content="Whatnot’s US seller fees worked through: 8% commission on the hammer, 2.9% + $0.30 processing on the checkout total, the $1,500 TCG cap…">
+  <meta property="og:title" content="How Much Does Whatnot Take Per Sale?">
+  <meta property="og:description" content="Commission on the hammer, processing on checkout. Whatnot’s $50 example, a $20 card with postage, and a $2,400 graded lot under the $1,500 cap.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/how-much-does-whatnot-take.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Whatnot take on a $50 sale?","acceptedAnswer":{"@type":"Answer","text":"On Whatnot’s published US default, a $50 hammer with no shipping or tax is $4.00 commission (8%) plus $1.75 processing (2.9% of $50 + $0.30) = $5.75 in fees and a $44.25 payout. That is Whatnot’s own worked example."}},{"@type":"Question","name":"Does Whatnot charge processing on shipping?","acceptedAnswer":{"@type":"Answer","text":"Yes. Processing is 2.9% + $0.30 of the checkout total — hammer plus buyer-paid shipping and tax — not of the hammer alone. A $20 card with $5 postage is $1.60 commission + $1.03 processing = $2.63, 13.1% of the hammer, not 8%."}},{"@type":"Question","name":"Does the $1,500 cap apply to every category?","acceptedAnswer":{"@type":"Answer","text":"No. Whatnot’s published US help article applies the 0%-above-$1,500 rule to comics, TCG, sports singles, toys & hobbies, and coins. Other categories still commission the whole hammer. The cap is labelled limited-time; confirm it on the lot."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #d7cce0; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #ece0f3; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #f7f1fb; border: 1px solid #d7cce0; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #7a1fa2; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #53485f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/how-much-does-whatnot-take.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Whatnot Take Per Sale? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../whatnot-seller-payout/">Whatnot Seller Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Whatnot Take Per Sale?</span></span></nav>
+  <p><a href="./">&larr; Back to the Whatnot payout calculator</a></p>
+  <h1>How much does Whatnot take per sale?</h1>
+  <p>Whatnot publishes two fees, not one. <strong>Commission</strong> is a percentage of the item’s final sale price — the hammer. <strong>Processing</strong> is 2.9% + $0.30 of the checkout total, which is the hammer plus whatever the buyer paid for shipping and tax. A page that says “Whatnot takes 8%” is describing the first line and silently dropping the second.</p>
+
+  <h2>The formula</h2>
+  <p><code>commission = commission rate × min(hammer, cap)</code> — no cap means the whole hammer.</p>
+  <p><code>processing = 2.9% × (hammer + shipping charged + tax) + $0.30</code></p>
+  <p><code>payout = hammer − commission − processing</code></p>
+  <p>That last line is Whatnot’s own “net earnings” definition. Shipping the buyer paid is not added to payout; it is there to cover the label. Leftover after <em>your</em> costs is payout + shipping charged − label − what the lot cost you.</p>
+
+  <h2>Worked example 1: Whatnot’s own $50 sale</h2>
+  <p>No shipping, no tax, 8% commission, 2.9% + $0.30 processing — the numbers on Whatnot’s US help article.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Hammer</td><td>$50.00</td></tr>
+      <tr><td>Commission (8% of $50)</td><td>$4.00</td></tr>
+      <tr><td>Processing (2.9% of $50 + $0.30)</td><td>$1.75</td></tr>
+      <tr><td>Total fees</td><td>$5.75</td></tr>
+      <tr><td>Payout</td><td>$44.25</td></tr>
+    </tbody>
+  </table></div>
+  <p>Effective take on the hammer: <strong>11.5%</strong>, not 8%.</p>
+
+  <h2>Worked example 2: a $20 TCG card with $5 postage</h2>
+  <p>The lot most live-sellers actually run. Same 8% + 2.9% + $0.30.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Hammer</td><td>$20.00</td></tr>
+      <tr><td>Buyer-paid shipping</td><td>$5.00</td></tr>
+      <tr><td>Commission (8% of $20)</td><td>$1.60</td></tr>
+      <tr><td>Processing (2.9% of $25 + $0.30)</td><td>$1.03</td></tr>
+      <tr><td>Total fees</td><td>$2.63</td></tr>
+      <tr><td>Payout</td><td>$17.38</td></tr>
+    </tbody>
+  </table></div>
+  <p>Effective take on the hammer: <strong>13.1%</strong>. Of the $1.03 processing, $0.15 is from the postage. That slice is why “just charge shipping” is not free, and why the <a href="./should-i-offer-free-shipping-on-whatnot.html">free-shipping comparison</a> exists.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">Worked example 3: a $2,400 graded lot under the $1,500 cap</h2>
+    <p>On the published US comics / TCG / sports / toys row, commission is 8% only up to $1,500. The $900 above the cap is 0%.</p>
+    <p>Commission is <strong>$120.00</strong>, not 8% of $2,400 ($192). Processing on $2,400 with no shipping is <strong>$69.90</strong>. Total fees <strong>$189.90</strong>, payout <strong>$2,210.10</strong>. The cap kept <strong>$72.00</strong> that a flat 8% page would have taken. The cap is labelled limited-time — confirm it on the lot.</p>
+  </div>
+
+  <h2>Do this with your own lots</h2>
+  <p>The <a href="./">Whatnot seller payout calculator</a> runs this same arithmetic on your own hammer, postage, tax, label, and cost, with category presets you can overwrite from your statement. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much does Whatnot take on a $50 sale?</h3>
+  <p>On Whatnot’s published US default, a $50 hammer with no shipping or tax is $4.00 commission (8%) plus $1.75 processing (2.9% of $50 + $0.30) = $5.75 in fees and a $44.25 payout. That is Whatnot’s own worked example.</p>
+  <h3>Does Whatnot charge processing on shipping?</h3>
+  <p>Yes. Processing is 2.9% + $0.30 of the checkout total — hammer plus buyer-paid shipping and tax — not of the hammer alone. A $20 card with $5 postage is $1.60 commission + $1.03 processing = $2.63, 13.1% of the hammer, not 8%.</p>
+  <h3>Does the $1,500 cap apply to every category?</h3>
+  <p>No. Whatnot’s published US help article applies the 0%-above-$1,500 rule to comics, TCG, sports singles, toys &amp; hobbies, and coins. Other categories still commission the whole hammer. The cap is labelled limited-time; confirm it on the lot.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice. Rates change. Verify every figure against your own Whatnot payout statement before you price a show.</p>
+    <p><a href="./">Open the calculator</a> · <a href="./should-i-offer-free-shipping-on-whatnot.html">Should I offer free shipping?</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../business-insurance-policy-reader/" data-pf-to="business-insurance-policy-reader">Check your business insurance policy for gaps and client-contract limits. Free, private</a></li>
+      <li><a href="../card-grading-submission-picker/" data-pf-to="card-grading-submission-picker">Which cards are worth sending to a grader, and which should you sell raw?</a></li>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+      <li><a href="../clearance-markdown-planner/" data-pf-to="clearance-markdown-planner">Clearance Markdown Planner — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=whatnot-seller-payout">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="whatnot-seller-payout"></script>
+</body>
+</html>

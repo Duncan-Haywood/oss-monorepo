@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to Split Shared Kitchen Costs Fairly | Why an Even Split Overcharges Your Lightest Tenant</title>
+<meta name="description" content="How to split shared kitchen costs fairly is not dividing the bill by the tenant count. An even split can overcharge your lightest tenant by 80%+ and…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/how-to-split-shared-kitchen-costs-fairly.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to split shared kitchen costs fairly">
+<meta property="og:description" content="On one real $5,000 pool, an even split overcharges the lightest tenant by 84% and undercharges the heaviest by 35%. Here is the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you split shared kitchen costs fairly?","acceptedAnswer":{"@type":"Answer","text":"By usage, not by headcount: split the pooled monthly cost (rent, utilities, trash, cleaning, pest control, insurance) by hours booked, storage units used, or a blend of both, instead of dividing it evenly across every tenant. This calculator's own verified defaults — a $5,000 pool across three tenants booking 40, 25, and 15 hours — price a 70/30 hours/storage blend at $2,564.82, $1,528.82, and $906.36. Splitting the same pool evenly would charge all three $1,666.67 or $1,666.66."}},{"@type":"Question","name":"How much does an even split overcharge the lightest tenant?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's defaults, the lightest tenant (15 hours booked, one dry storage unit) owes $906.36 under the default blended split but $1,666.67 under an even split — about 84% more, for a tenant using roughly a third of the kitchen's booked hours."}},{"@type":"Question","name":"How much does an even split undercharge the heaviest tenant?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's defaults, the heaviest tenant (40 hours booked, the most storage) owes $2,564.82 under the default blended split but only $1,666.66 under an even split — about 35% less, meaning the lighter tenants are covering the gap every month without anyone deciding that on purpose."}},{"@type":"Question","name":"Why split by both hours and storage instead of just hours?","acceptedAnswer":{"@type":"Answer","text":"Because they track different costs. Booked hours track variable costs like utilities and staff oversight; storage units track a more fixed draw on the walk-in and freezer space regardless of how many hours a tenant actually cooks on-site. On this calculator's defaults, an hours-only split prices the same three tenants at $2,462.50, $1,567.19, and $970.31 — close to the blended figures, but not identical, because a storage-heavy, hours-light tenant is not the same as an hours-heavy, storage-light one."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/how-to-split-shared-kitchen-costs-fairly.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to split shared kitchen costs fairly — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../commissary-kitchen-cost-split-calculator/">Commissary Kitchen Cost Split Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to split shared kitchen costs fairly</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>How to split shared kitchen costs fairly</h1>
+<p class="lede">Fairly, in a commissary with tenants who use the space unevenly, does not mean dividing the pooled bill by the number of tenants. On one real $5,000 pool, an even split overcharges the lightest tenant by 84% and undercharges the heaviest by 35% &mdash; the same pool, the same tenants, just a different arithmetic.</p>
+
+<section class="card">
+<h2>The same $5,000 pool, three different splits</h2>
+<p>This calculator's own verified defaults: a $5,000 monthly pool (rent, utilities, trash, cleaning, pest control, insurance) across three tenants booking 40, 25, and 15 hours, with a $75 flat base fee each.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Tenant</th><th scope="col">Hours booked</th><th scope="col">Even split</th><th scope="col">Hours-only split</th><th scope="col">Blended split (default)</th></tr></thead>
+<tbody>
+<tr><td>Truck 1</td><td>40</td><td>$1,666.66</td><td>$2,462.50</td><td>$2,564.82</td></tr>
+<tr><td>Truck 2</td><td>25</td><td>$1,666.67</td><td>$1,567.19</td><td>$1,528.82</td></tr>
+<tr><td>Truck 3</td><td>15</td><td>$1,666.67</td><td>$970.31</td><td>$906.36</td></tr>
+</tbody>
+</table></div>
+<p class="note">All three columns sum to exactly $5,000.00. Only the method of dividing it changes.</p>
+</section>
+
+<section class="card">
+<h2>The light tenant pays the most, proportionally, under an even split</h2>
+<p>
+Truck 3 books 15 of the pool's 80 total tenant-hours &mdash; about 19% of
+the usage &mdash; but an even split would charge it a flat third of the
+bill, $1,666.67. The default blended split charges it $906.36 instead: an
+even split overcharges this tenant by about 84%. Nobody decided to
+overcharge the light user on purpose; it is just what dividing by
+headcount does when usage is not actually even.
+</p>
+</section>
+
+<section class="card">
+<h2>The heavy tenant is the one being subsidized</h2>
+<p>
+Truck 1 books half the pool's total tenant-hours and carries the most
+storage, and the blended split charges it $2,564.82 for that. An even
+split would only charge it $1,666.66 &mdash; about 35% less. The $898.16
+difference does not disappear; it is paid by Trucks 2 and 3, who use the
+kitchen less but split the shortfall evenly anyway.
+</p>
+</section>
+
+<section class="card">
+<h2>Hours and storage are not interchangeable</h2>
+<p>
+An hours-only split ($2,462.50 / $1,567.19 / $970.31) lands close to the
+blended one on these defaults, but not identical &mdash; because storage
+tracks a different cost than booked hours. A tenant who rents a full
+walk-in shelf but rarely cooks on-site would pay almost nothing under an
+hours-only split; the blended method (70% hours, 30% storage by default,
+adjustable) prevents that gap.
+</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>How do you split shared kitchen costs fairly?</h3>
+<p>By usage, not by headcount: split the pooled monthly cost (rent, utilities, trash, cleaning, pest control, insurance) by hours booked, storage units used, or a blend of both, instead of dividing it evenly across every tenant. This calculator's own verified defaults &mdash; a $5,000 pool across three tenants booking 40, 25, and 15 hours &mdash; price a 70/30 hours/storage blend at $2,564.82, $1,528.82, and $906.36. Splitting the same pool evenly would charge all three $1,666.67 or $1,666.66.</p>
+<h3>How much does an even split overcharge the lightest tenant?</h3>
+<p>On this calculator's defaults, the lightest tenant (15 hours booked, one dry storage unit) owes $906.36 under the default blended split but $1,666.67 under an even split &mdash; about 84% more, for a tenant using roughly a third of the kitchen's booked hours.</p>
+<h3>How much does an even split undercharge the heaviest tenant?</h3>
+<p>On this calculator's defaults, the heaviest tenant (40 hours booked, the most storage) owes $2,564.82 under the default blended split but only $1,666.66 under an even split &mdash; about 35% less, meaning the lighter tenants are covering the gap every month without anyone deciding that on purpose.</p>
+<h3>Why split by both hours and storage instead of just hours?</h3>
+<p>Because they track different costs. Booked hours track variable costs like utilities and staff oversight; storage units track a more fixed draw on the walk-in and freezer space regardless of how many hours a tenant actually cooks on-site. On this calculator's defaults, an hours-only split prices the same three tenants at $2,462.50, $1,567.19, and $970.31 &mdash; close to the blended figures, but not identical, because a storage-heavy, hours-light tenant is not the same as an hours-heavy, storage-light one.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator perform arithmetic on the costs, hours, and storage figures you supply. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any agreement between the commissary operator and its tenants. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>MIT licensed. If it helped you bill your tenants, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../farmers-market-booth-calculator/" data-pf-to="farmers-market-booth-calculator">Which farmers market is actually worth your Saturday?</a></li>
+      <li><a href="../farmland-lease-cash-rent-vs-crop-share-calculator/" data-pf-to="farmland-lease-cash-rent-vs-crop-share-calculator">Cash rent or crop share? Free farmland lease calculator</a></li>
+      <li><a href="../fertilizer-blend-optimizer/" data-pf-to="fertilizer-blend-optimizer">Fertilizer Blend Optimizer — free, private, in your browser</a></li>
+      <li><a href="../fitness-studio-membership-calculator/" data-pf-to="fitness-studio-membership-calculator">Fitness studio membership calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=commissary-kitchen-cost-split-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="commissary-kitchen-cost-split-calculator"></script>
+</body>
+</html>

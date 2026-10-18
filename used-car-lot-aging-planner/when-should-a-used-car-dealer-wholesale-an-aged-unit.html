@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>When Should a Used Car Dealer Wholesale an Aged Unit? Floorplan and Price-Drop Math</title>
+  <meta name="description" content="How an independent used-car dealer can decide when an aged unit should stop being retailed and go to auction: true carrying cost on a floorplan, curtailments…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/when-should-a-used-car-dealer-wholesale-an-aged-unit.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When should a used car dealer wholesale an aged unit?", "acceptedAnswer": {"@type": "Answer", "text": "When the expected gain from one more day on the lot (the chance it retails times the gap between retail and wholesale) no longer covers that day's carrying cost plus how much the wholesale value falls in a day, and will not again before the floorplan limit. The planner finds that day exactly from your own numbers."}}, {"@type": "Question", "name": "What does it cost to carry a used car on floorplan?", "acceptedAnswer": {"@type": "Answer", "text": "Interest on the balance still owed, what your own cash in the car (equity plus curtailments paid) could earn elsewhere, and insurance, lot and upkeep. On the worked lot that is $118.80 a day across ten units, and $6,877.07 already spent."}}, {"@type": "Question", "name": "Is waiting until it sells a good policy?", "acceptedAnswer": {"@type": "Answer", "text": "Not for every unit. On the worked lot it is worth $1,117.35 less in expected dollars than wholesaling three units now and setting a wholesale day for two more, and it uses about 42% more floorplan line."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f6; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #1f2d3d; }
+    h2 { color: #1f2d3d; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #545e6b; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d6dbe2; padding-top: 16px; font-size: .86rem; color: #545e6b; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/when-should-a-used-car-dealer-wholesale-an-aged-unit.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="When Should a Used Car Dealer Wholesale an Aged Unit? Floorplan and Price-Drop Math">
+<meta property="og:description" content="How an independent used-car dealer can decide when an aged unit should stop being retailed and go to auction: true carrying cost on a floorplan, curtailments…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="When Should a Used Car Dealer Wholesale an Aged Unit? Floorplan and Price-Drop Math — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../used-car-lot-aging-planner/">Which aged units should an independent dealer wholesale today?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">When Should a Used Car Dealer Wholesale an Aged Unit? Floorplan and Price-Drop Math</span></span></nav>
+  <p class="note"><a href="./">Used Car Lot Aging Planner</a> · guide</p>
+  <h1>When should a used car dealer wholesale an aged unit? Floorplan and price-drop math</h1>
+  <p>Short answer: <strong>keep a unit listed only while one more day is worth more than it costs</strong> — the chance it retails that day times the gap over wholesale, against the day's floorplan interest, the cost of your own cash in it, the lot and insurance, and the wholesale value it loses by sitting. Once that stops being true for good, the auction check today beats the one next month.</p>
+
+  <h2>A worked lot</h2>
+  <p>Ten units from 6 to 140 days old, floorplan at 9% with curtailments of 10% at 90, 120 and 150 days and payoff at 180, your own cash worth 6% a year, and $6 to $12 a day of insurance, lot and upkeep per unit.</p>
+  <ul>
+    <li>The lot costs <strong>$118.80 a day</strong> to carry and has already spent <strong>$6,877.07</strong>. The 140-day Fusion alone has carried $1,412.27.</li>
+    <li>Three units — the Altima, the Malibu and the Fusion — are worth more wholesaled <strong>today</strong>, freeing <strong>$17,130.00</strong> of floorplan line.</li>
+    <li>Two more get a date: the Wrangler at day 115 and the Tahoe at day 147 if they have not retailed by then. The other five retail to the limit.</li>
+    <li>Holding every unit until it retails or hits 180 days is worth <strong>$1,117.35</strong> less in expected dollars, and uses 4,164 thousand-dollar-days of line against 2,934.</li>
+  </ul>
+  <p>If freed line would earn $2 per $1,000 a day on a fresh unit, the answer moves: five units go now, freeing $44,380.00, and waiting costs $4,885.68 counting that line value.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Total cost: purchase, buy fee, transport and reconditioning — everything in the car.</li>
+    <li>Floored amount: what the lender advanced. The rest, and each curtailment you pay, is your own cash.</li>
+    <li>Expected retail price and how many dollars it falls every 30 days, from your comps and your markdown habit.</li>
+    <li>Wholesale value today after auction fees, and how fast it falls.</li>
+    <li>Expected days to retail at that price — one over this is the daily chance of a sale.</li>
+  </ol>
+  <p>Check your floorplan agreement first: curtailment dates, payoff terms and audit rules are your lender's, and they override any plan.</p>
+
+  <h2>Questions</h2>
+  <h3>When should a used car dealer wholesale an aged unit?</h3>
+  <p>When the expected gain from one more day on the lot (the chance it retails times the gap between retail and wholesale) no longer covers that day's carrying cost plus how much the wholesale value falls in a day, and will not again before the floorplan limit. The planner finds that day exactly from your own numbers.</p>
+  <h3>What does it cost to carry a used car on floorplan?</h3>
+  <p>Interest on the balance still owed, what your own cash in the car (equity plus curtailments paid) could earn elsewhere, and insurance, lot and upkeep. On the worked lot that is $118.80 a day across ten units, and $6,877.07 already spent.</p>
+  <h3>Is waiting until it sells a good policy?</h3>
+  <p>Not for every unit. On the worked lot it is worth $1,117.35 less in expected dollars than wholesaling three units now and setting a wholesale day for two more, and it uses about 42% more floorplan line.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal, lending or business advice, and you are responsible for verifying its output, for the numbers you enter, and for your floorplan agreement. The worked example is illustrative arithmetic, not a forecast of what any vehicle will sell for.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../shopify-product-csv-check/" data-pf-to="shopify-product-csv-check">Shopify Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../shopify-to-woocommerce-converter/" data-pf-to="shopify-to-woocommerce-converter">Shopify to WooCommerce Product CSV Converter — free, private, in your browser</a></li>
+      <li><a href="../square-catalog-csv-check/" data-pf-to="square-catalog-csv-check">Square Catalog CSV Check — free, private, in your browser</a></li>
+      <li><a href="../squarespace-product-csv-check/" data-pf-to="squarespace-product-csv-check">Squarespace Product CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=used-car-lot-aging-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="used-car-lot-aging-planner"></script>
+</body>
+</html>

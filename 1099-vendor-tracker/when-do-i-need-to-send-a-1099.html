@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>When Do I Need to Send a 1099? The 2026 $2,000 Threshold</title>
+  <meta name="description" content="How the 2026 OBBBA change to the 1099-NEC reporting threshold (from $600 to $2,000) works, with a worked example across four vendor types.">
+  <meta property="og:title" content="When Do I Need to Send a 1099?">
+  <meta property="og:description" content="The threshold that has been $600 since 1954 is $2,000 for payments made in 2026. Here is what that changes and what it doesn't.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/when-do-i-need-to-send-a-1099.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What changed about the 1099 threshold in 2026?","acceptedAnswer":{"@type":"Answer","text":"The One Big Beautiful Bill Act (OBBBA) raised the Form 1099-NEC / 1099-MISC nonemployee-compensation reporting threshold from $600 to $2,000 for payments made on or after January 1, 2026 — the first change to that number since 1954. It will adjust for inflation starting with payments made in 2027."}},{"@type":"Question","name":"Does the higher threshold mean I never have to send a 1099 to a corporation?","acceptedAnswer":{"@type":"Answer","text":"The corporation exemption is a separate, older rule the threshold change did not touch. Payments to a C-corp, S-corp, or an LLC taxed as a corporation are generally exempt regardless of amount — except an attorney's own fees for services, which are always reportable no matter how the firm is organized."}},{"@type":"Question","name":"What about a payment I made to an attorney that isn't for the attorney's own services?","acceptedAnswer":{"@type":"Answer","text":"Gross proceeds paid to an attorney — for example, a settlement routed through counsel — follow a different rule, 1099-MISC box 10 under section 6045(f), with its own $600 threshold that did not move with OBBBA. That is a separate calculation from the general nonemployee-compensation threshold this page and the tracker describe."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem,5vw,2.6rem)/1.05 Georgia,serif; letter-spacing:-.04em; color: var(--ink); }
+    h2 { font: 700 1.2rem Georgia,serif; margin-top: 1.8em; }
+    a { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; margin: 1em 0; }
+    th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid var(--line); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/when-do-i-need-to-send-a-1099.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="When Do I Need to Send a 1099? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../1099-vendor-tracker/">1099-NEC Vendor Tracker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">When Do I Need to Send a 1099?</span></span></nav><main>
+  <p><a href="./">← 1099-NEC Vendor Tracker</a></p>
+  <h1>When do I actually need to send a 1099?</h1>
+  <p>For payments made in 2026 and later, the answer to "did this vendor cross the threshold" changed for the first time since 1954. A vendor who was reportable at $650 in 2025 is not reportable at $650 in 2026 — and a spreadsheet built around the old $600 line will flag vendors that no longer need one, or worse, hide the habit of checking altogether.</p>
+  <p><a class="cta" href="./">Open the free 1099-NEC vendor tracker</a></p>
+
+  <h2>What actually changed</h2>
+  <p><strong>The general threshold: $600 to $2,000.</strong> The One Big Beautiful Bill Act (OBBBA) raised the Form 1099-NEC / 1099-MISC nonemployee-compensation reporting threshold to $2,000 for payments made on or after January 1, 2026. It will adjust for inflation starting with payments made in 2027, so treat $2,000 as the 2026 figure specifically, not a number fixed forever.</p>
+  <p><strong>The corporation exemption did not change.</strong> A C-corp, S-corp, or LLC taxed as a corporation is still generally exempt from 1099-NEC reporting regardless of how much you paid it — except an attorney's own fees, which are reportable no matter how the firm is organized. That exception is older than the threshold change and the threshold change did not touch it.</p>
+  <p><strong>Some related categories follow their own separate rules.</strong> Gross proceeds paid to an attorney (a settlement, for example) go on 1099-MISC box 10 under section 6045(f), which kept its own $600 threshold. Medical and health-care payments also stay reportable to a corporation. Both are different calculations from the general threshold above.</p>
+
+  <h2>Worked example</h2>
+  <p>Four vendors paid in 2026, reviewed the same afternoon:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Vendor</th><th>Entity</th><th>Paid</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Freelance web designer</td><td>Single-member LLC</td><td>$3,200</td><td>Above $2,000 — needs a 1099-NEC</td></tr>
+      <tr><td>One-off courier job</td><td>Individual</td><td>$450</td><td>Below $2,000 — not yet reportable (would have been, under the old $600 line)</td></tr>
+      <tr><td>Print shop</td><td>C-corporation</td><td>$4,100</td><td>Exempt — corporation, ordinary services</td></tr>
+      <tr><td>Law firm, own fees</td><td>LLC taxed as a corporation</td><td>$5,400</td><td>Needs a 1099-NEC — attorney fees are never exempt</td></tr>
+    </tbody>
+  </table></div>
+  <p>The courier is the row worth noticing: under the pre-2026 $600 line that vendor would have needed a form, and under the 2026 $2,000 line they don't. A vendor list built by copying last year's reportable set forward will miss that the line moved and flag someone who no longer needs a form — or, run the other direction on an older year, miss someone who does. Load the sample vendors in the tracker to see this exact queue rendered live, including the two categories the tracker flags rather than calculates.</p>
+
+  <h2>Common questions</h2>
+  <h3>What changed about the 1099 threshold in 2026?</h3>
+  <p>The One Big Beautiful Bill Act (OBBBA) raised the Form 1099-NEC / 1099-MISC nonemployee-compensation reporting threshold from $600 to $2,000 for payments made on or after January 1, 2026 — the first change to that number since 1954. It will adjust for inflation starting with payments made in 2027.</p>
+  <h3>Does the higher threshold mean I never have to send a 1099 to a corporation?</h3>
+  <p>The corporation exemption is a separate, older rule the threshold change did not touch. Payments to a C-corp, S-corp, or an LLC taxed as a corporation are generally exempt regardless of amount — except an attorney's own fees for services, which are always reportable no matter how the firm is organized.</p>
+  <h3>What about a payment I made to an attorney that isn't for the attorney's own services?</h3>
+  <p>Gross proceeds paid to an attorney — for example, a settlement routed through counsel — follow a different rule, 1099-MISC box 10 under section 6045(f), with its own $600 threshold that did not move with OBBBA. That is a separate calculation from the general nonemployee-compensation threshold this page and the tracker describe.</p>
+
+  <footer>
+    <strong>No warranty.</strong> This tool is free and as-is. It is not legal, financial, or tax advice and does not replace a qualified tax preparer. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, an IRS TIN match, or a compliance determination.
+    <p><a href="./">Use the tracker</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</main><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+      <li><a href="../bai2-to-ofx-converter/" data-pf-to="bai2-to-ofx-converter">BAI2 to OFX, QBO, QIF and Xero CSV — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099-vendor-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="1099-vendor-tracker"></script>
+</body>
+</html>

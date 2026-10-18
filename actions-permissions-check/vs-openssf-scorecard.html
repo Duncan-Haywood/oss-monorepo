@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Permissions Check vs. OpenSSF Scorecard</title>
+  <meta name="description" content="OpenSSF Scorecard's Token-Permissions check scores whether a repository's workflows set explicit least-privilege GITHUB_TOKEN permissions…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/vs-openssf-scorecard.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Permissions Check vs. OpenSSF Scorecard">
+  <meta property="og:description" content="Scorecard's Token-Permissions check scores a whole repository from the GitHub API. This page checks the same thing -- explicit least-privilege permissions --…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/vs-openssf-scorecard.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or OpenSSF Scorecard?","acceptedAnswer":{"@type":"Answer","text":"They answer an overlapping question in different shapes. Scorecard is a broader, ongoing measurement: it runs 18 named checks against a repository -- Branch-Protection, Code-Review, Dangerous-Workflow, Token-Permissions, Vulnerabilities, Pinned-Dependencies, and more -- each scored 0 to 10, using the GitHub API and a token, usually wired into CI or read from Scorecard's own public dataset of already-scanned open-source repositories. This tool answers only the permissions question: you paste the YAML of a workflow file, and it lists every workflow or job with no explicit permissions block, or with permissions: write-all, file and line. It runs entirely in your browser, needs no token, no install, and no repository access, because it never talks to GitHub at all. If you want an ongoing score across 18 dimensions of a public repository's supply-chain posture, Scorecard is the right tool. If you want a fast, private, no-setup answer to the permissions question on one workflow file in front of you right now, this is the narrower tool for that."}},{"@type":"Question","name":"Does Scorecard's Token-Permissions check do the same thing as this tool?","acceptedAnswer":{"@type":"Answer","text":"The underlying question is the same; the shape of the answer is not. Scorecard's own documentation describes Token-Permissions as checking whether a project's workflows follow the principle of least privilege for the GITHUB_TOKEN, and it returns one 0-to-10 score for the repository as a whole, penalizing write permissions that are broader than a job appears to need. This tool checks the same underlying fact -- an explicit permissions block versus an ambient default, and write-all specifically -- but instead of a score it lists every workflow-level and job-level grant individually, with the file, line, and its classification (explicit, write-all, or unspecified). Running both is not redundant: Scorecard's score reflects GitHub's live view of your repository and can move for reasons unrelated to the one file you are editing, while this tool's file:line list is exact for the YAML you actually pasted."}},{"@type":"Question","name":"Why would I need a token-free, no-install checker if Scorecard already exists?","acceptedAnswer":{"@type":"Answer","text":"Three reasons this tool exists alongside it. First, Scorecard's CLI needs a GitHub token to avoid API rate limits in practice, and its GitHub Action needs to run inside your CI with repository access -- this tool needs neither, so it works on a workflow file from a private repository, a fork you have not pushed anywhere, or a repo you do not administer, with nothing leaving your browser. Second, Scorecard is a Go binary (or a container image) you install and configure; this tool is a page you open and paste into. Third, when the answer you actually want is \"which workflow or job, and is it write-all or just unspecified,\" a single 0-to-10 repository score is a worse fit than a table naming every grant, which is the only thing this tool produces."}},{"@type":"Question","name":"Is this page affiliated with OpenSSF or the Scorecard project?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the Open Source Security Foundation or the Scorecard project. Scorecard is an open-source project of the OpenSSF, named here only to describe what this checker is and is not, using facts drawn from Scorecard's own public documentation and source repository at github.com/ossf/scorecard."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Actions Permissions Check vs. OpenSSF Scorecard — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-permissions-check/">Does your GITHUB_TOKEN use least-privilege permissions?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Actions Permissions Check vs. OpenSSF Scorecard</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Permissions Check</a></p>
+    <h1>Actions Permissions Check vs. OpenSSF Scorecard</h1>
+    <p class="lede">The same underlying question, two different shapes of answer. Scorecard's Token-Permissions
+      check scores a whole repository's least-privilege posture using the GitHub API and a token, usually wired
+      into CI. This page checks the same thing on one workflow file you paste, free, with no token, no install,
+      and no network call of its own.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>OpenSSF Scorecard</strong> (<code>github.com/ossf/scorecard</code>) is an open-source project that
+        runs 18 named checks against a repository -- among them Branch-Protection, Code-Review,
+        Dangerous-Workflow, Vulnerabilities, Pinned-Dependencies, and <strong>Token-Permissions</strong> -- and
+        scores each 0 to 10. The Token-Permissions check, per its own documentation, looks at whether a
+        repository's workflows follow least privilege for the <code>GITHUB_TOKEN</code>, penalizing workflows
+        that grant broader write access than a job appears to need, and returns one aggregate score for the
+        repository. Running it needs a GitHub token to avoid API rate limits, and it is typically run through the
+        <code>ossf/scorecard-action</code> in CI or read from Scorecard's own public dataset of already-scanned
+        open-source repositories.
+      </p>
+      <p>
+        <strong>This checker</strong> does the narrower version of the same job: you paste the YAML of one or
+        more workflow files, and it lists every workflow-level and job-level <code>permissions:</code> grant --
+        file, line, and whether it is <code>explicit</code>, <code>write-all</code>, or <code>unspecified</code>
+        (running on the ambient repository/organization default). It runs entirely in your browser, needs no
+        GitHub token and no install, and makes no network call of its own, so it works the same on a private
+        repository's workflow, an unpushed fork, or a file from a repo you do not administer.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>How does my whole repository score across 18 supply-chain dimensions, tracked over time?</td><td>OpenSSF Scorecard -- that is its entire job, and this tool does not attempt it.</td></tr>
+          <tr><td>Which exact workflow or job in one file has no permissions block, or grants write-all, and what should I put there instead?</td><td>This checker -- a file:line table with an explicit/write-all/unspecified classification, not a score.</td></tr>
+          <tr><td>I need this to work on a private repository's workflow, or a file I have not pushed anywhere.</td><td>This checker -- no token, no repository access, nothing leaves your browser. Scorecard's public dataset and default setup target public repositories.</td></tr>
+          <tr><td>I want one score I can track over time and compare against other repositories.</td><td>OpenSSF Scorecard -- this tool produces a per-file finding list, not a trackable score.</td></tr>
+          <tr><td>I want this wired into CI to block a merge automatically.</td><td>Either: Scorecard's own GitHub Action, or this tool's <code>check.py --fail-on-risk</code> for the permissions question specifically.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run Scorecard for the ongoing 18-dimension score and still reach for this tool the moment the question is "which workflow or job, right now, and is it write-all or just unspecified" on a file that is not yet in a public, tokened CI run.</p>
+      <p><a class="cta" href="./">Run the free permissions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or OpenSSF Scorecard?</h3>
+      <p>They answer an overlapping question in different shapes. Scorecard is a broader, ongoing measurement: it runs 18 named checks against a repository -- Branch-Protection, Code-Review, Dangerous-Workflow, Token-Permissions, Vulnerabilities, Pinned-Dependencies, and more -- each scored 0 to 10, using the GitHub API and a token, usually wired into CI or read from Scorecard's own public dataset of already-scanned open-source repositories. This tool answers only the permissions question: you paste the YAML of a workflow file, and it lists every workflow or job with no explicit permissions block, or with <code>permissions: write-all</code>, file and line. It runs entirely in your browser, needs no token, no install, and no repository access, because it never talks to GitHub at all. If you want an ongoing score across 18 dimensions of a public repository's supply-chain posture, Scorecard is the right tool. If you want a fast, private, no-setup answer to the permissions question on one workflow file in front of you right now, this is the narrower tool for that.</p>
+      <h3>Does Scorecard's Token-Permissions check do the same thing as this tool?</h3>
+      <p>The underlying question is the same; the shape of the answer is not. Scorecard's own documentation describes Token-Permissions as checking whether a project's workflows follow the principle of least privilege for the <code>GITHUB_TOKEN</code>, and it returns one 0-to-10 score for the repository as a whole, penalizing write permissions that are broader than a job appears to need. This tool checks the same underlying fact -- an explicit permissions block versus an ambient default, and <code>write-all</code> specifically -- but instead of a score it lists every workflow-level and job-level grant individually, with the file, line, and its classification (<code>explicit</code>, <code>write-all</code>, or <code>unspecified</code>). Running both is not redundant: Scorecard's score reflects GitHub's live view of your repository and can move for reasons unrelated to the one file you are editing, while this tool's file:line list is exact for the YAML you actually pasted.</p>
+      <h3>Why would I need a token-free, no-install checker if Scorecard already exists?</h3>
+      <p>Three reasons this tool exists alongside it. First, Scorecard's CLI needs a GitHub token to avoid API rate limits in practice, and its GitHub Action needs to run inside your CI with repository access -- this tool needs neither, so it works on a workflow file from a private repository, a fork you have not pushed anywhere, or a repo you do not administer, with nothing leaving your browser. Second, Scorecard is a Go binary (or a container image) you install and configure; this tool is a page you open and paste into. Third, when the answer you actually want is "which workflow or job, and is it write-all or just unspecified," a single 0-to-10 repository score is a worse fit than a table naming every grant, which is the only thing this tool produces.</p>
+      <h3>Is this page affiliated with OpenSSF or the Scorecard project?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by the Open Source Security Foundation or the Scorecard project. Scorecard is an open-source project of the OpenSSF, named here only to describe what this checker is and is not, using facts drawn from Scorecard's own public documentation and source repository at github.com/ossf/scorecard.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including deciding what scopes a job actually needs. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against Scorecard -- it is a static page describing category facts sourced from Scorecard's own public documentation, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+      <li><a href="../auth-mau-pricing-calculator/" data-pf-to="auth-mau-pricing-calculator">What will authentication cost at your user count, and who is cheapest?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-permissions-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-permissions-check"></script>
+</body></html>

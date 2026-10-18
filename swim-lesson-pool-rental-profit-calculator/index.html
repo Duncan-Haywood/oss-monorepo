@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Swim Lesson Profit Calculator — Pool Rental Cost, Private vs Group Lessons</title>
+  <meta name="description" content="Free swim lesson calculator: enter private, semi-private and group lesson prices, class sizes, pool rental per hour, instructor pay and cancellations…">
+  <meta property="og:title" content="Swim Lesson Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a swim lesson earns after the pool, the instructor and no-shows, and whether private, semi-private or group classes pay a rented pool hour best.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Swim Lesson Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free swim instructor calculator: turn lesson prices, class sizes, pool rental by the hour, instructor pay and cancellations into profit per lesson, profit per pool hour, break-even swimmers per class and the cost of empty pool hours."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for swim lessons when I rent the pool by the hour?","acceptedAnswer":{"@type":"Answer","text":"Add the instructor's pay for the lesson minutes, the pool rental for the same minutes and the supplies, then divide by the swimmers who will actually show and by one minus the card fee and the margin you want. The result is the price per swimmer at that class size. A private lesson carries the whole pool hour on one swimmer; a group of four spreads it four ways, which is why the same hour earns very different amounts."}},{"@type":"Question","name":"Are group swim lessons more profitable than private lessons?","acceptedAnswer":{"@type":"Answer","text":"Usually per pool hour, yes, because the pool and the instructor are paid once however many swimmers are in the water. But a group only wins if it fills: the calculator prints the number of swimmers per class at which each format stops losing money, and the profit per pool hour for each, so you can see where private lessons at a higher price beat a half-empty group."}},{"@type":"Question","name":"What does an empty pool hour cost?","acceptedAnswer":{"@type":"Answer","text":"If you rent a block of pool time and no lesson fills part of it, you still pay for those hours. The calculator compares the hours you rent with the minutes your classes use and prints the cost of the empty hours per week and per year."}},{"@type":"Question","name":"How many swimmers does a class need to break even?","acceptedAnswer":{"@type":"Answer","text":"The instructor's pay and the pool time for the lesson, divided by what each swimmer leaves after the card fee, cancellations and supplies. Type your price and the table shows the smallest class that does not lose money."}},{"@type":"Question","name":"What does this leave out?","acceptedAnswer":{"@type":"Answer","text":"Tips, which belong to whoever earned them, lifeguard or deck staff you pay beyond the instructor, insurance and certification, sales tax, advertising, make-up lessons, seasonal closures, and income tax. It is a planning aid, not an estimate of record."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+        .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Swim Lesson Profit Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Swim Lesson Profit Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Swim Lesson Profit Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">SWIM LESSON PROFIT AND POOL RENTAL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a swim lesson earn after you pay for the pool, and which class size pays the hour best?</h1>
+    <p>Enter your private, semi-private and group lesson prices, class sizes, pool rental per hour and instructor pay. You get <strong>profit per lesson and per pool hour, the price each format needs for your target margin, the swimmers per class you need to break even, and what empty rented hours cost you</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What you teach in a typical week</h2>
+    <div class="grid">
+      <div><label for="privateClasses">Private classes taught per week</label><input type="number" id="privateClasses" min="0" step="1" value="10" inputmode="numeric"></div>
+      <div><label for="privateSwimmers">Private: swimmers per class</label><input type="number" id="privateSwimmers" min="0" step="any" value="1" inputmode="decimal"></div>
+      <div><label for="privatePrice">Private: price per swimmer per lesson ($)</label><input type="number" id="privatePrice" min="0" step="any" value="65" inputmode="decimal"></div>
+      <div><label for="privateMin">Private: lesson minutes</label><input type="number" id="privateMin" min="0" step="any" value="30" inputmode="decimal"></div>
+      <div><label for="semiClasses">Semi-private classes taught per week</label><input type="number" id="semiClasses" min="0" step="1" value="6" inputmode="numeric"></div>
+      <div><label for="semiSwimmers">Semi-private: swimmers per class</label><input type="number" id="semiSwimmers" min="0" step="any" value="2" inputmode="decimal"></div>
+      <div><label for="semiPrice">Semi-private: price per swimmer per lesson ($)</label><input type="number" id="semiPrice" min="0" step="any" value="40" inputmode="decimal"></div>
+      <div><label for="semiMin">Semi-private: lesson minutes</label><input type="number" id="semiMin" min="0" step="any" value="30" inputmode="decimal"></div>
+      <div><label for="groupClasses">Small group classes taught per week</label><input type="number" id="groupClasses" min="0" step="1" value="8" inputmode="numeric"></div>
+      <div><label for="groupSwimmers">Small group: swimmers per class</label><input type="number" id="groupSwimmers" min="0" step="any" value="4" inputmode="decimal"></div>
+      <div><label for="groupPrice">Small group: price per swimmer per lesson ($)</label><input type="number" id="groupPrice" min="0" step="any" value="25" inputmode="decimal"></div>
+      <div><label for="groupMin">Small group: lesson minutes</label><input type="number" id="groupMin" min="0" step="any" value="30" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Pool, instructor and costs</h2>
+    <div class="grid">
+      <div><label for="poolRatePerHour">Pool or lane rental ($ per hour)</label><input type="number" id="poolRatePerHour" min="0" step="any" value="45" inputmode="decimal"></div>
+      <div><label for="poolHoursBooked">Pool hours you rent per week (0 = only what classes use)</label><input type="number" id="poolHoursBooked" min="0" step="any" value="16" inputmode="decimal"></div>
+      <div><label for="instructorRate">Instructor pay, or what your own hour is worth ($ per hour)</label><input type="number" id="instructorRate" min="0" step="any" value="25" inputmode="decimal"></div>
+      <div><label for="cancelPct">Swimmers who cancel or no-show (%)</label><input type="number" id="cancelPct" min="0" step="any" value="8" inputmode="decimal"></div>
+      <div><label for="suppliesPerLesson">Supplies per swimmer per lesson ($)</label><input type="number" id="suppliesPerLesson" min="0" step="any" value="1" inputmode="decimal"></div>
+      <div><label for="cardFeePct">Card fee (% of the price)</label><input type="number" id="cardFeePct" min="0" step="any" value="3" inputmode="decimal"></div>
+      <div><label for="fixedPerMonth">Other fixed cost ($ per month: insurance, software, certification)</label><input type="number" id="fixedPerMonth" min="0" step="any" value="180" inputmode="decimal"></div>
+      <div><label for="targetMarginPct">Target margin on each lesson (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="35" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the pool</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the pool.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each lesson format</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Format</th><th scope="col">Swimmers</th><th scope="col">Price each</th><th scope="col">Profit per class</th><th scope="col">Margin</th><th scope="col">Per pool hour</th><th scope="col">Price for target</th><th scope="col">Break-even swimmers</th></tr></thead><tbody id="lines"></tbody></table></div></div>
+    <h3>The week at different volumes, in the same rented pool hours</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Classes</th><th scope="col">Pool hours paid</th><th scope="col">Pool used</th><th scope="col">Week nets</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Only swimmers who show up pay. A cancellation empties a place but the instructor and the pool minutes for the class are still paid.</li>
+      <li>A class costs the instructor's pay and the pool rental for its lesson minutes, plus supplies per swimmer and the card fee on what is collected.</li>
+      <li>If you rent more pool hours than your classes use, the empty hours are charged to the week at the pool rate, so adding a class to a rented block costs only the instructor.</li>
+      <li>Profit per pool hour compares private, semi-private and group lessons on the thing you run out of: hours in the water.</li>
+    </ul>
+    <p class="note"><strong>Not modelled:</strong> lifeguard or deck staff beyond the instructor, insurance and certification beyond the fixed figure, sales tax, advertising, make-up lessons, closures, tips and income tax. Tips are left out on purpose. The example is made up.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for swim lessons when I rent the pool by the hour?</h3>
+    <p>Add the instructor's pay for the lesson minutes, the pool rental for the same minutes and the supplies, then divide by the swimmers who will actually show and by one minus the card fee and the margin you want. The result is the price per swimmer at that class size. A private lesson carries the whole pool hour on one swimmer; a group of four spreads it four ways, which is why the same hour earns very different amounts.</p>
+    <h3>Are group swim lessons more profitable than private lessons?</h3>
+    <p>Usually per pool hour, yes, because the pool and the instructor are paid once however many swimmers are in the water. But a group only wins if it fills: the calculator prints the number of swimmers per class at which each format stops losing money, and the profit per pool hour for each, so you can see where private lessons at a higher price beat a half-empty group.</p>
+    <h3>What does an empty pool hour cost?</h3>
+    <p>If you rent a block of pool time and no lesson fills part of it, you still pay for those hours. The calculator compares the hours you rent with the minutes your classes use and prints the cost of the empty hours per week and per year.</p>
+    <h3>How many swimmers does a class need to break even?</h3>
+    <p>The instructor's pay and the pool time for the lesson, divided by what each swimmer leaves after the card fee, cancellations and supplies. Type your price and the table shows the smallest class that does not lose money.</p>
+    <h3>What does this leave out?</h3>
+    <p>Tips, which belong to whoever earned them, lifeguard or deck staff you pay beyond the instructor, insurance and certification, sales tax, advertising, make-up lessons, seasonal closures, and income tax. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pool_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../driving-instructor-lesson-pricing-calculator/">driving instructor lesson pricing</a>, <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing</a>, <a href="../dog-grooming-profit-calculator/">dog grooming profit</a>, <a href="../tutor-weekly-schedule-optimizer/">tutor weekly schedule</a>, <a href="../pottery-piece-pricing-calculator/">pottery pricing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["privateClasses", "privatePrice", "privateMin", "privateSwimmers", "semiClasses", "semiPrice", "semiMin", "semiSwimmers", "groupClasses", "groupPrice", "groupMin", "groupSwimmers", "cancelPct", "poolRatePerHour", "poolHoursBooked", "instructorRate", "suppliesPerLesson", "cardFeePct", "fixedPerMonth", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${l.swimmers}</td><td>${usd(l.price)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.profitPerPoolHour)}</td><td>${l.targetPrice === null ? "n/a" : usd(l.targetPrice)}</td><td>${l.breakEvenSwimmers === null ? "n/a" : l.breakEvenSwimmers}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.classes}</td><td>${x.poolHours}</td><td>${x.utilizationPct}%</td><td>${usd(x.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result: ${usd(r.week.net)} after pool, instructor pay, fees and fixed cost.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("pool_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "swim-lessons-pool-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../medical-billing-pricing-calculator/" data-pf-to="medical-billing-pricing-calculator">Medical billing pricing calculator: percent vs per-claim vs flat</a></li>
+      <li><a href="../mini-golf-course-profit-calculator/" data-pf-to="mini-golf-course-profit-calculator">Mini-golf course profit calculator: does the course pay for itself? Free, private</a></li>
+      <li><a href="../mobile-detailing-day-planner/" data-pf-to="mobile-detailing-day-planner">Which detailing jobs should you take today? Free day planner</a></li>
+      <li><a href="../mobile-mechanic-visit-pricing-calculator/" data-pf-to="mobile-mechanic-visit-pricing-calculator">Mobile mechanic pricing calculator: what to charge per job and per stop. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=swim-lesson-pool-rental-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/?pfEmbed=1&quot; title=&quot;Swim Lesson Profit Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="swim-lesson-pool-rental-profit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/" data-pf-embed-title="Swim Lesson Profit Calculator — free, private" data-pf-embed-slug="swim-lesson-pool-rental-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="swim-lesson-pool-rental-profit-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

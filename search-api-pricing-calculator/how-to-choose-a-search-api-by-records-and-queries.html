@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Search API by Records and Queries</title>
+  <meta name="description" content="Why hosted-search bills are really query bills, how Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and self-hosting differ…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/how-to-choose-a-search-api-by-records-and-queries.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do search APIs bill so differently for the same app?", "acceptedAnswer": {"@type": "Answer", "text": "Per-request vendors such as Algolia charge for every thousand searches and every thousand records past a free tier, so a busy autocomplete box can cost far more than the index it queries. Cluster-priced engines such as Typesense Cloud and Elastic Cloud charge a flat fee for a memory size and nothing per search, and a self-hosted engine costs a small server plus your time. The same 500,000 records and 2 million searches a month can land more than a thousand dollars apart in the calculator."}}, {"@type": "Question", "name": "What matters more than the list price?", "acceptedAnswer": {"@type": "Answer", "text": "Your query pattern and index size. Search-as-you-type fires a request per keystroke unless you debounce it, which multiplies searches several times over. Flat-cluster plans only work while the index fits in memory, and record size, replicas and re-indexing change the answer. Features priced separately, such as vector or AI search, are not modelled."}}, {"@type": "Question", "name": "When should I switch providers?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration: re-indexing, changing the client library and query syntax, and rebuilding relevance tuning. Run the calculator with your own volumes and growth, and confirm the cluster fits your real index before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/how-to-choose-a-search-api-by-records-and-queries.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose a Search API by Records and Queries">
+<meta property="og:description" content="Why hosted-search bills are really query bills, how Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and self-hosting differ…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose a Search API by Records and Queries — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../search-api-pricing-calculator/">What will hosted search cost for your records and monthly searches, and who is cheapest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose a Search API by Records and Queries</span></span></nav>
+  <p><a href="./">← Search API Pricing Calculator</a></p>
+  <h1>How to choose a search API by records and queries</h1>
+  <p>Put your record count, searches per month and growth rate into the <a href="./">calculator</a> to price Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted engine side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do search APIs bill so differently for the same app?</h2>
+  <p>Per-request vendors such as Algolia charge for every thousand searches and every thousand records past a free tier, so a busy autocomplete box can cost far more than the index it queries. Cluster-priced engines such as Typesense Cloud and Elastic Cloud charge a flat fee for a memory size and nothing per search, and a self-hosted engine costs a small server plus your time. The same 500,000 records and 2 million searches a month can land more than a thousand dollars apart in the calculator.</p>
+  <h2>What matters more than the list price?</h2>
+  <p>Your query pattern and index size. Search-as-you-type fires a request per keystroke unless you debounce it, which multiplies searches several times over. Flat-cluster plans only work while the index fits in memory, and record size, replicas and re-indexing change the answer. Features priced separately, such as vector or AI search, are not modelled.</p>
+  <h2>When should I switch providers?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: re-indexing, changing the client library and query syntax, and rebuilding relevance tuning. Run the calculator with your own volumes and growth, and confirm the cluster fits your real index before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+      <li><a href="../helm-values-schema-check/" data-pf-to="helm-values-schema-check">Does your values.yaml actually match its own schema?</a></li>
+      <li><a href="../hidden-unicode-check/" data-pf-to="hidden-unicode-check">Hidden Unicode Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=search-api-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="search-api-pricing-calculator"></script>
+</body>
+</html>

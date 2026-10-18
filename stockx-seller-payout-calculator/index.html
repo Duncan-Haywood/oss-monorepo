@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StockX Seller Payout Calculator — Net Profit After All Fees</title>
+<meta name="description" content="Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level)…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="StockX Seller Payout Calculator">
+<meta property="og:description" content="The sale price is not your payout. Find real net profit per sale after the seller fee, Fast Shipping discount, payment processing, and shipping cost…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"StockX Seller Payout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true net payout and net profit for one StockX sale after the seller fee, Fast Shipping discount, payment processing fee, and outbound shipping cost, and rolls a list of sales up into monthly profit."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't the seller fee just one fixed percentage?","acceptedAnswer":{"@type":"Answer","text":"Because StockX's seller (transaction) fee percentage drops as your own Seller Level rises — more completed sales and a clean history earn a lower rate — and Fast Shipping enrollment knocks a further percentage off on top of that. Two sellers moving the identical item at the identical price can keep different amounts. This calculator treats both as numbers you supply from your own seller dashboard, not a fixed published rate."}},{"@type":"Question","name":"Why does shipping cost matter more on a cheap item than an expensive one?","acceptedAnswer":{"@type":"Answer","text":"The seller fee and payment processing fee both scale with the sale price, but the cost to ship an item to a verification center is closer to a flat dollar amount regardless of what it sold for. That flat cost eats a much bigger share of a $40 sale than a $400 one, which is easy to miss if you only think in percentages."}},{"@type":"Question","name":"Does this tool verify authenticity or track my inventory?","acceptedAnswer":{"@type":"Answer","text":"No. StockX runs its own authentication process, and this calculator never touches it. This tool only prices the payout and profit arithmetic of a sale you already made or are considering, from numbers you supply — it is not an inventory system, a sourcing tool, or a substitute for reading your own payout statement."}},{"@type":"Question","name":"Does anything about my sales get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the sales list you type into the month section is never saved anywhere — it exists only in the page while it is open. The sale inputs above and the target monthly profit setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#0d2038;background:#eaf1fb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #c0d3ee;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a2a5c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d6e3f6;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1857a8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9c3e6;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0d3d7a;color:#fff;border-color:#0d3d7a;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5f7d}.result .note{color:#cddcf5}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1857a8}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9c3e6;background:#fff;cursor:pointer;color:#0d2038}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"StockX Seller Payout Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="StockX Seller Payout Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">StockX Seller Payout Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR STOCKX SNEAKER, STREETWEAR, AND CARD SELLERS</p><h1>The sale price isn't your payout. Net profit is.</h1><p class="lede">A pair that "sold for $150" can land a lot less in your account once the seller fee (which depends on your Seller Level), the payment processing fee, and the shipping label cost come out — and what's left still has to clear what you paid for the item. This free calculator finds real net payout and net profit for one sale, then rolls your whole month up into a number you can check against a profit goal.</p><p class="lede">Wondering how much StockX actually takes and whether Fast Shipping is worth it? See <a href="how-much-does-stockx-take-from-sellers.html">how much does StockX take from sellers?</a> for a worked example. Tracking flips in a spreadsheet today instead? See <a href="vs-tracking-stockx-payouts-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>. Deciding between StockX and GOAT for a pair? See <a href="vs-goat-seller-fees.html">StockX vs. GOAT seller fees</a>, a worked example of both fee structures on the same sale. Weighing StockX against listing it on eBay yourself? See <a href="vs-ebay-resale-fees.html">StockX vs. eBay resale fees</a>, the same sale priced both ways.</p></header>
+
+<main class="layout">
+<section><h2>Price one sale</h2>
+<fieldset><legend>Sale &amp; cost</legend><div class="fields">
+<label>Sale price ($)<input id="salePrice" type="number" min="0" step="1" value="150" inputmode="numeric"></label>
+<label>Item cost basis ($)<input id="itemCostBasis" type="number" min="0" step="1" value="100" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Seller fee</legend><div class="fields">
+<label>Seller fee (%, your level)<input id="sellerFeePct" type="number" min="0" max="100" step="0.1" value="9" inputmode="decimal"></label>
+<label>Fast Shipping discount (pts)<input id="fastShippingDiscountPct" type="number" min="0" max="100" step="0.1" value="0" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Processing, shipping &amp; supplies</legend><div class="fields">
+<label>Payment processing (%)<input id="paymentProcessingFeePct" type="number" min="0" max="100" step="0.1" value="3" inputmode="decimal"></label>
+<label>Shipping to verification ($)<input id="shippingCost" type="number" min="0" step="0.5" value="6" inputmode="decimal"></label>
+<label>Other per-sale costs ($)<input id="otherCost" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+</div><p class="note">Other per-sale costs is the box, tape, a replacement lace bag, label stock, the drive to the drop-off — anything flat that this one sale costs you in cash. It behaves the way shipping does: it eats a far bigger share of a $40 sale than a $400 one.</p></fieldset>
+<p id="draftStatus" class="note" role="status">Your sale inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your month list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+<p class="note">Wondering whether this pair would net more somewhere else? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks StockX against eBay, Poshmark, Etsy, a direct sale and your own store on the same item — it opens with the price, cost and shipping above already filled in and StockX switched on, so there is nothing to retype. It hands numbers back the other way too.</p>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this sale</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Effective seller fee</dt><dd id="effFeeOut"></dd>
+<dt>Seller fee ($)</dt><dd id="sellerFeeOut"></dd>
+<dt>Payment processing ($)</dt><dd id="processingOut"></dd>
+<dt>Other per-sale costs</dt><dd id="otherCostOut"></dd>
+<dt>Total fees &amp; costs</dt><dd id="totalFeesOut"></dd>
+<dt>Net payout</dt><dd id="payoutOut"></dd>
+<dt>Net profit</dt><dd id="profitOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Return on cost (ROI)</dt><dd id="roiOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not your actual payout statement. It does not add StockX's own currency conversion, promotional fee waivers, or bulk-listing tools unless you fold those into the rates you enter yourself. It never verifies authenticity, tracks inventory, or replaces reading your own seller dashboard.</p>
+</section>
+</main>
+
+<section><h2>Your month on StockX</h2><p class="note">For each sale, run it through the calculator above and enter its net profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><div class="pf-table-scroll"><table><thead><tr><th>Sale</th><th>Net profit ($)</th></tr></thead><tbody id="saleRows">
+<tr><td>1</td><td><input class="saleProfit" data-row="1" aria-label="Sale 1 net profit in dollars" type="number" step="1" value="26" inputmode="numeric"></td></tr>
+<tr><td>2</td><td><input class="saleProfit" data-row="2" aria-label="Sale 2 net profit in dollars" type="number" step="1" value="35" inputmode="numeric"></td></tr>
+<tr><td>3</td><td><input class="saleProfit" data-row="3" aria-label="Sale 3 net profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>4</td><td><input class="saleProfit" data-row="4" aria-label="Sale 4 net profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>5</td><td><input class="saleProfit" data-row="5" aria-label="Sale 5 net profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>6</td><td><input class="saleProfit" data-row="6" aria-label="Sale 6 net profit in dollars" type="number" step="1" value="" inputmode="numeric"></td></tr>
+</tbody></table></div></div>
+<div class="fields" style="margin-top:14px">
+<label>Target monthly profit<input id="targetMonthlyProfit" type="number" min="0" step="10" value="1000" inputmode="numeric"></label>
+</div>
+<p class="note">Target monthly profit is saved on this device and carried in your shareable link, the same as the sale inputs above — only the sale rows are never saved.</p>
+<p id="monthErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Sales counted</dt><dd id="monthSales"></dd>
+<dt>Total monthly profit</dt><dd id="monthTotal"></dd>
+<dt>Average profit / sale</dt><dd id="monthAverage"></dd>
+<dt>Gap to profit goal</dt><dd id="monthGap"></dd>
+<dt>Additional sales to close it</dt><dd id="monthExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your sale inputs (sale price, cost basis, seller fee, Fast Shipping discount, payment processing, shipping cost, other per-sale costs) and your target monthly profit are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your sale rows in the month table are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>sale-priced</code>, <code>month-check</code>, <code>link-copied</code>, <code>reset</code>, <code>handoff_where_to_sell</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no sale prices, items, or profit figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why isn't the seller fee just one fixed percentage?</h3><p>Because StockX's seller (transaction) fee percentage drops as your own Seller Level rises &mdash; more completed sales and a clean history earn a lower rate &mdash; and Fast Shipping enrollment knocks a further percentage off on top of that. Two sellers moving the identical item at the identical price can keep different amounts. This calculator treats both as numbers you supply from your own seller dashboard, not a fixed published rate.</p>
+<h3>Why does shipping cost matter more on a cheap item than an expensive one?</h3><p>The seller fee and payment processing fee both scale with the sale price, but the cost to ship an item to a verification center is closer to a flat dollar amount regardless of what it sold for. That flat cost eats a much bigger share of a $40 sale than a $400 one, which is easy to miss if you only think in percentages.</p>
+<h3>Does this tool verify authenticity or track my inventory?</h3><p>No. StockX runs its own authentication process, and this calculator never touches it. This tool only prices the payout and profit arithmetic of a sale you already made or are considering, from numbers you supply &mdash; it is not an inventory system, a sourcing tool, or a substitute for reading your own payout statement.</p>
+<h3>Does anything about my sales get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the sales list you type into the month section is never saved anywhere &mdash; it exists only in the page while it is open. The sale inputs above and the target monthly profit setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an authentication, inventory, or sourcing tool of any kind — it never verifies an item, tracks stock, or replaces your own StockX seller dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, confirm a payout amount, or replace your own accountant. StockX is a trademark of StockX LLC, named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by StockX, and its seller-fee, Fast Shipping, and payment-processing rates change over time and by seller; verify every rate against your own current seller dashboard before relying on the result.</p><p>Selling through a different single-channel marketplace instead? The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices commission on the hammer plus checkout processing for livestream auctions. Selling across several storefronts and want to compare take-home in one place? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs. Funding a project instead of reselling an item? The <a href="../kickstarter-fee-calculator/">Kickstarter fee calculator</a> is the same single-channel platform-fee-schedule shape — a platform cut plus a flat per-transaction processing charge — applied to a whole campaign's pledges rather than one sale.</p><p>Reselling event tickets instead of sneakers? The <a href="../ticket-resale-profit-calculator/">ticket resale profit calculator</a> nets out the seller fee, finds your break-even list price and prices in the listings that do not sell.</p><p>MIT licensed. If it helped you decide which sales actually pay, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeMonthProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+import { whereToSellUrl } from './to-where-to-sell.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const SALE_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'stockx-seller-payout-calculator-sale-draft';
+let counted = false;
+let monthCounted = false;
+
+function saleInputs() { return Object.fromEntries(SALE_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_SALE_INPUTS = saleInputs();
+
+function applySaleInputs(values) {
+  for (const id of SALE_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistSale() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(saleInputs())));
+}
+
+function updateSale(count = false) {
+  // Rebuilt on every keystroke, valid input or not: a seller who mistypes one
+  // field and then follows the link must not carry the numbers from before
+  // the mistake into the comparison. `whereToSellUrl` drops anything that is
+  // not a usable number rather than sending it.
+  el('whereToSellLink').href = whereToSellUrl(saleInputs());
+  try {
+    const r = calculate(saleInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveFeeRatePct === null
+      ? 'enter a sale price to see the effective fee rate'
+      : `about ${r.effectiveFeeRatePct.toFixed(1)}% of the sale price goes to fees, shipping and supplies`;
+    el('effFeeOut').textContent = `${r.effectiveSellerFeePct.toFixed(2)}%`;
+    el('sellerFeeOut').textContent = money(r.sellerFeeAmount);
+    el('processingOut').textContent = money(r.paymentProcessingFeeAmount);
+    el('otherCostOut').textContent = money(r.otherCost);
+    el('totalFeesOut').textContent = money(r.totalFees);
+    el('payoutOut').textContent = money(r.netPayout);
+    el('profitOut').textContent = money(r.netProfit);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('roiOut').textContent = r.roiPct === null ? '—' : `${r.roiPct.toFixed(1)}%`;
+    if (count && !counted) { recordEvent('sale-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'effFeeOut', 'sellerFeeOut', 'processingOut', 'otherCostOut', 'totalFeesOut', 'payoutOut', 'profitOut', 'marginOut', 'roiOut']) el(id).textContent = '';
+  }
+}
+
+function updateMonth(count = false) {
+  try {
+    const sales = [];
+    for (let row = 1; row <= 6; row++) {
+      const profitEl = document.querySelector(`.saleProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      sales.push({ netProfit: profit });
+    }
+    const month = computeMonthProfit(sales);
+    const targetMonthlyProfit = parseFloat(el('targetMonthlyProfit').value) || 0;
+    const gap = incomeGap(targetMonthlyProfit, month.totalMonthlyProfit, month.averageProfitPerSale);
+    el('monthErrors').hidden = true; el('monthErrors').textContent = '';
+    el('monthSales').textContent = String(month.saleCount);
+    el('monthTotal').textContent = money(month.totalMonthlyProfit);
+    el('monthAverage').textContent = money(month.averageProfitPerSale);
+    el('monthGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('monthExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalSalesNeeded === null ? 'add a profitable sale' : String(gap.additionalSalesNeeded));
+    if (count && !monthCounted) { recordEvent('month-check'); monthCounted = true; }
+  } catch (e) {
+    el('monthErrors').textContent = e.message; el('monthErrors').hidden = false;
+    for (const id of ['monthSales', 'monthTotal', 'monthAverage', 'monthGap', 'monthExtra']) el(id).textContent = '';
+  }
+}
+
+SALE_IDS.forEach(id => el(id).addEventListener('input', () => { updateSale(true); persistSale(); }));
+document.querySelectorAll('.saleProfit').forEach(input => input.addEventListener('input', () => updateMonth(true)));
+el('targetMonthlyProfit').addEventListener('input', () => updateMonth(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+// Records only that the handoff happened, never the item — this is the one
+// signal that will say whether the cross-channel link is worth keeping.
+el('whereToSellLink').addEventListener('click', () => recordEvent('handoff_where_to_sell'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(saleInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applySaleInputs(DEFAULT_SALE_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateSale(false);
+  updateMonth(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every sale field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applySaleInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applySaleInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared sale. Review the numbers before you use it.'
+      : 'Restored your last sale from this browser. Your month list below is never saved.';
+  }
+})();
+
+updateSale(false);
+updateMonth(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../esthetician-studio-profit-calculator/" data-pf-to="esthetician-studio-profit-calculator">Esthetician Studio Profit Calculator — free, private</a></li>
+      <li><a href="../etsy-ads-roi-analyzer/" data-pf-to="etsy-ads-roi-analyzer">Etsy Ads ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../etsy-listing-csv-check/" data-pf-to="etsy-listing-csv-check">Etsy Listing CSV Check — free, private, in your browser</a></li>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=stockx-seller-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/?pfEmbed=1&quot; title=&quot;StockX Seller Payout Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="stockx-seller-payout-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/" data-pf-embed-title="StockX Seller Payout Calculator" data-pf-embed-slug="stockx-seller-payout-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="stockx-seller-payout-calculator" data-pf-jobs-amount=""></script>
+</body></html>

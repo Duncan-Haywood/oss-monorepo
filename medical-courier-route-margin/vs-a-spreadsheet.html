@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medical Courier Route Margin Calculator vs a Spreadsheet</title>
+<meta name="description" content="A route-pricing spreadsheet can total labor, vehicle cost, and consumables correctly if every cell is filled in.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Medical Courier Route Margin Calculator vs a Spreadsheet">
+<meta property="og:description" content="A spreadsheet can total labor, vehicle cost, and consumables correctly and still have no cell for the unpaid drive to and from the route…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a route-pricing spreadsheet usually get right, and what does it miss?","acceptedAnswer":{"@type":"Answer","text":"Filled in carefully, a spreadsheet can total labor hours, vehicle cost per mile, and per-stop consumables correctly. What it usually doesn't have is a column for deadhead -- the unpaid drive from home to the first stop and back from the last -- because a route sheet is normally built from the miles and time between stops, and deadhead is neither. Left out, the sheet reports a route as more profitable than it is."}},{"@type":"Question","name":"Why does leaving out deadhead change the margin so much?","acceptedAnswer":{"@type":"Answer","text":"Deadhead miles cost the same fuel and maintenance as billed miles, and deadhead minutes occupy the same paid hour as time between stops -- they just carry no revenue. A route that looks like a healthy 50.6% margin with no deadhead line can drop to 43.8% once a real 12-mile, 25-minute deadhead leg is counted, because the labor and vehicle cost were always there; the spreadsheet just never asked about them."}},{"@type":"Question","name":"Why can't I just add my target margin on top of the cost to get a quote?","acceptedAnswer":{"@type":"Answer","text":"Because overhead here is charged as a percentage of the price you quote, not of the cost you already know -- so raising the price to hit a margin also raises the overhead that price has to carry. Adding a flat percentage on top of cost ignores that second effect and quietly funds too little overhead, which understates the price needed and overstates the margin actually realized."}},{"@type":"Question","name":"Does this calculator store or upload anything I type?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser and nothing is uploaded. Do not enter patient, specimen, or protected health information -- none of the fields need it."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#17212b;background:#f2f5f3}
+body{max-width:900px;margin:auto;padding:32px 18px 48px;line-height:1.55}
+a{color:#a9592b;overflow-wrap:anywhere}
+.eyebrow{font-weight:700}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em;color:#173b2b}
+.lede{font-size:1.05rem;max-width:66ch;color:#4c5b57}
+section{background:#fff;border:1px solid #ccd8d1;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #173b2b0c;margin:1rem 0}
+h2{margin-top:0;color:#173b2b}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccd8d1;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4c5b57}
+.fine,.note{font-size:.88rem;color:#4c5b57}
+footer{color:#4c5b57;font-size:.86rem}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Medical Courier Route Margin Calculator vs a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../medical-courier-route-margin/">Medical Courier Route Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Medical Courier Route Margin Calculator vs a Spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Medical Courier Route Margin Calculator</a></p>
+<header>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A route-pricing spreadsheet can total labor, vehicle cost, and consumables correctly if every cell is filled in. What it usually has no column for is the unpaid drive to the first stop and back from the last, and when it quotes a new route it usually adds a target margin on top of cost instead of solving for the price that still clears that margin once overhead &mdash; a share of the price itself &mdash; comes out of it. Both mistakes are quiet: the sheet still balances, it is just wrong.</p>
+</header>
+
+<section>
+<h2>What a per-route spreadsheet tracks, and what it doesn't</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col"></th><th scope="col">A per-route pricing spreadsheet</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr><th scope="row">Labor, vehicle cost, consumables</th><td>Cells most couriers already track</td><td>Itemized fields for each, same math</td></tr>
+<tr><th scope="row">Deadhead (drive to first stop, home from last)</th><td>No natural column -- the sheet is built from miles and time <em>between</em> stops</td><td>Separate required fields, folded into both cost and paid hours</td></tr>
+<tr><th scope="row">Wait time past a contracted grace period</th><td>Tracked once someone thinks to subtract the grace period</td><td>Subtracted automatically before it is billed at the labor rate</td></tr>
+<tr><th scope="row">Quoting a new route to hit a target margin</th><td>Usually a flat percentage added on top of cost</td><td>Solves for the price where overhead, charged as a percentage of that same price, still leaves the target margin</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>One route, two margins, twelve miles apart</h2>
+<p>Take the calculator's own default route: $300 for 6 stops over 35 miles, 2.5 scheduled hours, 45 minutes of wait against a 15-minute grace period, a $28/hour loaded labor rate, $0.72/mile vehicle cost, $1.50 per-stop consumables, and 10% overhead. With no deadhead entered, that route holds up well:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Figure</th><th scope="col">No deadhead column</th><th scope="col">With a real 12&nbsp;mi / 25&nbsp;min deadhead leg</th></tr></thead>
+<tbody>
+<tr><td>Direct cost</td><td>$148.20</td><td>$168.51</td></tr>
+<tr><td>Contribution margin</td><td>$151.80</td><td>$131.49</td></tr>
+<tr><td>Margin rate</td><td>50.60%</td><td>43.83%</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>The route did not change. It always had a 12-mile drive to the first stop and back from the last, costing $20.31 in fuel, maintenance, and paid time that a spreadsheet built from stop-to-stop miles and scheduled hours has nowhere to put. Leave that column out and the same route reads as six points of margin better than it is.</p>
+</section>
+
+<section>
+<h2>Quoting a new route: solving for margin isn't the same as solving for margin <em>and</em> overhead</h2>
+<p>Say a courier is pricing a brand-new route with the same no-deadhead costs above -- $84 labor, $25.20 vehicle, $9 consumables, $118.20 total -- against a 20% target margin and the same 10% overhead. A spreadsheet built to solve "what price clears 20% margin on revenue" divides cost by one minus that margin, and stops there -- overhead never enters the division because it hasn't been added to cost yet:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th scope="row">Naive quote (margin only)</th><td>$118.20 &divide; (1 &minus; 20%) = $147.75</td></tr>
+<tr><th scope="row">Margin actually realized at that price, once 10% overhead is billed on it</th><td>$14.78, or <strong>10.00%</strong> &mdash; half the 20% target</td></tr>
+<tr><th scope="row">This calculator's quote (margin <em>and</em> overhead, same pass)</th><td>$118.20 &divide; (1 &minus; 20% &minus; 10%) = $168.86</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>The naive quote undercounts because overhead is 10% of whatever the route bills, not 10% of the cost already on the sheet -- so it has to sit in the same division as the margin, not be added afterward. Leave it out of that division and the price still looks correctly marked up while the overhead it was supposed to fund eats half the intended margin. This calculator solves for the price with both terms in the same denominator, so the margin it prints is the margin the route actually clears.</p>
+<p class="note">Open the <a href="./">Medical Courier Route Margin Calculator</a> to price your own route, read <a href="is-this-medical-courier-route-worth-it.html">is this medical courier route worth it?</a> for the break-even and billable-wait walkthrough, or see <a href="vs-onfleet.html">this calculator vs. Onfleet</a> if you're weighing dispatch software instead.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What does a route-pricing spreadsheet usually get right, and what does it miss?</h3>
+<p>Filled in carefully, a spreadsheet can total labor hours, vehicle cost per mile, and per-stop consumables correctly. What it usually doesn't have is a column for deadhead -- the unpaid drive from home to the first stop and back from the last -- because a route sheet is normally built from the miles and time between stops, and deadhead is neither. Left out, the sheet reports a route as more profitable than it is.</p>
+<h3>Why does leaving out deadhead change the margin so much?</h3>
+<p>Deadhead miles cost the same fuel and maintenance as billed miles, and deadhead minutes occupy the same paid hour as time between stops -- they just carry no revenue. A route that looks like a healthy 50.6% margin with no deadhead line can drop to 43.8% once a real 12-mile, 25-minute deadhead leg is counted, because the labor and vehicle cost were always there; the spreadsheet just never asked about them.</p>
+<h3>Why can't I just add my target margin on top of the cost to get a quote?</h3>
+<p>Because overhead here is charged as a percentage of the price you quote, not of the cost you already know -- so raising the price to hit a margin also raises the overhead that price has to carry. Adding a flat percentage on top of cost ignores that second effect and quietly funds too little overhead, which understates the price needed and overstates the margin actually realized.</p>
+<h3>Does this calculator store or upload anything I type?</h3>
+<p>No. Every field runs in your browser and nothing is uploaded. Do not enter patient, specimen, or protected health information -- none of the fields need it.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or medical advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Do not enter patient, specimen, or protected health information.</p>
+<p>The worked figures above come directly from this calculator's own default inputs, with a deadhead leg added for the first comparison and a naive on-top-of-cost markup computed by hand for the second -- nothing here is a claim about what your own route will return.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it helped you price a route, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. <a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a>.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../route-stop-optimizer/" data-pf-to="route-stop-optimizer">Route Stop Optimizer — free, private, in your browser</a></li>
+      <li><a href="../scrap-metal-yard-payout-calculator/" data-pf-to="scrap-metal-yard-payout-calculator">Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire</a></li>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=medical-courier-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="medical-courier-route-margin"></script>
+</body></html>

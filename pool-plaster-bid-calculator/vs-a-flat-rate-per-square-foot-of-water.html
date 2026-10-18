@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate per square foot of water | Pool Plaster Bid Calculator</title>
+<meta name="description" content="Matching a $15-a-square-foot quote built for a simple white-plaster job to a freeform pebble pool with a full chip-out, spa…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat rate per square foot of water | Pool Plaster Bid Calculator">
+<meta property="og:description" content="On this calculator's own numbers, a rate built for a simple brochure job underprices a freeform pebble replaster by about 79% -- the real job's water-surface…">
+<meta property="og:url" content="./vs-a-flat-rate-per-square-foot-of-water.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate per square foot of water surface get pool replastering wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the plaster goes on the floor and the walls, and a flat water-surface rate only counts the floor -- length times width. On this calculator's own defaults, a 16×32 rectangle with a 3.5-foot shallow end and an 8-foot deep end is 512 square feet of water but 1,064 square feet of plaster, more than twice as much shell as the water-surface number counts."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own job presets: a 16×32 white-plaster job with no chip-out prices at $7,825.99, which is $15.29 per square foot of water. Applying that same $15.29 rate to a freeform pebble pool with a full chip-out, a spa, waterline tile, and coping -- 620 square feet of water but 1,275 square feet of plaster -- gives a quote of $9,476.79. This calculator prices that job at $44,057.94: the flat water-surface rate covers about 21.5% of the real cost, a $34,581.15 shortfall."}},{"@type":"Question","name":"What does pricing by the water surface leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Everything that is not the floor: the walls, which scale with depth and perimeter rather than water area; the finish upgrade, since pebble and glass cost several times more per square foot than white plaster; the chip-out; the spa; waterline tile; and coping. A water-surface rate has no line for any of them, so a pool that looks like a similar size in the number a homeowner can see is priced the same as one that is a several-times larger job in the number that actually gets plastered."}},{"@type":"Question","name":"Is pricing by the water surface ever close enough?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- same finish, same chip-out, similar depth and shape -- a flat rate set for one job can land close on the next. The risk is applying a rate learned on a simple brochure job to a pool that looks like a similar size in water surface but carries a deeper shell, a pricier finish, a chip-out, or added scope like a spa or tile, because the water-surface number cannot tell you when that has happened."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates, material costs, or what competitors charge. It takes your shell dimensions, finish, chip-out, and crew rates and turns them into a price built from the actual plaster surface -- the arithmetic a flat water-surface rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#163044;background:#e8f1f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0e7490;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0e7490;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a6274}section{background:#fff;border:1px solid #c5d5e0;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1630440d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c5d5e0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a6274}.fine,.note{font-size:.88rem;color:#4a6274}footer{color:#4a6274;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pool-plaster-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate per square foot of water | Pool Plaster Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pool-plaster-bid-calculator/">Pool Plaster / Resurfacing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate per square foot of water | Pool Plaster Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Pool Plaster Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate per square foot of water</h1>
+<p class="lede">&ldquo;$15 a square foot&rdquo; is not a price for a pool &mdash; it is a price for one specific shell, finish, and scope, quietly charged again for a different job that only looks the same size from the deck.</p>
+</header>
+<section>
+<h2>What a flat rate per square foot of water is</h2>
+<p>
+It is the fastest way to quote a replaster: multiply the water surface
+&mdash; length times width, the number a homeowner can read off a tape
+measure without draining the pool &mdash; by a published rate. Homeowners
+shop it because it is easy to compare between bids, and it is the number a
+customer holding a postcard or a cheaper competitor's quote will ask you to
+match.
+</p>
+<p>
+It is wrong because the plaster does not stop at the waterline on the
+floor &mdash; it goes up every wall too, and the walls are not part of the
+water-surface number at all. The rate also does not know which finish or
+which chip-out it was built for, so the same $-per-square-foot figure gets
+reused for a bond-coat overlay and a full gunite chip-out with a spa and
+tile alike.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+shell dimensions, finish, chip-out, spa, steps, waterline tile, coping, and
+your crew's rates. It converts the shape into a real plaster takeoff
+&mdash; floor plus walls, plus any spa and steps &mdash; and returns the
+price, the price per plaster square foot, the price per water square foot,
+and the walk-away number below which the job loses money.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What a flat water-surface rate does</th><th scope="col">What this calculator does instead</th></tr></thead>
+<tbody>
+<tr>
+<td>Prices the pool by its water surface &mdash; length &times; width &mdash; which is the floor only.</td>
+<td>Prices the pool by its plaster surface &mdash; floor plus walls, spa, and steps &mdash; from the shell geometry.</td>
+</tr>
+<tr>
+<td>Uses the same $/sq ft whichever finish is chosen, though pebble and glass finishes cost several times more per square foot than white plaster.</td>
+<td>Prices each finish from its own material cost and labor hours, so a pebble or glass job is billed for the upgrade it actually is.</td>
+</tr>
+<tr>
+<td>Has no line for chip-out, so a full demolition to gunite is quoted the same as a bond-coat overlay.</td>
+<td>Adds chip-out hours and a dumpster line only for the square footage actually billed, separate from the plaster.</td>
+</tr>
+<tr>
+<td>Folds a spa, waterline tile, and coping into the same flat rate, or leaves them out.</td>
+<td>Prices the spa, steps, waterline tile, and coping as their own lines, each visible instead of buried in a bigger, wrong number.</td>
+</tr>
+<tr>
+<td>Gives the crew a rate to quote, not a number to check a quote against.</td>
+<td>Reports the price, the price per plaster square foot, the price per water square foot, and the walk-away price, so a shopped rate can be tested against the real job before it goes out.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>One rate, two very different pools</h2>
+<p>
+Using this calculator's own job presets. A 16&times;32 rectangle, white
+plaster, no chip-out &mdash; the brochure special &mdash; is 512 square
+feet of water and 1,064 square feet of plaster, and prices at
+<strong>$7,825.99</strong>, which works out to <strong>$15.29</strong> per
+square foot of water.
+</p>
+<p>
+A freeform pebble pool with a full chip-out to gunite, a spa, waterline
+tile, and coping &mdash; the loss job &mdash; is 620 square feet of water,
+not far off the brochure pool's 512. But it is 1,275 square feet of
+plaster once the walls, spa, and tile band are counted, with a far more
+expensive finish and a full demolition on top. Matching the brochure
+job's $15.29-a-square-foot rate to this pool's 620 square feet of water
+gives a quote of <strong>$9,476.79</strong>.
+</p>
+<p>
+This calculator prices the same freeform pebble job at
+<strong>$44,057.94</strong> &mdash; a real rate of $71.06 per square foot
+of water, <strong>4.6 times</strong> the brochure job's rate. The flat
+water-surface quote covers about <strong>21.5%</strong> of the real cost,
+a shortfall of <strong>$34,581.15</strong>. Nothing about the two pools'
+water-surface numbers &mdash; 512 versus 620, a modest difference &mdash;
+warns that one job is several times the other once the walls, the finish,
+the chip-out, and the added scope are priced.
+</p>
+<p>
+Nobody is being careless by reaching for a $-per-square-foot rate first
+&mdash; it is the number that is easiest to compare between bids. The gap
+is everything a water-surface number cannot see: the walls, the finish,
+the chip-out, and the extras, which is exactly what this calculator prices
+and a rate copied from the last job cannot.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate per square foot of water surface get pool replastering wrong?</h3>
+<p>Because the plaster goes on the floor and the walls, and a flat water-surface rate only counts the floor -- length times width. On this calculator's own defaults, a 16&times;32 rectangle with a 3.5-foot shallow end and an 8-foot deep end is 512 square feet of water but 1,064 square feet of plaster, more than twice as much shell as the water-surface number counts.</p>
+<h3>How big is the gap in practice?</h3>
+<p>Using this calculator's own job presets: a 16&times;32 white-plaster job with no chip-out prices at $7,825.99, which is $15.29 per square foot of water. Applying that same $15.29 rate to a freeform pebble pool with a full chip-out, a spa, waterline tile, and coping -- 620 square feet of water but 1,275 square feet of plaster -- gives a quote of $9,476.79. This calculator prices that job at $44,057.94: the flat water-surface rate covers about 21.5% of the real cost, a $34,581.15 shortfall.</p>
+<h3>What does pricing by the water surface leave out entirely?</h3>
+<p>Everything that is not the floor: the walls, which scale with depth and perimeter rather than water area; the finish upgrade, since pebble and glass cost several times more per square foot than white plaster; the chip-out; the spa; waterline tile; and coping. A water-surface rate has no line for any of them, so a pool that looks like a similar size in the number a homeowner can see is priced the same as one that is a several-times larger job in the number that actually gets plastered.</p>
+<h3>Is pricing by the water surface ever close enough?</h3>
+<p>For a narrow band of near-identical jobs -- same finish, same chip-out, similar depth and shape -- a flat rate set for one job can land close on the next. The risk is applying a rate learned on a simple brochure job to a pool that looks like a similar size in water surface but carries a deeper shell, a pricier finish, a chip-out, or added scope like a spa or tile, because the water-surface number cannot tell you when that has happened.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates, material costs, or what competitors charge. It takes your shell dimensions, finish, chip-out, and crew rates and turns them into a price built from the actual plaster surface -- the arithmetic a flat water-surface rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat rate per square foot is a bad-faith practice &mdash; it is a common, honest shortcut that works until the next job stops matching the one the rate was set on.</p>
+<p class="note">
+Open the <a href="./">Pool Plaster Bid Calculator</a> to price your own job, or read <a href="./how-much-to-charge-to-replaster-a-pool.html">how much to charge to replaster a pool</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, engineering, or pool-construction advice, and it does not tell you what to charge or whether a pool may be built. Verify every figure against your own costs, your own takeoff, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p class="support">Free and open source. If it saves you a losing bid, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../snow-plow-contract-calculator/" data-pf-to="snow-plow-contract-calculator">Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year</a></li>
+      <li><a href="../snow-removal-bid-calculator/" data-pf-to="snow-removal-bid-calculator">Snow Removal Bid Calculator</a></li>
+      <li><a href="../sod-install-bid-calculator/" data-pf-to="sod-install-bid-calculator">Sod Installation Bid Calculator</a></li>
+      <li><a href="../stump-grinding-price-calculator/" data-pf-to="stump-grinding-price-calculator">How much should I charge to grind a stump? Free bid calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pool-plaster-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pool-plaster-bid-calculator"></script>
+</body>
+</html>

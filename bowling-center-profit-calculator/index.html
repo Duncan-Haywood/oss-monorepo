@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bowling Center Profit Calculator — Break-Even Utilization, Lanes, Payback</title>
+  <meta name="description" content="Free bowling center profit calculator: lanes, peak and off-peak lane-hour prices, utilization, leagues, parties and events, food and drink, staffing…">
+  <meta property="og:title" content="Bowling center calculator: what utilization do you need to break even? Free, private">
+  <meta property="og:description" content="Lanes, prices, utilization, parties, staffing and rent in; profit, break-even hours, ramp-up reserve and payback out.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bowling Center Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much profit does a bowling center make?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how many lane-hours are booked, what peak and off-peak hours sell for, and what staff, rent and insurance cost. Enter your own figures; the page works out revenue after fees, food and drink, party cost share and fixed costs, then monthly profit and margin at planned bookings."}}, {"@type": "Question", "name": "What utilization does a bowling center need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Two figures are shown: the share of open lane-hours that must be booked to cover operating costs, and the higher share that also covers the loan. Below the point where the busier period is full, profit is a straight line in bookings, so both are exact for your inputs. If a break-even would need more hours than the lanes hold, the page says it cannot be reached."}}, {"@type": "Question", "name": "How much does it cost to build a bowling center?", "acceptedAnswer": {"@type": "Answer", "text": "The page adds a cost per lane, building fit-out, bar and kitchen equipment, a lease deposit, launch cost and a contingency. Every one is your own figure; the page does not assume a benchmark cost."}}, {"@type": "Question", "name": "How much do parties and food and drink add?", "acceptedAnswer": {"@type": "Answer", "text": "Parties are entered with their cost as a share of the price, so only the remainder counts as profit; their lane time belongs in your booked hours. Food and drink are driven by booked hours times bowlers per hour times spend per bowler, less cost of goods. Both scale with bookings in this model."}}, {"@type": "Question", "name": "Does this tell me whether a bowling center will succeed?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works only from your figures. It does not know how many bowlers live near the site, what competing centers charge, or whether your site can be permitted. Check zoning, building and fire codes, noise limits and insurance first."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Bowling center calculator: what utilization do you need to break even? Free, private","item":"https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bowling center calculator: what utilization do you need to break even? Free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Bowling center calculator: what utilization do you need to break even? Free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">BOWLING CENTER PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What share of its lane-hours does a bowling center need to sell to break even, and how much cash does the ramp-up eat?</h1>
+    <p>Enter your lanes, opening hours, peak and off-peak prices and how full each is, leagues, parties and events, food and drink, staff, rent and a loan. You get <strong>monthly profit</strong> at planned bookings, <strong>break-even lane-hours and utilization</strong>, the <strong>price change that hits your target margin</strong>, a table showing what <strong>slower bookings, price changes and wage rises</strong> do to profit, a sixty-month ramp-up with the <strong>cash reserve</strong> and <strong>payback</strong>, and loan coverage.</p>
+    <p class="note">It works from your own figures. It does not know how many bowlers live near your site, what competing centers charge, or whether your building can be licensed for it.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your bowling center</h2>
+    <div class="grid">
+      <div><label for="lanes">Number of bowling lanes</label><input id="lanes" inputmode="decimal" value="" placeholder="24"></div>
+      <div><label for="hoursweekday">Open hours on a weekday</label><input id="hoursweekday" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="hoursweekend">Open hours on a weekend day</label><input id="hoursweekend" inputmode="decimal" value="" placeholder="14"></div>
+      <div><label for="peakshare">Peak share of open hours (evenings, weekends), %</label><input id="peakshare" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="peakutil">Peak hours booked, % of peak lane-hours</label><input id="peakutil" inputmode="decimal" value="" placeholder="45"></div>
+      <div><label for="offutil">Off-peak hours booked, % of off-peak lane-hours</label><input id="offutil" inputmode="decimal" value="" placeholder="9"></div>
+      <div><label for="peakprice">Peak price per lane-hour, dollars</label><input id="peakprice" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="offprice">Off-peak price per lane-hour, dollars</label><input id="offprice" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="leaguepct">Share of booked lane-hours used by leagues, %</label><input id="leaguepct" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="leaguediscount">League discount on the lane price, %</label><input id="leaguediscount" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="feespct">Card and booking-app fees, % of revenue</label><input id="feespct" inputmode="decimal" value="" placeholder="2.5"></div>
+      <div><label for="bowlersperhour">Bowlers per booked lane-hour (1 to 6)</label><input id="bowlersperhour" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="fbspend">Food and drink spend per bowler, dollars</label><input id="fbspend" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="fbcogspct">Food and drink cost of goods, % of sales</label><input id="fbcogspct" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="arcadeperhour">Arcade and shoe-rental sales per booked lane-hour, dollars</label><input id="arcadeperhour" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="arcademarginpct">Arcade and shoe-rental gross margin, %</label><input id="arcademarginpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="perhourcost">Other cost per booked hour (lane oil, pin and ball wear, power), dollars</label><input id="perhourcost" inputmode="decimal" value="" placeholder="1.5"></div>
+      <div><label for="partiesweek">Birthday parties and events per week</label><input id="partiesweek" inputmode="decimal" value="" placeholder="14"></div>
+      <div><label for="partyprice">Price per party or event, dollars (food and package; lane time counts in booked hours)</label><input id="partyprice" inputmode="decimal" value="" placeholder="260"></div>
+      <div><label for="partycostpct">Cost of a party (host, food, cake), % of its price, %</label><input id="partycostpct" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="staffhours">Paid staff hours per week (front desk, bar, kitchen, mechanic)</label><input id="staffhours" inputmode="decimal" value="" placeholder="560"></div>
+      <div><label for="wage">Average hourly wage, dollars</label><input id="wage" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="burdenpct">Payroll tax, workers' comp and benefits, % of wages</label><input id="burdenpct" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="rentmonthly">Rent per month, dollars</label><input id="rentmonthly" inputmode="decimal" value="" placeholder="26000"></div>
+      <div><label for="utilitiesmonthly">Utilities per month, dollars</label><input id="utilitiesmonthly" inputmode="decimal" value="" placeholder="8000"></div>
+      <div><label for="insuranceyear">Insurance per year, dollars</label><input id="insuranceyear" inputmode="decimal" value="" placeholder="18000"></div>
+      <div><label for="marketingmonthly">Marketing per month, dollars</label><input id="marketingmonthly" inputmode="decimal" value="" placeholder="2000"></div>
+      <div><label for="managermonthly">Manager or your own draw per month, dollars</label><input id="managermonthly" inputmode="decimal" value="" placeholder="8000"></div>
+      <div><label for="othermonthly">Other fixed costs per month (booking software, repairs, licenses), dollars</label><input id="othermonthly" inputmode="decimal" value="" placeholder="2500"></div>
+      <div><label for="lanecost">Cost per lane refurbished or installed (refurbished pinspotter, scoring, lane surface), dollars</label><input id="lanecost" inputmode="decimal" value="" placeholder="12000"></div>
+      <div><label for="fitout">Building fit-out or purchase (HVAC, floor, restrooms, fire, electrical), dollars</label><input id="fitout" inputmode="decimal" value="" placeholder="180000"></div>
+      <div><label for="barkitchen">Bar, kitchen and front-desk equipment, dollars</label><input id="barkitchen" inputmode="decimal" value="" placeholder="90000"></div>
+      <div><label for="launch">Launch cost: licenses, legal, branding, first marketing, dollars</label><input id="launch" inputmode="decimal" value="" placeholder="30000"></div>
+      <div><label for="depositmonths">Lease deposit, months of rent</label><input id="depositmonths" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="contingencypct">Contingency on lanes, fit-out, bar and kitchen and launch, %</label><input id="contingencypct" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="startpct">Bookings in month 1, % of full demand</label><input id="startpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="rampmonths">Months to reach full demand</label><input id="rampmonths" inputmode="decimal" value="" placeholder="9"></div>
+      <div><label for="ltcpct">Loan as % of startup cost (0 for all cash)</label><input id="ltcpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="loanrate">Loan interest rate, %</label><input id="loanrate" inputmode="decimal" value="" placeholder="9.5"></div>
+      <div><label for="termyears">Loan term, years</label><input id="termyears" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="targetmargin">Target operating margin, %</label><input id="targetmargin" inputmode="decimal" value="" placeholder="15"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the center</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your center, then click Work out the center. The number of lanes, opening hours and a peak price are required; the rest default to zero or the neutral choice.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>If bookings run above or below plan</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Booked lane-hours per week</th><th scope="col" class="n">Utilization</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>If you charge more or less</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Lane and party price change</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="price-rows"></tbody></table></div></div>
+    <h3>If wages rise or fall</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Wage change</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="wage-rows"></tbody></table></div></div>
+    <h3>Year by year, first five years</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Year</th><th scope="col" class="n">Operating profit</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="year-rows"></tbody></table></div></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download bookings table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Hours:</strong> lanes &times; (weekday hours &times; 5 + weekend hours &times; 2) = open lane-hours a week, split into peak and off-peak by your peak share; booked hours = open hours &times; the share booked in each period. A month is 52 &divide; 12 weeks.</li>
+      <li><strong>Revenue:</strong> booked peak hours &times; peak price plus booked off-peak hours &times; off-peak price, less the league discount on the league share, plus parties &times; party price, plus food and drink and arcade and shoe rental sales per booked hour, less card and booking-app fees as a share of all revenue.</li>
+      <li><strong>Variable cost:</strong> food and drink cost of goods, arcade and shoe rental cost, other cost per booked hour, and the party cost (host, food, cake) as a share of party fees. <strong>Fixed:</strong> paid staff hours &times; wage &times; (1 + payroll load), rent, utilities, insurance, marketing, manager and other costs.</li>
+      <li><strong>Break-even:</strong> parties and bookings move together, so profit is a straight line in bookings until the busier period is full; break-even is fixed cost divided by what planned bookings contribute, and it is only reported if the lanes can hold that many hours. <strong>Startup:</strong> lanes, fit-out, barkitchen, deposit, launch and contingency; the loan is a share of that on level payments. Ramp-up runs sixty months with bookings climbing in a straight line from the month-1 figure; payback is the first month cumulative cash covers your equity.</li>
+      <li><strong>Not decided:</strong> whether your catchment can fill the hours; seasonality, weather and school-term swings; planning and zoning, building and fire code, noise, ceiling-height and lane-dimension requirements, floodlighting, accessibility, food and alcohol licensing and coach qualifications; insurance terms; income tax and depreciation; and what a lender will offer.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much profit does a bowling center make?</h3>
+    <p>It depends on how many lane-hours are booked, what peak and off-peak hours sell for, and what staff, rent and insurance cost. Enter your own figures; the page works out revenue after fees, food and drink, party cost share and fixed costs, then monthly profit and margin at planned bookings.</p>
+    <h3>What utilization does a bowling center need to break even?</h3>
+    <p>Two figures are shown: the share of open lane-hours that must be booked to cover operating costs, and the higher share that also covers the loan. Below the point where the busier period is full, profit is a straight line in bookings, so both are exact for your inputs. If a break-even would need more hours than the lanes hold, the page says it cannot be reached.</p>
+    <h3>How much does it cost to build a bowling center?</h3>
+    <p>The page adds a cost per lane, building fit-out, bar and kitchen equipment, a lease deposit, launch cost and a contingency. Every one is your own figure; the page does not assume a benchmark cost.</p>
+    <h3>How much do parties and food and drink add?</h3>
+    <p>Parties are entered with their cost as a share of the price, so only the remainder counts as profit; their lane time belongs in your booked hours. Food and drink are driven by booked hours times bowlers per hour times spend per bowler, less cost of goods. Both scale with bookings in this model.</p>
+    <h3>Does this tell me whether a bowling center will succeed?</h3>
+    <p>No. It works only from your figures. It does not know how many bowlers live near the site, what competing centers charge, or whether your site can be permitted. Check zoning, building and fire codes, noise limits and insurance first.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before borrowing money, signing a lease or building a bowling center. Treat it as a worksheet to check, not a business recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../padel-club-profit-calculator/">padel club profit calculator</a>, the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a> and the <a href="../axe-throwing-bar-profit-calculator/">axe-throwing bar profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT license</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { lanes: "lanes", hoursweekday: "hoursWeekday", hoursweekend: "hoursWeekend", peakshare: "peakShare", peakutil: "peakUtil", offutil: "offUtil", peakprice: "peakPrice", offprice: "offPrice", leaguepct: "leaguePct", leaguediscount: "leagueDiscount", feespct: "feesPct", bowlersperhour: "bowlersPerHour", fbspend: "fbSpend", fbcogspct: "fbCogsPct", arcadeperhour: "arcadePerHour", arcademarginpct: "arcadeMarginPct", perhourcost: "perHourCost", partiesweek: "partiesWeek", partyprice: "partyPrice", partycostpct: "partyCostPct", staffhours: "staffHours", wage: "wage", burdenpct: "burdenPct", rentmonthly: "rentMonthly", utilitiesmonthly: "utilitiesMonthly", insuranceyear: "insuranceYear", marketingmonthly: "marketingMonthly", managermonthly: "managerMonthly", othermonthly: "otherMonthly", lanecost: "laneCost", fitout: "fitout", barkitchen: "barkitchen", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
+    const IDLE = "Fill in your center, then click Work out the center. The number of lanes, opening hours and a peak price are required; the rest default to zero or the neutral choice.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const pct = (n) => (n * 100).toFixed(1) + "%";
+    const sgn = (n) => (n > 0 ? "+" : "") + n + "%";
+    const cells = (x) => `<td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td>`;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${whole(r.steady.profit)} profit a month at planned bookings (${r.margin === null ? "n/a" : pct(r.margin)} margin); break-even ${r.beUtilOps === null ? "not reachable with these lanes" : Math.round(r.beUtilOps * 100) + "% of open lane-hours booked"}; equity back ${r.paybackMonth === null ? "not within 60 months" : "in month " + r.paybackMonth}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.demandSweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%${x.capped ? " (lanes full)" : ""}</td><td class="n">${Math.round(x.hoursWeek).toLocaleString("en-US")}</td><td class="n">${Math.round(x.util * 100)}%</td>${cells(x)}</tr>`).join("");
+      $("#price-rows").innerHTML = r.priceSweep.map((x) => `<tr><td class="n">${sgn(x.pct)}</td>${cells(x)}</tr>`).join("");
+      $("#wage-rows").innerHTML = r.wageSweep.map((x) => `<tr><td class="n">${sgn(x.pct)}</td>${cells(x)}</tr>`).join("");
+      $("#year-rows").innerHTML = r.yearProfit.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.yearCash[i])}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 24-lane center open about 88 hours a week. Illustrative figures, not market prices or a forecast.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("bowling-center.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("bowling-center-by-bookings.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+      <li><a href="../pool-opening-closing-price-calculator/" data-pf-to="pool-opening-closing-price-calculator">Pool Opening and Closing Price Calculator — free, private</a></li>
+      <li><a href="../pool-route-pricing/" data-pf-to="pool-route-pricing">Pool Service Route Pricing Calculator</a></li>
+      <li><a href="../pool-service-route-calculator/" data-pf-to="pool-service-route-calculator">Which pool service accounts are worth the drive? True hourly per account, reprice or drop, and route density</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bowling-center-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/?pfEmbed=1&quot; title=&quot;Bowling center calculator: what utilization do you need to break even? Free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="bowling-center-profit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/" data-pf-embed-title="Bowling center calculator: what utilization do you need to break even? Free, private" data-pf-embed-slug="bowling-center-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="bowling-center-profit-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="bowling-center-profit-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Open Tools and Research: writing</title>
+  <link href="https://duncan-haywood.github.io/monorepo-projects/writing/"/>
+  <id>https://duncan-haywood.github.io/monorepo-projects/writing/</id>
+  <updated>2026-10-16T00:00:00Z</updated>
+  <entry>
+    <title>How a fleet of AI agents built 121 bid calculators nobody asked for</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <summary>Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.</summary>
+  </entry>
+  <entry>
+    <title>Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <summary>Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.</summary>
+  </entry>
+</feed>

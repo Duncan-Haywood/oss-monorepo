@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. Chargeflow | Chargeback Evidence Packet Builder</title>
+  <meta name="description" content="How a free, manual, browser-only chargeback evidence organizer differs from Chargeflow's paid, automated, success-fee dispute-response platform.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/vs-chargeflow.html">
+  <meta property="og:title" content="This tool vs. Chargeflow | Chargeback Evidence Packet Builder">
+  <meta property="og:description" content="Two different jobs: Chargeflow connects to your payment processors and automatically submits chargeback responses for a share of what it recovers.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or a platform like Chargeflow?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. Chargeflow is a paid, automated dispute-management platform: it connects to your payment processors and store, pulls evidence such as order, shipping, and delivery data on its own, and submits card-network-compliant responses without you writing them, charging a percentage of whatever it recovers — described on Chargeflow's own site. That is an ongoing integration you connect once and let run. This tool does not connect to anything and recovers nothing on its own. It takes the order, fulfillment, delivery, and support facts you already have, walks you through the checklist your dispute reason actually needs, and gives you a draft to review and submit yourself, in your browser, for free."}},{"@type":"Question","name":"Is this page affiliated with Chargeflow?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Chargeflow. Chargeflow is named here only to describe what this tool is and is not, based on Chargeflow's own public site."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #af5331; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8cfc2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #625c54; }
+    .note { font-size: .85rem; color: #625c54; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #625c54; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/vs-chargeflow.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. Chargeflow | Chargeback Evidence Packet Builder — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../chargeback-evidence-packet/">Chargeback Evidence Packet Builder</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. Chargeflow | Chargeback Evidence Packet Builder</span></span></nav>
+  <p><a href="./">&larr; Chargeback Evidence Packet Builder</a></p>
+  <h1>This tool vs. Chargeflow</h1>
+  <p>
+    <strong>Chargeflow</strong> is a well-known automated chargeback-management
+    platform, described on <a href="https://www.chargeflow.io/" rel="nofollow noopener">chargeflow.io</a>
+    as connecting directly to your payment processors and store to detect a
+    dispute, pull relevant evidence &mdash; order details, shipping
+    confirmations, delivery signatures, and more &mdash; and assemble and
+    submit a card-network-compliant response automatically, with little or no
+    manual work. It prices on a success basis: a percentage of whatever it
+    recovers, rather than a flat subscription, and you can start it for free
+    with no credit card.
+  </p>
+  <p>
+    That makes Chargeflow the right choice for one job:
+    <strong>connecting to your systems so disputes are detected and
+    responded to automatically, on an ongoing basis, without you assembling
+    each packet by hand.</strong> This page does not do that job, and does
+    not try to. It has no integrations, connects to no processor or store,
+    and detects nothing on its own &mdash; it takes the facts you already
+    have for one dispute and turns them into a reviewable checklist and
+    draft.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I get disputes across many orders and want them detected and answered automatically, ongoing.</td>
+        <td>Chargeflow or a comparable platform &mdash; that requires connecting your processor and store, and paying a share of what it recovers.</td>
+      </tr>
+      <tr>
+        <td>I have one dispute in front of me right now and the order, fulfillment, and delivery facts to back it.</td>
+        <td>This tool &mdash; pick the dispute reason, check off what you hold, and get a reviewable draft in your browser, free, no signup.</td>
+      </tr>
+      <tr>
+        <td>I want a system that keeps working across every dispute without me touching it each time.</td>
+        <td>Chargeflow or a comparable platform &mdash; this tool remembers nothing between disputes and connects to nothing.</td>
+      </tr>
+      <tr>
+        <td>I want to know exactly what evidence I am missing before I submit, without paying a percentage of the recovery.</td>
+        <td>This tool's gap review, which marks what you do not yet hold as "do not submit" rather than guessing.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    This tool is deliberately the opposite shape from an automated
+    dispute-management platform: nothing to connect, no percentage of a
+    recovery owed, and nothing you type ever leaves your browser. That makes
+    it useful for a single dispute you already have facts for, and the wrong
+    tool for detecting and answering disputes at volume across every order
+    without manual review &mdash; that is exactly the job a platform like
+    Chargeflow is built for.
+  </p>
+  <p>
+    It needs no account, no integration, and no sign-in: it is a static
+    page, the checklist and draft run in your browser, and once it has
+    loaded it keeps working with the connection off.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tool or a platform like Chargeflow?</h3>
+  <p>They answer different questions. Chargeflow is a paid, automated dispute-management platform: it connects to your payment processors and store, pulls evidence such as order, shipping, and delivery data on its own, and submits card-network-compliant responses without you writing them, charging a percentage of whatever it recovers &mdash; described on Chargeflow's own site. That is an ongoing integration you connect once and let run. This tool does not connect to anything and recovers nothing on its own. It takes the order, fulfillment, delivery, and support facts you already have, walks you through the checklist your dispute reason actually needs, and gives you a draft to review and submit yourself, in your browser, for free.</p>
+  <h3>Is this page affiliated with Chargeflow?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Chargeflow. Chargeflow is named here only to describe what this tool is and is not, based on Chargeflow's own public site.</p>
+  <p class="note">
+    Open the <a href="./">Chargeback Evidence Packet Builder</a> to start this dispute's packet.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or payment advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you a packet, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+      <li><a href="../npm-deployment-evidence/" data-pf-to="npm-deployment-evidence">npm Deployment Evidence</a></li>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=chargeback-evidence-packet">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="chargeback-evidence-packet"></script>
+</body>
+</html>

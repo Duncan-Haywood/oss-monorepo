@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate repair price | Appliance Repair Quote Calculator</title>
+<meta name="description" content="A flat rate repair-price book charges every 'refrigerator not cooling' call the same, whether it is a $10 fan or a $450 compressor.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat rate repair price">
+<meta property="og:description" content="Two calls both start as 'the fridge isn't cooling.' One is a $10 evaporator fan and a short visit; the other is a sealed-system compressor swap.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate repair price get an appliance repair wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a flat rate price book prices the complaint, not the repair. \"Refrigerator not cooling\" is one line in the book with one price attached, whether the actual fault is a $10 evaporator fan that swaps in under an hour or a sealed-system compressor that needs recovery, brazing, a new drier, recharge, and half a day. Two calls that sound identical on the phone can carry completely different parts cost and repair hours once the tech is actually inside the unit, and a price set from the symptom alone cannot tell them apart."}},{"@type":"Question","name":"What does a flat rate repair price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Your own labor rate, your parts markup, a callback or warranty reserve, and overhead. A price-book rate is usually set once, off an averaged or vendor-supplied job, and then quoted for every call in that category regardless of what your diagnostic actually finds, what you pay for the part that day, or what your shop's real burden and overhead run. It has no line that moves when the repair turns out bigger than the category suggested."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting example: a simple repair -- 0.5 diagnostic hours, 1.5 repair hours, 0.5 travel hours, and a $120 part -- costs $444.68 to run and prices at $635.25 at a 30% target margin. A harder repair under the same \"not cooling\" complaint -- 3.5 repair hours and a $450 sealed-system part, everything else unchanged -- costs $1,105.91 to run and this calculator prices it at $1,579.88, 2.49 times the easy call's price. Quoting the hard call at the easy call's flat $635.25 price prices it $470.66 below its own break-even cost, before counting the $944.63 it falls short of this calculator's own price at the same 30% target margin. Same complaint, same flat price, one call that pays and one that loses money the moment the sealed system shows up."}},{"@type":"Question","name":"Is a flat rate repair price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow, genuinely common repair -- the same part, the same access, the same hours, most times you see that complaint -- a flat rate number can land close, because that is probably the job the price was averaged from. The risk is the call that turns out to be the harder version of the same symptom, because the price does not know which one it is until the panel is off, and by then the flat number has often already been quoted at the door."}},{"@type":"Question","name":"Does this calculator know my local labor rates or parts costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no price book and no data on your local labor market or parts supplier pricing. It takes your diagnostic, repair, and travel hours, your loaded labor rate, trip cost, parts cost and your own markup on it, a callback/warranty reserve, overhead, and target margin, and turns that into a price for this call -- the arithmetic a flat rate price skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#20252b;background:#f5f1e9}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#9a4a22;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#534c44}section{background:#fffdf8;border:1px solid #dfd6c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #3b29130d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #dfd6c8;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#534c44}.fine,.note{font-size:.88rem;color:#534c44}footer{color:#534c44;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate repair price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appliance-repair-quote-calculator/">Appliance Repair Quote Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate repair price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Appliance Repair Quote Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate repair price</h1>
+<p class="lede">&ldquo;Refrigerator not cooling, $635, done&rdquo; is not a price for a repair &mdash; it is a price for one guess at what is actually wrong, quietly applied to every call that starts with the same complaint.</p>
+</header>
+<section>
+<h2>What a flat rate repair price is</h2>
+<p>
+A flat rate repair price comes from a price book: a fixed dollar figure per
+job category, looked up by the customer's complaint and quoted before the
+unit is opened up. It is fast to quote over the phone, and it is the number
+a customer holding a competitor's flat rate will ask you to match.
+</p>
+<p>
+The number behind each category was set once, usually from the most common
+version of that complaint &mdash; a simple part with a short repair &mdash;
+and then reused for every call in that category, whether the actual fault
+turns out to be the common one or a much bigger job hiding behind the same
+symptom.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter your
+diagnostic, repair, and travel hours, your loaded labor rate, trip cost,
+parts cost and your own markup on it, a callback or warranty reserve, your
+overhead rate, and your target margin. It prices the labor, the marked-up
+parts, and the reserve as their own lines and returns the walk-away price,
+the target-margin quote, and your effective hourly rate &mdash; for this
+call, not a book price for every call under the same complaint.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate repair price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same figure for every call filed under one complaint, whether the fault turns out to be a $10 part or a $450 sealed-system component.</td>
+<td>Prices parts at your own cost with your own markup applied, so a call that turns up an expensive part costs more than one that does not &mdash; on this call, not the category average.</td>
+</tr>
+<tr>
+<td>Has one labor figure baked into the category price, with no separate line for a repair that runs longer than the common case.</td>
+<td>Prices diagnostic, repair, and travel hours separately at your loaded rate, so a longer repair is priced for the hours it actually takes.</td>
+</tr>
+<tr>
+<td>Has no line for a callback or warranty reserve &mdash; if the fix does not hold, that cost comes out of the same flat number.</td>
+<td>Adds a callback/warranty reserve as its own percentage of direct cost, so a repeat visit is already funded rather than eating the job's margin.</td>
+</tr>
+<tr>
+<td>Bakes an assumed overhead into the category price rather than your shop's own rate.</td>
+<td>Applies your own overhead rate to the direct cost, so the price reflects your burden, not an averaged one.</td>
+</tr>
+<tr>
+<td>Gives the technician a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the effective hourly rate, so a shopped price can be scored against real cost before you say a number at the door.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two &ldquo;not cooling&rdquo; calls, one flat price</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+A simple repair &mdash; 0.5 diagnostic hours, 1.5 repair hours, 0.5 travel
+hours, and a $120 part &mdash; costs <strong>$444.68</strong> to run and
+this calculator prices it at <strong>$635.25</strong> at a 30% target
+margin.
+</p>
+<p>
+Take the same complaint and make it the harder version instead &mdash; a
+sealed-system repair that takes 3.5 repair hours and a $450 part instead of
+1.5 hours and $120, everything else unchanged &mdash; and the call costs
+<strong>$1,105.91</strong> to run before a dollar of profit, and this
+calculator prices it at <strong>$1,579.88</strong>: <strong>2.49
+times</strong> the easy call's price, filed under the identical complaint.
+Quoting the hard call at the easy call's flat <strong>$635.25</strong>
+price prices it <strong>$470.66 below its own break-even cost</strong>
+&mdash; before counting the $944.63 it falls short of this calculator's
+own price at the same 30% target margin. Same complaint, same flat price,
+one call that pays and one that loses money the moment the sealed system
+shows up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate repair price get an appliance repair wrong?</h3>
+<p>Because a flat rate price book prices the complaint, not the repair. "Refrigerator not cooling" is one line in the book with one price attached, whether the actual fault is a $10 evaporator fan that swaps in under an hour or a sealed-system compressor that needs recovery, brazing, a new drier, recharge, and half a day. Two calls that sound identical on the phone can carry completely different parts cost and repair hours once the tech is actually inside the unit, and a price set from the symptom alone cannot tell them apart.</p>
+<h3>What does a flat rate repair price usually leave out entirely?</h3>
+<p>Your own labor rate, your parts markup, a callback or warranty reserve, and overhead. A price-book rate is usually set once, off an averaged or vendor-supplied job, and then quoted for every call in that category regardless of what your diagnostic actually finds, what you pay for the part that day, or what your shop's real burden and overhead run. It has no line that moves when the repair turns out bigger than the category suggested.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting example: a simple repair -- 0.5 diagnostic hours, 1.5 repair hours, 0.5 travel hours, and a $120 part -- costs $444.68 to run and prices at $635.25 at a 30% target margin. A harder repair under the same "not cooling" complaint -- 3.5 repair hours and a $450 sealed-system part, everything else unchanged -- costs $1,105.91 to run and this calculator prices it at $1,579.88, 2.49 times the easy call's price. Quoting the hard call at the easy call's flat $635.25 price prices it $470.66 below its own break-even cost, before counting the $944.63 it falls short of this calculator's own price at the same 30% target margin. Same complaint, same flat price, one call that pays and one that loses money the moment the sealed system shows up.</p>
+<h3>Is a flat rate repair price ever the right way to quote?</h3>
+<p>For a narrow, genuinely common repair -- the same part, the same access, the same hours, most times you see that complaint -- a flat rate number can land close, because that is probably the job the price was averaged from. The risk is the call that turns out to be the harder version of the same symptom, because the price does not know which one it is until the panel is off, and by then the flat number has often already been quoted at the door.</p>
+<h3>Does this calculator know my local labor rates or parts costs?</h3>
+<p>No. It has no price book and no data on your local labor market or parts supplier pricing. It takes your diagnostic, repair, and travel hours, your loaded labor rate, trip cost, parts cost and your own markup on it, a callback/warranty reserve, overhead, and target margin, and turns that into a price for this call -- the arithmetic a flat rate price skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Appliance Repair Quote Calculator</a> to price your own call, or read <a href="should-i-repair-or-replace-this-appliance.html">Should I repair or replace this appliance?</a>
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and site conditions, and against a qualified professional, before relying on it or quoting a customer. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ev-charger-bid-calculator/" data-pf-to="ev-charger-bid-calculator">EV Charger Installation Bid Calculator</a></li>
+      <li><a href="../furnace-bid-calculator/" data-pf-to="furnace-bid-calculator">Furnace Bid Calculator</a></li>
+      <li><a href="../hvac-maintenance-contract-calculator/" data-pf-to="hvac-maintenance-contract-calculator">HVAC Maintenance Contract Pricing Calculator</a></li>
+      <li><a href="../mini-split-bid-calculator/" data-pf-to="mini-split-bid-calculator">Mini-Split Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appliance-repair-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appliance-repair-quote-calculator"></script>
+</body></html>

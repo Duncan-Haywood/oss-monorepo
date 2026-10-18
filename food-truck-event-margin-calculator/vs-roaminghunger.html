@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Roaming Hunger | Food Truck Event & Catering Margin Calculator</title>
+  <meta name="description" content="How this free, no-account food truck event pricing calculator differs from Roaming Hunger, the food truck catering and booking marketplace.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/vs-roaminghunger.html">
+  <meta property="og:title" content="This calculator vs. Roaming Hunger | Food Truck Event & Catering Margin Calculator">
+  <meta property="og:description" content="Roaming Hunger finds you a booking you don't already have. This page prices a booking you already have — prep, travel, labor, propane, permit fee…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Roaming Hunger?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems. Roaming Hunger is a marketplace: an event planner submits a request, Roaming Hunger sends it to food trucks in the area, and trucks that want the job submit a catering package with their own pricing — for a guaranteed, contracted booking, Roaming Hunger can facilitate the deal directly for a vendor fee, and it holds the funds until after the event. This page is a free calculator: no listing, no lead generation, no vendor fee. You already have the booking, or a lead you found yourself, and you type your guest count, food cost, prep and travel time, staff labor, and other costs, and it prices what that specific job needs to charge to hit your target margin."}},{"@type":"Question","name":"Does Roaming Hunger charge the same way this calculator prices a booking?","acceptedAnswer":{"@type":"Answer","text":"Not really comparable — they solve different problems. Roaming Hunger's own guidance says most catering leads are free to bid on and a truck keeps its full bid with no deduction, but some events run on a revenue-share or vendor-fee model, particularly a guaranteed, contracted booking it facilitates directly, and it does not publish one fixed commission rate. This calculator doesn't take a cut of anything; it prices a booking from your own prep hours, travel, staff labor, propane, permit fee, and target margin, independent of whatever price Roaming Hunger's marketplace happened to yield for someone else's truck."}},{"@type":"Question","name":"Is Roaming Hunger free?","acceptedAnswer":{"@type":"Answer","text":"Getting listed and receiving leads is free, and most catering work carries no commission — you bid what you want and keep it. But for a guaranteed, contracted booking Roaming Hunger facilitates directly, it charges a vendor fee, and it holds the funds until after the event rather than paying you up front. This calculator has no listing, no lead flow, and nothing that bills — it is a free static page with no server behind the numbers you type."}},{"@type":"Question","name":"Is this page affiliated with Roaming Hunger?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Roaming Hunger. Roaming Hunger is a trademark of its owner, named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241a0e; background: #fbf3e8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #a24d0a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; color: #7a3407; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ecd7b8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #6a5642; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #7a3407; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .85rem; color: #6a5642; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #6a5642; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/vs-roaminghunger.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Roaming Hunger | Food Truck Event &amp; Catering Margin Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../food-truck-event-margin-calculator/">Food Truck Event &amp; Catering Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Roaming Hunger | Food Truck Event &amp; Catering Margin Calculator</span></span></nav>
+  <p><a href="./">&larr; Food truck event margin calculator</a></p>
+  <h1>This calculator vs. Roaming Hunger</h1>
+  <p>
+    <a href="https://roaminghunger.com/" rel="nofollow noopener">Roaming Hunger</a>
+    is a food truck catering marketplace: an event planner submits a request,
+    Roaming Hunger sends it to trucks in the area, and available trucks submit
+    a catering package with their own pricing. Most of that bidding is free
+    and a truck keeps its full bid, but for a <strong>guaranteed, contracted
+    booking</strong> Roaming Hunger facilitates directly, it charges a vendor
+    fee and holds the funds until after the event.
+  </p>
+  <p>
+    That makes Roaming Hunger the right choice for <strong>finding a booking
+    you don't already have</strong>. This page answers a narrower, faster
+    question: <strong>for a booking you already have — a lead you found
+    yourself, a planner who called you directly, a returning client — what
+    should you actually charge</strong>, free, with no listing and nothing
+    taken out of the price you set.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I don't have a booking yet — where do I find one?</td>
+        <td>Roaming Hunger's marketplace, or another lead source.</td>
+      </tr>
+      <tr>
+        <td>I already have a booking (or a lead) — what should I quote them?</td>
+        <td>This calculator &mdash; enter your numbers, get a price immediately, nothing listed.</td>
+      </tr>
+      <tr>
+        <td>Does my quote actually cover prep, travel, and breakdown time, not just the food?</td>
+        <td>This calculator &mdash; see <a href="./how-much-to-charge-for-a-food-truck-catering-event.html">how much to charge for a catering event</a>.</td>
+      </tr>
+      <tr>
+        <td>How much room does this quote have before a bigger-than-expected turnout erases the margin?</td>
+        <td>This calculator's turnout-risk warning &mdash; flags when food cost share gets tight.</td>
+      </tr>
+      <tr>
+        <td>Can I get an answer without listing my truck or paying a vendor fee?</td>
+        <td>This calculator &mdash; a static page, no sign-up, no fee.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price your booking now</a>
+  <p>
+    This tool needs no account and lists nothing: it is a static page, the
+    arithmetic runs in your browser, and your guest count, costs, and every
+    other figure stay on this device &mdash; nothing is uploaded anywhere,
+    there is no marketplace listing, and no fee on whatever you and your
+    client agree to.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Roaming Hunger?</h3>
+  <p>They solve different problems. Roaming Hunger is a marketplace: an event planner submits a request, Roaming Hunger sends it to food trucks in the area, and trucks that want the job submit a catering package with their own pricing &mdash; for a guaranteed, contracted booking, Roaming Hunger can facilitate the deal directly for a vendor fee, and it holds the funds until after the event. This page is a free calculator: no listing, no lead generation, no vendor fee. You already have the booking, or a lead you found yourself, and you type your guest count, food cost, prep and travel time, staff labor, and other costs, and it prices what that specific job needs to charge to hit your target margin.</p>
+  <h3>Does Roaming Hunger charge the same way this calculator prices a booking?</h3>
+  <p>Not really comparable &mdash; they solve different problems. Roaming Hunger's own guidance says most catering leads are free to bid on and a truck keeps its full bid with no deduction, but some events run on a revenue-share or vendor-fee model, particularly a guaranteed, contracted booking it facilitates directly, and it does not publish one fixed commission rate. This calculator doesn't take a cut of anything; it prices a booking from your own prep hours, travel, staff labor, propane, permit fee, and target margin, independent of whatever price Roaming Hunger's marketplace happened to yield for someone else's truck.</p>
+  <h3>Is Roaming Hunger free?</h3>
+  <p>Getting listed and receiving leads is free, and most catering work carries no commission &mdash; you bid what you want and keep it. But for a guaranteed, contracted booking Roaming Hunger facilitates directly, it charges a vendor fee, and it holds the funds until after the event rather than paying you up front. This calculator has no listing, no lead flow, and nothing that bills &mdash; it is a free static page with no server behind the numbers you type.</p>
+  <h3>Is this page affiliated with Roaming Hunger?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Roaming Hunger. Roaming Hunger is a trademark of its owner, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./how-much-to-charge-for-a-food-truck-catering-event.html">How much to charge for a food truck catering or event booking</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It does not audit your books, verify a venue or vendor contract, predict actual turnout, or determine health-department or permit requirements. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a booking, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../farm-crop-mix-optimizer/" data-pf-to="farm-crop-mix-optimizer">Farm crop mix optimizer</a></li>
+      <li><a href="../farmers-market-booth-calculator/" data-pf-to="farmers-market-booth-calculator">Which farmers market is actually worth your Saturday?</a></li>
+      <li><a href="../farmland-lease-cash-rent-vs-crop-share-calculator/" data-pf-to="farmland-lease-cash-rent-vs-crop-share-calculator">Cash rent or crop share? Free farmland lease calculator</a></li>
+      <li><a href="../fertilizer-blend-optimizer/" data-pf-to="fertilizer-blend-optimizer">Fertilizer Blend Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=food-truck-event-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="food-truck-event-margin-calculator"></script>
+</body>
+</html>

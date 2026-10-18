@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Junk Removal Bid Calculator — Price the Dump Ticket</title>
+  <meta name="description" content="Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel…">
+  <meta property="og:title" content="Junk Removal Bid Calculator">
+  <meta property="og:description" content="Bid junk removal the way the landfill bills it — by weight — and see whether that half-truck special still covers the dump ticket.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Junk Removal Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Material-weight dump ticket, landfill minimum and surcharge, appliance and mattress special fees, labor with stairs and travel, second dump-run when the truck is full, walk-away price, proposed-price margin check, copyable bid draft, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why price by weight when customers ask for \"a half truck\"?","acceptedAnswer":{"@type":"Answer","text":"Because the landfill bills the weight, not the picture of the truck. Two cubic yards of concrete at roughly 4,000 lb per yard outweigh a whole trailer of couches at about 125. This tool estimates weight from the material you enter, converts it to tons, and prices the dump ticket from your own per-ton rate, minimum, and surcharge — then the truck-volume question is answered separately, because volume decides how many trips you make, not what the scale house charges."}},{"@type":"Question","name":"Why enter each material as its own pile?","acceptedAnswer":{"@type":"Answer","text":"Because a blended \"mixed load\" rate hides the dump ticket. Mixed household junk starts around 200 lb per cubic yard, furniture 125, construction debris 400, drywall 420, yard waste 350, dirt 2,200, concrete 4,000, and shingles 2,500. One heavy pile inside an otherwise light load is what turns a fine-looking bid into a loss at the scale. Appliances, mattresses, and tires are entered per item instead, because they carry a fixed special fee as well as weight."}},{"@type":"Question","name":"How are the number of dump runs worked out?","acceptedAnswer":{"@type":"Answer","text":"From volume, not weight: total cubic yards divided by your truck capacity, rounded up, with a minimum of one run whenever there is anything to haul. Each run adds its own clock time, so a job that fits in one load and a job that needs three are priced as the different days they are. Weight drives the ticket; volume drives the trips. Getting those two the wrong way round is the single most common error in this trade's pricing."}},{"@type":"Question","name":"Does the calculator account for stairs and a long carry?","acceptedAnswer":{"@type":"Answer","text":"Yes, both as their own clock time on top of the on-site hours you enter: minutes per flight multiplied by the number of flights, plus a long-carry allowance for the walk from the pile to the truck. That time is then multiplied by crew size to get person-hours, which is what payroll actually costs. A third-floor walk-up with a hundred-foot carry is not the same job as a curbside pile of the same volume, and this is where that difference shows up."}},{"@type":"Question","name":"Why does a small pickup still price at the minimum charge?","acceptedAnswer":{"@type":"Answer","text":"Because rolling a truck costs more than the pile. Round-trip drive time from your one-way minutes, the dump-run time, fuel, and the landfill's own minimum all land before a single item is lifted. When the margin price comes in under the floor you set, the floor is used instead and the result says so. That number is what a \"can you just grab this one couch?\" call actually costs you."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the quote reads to the customer and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $400 cost marked up 20% is $480, a 16.7% margin; a 20% target margin is $500. Nothing leaves your browser: no account, no upload, business details for the printed proposal are cleared by \"Forget my business details\", and the optional local counter records only which features were used and the day. A share link encodes only the job details you see on screen into the web address itself, so copying one and sending it does not upload anything either."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a221c; background: #f3eee6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a4a16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d9cfc2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5147; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a898; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .pile-row { display: grid; grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .pile-row select, .pile-row input { padding: 10px 7px; }
+    .pile-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b5d50; }
+    .pile-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a898; background: #f6f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a221c; }
+    button:hover { background: #ebe2d6; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #3b2416; color: #f7f0e8; border-color: #3b2416; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0a15a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5147; }
+    footer a { color: #9a4a16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0d2a8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .pile-head { display: none; }
+      .pile-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6ddd2; border-radius: 9px; padding: 11px; }
+      .pile-row label { font-size: .78rem; gap: 5px; }
+      .pile-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .pile-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5147; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3b2416; --pr-accent: #9a4a16;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Junk Removal Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Junk Removal Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Junk Removal Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT JUNK HAULERS</p>
+    <h1>Price the dump ticket, not the truck.</h1>
+    <p>A half-truck of couches and a half-truck of concrete look the same in the driveway. The landfill bills the weight. This calculator turns each pile into estimated tons, prices the ticket (minimum, per-ton, surcharge, appliance fees), then adds crew time, stairs, travel, and the dump run so you see the walk-away number before you quote the job.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The load</h2>
+        <p class="hint">One row per material. Pounds per unit is a starting density &mdash; replace it with a figure from your own scale tickets. Quantity is cubic yards for bulk, or a count for appliances, mattresses, and tires.</p>
+        <div class="pile-row pile-head" aria-hidden="true">
+          <span>Material</span><span>Quantity</span><span>Lb / unit</span><span>Special fee</span><span></span>
+        </div>
+        <div id="piles"></div>
+        <button type="button" id="addPile">+ Add a pile</button>
+      </section>
+
+      <section>
+        <h2>Dump and truck</h2>
+        <div class="fields">
+          <label>Truck capacity (cu yd) <input id="truckCapacityCubicYards" type="number" min="1" step="1" value="12" inputmode="numeric"></label>
+          <label>Dump fee per ton <input id="dumpFeePerTon" type="number" min="0" step="1" value="65" inputmode="numeric"></label>
+          <label>Dump minimum ticket <input id="dumpMinimum" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+          <label>Dump surcharge (%) <input id="surchargeRate" type="number" min="0" step="0.5" value="10" inputmode="decimal"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Transfer stations bill the greater of the per-ton rate and a minimum ticket, then often add an environmental or host-community surcharge. Appliance, mattress, and tire fees are on each row because many landfills will not take those on the regular ticket.</p>
+      </section>
+
+      <section>
+        <h2>Labor and costs</h2>
+        <div class="fields">
+          <label>On-site hours (clock) <input id="onSiteHours" type="number" min="0" step="0.25" value="2" inputmode="decimal"></label>
+          <label>Stair flights <input id="stairsFlights" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <label>Minutes per flight <input id="minutesPerFlight" type="number" min="0" step="1" value="15" inputmode="numeric"></label>
+          <label>Long-carry minutes <input id="longCarryMinutes" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <label>One-way travel (min) <input id="oneWayMinutes" type="number" min="0" step="1" value="18" inputmode="numeric"></label>
+          <label>One dump-run (min) <input id="dumpMinutes" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
+          <label>Crew size <input id="crewSize" type="number" min="1" step="1" value="2" inputmode="numeric"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="18" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28" inputmode="decimal"></label>
+          <label>Fuel for this job <input id="fuelPerJob" type="number" min="0" step="1" value="18" inputmode="numeric"></label>
+          <label>Other job cost <input id="otherJobCost" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25" inputmode="decimal"></label>
+          <label>Minimum charge <input id="minimumCharge" type="number" min="0" step="1" value="149" inputmode="numeric"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 199 half-truck special" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">On-site hours are clock time. Stairs, a long carry, round-trip drive, and each dump run are added, then multiplied by crew size so windshield time is loaded labor. A posted minimum lifts the customer&rsquo;s number; it does not change the walk-away cost.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Estimated volume</dt><dd id="volume"></dd>
+        <dt>Estimated weight</dt><dd id="tons"></dd>
+        <dt>Truck loads / dump runs</dt><dd id="loads"></dd>
+        <dt>Dump ticket</dt><dd id="dump"></dd>
+        <dt>Crew clock / person-hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Job profit</dt><dd id="profit"></dd>
+        <dt>Price per cubic yard</dt><dd id="perYard"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <div class="summary-actions">
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="shareStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the dump ticket goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting densities and special fees are common ballpark figures, not a landfill tariff or a guarantee &mdash; weigh a few of your own loads and replace them. Read <a href="./how-to-price-junk-removal.html" style="color:#f0d2a8">how to price a junk removal job</a>.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why price by weight when customers ask for "a half truck"?</h3>
+      <p>Because the landfill bills the weight, not the picture of the truck. Two cubic yards of concrete at
+        roughly 4,000&nbsp;lb per yard outweigh a whole trailer of couches at about 125. This tool estimates
+        weight from the material you enter, converts it to tons, and prices the dump ticket from your own
+        per-ton rate, minimum, and surcharge &mdash; then the truck-volume question is answered separately,
+        because volume decides how many trips you make, not what the scale house charges.</p>
+
+      <h3>Why enter each material as its own pile?</h3>
+      <p>Because a blended "mixed load" rate hides the dump ticket. Mixed household junk starts around
+        200&nbsp;lb per cubic yard, furniture 125, construction debris 400, drywall 420, yard waste 350,
+        dirt 2,200, concrete 4,000, and shingles 2,500. One heavy pile inside an otherwise light load is
+        what turns a fine-looking bid into a loss at the scale. Appliances, mattresses, and tires are
+        entered per item instead, because they carry a fixed special fee as well as weight.</p>
+
+      <h3>How are the number of dump runs worked out?</h3>
+      <p>From volume, not weight: total cubic yards divided by your truck capacity, rounded up, with a
+        minimum of one run whenever there is anything to haul. Each run adds its own clock time, so a job
+        that fits in one load and a job that needs three are priced as the different days they are. Weight
+        drives the ticket; volume drives the trips. Getting those two the wrong way round is the single most
+        common error in this trade's pricing.</p>
+
+      <h3>Does the calculator account for stairs and a long carry?</h3>
+      <p>Yes, both as their own clock time on top of the on-site hours you enter: minutes per flight
+        multiplied by the number of flights, plus a long-carry allowance for the walk from the pile to the
+        truck. That time is then multiplied by crew size to get person-hours, which is what payroll
+        actually costs. A third-floor walk-up with a hundred-foot carry is not the same job as a curbside
+        pile of the same volume, and this is where that difference shows up.</p>
+
+      <h3>Why does a small pickup still price at the minimum charge?</h3>
+      <p>Because rolling a truck costs more than the pile. Round-trip drive time from your one-way minutes,
+        the dump-run time, fuel, and the landfill's own minimum all land before a single item is lifted.
+        When the margin price comes in under the floor you set, the floor is used instead and the result
+        says so. That number is what a "can you just grab this one couch?" call actually costs you.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the customer and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $400 cost marked up 20% is $480, a 16.7% margin; a 20% target margin is $500. Nothing
+        leaves your browser: no account, no upload, business details for the printed proposal are cleared by
+        "Forget my business details", and the optional local counter records only which features were used
+        and the day. A share link encodes only the job details you see on screen into the web address
+        itself, so copying one and sending it does not upload anything either.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Clearhaul Removal LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Clear the garage and haul away&#10;One mattress and one appliance included"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Hazardous waste, paint, solvents, and chemicals&#10;Items requiring demolition or disassembly beyond hand tools"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Volume is estimated from the walkthrough; the final figure is confirmed on the truck before we leave."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <p style="max-width:1060px;margin:0 auto;padding:0 18px;font-size:.85rem;color:#5c5147">Related: <a href="../hoarding-cleanout-bid-calculator/" style="color:#9a4a16">Hoarding cleanout bid calculator</a> &middot; <a href="how-to-price-junk-removal.html" style="color:#9a4a16">How to price a junk removal job</a> &middot; <a href="./vs-a-flat-truck-fraction-rate.html" style="color:#9a4a16">This calculator vs. a flat truck-fraction rate</a> &middot; <a href="./vs-workiz.html" style="color:#9a4a16">This calculator vs. Workiz</a> &middot; <a href="./vs-jobber.html" style="color:#9a4a16">This calculator vs. Jobber</a> &middot; <a href="./vs-housecall-pro.html" style="color:#9a4a16">This calculator vs. Housecall Pro</a>.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Weight is an estimate until a scale ticket prints. Verify every figure against your own dump tickets, payroll, insurance, and fuel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, load, dump rates, wages, or prices.</p>
+    <p>Pricing a local household move instead of a junk haul on the same property? The <a href="../moving-bid-calculator/">moving company bid calculator</a> prices inventory hours, stairs, long carry, and packing &mdash; nothing uploaded.</p>
+    <p>Leaving a roll-off instead of hauling the load yourself? The <a href="../dumpster-rental-margin-calculator/">dumpster rental margin calculator</a> prices the included weight allowance, tipping fee, and overage rate &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If it keeps you off a losing half-truck special, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, formatBidSummary, MATERIAL_PRESETS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    const COST_IDS = [
+      'truckCapacityCubicYards','dumpFeePerTon','dumpMinimum','surchargeRate',
+      'onSiteHours','stairsFlights','minutesPerFlight','longCarryMinutes',
+      'oneWayMinutes','dumpMinutes','crewSize','hourlyWage','burdenRate',
+      'fuelPerJob','otherJobCost','overheadRate','targetMargin','minimumCharge',
+      'proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_PILES = [
+      { name: 'Mixed household junk', quantity: 6, lbsPerUnit: 200, specialFeeEach: 0 },
+      { name: 'Furniture / bulky items', quantity: 2, lbsPerUnit: 125, specialFeeEach: 0 },
+      { name: 'Appliance (each)', quantity: 2, lbsPerUnit: 200, specialFeeEach: 25 },
+    ];
+
+    const TYPE_OPTIONS = MATERIAL_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other material</option>';
+
+    const pilesHost = el('piles');
+    let rowSeq = 0;
+
+    function addPileRow(pile) {
+      const id = `p${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'pile-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Material</span><select class="p-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="p-qty" id="${id}-qty" type="number" min="0" step="0.25" inputmode="decimal"></label>
+        <label for="${id}-lbs"><span class="lbl">Pounds per unit</span><input class="p-lbs" id="${id}-lbs" type="number" min="0" step="5" inputmode="numeric"></label>
+        <label for="${id}-fee"><span class="lbl">Special fee each</span><input class="p-fee" id="${id}-fee" type="number" min="0" step="1" inputmode="numeric"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this pile</span></button>`;
+
+      const typeField = row.querySelector('.p-type');
+      const lbsField = row.querySelector('.p-lbs');
+      const feeField = row.querySelector('.p-fee');
+      const presetIndex = MATERIAL_PRESETS.findIndex(preset => preset.label === pile.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.p-qty').value = pile.quantity;
+      lbsField.value = pile.lbsPerUnit;
+      feeField.value = pile.specialFeeEach;
+
+      typeField.addEventListener('change', () => {
+        const preset = MATERIAL_PRESETS[Number(typeField.value)];
+        if (preset && !lbsField.dataset.edited) lbsField.value = preset.lbsPerUnit;
+        if (preset && !feeField.dataset.edited) feeField.value = preset.specialFeeEach;
+        count('bid_calculated');
+        update();
+      });
+      lbsField.addEventListener('input', () => { lbsField.dataset.edited = '1'; });
+      feeField.addEventListener('input', () => { feeField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('pile_removed');
+        update();
+      });
+      pilesHost.append(row);
+    }
+
+    function readPiles() {
+      return [...pilesHost.querySelectorAll('.pile-row')].map(row => {
+        const preset = MATERIAL_PRESETS[Number(row.querySelector('.p-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          unit: preset ? preset.unit : 'cubic_yards',
+          cubicYardsEach: preset ? preset.cubicYardsEach : 0,
+          quantity: row.querySelector('.p-qty').value,
+          lbsPerUnit: row.querySelector('.p-lbs').value,
+          specialFeeEach: row.querySelector('.p-fee').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['volume','tons','loads','dump','hours','labor','overhead','cost','profit','perYard','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields. The default parameter lets `update` pass
+     * rows it has already read rather than reading them twice.
+     */
+    function readInput(piles = readPiles()) {
+      return {
+        piles,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return false;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.piles) && payload.piles.length > 0) {
+        pilesHost.replaceChildren();
+        rowSeq = 0;
+        payload.piles.forEach(addPileRow);
+        return true;
+      }
+      return false;
+    }
+
+    function update() {
+      const piles = readPiles();
+      if (piles.length === 0) {
+        clearOutputs('Add a pile to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one pile above and the dump-ticket split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(readInput(piles));
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.bidPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'job price (minimum charge applied)'
+        : 'job price';
+      el('volume').textContent = `${result.totalCubicYards.toFixed(1)} cu yd`;
+      el('tons').textContent = `${result.estimatedTons.toFixed(2)} tons (${Math.round(result.totalPounds)} lb)`;
+      el('loads').textContent = `${result.truckLoads.toFixed(2)} / ${result.dumpRuns} run${result.dumpRuns === 1 ? '' : 's'}`;
+      el('dump').textContent = money(result.dumpCost);
+      el('hours').textContent = `${result.clockHours.toFixed(2)} h / ${result.personHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perYard').textContent = result.pricePerCubicYard === null ? 'n/a' : money(result.pricePerCubicYard);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const weighted = result.piles.filter(pile => pile.pounds > 0);
+      el('split').innerHTML = weighted.length === 0
+        ? '<li class="empty">No pile has weight yet — add quantity above.</li>'
+        : weighted
+          .slice()
+          .sort((a, b) => b.pounds - a.pounds)
+          .map(pile => `<li><span>${pile.name}</span><span>${pile.weightShare.toFixed(0)}% of weight</span>
+            <span class="bar"><span style="width:${pile.weightShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = formatBidSummary(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('shareStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('shareStatus').textContent = ''; }, 2500);
+    }
+
+    el('addPile').addEventListener('click', () => {
+      addPileRow({ name: 'Mixed household junk', quantity: 0, lbsPerUnit: 200, specialFeeEach: 0 });
+      count('pile_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed.'; });
+    });
+
+    // A share link wins over the starting sample piles — someone who opens a
+    // link a hauler sent them should see that hauler's load, not the generic
+    // household-junk example.
+    const incomingHash = splitTerms(location.hash);
+    const sharedInputs = decodeShare(incomingHash.payload);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    if (!applyShare(sharedInputs)) STARTING_PILES.forEach(addPileRow);
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'junk-removal-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Volumes and weights are estimates made before loading; regulated, hazardous, or over-weight material may require separate handling and is not included.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Load and haul away the material listed below",
+        {
+          "each": "piles",
+          "when": "quantity",
+          "line": "{quantity~2} × {name}"
+        },
+        {
+          "line": "Estimated at {estimatedTons~2} ton{estimatedTons+s} across {dumpRuns~0} disposal run{dumpRuns+s}",
+          "when": "estimatedTons"
+        },
+        {
+          "line": "Carry the load down stairs from the pickup point",
+          "when": "stairsHours"
+        },
+        {
+          "line": "Long carry between the pickup point and the truck",
+          "when": "longCarryHours"
+        },
+        "Sweep the area once the load is out",
+        "Dispose of everything at a licensed transfer station or recycler"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.bidPrice : result.proposed.price,
+        jobTitle: scopeLines(['Junk removal — {totalCubicYards~1} cu yd'], result)[0] || 'Junk removal — cu yd',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-detailing-bid-calculator/" data-pf-to="mobile-detailing-bid-calculator">Mobile Detailing Bid Calculator</a></li>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=junk-removal-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/?pfEmbed=1&quot; title=&quot;Junk Removal Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="junk-removal-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/" data-pf-embed-title="Junk Removal Bid Calculator" data-pf-embed-slug="junk-removal-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="junk-removal-bid-calculator" data-pf-jobs-amount="#price"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

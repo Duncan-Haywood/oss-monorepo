@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mobile Detailing Bid Calculator vs. a Flat Per-Vehicle Price | Worked Comparison</title>
+  <meta name="description" content="You already have a price card — sedan $150, SUV $200, truck $250. Here is exactly what that flat number hides: the drive, the card fee…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html">
+  <meta property="og:title" content="Mobile Detailing Bid Calculator vs. a Flat Per-Vehicle Price">
+  <meta property="og:description" content="The flat card is fine for a menu. Here is what it hides once the job is real: drive time, the card fee…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat per-vehicle price card wrong?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not go away. A website or a flyer needs one number per vehicle size, and \"$180 for a sedan full detail\" is a perfectly good headline price. The point of this page is not that the card is wrong — it is that the card is the same number whether the job is 5 minutes away or 45, and only one of those two jobs actually clears the margin the card was priced to deliver."}},{"@type":"Question","name":"How much does drive time actually cost on a mobile job?","acceptedAnswer":{"@type":"Answer","text":"Two things, and a flat card shows neither: the mileage cost of getting there and back, and the clock time it occupies that a shop-based detailer never spends. On this calculator's own defaults, a 24-mile round trip at $0.67 a mile is $16.08 in vehicle cost alone, on top of 45 minutes that never touches the car. Move the same $180 job to a 60-mile round trip and the vehicle cost alone triples to $40.20, before the extra clock time is even counted."}},{"@type":"Question","name":"Why does the same flat price pay a different hourly rate on different jobs?","acceptedAnswer":{"@type":"Answer","text":"Because the flat price is fixed but the whole-stop time behind it is not. On the near job below, $180 nets $128.52 after costs and the card fee, spread across 4.25 hours the job actually occupies — $30.24 an hour. Charge the identical $180 for a job with double the drive and the net drops to $104.40 spread across 5 hours — $20.88 an hour, a 31% cut the price card never shows, because the card only ever displays the $180."}},{"@type":"Question","name":"Does the calculator replace the price card?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The price card is what you advertise before you know the mileage. This calculator is what you run once you know the address, to decide whether that day's version of \"the $180 sedan detail\" still clears your target margin — and, if a job is far enough, whether it is worth a trip surcharge or a decline instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #f3f6f1; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d4ded3; vertical-align: top; }
+    code { background: #e3e9e1; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    .note { font-size: .9rem; color: #4d5b52; }
+    footer { margin-top: 32px; font-size: .82rem; color: #4d5b52; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mobile Detailing Bid Calculator vs. a Flat Per-Vehicle Price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../mobile-detailing-bid-calculator/">Mobile Detailing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mobile Detailing Bid Calculator vs. a Flat Per-Vehicle Price</span></span></nav>
+  <p><a href="./">← Mobile detailing bid calculator</a></p>
+  <h1>This calculator vs. a flat per-vehicle price card</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic method
+    every mobile detailer already has: a price card by vehicle size — sedan, SUV, truck — quoted the
+    same regardless of where the job is.</p>
+
+  <h2>First — the price card is right, and you should have one</h2>
+  <p>A website, a flyer, or a text back to a lead needs one number per vehicle size before you know the
+    address. "$180 for a sedan full detail" is a fine headline price, and no calculator replaces having
+    one. What follows is not an argument that the card is wrong. It is what the same flat number stops
+    showing you the moment the job is real and you know how far it is.</p>
+
+  <h2>The worked example</h2>
+  <p>Both rows below quote the identical $180 sedan-detail card price from this calculator's own starting
+    numbers: 3 hours of hands-on labor, 25 minutes of setup and cleanup, an owner-operator's own time
+    (wage $0, so contribution is take-home plus profit), $18 of supplies, $12 of job overhead, and a 3%
+    card-processing fee. The only thing that changes between them is the drive.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Near job — 24 mi round trip, 45 min drive</th><th>Far job — 60 mi round trip, 90 min drive</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What the price card shows</strong></td>
+          <td>$180 — sedan full detail</td>
+          <td>$180 — sedan full detail, unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Round-trip vehicle cost</strong></td>
+          <td>$16.08 (24 mi × $0.67)</td>
+          <td>$40.20 (60 mi × $0.67) — the card never separates this out</td>
+        </tr>
+        <tr>
+          <td><strong>Whole-stop time the job occupies</strong></td>
+          <td>4.25 hours (3 hands-on + 1.25 travel/setup/cleanup)</td>
+          <td>5 hours (3 hands-on + 2 travel/setup/cleanup)</td>
+        </tr>
+        <tr>
+          <td><strong>Card-processing fee</strong></td>
+          <td>$5.40 (3% of $180)</td>
+          <td>$5.40 (3% of $180) — same fee, same price</td>
+        </tr>
+        <tr>
+          <td><strong>Direct costs this job actually carries</strong></td>
+          <td>$46.08 (supplies + overhead + travel)</td>
+          <td>$70.20 (supplies + overhead + travel)</td>
+        </tr>
+        <tr>
+          <td><strong>Break-even price</strong></td>
+          <td>$47.51 — well below the $180 card price</td>
+          <td>$72.37 — still below $180, but the cushion above it has shrunk</td>
+        </tr>
+        <tr>
+          <td><strong>What $180 actually nets after costs and the fee</strong></td>
+          <td>$128.52 — a 71.4% margin</td>
+          <td>$104.40 — a 58.0% margin</td>
+        </tr>
+        <tr>
+          <td><strong>Effective hourly on hands-on time alone</strong></td>
+          <td>$42.84 (same 3 hours either way)</td>
+          <td>$34.80 (same 3 hours either way)</td>
+        </tr>
+        <tr>
+          <td><strong>Effective hourly on the whole stop</strong></td>
+          <td>$30.24 — what actually fills your day</td>
+          <td>$20.88 — a 31% cut from the near job, at the identical price</td>
+        </tr>
+        <tr>
+          <td><strong>Minimum price to still clear a 35% target margin</strong></td>
+          <td>$74.32 — this job's own floor, well under $180</td>
+          <td>$113.23 — this job's own floor has moved up by $38.91</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The two places the price card goes quiet</h2>
+
+  <h3>1. Drive time and drive cost never separate from the job</h3>
+  <p>A price card answers "what do I charge for a sedan," not "what does it cost me to reach this one."
+    Both live inside the same $180 either way. The calculator splits them out — $16.08 of vehicle cost on
+    the near job, $40.20 on the far one — so the card fee, the supplies, and the trip are visible as three
+    separate numbers instead of one guess that happened to work out.</p>
+
+  <h3>2. The same price pays a falling hourly rate as the drive grows</h3>
+  <p>This is the one that costs real money over a full week. The card charges $180 whether the stop is 12
+    minutes away or 45, but the hours it occupies are not the same, so the price that felt right on the
+    near job pays 31% less per hour on the far one — $30.24 down to $20.88 — with nothing on the card to
+    say so. A detailer working off the card alone can fill a day with "the same $180 job" and end it having
+    earned noticeably less than the schedule implied, purely from which addresses landed on the route.</p>
+
+  <h2>When the price card is still the better tool</h2>
+  <p>For advertising, it plainly is. A website or a flyer cannot show a live calculator, and a customer
+    calling for a quote wants one number, not a form. The sensible arrangement is both: post the card price
+    to get the call, then run this calculator once you have the address to see whether that day's version
+    of the job still clears your floor — and, on a job far enough out, whether a trip surcharge or a
+    decline is the honest answer instead.</p>
+
+  <p class="note">Every figure on this page is this calculator's own worked example, not a claim about any
+    real detailer or an industry benchmark. Your mileage, rates, and supply cost will produce different
+    numbers — the point is which numbers to produce, not what they should come out to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Is a flat per-vehicle price card wrong?</h3>
+  <p>No, and it should not go away. A website or a flyer needs one number per vehicle size, and "$180 for a
+    sedan full detail" is a perfectly good headline price. The point of this page is not that the card is
+    wrong — it is that the card is the same number whether the job is 5 minutes away or 45, and only one of
+    those two jobs actually clears the margin the card was priced to deliver.</p>
+
+  <h3>How much does drive time actually cost on a mobile job?</h3>
+  <p>Two things, and a flat card shows neither: the mileage cost of getting there and back, and the clock
+    time it occupies that a shop-based detailer never spends. On this calculator's own defaults, a 24-mile
+    round trip at $0.67 a mile is $16.08 in vehicle cost alone, on top of 45 minutes that never touches the
+    car. Move the same $180 job to a 60-mile round trip and the vehicle cost alone triples to $40.20, before
+    the extra clock time is even counted.</p>
+
+  <h3>Why does the same flat price pay a different hourly rate on different jobs?</h3>
+  <p>Because the flat price is fixed but the whole-stop time behind it is not. On the near job below, $180
+    nets $128.52 after costs and the card fee, spread across 4.25 hours the job actually occupies — $30.24
+    an hour. Charge the identical $180 for a job with double the drive and the net drops to $104.40 spread
+    across 5 hours — $20.88 an hour, a 31% cut the price card never shows, because the card only ever
+    displays the $180.</p>
+
+  <h3>Does the calculator replace the price card?</h3>
+  <p>No, and it is not trying to. The price card is what you advertise before you know the mileage. This
+    calculator is what you run once you know the address, to decide whether that day's version of "the $180
+    sedan detail" still clears your target margin — and, if a job is far enough, whether it is worth a trip
+    surcharge or a decline instead.</p>
+
+  <p>
+    <a href="./">Open the mobile detailing bid calculator →</a><br>
+    <a href="./how-much-to-charge.html">How much should I charge for mobile detailing? →</a>
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, accounting, insurance, employment, legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../janitorial-bid-calculator/" data-pf-to="janitorial-bid-calculator">Janitorial Bid Calculator</a></li>
+      <li><a href="../junk-removal-bid-calculator/" data-pf-to="junk-removal-bid-calculator">Junk Removal Bid Calculator</a></li>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mobile-detailing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="mobile-detailing-bid-calculator"></script>
+</body>
+</html>

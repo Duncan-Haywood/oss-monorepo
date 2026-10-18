@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. your slicer's cost estimate | 3D Print Price Calculator</title>
+  <meta name="description" content="Why the cost figure PrusaSlicer, Cura, Bambu Studio or OrcaSlicer shows next to a sliced model is a material cost, not a price…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/vs-slicer-cost-estimate.html">
+  <meta property="og:title" content="This calculator vs. your slicer's cost estimate | 3D Print Price Calculator">
+  <meta property="og:description" content="Your slicer prices the filament. A selling price also has to carry electricity, printer wear, the prints that failed, your finishing time, packaging…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my slicer's cost estimate wrong?","acceptedAnswer":{"@type":"Answer","text":"No — it is right about what it measures, which is material. A slicer knows how many grams of filament the sliced model consumes and what you told it a kilogram costs, so it multiplies the two. That is an accurate material cost and a genuinely useful number. It is simply not a price: nothing in that figure is trying to cover the power the printer drew for those hours, the share of the printer's own replacement cost that those hours used up, the attempts that failed before one came out sellable, the time you spent removing supports and sanding, the box and label it ships in, or the percentage the marketplace takes out of whatever you charge."}},{"@type":"Question","name":"Why not just multiply the filament cost by three?","acceptedAnswer":{"@type":"Answer","text":"Because the multiplier that works for one print is wrong for the next one. A 45-gram part that prints in three hours and needs no finishing has a very different cost structure from a 45-gram part that prints in fourteen hours and takes half an hour of sanding — same filament, same 3x, wildly different real cost. Multipliers hide print time, and print time is what drives electricity and printer wear. This page charges those directly instead of hoping a constant absorbs them."}},{"@type":"Question","name":"How does a failed print change the number?","acceptedAnswer":{"@type":"Answer","text":"A failure still spent filament, electricity, and machine hours before it was scrapped. If a share of attempts fail, then on average 1/(1 − failure rate) attempts are needed to land one sellable part, so this page inflates the per-attempt costs — material, electricity, machine wear — by that factor. Post-processing and packaging are not inflated, because those only ever touch the part that actually sells. A slicer estimate has no way to know any of this; it prices one successful attempt."}},{"@type":"Question","name":"Why can't I just add the marketplace fee on at the end?","acceptedAnswer":{"@type":"Answer","text":"Because the fee is a percentage of the price you charge, not a fixed cost you can stack on top. Adding it after the fact gives a price that looks right until the marketplace takes its cut, at which point the margin is short. This page solves price × (1 − fee%) − cost = price × (margin%) for price directly, so the number it suggests already clears the fee at the margin you asked for."}},{"@type":"Question","name":"Is this page affiliated with PrusaSlicer, Cura, Bambu Studio, or OrcaSlicer?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by any slicer vendor. Those names are trademarks of their owners and appear here only to describe the kind of estimate this page is contrasted with."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #151a24; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0e2a5c; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/vs-slicer-cost-estimate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. your slicer's cost estimate | 3D Print Price Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3d-print-price-calculator/">3D Print Price Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. your slicer's cost estimate | 3D Print Price Calculator</span></span></nav>
+  <p><a href="./">← 3D print price calculator</a></p>
+  <h1>This calculator vs. your slicer's cost estimate</h1>
+  <p>
+    Slice a model in PrusaSlicer, Cura, Bambu Studio, or OrcaSlicer and it
+    tells you two things about the job: roughly how long it will take, and
+    roughly what the filament will cost. That cost is grams of filament
+    multiplied by the price per kilogram you configured. It is accurate, it
+    is useful, and it is the right number to check before you start a print.
+  </p>
+  <p>
+    It is not a selling price, and it is not trying to be. <strong>A price
+    has to carry everything the spool doesn't</strong> — the power drawn for
+    those hours, the share of the printer's own replacement cost those hours
+    used up, the attempts that failed before one came out sellable, your
+    finishing time, the packaging, and the percentage the marketplace takes
+    out of whatever you charge. This page prices those directly and then
+    solves for what to charge.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>How many grams and how many hours will this model take?</td>
+        <td>Your slicer — it has the geometry and the toolpath, and nothing else can answer this.</td>
+      </tr>
+      <tr>
+        <td>What will the filament for this print cost?</td>
+        <td>Your slicer's estimate. Type the same figure into this page's <a href="./#filamentUsedGrams">grams</a> and <a href="./#filamentCostPerKg">$/kg</a> fields.</td>
+      </tr>
+      <tr>
+        <td>What did the electricity and the printer's own wear cost over those hours?</td>
+        <td>This calculator — it charges <a href="./#electricityOut">power</a> at your rate and amortizes the printer across its <a href="./#printerLifetimeHours">expected lifetime hours</a>.</td>
+      </tr>
+      <tr>
+        <td>What do the prints that failed cost me on the one that sells?</td>
+        <td>This calculator's <a href="./#failureBufferOut">failure buffer</a> — it inflates only the per-attempt costs, not the finishing you do once.</td>
+      </tr>
+      <tr>
+        <td>What is my true break-even on this part, before any margin?</td>
+        <td>This calculator's <a href="./#breakEvenOut">break-even figure</a>.</td>
+      </tr>
+      <tr>
+        <td>What should I list it at so the marketplace fee and my target margin both clear?</td>
+        <td>This calculator's <a href="./#price">suggested price</a>, solved so the fee comes out of the price rather than being stacked on after it.</td>
+      </tr>
+      <tr>
+        <td>I'm already charging a price to match a competitor's listing. Does it actually make money?</td>
+        <td>This calculator's <a href="./#actualSellingPrice">check-a-price panel</a>, which recomputes real profit and margin against the same break-even.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price a print now</a>
+  <p>
+    This tool needs no account and no upload: it is a static page, the
+    arithmetic runs in your browser, and the figures you type stay on this
+    device. It does not read your slicer, your printer, or your shop — you
+    bring the grams and the hours, and it prices what happens around them.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is my slicer's cost estimate wrong?</h3>
+  <p>No — it is right about what it measures, which is material. A slicer knows how many grams of filament the sliced model consumes and what you told it a kilogram costs, so it multiplies the two. That is an accurate material cost and a genuinely useful number. It is simply not a price: nothing in that figure is trying to cover the power the printer drew for those hours, the share of the printer's own replacement cost that those hours used up, the attempts that failed before one came out sellable, the time you spent removing supports and sanding, the box and label it ships in, or the percentage the marketplace takes out of whatever you charge.</p>
+  <h3>Why not just multiply the filament cost by three?</h3>
+  <p>Because the multiplier that works for one print is wrong for the next one. A 45-gram part that prints in three hours and needs no finishing has a very different cost structure from a 45-gram part that prints in fourteen hours and takes half an hour of sanding — same filament, same 3x, wildly different real cost. Multipliers hide print time, and print time is what drives electricity and printer wear. This page charges those directly instead of hoping a constant absorbs them.</p>
+  <h3>How does a failed print change the number?</h3>
+  <p>A failure still spent filament, electricity, and machine hours before it was scrapped. If a share of attempts fail, then on average 1/(1 − failure rate) attempts are needed to land one sellable part, so this page inflates the per-attempt costs — material, electricity, machine wear — by that factor. Post-processing and packaging are not inflated, because those only ever touch the part that actually sells. A slicer estimate has no way to know any of this; it prices one successful attempt.</p>
+  <h3>Why can't I just add the marketplace fee on at the end?</h3>
+  <p>Because the fee is a percentage of the price you charge, not a fixed cost you can stack on top. Adding it after the fact gives a price that looks right until the marketplace takes its cut, at which point the margin is short. This page solves price × (1 − fee%) − cost = price × (margin%) for price directly, so the number it suggests already clears the fee at the margin you asked for.</p>
+  <h3>Is this page affiliated with PrusaSlicer, Cura, Bambu Studio, or OrcaSlicer?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by any slicer vendor. Those names are trademarks of their owners and appear here only to describe the kind of estimate this page is contrasted with.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a print, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bandcamp-sales-report-analyzer/" data-pf-to="bandcamp-sales-report-analyzer">Bandcamp Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3d-print-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3d-print-price-calculator"></script>
+</body>
+</html>

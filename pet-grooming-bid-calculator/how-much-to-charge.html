@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Should I Charge for Dog Grooming?</title>
+  <meta name="description" content="A dog grooming price built from breed alone skips size, coat, and matting. See why a giant doodle with matted fur costs more than a small short-coat…">
+  <meta property="og:title" content="How Much Should I Charge for Dog Grooming?">
+  <meta property="og:description" content="Price the coat and the mats, not just the breed: size, coat type, matting severity, and add-ons change what a groom actually costs to do.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/how-much-to-charge.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for dog grooming?","acceptedAnswer":{"@type":"Answer","text":"Start from size and coat, not a flat breed price: a small short-coat dog might be a 45-minute groom, while a giant doodle with a curly coat can take nearly twice as long before you even account for matting or add-ons. Multiply the base time by a loaded hourly rate, add any matting surcharge and add-on time and price, add supplies and overhead, and add travel if you groom on-site."}},{"@type":"Question","name":"Why does matting change the price so much?","acceptedAnswer":{"@type":"Answer","text":"A few small mats add maybe 15 minutes; a coat matted to the skin can add an hour or more of careful, slow work, and it is also a welfare and safety question, not just a time question — matting that reaches the skin can hide sores or skin damage that changes whether the groom should happen at all. Price the extra time, and treat severe matting as a judgment call for you or a vet, not a box to check for a bigger invoice."}},{"@type":"Question","name":"Should add-ons like nail trims and de-shedding be priced separately?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each add-on has its own time and, often, its own material cost — a nail trim is a few minutes, a de-shedding treatment can add twenty minutes and its own shampoo cost. Bundling them into one flat groom price either overcharges the customer who wants a basic bath and cut or undercharges the one who wants everything."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #202522; background: #f3f6f1; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #1d3b2b; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d3b2b; color: #c9f2a9; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4d5b52; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/how-much-to-charge.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Should I Charge for Dog Grooming? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pet-grooming-bid-calculator/">Pet Grooming Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Should I Charge for Dog Grooming?</span></span></nav>
+  <p><a href="./">← Pet grooming bid calculator</a></p>
+  <h1>How much should I charge for dog grooming?</h1>
+  <p>A flat "$X per dog" price prices the breed, not the job. A 12-lb short-coat dog and a 90-lb doodle with a matted double coat are not the same amount of work, and neither is a routine bath-and-brush compared to one that needs a de-shedding treatment, a nail grind, and careful work through mats. Every one of those differences is billed time or billed materials, and it doesn't show up unless you put it in the quote.</p>
+  <p><a class="cta" href="./">Open the free pet grooming bid calculator</a></p>
+
+  <h2>What a flat "per dog" price cannot see</h2>
+  <p><strong>Size and coat.</strong> A giant, curly-coated dog can take close to twice the hands-on time of a small, short-coated one — bathing, drying, brushing out, and scissoring all scale with size and coat texture.</p>
+  <p><strong>Matting.</strong> A few small mats add a little time. A coat matted to the skin adds a lot of time — and it is also a welfare and safety question a groomer or vet has to make, not just a pricing one. This tool prices the extra time; it never decides whether the groom should happen.</p>
+  <p><strong>Add-ons.</strong> Nail trims, nail grinding, teeth brushing, ear cleaning, de-shedding, flea/tick treatment, and anal gland expression each have their own time and, for some, their own material cost. Priced separately, a customer only pays for what their pet actually needs.</p>
+
+  <h2>A bid you can defend</h2>
+  <ol>
+    <li>Start from a base time for the dog's size, then adjust for coat type.</li>
+    <li>Add time and a surcharge for matting severity — and stop to check the skin and the animal's temperament before pricing anything past "light".</li>
+    <li>Add the time and price of every add-on the customer wants.</li>
+    <li>Add travel time and mileage if you groom on-site, plus supplies, overhead, and a payment fee.</li>
+    <li>Solve for the price that leaves your target margin after all of it.</li>
+  </ol>
+  <p>The calculator does that arithmetic in your browser. It's not a promise of profit, an animal-health assessment, or a recommendation to accept a job — it's arithmetic on the numbers you enter, for you to check against your own rates and your own judgment about the animal in front of you.</p>
+
+  <h2>Worked example</h2>
+  <p>A medium dog with a medium coat and no matting is about a 69-minute groom at the calculator's defaults. Add light matting (15 more minutes), a nail trim and ear cleaning (20 more minutes, $27 in add-on pricing), and the job grows past an hour before travel is even in the picture. A $75 quote that looked fine for a basic bath-and-brush can be thin once the real job — mats and add-ons included — is priced in full.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge for dog grooming?</h3>
+  <p>Start from size and coat, not a flat breed price: a small short-coat dog might be a 45-minute groom, while a giant doodle with a curly coat can take nearly twice as long before you even account for matting or add-ons. Multiply the base time by a loaded hourly rate, add any matting surcharge and add-on time and price, add supplies and overhead, and add travel if you groom on-site.</p>
+  <h3>Why does matting change the price so much?</h3>
+  <p>A few small mats add maybe 15 minutes; a coat matted to the skin can add an hour or more of careful, slow work, and it is also a welfare and safety question, not just a time question — matting that reaches the skin can hide sores or skin damage that changes whether the groom should happen at all. Price the extra time, and treat severe matting as a judgment call for you or a vet, not a box to check for a bigger invoice.</p>
+  <h3>Should add-ons like nail trims and de-shedding be priced separately?</h3>
+  <p>Yes. Each add-on has its own time and, often, its own material cost — a nail trim is a few minutes, a de-shedding treatment can add twenty minutes and its own shampoo cost. Bundling them into one flat groom price either overcharges the customer who wants a basic bath and cut or undercharges the one who wants everything.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not veterinary, animal-health, or animal-welfare advice, business, tax, financial, or professional advice, and it does not replace a qualified professional. It does not assess whether an animal is fit, healthy, or safe to be groomed. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="./">Use the calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+      <li><a href="../pressure-washing-bid-calculator/" data-pf-to="pressure-washing-bid-calculator">Pressure Washing Bid Calculator</a></li>
+      <li><a href="../radon-mitigation-bid-calculator/" data-pf-to="radon-mitigation-bid-calculator">Radon Mitigation Bid Calculator</a></li>
+      <li><a href="../solar-panel-cleaning-quote-planner/" data-pf-to="solar-panel-cleaning-quote-planner">How much to charge to clean solar panels, free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pet-grooming-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pet-grooming-bid-calculator"></script>
+</body>
+</html>

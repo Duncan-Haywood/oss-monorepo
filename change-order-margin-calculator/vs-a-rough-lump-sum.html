@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a rough lump sum | Change Order Margin Calculator</title>
+<meta name="description" content="A rough lump-sum guess for a change order prices what's visible on the takeoff -- labor, materials…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/vs-a-rough-lump-sum.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a rough lump sum">
+<meta property="og:description" content="A round-number change-order guess prices the labor, materials, and sub you can see on the takeoff.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/vs-a-rough-lump-sum.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a rough lump sum under-price a change order?","acceptedAnswer":{"@type":"Answer","text":"Because it is built from the costs a contractor can see on the takeoff — labor hours, materials, a subcontractor's number — rounded up by a margin that feels comfortable. Two costs that do not show up on a takeoff routinely get left out entirely: the extra days the added scope keeps a supervisor, a trailer, or rented equipment on site, and the ceiling a contract's own markup cap puts on what can actually be billed once overhead comes out of the same allowance. A guess that never asked about either one is short by exactly the amount they would have added."}},{"@type":"Question","name":"Can a change order price above cost still lose money?","acceptedAnswer":{"@type":"Answer","text":"Yes, once a contract's markup cap is in the picture. Many change-order clauses cap markup at a percentage of cost — \"cost plus 15%\", for example — and that allowance has to cover the contractor's own overhead as well as profit. A guess that clears the walk-away cost floor can still land above what the cap actually permits to bill, or clear the cap but leave only a few points of margin once overhead is taken out of it, and a round number gives no way to see which one happened before the work is done."}},{"@type":"Question","name":"What does a rough lump sum get right?","acceptedAnswer":{"@type":"Answer","text":"For a small, fast change with no schedule impact and a contract with no markup cap, a quick round-number guess set comfortably above the visible labor and material cost can land close enough. The risk is the guess not knowing which change orders that is true for — a lump sum that worked on last week's punch-list item does not know that this week's change adds four days to the schedule or runs into a 15% cap."}},{"@type":"Question","name":"Does this calculator know what markup my contract allows?","acceptedAnswer":{"@type":"Answer","text":"No. It has no access to your contract. You enter the markup cap percentage from your own change-order clause — zero if there is none — and the calculator applies it to the cost it computed, showing what is actually billable under the cap and what margin that leaves after overhead. Reading the clause is still yours to do; the arithmetic once you have is what this replaces."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#20251f;background:#f3f0e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#a14d27;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#5e625c}section{background:#fffdf8;border:1px solid #d7d0c1;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #ded5c4;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d7d0c1;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5e625c}.fine,.note{font-size:.88rem;color:#5e625c}footer{color:#5e625c;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a rough lump sum — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../change-order-margin-calculator/">Change Order Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a rough lump sum</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Change Order Margin Calculator</a></p>
+<header>
+<h1>This calculator vs. a rough lump sum</h1>
+<p class="lede">A round-number change-order price is built from what's visible on the takeoff &mdash; labor, materials, the sub &mdash; rounded up by a margin that feels safe. Two costs that never show up on a takeoff are exactly what it misses.</p>
+</header>
+<section>
+<h2>What a rough lump sum is</h2>
+<p>
+A lump sum is the fastest way to price a change order: look at the added
+scope, add up the labor hours and material cost you can see, pick a number
+that feels like a comfortable markup over that, and send it. It works well
+enough often enough that most contractors keep doing it, because writing a
+full worksheet for a one-day punch-list item is not worth the time.
+</p>
+<p>
+The guess is built entirely from costs that appear on a takeoff. Two costs
+that do not routinely get left out: the extra days the added scope keeps a
+supervisor, a trailer, or rented equipment on the site after the original
+schedule would have wrapped, and the ceiling a contract's own markup-cap
+clause puts on what can actually be billed once the contractor's overhead
+comes out of that same allowance. A lump sum that never asked about either
+one has no way to know it is short by exactly what they would have added.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+added labor hours, loaded wage, materials, subcontractor cost, the days the
+schedule slips and what a day of holding the site open costs, your overhead
+rate, target margin, and your contract's markup-cap percentage &mdash; zero
+if it has none. It returns a walk-away cost floor, a target price, and,
+when a cap applies, what the cap actually permits to bill and what margin
+survives once overhead comes out of it.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">A rough lump sum</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr>
+<td>Adds up the labor, materials, and sub cost visible on the takeoff, then rounds up by a margin that feels comfortable.</td>
+<td>Loads the entered wage by your payroll-burden percentage and adds materials and subcontractor cost the same way, so the starting cost is not a guess.</td>
+</tr>
+<tr>
+<td>Has no line for the days the added scope keeps a supervisor, a trailer, or rented equipment on site &mdash; extended general conditions get absorbed rather than billed.</td>
+<td>Prices the days added at your entered daily general-conditions rate as its own direct cost, carried through overhead and margin like any other line.</td>
+</tr>
+<tr>
+<td>Does not check the price against a contract's markup-cap clause, so a guess can be billed above what the cap actually allows.</td>
+<td>Applies the entered markup cap to cost and reports the billable ceiling and the margin left after overhead &mdash; before the change order is sent, not after it is disputed.</td>
+</tr>
+<tr>
+<td>Gives one number, with no visibility into what happens to margin if the cap and the overhead rate leave less room than the guess assumed.</td>
+<td>Shows the walk-away floor, the target price, and the capped price side by side, so a cap that quietly erases the margin is visible before work starts.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A worked example, computed from this calculator's own arithmetic: a scope
+change needs 24 labor hours at $32/hour with 28% burden ($983.04 loaded),
+$1,800 in materials, and a $2,200 subcontractor, and adds 4 days to the
+schedule at $350/day in general conditions (supervision, trailer, rented
+equipment) &mdash; $1,400. Direct cost is $6,383.04; with 10% overhead, the
+walk-away price is $7,021.34, and a 20% target margin would call for a
+price of $8,776.68. A lump-sum guess built only from the visible labor,
+materials, and sub cost ($4,983.04) and rounded up to $6,000 to feel safely
+profitable is actually $1,021.34 <em>under</em> the walk-away floor, because
+it never priced the four days the job site stayed open. A higher guess of
+$7,500 clears that floor &mdash; but this contract caps change-order markup
+at cost plus 15%, which permits billing only $7,340.50, nowhere near the
+$8,776.68 the target margin called for. The extra $159.50 above the cap
+would be disputed or unbillable, and what survives the cap after overhead
+is a 4.3% margin, far short of the 20% target the contractor thought they
+were pricing to.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a rough lump sum under-price a change order?</h3>
+<p>Because it is built from the costs a contractor can see on the takeoff &mdash; labor hours, materials, a subcontractor's number &mdash; rounded up by a margin that feels comfortable. Two costs that do not show up on a takeoff routinely get left out entirely: the extra days the added scope keeps a supervisor, a trailer, or rented equipment on site, and the ceiling a contract's own markup cap puts on what can actually be billed once overhead comes out of the same allowance. A guess that never asked about either one is short by exactly the amount they would have added.</p>
+<h3>Can a change order price above cost still lose money?</h3>
+<p>Yes, once a contract's markup cap is in the picture. Many change-order clauses cap markup at a percentage of cost &mdash; "cost plus 15%", for example &mdash; and that allowance has to cover the contractor's own overhead as well as profit. A guess that clears the walk-away cost floor can still land above what the cap actually permits to bill, or clear the cap but leave only a few points of margin once overhead is taken out of it, and a round number gives no way to see which one happened before the work is done.</p>
+<h3>What does a rough lump sum get right?</h3>
+<p>For a small, fast change with no schedule impact and a contract with no markup cap, a quick round-number guess set comfortably above the visible labor and material cost can land close enough. The risk is the guess not knowing which change orders that is true for &mdash; a lump sum that worked on last week's punch-list item does not know that this week's change adds four days to the schedule or runs into a 15% cap.</p>
+<h3>Does this calculator know what markup my contract allows?</h3>
+<p>No. It has no access to your contract. You enter the markup cap percentage from your own change-order clause &mdash; zero if there is none &mdash; and the calculator applies it to the cost it computed, showing what is actually billable under the cap and what margin that leaves after overhead. Reading the clause is still yours to do; the arithmetic once you have is what this replaces.</p>
+<p class="note">
+Open the <a href="./">Change Order Margin Calculator</a> to price your own
+change order, or read the <a href="how-to-price-a-change-order.html">pricing walkthrough</a> first.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, engineering, or construction advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Free and open source. If it helped you price a change order, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freelance-rate-increase-calculator/" data-pf-to="freelance-rate-increase-calculator">Freelance Rate Increase Calculator — free, private, in your browser</a></li>
+      <li><a href="../freelance-retainer-calculator/" data-pf-to="freelance-retainer-calculator">Freelance Retainer Pricing Calculator</a></li>
+      <li><a href="../freelance-retainer-vs-hourly-calculator/" data-pf-to="freelance-retainer-vs-hourly-calculator">Freelance Retainer vs Hourly Calculator — free, private, in your browser</a></li>
+      <li><a href="../grain-store-or-sell-calculator/" data-pf-to="grain-store-or-sell-calculator">Grain Store or Sell Calculator — break-even price for storing corn and soybeans</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=change-order-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="change-order-margin-calculator"></script>
+</body></html>

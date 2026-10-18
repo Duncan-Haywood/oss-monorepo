@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Crypto Cost Basis Calculator — FIFO vs HIFO vs LIFO, Form 8949 rows, in your browser</title>
+  <meta name="description" content="Free crypto cost basis calculator. Paste your buys, sales and income as a CSV; it matches every sale to your lots under FIFO, LIFO, HIFO…">
+  <meta property="og:title" content="Crypto Cost Basis Calculator — free, private, in your browser">
+  <meta property="og:description" content="See what FIFO, LIFO and HIFO would each do to your crypto gains, with short-term and long-term rows and a Form 8949 style export…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Crypto Cost Basis Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or open a CSV of your crypto buys, sales and income. The tool matches every sale to your purchase lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, splits each sale into short-term and long-term rows, compares the methods side by side with an estimated tax, and exports Form 8949 style rows. Runs entirely in your browser; nothing is uploaded.", "featureList": "FIFO LIFO HIFO LOFO lot matching, tax-aware lot selection, short-term and long-term split, per-wallet matching, method comparison, Form 8949 style CSV export, remaining holdings with basis, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is crypto cost basis and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "Cost basis is what you paid for a coin, including fees. When you sell, swap or spend it, your taxable gain or loss is the proceeds minus the basis of the specific coins you disposed of. If you bought the same coin at several prices, which purchase counts as the one you sold changes the gain, and the choice of method is the lever you control."}}, {"@type": "Question", "name": "What is the difference between FIFO, LIFO and HIFO?", "acceptedAnswer": {"@type": "Answer", "text": "They are rules for deciding which purchase lots a sale uses up. FIFO sells your oldest coins first, LIFO your newest, and HIFO the coins you paid the most for, which usually produces the smallest gain today. LOFO takes the cheapest coins first. This tool runs all of them on your own history and shows the gain and an estimated tax side by side, so you can see what each choice would have done."}}, {"@type": "Question", "name": "Can I choose any method I like?", "acceptedAnswer": {"@type": "Answer", "text": "Not necessarily. In the United States the default for property is first in, first out, and using another method generally depends on being able to identify the specific units you sold at the time of the sale and keeping records that show it. Whether a method is available to you, and how to document it, is a question for a tax professional; this tool computes what each method would produce, it does not decide what you are allowed to file."}}, {"@type": "Question", "name": "Is my transaction history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The matching runs in your browser from the CSV you paste or open from your own disk. Nothing is sent to a server, there are no accounts, and it works offline after the page loads. That is the reason to use it for a file that lists everything you have ever bought."}}, {"@type": "Question", "name": "What columns does the CSV need?", "acceptedAnswer": {"@type": "Answer", "text": "A header row with date, type, asset, quantity and either a USD total or a price per coin. Fee and wallet are optional. Type is buy, sell, income or transfer. Common exchange headers such as Timestamp, Transaction Type, Quantity Transacted, Subtotal and Fees are recognised. Enter a coin-for-coin swap as a sale of what you gave up and a buy of what you received, each at its USD value on that day."}}, {"@type": "Question", "name": "How is the holding period decided?", "acceptedAnswer": {"@type": "Answer", "text": "A gain is long-term when the coins were held for more than one year, meaning the sale date falls after the first anniversary of the acquisition date; a sale on the anniversary itself is still short-term. Each piece of a sale carries the date of the lot it came from, so one sale can produce both short-term and long-term rows."}}, {"@type": "Question", "name": "What does per-wallet matching do?", "acceptedAnswer": {"@type": "Answer", "text": "When it is on, a sale only uses lots recorded in the same wallet or account column, instead of one pool across everything you hold. Some tax rules now expect basis to be tracked wallet by wallet. Turn it on if your records tag each row with where the coins sat, and check the current IRS guidance for how to treat coins you moved between wallets."}}, {"@type": "Question", "name": "Does this replace crypto tax software or a tax preparer?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a private calculator for the matching step on a clean list of rows. It does not connect to exchanges or chains, does not fetch prices, does not understand DeFi, NFTs, forks or lost coins, and ignores wash-sale-style rules, state taxes, the net investment income tax and loss limits. Use the Form 8949 style CSV as a starting point for your own return or hand it to a preparer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #2d4fa3; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b3a67; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b3a67; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b3a6710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2d4fa3; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #2b3a67; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.info { background: #e3e9ef; color: #2b3a67; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #2b3a67; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    textarea.short { min-height: 90px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    tr.rec td { background: #eef6ee; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Crypto Cost Basis Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Crypto Cost Basis Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Crypto Cost Basis Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CRYPTO COST BASIS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which lots did you really sell?</h1>
+    <p>Paste your crypto <strong>buys, sales and income</strong> as a CSV. The calculator matches every sale to your purchase lots under <strong>FIFO, LIFO, HIFO, LOFO or a tax-aware rule</strong>, splits each sale into <strong>short-term and long-term</strong> rows, shows what each method would do to your gain and estimated tax <strong>side by side</strong>, and exports <strong>Form 8949 style rows</strong>. Your history stays on your device.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice. New to this? Read <a href="./fifo-vs-hifo-crypto-cost-basis.html">FIFO vs HIFO for crypto, with a worked example</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your transactions</h2>
+    <label for="csv">CSV with a header row: date, type, asset, quantity, total (USD), fee, wallet</label>
+    <textarea id="csv" spellcheck="false" placeholder="date,type,asset,quantity,total,fee,wallet&#10;2023-01-10,buy,BTC,0.5,10000,10,Exchange A&#10;2024-09-20,sell,BTC,0.6,36000,36,Exchange A"></textarea>
+    <label for="file">Or open one or more CSV files from your device: a <strong>Coinbase</strong> transaction history, a <strong>Kraken</strong> ledger, a <strong>Binance.US</strong>, <strong>Crypto.com App</strong>, <strong>Gemini</strong> or <strong>Bitstamp</strong> transaction history, or this page's own format (read here, never sent)</label>
+    <input id="file" type="file" multiple accept=".csv,.txt,text/csv,text/plain" aria-label="Open CSV files from your device">
+    <p class="note">Exchange files are converted to the plain format below and shown in the box, so you can fix or fill in any row before matching. Rows the export gives no USD value for (staking rewards, coin-for-coin swaps on Kraken) are left empty and flagged for you to price.</p>
+    <p class="note">Type is <code>buy</code>, <code>sell</code>, <code>income</code> (staking, mining, airdrops: basis is the USD value you enter) or <code>transfer</code> (not a sale: ignored unless per-wallet matching is on and the row has a <code>to wallet</code> column, in which case the lots move to that wallet keeping their purchase date and basis; the chosen method decides which lots travel). A coin-for-coin swap is two rows: a sale of what you gave up and a buy of what you got, each at its USD value that day. <code>total</code> is the USD value of the coins before the fee; the fee raises basis on a buy and lowers proceeds on a sale. Use <code>price</code> instead of <code>total</code> if that is what your export has.</p>
+
+    <h2 style="margin-top:18px">Options</h2>
+    <div class="row3">
+      <div><label for="method">Method for the report</label>
+        <select id="method"><option value="FIFO">FIFO — oldest coins first</option><option value="LIFO">LIFO — newest coins first</option><option value="HIFO">HIFO — highest cost first</option><option value="LOFO">LOFO — lowest cost first</option><option value="TAXMIN">Tax-aware — lowest tax per coin first</option></select></div>
+      <div><label for="year">Tax year</label><select id="year"><option value="">Latest year with sales</option></select></div>
+      <div><label for="shortRate">Short-term rate (%)</label><input id="shortRate" inputmode="decimal" value="24"></div>
+      <div><label for="longRate">Long-term rate (%)</label><input id="longRate" inputmode="decimal" value="15"></div>
+      <div><label for="carryShort">Short-term loss carried in ($)</label><input id="carryShort" inputmode="decimal" value="0"></div>
+      <div><label for="carryLong">Long-term loss carried in ($)</label><input id="carryLong" inputmode="decimal" value="0"></div>
+      <div><label for="lossLimit">Annual loss deduction</label><select id="lossLimit"><option value="3000">$3,000 (single, joint, head of household)</option><option value="1500">$1,500 (married filing separately)</option></select></div>
+    </div>
+    <label for="perWallet" class="check"><input type="checkbox" id="perWallet" aria-label="Match lots wallet by wallet"> Match lots wallet by wallet (uses the wallet column)</label>
+    <button type="button" id="analyze">Match my lots</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste or open your transactions, then click Match my lots.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>The same year under each method</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ct"><thead><tr><th>Method</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Total gain</th><th class="n">Estimated tax</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">Estimated tax nets short against long results and applies the two rates you entered. It ignores the net investment income tax, state tax and your other income; the loss-limit table below applies the annual deduction limit and carryforwards. It is a comparison between methods, not a tax bill.</p>
+    <h3>Loss limit and carryforward</h3>
+    <p id="netting-verdict"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="nt"><thead><tr><th>Year</th><th class="n">Loss carried in</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Net after carry-in</th><th class="n">Deductible against other income</th><th class="n">Carried to next year</th><th class="n">Estimated tax</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">Years run in order from the earliest sale in your file, so a loss in an early year reduces later gains. Enter any loss you carried in from before the file starts. Net losses deduct up to the annual limit and the rest carries forward with its short or long character. The deduction is shown, not valued, and the table ignores the net investment income tax, state tax and your other income. Check it against your own Capital Loss Carryover Worksheet.</p>
+    <h3>Form 8949 style rows</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="rt"><thead><tr><th>Description</th><th>Acquired</th><th>Sold</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th><th>Term</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Totals for Form 8949 and Schedule D</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="tt"><thead><tr><th>Part</th><th class="n">Rows</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">These are the column totals of the rows above: short-term for Part I, long-term for Part II. For 2025 returns the digital-asset boxes on Form 8949 (G to L) depend on whether your broker reported the sale on a Form 1099-DA, so split the rows by box yourself or with your preparer before carrying a total to Schedule D.</p>
+    <h3>Coins still held</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ht"><thead><tr><th>Asset</th><th class="n">Quantity</th><th class="n">Remaining basis</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Tax-loss harvesting: what selling your losing lots today would do</h3>
+    <p class="note">Type today's price for each coin you hold (you supply every price; nothing is fetched). The tool values each lot you still hold, finds the ones under water, and shows how much of this year's estimated tax selling them would remove.</p>
+    <label for="prices">Prices, one per line or comma-separated (e.g. BTC=65000)</label>
+    <textarea id="prices" spellcheck="false" rows="3" placeholder="BTC=65000&#10;ETH=3200"></textarea>
+    <label for="asof">Sell date</label>
+    <input id="asof" type="date">
+    <button type="button" class="secondary" id="harvest-run">Find losses to harvest</button>
+    <div id="harvest-out"></div>
+    <button type="button" id="download">Download rows (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Lots:</strong> every buy is a lot with a quantity and a basis (USD total plus fee); every income row is a lot whose basis is the USD value you entered. <strong>Matching:</strong> sales are processed in date order, with same-day buys available to a same-day sale. Each sale consumes lots in the order the method dictates and is split into one row per lot used, with proceeds (USD total minus fee) and basis shared out by quantity. FIFO sorts by acquisition date, LIFO reverses it, HIFO and LOFO sort by cost per coin, and the tax-aware rule sorts by the tax each coin would trigger at the rates you entered, with the holding period of each lot deciding which rate applies. That rule is a greedy choice made one sale at a time: it is not guaranteed to be the best possible plan across every sale. <strong>Holding period:</strong> long-term only when the sale date is after the first anniversary of acquisition. <strong>Rounding:</strong> each row's proceeds and basis are rounded to cents and the gain is their difference, so the rows add up the way a form does.</p>
+    <p><strong>Not modelled:</strong> prices (you supply every USD value), exchange or blockchain imports, DeFi, NFTs, hard forks, lost or stolen coins, gifts, wash-sale style rules, state tax, the net investment income tax, and loss limits. A sale larger than the lots on record is shown with zero basis and a warning rather than hidden. Unverified: tested on hand-calculated examples and invariant checks, not on a real return.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is crypto cost basis and why does it matter?</h3>
+    <p>Cost basis is what you paid for a coin, including fees. When you sell, swap or spend it, your taxable gain or loss is the proceeds minus the basis of the specific coins you disposed of. If you bought the same coin at several prices, which purchase counts as the one you sold changes the gain, and the choice of method is the lever you control.</p>
+    <h3>What is the difference between FIFO, LIFO and HIFO?</h3>
+    <p>They are rules for deciding which purchase lots a sale uses up. FIFO sells your oldest coins first, LIFO your newest, and HIFO the coins you paid the most for, which usually produces the smallest gain today. LOFO takes the cheapest coins first. This tool runs all of them on your own history and shows the gain and an estimated tax side by side, so you can see what each choice would have done.</p>
+    <h3>Can I choose any method I like?</h3>
+    <p>Not necessarily. In the United States the default for property is first in, first out, and using another method generally depends on being able to identify the specific units you sold at the time of the sale and keeping records that show it. Whether a method is available to you, and how to document it, is a question for a tax professional; this tool computes what each method would produce, it does not decide what you are allowed to file.</p>
+    <h3>Is my transaction history uploaded anywhere?</h3>
+    <p>No. The matching runs in your browser from the CSV you paste or open from your own disk. Nothing is sent to a server, there are no accounts, and it works offline after the page loads. That is the reason to use it for a file that lists everything you have ever bought.</p>
+    <h3>Can I open my Coinbase, Kraken, Binance.US, Crypto.com, Gemini or Bitstamp export directly?</h3>
+    <p>Yes. Open a Coinbase transaction history, a Kraken ledger, a Binance.US, Crypto.com App, Gemini or Bitstamp transaction history (or several at once) and the page converts it in your browser into the plain format below, buys and sales paired up, Coinbase Convert rows split into a sale and a buy, and transfers left out. Anything the export gives no dollar value for, such as staking rewards or a Kraken coin-for-coin swap, is left empty and flagged so you can price it from that day's rate; it is never counted as zero. The readers follow the published column layouts and have not been checked against every account type, so skim the converted rows before you rely on them.</p>
+    <h3>What columns does the CSV need?</h3>
+    <p>A header row with date, type, asset, quantity and either a USD total or a price per coin. Fee and wallet are optional. Type is buy, sell, income or transfer. Common exchange headers such as Timestamp, Transaction Type, Quantity Transacted, Subtotal and Fees are recognised. Enter a coin-for-coin swap as a sale of what you gave up and a buy of what you received, each at its USD value on that day.</p>
+    <h3>How is the holding period decided?</h3>
+    <p>A gain is long-term when the coins were held for more than one year, meaning the sale date falls after the first anniversary of the acquisition date; a sale on the anniversary itself is still short-term. Each piece of a sale carries the date of the lot it came from, so one sale can produce both short-term and long-term rows.</p>
+    <h3>What does per-wallet matching do?</h3>
+    <p>When it is on, a sale only uses lots recorded in the same wallet or account column, instead of one pool across everything you hold. Some tax rules now expect basis to be tracked wallet by wallet. Turn it on if your records tag each row with where the coins sat, and check the current IRS guidance for how to treat coins you moved between wallets. Add a transfer row with a <code>to wallet</code> column and the lots you move keep their original purchase date and basis in the new wallet, so a later sale there is not shown with zero basis. Network fees paid in coins are not treated as sales.</p>
+    <h3>Does this replace crypto tax software or a tax preparer?</h3>
+    <p>No. It is a private calculator for the matching step on a clean list of rows. It does not connect to exchanges or chains, does not fetch prices, does not understand DeFi, NFTs, forks or lost coins, and ignores wash-sale-style rules, state taxes, the net investment income tax and loss limits. Use the Form 8949 style CSV as a starting point for your own return or hand it to a preparer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a tax professional or the instructions to your tax forms. Results are arithmetic on the figures you type; tax rules, rates and reporting requirements change. You are responsible for reviewing and verifying its output before you file anything.</p>
+    <p><strong>Independent.</strong> Not affiliated with any exchange, wallet, blockchain, tax authority or crypto tax software, and none is named or ranked here. The example transactions are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your transactions are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a> for netting gains and losses before year end, the <a href="../gambling-loss-deduction-calculator/">gambling loss deduction calculator</a>, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> and the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, form8949Totals, parsePrices, harvestPlan, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { convertMany, FORMAT_LABELS } from "./importers.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const rate = (id) => { const v = Number($(id).value); return Number.isFinite(v) && v >= 0 && v <= 100 ? v / 100 : null; };
+    let last = null;
+
+    function run() {
+      const shortRate = rate("#shortRate"), longRate = rate("#longRate");
+      if (shortRate === null || longRate === null) { status.textContent = "Enter both tax rates as percentages between 0 and 100."; return false; }
+      const year = $("#year").value ? Number($("#year").value) : null;
+      const pre = convertMany([{ name: "pasted text", text: $("#csv").value }]);
+      if (pre.formats[0] !== "generic") $("#csv").value = pre.csv;
+      const money = (id) => { const v = Number($(id).value || 0); return Number.isFinite(v) && v >= 0 ? v : null; };
+      const carryShort = money("#carryShort"), carryLong = money("#carryLong");
+      if (carryShort === null || carryLong === null) { status.textContent = "Enter carried-in losses as positive dollar amounts, or 0."; return false; }
+      const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate, carryShort, carryLong, lossLimit: Number($("#lossLimit").value) });
+      const notices = [...(pre.formats[0] !== "generic" ? pre.notes : []), ...r.errors, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`);
+      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#nt", "#rt", "#tt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
+      last = r;
+      const years = r.years.map((y) => `<option value="${y}"${y === r.year ? " selected" : ""}>${y}</option>`).join("");
+      $("#year").innerHTML = '<option value="">Latest year with sales</option>' + years;
+      $("#notices").innerHTML = [...notices, ...r.skipped.slice(0, 5).map((w) => `<div class="warn">${esc(w)}</div>`)].join("");
+      const s = r.summary;
+      $("#big").innerHTML = [
+        [usd(s.totalGain), `Net gain or loss, ${r.year}`],
+        [usd(s.shortGain), "Short-term"],
+        [usd(s.longGain), "Long-term"],
+        [usd(r.tax), `Estimated tax (${r.method})`],
+      ].map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      const best = r.comparison.find((c) => c.method === r.bestMethod), mine = r.comparison.find((c) => c.method === r.method);
+      $("#verdict").textContent = best.method === r.method
+        ? `${METHOD_LABELS[r.method]} gives the lowest estimated tax of the five methods for ${r.year} on these rows.`
+        : `${METHOD_LABELS[best.method]} would have given an estimated tax of ${usd(best.tax)} for ${r.year}, ${usd(mine.tax - best.tax)} less than ${r.method}. Whether you may use it depends on how your coins were identified and recorded at the time of sale.` + (r.income ? ` Income received in ${r.year}: ${usd(r.income)} (not included in these gains).` : "");
+      $("#ct tbody").innerHTML = r.comparison.map((c) => `<tr${c.method === r.bestMethod ? ' class="rec"' : ""}><td>${esc(c.method)} — ${esc(c.label)}${c.method === r.method ? ' <span class="pill info">shown below</span>' : ""}</td><td class="n">${usd(c.shortGain)}</td><td class="n">${usd(c.longGain)}</td><td class="n">${usd(c.totalGain)}</td><td class="n">${usd(c.tax)}</td></tr>`).join("");
+      const n = r.netting;
+      $("#netting-verdict").textContent = !n ? "" : n.totalNet < 0
+        ? `${r.year}: net capital loss ${usd(-n.totalNet)}. ${usd(n.deduction)} can be deducted against other income this year${n.carryShortOut + n.carryLongOut ? ` and ${usd(n.carryShortOut + n.carryLongOut)} carries to ${r.year + 1}` : ""}.`
+        : `${r.year}: net capital gain ${usd(n.totalNet)} after ${usd(n.carryShortIn + n.carryLongIn)} of carried-in loss; estimated tax ${usd(n.tax)}.`;
+      $("#nt tbody").innerHTML = r.carryChain.map((c) => `<tr${c.year === r.year ? ' class="rec"' : ""}><td>${c.year}</td><td class="n">${usd(c.carryShortIn + c.carryLongIn)}</td><td class="n">${usd(c.shortGain)}</td><td class="n">${usd(c.longGain)}</td><td class="n">${usd(c.totalNet)}</td><td class="n">${usd(c.deduction)}</td><td class="n">${usd(c.carryShortOut + c.carryLongOut)}</td><td class="n">${usd(c.tax)}</td></tr>`).join("");
+      $("#rt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.description)}${x.missingBasis ? ' <span class="pill high">no basis</span>' : ""}</td><td>${x.acquired || "VARIOUS"}</td><td>${x.sold}</td><td class="n">${usd(x.proceeds)}</td><td class="n">${usd(x.basis)}</td><td class="n">${usd(x.gain)}</td><td><span class="pill ${x.term === "Long" ? "good" : "info"}">${x.term}</span></td></tr>`).join("") || '<tr><td colspan="7">No sales in this year.</td></tr>';
+      const ft = form8949Totals(r.rows);
+      $("#tt tbody").innerHTML = [["Part I · short-term", ft.short], ["Part II · long-term", ft.long], ["Total", ft.total]].map(([n, v]) => `<tr><td>${n}${v.noBasis ? ` <span class="pill high">${v.noBasis} no basis</span>` : ""}</td><td class="n">${v.rows}</td><td class="n">${usd(v.proceeds)}</td><td class="n">${usd(v.basis)}</td><td class="n">${usd(v.gain)}</td></tr>`).join("");
+      $("#ht tbody").innerHTML = r.holdings.map((h) => `<tr><td>${esc(h.asset)}</td><td class="n">${h.qty}</td><td class="n">${usd(h.basis)}</td></tr>`).join("") || '<tr><td colspan="3">Nothing left.</td></tr>';
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      return true;
+    }
+
+    function harvest() {
+      const out = $("#harvest-out");
+      if (!last) { out.innerHTML = ""; return; }
+      const { prices, errors } = parsePrices($("#prices").value);
+      const asOf = $("#asof").value || new Date().toISOString().slice(0, 10);
+      const rates = { shortRate: rate("#shortRate") ?? 0.24, longRate: rate("#longRate") ?? 0.15 };
+      const h = harvestPlan(last.openLots, prices, { asOf, summary: last.summary, ...rates });
+      const msgs = [...errors, ...(h.unpriced.length ? [`No price typed for: ${h.unpriced.join(", ")}. Those lots are left out.`] : [])].map((w) => `<div class="warn">${esc(w)}</div>`);
+      if (!h.lots.length) { out.innerHTML = msgs.join("") || '<p class="note">Type at least one price to see the plan.</p>'; return; }
+      const verdict = h.losers.length
+        ? `<p><strong>${h.losers.length} lot${h.losers.length > 1 ? "s" : ""} under water</strong>: ${usd(h.shortLoss)} short-term and ${usd(h.longLoss)} long-term. Selling them all on ${esc(asOf)} would lower the estimated ${last.year} tax from ${usd(h.taxBefore)} to ${usd(h.taxAfter)}, saving about <strong>${usd(h.taxSaved)}</strong>.` + (h.unusedLoss > 0 ? ` ${usd(h.unusedLoss)} of loss would be left over after netting (the annual deduction limit and carryforward are not modelled).` : "") + "</p>"
+        : "<p>None of the lots you hold is under water at these prices, so there is nothing to harvest.</p>";
+      const rows = h.losers.map((l) => `<tr><td>${esc(l.asset)}${l.wallet ? " · " + esc(l.wallet) : ""}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.basis)}</td><td class="n">${usd(l.value)}</td><td class="n">${usd(l.gain)}</td><td><span class="pill ${l.term === "Long" ? "good" : "info"}">${l.term}</span></td><td class="n">${usd(l.taxSaved)}</td></tr>`).join("");
+      out.innerHTML = msgs.join("") + verdict + (rows ? `<div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Basis</th><th class="n">Value</th><th class="n">Loss</th><th>Term</th><th class="n">Tax saved alone</th></tr></thead><tbody>${rows}</tbody></table></div>` : "") + '<p class="note">Wash-sale rules are not applied. Whether they reach crypto depends on current law in your country; check before you sell and buy back. Selling costs fees and moves your holding; this is arithmetic on your typed prices, not advice.</p>';
+    }
+    $("#harvest-run").addEventListener("click", () => { harvest(); record("harvest_run"); });
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = SAMPLE_CSV;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented transactions, not a real person or exchange."; }
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const list = Array.from(event.target.files || []);
+      if (!list.length) return;
+      const files = await Promise.all(list.map((f) => new Promise((res) => { const r = new FileReader(); r.onload = () => res({ name: f.name, text: String(r.result || "") }); r.readAsText(f); })));
+      const conv = convertMany(files);
+      $("#csv").value = conv.csv;
+      record("file_opened");
+      const found = conv.formats.filter((f) => f !== "generic").map((f) => FORMAT_LABELS[f]);
+      $("#notices").innerHTML = conv.notes.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      report.hidden = !conv.notes.length;
+      status.textContent = `Read ${list.length} file${list.length > 1 ? "s" : ""} on this device` + (found.length ? ` (converted: ${found.join(", ")})` : "") + ". Check the rows, then click Match my lots.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#csv").value = ""; report.hidden = true; last = null; status.textContent = "Paste or open your transactions, then click Match my lots."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toForm8949Csv(last.rows)], { type: "text/csv" }));
+      a.download = `form-8949-rows-${last.year}-${last.method}.csv`;
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dependent-care-fsa-vs-credit-calculator/" data-pf-to="dependent-care-fsa-vs-credit-calculator">Dependent Care FSA vs Child Care Credit — free, private, in your browser</a></li>
+      <li><a href="../depreciation-recapture-calculator/" data-pf-to="depreciation-recapture-calculator">Depreciation Recapture Calculator — free, no sign-up</a></li>
+      <li><a href="../dog-grooming-day-planner/" data-pf-to="dog-grooming-day-planner">What should you charge for that groom, and which dogs should you book?</a></li>
+      <li><a href="../donor-acknowledgment-letter-generator/" data-pf-to="donor-acknowledgment-letter-generator">Year-end donor acknowledgment letters from a gift list — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=crypto-cost-basis-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/?pfEmbed=1&quot; title=&quot;Crypto Cost Basis Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="crypto-cost-basis-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/" data-pf-embed-title="Crypto Cost Basis Calculator — free, private, in your browser" data-pf-embed-slug="crypto-cost-basis-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="crypto-cost-basis-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="crypto-cost-basis-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

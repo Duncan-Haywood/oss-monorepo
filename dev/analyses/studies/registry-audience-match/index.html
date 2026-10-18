@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask 0&#39;s five registries are not interchangeable, and the biggest one is closed | Development analyses</title>
+<meta name="description" content="Measured 2026-08-19. Read-only, stdlib only, no credentials sent, nothing published or registered. Reproduce with:">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>Ask 0&#39;s five registries are not interchangeable, and the biggest one is closed</h1>
+<p class="meta">Study · 2026-08-19 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/registry-audience-match/README.md">portfolio/research/registry-audience-match/README.md</a></p>
+<article class="doc">
+<p>Measured 2026-08-19. Read-only, stdlib only, no credentials sent, nothing published or registered. Reproduce with:</p>
+<pre><code>python3 portfolio/research/registry-audience-match/measure_audience_match.py
+python3 portfolio/research/registry-audience-match/measure_audience_match.py \
+    --recompute-from results-2026-08-19.json     # offline, no network</code></pre>
+<h3>What was tested and why</h3>
+<p>Issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> presents <strong>Ask 0</strong> — the demand measurement six cycles of the screening brief have asked the account owner for — as:</p>
+<blockquote><p>One account signup on crates.io, RubyGems, Packagist, Hex, <strong>or</strong> Docker Hub. No egress change.</p></blockquote>
+<p>The word doing the work is <em>or</em>. Five options, any one of which is said to buy &quot;the demand measurement five cycles have asked for.&quot; Nobody had checked whether they are actually equivalent.</p>
+<p>This matters because it is the same shape as an error the chain has already made once. <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/130">#130</a> presented four payout rails (Stripe, Lemon Squeezy, Paddle, Polar) as interchangeable; measurement found all four egress-denied, so the choice among them was never the live question. An ask that offers a menu is only as good as its worst assumption about what the items share.</p>
+<p>A registry produces a demand number only if two things hold: the category&#39;s searchers are there, <strong>and</strong> this portfolio can publish where those searchers land. The second condition had not been tested anywhere in the chain.</p>
+<h3>Method, and one correction to make before reading the numbers</h3>
+<p>Three queries (<code>mcp</code>, <code>model context protocol</code>, <code>agent tools</code>) against each registry&#39;s public search API. <code>registry.npmjs.org</code> is included as a <strong>control, not a proposal</strong> — <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/137">#137</a> established it is publish-blocked from here.</p>
+<p><strong>The registries&#39; own search totals are not category counts.</strong> They are OR-matched across query terms, so crates.io reports 9,930 hits for &quot;agent tools&quot; of which 1 of the top 10 is in the category, and npm reports 262,830 for &quot;model context protocol.&quot; The first version of this measurement took those totals at face value and would have supported a conclusion the underlying data does not. They are reported below only next to <code>in_category@10</code> — how many of the top ten relevance-ranked results are genuinely MCP packages, judged by name — which is what makes the total interpretable.</p>
+<h4>Category presence, <code>mcp</code> query</h4>
+<div class="scroll"><table><thead><tr><th>Registry</th><th>In Ask 0</th><th>Fuzzy total</th><th>in_category@10</th><th>Median top-10 downloads</th></tr></thead><tbody><tr><td>Packagist</td><td>yes</td><td>536</td><td><strong>10/10</strong></td><td>339,115</td></tr><tr><td>RubyGems</td><td>yes</td><td>30</td><td><strong>10/10</strong></td><td>240,374</td></tr><tr><td>Docker Hub</td><td>yes</td><td>20,568</td><td><strong>10/10</strong></td><td>236,601</td></tr><tr><td>crates.io</td><td>yes</td><td>7,675</td><td>9/10</td><td>3,868</td></tr><tr><td>Hex</td><td>yes</td><td>78</td><td>4/10</td><td>11,853</td></tr><tr><td>npm <em>(control, publish-blocked)</em></td><td>—</td><td>99,699</td><td>10/10</td><td>not exposed</td></tr></tbody></table></div>
+<p>The MCP ecosystem is real on four of the five — this run set out expecting to find it concentrated on one, and that hypothesis is wrong. Hex is the weak case: 6 of its top 10 for <code>mcp</code> are fuzzy matches (<code>agens</code>, <code>aide</code>, <code>arke_ai</code>), and its category is genuinely thin.</p>
+<h3>The finding: Docker Hub looks like the best option and is the worst</h3>
+<p>Docker Hub has by far the highest in-category presence of the five and a healthy median pull count. Both are misleading, because of who owns the packages producing them.</p>
+<p><code>mcp/</code> on Docker Hub is <strong>a single verified-publisher Organization</strong> — 245 repositories, joined 2024-12-19. It is Docker&#39;s curated MCP catalog, not an open community prefix. An outside publisher cannot publish into it.</p>
+<p>Across the top 150 relevance-ranked results for <code>mcp</code>:</p>
+<div class="scroll"><table><thead><tr><th></th><th>Repos</th><th>Pull volume</th></tr></thead><tbody><tr><td>Closed <code>mcp/</code> namespace</td><td><strong>149</strong></td><td><strong>98.2%</strong></td></tr><tr><td>Open namespaces (publishable)</td><td><strong>1</strong></td><td>1.8%</td></tr></tbody></table></div>
+<p>The single open-namespace result is <code>penpotapp/mcp</code>, and it ranks only because its repository is literally named <code>mcp</code>.</p>
+<p>So a listing this portfolio publishes to Docker Hub lands in a namespace holding roughly 2% of the category&#39;s search visibility. It would return a number, and that number would measure the portfolio&#39;s namespace obscurity rather than demand for the product — which is the specific failure <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/150">#150</a> warned about in a different form when it noted that a channel returning nothing is worse than no channel, because it looks like an answer.</p>
+<p><strong>Docker Hub should be struck from Ask 0&#39;s menu</strong>, or granted only with that caveat attached.</p>
+<h3>Second finding: the &quot;underpowered probe&quot; objection is registry-specific</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/111">#111</a> and <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/126">#126</a> found the free-listing probe underpowered — median download counts too small to distinguish &quot;nobody wants this&quot; from noise — measuring on npm and crates.io. This run reproduces that on crates.io: median top-10 in-category pull of <strong>3,868</strong>, the lowest of any reachable registry here.</p>
+<p>Packagist (339,115) and RubyGems (240,374) run roughly <strong>60–90× higher</strong>. The objection was recorded as a general property of the free-listing probe. It is better read as a property of the two registries it was measured on.</p>
+<p><strong>Stated limit, because this cuts against my own conclusion:</strong> <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/111">#111</a> measured the median across a registry&#39;s packages; this measures the median of the top ten results a searcher sees first. Those are different quantities and the ratio between them is not a like-for-like correction. What this supports is that the <em>category is more active</em> on Packagist and RubyGems — not that a new listing there would draw those numbers. A new listing starts at zero on any registry. The honest claim is narrow: the evidence for &quot;underpowered&quot; was gathered on the two registries where the category is thinnest, and was never checked on the others.</p>
+<h3>Third finding: this bears on candidate #3&#39;s own kill condition</h3>
+<p><code>portfolio/pipeline/candidates/mcp-supply-chain-watch.md</code> — the candidate <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/103">#103</a> de-risked, and the one prior firings called the only one that got further without the owner — names its most likely ending:</p>
+<blockquote><p><strong>Registry commoditisation.</strong> If the major MCP registries or an agent framework ship signed, versioned tool manifests, the mutable-declaration problem is fixed upstream and this candidate is obsolete rather than competed with.</p></blockquote>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/103">#103</a> tested this against the <strong>MCP specification</strong> and the official registry, and found no version, hash, signature, or integrity field anywhere. That result stands. But the kill condition as written is not only about the spec: a curated catalog under one trusted publisher achieves much of the same assurance for the servers inside it, without any spec change at all.</p>
+<p>Docker&#39;s catalog is that shape, and it is not small: 245 servers, verified publisher, operating since December 2024, with the top entries at 100k–1.8M pulls. Its images additionally carry <code>unknown/unknown</code> platform entries in their manifest lists, which is the standard OCI shape of attached attestation manifests (build provenance / SBOM).</p>
+<p><strong>Two honest limits on that last point.</strong> The <code>unknown/unknown</code> reading is an inference from manifest structure, not a verified attestation — confirming it needs a registry client this environment does not have. And attested <em>build provenance</em> is not the same thing as a signed <em>tool declaration</em>: provenance says who built the image, not that the tool list it serves at runtime matches what was reviewed. For remote servers — 85% of the official registry&#39;s records, per <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/103">#103</a> — it says nothing at all.</p>
+<p>So this does not fire the kill. It does mean the commoditisation risk is closer than <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/103">#103</a>&#39;s spec-only check implies, and that whoever weighs candidate #3 should weigh a curated-catalog ending alongside a signed-manifest one. Worth folding into that write-up&#39;s &quot;Where it can fail&quot; section whenever #79 next moves.</p>
+<h3>What this changes for the owner&#39;s decision queue</h3>
+<p>Nothing here needs an owner action to have been worth measuring, and none of it is a decision an unattended session should make. Net effect on issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a>:</p>
+<ul><li><strong>Ask 0&#39;s menu shrinks from five to four</strong>, and the two best options are Packagist and RubyGems — not the one with the biggest numbers.</li><li><strong>The &quot;probe is underpowered&quot; objection is weaker than recorded</strong>, and was never tested on the registries that now look strongest.</li><li><strong>Ask 0 gets cheaper to grant, not more expensive</strong> — the choice is narrower and better evidenced, and still costs one free account signup with no egress change.</li></ul>
+<h3>What this does not do</h3>
+<p>No candidate added, no score changed, no edit to <code>portfolio/pipeline/</code> — that directory exists only on unmerged PR #79, and touching it is what restarted the supersede-and-rebuild clock five times. No venture directory, no <code>VENTURE.yaml</code>, no automation, no scheduled workflow, no spend. Nothing here is rendered by any venture&#39;s site.</p>
+<p>The registry counts are live figures read on 2026-08-19 and will drift; the saved JSON is the record of what was read. Package-name category matching is deliberately generous and name-only, so <code>in_category@10</code> under-counts packages that are MCP tooling without saying so in the name.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why S3 Buckets End Up Publicly Exposed (And How To Fix Each Way)</title>
+<meta name="description" content="The three common ways an S3 bucket ends up publicly listable or writable, and the fix for each -- with the exact AWS console setting or CLI command that closes…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/why-s3-buckets-end-up-public.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to stop an S3 bucket from being publicly listable or writable",
+  "description": "Three common causes of a publicly exposed S3 bucket, and the specific fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Enable S3 Block Public Access at the account and bucket level",
+      "text": "S3's account-wide and bucket-level Block Public Access settings are the single strongest control: even if a bucket ACL or policy is later misconfigured to grant public access, Block Public Access overrides it and keeps the bucket private. AWS has defaulted new buckets to Block Public Access ON since April 2023, but any bucket created before then, or any account where this was explicitly turned off for one legitimate reason, can still be exposed."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Remove an AllUsers or AuthenticatedUsers grant left over from static website hosting",
+      "text": "A bucket configured for public static website hosting needs a public-read grant -- but that grant does not automatically scope itself to only the files meant to be public. If the same bucket later starts holding backups, exports, or logs alongside the website's assets, all of it inherits the same public-read grant. Move non-public data to a separate, private bucket rather than relying on object-level ACLs to carve out exceptions inside a public one."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Never grant anything to the AuthenticatedUsers group",
+      "text": "It is easy to read \"AuthenticatedUsers\" as \"my own logged-in users\" -- it is not. It means any AWS account holder on the internet, with no relationship to your organisation at all. There is essentially no legitimate reason to grant this group anything; if a policy needs to scope to your own users, use IAM roles or a bucket policy with a specific Principal, never this group."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Prefer bucket policies with explicit, scoped Principals over ACLs entirely",
+      "text": "AWS's own current guidance recommends disabling ACLs altogether (S3 Object Ownership set to \"Bucket owner enforced\") and using IAM policies and bucket policies with explicit Principal elements instead -- a policy is easier to audit than a set of per-object ACL grants, and it cannot be silently widened by a later object upload that specifies its own ACL."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { font-size: 1.15rem; margin-top: 1.8rem; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/why-s3-buckets-end-up-public.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why S3 Buckets End Up Publicly Exposed (And How To Fix Each Way)">
+<meta property="og:description" content="The three common ways an S3 bucket ends up publicly listable or writable, and the fix for each -- with the exact AWS console setting or CLI command that closes…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why S3 Buckets End Up Publicly Exposed (And How To Fix Each Way) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s3-bucket-exposure-check/">S3 Bucket Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why S3 Buckets End Up Publicly Exposed (And How To Fix Each Way)</span></span></nav>
+<p><a href="index.html">← Back to the S3 Bucket Exposure Checker</a></p>
+<h1>Why S3 buckets end up publicly exposed</h1>
+<p>
+  A bucket only becomes a problem when it is listable, readable, or writable by someone with no
+  relationship to your AWS account. There are a few common, independent ways that happens — fixing
+  one does not fix the others.
+</p>
+
+<h2>1. Block Public Access is off, or was never turned on</h2>
+<p>
+  S3's account-wide and bucket-level <strong>Block Public Access</strong> setting is the single
+  strongest control: even if a bucket ACL or policy is later misconfigured to grant public access,
+  Block Public Access overrides it and keeps the bucket private regardless. AWS has defaulted new
+  buckets to Block Public Access <strong>ON</strong> since April 2023, but any bucket created
+  before then, or any account where this was explicitly disabled for one legitimate reason and
+  never re-enabled, can still be exposed.
+</p>
+<pre><code># Check the account-wide setting
+aws s3control get-public-access-block --account-id YOUR_ACCOUNT_ID
+
+# Check one bucket's own setting
+aws s3api get-public-access-block --bucket my-bucket
+
+# Turn it on for a bucket
+aws s3api put-public-access-block --bucket my-bucket --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true</code></pre>
+
+<h2>2. A public-read grant left over from static website hosting</h2>
+<p>
+  A bucket configured for public static website hosting needs a public-read grant — but that
+  grant does not automatically scope itself to only the files meant to be public. If the same
+  bucket later starts holding backups, exports, or logs alongside the website's assets, all of it
+  inherits the same public-read grant. Move non-public data to a separate, private bucket rather
+  than relying on object-level ACLs to carve out exceptions inside a public one.
+</p>
+
+<h2>3. A grant to the AuthenticatedUsers group</h2>
+<p>
+  It is easy to read <code>AuthenticatedUsers</code> as "my own logged-in users" — it is not. It
+  means <strong>any AWS account holder on the internet</strong>, with no relationship to your
+  organisation at all. There is essentially no legitimate reason to grant this group anything; if
+  a policy needs to scope access to your own team, use IAM roles or a bucket policy with a
+  specific <code>Principal</code>, never this group.
+</p>
+
+<h2>4. Prefer bucket policies over ACLs entirely</h2>
+<p>
+  AWS's current guidance recommends disabling ACLs altogether (S3 Object Ownership set to
+  <strong>"Bucket owner enforced"</strong>) and using IAM policies and bucket policies with
+  explicit <code>Principal</code> elements instead — a policy is easier to audit than a set of
+  per-object ACL grants, and it cannot be silently widened by a later object upload that specifies
+  its own ACL.
+</p>
+<pre><code># Disable ACLs entirely (recommended for any bucket that does not need them)
+aws s3api put-bucket-ownership-controls --bucket my-bucket \
+  --ownership-controls Rules=[{ObjectOwnership=BucketOwnerEnforced}]</code></pre>
+
+<h2>If this checker already found an exposure</h2>
+<p>
+  Turn on Block Public Access first (step 1) — it is the fastest, broadest fix and overrides any
+  ACL or policy underneath it. Then remove the specific ACL grant or bucket policy statement this
+  checker named. If the bucket was listable, treat every object it held as potentially already
+  accessed: check CloudTrail data events (if enabled) for anonymous <code>GetObject</code> calls,
+  and rotate any credential or secret that may have been stored as an object in that bucket.
+</p>
+
+<p>
+  Run the <a href="index.html">S3 Bucket Exposure Checker</a> against your bucket name to see
+  which of these, if any, apply right now. Only run it against a bucket you own or are authorised
+  to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review. You are responsible for reviewing and verifying its guidance before relying on it. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../codeowners-shadow-check/" data-pf-to="codeowners-shadow-check">CODEOWNERS Shadow Checker</a></li>
+      <li><a href="../cookie-security-check/" data-pf-to="cookie-security-check">Cookie Security Checker</a></li>
+      <li><a href="../cors-misconfig-check/" data-pf-to="cors-misconfig-check">CORS Misconfiguration Checker</a></li>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s3-bucket-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s3-bucket-exposure-check"></script>
+</body>
+</html>

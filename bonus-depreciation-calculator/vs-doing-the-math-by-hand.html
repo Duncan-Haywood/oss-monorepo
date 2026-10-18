@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out bonus depreciation and Section 179 by hand | Bonus Depreciation vs. Section 179 Calculator</title>
+<meta name="description" content="Working out bonus depreciation vs. Section 179 by hand usually goes wrong in the same places: forgetting the Section 179 phase-out counts ALL qualifying…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out bonus depreciation and Section 179 by hand | Bonus Depreciation vs. Section 179 Calculator">
+<meta property="og:description" content="A hand estimate of bonus depreciation vs. Section 179 has several common failure points, above all the phase-out threshold and the NOL-vs-carryforward…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Forgetting that the Section 179 phase-out is based on ALL qualifying purchases for the year, not just the one asset being considered. A hand estimate often checks a single purchase against the $2,500,000 (2025) limit and stops there, missing that other equipment bought the same year counts toward the $4,000,000 phase-out threshold too."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Treating an over-large deduction the same way under both elections. A bonus-depreciation deduction that exceeds taxable income creates or increases a net operating loss (NOL), which can offset up to 80% of a future year's income. A Section 179 election that exceeds income instead produces a SECTION 179 CARRYFORWARD -- a different mechanism, still capped by income every future year it's used, with no 80% ceiling but no better guarantee of use. Confusing the two overstates how much benefit either path locks in immediately."}},{"@type":"Question","name":"What eligibility mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Applying bonus depreciation or Section 179 to an asset used 50% or less for business. Both elections require MORE than 50% business use; at or below that line, the property must use the slower, straight-line Alternative Depreciation System instead -- a rule easy to skip when the arithmetic focuses on the dollar amount rather than the use percentage."}},{"@type":"Question","name":"What planning mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Assuming bonus depreciation is always the better choice because it is bigger. Section 179 is elected asset-by-asset up to the annual limit, while bonus depreciation is all-or-nothing for an entire property class. A business expecting a loss year sometimes prefers a smaller, income-capped Section 179 election -- or electing out of bonus depreciation entirely -- to avoid creating a large NOL and instead preserve depreciation for a future, higher-income year."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page knows your full return -- other deductions, credits, AMT, self-employment tax, luxury-auto depreciation caps, or state conformity to bonus depreciation, which varies widely by state. Both apply the same published federal rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/vs-doing-the-math-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. working out bonus depreciation and Section 179 by hand | Bonus Depreciation vs. Section 179 Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../bonus-depreciation-calculator/">Bonus Depreciation vs. Section 179 Calculator — free, 2025-2026</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. working out bonus depreciation and Section 179 by hand | Bonus Depreciation vs. Section 179 Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out bonus depreciation and Section 179 by hand</h1>
+<p class="lede">The arithmetic looks simple — a cost times a percentage. The
+part that goes wrong by hand is the rules layered on top: the phase-out
+counts purchases the calculator in front of you doesn't show, and the two
+elections fail differently when a deduction is bigger than your income.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Section 179 phase-out</td><td>Checks only the one asset against the dollar limit, missing that ALL qualifying purchases this year count toward the phase-out threshold.</td><td>Takes your other qualifying purchases as a separate input and applies the dollar-for-dollar phase-out to the combined total.</td></tr>
+<tr><td>Over-large deduction</td><td>Treats a deduction that exceeds income the same way for both elections.</td><td>Flags bonus/MACRS excess as a net operating loss (NOL, up to 80% future use) and Section 179 excess as a SECTION 179 CARRYFORWARD (still income-limited every future year) — two different mechanisms.</td></tr>
+<tr><td>Business-use cutoff</td><td>Applies bonus depreciation or Section 179 to an asset at or below 50% business use.</td><td>Flags the 50%-or-less case explicitly — that property needs the straight-line Alternative Depreciation System instead, which is out of scope here.</td></tr>
+<tr><td>"Bigger is always better"</td><td>Assumes maxing out bonus depreciation is always right, even in an expected loss year.</td><td>Shows the Section 179 and plain-MACRS alternatives side by side, so a smaller, income-capped election is visible as an option, not just the biggest number.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Forgetting that the Section 179 phase-out is based on ALL qualifying purchases for the year, not just the one asset being considered. A hand estimate often checks a single purchase against the $2,500,000 (2025) limit and stops there, missing that other equipment bought the same year counts toward the $4,000,000 phase-out threshold too.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Treating an over-large deduction the same way under both elections. A bonus-depreciation deduction that exceeds taxable income creates or increases a net operating loss (NOL), which can offset up to 80% of a future year's income. A Section 179 election that exceeds income instead produces a SECTION 179 CARRYFORWARD -- a different mechanism, still capped by income every future year it's used, with no 80% ceiling but no better guarantee of use. Confusing the two overstates how much benefit either path locks in immediately.</p>
+<h3>What eligibility mistake gets made most often?</h3>
+<p>Applying bonus depreciation or Section 179 to an asset used 50% or less for business. Both elections require MORE than 50% business use; at or below that line, the property must use the slower, straight-line Alternative Depreciation System instead -- a rule easy to skip when the arithmetic focuses on the dollar amount rather than the use percentage.</p>
+<h3>What planning mistake gets made most often?</h3>
+<p>Assuming bonus depreciation is always the better choice because it is bigger. Section 179 is elected asset-by-asset up to the annual limit, while bonus depreciation is all-or-nothing for an entire property class. A business expecting a loss year sometimes prefers a smaller, income-capped Section 179 election -- or electing out of bonus depreciation entirely -- to avoid creating a large NOL and instead preserve depreciation for a future, higher-income year.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page knows your full return -- other deductions, credits, AMT, self-employment tax, luxury-auto depreciation caps, or state conformity to bonus depreciation, which varies widely by state. Both apply the same published federal rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal bonus-depreciation, Section 179, and MACRS rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers and elections before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../nacha-file-validator/" data-pf-to="nacha-file-validator">NACHA File Validator — free, private, in your browser</a></li>
+      <li><a href="../nl-zzp-tax-set-aside-calculator/" data-pf-to="nl-zzp-tax-set-aside-calculator">Netherlands ZZP Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../no-tax-on-tips-overtime-calculator/" data-pf-to="no-tax-on-tips-overtime-calculator">No Tax on Tips &amp; Overtime Calculator — free 2026 deduction estimator</a></li>
+      <li><a href="../nsa-idr-offer-calculator/" data-pf-to="nsa-idr-offer-calculator">No Surprises Act IDR Offer Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bonus-depreciation-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="bonus-depreciation-calculator"></script>
+</body>
+</html>

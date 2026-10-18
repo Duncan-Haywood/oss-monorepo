@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Vendr | SaaS Seat True-Up Calculator</title>
+  <meta name="description" content="How a free, instant, browser-only seat true-up calculator differs from Vendr's paid SaaS buying and renewal-negotiation platform. Not affiliated with Vendr.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/vs-vendr.html">
+  <meta property="og:title" content="This calculator vs. Vendr | SaaS Seat True-Up Calculator">
+  <meta property="og:description" content="Two different jobs: Vendr negotiates the price of a SaaS renewal for you, using its own buyers and market data.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or a platform like Vendr?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs. Vendr is a paid SaaS buying platform, described on Vendr's own site at vendr.com, that negotiates software purchases and renewals on a customer's behalf — its team of buyers uses market pricing data gathered across its customer base to push a vendor toward a lower price, and it can also front the paperwork and procurement workflow for the purchase. That is a negotiation service: someone else's buyers talk to the vendor for you, typically as part of a paid plan or a percentage-of-savings fee. This page does not negotiate anything and does not talk to any vendor. It has no market pricing data and no buyers — it takes the renewal quote already in front of you (purchased seats, seats actually used, price, months left) and turns it into an avoidable-spend figure in your browser, right now, with no signup and nothing sent anywhere."}},{"@type":"Question","name":"Is this page affiliated with Vendr?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Vendr. Vendr is named here only to describe what this calculator is and is not, based on Vendr's own public site."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #18252b; background: #f7f3eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #af5331; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9d0c2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5e6c70; }
+    .note { font-size: .85rem; color: #5e6c70; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5e6c70; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/vs-vendr.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Vendr | SaaS Seat True-Up Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../saas-seat-true-up/">SaaS seat true-up calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Vendr | SaaS Seat True-Up Calculator</span></span></nav>
+  <p><a href="./">&larr; SaaS Seat True-Up Calculator</a></p>
+  <h1>This calculator vs. Vendr</h1>
+  <p>
+    <strong>Vendr</strong> is a well-known SaaS buying platform, described on
+    <a href="https://www.vendr.com/" rel="nofollow noopener">vendr.com</a> as
+    software purchasing and renewal management backed by a team of buyers and
+    pricing data gathered across its customer base. Bring it a renewal and its
+    buyers negotiate directly with the vendor on your behalf, aiming to land a
+    lower price than you would get alone, and it can also carry the
+    procurement paperwork for the deal. Pricing is by quote, and using it
+    means engaging Vendr's team to run a negotiation, not opening a page and
+    typing numbers.
+  </p>
+  <p>
+    That makes Vendr the right choice for one job:
+    <strong>having someone else negotiate a lower price on a SaaS
+    renewal.</strong> This page does not do that job, and does not try to. It
+    negotiates with no one, contacts no vendor, and has no pricing data from
+    other customers &mdash; it takes the seat counts and price you already
+    have for one renewal and tells you how much of that price is unused
+    seats, which is a number worth knowing whether or not anyone ever
+    negotiates the price itself.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Can someone negotiate a lower per-seat price on this renewal for me?</td>
+        <td>Vendr or a comparable buying platform &mdash; that is a negotiation this page cannot do.</td>
+      </tr>
+      <tr>
+        <td>Of the seats I am about to pay for at whatever price is quoted, how many are actually unused?</td>
+        <td>This calculator &mdash; type purchased seats, seats used, price, and months left; get the avoidable spend in seconds, no signup.</td>
+      </tr>
+      <tr>
+        <td>Do I want Vendr's negotiators or procurement team handling the purchase paperwork?</td>
+        <td>Vendr or a comparable platform &mdash; this page has no negotiators and touches no paperwork.</td>
+      </tr>
+      <tr>
+        <td>Is it worth even starting a renegotiation, or would trimming unused seats alone cover the overage?</td>
+        <td>This calculator's numbers first &mdash; knowing the unused-seat cost is a reasonable input to that decision, negotiated price or not.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Nothing stops these two from being used together: a true-up here can be
+    the number you bring into a Vendr negotiation, or the reason a
+    negotiation is not needed at all because trimming seats already closes
+    the gap. This calculator is deliberately the opposite shape from a buying
+    platform: nothing to engage, no fee, and nothing you type ever leaves
+    your browser. That makes it useful for sizing the unused-seat cost on a
+    renewal you already have numbers for, and the wrong tool for having
+    someone negotiate the vendor down &mdash; that is exactly the job a
+    platform like Vendr is built for.
+  </p>
+  <p>
+    It needs no account, no negotiator, and no sign-in: it is a static page,
+    the arithmetic runs in your browser, and once it has loaded it keeps
+    working with the connection off.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or a platform like Vendr?</h3>
+  <p>They do different jobs. Vendr is a paid SaaS buying platform, described on Vendr's own site at vendr.com, that negotiates software purchases and renewals on a customer's behalf &mdash; its team of buyers uses market pricing data gathered across its customer base to push a vendor toward a lower price, and it can also front the paperwork and procurement workflow for the purchase. That is a negotiation service: someone else's buyers talk to the vendor for you, typically as part of a paid plan or a percentage-of-savings fee. This page does not negotiate anything and does not talk to any vendor. It has no market pricing data and no buyers &mdash; it takes the renewal quote already in front of you (purchased seats, seats actually used, price, months left) and turns it into an avoidable-spend figure in your browser, right now, with no signup and nothing sent anywhere.</p>
+  <h3>Is this page affiliated with Vendr?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Vendr. Vendr is named here only to describe what this calculator is and is not, based on Vendr's own public site.</p>
+  <p class="note">
+    Open the <a href="./">SaaS Seat True-Up Calculator</a> to run this
+    renewal's numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you a renewal, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+      <li><a href="../equipment-rental-break-even/" data-pf-to="equipment-rental-break-even">Equipment Rental Break-Even Calculator</a></li>
+      <li><a href="../era-835-underpayment-finder/" data-pf-to="era-835-underpayment-finder">835 ERA Underpayment Finder — free, private, in your browser</a></li>
+      <li><a href="../espp-tax-calculator/" data-pf-to="espp-tax-calculator">ESPP Tax Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=saas-seat-true-up">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="saas-seat-true-up"></script>
+</body>
+</html>

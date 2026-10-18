@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. publint | package.json Exports Drift Check</title>
+  <meta name="description" content="publint is a free, open-source linter that audits a published npm package (or a local package directory) across a broad range of packaging problems.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/vs-publint.html">
+  <meta property="og:title" content="This checker vs. publint">
+  <meta property="og:description" content="publint lints a wide range of package.json and publish-readiness problems, against an already-installed or already-published package.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does publint already check exports targets, the way this tool does?","acceptedAnswer":{"@type":"Answer","text":"publint's own documentation describes it as a broad packaging linter: it audits a package.json against a wide range of publish-readiness problems — among them, issues with the exports, main, module, and types fields — as one part of a much larger rule set covering CJS/ESM resolution, deprecated fields, and other packaging mistakes. It normally runs against a package you point it at: a name and version already published to npm (via its website), an uploaded tarball, or a local package directory (via its own CLI). This tool does one thing only, from two pasted text blocks with nothing installed or published: flatten every subpath, condition, and fallback array in the exports map and name each literal target that is missing from a file listing you provide."}},{"@type":"Question","name":"Should I use this tool or publint?","acceptedAnswer":{"@type":"Answer","text":"They overlap on one question and differ on scope and when you can run them. publint is the broader publish-readiness linter — reach for it to catch the wider set of packaging mistakes it documents, against a package that already exists on disk or on the registry. This tool answers one narrower question, before that: given a package.json you are still editing and a hypothetical or planned file listing, which exports targets would be missing right now? That makes it usable earlier — before a build has run, before anything is packed or published — and it needs nothing installed and no network call either way. A maintainer can reasonably use both: this tool as an any-time sanity check on the exports map itself, publint as the broader pre-publish audit."}},{"@type":"Question","name":"Is this page affiliated with publint?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by publint or its author. publint is named here only to describe what this tool is and is not, based on publint's own publicly documented product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; overflow-wrap: anywhere; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; overflow-wrap: anywhere; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; overflow-wrap: anywhere; }
+    p, li { line-height: 1.55; }
+    a { color: #4c1d95; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/vs-publint.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. publint — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../package-exports-drift-check/">Does your package.json &quot;exports&quot; map point at files that actually exist?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. publint</span></span></nav>
+  <p class="note"><a href="./">&larr; package.json Exports Drift Check</a></p>
+  <h1>This checker vs. publint</h1>
+  <p class="note">Different scope and a different moment: publint is a broad packaging linter that audits a package you already have installed, packed, or published, against a wide set of publish-readiness rules. This tool does one narrow thing, from two pasted text blocks alone: name every literal <code>exports</code> target that doesn't exist &mdash; no install, no publish, no network call.</p>
+
+  <section class="card">
+    <h2>What each product is for</h2>
+    <p>
+      <strong>publint</strong> is a free, open-source linter, published as
+      both a website and a <code>npx publint</code> CLI. Its own
+      documentation describes checking a package against a broad set of
+      publish-readiness problems: issues with the <code>exports</code>,
+      <code>main</code>, <code>module</code>, and <code>types</code> fields
+      among them, alongside CJS/ESM resolution mismatches, deprecated
+      fields, and other packaging mistakes that only surface for a consumer
+      after install. The website version points at a package already
+      published to npm (by name and version) or an uploaded tarball; the
+      CLI runs against a local package directory. Today's exact rule list
+      and any change to it are publint's own to state, not repeated here
+      since this session cannot verify them live against publint's own
+      site.
+    </p>
+    <p>
+      This tool does none of what publint's broader rule set does. It has
+      no install step, reads no <code>node_modules</code>, and never talks
+      to the npm registry. It takes exactly two things you paste &mdash; a
+      <code>package.json</code> and a listing of the files you actually
+      publish &mdash; and flattens every subpath, every nested condition
+      (<code>import</code>/<code>require</code>/<code>types</code>/...),
+      and every fallback array in the <code>exports</code> map, then
+      reports each literal target that is missing from that listing. A
+      wildcard target or a bare-specifier re-export is reported as
+      <strong>not checked</strong>, never as passing or failing. Because it
+      needs nothing installed or published, it works on a
+      <code>package.json</code> you are still editing, against a
+      <em>hypothetical</em> file listing of what a build would produce
+      &mdash; a question publint's own workflow, built around an
+      already-existing package, is not shaped to answer.
+    </p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want the broad, well-established publish-readiness audit &mdash; CJS/ESM resolution, deprecated fields, and more &mdash; against a package that's already installed, packed, or on the registry.</td><td>publint &mdash; that is the audit it is built for.</td></tr>
+          <tr><td>I want to know right now, for free, exactly which exports targets are missing, from a package.json I'm still editing and a file listing I haven't built yet.</td><td>This tool &mdash; paste both, get the list, nothing installed.</td></tr>
+          <tr><td>I want a website that checks a package already published to npm by name and version.</td><td>publint &mdash; this tool reads only what you paste, never the registry.</td></tr>
+          <tr><td>I want a zero-dependency CI gate that runs after my build step and before <code>npm publish</code>, reading only local files with no network call.</td><td>Either works locally; this tool's CLI (<code>cli.mjs</code>) needs no install of its own.</td></tr>
+          <tr><td>I want CJS/ESM resolution and other packaging checks beyond whether an exports target file exists.</td><td>publint &mdash; this tool checks existence only, nothing about resolution or module format.</td></tr>
+          <tr><td>I want the exports map flattened and diffed against a file listing that isn't real yet &mdash; planning a refactor, say &mdash; with no package to point a tool at.</td><td>This tool &mdash; that's the one job it does, and it needs nothing to exist on disk.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p>
+      A maintainer can reasonably use both: publint as the broad, periodic
+      publish-readiness audit against a real package, and this tool as a
+      fast, any-time sanity check on the exports map itself &mdash; useful
+      even before a build has produced anything to point a broader linter
+      at. This page does not evaluate publint's accuracy or coverage and
+      makes no claim about it either way &mdash; it only describes
+      publint's documented product shape and states what this tool does
+      differently. A clean result from either one is not a guarantee your
+      package will install or import cleanly; verify with
+      <code>npm publish --dry-run</code> and a real install.
+    </p>
+    <p class="note">This tool needs no account, no install, and no network call: it is a static page that runs entirely in your browser, or a zero-dependency Node CLI that reads only local files.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does publint already check exports targets, the way this tool does?</h3>
+    <p>publint's own documentation describes it as a broad packaging linter: it audits a package.json against a wide range of publish-readiness problems &mdash; among them, issues with the <code>exports</code>, <code>main</code>, <code>module</code>, and <code>types</code> fields &mdash; as one part of a much larger rule set covering CJS/ESM resolution, deprecated fields, and other packaging mistakes. It normally runs against a package you point it at: a name and version already published to npm (via its website), an uploaded tarball, or a local package directory (via its own CLI). This tool does one thing only, from two pasted text blocks with nothing installed or published: flatten every subpath, condition, and fallback array in the exports map and name each literal target that is missing from a file listing you provide.</p>
+    <h3>Should I use this tool or publint?</h3>
+    <p>They overlap on one question and differ on scope and when you can run them. publint is the broader publish-readiness linter &mdash; reach for it to catch the wider set of packaging mistakes it documents, against a package that already exists on disk or on the registry. This tool answers one narrower question, before that: given a package.json you are still editing and a hypothetical or planned file listing, which exports targets would be missing right now? That makes it usable earlier &mdash; before a build has run, before anything is packed or published &mdash; and it needs nothing installed and no network call either way. A maintainer can reasonably use both: this tool as an any-time sanity check on the exports map itself, publint as the broader pre-publish audit.</p>
+    <h3>Is this page affiliated with publint?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by publint or its author. publint is named here only to describe what this tool is and is not, based on publint's own publicly documented product.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided &mdash; nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>publint is a product of its own author and maintainers, referenced here under nominative fair use to describe what this tool is and is not.</p>
+    <p class="note">More: <a href="./why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a>.</p>
+    <p class="support">Free and open source. If this saved you a broken publish, the <a href="./LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+      <li><a href="../cron-dst-drift-check/" data-pf-to="cron-dst-drift-check">Will your cron job survive daylight saving?</a></li>
+      <li><a href="../csv-to-sql-generator/" data-pf-to="csv-to-sql-generator">CSV to SQL, in your browser</a></li>
+      <li><a href="../databricks-cluster-cost-advisor/" data-pf-to="databricks-cluster-cost-advisor">Why is your Databricks bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=package-exports-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="package-exports-drift-check"></script>
+</body>
+</html>

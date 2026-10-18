@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Avoid Clopening: Rest Gaps Between Shifts And What They Cost</title>
+  <meta name="description" content="What a clopening is, how a minimum rest gap between shifts works, and what 0, 8, 10, 12 and 14 hour gaps did to the same invented seven-person cafe roster…">
+  <meta property="og:title" content="How to avoid clopening: what a rest gap costs">
+  <meta property="og:description" content="Same cafe, same staff, five rest-gap settings. Measured with the free roster builder.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/how-to-avoid-clopening.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does clopening mean in scheduling?","acceptedAnswer":{"@type":"Answer","text":"It means working a closing shift and then the opening shift the next morning, leaving little time to sleep. A minimum rest gap between shifts is the usual way to prevent it."}},{"@type":"Question","name":"How many hours of rest should be between shifts?","acceptedAnswer":{"@type":"Answer","text":"There is no single answer. Some employers use 8 to 12 hours as policy and some places regulate it for certain workers. Check the rules where you operate. The roster builder lets you set the gap and will not break it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/how-to-avoid-clopening.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to avoid clopening: what a rest gap costs — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shift-roster-builder/">Shift Roster Builder — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to avoid clopening: what a rest gap costs</span></span></nav>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>How to avoid clopening: what a rest gap between shifts costs</h1>
+  <p>A <strong>clopening</strong> is a late close followed by an early open: someone locks up at 11pm and unlocks at 6am. The standard fix is a minimum rest gap between any two of a person's shifts. Owners worry that a rule like that leaves shifts empty or raises payroll. We measured it.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>The experiment</h2>
+  <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line, and each person's own availability. Only the rest gap changed between runs; everything else is the tool's defaults.</p>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Minimum rest gap</th><th class="n">Shifts left open</th><th class="n">Hours covered</th><th class="n">Payroll</th></tr>
+    <tr><td>None (0 h)</td><td class="n">3</td><td class="n">211 of 235</td><td class="n">$3,525</td></tr>
+    <tr><td>8 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,620</td></tr>
+    <tr><td>10 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>12 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,630</td></tr>
+    <tr><td>14 h</td><td class="n">6</td><td class="n">212</td><td class="n">$3,578</td></tr>
+  </table></div>
+  <h2>What it shows</h2>
+  <p>For this cafe, a rest gap anywhere from 8 to 12 hours cost about $100 a week more than no rule and did not leave a single extra shift open. The search simply gave the awkward close-then-open pairs to different people. At 14 hours the rule starts to bite: the same staff can no longer cover three more shifts. So the question to ask of your own week is where your cliff is, not whether a rule is affordable in general. This is one invented example, not a benchmark, and your availability decides your numbers.</p>
+  <p><a class="cta" href="./">Find the cliff in your own week</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Mark every close and every open</h3>
+  <p>List who works each closing shift, then check the next morning's opens for the same names.</p>
+  <h3>2. Swap one side of each pair</h3>
+  <p>Move either the close or the open to someone who is free and not already near their weekly limit. Do the people with the narrowest availability first.</p>
+  <h3>3. Watch the week boundary</h3>
+  <p>Sunday night's close and Monday morning's open are the pair most often missed. The roster builder can read last week's roster CSV so the rule holds across Monday.</p>
+  <h2>Questions</h2>
+  <h3>What does clopening mean in scheduling?</h3>
+  <p>It means working a closing shift and then the opening shift the next morning, leaving little time to sleep. A minimum rest gap between shifts is the usual way to prevent it.</p>
+  <h3>How many hours of rest should be between shifts?</h3>
+  <p>There is no single answer. Some employers use 8 to 12 hours as policy and some places regulate it for certain workers. Check the rules where you operate. The roster builder lets you set the gap and will not break it.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional. See also <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../daily-prep-quantity-optimizer/" data-pf-to="daily-prep-quantity-optimizer">Daily prep quantity optimizer</a></li>
+      <li><a href="../dining-room-table-mix-optimizer/" data-pf-to="dining-room-table-mix-optimizer">Dining room table mix optimizer</a></li>
+      <li><a href="../distillery-excise-tax-calculator/" data-pf-to="distillery-excise-tax-calculator">Distillery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../dry-cleaner-profit-calculator/" data-pf-to="dry-cleaner-profit-calculator">Dry cleaner calculator: how many pieces a month do you need to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shift-roster-builder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shift-roster-builder"></script>
+</body>
+</html>

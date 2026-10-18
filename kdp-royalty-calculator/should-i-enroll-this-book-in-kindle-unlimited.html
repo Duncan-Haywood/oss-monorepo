@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Should I enroll this book in Kindle Unlimited?</title>
+  <meta name="description" content="On a $4.99 ebook, 12,000 KU page reads at $0.0045, and 40 other-store sales if you go wide, exclusive keeps $405.12 and wide keeps $491.06.">
+  <meta property="og:title" content="Should I enroll this book in Kindle Unlimited?">
+  <meta property="og:description" content="A worked 90-day example of KDP Select exclusive versus going wide. Not a recommendation.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/should-i-enroll-this-book-in-kindle-unlimited.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I enroll this book in Kindle Unlimited?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — $4.99 ebook on the 70% plan, 2 MB file, $0.15/MB delivery, 80 paid ebook sales, 12,000 KU page reads at $0.0045, $14.99 paperback with 280 black-and-white pages, 20 KDP paperback sales, 40 other-store ebook sales at $2.50 net, and 10 Ingram paperbacks at a 40% wholesale discount and $5 print — exclusive keeps $405.12 and wide keeps $491.06. Wide is ahead by $85.94. That is arithmetic on those starting numbers, not a recommendation to enroll or leave."}},{"@type":"Question","name":"How many KU page reads equal one paid sale on this example?","acceptedAnswer":{"@type":"Answer","text":"One paid sale nets $3.193. At $0.0045 per KENP page that is 709.6 pages. A 250-page book that is read all the way through is not automatically 250 KENP; KENP is Amazon's own normalized count from the file you uploaded."}},{"@type":"Question","name":"How many KU page reads would match the wide extras?","acceptedAnswer":{"@type":"Answer","text":"The wide extras on this example are $100 of other-store ebook net plus $39.94 of Ingram paperback net, $139.94. At $0.0045 per page that is 31,097.8 KENP. The starting 12,000 reads do not reach it. Type a different KENP rate or a different wide volume on the calculator and the target moves."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .note { font-size: .85rem; color: #5c554d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/should-i-enroll-this-book-in-kindle-unlimited.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I enroll this book in Kindle Unlimited? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../kdp-royalty-calculator/">KDP royalty calculator: KU vs going wide</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I enroll this book in Kindle Unlimited?</span></span></nav>
+  <p><a href="./">&larr; KDP royalty calculator</a></p>
+  <h1>Should I enroll this book in Kindle Unlimited?</h1>
+  <p>
+    A $4.99 ebook is on the 70% plan. The file is 2&nbsp;MB and delivery is entered at
+    $0.15/MB. You expect 80 paid ebook sales in 90 days, 12,000 Kindle Unlimited
+    page reads at $0.0045, a $14.99 paperback of 280 black-and-white pages with
+    20 KDP sales, and — if you stay wide — 40 other-store ebook sales at $2.50
+    net plus 10 Ingram paperbacks at a 40% wholesale discount and $5 print.
+    These are starting points, not live Amazon figures. Overwrite them on
+    <a href="./">the calculator</a>.
+  </p>
+  <p>
+    Exclusive keeps <strong>$405.12</strong>. Wide keeps <strong>$491.06</strong>.
+    Wide is ahead by $85.94 on this window. One paid ebook sale nets $3.193,
+    which at $0.0045/page is 709.6 KENP. Matching the $139.94 of wide extras
+    would take 31,097.8 KENP, more than the 12,000 in the example.
+  </p>
+  <p class="note">
+    Change the KENP rate, the KU reads, or the wide volume and the ranking can
+    flip. Forty thousand KU reads on the same book leaves exclusive ahead.
+    The page still does not tell you to enroll.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Should I enroll this book in Kindle Unlimited?</h3>
+  <p>
+    On the worked example — $4.99 ebook on the 70% plan, 2&nbsp;MB file, $0.15/MB
+    delivery, 80 paid ebook sales, 12,000 KU page reads at $0.0045, $14.99
+    paperback with 280 black-and-white pages, 20 KDP paperback sales, 40
+    other-store ebook sales at $2.50 net, and 10 Ingram paperbacks at a 40%
+    wholesale discount and $5 print — exclusive keeps $405.12 and wide keeps
+    $491.06. Wide is ahead by $85.94. That is arithmetic on those starting
+    numbers, not a recommendation to enroll or leave.
+  </p>
+  <h3>How many KU page reads equal one paid sale on this example?</h3>
+  <p>
+    One paid sale nets $3.193. At $0.0045 per KENP page that is 709.6 pages.
+    A 250-page book that is read all the way through is not automatically 250
+    KENP; KENP is Amazon's own normalized count from the file you uploaded.
+  </p>
+  <h3>How many KU page reads would match the wide extras?</h3>
+  <p>
+    The wide extras on this example are $100 of other-store ebook net plus
+    $39.94 of Ingram paperback net, $139.94. At $0.0045 per page that is
+    31,097.8 KENP. The starting 12,000 reads do not reach it. Type a different
+    KENP rate or a different wide volume on the calculator and the target moves.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kdp-royalty-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="kdp-royalty-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This tool vs. Known Agents | AI Crawler Access Check</title>
+  <meta name="description" content="Known Agents (formerly Dark Visitors) is a hosted, account-based service that maintains a live AI-agent directory, an auto-updating robots.txt…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/vs-known-agents.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This tool vs. Known Agents | AI Crawler Access Check">
+  <meta property="og:description" content="Known Agents runs an ongoing, account-based service: a live AI-agent directory, a managed robots.txt, and a traffic dashboard.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Known Agents?","acceptedAnswer":{"@type":"Answer","text":"They are different shapes of tool and plenty of sites end up using both. Known Agents (formerly Dark Visitors, at knownagents.com) is a hosted, account-based service built around a continuously updated directory of AI agents, crawlers and bots; per its own site and WordPress plugin listing it can generate and keep a site's robots.txt current against that directory, block scrapers that ignore robots.txt, and report analytics on bot traffic and AI-referral traffic (from ChatGPT, Perplexity and similar) over time. This tool does none of that. It is a free, static page (and a zero-dependency Node CLI) that reads the robots.txt and llms.txt text you already have -- pasted, fetched, or read from disk -- against a fixed, publicly documented list of 20 named AI-crawler tokens, and reports right now, deterministically, which are allowed, blocked, or partially blocked. Reach for Known Agents if you want an ongoing, managed directory and a traffic dashboard. Reach for this tool for an immediate, no-account read of the file you already have, or to wire a CI gate around it."}},{"@type":"Question","name":"Does this replace Known Agents' auto-updating robots.txt?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. Known Agents' core feature, per its own documentation, is generating and maintaining a robots.txt against its own continuously updated agent directory, so a site's file stays current as new crawlers appear without anyone editing it by hand. This tool never writes or maintains a file -- it only reads whatever robots.txt you give it, against a fixed snapshot of 20 named tokens, and tells you what that file currently does. If you want a robots.txt that updates itself as new AI agents launch, that is Known Agents' job, not this tool's. If you want to check, right now, exactly what an existing file allows or blocks -- your own, or one you inherited -- that is this tool's job."}},{"@type":"Question","name":"Is my data uploaded anywhere, the way an analytics dashboard would collect it?","acceptedAnswer":{"@type":"Answer","text":"Not by this tool. The browser page parses the robots.txt/llms.txt text you paste entirely in your own browser and never sends it anywhere; the CLI only ever contacts the one domain you name, to fetch its robots.txt and llms.txt, and makes no other network call. It keeps no traffic log and has no dashboard -- it reports the current file's rules and nothing about who visits your site. Known Agents' analytics dashboard is a different kind of product: reporting ongoing bot and AI-referral traffic necessarily means it observes requests hitting your site over time, which this tool never does."}},{"@type":"Question","name":"Is this page affiliated with Known Agents or Dark Visitors?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Known Agents (formerly Dark Visitors) or its operators. Known Agents and Dark Visitors are named here only to describe what this tool is and is not, based on Known Agents' own public site and WordPress plugin listing; check those for what the service currently offers and how."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    h3 { margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { color: #55606f; text-transform: uppercase; font-size: .75rem; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; background: rgba(23,50,74,0.08); padding: 0.1rem 0.3rem; border-radius: 4px; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 12px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/vs-known-agents.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. Known Agents | AI Crawler Access Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ai-crawler-access-check/">Which AI crawlers can actually read your site?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. Known Agents | AI Crawler Access Check</span></span></nav>
+  <a class="back" href="./">&larr; Back to AI Crawler Access Check</a>
+  <h1>This tool vs. Known Agents</h1>
+
+  <p>
+    <strong><a href="https://knownagents.com/" rel="nofollow noopener">Known Agents</a></strong>
+    (renamed from <strong>Dark Visitors</strong> in early 2026 -- the old
+    <code>darkvisitors.com</code> domain now redirects to it) is a hosted, account-based service
+    built around a continuously updated directory of AI agents, crawlers and bots. Per its own
+    site and its WordPress plugin listing, it generates and keeps a site's <code>robots.txt</code>
+    current against that directory as new agents appear, can block scrapers that ignore
+    <code>robots.txt</code>, and reports analytics on bot traffic and AI-referral traffic --
+    visits arriving from ChatGPT, Perplexity and similar -- over time. It ships as a WordPress
+    plugin and an install for other stacks, and needs an account.
+  </p>
+
+  <p>
+    This tool is a different shape entirely: a free, static page -- and a zero-dependency Node
+    CLI -- that reads the <code>robots.txt</code> and <code>llms.txt</code> text you already
+    have, pasted or fetched, against a fixed, publicly documented list of 20 named AI-crawler
+    tokens (GPTBot, ClaudeBot, Google-Extended, PerplexityBot and 11 more), and reports right
+    now, deterministically, which are allowed, blocked, or partially blocked. It writes nothing,
+    maintains nothing, tracks no traffic, and needs no account or install.
+  </p>
+
+  <h2>Which one answers your question</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Keep a <code>robots.txt</code> current against a continuously updated directory of AI agents, without editing it by hand as new ones appear.</td>
+        <td>Known Agents -- an auto-updating, managed <code>robots.txt</code> is its core feature.</td>
+      </tr>
+      <tr>
+        <td>See an analytics dashboard of bot traffic and AI-referral visits (ChatGPT, Perplexity) hitting your site over time.</td>
+        <td>Known Agents -- this tool reports nothing about traffic, only what a file currently says.</td>
+      </tr>
+      <tr>
+        <td>Check, right now, exactly what your existing <code>robots.txt</code> allows or blocks for 20 named AI crawlers, with no account and nothing installed.</td>
+        <td>This tool -- paste the file and get a deterministic verdict in your browser.</td>
+      </tr>
+      <tr>
+        <td>Add a CI gate that fails a build the moment GPTBot (or any named crawler) becomes allowed again.</td>
+        <td>This tool's CLI -- <code>node cli.mjs example.com --fail-if-allowed GPTBot</code>, no account needed.</td>
+      </tr>
+      <tr>
+        <td>Actively block scrapers that ignore <code>robots.txt</code> entirely, not just report what the file says.</td>
+        <td>Known Agents' blocking feature, per its own listing -- this tool never blocks anything; it only reads and reports.</td>
+      </tr>
+      <tr>
+        <td>Audit a <code>robots.txt</code> you inherited or just wrote, once, with nothing left running afterward.</td>
+        <td>This tool -- it is a check, not a service you install and maintain.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p>
+    These are complementary rather than competing: a site running Known Agents for an
+    auto-updating file and traffic analytics can still use this tool to independently verify,
+    with no account and no trust in a third-party dashboard, exactly what the resulting
+    <code>robots.txt</code> allows right now -- and a site that wants no ongoing service at all
+    can use this tool alone as a one-time or CI-gated check.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this checker or Known Agents?</h3>
+  <p>They are different shapes of tool and plenty of sites end up using both. Known Agents (formerly Dark Visitors, at knownagents.com) is a hosted, account-based service built around a continuously updated directory of AI agents, crawlers and bots; per its own site and WordPress plugin listing it can generate and keep a site's robots.txt current against that directory, block scrapers that ignore robots.txt, and report analytics on bot traffic and AI-referral traffic (from ChatGPT, Perplexity and similar) over time. This tool does none of that. It is a free, static page (and a zero-dependency Node CLI) that reads the robots.txt and llms.txt text you already have -- pasted, fetched, or read from disk -- against a fixed, publicly documented list of 20 named AI-crawler tokens, and reports right now, deterministically, which are allowed, blocked, or partially blocked. Reach for Known Agents if you want an ongoing, managed directory and a traffic dashboard. Reach for this tool for an immediate, no-account read of the file you already have, or to wire a CI gate around it.</p>
+  <h3>Does this replace Known Agents' auto-updating robots.txt?</h3>
+  <p>No, and it is not trying to. Known Agents' core feature, per its own documentation, is generating and maintaining a robots.txt against its own continuously updated agent directory, so a site's file stays current as new crawlers appear without anyone editing it by hand. This tool never writes or maintains a file -- it only reads whatever robots.txt you give it, against a fixed snapshot of 20 named tokens, and tells you what that file currently does. If you want a robots.txt that updates itself as new AI agents launch, that is Known Agents' job, not this tool's. If you want to check, right now, exactly what an existing file allows or blocks -- your own, or one you inherited -- that is this tool's job.</p>
+  <h3>Is my data uploaded anywhere, the way an analytics dashboard would collect it?</h3>
+  <p>Not by this tool. The browser page parses the robots.txt/llms.txt text you paste entirely in your own browser and never sends it anywhere; the CLI only ever contacts the one domain you name, to fetch its robots.txt and llms.txt, and makes no other network call. It keeps no traffic log and has no dashboard -- it reports the current file's rules and nothing about who visits your site. Known Agents' analytics dashboard is a different kind of product: reporting ongoing bot and AI-referral traffic necessarily means it observes requests hitting your site over time, which this tool never does.</p>
+  <h3>Is this page affiliated with Known Agents or Dark Visitors?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Known Agents (formerly Dark Visitors) or its operators. Known Agents and Dark Visitors are named here only to describe what this tool is and is not, based on Known Agents' own public site and WordPress plugin listing; check those for what the service currently offers and how.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports what a robots.txt or llms.txt file says -- it is not a guarantee that any crawler will honor those directives, and it does not replace reading the crawler operator's own current documentation. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p><a href="./">&larr; Back to the tool</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support on GitHub Sponsors</a> (optional) · <a href="LICENSE" rel="noopener">MIT licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../cloudwatch-logs-cost-advisor/" data-pf-to="cloudwatch-logs-cost-advisor">Why is your CloudWatch Logs bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ai-crawler-access-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ai-crawler-access-check"></script>
+</body>
+</html>

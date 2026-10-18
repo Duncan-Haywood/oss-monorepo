@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DynamoDB On-Demand vs Provisioned: Which Is Cheaper?</title>
+  <meta name="description" content="How DynamoDB bills on-demand and provisioned capacity, the 29% utilisation break-even, how autoscaling changes the answer…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/dynamodb-on-demand-vs-provisioned-which-is-cheaper.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is DynamoDB on-demand more expensive than provisioned?", "acceptedAnswer": {"@type": "Answer", "text": "Per unit of work, yes: at list prices on-demand costs about 3.5 times as much as a fully used provisioned unit. But provisioned capacity is paid for whether or not you use it, so on-demand is cheaper for idle, spiky or unpredictable tables and provisioned is cheaper once you keep capacity busier than about 29% on average."}}, {"@type": "Question", "name": "Can I switch back and forth?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, but AWS limits how often. You can change a table's capacity mode a limited number of times per 24 hours (check the current documentation), so decide on a week of data rather than flipping on a bad hour."}}, {"@type": "Question", "name": "Does provisioned throttle where on-demand would not?", "acceptedAnswer": {"@type": "Answer", "text": "It can. Provisioned tables throttle requests above their capacity after burst credit runs out, and autoscaling takes minutes to react. On-demand scales to previously reached peaks quickly but has its own limits on a sudden jump of more than double the previous peak."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/dynamodb-on-demand-vs-provisioned-which-is-cheaper.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="DynamoDB On-Demand vs Provisioned: Which Is Cheaper?">
+<meta property="og:description" content="How DynamoDB bills on-demand and provisioned capacity, the 29% utilisation break-even, how autoscaling changes the answer…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DynamoDB On-Demand vs Provisioned: Which Is Cheaper? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dynamodb-capacity-mode-advisor/">Is your DynamoDB table on the wrong capacity mode?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">DynamoDB On-Demand vs Provisioned: Which Is Cheaper?</span></span></nav>
+  <p class="note"><a href="./">DynamoDB Capacity Mode Advisor</a> · guide</p>
+  <h1>DynamoDB on-demand vs provisioned: which is cheaper?</h1>
+  <p>Short answer: provisioned wins for steady tables, on-demand wins for idle or spiky ones, and the crossover is about <strong>29% average utilisation</strong>. The rest of this page shows where that number comes from and how to check your own table in ten minutes.</p>
+
+  <h2>How each mode bills</h2>
+  <p><strong>On-demand</strong> charges per request unit actually consumed: about $0.125 per million read request units and $0.625 per million write request units at us-east-1 standard-table list prices. Nothing is charged while the table is idle.</p>
+  <p><strong>Provisioned</strong> charges per capacity unit per hour whether you use it or not: about $0.00013 per RCU-hour and $0.00065 per WCU-hour. One RCU-hour can serve 3,600 read units. The same 3,600 units on-demand cost $0.00045, so provisioned costs 29% as much <em>if the unit is fully busy</em>. That ratio is the break-even utilisation, and it is the same for reads and writes.</p>
+
+  <h2>What utilisation do you really get?</h2>
+  <p>Provisioned capacity is never fully busy. Autoscaling targets 70% by default, so a perfectly steady table runs near 70% and costs roughly 40% of on-demand. A table that peaks at 10 times its average and is provisioned for the peak runs near 10%, and on-demand is cheaper. Real tables sit between: daytime-heavy traffic with autoscaling usually lands in the 40–60% range, which still favours provisioned.</p>
+
+  <h2>Measure your table</h2>
+  <ol>
+    <li>In CloudWatch, graph <code>ConsumedReadCapacityUnits</code> and <code>ConsumedWriteCapacityUnits</code> for the table, statistic <em>Sum</em>, period one hour, over a week that includes your busiest day.</li>
+    <li>Put timestamp, read Sum and write Sum in three columns (CSV).</li>
+    <li>Paste them into the <a href="./">advisor</a>, or run <code>node cli.mjs analyze metrics.csv</code>. Add <code>--current-rcu</code> and <code>--current-wcu</code> if the table is provisioned today.</li>
+  </ol>
+
+  <h2>What to look at before you switch</h2>
+  <ul>
+    <li><strong>Burst and ramp.</strong> Autoscaling reacts over minutes. If traffic more than doubles within an hour, expect throttling on provisioned unless you schedule capacity ahead of the peak.</li>
+    <li><strong>Writes weigh five times more.</strong> A write-heavy table gets the biggest absolute saving from the right mode.</li>
+    <li><strong>Reserved capacity and Standard-IA.</strong> Reserved capacity lowers the provisioned price further for committed baselines; the Standard-IA table class changes both prices. The advisor does not model either, so treat its gap as a floor for steady tables.</li>
+    <li><strong>Small tables.</strong> Below a few dollars a month, the saving is not worth any risk.</li>
+  </ul>
+
+  <h2>Questions</h2>
+  <h3>Is DynamoDB on-demand more expensive than provisioned?</h3>
+  <p>Per unit of work, yes: at list prices on-demand costs about 3.5 times as much as a fully used provisioned unit. But provisioned capacity is paid for whether or not you use it, so on-demand is cheaper for idle, spiky or unpredictable tables and provisioned is cheaper once you keep capacity busier than about 29% on average.</p>
+  <h3>Can I switch back and forth?</h3>
+  <p>Yes, but AWS limits how often. You can change a table's capacity mode a limited number of times per 24 hours (check the current documentation), so decide on a week of data rather than flipping on a bad hour.</p>
+  <h3>Does provisioned throttle where on-demand would not?</h3>
+  <p>It can. Provisioned tables throttle requests above their capacity after burst credit runs out, and autoscaling takes minutes to react. On-demand scales to previously reached peaks quickly but has its own limits on a sudden jump of more than double the previous peak.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+      <li><a href="../source-map-leak-check/" data-pf-to="source-map-leak-check">Source Map Leak Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dynamodb-capacity-mode-advisor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dynamodb-capacity-mode-advisor"></script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LED Series Resistor Calculator</title>
+<meta name="description" content="Free LED current-limiting resistor calculator. Enter supply voltage, LED forward voltage/current, and LEDs in series to get the exact resistor value…" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/led-resistor-calculator/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='13' r='9' fill='%23e53e3e'/%3E%3Crect x='13' y='21' width='6' height='7' fill='%23a0aec0'/%3E%3C/svg%3E" />
+<meta property="og:title" content="LED Series Resistor Calculator" />
+<meta property="og:description" content="Compute the current-limiting resistor for one or more LEDs in series, snapped to the nearest standard value, free and in your browser." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LED Series Resistor Calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free LED current-limiting resistor calculator: exact value, nearest standard E24 resistor, and recommended power rating. Runs entirely client-side."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resistor does this page's own default (9 V supply, one 2 V LED at 20 mA) need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Exactly 350 Ω, dissipating 0.14 W. The nearest standard (E24) resistor is 360 Ω, which runs the LED at 19.44 mA instead of 20 mA and dissipates 0.136 W. This calculator recommends a 0.5 W part for it — it doubles the dissipation for a safety margin before picking a standard wattage, and 2× 0.14 W = 0.28 W crosses the 0.25 W step, so it rounds up to 0.5 W."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does adding more LEDs in series change the resistor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each LED's forward voltage subtracts from the headroom the resistor has to work with. Put three of this page's default 2 V LEDs in series (6 V total) on the same 9 V supply and the exact resistor drops to 150 Ω, dissipating 60 mW — and 150 Ω is itself a standard E24 value, so the nearest-standard row matches it exactly and the LEDs run at the full 20 mA target."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the calculator refuse some inputs instead of showing a result?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the supply voltage has to exceed the LEDs' total forward voltage with headroom left over for the resistor — without that headroom there is no valid resistor value. Five of this page's default 2 V LEDs in series need 10 V total, which exceeds the 9 V default supply, so the calculator reports the shortfall rather than returning a negative or zero resistance."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  select, input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  select:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result strong { color: var(--accent); }
+  .result dl { margin: 0; }
+  .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0; font-size: 1.1rem; }
+  .error { color: #c53030; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+</style>
+<link rel="stylesheet" href="../../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/led-resistor-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="LED Series Resistor Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../ai-engineering-academy/">Free Electronics Calculators</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">LED Series Resistor Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<main>
+  <h1>LED Series Resistor Calculator</h1>
+  <p class="lede">
+    Figure out the current-limiting resistor for an LED (or a string of LEDs
+    in series) before you burn one out. Everything runs in this page —
+    nothing is uploaded.
+  </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Circuit values</h2>
+
+    <label for="preset">LED color preset (fills in a typical forward voltage — override it if you know your LED's actual value)</label>
+    <select id="preset">
+      <option value="">Custom / not listed</option>
+      <option value="1.8">Infrared (~1.8 V)</option>
+      <option value="2.0">Red (~2.0 V)</option>
+      <option value="2.0">Yellow (~2.0 V)</option>
+      <option value="2.1">Amber (~2.1 V)</option>
+      <option value="3.0">Green (~3.0 V)</option>
+      <option value="3.2">Blue (~3.2 V)</option>
+      <option value="3.2">White (~3.2 V)</option>
+      <option value="3.3">UV (~3.3 V)</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="supply">Supply voltage (V)</label>
+        <input type="number" id="supply" inputmode="decimal" value="9" step="any" />
+      </div>
+      <div>
+        <label for="vf">LED forward voltage, V<sub>f</sub> (V)</label>
+        <input type="number" id="vf" inputmode="decimal" value="2.0" step="any" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="if">LED forward current, I<sub>f</sub> (mA)</label>
+        <input type="number" id="if" inputmode="decimal" value="20" step="any" />
+        <p class="hint">Check the LED's datasheet — 20 mA is a common default for 5 mm indicator LEDs, but many are rated lower.</p>
+      </div>
+      <div>
+        <label for="n">LEDs in series</label>
+        <input type="number" id="n" inputmode="numeric" value="1" min="1" step="1" />
+      </div>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+    <p class="hint">
+      Lighting more than one LED?
+      <a href="can-i-use-one-resistor-for-multiple-leds.html">Compare a series
+      string, one resistor each, and one shared resistor</a> — including why a
+      shared resistor across parallel LEDs saves parts but not power.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What resistor does this page's own default (9 V supply, one 2 V LED at 20 mA) need?</h3>
+  <p>Exactly 350 Ω, dissipating 0.14 W. The nearest standard (E24) resistor is 360 Ω, which runs the LED at 19.44 mA instead of 20 mA and dissipates 0.136 W. This calculator recommends a 0.5 W part for it — it doubles the dissipation for a safety margin before picking a standard wattage, and 2× 0.14 W = 0.28 W crosses the 0.25 W step, so it rounds up to 0.5 W.</p>
+  <h3>How does adding more LEDs in series change the resistor?</h3>
+  <p>Each LED's forward voltage subtracts from the headroom the resistor has to work with. Put three of this page's default 2 V LEDs in series (6 V total) on the same 9 V supply and the exact resistor drops to 150 Ω, dissipating 60 mW — and 150 Ω is itself a standard E24 value, so the nearest-standard row matches it exactly and the LEDs run at the full 20 mA target.</p>
+  <h3>Why does the calculator refuse some inputs instead of showing a result?</h3>
+  <p>Because the supply voltage has to exceed the LEDs' total forward voltage with headroom left over for the resistor — without that headroom there is no valid resistor value. Five of this page's default 2 V LEDs in series need 10 V total, which exceeds the 9 V default supply, so the calculator reports the shortfall rather than returning a negative or zero resistance.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace checking your LED's real
+      datasheet or measuring the built circuit. <strong>You are responsible
+      for reviewing and verifying its output before relying on it</strong>,
+      including for anything safety-critical. To the maximum extent
+      permitted by law, the authors accept no liability for any loss or
+      damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and
+      we don't have accounts, tracking cookies, or an analytics vendor. This
+      page counts anonymous, local feature-use events (e.g. "a calculation
+      was run") in your own browser's <code>localStorage</code>, only to
+      help this project's maintainers tell whether the tool is used at
+      all — nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT
+      licensed — see <a href="LICENSE">LICENSE</a>. See also the
+      <a href="../resistor-calculator/">resistor color code &amp; Ohm's law
+      calculator</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>
+      is optional and never changes what this tool does.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { calculateLedResistor } from "./calc.mjs";
+  import { recordEvent, recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const preset = document.getElementById("preset");
+  const supply = document.getElementById("supply");
+  const vf = document.getElementById("vf");
+  const if_ = document.getElementById("if");
+  const n = document.getElementById("n");
+  const result = document.getElementById("result");
+
+  preset.addEventListener("change", () => {
+    if (preset.value !== "") {
+      vf.value = preset.value;
+      recordEvent("preset_selected");
+      update(true);
+    }
+  });
+
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function update(userAction) {
+    const inputs = {
+      supplyVoltage: Number(supply.value),
+      ledForwardVoltage: Number(vf.value),
+      ledForwardCurrentMa: Number(if_.value),
+      numLeds: Number(n.value),
+    };
+    try {
+      const r = calculateLedResistor(inputs);
+      const ratingText = (w) => (w === null ? "exceeds common through-hole ratings — use a power resistor" : `${w} W`);
+      result.innerHTML = `
+        <dl>
+          <dt>Exact resistor value needed</dt>
+          <dd><strong>${r.formattedRequired}</strong> (${r.requiredOhms.toLocaleString()} Ω), dissipating ${r.powerWatts.toFixed(3)} W</dd>
+          <dt>Nearest standard (E24) resistor</dt>
+          <dd><strong>${r.formattedNearestStandard}</strong> → runs the LED at ${r.currentAtNearestMa.toFixed(1)} mA, dissipating ${r.powerAtNearestWatts.toFixed(3)} W</dd>
+          <dt>Recommended power rating (2× safety margin)</dt>
+          <dd>${ratingText(r.recommendedPowerRatingAtNearestWatts)}</dd>
+        </dl>
+      `;
+      result.classList.remove("error");
+      if (userAction) recordEventSettled("led_resistor_calculated");
+    } catch (err) {
+      result.textContent = err.message;
+      result.classList.add("error");
+    }
+  }
+
+  for (const el of [supply, vf, if_, n]) el.addEventListener("input", () => update(true));
+  update();
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../../world-clock-widget/" data-pf-to="world-clock-widget">What time is it there — and are they awake?</a></li>
+      <li><a href="../../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../../deploy/?app=ai-engineering-academy">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../../pf-site.js" data-pf-slug="ai-engineering-academy"></script>
+<script type="module" src="../../pf-jobs.js" data-pf-jobs-slug="ai-engineering-academy" data-pf-jobs-amount=""></script>
+<script type="module" src="../../pf-link.js" data-pf-link-slug="ai-engineering-academy" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0 " failures="0" skipped="1" tests="9" time="71.400" timestamp="2026-10-03T09:00:00" hostname="ci">
+<testcase classname="tests.test_checkout" name="test_total_with_tax" time="2.100"/>
+<testcase classname="tests.test_checkout.TestCart" name="test_add_item" time="0.400"/>
+<testcase classname="tests.test_checkout.TestCart" name="test_remove_item[1-2]" time="0.300"><failure message="boom &amp; bust">trace &lt;testcase name="x" time="999"&gt;</failure><system-out><![CDATA[<testcase classname="fake" name="fake" time="500"/>]]></system-out></testcase>
+<testcase classname="tests.test_api" name="test_import_big_csv" time="38.000"/>
+<testcase classname="tests.test_api" name="test_health" time="0.200"/>
+<testcase classname="tests.test_models.TestUser" name="test_create" time="12.500"/>
+<testcase classname="tests.test_models.TestUser" name="test_delete" time="9.900"/>
+<testcase classname="tests.test_utils" name="test_slugify" time="0.100"><skipped message="later"/></testcase>
+<testcase classname="tests.test_utils" name="test_parse" time="7.900"/>
+</testsuite></testsuites>

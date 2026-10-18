@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This tool vs. checking each crawler's docs page by hand | AI Crawler Access Check</title>
+  <meta name="description" content="Names no specific company or product -- this compares against the manual habit of opening each AI-crawler operator's own docs page (OpenAI, Anthropic, Google…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/vs-checking-each-crawlers-docs-by-hand.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This tool vs. checking each crawler's docs page by hand | AI Crawler Access Check">
+  <meta property="og:description" content="Opening twelve operators' docs pages and cross-referencing each token against your robots.txt by eye misses the longest-match-wins tie-break and the…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does opening each crawler operator's docs page actually catch?","acceptedAnswer":{"@type":"Answer","text":"It catches whatever tokens you already knew to look for and remembered to check. GPTBot is well known; Diffbot, Amazonbot, Meta-ExternalAgent, CCBot and Applebot-Extended (a separate token from the regular Applebot that has crawled the web for search since long before AI training was a question) are each documented on a different operator's own site, in a different format, and a manual pass that skips one of the twelve operators silently skips every token that operator publishes."}},{"@type":"Question","name":"Why is reading robots.txt by eye risky even once you have the full token list?","acceptedAnswer":{"@type":"Answer","text":"Because the actual effect of a robots.txt file is not \"the first matching rule wins\", which is how most people read a list of rules top to bottom. Google documents, and most major crawlers follow, a longest-matching-path-wins algorithm where ties go to Allow -- so a broad wildcard Disallow block followed later by a narrower Allow for one token does not mean the wildcard rule applies to that token first. Reproducing that algorithm correctly by eye, across every group in a file, is exactly the kind of mechanical step a person skims past."}},{"@type":"Question","name":"Does blocking one bot from an operator block that operator's other bots too?","acceptedAnswer":{"@type":"Answer","text":"No, and this is a common manual mistake. OpenAI alone publishes three separate tokens with three different purposes -- GPTBot for model training, ChatGPT-User for fetching a page because a ChatGPT user's session asked it to, and OAI-SearchBot for building ChatGPT's search results -- and Anthropic and Perplexity each split the same way. Blocking GPTBot to opt out of training does nothing to ChatGPT-User or OAI-SearchBot; a robots.txt written by someone who only checked one of an operator's docs pages routinely blocks or allows the wrong one of the three."}},{"@type":"Question","name":"Can I paste a note in a PR description saying I checked the docs pages by hand?","acceptedAnswer":{"@type":"Answer","text":"Only as a note that someone looked and did not personally notice a problem -- it names no specific token, no specific line of the file, and no verdict, so there is nothing to attach to an audit trail besides recollection. A structured report naming all 20 tokens and their current allowed/blocked/partial status is stronger evidence than \"I checked the docs and it looked right.\""}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    h3 { margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { color: #55606f; text-transform: uppercase; font-size: .75rem; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; background: rgba(23,50,74,0.08); padding: 0.1rem 0.3rem; border-radius: 4px; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 12px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/vs-checking-each-crawlers-docs-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. checking each crawler's docs page by hand | AI Crawler Access Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ai-crawler-access-check/">Which AI crawlers can actually read your site?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. checking each crawler's docs page by hand | AI Crawler Access Check</span></span></nav>
+  <a class="back" href="./">&larr; Back to AI Crawler Access Check</a>
+  <h1>This tool vs. checking each crawler's docs page by hand</h1>
+
+  <p>
+    Names no specific company or product -- this compares against the manual habit
+    most site owners already have: open each AI-crawler operator's own docs page
+    one at a time (OpenAI's, Anthropic's, Google's, Apple's, Perplexity's, and five
+    more), note the user-agent token it names, and cross-reference that token
+    against your own <code>robots.txt</code> by eye.
+  </p>
+
+  <h2>What checking the docs pages by hand actually does</h2>
+  <p>
+    Reading each operator's own documentation is free and needs no tool, and it is
+    the authoritative source -- this tool's own token list is sourced from exactly
+    those pages. That method has failure modes specific to this domain that this
+    tool exists to close. First, there are twelve separate operators publishing
+    twenty tokens between them, in twelve different documentation formats, and a
+    manual pass that skips one operator silently skips every token that operator
+    controls -- Diffbot, Amazonbot, Meta-ExternalAgent, CCBot and the
+    training-specific Applebot-Extended are each easy to miss next to the
+    well-known GPTBot. Second, the actual effect of a <code>robots.txt</code> file
+    is not "the first matching rule wins", which is how a list of rules reads to
+    most people skimming top to bottom -- it is a longest-matching-path-wins
+    algorithm, ties going to Allow, the same one Google documents for its own
+    crawlers. Reproducing that correctly by eye, across every group in a file, is
+    exactly the kind of mechanical step a person skims past. Third, several
+    operators split one company's crawling into two or three tokens with
+    different purposes -- training, user-initiated browsing, and search-index
+    retrieval -- and blocking the training token does nothing to the other two, a
+    routine manual mistake when only one of an operator's docs pages gets read.
+    Fourth, a by-hand check leaves nothing behind afterward: no file, no per-token
+    verdict, no audit trail, only a recollection that someone looked.
+  </p>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Confirm exactly what one operator states its crawler does, in its own words, as the authoritative source.</td>
+        <td>That operator's own docs page -- this tool's token list is sourced from exactly those pages and is not a substitute for reading them directly.</td>
+      </tr>
+      <tr>
+        <td>Check your existing <code>robots.txt</code> against all 20 named tokens across all twelve operators at once, without opening twelve separate docs pages.</td>
+        <td>This tool -- paste your file and get every token's current status in one pass.</td>
+      </tr>
+      <tr>
+        <td>Apply the longest-match-wins, ties-to-Allow algorithm correctly, instead of reading rules top to bottom as if the first match wins.</td>
+        <td>This tool -- it implements the documented algorithm mechanically, the same way for every group in the file.</td>
+      </tr>
+      <tr>
+        <td>See whether blocking one of an operator's tokens (say, GPTBot) leaves that operator's other tokens (ChatGPT-User, OAI-SearchBot) allowed.</td>
+        <td>This tool -- each token is reported separately, with its purpose, so a training block and a user-browsing allow do not get conflated.</td>
+      </tr>
+      <tr>
+        <td>Add a CI gate that fails a build the moment a specific crawler becomes allowed again after someone edits the file.</td>
+        <td>This tool's CLI -- <code>node cli.mjs example.com --fail-if-allowed GPTBot</code>, no account needed.</td>
+      </tr>
+      <tr>
+        <td>Keep a record you can paste into a PR description or an audit trail: every token, and its current allowed/blocked/partial status.</td>
+        <td>This tool -- <code>--json</code> gives a machine-readable version of the same report.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p>
+    Checking the docs by hand is not wrong so much as unverifiable and easy to
+    apply inconsistently: someone who reads all twelve operators' pages, remembers
+    every token, and correctly reproduces the longest-match algorithm by eye
+    would eventually reach the same answer this tool gives. What that method
+    structurally cannot do is guarantee the same twelve pages get re-checked every
+    time the file changes, or leave behind anything but a memory that someone
+    looked -- which is what this tool's fixed token list and deterministic
+    report exist to replace, for free.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>What does opening each crawler operator's docs page actually catch?</h3>
+  <p>It catches whatever tokens you already knew to look for and remembered to check. GPTBot is well known; Diffbot, Amazonbot, Meta-ExternalAgent, CCBot and Applebot-Extended (a separate token from the regular Applebot that has crawled the web for search since long before AI training was a question) are each documented on a different operator's own site, in a different format, and a manual pass that skips one of the twelve operators silently skips every token that operator publishes.</p>
+  <h3>Why is reading robots.txt by eye risky even once you have the full token list?</h3>
+  <p>Because the actual effect of a robots.txt file is not "the first matching rule wins", which is how most people read a list of rules top to bottom. Google documents, and most major crawlers follow, a longest-matching-path-wins algorithm where ties go to Allow -- so a broad wildcard Disallow block followed later by a narrower Allow for one token does not mean the wildcard rule applies to that token first. Reproducing that algorithm correctly by eye, across every group in a file, is exactly the kind of mechanical step a person skims past.</p>
+  <h3>Does blocking one bot from an operator block that operator's other bots too?</h3>
+  <p>No, and this is a common manual mistake. OpenAI alone publishes three separate tokens with three different purposes -- GPTBot for model training, ChatGPT-User for fetching a page because a ChatGPT user's session asked it to, and OAI-SearchBot for building ChatGPT's search results -- and Anthropic and Perplexity each split the same way. Blocking GPTBot to opt out of training does nothing to ChatGPT-User or OAI-SearchBot; a robots.txt written by someone who only checked one of an operator's docs pages routinely blocks or allows the wrong one of the three.</p>
+  <h3>Can I paste a note in a PR description saying I checked the docs pages by hand?</h3>
+  <p>Only as a note that someone looked and did not personally notice a problem -- it names no specific token, no specific line of the file, and no verdict, so there is nothing to attach to an audit trail besides recollection. A structured report naming all 20 tokens and their current allowed/blocked/partial status is stronger evidence than "I checked the docs and it looked right."</p>
+
+  <p><a href="./">&larr; Back to AI Crawler Access Check</a> &middot; <a href="how-to-block-or-allow-ai-crawlers.html">exact robots.txt lines for each crawler</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports what a robots.txt or llms.txt file says -- it is not a guarantee that any crawler will honor those directives, and it does not replace reading the crawler operator's own current documentation. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p><a href="./">&larr; Back to the tool</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support on GitHub Sponsors</a> (optional) &middot; <a href="LICENSE" rel="noopener">MIT licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../cloudwatch-logs-cost-advisor/" data-pf-to="cloudwatch-logs-cost-advisor">Why is your CloudWatch Logs bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ai-crawler-access-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ai-crawler-access-check"></script>
+</body>
+</html>

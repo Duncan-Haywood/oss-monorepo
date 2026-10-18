@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is GitHub Actions artifact poisoning?</title>
+  <meta name="description" content="A workflow_run job can download an artifact a fork-triggered workflow uploaded and treat its contents as trusted.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html">
+  <meta property="og:title" content="What is GitHub Actions artifact poisoning?">
+  <meta property="og:description" content="workflow_run runs with your secrets even though the run it reacts to was raised by a fork. If it downloads and executes an artifact from that run…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is GitHub Actions artifact poisoning?","acceptedAnswer":{"@type":"Answer","text":"workflow_run is a trigger that fires when a separate workflow run completes — commonly used so a privileged workflow can react to an unprivileged pull_request build without inheriting the fork's ability to change what that workflow does by editing the workflow file itself. The workflow_run job runs in the context of the base repository, with the base repository's GITHUB_TOKEN and secrets — but the run it reacts to was still triggered by whoever opened the pull request, who might be a stranger."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is GitHub Actions artifact poisoning? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-artifact-poisoning-check/">Can a fork PR's artifact get executed by your privileged workflow?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is GitHub Actions artifact poisoning?</span></span></nav>
+  <p><a href="./">← Actions Artifact Poisoning Check</a></p>
+  <h1>What is GitHub Actions artifact poisoning?</h1>
+  <p><code>workflow_run</code> is a trigger that fires when a separate workflow run completes — commonly used so a privileged workflow can react to an unprivileged <code>pull_request</code> build without inheriting the fork's ability to change what that workflow does by editing the workflow file itself. The <code>workflow_run</code> job runs in the context of the <em>base</em> repository, with the base repository's <code>GITHUB_TOKEN</code> and secrets — but the run it reacts to was still triggered by whoever opened the pull request, who might be a stranger.</p>
+  <p>That is a deliberate, documented design, and it is safe on its own. The risk is what the privileged job does with the artifact the unprivileged run produced:</p>
+  <pre><code>on:
+  workflow_run:
+    workflows: [build-pr]
+    types: [completed]
+jobs:
+  publish-results:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          chmod +x ./test-results/publish.sh
+          ./test-results/publish.sh</code></pre>
+  <p>The artifact was uploaded by the fork-triggered <code>build-pr</code> workflow, so its <em>contents</em> — not just the event payload GitHub itself controls — are whatever the fork put there. Downloading it is not the risk; running it is. GitHub's own Actions Security Lab, and independent research from Wiz, Legit Security and Orca Security, document this pattern as "artifact poisoning": a fork can put a script in the artifact it uploads and rely on the privileged handler to execute it unchecked.</p>
+  <h2>A second, quieter version</h2>
+  <p>A <code>download-artifact</code> step with no <code>name:</code> input pulls in <em>every</em> artifact the triggering run uploaded, not one specific, expected one. Even if nothing in the same job executes anything directly, that widens what untrusted content is sitting on disk for a later step, or an action called by <code>uses:</code>, to pick up.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li>Never execute, source, or <code>eval</code> anything read from a downloaded artifact. Treat it as data: read specific, expected fields and validate their shape before use.</li>
+    <li>If the privileged job genuinely needs the fork's build output, keep the build itself unprivileged (plain <code>pull_request</code>, no secrets) and have the privileged job read only reviewed, structured results — not executable content.</li>
+    <li>Pin <code>name:</code> on every <code>download-artifact</code> step so it fetches exactly the artifact you expect, not everything the triggering run happened to upload.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Artifact Poisoning Check</a> to find every <code>workflow_run</code> job that downloads and later executes an artifact, and every unscoped download, across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-artifact-poisoning-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-artifact-poisoning-check"></script>
+</body>
+</html>

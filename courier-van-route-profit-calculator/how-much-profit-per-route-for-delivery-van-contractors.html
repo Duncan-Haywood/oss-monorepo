@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much profit per route do delivery van contractors make: a worked example</title>
+  <meta name="description" content="How to work out true profit per route for a delivery van you own or lease: fuel, van payment, insurance, maintenance, depreciation…">
+  <meta property="og:title" content="How much profit per route do delivery van contractors make: a worked example">
+  <meta property="og:description" content="How to work out true profit per route for a delivery van you own or lease, with a worked example and the route pay that hits an $18 an hour target.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/courier-van-route-profit-calculator/how-much-profit-per-route-for-delivery-van-contractors.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out whether a delivery route is worth driving?","acceptedAnswer":{"@type":"Answer","text":"Subtract every cost of running the van on that route from the route pay: fuel for the miles, maintenance and depreciation per mile, tolls and parking, a reserve for tickets and damage claims, and the van payment and insurance spread over the routes you actually drive. What is left is true profit. Divide by the hours on the road and then take out your tax set-aside to get a real hourly take-home."}},{"@type":"Question","name":"How do I include the van payment and insurance in each route?","acceptedAnswer":{"@type":"Answer","text":"Add the monthly van payment or lease and monthly insurance, multiply by 12, and divide by routes per week times weeks per year. A van that works 5 routes a week for 48 weeks carries each route's share of the full year of payments, including the weeks you do not drive."}},{"@type":"Question","name":"How many stops do I need to break even on a route?","acceptedAnswer":{"@type":"Answer","text":"Break-even stops are the stops at which route pay equals route costs: the costs left after any flat route pay, divided by what each stop pays including its share of per-package pay. Miles are held fixed, so treat it as a guide for a route of this length."}},{"@type":"Question","name":"Should I take the route that pays more per hour or more per year?","acceptedAnswer":{"@type":"Answer","text":"Look at both. A shorter route can pay more per hour worked yet put less in your pocket across the year if it fills fewer hours. The compare mode shows take-home per hour and per year for both offers side by side."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/courier-van-route-profit-calculator/how-much-profit-per-route-for-delivery-van-contractors.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/courier-van-route-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much profit per route do delivery van contractors make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../courier-van-route-profit-calculator/">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much profit per route do delivery van contractors make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← Courier Van Route Profit Calculator</a></p>
+    <h1>How much profit per route do delivery van contractors make?</h1>
+    <p>A route that pays $286 for a ten-hour day sounds like $28.60 an hour. After the van, the fuel and the tax you set aside, it is closer to half that.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A contractor is paid $90 flat plus $1.10 a stop and $0.40 a package. The route has 120 stops and 160 packages, takes 10 hours and covers 95 miles, so it pays <strong>$286.00</strong>. Fuel is $3.70 a gallon at 15 mpg, which is <strong>$23.43</strong>. Maintenance is $0.10 a mile and depreciation $0.12 a mile. Tolls and parking are $6 and a reserve for tickets and damage claims is $8.</p>
+    <p>The van payment of $650 and insurance of $300 a month are $11,400 a year. Spread over 5 routes a week for 48 weeks, that is <strong>$47.50</strong> on every route you drive, including weeks off.</p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Per route</th></tr></thead><tbody>
+<tr><td>Total costs</td><td><strong>$105.83</strong></td></tr>
+<tr><td>Cost per mile</td><td>$1.11</td></tr>
+<tr><td>True profit before tax</td><td><strong>$180.17</strong></td></tr>
+<tr><td>Profit per hour before tax</td><td>$18</td></tr>
+<tr><td>Profit per stop</td><td>$1.50</td></tr>
+<tr><td>Take-home after a 25% set-aside</td><td>$135.13</td></tr>
+<tr><td>Take-home per hour</td><td><strong>$13.51</strong></td></tr>
+    </tbody></table></div>
+    <p>That is $676 a week and <strong>$32,430</strong> a year. The route needs about <strong>9.7</strong> stops just to cover its costs.</p>
+  </section>
+  <section class="card">
+    <h2>What the route has to pay</h2>
+    <p>To take home $18 an hour after the set-aside, the route has to pay costs plus $18 × 10 hours ÷ 0.75, which is <strong>$345.83</strong>. At $286.00 this route is short, however busy it feels.</p>
+    <h2 style="margin-top:20px">Comparing two offers</h2>
+    <p>A second offer pays a flat $260 for 90 stops in 9 hours and 70 miles. It takes home <strong>$14.15</strong> an hour against <strong>$13.51</strong> for the first, but across the year the first puts <strong>$32,430</strong> in your pocket and the second <strong>$30,570</strong>, because there are fewer hours in it. The better hourly rate is not always the better year.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I work out whether a delivery route is worth driving?</h3>
+    <p>Subtract every cost of running the van on that route from the route pay: fuel for the miles, maintenance and depreciation per mile, tolls and parking, a reserve for tickets and damage claims, and the van payment and insurance spread over the routes you actually drive. What is left is true profit. Divide by the hours on the road and then take out your tax set-aside to get a real hourly take-home.</p>
+    <h3>How do I include the van payment and insurance in each route?</h3>
+    <p>Add the monthly van payment or lease and monthly insurance, multiply by 12, and divide by routes per week times weeks per year. A van that works 5 routes a week for 48 weeks carries each route's share of the full year of payments, including the weeks you do not drive.</p>
+    <h3>How many stops do I need to break even on a route?</h3>
+    <p>Break-even stops are the stops at which route pay equals route costs: the costs left after any flat route pay, divided by what each stop pays including its share of per-package pay. Miles are held fixed, so treat it as a guide for a route of this length.</p>
+    <h3>Should I take the route that pays more per hour or more per year?</h3>
+    <p>Look at both. A shorter route can pay more per hour worked yet put less in your pocket across the year if it fills fewer hours. The compare mode shows take-home per hour and per year for both offers side by side.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal or financial advice. Not affiliated with any delivery platform. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../escape-room-pricing-capacity-planner/" data-pf-to="escape-room-pricing-capacity-planner">What should my escape room charge, and how full must it be? Free planner</a></li>
+      <li><a href="../estate-sale-net-proceeds-calculator/" data-pf-to="estate-sale-net-proceeds-calculator">Estate Sale Net Proceeds Calculator</a></li>
+      <li><a href="../ev-charging-site-roi-calculator/" data-pf-to="ev-charging-site-roi-calculator">EV charging station ROI calculator</a></li>
+      <li><a href="../event-rental-inventory-payback-calculator/" data-pf-to="event-rental-inventory-payback-calculator">Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=courier-van-route-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="courier-van-route-profit-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tutor Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
+  <meta name="description" content="Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay…">
+  <meta property="og:title" content="Tutor Package Pricing Calculator — package vs. pay-per-session, free">
+  <meta property="og:description" content="A prepaid package protects revenue from no-shows. It does not automatically protect your hourly pay if missed sessions are made up rather than forfeited.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tutor Package Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares a discounted prepaid session package to pay-per-session pricing for an independent tutor, coach, or 1:1 instructor, on both revenue and effective hourly pay. A package guarantees revenue against no-shows, but when a missed session earns a free makeup rather than being forfeited, the tutor still works every hour eventually -- so the discount that sold the package is paid on every hour delivered, which can leave the package's effective hourly rate lower than simply charging full price per session. Copies the comparison as a plain-text record. Entirely client-side; nothing is uploaded.","featureList":"Side-by-side revenue and effective-hourly comparison, no-show rate and makeup-obligation modeling, minimum package price to hit a target hourly rate, copy a plain-text comparison, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a prepaid session package actually protect my income?","acceptedAnswer":{"@type":"Answer","text":"It protects your revenue: the student has already paid, so a no-show does not cost you that session's fee. It does not automatically protect your hourly pay. If your package promises a makeup for a missed session, you still work that hour eventually — the discount you gave to sell the package is paid on every hour once all of them are delivered, not just the hours actually attended the first time."}},{"@type":"Question","name":"When does a package pay worse per hour than charging per session?","acceptedAnswer":{"@type":"Answer","text":"Whenever the package's per-session discount is deeper than your no-show rate and a missed session earns a free makeup. Under pay-per-session, a no-show simply frees that slot — you are not paid for it, but you also do not work it. Under a package with makeup owed, that slot is rescheduled rather than freed, so you work the same total hours as if nobody had missed a session, at the discounted rate."}},{"@type":"Question","name":"So should I stop offering makeups?","acceptedAnswer":{"@type":"Answer","text":"This calculator does not tell you what policy to run — that depends on what keeps students booking with you. It tells you the arithmetic consequence of each policy so the tradeoff (guaranteed revenue vs. protected hourly pay) is a choice you make on purpose, not a side effect of a discount you picked to sound attractive."}},{"@type":"Question","name":"What no-show rate should I use if I don't track one?","acceptedAnswer":{"@type":"Answer","text":"Use your best honest estimate from recent memory, or run the comparison at a couple of different rates (for example 5% and 20%) to see how sensitive the result is. The point is the relationship between your discount and your no-show rate, not a precise historical figure."}},{"@type":"Question","name":"Is this scheduling software or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies the numbers you enter to one representative block of sessions — it does not track which student owes a makeup, does not schedule anything, and is not tax, legal, or financial advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #5b3a8e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5b3a8e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #e0d6ec; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5b3a8e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c5b8dc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c5b8dc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3a8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8f7; color: #5b3a8e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .negative { color: #9a3412; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d6ec; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tutor Package Pricing Calculator — package vs. pay-per-session, free","item":"https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tutor Package Pricing Calculator — package vs. pay-per-session, free — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tutor Package Pricing Calculator — package vs. pay-per-session, free</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">TUTOR PACKAGE PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Your package protects revenue. Does it protect your hourly pay?</h1>
+    <p>A discounted prepaid session package guarantees you get paid even if a
+    student no-shows. If a missed session also earns a free <strong>makeup</strong>
+    rather than being forfeited, you still work that hour eventually — so the
+    discount you gave to sell the package applies to every hour once they are
+    all delivered, not just the ones attended the first time. This calculator
+    compares your package to plain pay-per-session pricing on both revenue and
+    effective hourly pay, so you know which one you are actually choosing.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Compare package vs. pay-per-session</h2>
+    <div class="grid">
+      <div>
+        <label for="single-price">Single-session price ($)</label>
+        <input type="number" id="single-price" min="0" step="0.01" placeholder="e.g. 60" inputmode="decimal">
+      </div>
+      <div>
+        <label for="package-sessions">Sessions per package</label>
+        <input type="number" id="package-sessions" min="1" step="1" placeholder="e.g. 10" inputmode="numeric">
+      </div>
+      <div>
+        <label for="package-price">Package price ($, total)</label>
+        <input type="number" id="package-price" min="0" step="0.01" placeholder="e.g. 450" inputmode="decimal">
+      </div>
+      <div>
+        <label for="no-show-rate">No-show rate (%)</label>
+        <input type="number" id="no-show-rate" min="0" max="100" step="1" value="10" inputmode="numeric">
+      </div>
+      <div>
+        <label for="session-minutes">Session length (minutes)</label>
+        <input type="number" id="session-minutes" min="5" step="5" value="60" inputmode="numeric">
+      </div>
+      <div>
+        <label for="prep-minutes">Prep time per session (minutes)</label>
+        <input type="number" id="prep-minutes" min="0" step="5" value="0" inputmode="numeric">
+      </div>
+      <div>
+        <label for="travel-minutes">Travel time per session (minutes)</label>
+        <input type="number" id="travel-minutes" min="0" step="5" value="0" inputmode="numeric">
+      </div>
+      <div>
+        <label for="target-hourly">Target hourly pay ($/hr)</label>
+        <input type="number" id="target-hourly" min="0" step="1" value="40" inputmode="numeric">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="makeup-owed" checked>
+      <label for="makeup-owed">A missed package session earns a free makeup (not forfeited)</label>
+    </div>
+    <p>
+      <button type="button" id="calculate">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter a single-session price, a package size and price, then click Compare.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Comparison</h2>
+    <p class="stats" id="headline"></p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Pricing model</th><th>Revenue</th><th>Hours worked</th><th>Effective pay</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table></div>
+    <div id="findings"></div>
+    <button type="button" id="copy-summary">Copy comparison</button>
+    <p class="note" id="copy-status">Copies both models' revenue, hours, and effective hourly pay, the deltas, and the disclaimer as plain text.</p>
+    <div id="copy-fallback" hidden>
+      <label class="note" for="copy-text">Select and copy the comparison:</label>
+      <textarea id="copy-text" rows="10" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies the numbers you enter to one representative block of
+    sessions — it does not track which specific student owes a makeup, does
+    not schedule anything, and does not predict any one student's actual
+    attendance. Treat the result as the arithmetic behind a pricing decision,
+    not a record of any real student's account.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does a prepaid session package actually protect my income?</h3>
+    <p>It protects your revenue: the student has already paid, so a no-show does not cost you that session's fee. It does not automatically protect your hourly pay. If your package promises a makeup for a missed session, you still work that hour eventually — the discount you gave to sell the package is paid on every hour once all of them are delivered, not just the hours actually attended the first time.</p>
+    <h3>When does a package pay worse per hour than charging per session?</h3>
+    <p>Whenever the package's per-session discount is deeper than your no-show rate and a missed session earns a free makeup. Under pay-per-session, a no-show simply frees that slot — you are not paid for it, but you also do not work it. Under a package with makeup owed, that slot is rescheduled rather than freed, so you work the same total hours as if nobody had missed a session, at the discounted rate.</p>
+    <h3>So should I stop offering makeups?</h3>
+    <p>This calculator does not tell you what policy to run — that depends on what keeps students booking with you. It tells you the arithmetic consequence of each policy so the tradeoff (guaranteed revenue vs. protected hourly pay) is a choice you make on purpose, not a side effect of a discount you picked to sound attractive.</p>
+    <h3>What no-show rate should I use if I don't track one?</h3>
+    <p>Use your best honest estimate from recent memory, or run the comparison at a couple of different rates (for example 5% and 20%) to see how sensitive the result is. The point is the relationship between your discount and your no-show rate, not a precise historical figure.</p>
+    <h3>Is this scheduling software or tax advice?</h3>
+    <p>No. It applies the numbers you enter to one representative block of sessions — it does not track which student owes a makeup, does not schedule anything, and is not tax, legal, or financial advice.</p>
+    <h3>I already compare these in a spreadsheet — why use this instead?</h3>
+    <p>A spreadsheet catches the revenue comparison fine. It usually misses the hours a makeup guarantee still owes on a missed session, which is where a discounted package can quietly pay worse per hour worked. See <a href="./vs-a-spreadsheet.html">this calculator vs. a spreadsheet</a> for a worked example.</p>
+    <h3>I keep my discount at or below my no-show rate — isn't that safe?</h3>
+    <p>It protects your revenue. It does not protect your hourly pay if you owe a makeup on a missed session — see <a href="./how-much-can-you-discount-a-tutoring-package.html">how much you can discount a package before it costs you money</a> for the worked example where a discount matched exactly to the no-show rate still costs $6.00 an hour.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for the terms of your own package policy. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>summary_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the comparison puts it on your clipboard and nowhere else — the text is built in this browser and is never sent anywhere. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing music lessons instead of tutoring or coaching sessions? The <a href="../music-lesson-break-even/">music lesson break-even calculator</a> finds the minimum per-lesson price that clears your target pay after cancellations, prep, and travel — the single-session-price question this calculator's inputs assume you already answered.</p>
+    <p>Pricing personal training sessions instead of tutoring, and paying a gym or studio for space? The <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing calculator</a> runs the same package-vs-pay-per-session comparison net of a gym's percentage cut or flat facility fee — a venue-cost split most tutors don't have to account for.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { comparePricing, formatComparisonSummary } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const format = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const value = Number(n) || 0;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      if (findings.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    const els = {
+      singlePrice: $("#single-price"), packageSessions: $("#package-sessions"), packagePrice: $("#package-price"),
+      noShowRate: $("#no-show-rate"), sessionMinutes: $("#session-minutes"), prepMinutes: $("#prep-minutes"),
+      travelMinutes: $("#travel-minutes"), targetHourly: $("#target-hourly"), makeupOwed: $("#makeup-owed"),
+      status: $("#status"), report: $("#report"), headline: $("#headline"), body: $("#report-body"), findings: $("#findings"),
+      copyStatus: $("#copy-status"), fallback: $("#copy-fallback"), textarea: $("#copy-text"),
+    };
+
+    // Held from the last calculate so the copy button can never hand out a
+    // comparison that disagrees with the table above it -- the same
+    // reasoning CLAUDE.md records against share.mjs's own field allowlist.
+    let lastResult = null;
+
+    const COPY_HINT = "Copies both models' revenue, hours, and effective hourly pay, the deltas, and the disclaimer as plain text.";
+
+    function readInputs() {
+      return {
+        singleSessionPrice: Number(els.singlePrice.value),
+        packageSessions: Number(els.packageSessions.value),
+        packagePrice: Number(els.packagePrice.value),
+        noShowRate: Number(els.noShowRate.value) || 0,
+        makeupOwed: els.makeupOwed.checked,
+        sessionMinutes: Number(els.sessionMinutes.value) || 60,
+        prepMinutes: Number(els.prepMinutes.value) || 0,
+        travelMinutes: Number(els.travelMinutes.value) || 0,
+        targetHourlyRate: Number(els.targetHourly.value) || 0,
+      };
+    }
+
+    function runCalculate() {
+      let result;
+      try {
+        result = comparePricing(readInputs());
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${err.message}</span>`;
+        return;
+      }
+      const deltaClass = result.hourlyDelta < 0 ? "negative" : "";
+      els.headline.innerHTML = `Package discount vs. single-session price: <strong>${result.discountPercent}%</strong>. Effective hourly difference (package minus single-session): <strong class="${deltaClass}">${result.hourlyDelta >= 0 ? "+" : ""}${money(result.hourlyDelta)}/hr</strong>.`;
+      els.body.innerHTML = `
+        <tr><td>Pay-per-session</td><td>${money(result.single.revenue)}</td><td>${result.single.hours.toFixed(2)}</td><td class="price">${money(result.single.effectiveHourly)}/hr</td></tr>
+        <tr><td>Package</td><td>${money(result.package.revenue)}</td><td>${result.package.hours.toFixed(2)}</td><td class="price">${money(result.package.effectiveHourly)}/hr</td></tr>`;
+      renderFindings(els.findings, result.findings);
+      lastResult = result;
+      els.fallback.hidden = true;
+      els.copyStatus.textContent = COPY_HINT;
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("comparison_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.singlePrice.value || !els.packageSessions.value || !els.packagePrice.value) {
+        els.status.innerHTML = `<span class="error">Enter a single-session price, a package size, and a package price above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.singlePrice.value = "60";
+      els.packageSessions.value = "10";
+      els.packagePrice.value = "450";
+      els.noShowRate.value = "10";
+      els.makeupOwed.checked = true;
+      els.sessionMinutes.value = "60";
+      els.prepMinutes.value = "0";
+      els.travelMinutes.value = "0";
+      els.targetHourly.value = "40";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $60/session vs. a 10-session, $450 package, 10% no-show rate, makeup owed.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.singlePrice.value = "";
+      els.packageSessions.value = "";
+      els.packagePrice.value = "";
+      els.noShowRate.value = "10";
+      els.makeupOwed.checked = true;
+      els.sessionMinutes.value = "60";
+      els.prepMinutes.value = "0";
+      els.travelMinutes.value = "0";
+      els.targetHourly.value = "40";
+      els.report.hidden = true;
+      // Drop the held result with the inputs that produced it, so a copy
+      // after a clear cannot hand out the cleared row's figures.
+      lastResult = null;
+      els.fallback.hidden = true;
+      els.textarea.value = "";
+      els.copyStatus.textContent = COPY_HINT;
+      els.status.textContent = "Enter a single-session price, a package size and price, then click Compare.";
+    });
+
+    $("#copy-summary").addEventListener("click", async () => {
+      if (!lastResult) {
+        els.copyStatus.innerHTML = `<span class="error">Compare first, then copy the comparison.</span>`;
+        return;
+      }
+      const text = formatComparisonSummary(lastResult);
+      els.textarea.value = text;
+      try {
+        // Absent over plain http, in some embedded webviews, and whenever the
+        // permission is refused -- so the textarea below is the route that
+        // always works, not a nicety.
+        await navigator.clipboard.writeText(text);
+        els.fallback.hidden = true;
+        els.copyStatus.textContent = "Comparison copied. Paste it into a note to yourself — read it once before relying on it.";
+      } catch {
+        els.fallback.hidden = false;
+        els.copyStatus.textContent = "This browser blocked the clipboard. The comparison is in the box below — select it and copy.";
+        els.textarea.focus();
+        els.textarea.select();
+      }
+      record("summary_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../voiceover-project-rate-calculator/" data-pf-to="voiceover-project-rate-calculator">Voice-Over Project Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tutor-package-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/?pfEmbed=1&quot; title=&quot;Tutor Package Pricing Calculator — package vs. pay-per-session, free — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tutor-package-pricing-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/" data-pf-embed-title="Tutor Package Pricing Calculator — package vs. pay-per-session, free" data-pf-embed-slug="tutor-package-pricing-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tutor-package-pricing-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

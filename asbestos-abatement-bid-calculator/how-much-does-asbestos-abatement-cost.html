@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much Does Asbestos Abatement Cost | Containment Class, Not Square Footage, Drives the Price</title>
+<meta name="description" content="How much does asbestos abatement cost is not a single $/sq ft number. Containment class (I/II/III) changes the labor hours per square foot by up to 6x.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="How much does asbestos abatement cost">
+<meta property="og:description" content="The same 400 square feet prices from about $5 to $12 a square foot depending on containment class alone. Here is why, with worked numbers.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/how-much-does-asbestos-abatement-cost.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does asbestos abatement cost?","acceptedAnswer":{"@type":"Answer","text":"It depends far more on OSHA/EPA containment class than on square footage alone. On this calculator's own verified defaults, a 400 square foot job prices around $1,998 as Class III (about $4.99/sq ft), around $2,710 as Class II (about $6.77/sq ft), and around $4,749 as Class I (about $11.87/sq ft) — the same area, a 2.4x spread, because Class I needs full containment, a negative-air machine, and a three-stage decon chamber that Class III does not."}},{"@type":"Question","name":"Why does the same square footage cost so differently?","acceptedAnswer":{"@type":"Answer","text":"Because labor hours per square foot are set by containment class, not area. Class I friable material needs full containment and crews working in full-face respirators doing wet removal — about 22 labor-hours for 400 square feet. Class III minor, incidental disturbance of non-friable material needs almost none of that — about 3.6 labor-hours for the same 400 square feet, roughly six times faster."}},{"@type":"Question","name":"Does a bigger job always cost proportionally more?","acceptedAnswer":{"@type":"Answer","text":"Not exactly, because containment setup is a fixed cost per work area, not per square foot. A 1,000 square foot Class I job split across 2 containment areas prices around $9,829 on this calculator's defaults — about $9.83/sq ft, close to but not identical to the 400 square foot Class I rate, because the second containment area and the added air monitoring and waste disposal do not scale exactly with area."}},{"@type":"Question","name":"Is a per-square-foot price ever accurate?","acceptedAnswer":{"@type":"Answer","text":"Only within one containment class and a similar area/monitoring load — the band the rate was actually built on. Quoted across containment classes, the same $/sq ft number overcharges the easy jobs and underprices the hard ones, because it cannot see which class a given job falls into."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Estimate the cost of an asbestos abatement job","step":[{"@type":"HowToStep","name":"Identify the containment class first","text":"Class I (friable), Class II (non-friable, releases fibers when removed), or Class III (minor, incidental) -- this decides the production rate and containment build, before square footage matters at all."},{"@type":"HowToStep","name":"Convert square footage to labor hours at that class's production rate","text":"Class I clears about 18 sq ft per worker-hour, Class II about 55, Class III about 110 -- the same area is a very different number of hours depending on which rate applies."},{"@type":"HowToStep","name":"Price containment setup per work area, not per job","text":"A job split across multiple containment areas needs a build and teardown for each one -- a negative-air machine and decon chamber for Class I, simpler poly draping for Class II, a glovebag for Class III."},{"@type":"HowToStep","name":"Add air monitoring, waste disposal, and permit fees by volume","text":"These scale with sample count and cubic yards, not with square footage, so two jobs the same size can still carry very different monitoring and disposal costs."}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1a1a1a;background:#f7f3ee}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12}.eyebrow{font-weight:700;letter-spacing:.04em;color:#8a4b12;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#1a1a1a}.lede{font-size:1.05rem;max-width:64ch;color:#5c4633}section{background:#fff;border:1px solid #e6d9c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a1a1a10;margin:1rem 0}h2{margin-top:0;color:#1a1a1a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #e6d9c8;padding:.55rem .5rem;text-align:left;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c4633}.fine{font-size:.88rem;color:#5c4633}footer{color:#5c4633;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/how-much-does-asbestos-abatement-cost.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does asbestos abatement cost — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../asbestos-abatement-bid-calculator/">Asbestos Abatement Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does asbestos abatement cost</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Asbestos Abatement Bid Calculator</a></p>
+<header>
+<h1>How much does asbestos abatement cost?</h1>
+<p class="lede">It depends far more on containment class than on square footage. The same 400 square feet prices anywhere from about $5 to $12 a square foot on this calculator's own verified defaults &mdash; a 2.4x spread from one input.</p>
+</header>
+<section>
+<h2>Containment class, not area, sets the price</h2>
+<p>
+Search for a cost-per-square-foot answer and every number you find is
+really an answer for one specific OSHA (29 CFR 1926.1101) / EPA NESHAP
+containment class, quietly generalized to the whole trade. Class I friable
+material (pipe or duct insulation, sprayed-on fireproofing, surfacing
+material) needs full containment, a negative-air machine, and a
+three-stage decon chamber, with crews working slowly in full-face
+respirators doing wet removal. Class III minor, incidental disturbance of
+non-friable material can be glovebagged in an afternoon with almost none
+of that. The two are not the same job at the same size, and pricing them
+off one $/sq ft figure gets one of them wrong every time.
+</p>
+</section>
+<section>
+<h2>The same 400 square feet, three different prices</h2>
+<p>
+Using this calculator's own verified defaults (400 sq ft, 1 containment
+area, a 3-person crew at $38/h, a $58/h supervisor, 6 air monitoring
+samples at $65 each, 3 cubic yards of waste disposal at $145/yd&sup3;, a
+$275 permit, and a 30% target margin), changing only the containment
+class:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Containment class</th><th scope="col">Labor hours (400 sq ft)</th><th scope="col">Price</th><th scope="col">Per square foot</th></tr>
+</thead>
+<tbody>
+<tr><td>Class III &mdash; minor, incidental</td><td>3.6</td><td>$1,997.84</td><td>$4.99</td></tr>
+<tr><td>Class II &mdash; non-friable</td><td>7.3</td><td>$2,709.96</td><td>$6.77</td></tr>
+<tr><td>Class I &mdash; friable</td><td>22.2</td><td>$4,748.68</td><td>$11.87</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Every other input is held identical across the three rows. The entire spread &mdash; 3.6 to 22.2 labor hours for the same 400 square feet &mdash; comes from containment class alone, which is exactly what a flat per-square-foot rate cannot see.</p>
+</section>
+<section>
+<h2>Bigger jobs don't scale by area alone either</h2>
+<p>
+A 1,000 square foot Class I job split across 2 containment areas, with 10
+air monitoring samples and 6 cubic yards of waste, prices around
+<strong>$9,828.84</strong> on this calculator &mdash; about $9.83 per
+square foot. That is close to, but not the same as, the $11.87/sq ft rate
+for the smaller 400 square foot Class I job above, because containment
+setup is a cost per work area and monitoring/disposal are costs per
+sample and per cubic yard &mdash; neither one scales in lockstep with
+square footage. A rate calibrated on one job size and area count will
+drift as either one changes.
+</p>
+</section>
+<section>
+<h2>What this is not</h2>
+<p>This is arithmetic on the rates and quantities you type. It is not an asbestos inspection, a bulk-sample identification, an air-quality analysis, a check against any federal, state, or local regulatory requirement, or a substitute for a licensed contractor's own certification, competent-person determination, or professional judgment about scope and liability on a given job. Replace every rate with your own invoices and your own site walkthrough before relying on either number.</p>
+<p class="fine"><strong>No warranty.</strong> This free page is not asbestos inspection, environmental, engineering, tax, or legal advice. You are responsible for reviewing and verifying its output before relying on it. It is hosted best-effort with no SLA: it may be slow, broken, moved, or taken offline without notice. Open the <a href="./">bid calculator</a> to price a specific job.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>How much does asbestos abatement cost?</h3>
+<p>It depends far more on OSHA/EPA containment class than on square footage alone. On this calculator's own verified defaults, a 400 square foot job prices around $1,998 as Class III (about $4.99/sq ft), around $2,710 as Class II (about $6.77/sq ft), and around $4,749 as Class I (about $11.87/sq ft) &mdash; the same area, a 2.4x spread, because Class I needs full containment, a negative-air machine, and a three-stage decon chamber that Class III does not.</p>
+<h3>Why does the same square footage cost so differently?</h3>
+<p>Because labor hours per square foot are set by containment class, not area. Class I friable material needs full containment and crews working in full-face respirators doing wet removal &mdash; about 22 labor-hours for 400 square feet. Class III minor, incidental disturbance of non-friable material needs almost none of that &mdash; about 3.6 labor-hours for the same 400 square feet, roughly six times faster.</p>
+<h3>Does a bigger job always cost proportionally more?</h3>
+<p>Not exactly, because containment setup is a fixed cost per work area, not per square foot. A 1,000 square foot Class I job split across 2 containment areas prices around $9,829 on this calculator's defaults &mdash; about $9.83/sq ft, close to but not identical to the 400 square foot Class I rate, because the second containment area and the added air monitoring and waste disposal do not scale exactly with area.</p>
+<h3>Is a per-square-foot price ever accurate?</h3>
+<p>Only within one containment class and a similar area/monitoring load &mdash; the band the rate was actually built on. Quoted across containment classes, the same $/sq ft number overcharges the easy jobs and underprices the hard ones, because it cannot see which class a given job falls into.</p>
+</section>
+<p><a href="./">Open the Asbestos Abatement Bid Calculator</a> to price your own job, or see <a href="vs-a-flat-rate-per-square-foot.html">this calculator vs. a flat rate per square foot</a> for a head-to-head against a shopped bid.</p>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not asbestos inspection, environmental, engineering, or legal advice, and it does not replace a qualified licensed contractor's own judgment. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any professional, contractual, or regulatory obligation your work is subject to. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>MIT licensed. If it helped you bid a job, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dryer-vent-bid-calculator/" data-pf-to="dryer-vent-bid-calculator">Dryer Vent Bid Calculator</a></li>
+      <li><a href="../duct-cleaning-bid-calculator/" data-pf-to="duct-cleaning-bid-calculator">Duct Cleaning Bid Calculator</a></li>
+      <li><a href="../gutter-cleaning-bid-calculator/" data-pf-to="gutter-cleaning-bid-calculator">Gutter Cleaning Bid Calculator</a></li>
+      <li><a href="../hoarding-cleanout-bid-calculator/" data-pf-to="hoarding-cleanout-bid-calculator">Hoarding Cleanout Bid Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=asbestos-abatement-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="asbestos-abatement-bid-calculator"></script>
+</body>
+</html>

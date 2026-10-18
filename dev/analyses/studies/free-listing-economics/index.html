@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What a free listing is worth, not just whether it gets found | Development analyses</title>
+<meta name="description" content="Computed 2026-08-19 from the committed demand-study data. Re-runnable offline: python3 analyzelistingeconomics.py --out results.json.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>What a free listing is worth, not just whether it gets found</h1>
+<p class="meta">Study · 2026-08-19 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/free-listing-economics/README.md">portfolio/research/free-listing-economics/README.md</a></p>
+<article class="doc">
+<p>Computed 2026-08-19 from the committed demand-study data. Re-runnable offline: <code>python3 analyze_listing_economics.py --out results.json</code>.</p>
+<h3>Why this was computed</h3>
+<p><code>portfolio/research/free-listing-demand/</code> measured how many downloads a cold listing gets in the three pipeline categories that have a free, agent-reachable channel. It closed by naming its own gap:</p>
+<blockquote><p><strong>No pricing signal.</strong> Nothing here says what any of these categories would pay. It measures whether a cold listing gets found, which is a strictly earlier question.</p></blockquote>
+<p>PR <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/218">#218</a> then measured a second thing that study left open — a cold publisher&#39;s odds of reaching a category&#39;s top decile (4.9%, against 16.2% for a publisher who already has a package in real use).</p>
+<p>Neither answers the question the portfolio&#39;s brief actually asks, which is about profit. Two of the account owner&#39;s open asks on issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> — <strong>Ask 2</strong> (a payout rail) and <strong>Ask 5</strong> (permission to publish a free listing under this portfolio&#39;s name) — are decisions about spending on this channel, and nobody has put a number on what the channel pays. This does, from data already committed.</p>
+<p><strong>It adds no candidate and changes no score.</strong> Per the <code>CLAUDE.md</code> intake gate, this is step three of the same probe, not a new screening pass.</p>
+<h3>Method: invert the unknown instead of guessing it</h3>
+<p>The temptation is to assume a conversion rate and report a revenue. That compounds three guesses and produces a number nobody can check. This does the opposite. Define</p>
+<p>Y = revenue per monthly download = r · c · p</p>
+<p>where <code>r</code> is the share of monthly downloads representing a distinct adopting team, <code>c</code> the share of adopters that ever pay, and <code>p</code> monthly revenue per payer. Every business model for a free developer listing is some factorisation of <code>Y</code>, and monthly revenue is just <code>downloads × Y</code>.</p>
+<p>So rather than assume <code>Y</code>, the primary result reports <strong>the <code>Y</code> each percentile of the measured distribution would need</strong> to clear a revenue bar. That number is falsifiable by inspection — &quot;every single download would have to yield $4.89 a month&quot; needs no benchmark to evaluate.</p>
+<p>The download distribution is measured (leaf packages, zero dependents, same definition and same committed JSON as the demand study; its leaf medians reproduce to within one package). <code>Y</code> is derived. Nothing here re-fetches anything.</p>
+<h3>Finding 1: the median listing needs an absurd yield</h3>
+<p>Monthly revenue that must be extracted from <strong>each download</strong> for a listing at that percentile to reach $1,000/month:</p>
+<div class="scroll"><table><thead><tr><th>Category</th><th>median</th><th>p75</th><th>p90</th><th>p95</th><th>p99</th></tr></thead><tbody><tr><td>SBOM / CRA evidence (<code>cra-evidence-desk</code>)</td><td><strong>$15.04</strong></td><td>$2.30</td><td>$0.47</td><td>$0.12</td><td>$0.0027</td></tr><tr><td>Accessibility evidence (<code>eaa-remediation-pipeline</code>, <code>shopify-a11y-evidence</code>)</td><td><strong>$4.89</strong></td><td>$1.05</td><td>$0.26</td><td>$0.10</td><td>$0.0167</td></tr><tr><td>MCP supply chain (<code>mcp-supply-chain-watch</code>)</td><td><strong>$0.42</strong></td><td>$0.15</td><td>$0.053</td><td>$0.018</td><td>$0.0030</td></tr></tbody></table></div>
+<p>A median SBOM listing would have to convert every download into fifteen dollars of monthly recurring revenue. There is no pricing model that does that. The column where the numbers stop being silly is p95–p99, which is the same place the demand study already said the distribution&#39;s mass lives.</p>
+<h3>Finding 2: expected revenue for a cold listing is two figures, not four</h3>
+<p>To translate those back, three scenarios spanning the plausible range of <code>Y</code>. Conversion <code>c</code> is anchored on published open-source-SaaS benchmarks (1–3% typical, 0.3–1% for mass-market tools, 3%+ exceptional); <code>r</code> and <code>p</code> are judgement, and <code>r</code> is the weakest number here — see <em>What this does not show</em>.</p>
+<div class="scroll"><table><thead><tr><th>Scenario</th><th>r</th><th>c</th><th>p</th><th>Y</th></tr></thead><tbody><tr><td>pessimistic</td><td>0.5%</td><td>1%</td><td>$10</td><td>$0.0005</td></tr><tr><td>central</td><td>2%</td><td>2%</td><td>$25</td><td>$0.0100</td></tr><tr><td>optimistic</td><td>5%</td><td>4%</td><td>$50</td><td>$0.1000</td></tr></tbody></table></div>
+<p>The optimistic row requires all three factors to sit at the top of their range simultaneously, which is not a forecast so much as a ceiling.</p>
+<p><strong>Monthly revenue at the median listing:</strong></p>
+<div class="scroll"><table><thead><tr><th>Category</th><th>pessimistic</th><th>central</th><th>optimistic</th></tr></thead><tbody><tr><td>SBOM / CRA evidence</td><td>$0.03</td><td><strong>$0.67</strong></td><td>$6.65</td></tr><tr><td>Accessibility evidence</td><td>$0.10</td><td><strong>$2.04</strong></td><td>$20.45</td></tr><tr><td>MCP supply chain</td><td>$1.20</td><td><strong>$23.98</strong></td><td>$239.80</td></tr></tbody></table></div>
+<p><strong>Expected monthly revenue for a listing published cold</strong> — stratifying at the top decile and re-weighting by <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/218">#218</a>&#39;s 4.9% cold-publisher rate, because the unconditional mean is dominated by a decile a cold publisher rarely reaches (passing <code>--cold-top-decile-prob 0.10</code> recovers the unconditional case, which is the script&#39;s own sanity check):</p>
+<div class="scroll"><table><thead><tr><th>Category</th><th>E[downloads/mo]</th><th>pessimistic</th><th>central</th><th>optimistic</th></tr></thead><tbody><tr><td>Accessibility evidence</td><td>1,563</td><td>$1</td><td><strong>$16</strong></td><td>$156</td></tr><tr><td>SBOM / CRA evidence</td><td>8,099</td><td>$4</td><td><strong>$81</strong></td><td>$810</td></tr><tr><td>MCP supply chain</td><td>14,478</td><td>$7</td><td><strong>$145</strong></td><td>$1,448</td></tr></tbody></table></div>
+<p>Share of <em>all</em> listings in the category clearing $1,000/month at central assumptions: <strong>0.5%</strong> (accessibility), <strong>2.0%</strong> (SBOM/CRA), <strong>3.2%</strong> (MCP) — and a cold publisher&#39;s odds are worse than the base rate, not equal to it.</p>
+<p>The honest summary is that a free listing on this channel is worth <strong>tens of dollars a month in expectation</strong>, and is a $1,000/month business only in the tail that the demand study already showed cold publishing does not reach.</p>
+<h3>Finding 3: the binding constraint is the buyer, not the listing approval</h3>
+<p>This is what the arithmetic is actually for.</p>
+<p><strong>Ask 5</strong> asks the account owner to approve publishing a free listing. Taken together, the three studies now say that approval buys:</p>
+<ul><li>no meaningful revenue — $16–$145/month expected, before any cost;</li><li>and no meaningful information either, because the demand study already showed the resulting install count is consistent with both hypotheses it was meant to discriminate.</li></ul>
+<p>That is not an argument against granting it — it costs nothing, and <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/218">#218</a> showed the door is not closed (4.9%, not 0%). It is an argument against <em>waiting</em> on it. It has been the pipeline&#39;s headline ask for five cycles and it is worth roughly a rounding error, so it should stop being the thing the directory is blocked on.</p>
+<p><strong>Ask 2</strong> (a merchant-of-record payout rail) cannot be justified by these three candidates on this channel. At central assumptions all three sit below the cost of the compliance and tax surface a payout rail carries.</p>
+<p>What <em>would</em> change the arithmetic is not a better listing — it is a channel whose buyer holds a budget. Two of <code>Y</code>&#39;s three factors improve on a business-buyer channel, and the large one improves structurally:</p>
+<ul><li><strong><code>r</code>: ~2% → ~1, a ~50× change.</strong> WordPress.org reports <code>active_installs</code> per plugin — a stock of live sites, each one a distinct adopter — instead of a download flow that mixes CI runs, mirrors, and humans. The weakest number in this whole analysis stops being a guess and becomes an observation.</li><li><strong><code>p</code>: roughly 2–3× higher</strong>, and grounded in the portfolio&#39;s own write-ups rather than a new assumption. <code>eaa-remediation-pipeline.md</code> puts indicative pricing at €49–99/month and <code>shopify-a11y-evidence.md</code> at $29–79/month, against the $10–50/month assumed for a developer above.</li><li><strong><code>c</code> is the one factor with no reason to improve</strong>, so it is left at 2%.</li></ul>
+<p>Under that regime the model is <code>active_installs × c × p</code>: a plugin at <strong>1,000 active installs</strong>, 2% conversion, $49/month is <strong>~$980/month</strong> — from a hundredth of the reach the npm arithmetic needs for the same result, on a channel <code>channel-inventory.md</code> lists as free and agent-listable with no card and no ID. Whether a cold plugin actually reaches 1,000 active installs is exactly the unmeasured quantity.</p>
+<p><strong>So the cheapest ask on the table is the one worth the most.</strong> <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/218">#218</a>&#39;s comment on issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> already flagged that <code>api.wordpress.org</code> returns 403 at this environment&#39;s egress proxy, and asked for read-only access as a cheaper sibling of Ask 3. This analysis is the reason to prioritise it: it is the only ask that tests the regime where the numbers work, and it costs one proxy allowlist entry — no account, no credential, no spend, nothing published. Re-confirmed this session: <code>api.wordpress.org</code> and <code>wordpress.org</code> both fail with <code>curl: (56) CONNECT tunnel failed, response 403</code>, which is the proxy refusing the tunnel rather than the origin answering.</p>
+<h3>A measurement gap this exposes</h3>
+<p>The $1,000/month bar above is a placeholder, not the portfolio&#39;s real cost floor. <code>agent_spend_usd</code> is <code>null</code> for <strong>every</strong> entry in <code>portfolio/ledger/2026-08.yaml</code>, so the portfolio cannot currently say whether $145/month clears the cost of the agent time that would earn it. The pipeline README already notes the router is &quot;allocating against stage and budget cap rather than measured return&quot;; this is the same gap seen from the revenue side. Recording actual agent spend per session would make every analysis of this shape decidable rather than parameterised.</p>
+<h3>What this does not show</h3>
+<ul><li><strong><code>r</code> is the weakest number here.</strong> No public benchmark maps npm downloads to distinct adopting teams, and the split between CI traffic, mirrors, and humans varies enormously by package. Finding 1 does not depend on it at all; Findings 2 and 3 do. If the true <code>r</code> is 10× higher than the central guess, the central column becomes the optimistic column — and the conclusion in Finding 3 is unchanged, because it rests on a <em>comparison</em> between channels in which <code>r</code> appears on both sides.</li><li><strong>npm only</strong>, inherited from the input data. WordPress.org, Open VSX, and GitHub Marketplace are unmeasured, which is precisely the gap Finding 3 says is worth closing.</li><li><strong>No willingness-to-pay evidence.</strong> <code>c</code> and <code>p</code> are benchmark-anchored assumptions about categories, not measurements of these categories. <code>#207</code> reached the same wall from the other direction on <code>mcp-supply-chain-watch</code> (pricing risk, not alert fatigue, is that candidate&#39;s live question).</li><li><strong>Revenue only, not profit.</strong> Cost is unmeasured, per the gap above.</li><li><strong>The cold-publisher re-weighting is an approximation</strong>, and a deliberately generous one: it assumes a cold listing that reaches the top decile is an average member of it, when cold publishers in fact cluster at that decile&#39;s bottom. It also depends on <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/218">#218</a>, which is not yet on <code>main</code>.</li></ul>
+<h3>Files</h3>
+<ul><li><code>analyze_listing_economics.py</code> — stdlib only, offline, reads the committed demand-study JSON. No network, no credentials.</li><li><code>results-2026-08-19.json</code> — every figure above, including the full percentile and scenario grids.</li></ul>
+<h3>Status of these claims</h3>
+<p>The download distribution is a <strong>primary measurement</strong> (inherited, re-derived here from the committed rows). The required-yield table in Finding 1 is <strong>arithmetic on that measurement and assumes nothing</strong>. Findings 2 and 3 depend on stated assumptions, all of them in the tables above and all overridable in the script.</p>
+<p>Nothing here adds a candidate, changes a score, creates a <code>ventures/</code> directory, registers an account, publishes anything, or spends anything.</p>
+<h3>Sources</h3>
+<ul><li><a href="https://www.getmonetizely.com/articles/whats-the-optimal-conversion-rate-from-free-to-paid-in-open-source-saas">Monetizely — optimal free-to-paid conversion in open source SaaS</a></li><li><a href="https://www.getmonetizely.com/articles/whats-the-right-ratio-of-free-to-paid-users-in-developer-saas">Monetizely — ratio of free to paid users in developer SaaS</a></li><li><a href="https://blog.stateshift.com/how-to-measure-go-to-market-success-for-developer-audiences/">StateShift — measuring developer go-to-market success</a></li></ul>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

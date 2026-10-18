@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat card-fee guess | Shopify Fee &amp; Profit Calculator</title>
+<meta name="description" content="Guessing '2.9% + 30 cents' on an order tells you the fee only if it runs on Shopify Payments -- and nothing about profit…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-a-flat-card-fee-guess.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat card-fee guess">
+<meta property="og:description" content="On this calculator's own default order, a flat 2.9% + 30 cents guess says the order nets $52.13. The real payout is $31.74 on Shopify Payments and $30.16 on a…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-a-flat-card-fee-guess.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat \"2.9% + 30 cents\" guess get Shopify profit wrong?","acceptedAnswer":{"@type":"Answer","text":"Because it only estimates the processing fee, and even then only for one payment path. On this calculator's own default order (a $48 item plus $6 shipping), that guess happens to land on the exact fee Shopify Payments charges — $1.87 — because 2.9% and 30 cents are also Shopify Payments' Basic-plan rate. But the fee is not the profit: cost of goods, the shipping you actually pay, packaging, and a share of the monthly plan still come out of the order, and a flat guess has no line for any of them."}},{"@type":"Question","name":"What does the guess miss when the store uses a third-party processor?","acceptedAnswer":{"@type":"Answer","text":"The extra Shopify third-party transaction fee. When an order runs through a third-party processor instead of Shopify Payments, Shopify can add its own transaction fee on top of the processor's rate. On this calculator's default order that pushes the real fee to $3.45 — $1.59 more than the flat guess — and on a $150 item plus $12 shipping the gap widens to $4.39 per order, $438.58 across 100 orders a month."}},{"@type":"Question","name":"How much does the guess overstate profit, in dollars?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default order, a flat 2.9% + 30 cents guess says the order nets $52.13. The real payout is $31.74 on Shopify Payments and $30.16 on a third-party processor — the guess overstates profit by $20.39 and $21.98. On a heavier order (a $150 item plus $12 shipping, with higher cost of goods, shipping, and packaging), the guess says $157.00 while the real payout is $85.61 and $81.23 — a $71.39 to $75.78 overstatement."}},{"@type":"Question","name":"Is the flat guess ever close?","acceptedAnswer":{"@type":"Answer","text":"Only for the fee itself, and only on Shopify Payments — because Shopify Payments' own Basic-plan rate is 2.9% + 30 cents, the same numbers the rule of thumb uses. It has never been close on profit, because it has no line for cost of goods, shipping you pay, packaging, or the plan cost per order, and it has never been close on the fee for a third-party processor, because it does not know Shopify's extra transaction fee exists."}},{"@type":"Question","name":"Does this calculator know Shopify's current published rates?","acceptedAnswer":{"@type":"Answer","text":"No. It does not publish or assume a live Shopify rate card. You enter the Shopify Payments rate, the third-party transaction rate, and your processor's rate and fixed fee from your own statements, and it runs the arithmetic on both paths side by side — the same arithmetic a flat guess skips, not a claim about what Shopify currently charges."}}]}</script>
+<style>
+  :root { font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+  body { max-width: 860px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+  a { color: #0d6b45; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: .3rem 0; max-width: 24ch; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #33544a; }
+  section { background: #fff; border: 1px solid #c6ded2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #12241c0d; margin: 1.2rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c6ded2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #33544a; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #33544a; }
+  footer { color: #33544a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat card-fee guess — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat card-fee guess</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Shopify Fee &amp; Profit Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat card-fee guess</h1>
+<p class="lede">"Just take off 2.9% and 30 cents" is the card-fee rule every merchant already knows. It can be the exact processing fee on one payment path &mdash; and it is never the profit, and it is never right at all on the other path.</p>
+</header>
+
+<section>
+<h2>What the flat card-fee guess is</h2>
+<p>
+  Almost every merchant carries the same rule of thumb for what a card
+  purchase costs to process: take about 2.9% off the top, then another 30
+  cents. It is fast, it needs no tool, and it is close enough for a gut
+  check on a single sale.
+</p>
+<p>
+  The trouble is what it was never built to do. It prices one thing &mdash;
+  the processing fee &mdash; and assumes that fee is the same whatever
+  processor actually touches the order. It has no line for cost of goods,
+  the shipping label you pay for, packaging, or the slice of your monthly
+  Shopify plan that order should carry. And it has no way to know that
+  Shopify itself can add a second fee on top of the processor's, whenever
+  the order does not run through Shopify Payments.
+</p>
+</section>
+
+<section>
+<h2>What this calculator is</h2>
+<p>
+  This page keeps no account and sends nothing to a server. You enter the
+  item price, shipping charged, cost of goods, shipping you pay, packaging,
+  the monthly Shopify plan allocated across your expected monthly orders,
+  and the processing rates from your own statements &mdash; the Shopify
+  Payments rate, the Shopify third-party transaction rate, and your
+  processor's rate and fixed fee. It runs the order through
+  <strong>Shopify Payments</strong> and a <strong>third-party processor</strong>
+  side by side and reports what each path actually leaves, not just what
+  each path charges in fees.
+</p>
+</section>
+
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Order</th><th class="num" scope="col">Flat guess ("2.9% + 30 cents") profit</th><th class="num" scope="col">Real profit, Shopify Payments</th><th class="num" scope="col">Real profit, third-party</th></tr>
+</thead>
+<tbody>
+<tr><td>$48 item + $6 shipping (this calculator's own default order)</td><td class="num">$52.13</td><td class="num loses">$31.74</td><td class="num loses">$30.16</td></tr>
+<tr><td>$150 item + $12 shipping, higher cost of goods and packaging</td><td class="num">$157.00</td><td class="num loses">$85.61</td><td class="num loses">$81.23</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own arithmetic (<code>calculateOrder</code>) at 2.9% + $0.30 Shopify Payments, a 2% Shopify third-party transaction fee, and a 3.49% + $0.49 processor &mdash; the calculator's own shipped defaults, not numbers invented for this page. Open the calculator to check either row yourself.</p>
+<p class="note">
+  Notice that the flat guess gets closer to nothing as the order gets more
+  realistic. Both rows use the same $1.87 or $5.00 processing-fee estimate
+  the rule of thumb would give &mdash; and both real numbers still fall well
+  short, because cost of goods, shipping, packaging, and the plan cost never
+  entered the guess at all.
+</p>
+
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat card-fee guess does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Assumes one flat percentage plus fixed fee applies to every order, whatever the actual payment path.</td>
+<td>Runs the order through Shopify Payments and a third-party processor side by side, using the rates and any extra Shopify third-party transaction fee you enter.</td>
+</tr>
+<tr>
+<td>Has no line for the extra Shopify transaction fee that a third-party processor can trigger on top of its own rate.</td>
+<td>Adds that fee to the third-party path automatically, and reports the exact extra cost versus Shopify Payments on the same order.</td>
+</tr>
+<tr>
+<td>Stops at the fee, so "revenue minus fee" quietly gets treated as profit.</td>
+<td>Nets out cost of goods, the shipping you actually pay, packaging, and a share of the monthly Shopify plan before calling anything profit.</td>
+</tr>
+<tr>
+<td>Cannot say what to charge to hit a margin or a dollar-profit target.</td>
+<td>Reports the break-even price and the price that clears a target margin or a target net profit, on either path.</td>
+</tr>
+<tr>
+<td>Gives one number for "the fee," with no separate reading for Shopify Payments and a third-party processor.</td>
+<td>Shows both paths' fee and profit at once, so switching processors is a number to check rather than a guess.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A flat card-fee guess is not wrong because it is simple &mdash; on
+  Shopify Payments, at Shopify's own Basic-plan rate, it can even land on
+  the exact fee. It is wrong the moment "the fee" gets treated as "the
+  profit," and it is wrong again the moment the order runs through a
+  processor other than Shopify Payments, because that guess was never
+  built to see Shopify's own extra fee. This calculator does not replace
+  judgment about your prices; it replaces the arithmetic a flat guess
+  skips.
+</p>
+
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat "2.9% + 30 cents" guess get Shopify profit wrong?</h3>
+<p>Because it only estimates the processing fee, and even then only for one payment path. On this calculator's own default order (a $48 item plus $6 shipping), that guess happens to land on the exact fee Shopify Payments charges &mdash; $1.87 &mdash; because 2.9% and 30 cents are also Shopify Payments' Basic-plan rate. But the fee is not the profit: cost of goods, the shipping you actually pay, packaging, and a share of the monthly plan still come out of the order, and a flat guess has no line for any of them.</p>
+<h3>What does the guess miss when the store uses a third-party processor?</h3>
+<p>The extra Shopify third-party transaction fee. When an order runs through a third-party processor instead of Shopify Payments, Shopify can add its own transaction fee on top of the processor's rate. On this calculator's default order that pushes the real fee to $3.45 &mdash; $1.59 more than the flat guess &mdash; and on a $150 item plus $12 shipping the gap widens to $4.39 per order, $438.58 across 100 orders a month.</p>
+<h3>How much does the guess overstate profit, in dollars?</h3>
+<p>On this calculator's own default order, a flat 2.9% + 30 cents guess says the order nets $52.13. The real payout is $31.74 on Shopify Payments and $30.16 on a third-party processor &mdash; the guess overstates profit by $20.39 and $21.98. On a heavier order (a $150 item plus $12 shipping, with higher cost of goods, shipping, and packaging), the guess says $157.00 while the real payout is $85.61 and $81.23 &mdash; a $71.39 to $75.78 overstatement.</p>
+<h3>Is the flat guess ever close?</h3>
+<p>Only for the fee itself, and only on Shopify Payments &mdash; because Shopify Payments' own Basic-plan rate is 2.9% + 30 cents, the same numbers the rule of thumb uses. It has never been close on profit, because it has no line for cost of goods, shipping you pay, packaging, or the plan cost per order, and it has never been close on the fee for a third-party processor, because it does not know Shopify's extra transaction fee exists.</p>
+<h3>Does this calculator know Shopify's current published rates?</h3>
+<p>No. It does not publish or assume a live Shopify rate card. You enter the Shopify Payments rate, the third-party transaction rate, and your processor's rate and fixed fee from your own statements, and it runs the arithmetic on both paths side by side &mdash; the same arithmetic a flat guess skips, not a claim about what Shopify currently charges.</p>
+<p class="fine">Nothing here says or implies that using a flat card-fee guess is a mistake to feel bad about &mdash; it is a common, honest shortcut that works for a quick gut check and stops working the moment it gets treated as the order's actual profit. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Shopify Fee &amp; Profit Calculator</a> and price your own order.
+  Selling through a third-party processor already? See
+  <a href="why-paypal-costs-more.html">why a third-party processor can cost more than Shopify Payments</a>,
+  worked through the extra transaction fee this page describes.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not tell you what to charge. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Verify every rate against your own Shopify billing and processor statements. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors.</p>
+<p class="support">Free and open source. If it kept you from misjudging an order's payout, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-nightly-rate-optimizer/" data-pf-to="str-nightly-rate-optimizer">STR Nightly Rate Optimizer — free, private, in your browser</a></li>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shopify-fee-calculator"></script>
+</body></html>

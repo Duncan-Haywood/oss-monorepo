@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet</title>
+  <meta name="description" content="Freelancers pricing jobs on both platforms usually build a spreadsheet for it. This free calculator keeps Upwork's per-contract variable fee…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html">
+  <meta property="og:title" content="Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same fee formulas this calculator does. What it does not do on its own is stay current with Upwork's per-contract variable fee…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. The platform fee, the flat withdrawal fee, the tax reserve, and the backward solve for a target take-home are all ordinary arithmetic you can put in a spreadsheet. Getting there means encoding Upwork's fee as a manual input rather than a stale tiered formula, applying the withdrawal fee before the tax reserve on both platforms in the same order, and rebuilding the backward-solve formula correctly rather than just guessing a price and checking it."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep the job price, both platforms' cuts, and the target take-home solve on one screen without re-deriving the formulas each time a rate changes. The easiest mistake to make by hand is reusing Upwork's old 20%/10%/5% lifetime-billing tiers, retired 1 May 2025 — a formula copied from an older sheet or a generic fee-comparison page will still use them. This calculator takes Upwork's fee as your own quoted figure every time, applies the withdrawal fee and tax reserve in the same order on both platforms, and produces a shareable link that carries the whole scenario instead of a file to keep in sync between two people."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a wrinkle this calculator does not model — a multi-milestone contract with a different quoted Upwork fee per milestone, a currency conversion on top of the platform cut, or a fee structure from a plan or region this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for pricing or evaluating one job on Upwork or Fiverr."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your job price, fees, or tax reserve."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    section.card { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #1c232010; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fff; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5967; }
+    .note { font-size: .85rem; color: #4f5967; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+    footer a { color: #1a5a8a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet</span></span></nav>
+  <p><a href="./">&larr; Upwork vs. Fiverr fee calculator</a></p>
+  <h1>Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet</h1>
+  <p>A freelancer weighing the same job on both platforms usually ends up with a spreadsheet: a cell for Upwork's quoted fee, one for Fiverr's flat 20%, a withdrawal-fee line, and a tax-reserve percentage. Each formula is ordinary arithmetic. Keeping them right &mdash; especially remembering that Upwork retired its old 20%/10%/5% lifetime-billing tiers on 1 May 2025 in favor of a variable 0&ndash;15% fee quoted per contract &mdash; is the part that gets skipped when an older sheet or a generic fee-comparison page is reused for a new job.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every formula this calculator runs &mdash; each platform's cut, the flat withdrawal fee, the tax reserve, and the backward solve for a job price that hits a take-home goal. Building it means taking Upwork's fee as a manual per-contract input rather than a retired tiered formula, applying the withdrawal fee before the tax reserve in the same order on both sides, and getting the backward-solve algebra right rather than guessing a price and checking it.</p>
+  <p><strong>This calculator</strong> keeps the job price, both platforms' net payouts, and the target take-home solve on one screen, already wired to <a href="./">the comparison tool</a>. A shareable link carries the full scenario in the URL, and <a href="how-much-does-upwork-take.html">the Upwork fee explainer</a> covers what changed in the May 2025 pricing update.</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>Which platform nets more for this specific job price?</td><td>This calculator's side-by-side panel &mdash; one screen, both cuts computed the same way.</td></tr>
+  <tr><td>What price do I need to charge to take home a set amount?</td><td>The target take-home solve, not a guess-and-check spreadsheet formula.</td></tr>
+  <tr><td>My situation has a wrinkle this calculator doesn't model (a multi-milestone contract, a currency conversion).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+  <tr><td>Pricing a retainer instead of a one-off job?</td><td>The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Worked example</h2>
+  <p>A $1,200 job, Upwork's quoted fee at 8% for this client relationship, Fiverr's flat 20%, no withdrawal fee on Upwork, a $3 Fiverr withdrawal, and a 25% tax reserve on both:</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col"></th><th scope="col">Upwork</th><th scope="col">Fiverr</th></tr></thead>
+  <tbody>
+  <tr><td>Platform fee</td><td>$96.00</td><td>$240.00</td></tr>
+  <tr><td>After withdrawal fee</td><td>$1,104.00</td><td>$957.00</td></tr>
+  <tr><td>Tax reserve (25%)</td><td>$276.00</td><td>$239.25</td></tr>
+  <tr><td>Take-home</td><td>$828.00 (69.0%)</td><td>$717.75 (59.8%)</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  <p>Upwork nets $110.25 more on this job &mdash; a gap that only shows up because both cuts are run through the same withdrawal-fee-then-tax-reserve order, the step a rebuilt spreadsheet formula most often gets backwards or drops.</p>
+  <p>Same freelancer, a smaller $500 job at Upwork's 15% quoted fee, wanting $400 take-home after the same 25% tax reserve: the calculator's backward solve says $627.45 is the price to charge on Upwork to hit that goal, a figure a guess-and-check spreadsheet cell usually takes several tries to land on.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these numbers in a spreadsheet, not a competing calculator. This site is not affiliated with, endorsed by, or sponsored by Upwork Inc. or Fiverr International Ltd. Upwork and Fiverr are trademarks of their respective owners, named here only to describe what this calculator compares.</p>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. The platform fee, the flat withdrawal fee, the tax reserve, and the backward solve for a target take-home are all ordinary arithmetic you can put in a spreadsheet. Getting there means encoding Upwork's fee as a manual input rather than a stale tiered formula, applying the withdrawal fee before the tax reserve on both platforms in the same order, and rebuilding the backward-solve formula correctly rather than just guessing a price and checking it.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Keep the job price, both platforms' cuts, and the target take-home solve on one screen without re-deriving the formulas each time a rate changes. The easiest mistake to make by hand is reusing Upwork's old 20%/10%/5% lifetime-billing tiers, retired 1 May 2025 &mdash; a formula copied from an older sheet or a generic fee-comparison page will still use them. This calculator takes Upwork's fee as your own quoted figure every time, applies the withdrawal fee and tax reserve in the same order on both platforms, and produces a shareable link that carries the whole scenario instead of a file to keep in sync between two people.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when your situation has a wrinkle this calculator does not model &mdash; a multi-milestone contract with a different quoted Upwork fee per milestone, a currency conversion on top of the platform cut, or a fee structure from a plan or region this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for pricing or evaluating one job on Upwork or Fiverr.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your job price, fees, or tax reserve.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. It does not tell you which platform to work on. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any tax obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Job price, fee percentages, and every other figure stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers.</p>
+    <p>Free and open source. If it changed how you priced your next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../amazon-fba-calculator/" data-pf-to="amazon-fba-calculator">Amazon FBA vs FBM Profit Calculator</a></li>
+      <li><a href="../amazon-inventory-loader-check/" data-pf-to="amazon-inventory-loader-check">Amazon Inventory Loader Check — free, private, in your browser</a></li>
+      <li><a href="../amazon-ppc-search-term-analyzer/" data-pf-to="amazon-ppc-search-term-analyzer">Amazon PPC Search Term Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../amazon-seller-profit-analyzer/" data-pf-to="amazon-seller-profit-analyzer">Amazon Seller Profit Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-platform-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freelance-platform-fee-calculator"></script>
+</body>
+</html>

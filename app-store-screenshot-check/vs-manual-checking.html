@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checking Store Assets by Hand vs. Automatically — What Each Catches</title>
+  <meta name="description" content="Reading the spec sheet and checking Get Info on each file catches wrong sizes. It does not catch an alpha channel, a tRNS chunk, a HEIC renamed to .png…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/vs-manual-checking.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just check the dimensions in Finder or Explorer?","acceptedAnswer":{"@type":"Answer","text":"You can, and for dimensions alone it works. What a file browser will not tell you is whether a PNG declares an alpha channel — macOS Get Info and Windows Properties both show the pixel size and the file size, neither shows the colour type — and that is the property behind the most common upload rejection. It also will not tell you that a file named .png is really a HEIC, because it reports what the name implies. And comparing ten files' dimensions against each other by eye, on every release, is exactly the kind of task a person does correctly nine times and then does not."}},{"@type":"Question","name":"Why not open the icon in an image editor and look at it?","acceptedAnswer":{"@type":"Answer","text":"Because an alpha channel is invisible when every pixel in it is opaque. An icon can look completely solid against the editor's white canvas, export with a full alpha channel, and be rejected — the store reads the declaration in the file header, not the appearance of the pixels. The only way to see it by eye is to know where your editor hides the channel list, and to remember to look there during every release."}},{"@type":"Question","name":"Is a paid asset-preparation service better than this?","acceptedAnswer":{"@type":"Answer","text":"For generating assets, very possibly — resizing one screenshot into every display class, adding device frames and captions, and uploading the result is real work that dedicated tools do well, and this tool does none of it. This is a checker, not a generator. It reads assets you already have and tells you what would be refused. The two are complementary: a generator's output is exactly the kind of thing worth checking, since a bug in a resize pipeline produces a whole set of consistently wrong files."}},{"@type":"Question","name":"Why would I want this in CI rather than just on a web page?","acceptedAnswer":{"@type":"Answer","text":"Because the failure it prevents is a release-day failure, and release day is the worst time to be reading a spec sheet. A checked-in screenshot set drifts the same way any other checked-in artefact does — someone regenerates part of it, someone adds a locale, someone's export preset changes. Running the CLI on every pull request that touches the asset directory turns that drift into a failed build, at the point where it costs a minute instead of a release cycle."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 8px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; background: #f0f3f7; padding: 1px 4px; border-radius: 4px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/vs-manual-checking.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Checking Store Assets by Hand vs. Automatically — What Each Catches">
+<meta property="og:description" content="Reading the spec sheet and checking Get Info on each file catches wrong sizes. It does not catch an alpha channel, a tRNS chunk, a HEIC renamed to .png…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Checking Store Assets by Hand vs. Automatically — What Each Catches — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../app-store-screenshot-check/">App Store Screenshot &amp; Icon Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Checking Store Assets by Hand vs. Automatically — What Each Catches</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← App Store Screenshot &amp; Icon Checker</a></p>
+    <h1>Checking store assets by hand vs. automatically</h1>
+    <p>
+      Most people check store assets by opening the spec page in one window and the asset folder in
+      another. That genuinely works for the thing it is good at — dimensions — and misses four
+      things it structurally cannot see. This page is about which is which, including where the
+      manual approach is the better one.
+    </p>
+  </header>
+
+  <section class="card">
+    <h2>What each approach actually sees</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Problem</th><th>Spec sheet + file browser</th><th>This tool</th></tr></thead>
+        <tbody>
+          <tr><td>Wrong pixel dimensions</td><td>Yes — this is what it is good at</td><td>Yes</td></tr>
+          <tr><td>Icon declares an alpha channel</td><td>No — not shown in Get Info or Properties</td><td>Yes, from the PNG colour type</td></tr>
+          <tr><td>Icon transparent via a <code>tRNS</code> chunk</td><td>No</td><td>Yes</td></tr>
+          <tr><td>HEIC or WebP renamed to <code>.png</code></td><td>No — the name is what it reports</td><td>Yes, from magic bytes</td></tr>
+          <tr><td>Screenshot set disagreeing with itself</td><td>In principle, by comparing every file by eye, every release</td><td>Yes, automatically</td></tr>
+          <tr><td>Interlaced or 16-bit PNG</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Whether the artwork is any <em>good</em></td><td>Yes — you are looking at it</td><td>No. It never decodes a pixel</td></tr>
+          <tr><td>Whether a screenshot honestly shows the app</td><td>Yes</td><td>No</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">The last two rows are the honest limit of any mechanical checker, and they are not small. Nothing here judges whether your screenshots are worth looking at or whether they represent the app fairly — which is what app review will actually be assessing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can't I just check the dimensions in Finder or Explorer?</h3>
+    <p>
+      You can, and for dimensions alone it works. What a file browser will not tell you is whether
+      a PNG declares an alpha channel — macOS Get Info and Windows Properties both show the pixel
+      size and the file size, neither shows the colour type — and that is the property behind the
+      most common upload rejection. It also will not tell you that a file named <code>.png</code>
+      is really a HEIC, because it reports what the name implies. And comparing ten files'
+      dimensions against each other by eye, on every release, is exactly the kind of task a person
+      does correctly nine times and then does not.
+    </p>
+    <h3>Why not open the icon in an image editor and look at it?</h3>
+    <p>
+      Because an alpha channel is invisible when every pixel in it is opaque. An icon can look
+      completely solid against the editor's white canvas, export with a full alpha channel, and be
+      rejected — the store reads the declaration in the file header, not the appearance of the
+      pixels. The only way to see it by eye is to know where your editor hides the channel list,
+      and to remember to look there during every release.
+    </p>
+    <h3>Is a paid asset-preparation service better than this?</h3>
+    <p>
+      For generating assets, very possibly — resizing one screenshot into every display class,
+      adding device frames and captions, and uploading the result is real work that dedicated tools
+      do well, and this tool does none of it. This is a checker, not a generator. It reads assets
+      you already have and tells you what would be refused. The two are complementary: a
+      generator's output is exactly the kind of thing worth checking, since a bug in a resize
+      pipeline produces a whole set of consistently wrong files.
+    </p>
+    <h3>Why would I want this in CI rather than just on a web page?</h3>
+    <p>
+      Because the failure it prevents is a release-day failure, and release day is the worst time to
+      be reading a spec sheet. A checked-in screenshot set drifts the same way any other checked-in
+      artefact does — someone regenerates part of it, someone adds a locale, someone's export preset
+      changes. Running the CLI on every pull request that touches the asset directory turns that
+      drift into a failed build, at the point where it costs a minute instead of a release cycle.
+    </p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. It is not legal, business, or app-review advice, and it does not replace reading each store's own current documentation. <strong>You are responsible for reviewing and verifying any output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Apple or Google.</strong> "App Store", "App Store Connect", "Google Play" and "Google Play Console" are the trademarks of their respective owners, used here only to say which store's published requirements a statement refers to. Other products named on this page are described from general knowledge of what they do, not from a paid comparison or any relationship with their makers.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p><a href="./index.html">← Back to the checker</a> · <a href="./why-store-uploads-get-rejected.html">Why store uploads get rejected for images</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../docker-base-image-eol-check/" data-pf-to="docker-base-image-eol-check">Is your Dockerfile's base image still supported?</a></li>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=app-store-screenshot-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="app-store-screenshot-check"></script>
+</body>
+</html>

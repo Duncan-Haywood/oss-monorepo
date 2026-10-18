@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Screen Print Job Quote Calculator — Price Per Shirt and Break-Even Order</title>
+  <meta name="description" content="Free screen printing quote calculator: price per piece from blanks, screens, ink and press time, a price-break ladder…">
+  <meta property="og:title" content="Screen Print Job Quote Calculator — free, private">
+  <meta property="og:description" content="Quote a screen printing job: price per piece, price breaks by quantity and break-even order size. Nothing is uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Screen Print Job Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free screen printing quote calculator: price per piece from garments, screens, ink and press time, with a price-break ladder and the break-even order size at your current price."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a screen printing job?", "acceptedAnswer": {"@type": "Answer", "text": "Add the blank garments (including spoiled ones you had to buy), the screens, ink, and the press and setup time at your labor and overhead rates. Divide that cost by one minus your target margin to get the revenue the job needs, subtract any screen fees you charge separately, and divide by the number of pieces."}}, {"@type": "Question", "name": "Why does the price per shirt drop as the order gets bigger?", "acceptedAnswer": {"@type": "Answer", "text": "Burning screens and registering the press cost about the same for 24 shirts as for 240, so on a small order that fixed setup is spread over few pieces. The price ladder shows the per-piece price at each quantity so you can set price breaks that still hold your margin."}}, {"@type": "Question", "name": "What counts as a screen?", "acceptedAnswer": {"@type": "Answer", "text": "One screen per colour per print location. A three-colour front and a one-colour sleeve is four screens. Every piece passes under every screen, so press time and ink scale with pieces times screens."}}, {"@type": "Question", "name": "Should I charge a screen fee?", "acceptedAnswer": {"@type": "Answer", "text": "That is your call. If you charge one, the tool takes it out of the per-piece price so your margin target still holds. If you do not, the screen cost is recovered inside the piece price, which makes small orders look expensive."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Artwork and separation time, ink waste and reclaim chemicals beyond the per-impression figure you enter, flash and cure time, shipping, sales tax, specialty inks and underbase passes (count an underbase as a colour), and payment fees."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab. There are no accounts."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic over the costs and margin you enter. Check the output against your own books before quoting a customer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #faf5f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #7a2e0e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a1a05; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1a05; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #e6d5c9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a1a0510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c4a998; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a2e0e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f3e3d8; color: #4a1a05; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #efe2d8; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #efe2d8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .big { font-size: 1.6rem; font-weight: 800; color: #4a1a05; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .stat span { display: block; font-size: .8rem; color: #46566a; text-transform: uppercase; letter-spacing: .03em; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d5c9; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Screen Print Job Quote Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Screen Print Job Quote Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Screen Print Job Quote Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SCREEN PRINT JOB QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should this screen printing job cost?</h1>
+    <p>Enter the order and your shop's costs. You get <strong>the price per piece that hits your margin, a price-break ladder by quantity, and the smallest order that pays at the price you were going to quote</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. Arithmetic over what you enter, not business advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The order</h2>
+    <div class="grid">
+      <div><label for="qty">Pieces ordered</label><input type="number" id="qty" min="1" step="1" value="48" inputmode="numeric"></div>
+      <div><label for="colors">Colours per print location</label><input type="number" id="colors" min="1" step="1" value="2" inputmode="numeric"></div>
+      <div><label for="locations">Print locations (front, back, sleeve)</label><input type="number" id="locations" min="1" step="1" value="1" inputmode="numeric"></div>
+      <div><label for="garmentCost">Blank garment cost each ($)</label><input type="number" id="garmentCost" min="0" step="0.1" value="3.5" inputmode="decimal"></div>
+      <div><label for="spoilPct">Spoilage (%)</label><input type="number" id="spoilPct" min="0" step="0.5" value="3" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Setup and press</h2>
+    <div class="grid">
+      <div><label for="screenCost">Cost per screen: mesh, emulsion, film, reclaim ($)</label><input type="number" id="screenCost" min="0" step="1" value="18" inputmode="numeric"></div>
+      <div><label for="setupMinPerScreen">Setup minutes per screen (registration)</label><input type="number" id="setupMinPerScreen" min="0" step="1" value="10" inputmode="numeric"></div>
+      <div><label for="jobSetupMin">Fixed job setup minutes (loading, test print)</label><input type="number" id="jobSetupMin" min="0" step="1" value="15" inputmode="numeric"></div>
+      <div><label for="impressionsPerHour">Press speed (impressions per hour)</label><input type="number" id="impressionsPerHour" min="1" step="any" value="150" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Your costs and margin</h2>
+    <div class="grid">
+      <div><label for="laborRate">Labor cost per hour ($)</label><input type="number" id="laborRate" min="0" step="1" value="22" inputmode="numeric"></div>
+      <div><label for="overheadRate">Overhead per press hour ($)</label><input type="number" id="overheadRate" min="0" step="1" value="18" inputmode="numeric"></div>
+      <div><label for="inkPerImpression">Ink per impression ($)</label><input type="number" id="inkPerImpression" min="0" step="0.01" value="0.04" inputmode="decimal"></div>
+      <div><label for="marginPct">Target margin (% of price)</label><input type="number" id="marginPct" min="0" step="1" value="35" inputmode="numeric"></div>
+      <div><label for="screenFeeCharged">Screen fee you charge the customer per screen ($, optional)</label><input type="number" id="screenFeeCharged" min="0" step="1" value="20" inputmode="numeric"></div>
+      <div><label for="yourPrice">Price each you were going to quote ($, optional)</label><input type="number" id="yourPrice" min="0" step="0.25" value="9" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers, or load the example, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Quote</h2>
+    <div class="stats">
+      <div class="stat"><span>Price each</span><div class="big" id="s-unit"></div></div>
+      <div class="stat"><span>Your cost each</span><div class="big" id="s-cost"></div></div>
+      <div class="stat"><span>Profit on the order</span><div class="big" id="s-profit"></div></div>
+    </div>
+    <div id="advice"></div>
+    <h3>Where the cost goes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Cost</th></tr></thead><tbody id="parts"></tbody></table></div></div>
+    <h3>Price breaks</h3>
+    <p class="note">Price each at your margin for other order sizes, same screens and costs.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Pieces</th><th scope="col">Price each</th><th scope="col">Your cost each</th></tr></thead><tbody id="ladder"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download price breaks as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Screens</strong> = colours per location × locations. Each is burned once per job.</li>
+      <li><strong>Pieces printed</strong> = pieces ordered ÷ (1 − spoilage), rounded up. Spoiled blanks are bought and printed, so they sit in the cost.</li>
+      <li><strong>Hours</strong> = (screens × setup minutes + fixed setup) ÷ 60 + impressions ÷ press speed. Labor and overhead are charged on those hours.</li>
+      <li><strong>Revenue needed</strong> = total cost ÷ (1 − target margin). <strong>Price each</strong> = (revenue − screen fees you charge) ÷ pieces.</li>
+      <li><strong>Not modelled:</strong> artwork time, flash and cure, shipping, tax, payment fees, specialty inks. Count an underbase as a colour.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a screen printing job?</h3>
+    <p>Add the blank garments (including spoiled ones you had to buy), the screens, ink, and the press and setup time at your labor and overhead rates. Divide that cost by one minus your target margin to get the revenue the job needs, subtract any screen fees you charge separately, and divide by the number of pieces.</p>
+    <h3>Why does the price per shirt drop as the order gets bigger?</h3>
+    <p>Burning screens and registering the press cost about the same for 24 shirts as for 240, so on a small order that fixed setup is spread over few pieces. The price ladder shows the per-piece price at each quantity so you can set price breaks that still hold your margin.</p>
+    <h3>What counts as a screen?</h3>
+    <p>One screen per colour per print location. A three-colour front and a one-colour sleeve is four screens. Every piece passes under every screen, so press time and ink scale with pieces times screens.</p>
+    <h3>Should I charge a screen fee?</h3>
+    <p>That is your call. If you charge one, the tool takes it out of the per-piece price so your margin target still holds. If you do not, the screen cost is recovered inside the piece price, which makes small orders look expensive.</p>
+    <h3>What does this leave out?</h3>
+    <p>Artwork and separation time, ink waste and reclaim chemicals beyond the per-impression figure you enter, flash and cure time, shipping, sales tax, specialty inks and underbase passes (count an underbase as a colour), and payment fees.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab. There are no accounts.</p>
+    <h3>Is this business or financial advice?</h3>
+    <p>No. It is arithmetic over the costs and margin you enter. Check the output against your own books before quoting a customer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Quotes depend on the costs you enter.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../embroidery-shop-quote-calculator/">embroidery shop quote</a>, <a href="../apparel-decoration-price-calculator/">apparel decoration price</a>, <a href="../sign-shop-job-pricing-calculator/">sign shop job pricing</a>, <a href="../recipe-costing-calculator/">recipe costing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, usd } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["qty", "colors", "locations", "garmentCost", "spoilPct", "screenCost", "setupMinPerScreen", "jobSetupMin", "impressionsPerHour", "laborRate", "overheadRate", "inkPerImpression", "marginPct", "screenFeeCharged", "yourPrice"];
+    const labels = { garments: "Blank garments (incl. spoiled)", screens: "Screens", ink: "Ink", labor: "Labor", overhead: "Overhead" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#s-unit").textContent = usd(r.unit);
+      $("#s-cost").textContent = usd(r.unitCost);
+      $("#s-profit").textContent = usd(r.profit);
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#parts").innerHTML = Object.entries(r.cost.parts).map(([k, v]) => `<tr><th scope="row">${labels[k]}</th><td>${usd(v)}</td></tr>`).join("") + `<tr><th scope="row">Total</th><td>${usd(r.cost.total)}</td></tr>`;
+      $("#ladder").innerHTML = r.ladder.map((l) => `<tr><th scope="row">${l.qty}${l.isOrder ? " (this order)" : ""}</th><td>${usd(l.unit)}</td><td>${usd(l.cost)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Quote calculated.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("quote_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) if (s[k] !== undefined) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "screen-print-price-breaks.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rv-boat-storage-lot-calculator/" data-pf-to="rv-boat-storage-lot-calculator">RV and boat storage lot calculator: will the lot pay back? Free, private</a></li>
+      <li><a href="../saas-feature-packaging-optimizer/" data-pf-to="saas-feature-packaging-optimizer">SaaS feature packaging optimizer</a></li>
+      <li><a href="../saas-tier-price-optimizer/" data-pf-to="saas-tier-price-optimizer">SaaS tier price optimizer</a></li>
+      <li><a href="../sales-quota-capacity-planner/" data-pf-to="sales-quota-capacity-planner">Sales Quota Capacity Planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=screen-print-job-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/?pfEmbed=1&quot; title=&quot;Screen Print Job Quote Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="screen-print-job-quote-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/" data-pf-embed-title="Screen Print Job Quote Calculator — free, private" data-pf-embed-slug="screen-print-job-quote-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="screen-print-job-quote-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="screen-print-job-quote-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

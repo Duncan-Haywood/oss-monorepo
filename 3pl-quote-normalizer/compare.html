@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Compare 3PL Quotes Against a Target</title>
+  <meta name="description" content="Compare normalized third-party logistics quotes and see which providers fit your monthly fulfillment budget.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/compare.html">
+  <meta property="og:title" content="Compare two 3PL quotes side by side">
+  <meta property="og:description" content="See which of two normalized 3PL quotes fits your monthly fulfillment budget, with an optional target total.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Compare 3PL Quotes Against a Target","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare two normalized monthly 3PL quote totals, named and side by side, against an optional target budget."}</script>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:700px;margin:auto;padding:24px;background:#f4f1ea;color:#17212b}
+    main{background:#fff;padding:24px;border-radius:14px}
+    form{display:grid;gap:14px}label{font-weight:700}input,button{font:inherit;padding:10px;margin-top:5px}
+    input{border:1px solid #a9b4af;border-radius:7px;box-sizing:border-box;width:100%}
+    button{background:#c05430;color:white;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+    .secondary{background:#e8eee9;color:#123b36}.note{color:#52605d;font-size:.9rem}
+    .error{color:#a52f22;font-weight:700;min-height:1.5em}.result{font-size:1.2rem;font-weight:700;color:#123b36;min-height:1.5em}
+    .target,.insight{font-weight:600;color:#52605d;line-height:1.5}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/compare.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Compare two 3PL quotes side by side — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3pl-quote-normalizer/">3PL Quote Normalizer</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Compare two 3PL quotes side by side</span></span></nav>
+  <main>
+    <p class="note">FULFILLMENT DECISION TOOL</p>
+    <h1>Compare two normalized 3PL quotes</h1>
+    <p>Enter monthly totals calculated at the same order volume. Name the providers so the result is ready to share, then add your maximum acceptable monthly total to turn the comparison into a negotiation decision.</p>
+    <form id="compare" novalidate>
+      <label>Provider A name, optional<input name="firstName" type="text" maxlength="80" placeholder="Example: Northstar 3PL"></label>
+      <label>Provider B name, optional<input name="secondName" type="text" maxlength="80" placeholder="Example: Harbor Fulfillment"></label>
+      <label>Quote A monthly total ($)<input name="first" type="number" min="0" step=".01" inputmode="decimal" required></label>
+      <label>Quote B monthly total ($)<input name="second" type="number" min="0" step=".01" inputmode="decimal" required></label>
+      <label>Target monthly total ($), optional<input name="target" type="number" min="0" step=".01" inputmode="decimal"></label>
+      <button>Compare quotes</button>
+    </form>
+    <p id="error" class="error" role="alert"></p>
+    <p id="result" class="result" aria-live="polite"></p>
+    <p id="targetResult" class="target" aria-live="polite"></p>
+     <button class="secondary" id="copy" type="button">Copy comparison</button> <button class="secondary" id="download" type="button">Download CSV record</button> <button class="secondary" id="copyLink" type="button">Copy comparison link</button>
+    <p class="note">Need a factual ask for the higher quote? <a href="./negotiation.html">Create a negotiation brief</a> from the same monthly totals.</p>
+    <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p><p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p class="note">Your inputs stay in this browser. No account, tracking cookie, or analytics vendor is used. "Copy comparison link" puts the same provider names and totals in a URL you can send to a coworker or negotiator instead of retyping them — treat a copied link like the quotes themselves, since it carries both totals.</p>
+  </main>
+  <script type="module">
+     import { comparisonMessage, normalizeComparison, targetMessage } from "./compare.mjs";
+     import { exportComparisonCsv } from "./export.mjs";
+    import { record } from "./usage.mjs";
+    import { encodeShare, decodeShare } from "./share.mjs";
+     const form = document.querySelector("#compare"), result = document.querySelector("#result"), targetResult = document.querySelector("#targetResult"), error = document.querySelector("#error"), copy = document.querySelector("#copy"), download = document.querySelector("#download"), copyLink = document.querySelector("#copyLink"), saveKey = "3pl-quote-normalizer-comparison";
+    let latest = "";
+    function values() { return Object.fromEntries(new FormData(form)); }
+    function applyValues(values) { for (const [name, value] of Object.entries(values)) { const input = form.elements.namedItem(name); if (input && typeof value === "string") input.value = value; } }
+    function render(track = false) {
+      const input = values(), comparison = normalizeComparison(input), firstName = input.firstName?.trim() || "Quote A", secondName = input.secondName?.trim() || "Quote B", target = targetMessage(comparison, firstName, secondName);
+      error.textContent = comparison.error || "";
+      result.textContent = comparison.error ? "" : comparisonMessage(comparison, firstName, secondName);
+      targetResult.textContent = comparison.error ? "" : target;
+      latest = comparison.error ? "" : `3PL quote comparison\n${comparisonMessage(comparison, firstName, secondName)}${target ? `\n${target}` : ""}`;
+      if (track && !comparison.error) { record("comparison_completed"); if (comparison.target != null) record("comparison_target_viewed"); }
+    }
+    try { const saved = JSON.parse(localStorage.getItem(saveKey) || "null"); if (saved && typeof saved === "object") applyValues(saved); } catch { /* local drafts are optional */ }
+    const shared = decodeShare(location.hash);
+    if (shared) applyValues(shared);
+    form.addEventListener("submit", event => { event.preventDefault(); render(true); });
+    form.addEventListener("input", () => { try { localStorage.setItem(saveKey, JSON.stringify(values())); } catch { /* local drafts are optional */ } render(); });
+     copy.addEventListener("click", async () => { if (!latest) { render(); return; } try { await navigator.clipboard.writeText(latest); record("comparison_copied"); copy.textContent = "Copied"; } catch { copy.textContent = "Copy unavailable"; } });
+     copyLink.addEventListener("click", async () => { const query = encodeShare(values()), url = `${location.origin}${location.pathname}${query ? `#${query}` : ""}`; try { await navigator.clipboard.writeText(url); record("comparison_link_copied"); copyLink.textContent = "Link copied"; } catch { copyLink.textContent = "Copy unavailable"; } });
+     download.addEventListener("click", () => { const input = values(), comparison = normalizeComparison(input); if (comparison.error) { render(); return; } const firstName = input.firstName?.trim() || "Quote A", secondName = input.secondName?.trim() || "Quote B", blob = new Blob([exportComparisonCsv(comparison, firstName, secondName)], { type: "text/csv" }), link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "3pl-quote-comparison.csv"; link.click(); URL.revokeObjectURL(link.href); record("comparison_csv_exported"); });
+    render();
+  </script>
+  <script type="module" src="./comparison-insights.mjs"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-quote-normalizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3pl-quote-normalizer"></script>
+</body>
+</html>

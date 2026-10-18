@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This checker vs. watching your backup's exit code yourself | Backup Verification Evidence</title>
+  <meta name="description" content="Cron mail, systemd status, and a green dashboard all report the same thing: the command exited 0.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/vs-checking-the-exit-code-yourself.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This checker vs. watching your backup's exit code yourself">
+  <meta property="og:description" content="A backup command that fills the disk and writes a 312-byte file still exits 0. Cron mail, systemd status, and a shell one-liner all call that a pass.">
+  <meta property="og:url" content="./vs-checking-the-exit-code-yourself.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't checking $? or the systemd unit status good enough?","acceptedAnswer":{"@type":"Answer","text":"It tells you the command finished and returned success, which is real information and worth having. It cannot tell you whether the thing the command was supposed to produce actually exists at the size and freshness you expect, because the exit code and the artifact are two separate facts and a broken pipeline can get the first one right while getting the second one badly wrong. A backup script that hits a full disk partway through, or a database dump that connects but returns no rows, typically still reaches its last line and still exits 0."}},{"@type":"Question","name":"What does watching the exit code actually miss, concretely?","acceptedAnswer":{"@type":"Answer","text":"Anything that happens to the output after the command decides it succeeded. On this checker's own shipped example, a nightly pg_dump run exits 0, finishes in four seconds, and writes an artifact that is 312 bytes -- far below the 1.0 MB minimum that run's own record expected. Cron mail reports nothing, because there is no error to mail. systemctl status shows the unit as inactive (exited with 0). A human glancing at either would see a clean run. Running backup-evidence check against the same record reports it suspicious, with the reason spelled out: \"artifact is 312 bytes, below the expected minimum of 1.0 MB\", and the check command exits 1."}},{"@type":"Question","name":"How would I have actually caught the 312-byte example by hand?","acceptedAnswer":{"@type":"Answer","text":"By remembering to run ls -la or du -sh on the artifact after every single backup, forever, across every host and every schedule -- and by remembering what size counts as normal for that particular job, which drifts over time as the underlying data grows. That is a manual step nothing in the exit code or the unit status prompts you to take, which is exactly why it tends to get skipped the day it would have mattered."}},{"@type":"Question","name":"Does this replace watching my job's exit code or unit status?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. A nonzero exit code is still real signal -- this checker's own classification treats it as an automatic failed, no further checks needed. What it adds is the layer above that: for the runs that returned 0, did the artifact they left behind actually match what you expected? Keep watching exit codes for the job that crashes outright; use this for the job that quietly succeeds at doing nothing useful."}},{"@type":"Question","name":"Do I have to change how I already run the backup to use this?","acceptedAnswer":{"@type":"Answer","text":"No. It reads a run record you can build from information you already have -- the tool name, the exit code, when it finished, and a stat of the artifact -- and it never runs the backup command itself. The record subcommand can capture that record around your existing command with no change to the command itself, or you can write the record by hand from a script you already maintain."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17212b; background: #f4f1ea; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0b5f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 14px; color: #123b36; max-width: 26ch; }
+    p, li { line-height: 1.5; }
+    .eyebrow { font-weight: 700; letter-spacing: .04em; font-size: .85rem; }
+    .lede { font-size: 1.05rem; max-width: 66ch; color: #3c4a47; }
+    .note, footer { font-size: .86rem; color: #52605d; }
+    .card { background: #fff; border: 1px solid #d8d3c9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123b3610; margin: 18px 0; }
+    h2 { margin-top: 0; color: #123b36; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 14px 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6e2da; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #52605d; }
+    pre { white-space: pre-wrap; background: #f4f1ea; padding: 12px; border-radius: 8px; font-size: .8rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d8d3c9; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. watching your backup's exit code yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../backup-verification-evidence/">Backup night-over-night trend</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. watching your backup's exit code yourself</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Backup Verification Evidence</a></p>
+  <header>
+    <h1>This checker vs. watching your backup's exit code yourself</h1>
+    <p class="lede">Cron mail, <code>systemctl status</code>, and a shell <code>echo $?</code> all report the same one fact: the command returned <code>0</code>. None of them look at what the command actually wrote.</p>
+  </header>
+
+  <section class="card">
+    <h2>What watching the exit code tells you</h2>
+    <p>
+      Checking the return code is the cheapest, most common way anyone
+      verifies a scheduled job, and it is not wrong to do it: a nonzero exit
+      is real signal that something broke, and most backup tools are honest
+      about reporting one when they crash, lose their connection, or hit a
+      permission error. Cron's own default of mailing you the job's output
+      only on nonzero exit is built on exactly this assumption, and so is a
+      green line in <code>systemctl status</code> for a job that already ran.
+    </p>
+    <p>
+      What none of those checks look at is the artifact the command was
+      supposed to produce. The exit code is the process's own opinion of how
+      it went, decided the moment the process's last line runs -- it has no
+      way to represent "I returned successfully, and what I wrote is
+      unusable," because those are two separate facts and only one of them is
+      encoded in a number between 0 and 255.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>A real run, from this checker's own shipped example</h2>
+    <p>
+      This is not a hypothetical. It is one of the run records shipped with
+      this checker's own test suite, reproduced exactly:
+    </p>
+<pre>{
+  "tool": "pg_dump",
+  "exit_code": 0,
+  "started_at": "2026-08-25T03:00:00Z",
+  "finished_at": "2026-08-25T03:00:04Z",
+  "artifact": {
+    "path": "/backups/nightly.sql.gz",
+    "exists": true,
+    "size_bytes": 312,
+    "modified_at": "2026-08-25T03:00:03Z"
+  },
+  "expected": { "max_age_hours": 26, "min_size_bytes": 1000000 }
+}</pre>
+    <p>
+      <code>pg_dump</code> connected, ran, and exited <code>0</code> in four
+      seconds. Cron has nothing to mail, because nothing failed by its own
+      measure. <code>systemctl status</code> on the timer's service shows the
+      last run as <code>inactive (exited with 0)</code> -- the same thing it
+      shows for a full, correct dump. A human running <code>echo $?</code>
+      right after the job sees <code>0</code> and moves on.
+    </p>
+    <p>
+      Running <code>backup-evidence check</code> against the same record
+      instead:
+    </p>
+<pre>$ PYTHONPATH=src python3 -m backup_evidence.cli check run.json
+{
+  "latest": {
+    "status": "suspicious",
+    "reasons": [
+      "artifact is 312 bytes, below the expected minimum of 1.0 MB"
+    ],
+    "tool": "pg_dump",
+    "finished_at": "2026-08-25T03:00:04Z"
+  }
+}
+$ echo $?
+1</pre>
+    <p>
+      The command that ran connected fine; whatever wrote the 312-byte file
+      afterward -- a full destination, a broken pipe, a dump that silently
+      matched zero tables -- never touched the process's own return value.
+      The exit code and the artifact disagree, and only one of the two checks
+      above is looking at the artifact.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Side by side</h2>
+    <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Watching the exit code</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>Reads the number the process returned when it finished.</td><td>Reads the artifact the process was supposed to leave behind: whether it exists, its size, and how old it is.</td></tr>
+          <tr><td>A destination that fills up mid-write still lets most tools reach their last line and exit 0.</td><td>Compares the resulting size against the minimum you told it to expect, and reports the gap by name.</td></tr>
+          <tr><td>Has no memory of what "normal" looks like for this job.</td><td>Can compare tonight's artifact against the last few nights and flag a quiet shrink even when every single night still exits 0.</td></tr>
+          <tr><td>Says nothing about whether the archive reads back, only that the writer process returned success.</td><td>Can optionally read the artifact end-to-end and report a structurally corrupt file as failed, not suspicious.</td></tr>
+          <tr><td>Free, and already running -- most schedulers do this by default.</td><td>Also free, local, and adds one more command in the same chain rather than replacing what you already have.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Using both together</h2>
+    <p>
+      Nothing here argues for dropping cron mail or your systemd unit status
+      -- a job that cannot even start is a real failure this checker will
+      never see, because it only looks at records for jobs that ran. The
+      change is adding one more check after the exit code, so a run that
+      returns 0 still has to clear a second, independent test before you
+      treat it as done:
+    </p>
+<pre>#!/bin/sh
+set -e
+pg_dump mydb | gzip > /backups/nightly.sql.gz
+PYTHONPATH=src python3 -m backup_evidence.cli record \
+    --tool pg_dump --artifact /backups/nightly.sql.gz \
+    --min-size-bytes 1000000 --max-age-hours 26 \
+    --output /backups/last-run.json -- true
+PYTHONPATH=src python3 -m backup_evidence.cli check /backups/last-run.json</pre>
+    <p>
+      The last line exits <code>1</code> unless the newest recorded run is
+      <code>verified</code>, so it composes with whatever already watches
+      this script's own exit code -- cron mail on nonzero, a systemd
+      <code>OnFailure=</code> unit, or a monitoring ping gated on
+      <code>&amp;&amp;</code>. The command you were already watching now
+      means something closer to "the backup ran and left a plausible
+      artifact," instead of just "the backup ran."
+    </p>
+    <p class="note">
+      Open the <a href="./">verification checker</a> to run this against a
+      record of your own, or see <a href="./vs-healthchecks.html">this
+      checker vs. Healthchecks.io</a> for the layer that watches whether the
+      job runs on schedule at all.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+
+    <h3>Isn't checking $? or the systemd unit status good enough?</h3>
+    <p>It tells you the command finished and returned success, which is real information and worth having. It cannot tell you whether the thing the command was supposed to produce actually exists at the size and freshness you expect, because the exit code and the artifact are two separate facts and a broken pipeline can get the first one right while getting the second one badly wrong. A backup script that hits a full disk partway through, or a database dump that connects but returns no rows, typically still reaches its last line and still exits 0.</p>
+
+    <h3>What does watching the exit code actually miss, concretely?</h3>
+    <p>Anything that happens to the output after the command decides it succeeded. On this checker's own shipped example, a nightly <code>pg_dump</code> run exits 0, finishes in four seconds, and writes an artifact that is 312 bytes -- far below the 1.0 MB minimum that run's own record expected. Cron mail reports nothing, because there is no error to mail. <code>systemctl status</code> shows the unit as inactive (exited with 0). A human glancing at either would see a clean run. Running <code>backup-evidence check</code> against the same record reports it <code>suspicious</code>, with the reason spelled out: "artifact is 312 bytes, below the expected minimum of 1.0 MB", and the check command exits 1.</p>
+
+    <h3>How would I have actually caught the 312-byte example by hand?</h3>
+    <p>By remembering to run <code>ls -la</code> or <code>du -sh</code> on the artifact after every single backup, forever, across every host and every schedule -- and by remembering what size counts as normal for that particular job, which drifts over time as the underlying data grows. That is a manual step nothing in the exit code or the unit status prompts you to take, which is exactly why it tends to get skipped the day it would have mattered.</p>
+
+    <h3>Does this replace watching my job's exit code or unit status?</h3>
+    <p>No, and it is not trying to. A nonzero exit code is still real signal -- this checker's own classification treats it as an automatic <code>failed</code>, no further checks needed. What it adds is the layer above that: for the runs that returned 0, did the artifact they left behind actually match what you expected? Keep watching exit codes for the job that crashes outright; use this for the job that quietly succeeds at doing nothing useful.</p>
+
+    <h3>Do I have to change how I already run the backup to use this?</h3>
+    <p>No. It reads a run record you can build from information you already have -- the tool name, the exit code, when it finished, and a stat of the artifact -- and it never runs the backup command itself. The <code>record</code> subcommand can capture that record around your existing command with no change to the command itself, or you can write the record by hand from a script you already maintain.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, tax, or backup-strategy advice, and it does not replace a qualified professional or a test restore. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including reliance on a verified night or a missing trend alert.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every check runs locally, and this page makes no live comparison against any competing service or tool -- it is a static page describing this checker's own shipped example and CLI output.</p>
+    <p class="support">Free and open source. If it caught a missed backup night before it mattered, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../retirement-plan-startup-credit-calculator/" data-pf-to="retirement-plan-startup-credit-calculator">Retirement plan startup credit calculator. Free, private</a></li>
+      <li><a href="../revolut-business-statement-to-journal/" data-pf-to="revolut-business-statement-to-journal">Revolut statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+      <li><a href="../salary-range-posting-check/" data-pf-to="salary-range-posting-check">Does your job posting state a pay range?</a></li>
+      <li><a href="../sales-call-notes-desk/" data-pf-to="sales-call-notes-desk">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=backup-verification-evidence">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="backup-verification-evidence"></script>
+</body>
+</html>

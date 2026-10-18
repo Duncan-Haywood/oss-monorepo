@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $28-a-foot deck estimate | Deck Bid Calculator</title>
+<meta name="description" content="A '$28-a-foot' deck estimate is priced on a low, simple patio platform, not on height, railing, stairs, footings, or tear-out.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/vs-a-flat-28-a-foot-estimate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat $28-a-foot deck estimate">
+<meta property="og:description" content="A $28-a-foot estimate covers a low, simple 20x20 patio with room to spare, but this calculator's own shipped default job -- ordinary height, railing…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat $28-a-foot deck estimate get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because deck cost scales with height above grade, railing lineal feet, stair runs, footings, material, and tear-out — not with square footage alone. A 14x20 patio ten inches off grade and a 14x20 elevated deck eight feet up are the same 280 square feet and completely different jobs. A flat per-square-foot rate quotes both the same and is wrong on one of them every time."}},{"@type":"Question","name":"What does a flat per-square-foot deck estimate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The height above grade, the railing, the stairs, the footings, and the tear-out. A published per-square-foot rate is set on one configuration — usually a low platform close to grade, no railing, no stairs, no existing deck to remove — and has no separate line for the extra framing and post-set hours a guard-height or elevated deck needs, for railing priced by the lineal foot rather than the deck's footprint, for a stair run's risers and width, or for hauling away what was there before."}},{"@type":"Question","name":"How much do height, railing, stairs, and tear-out actually add over the estimate?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples, at a $42 hourly wage, 30% burden, 15% overhead, and a 22% target margin: a low, simple 20x20 patio deck ten inches off grade, with no railing, stairs, or tear-out, walks away at $10,773.09, comfortably under a $28-a-foot estimate on the same 400 square feet ($11,200.00). This calculator's own shipped default job — a 14x20 main deck plus a 10x12 wrap, both three feet up, 46 lineal feet of wood railing, one five-riser stair, and 280 square feet of tear-out — walks away at $17,692.80, $6,492.80 over that same per-square-foot number on the same 400 square feet. A 16x24 elevated composite deck eight feet up, with 80 lineal feet of cable railing and a 14-riser stair, walks away at $29,826.09, $19,074.09 over a $28-a-foot estimate on its 384 square feet."}},{"@type":"Question","name":"Is a flat $28-a-foot estimate ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For something close to the easy job it was probably priced on — a low platform near grade, no railing, no stairs, nothing to tear out — a flat per-square-foot rate can land close or even leave room to spare. The risk is guard height or an elevated frame, railing by the lineal foot, a stair run, or a tear-out stacking on top of each other, because a rate quoted per square foot has no way to see any of them until the framing is already up."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competitors charge. It takes the surfaces, height, material, railing, stairs, and tear-out you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the deck you describe — the arithmetic a flat per-square-foot rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f3eee6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a4b1f; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5144; }
+  section { background: #fffdf8; border: 1px solid #d8cbb8; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a26140d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8cbb8; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5144; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .covers { color: #1d6b3a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #5c5144; }
+  footer { color: #5c5144; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/vs-a-flat-28-a-foot-estimate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $28-a-foot deck estimate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../deck-bid-calculator/">Deck Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $28-a-foot deck estimate</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Deck Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $28-a-foot deck estimate</h1>
+<p class="lede">"$28 a foot" is not a price for a deck &mdash; it is a price for a low, simple platform near grade, quietly applied to an elevated deck with railing, a stair run, and an old deck to haul away.</p>
+</header>
+<section>
+<h2>What a flat $28-a-foot estimate is</h2>
+<p>
+A flat per-square-foot number is the fastest way to answer "how much for a
+deck?" over the phone or in a search result: one rate, multiplied by length
+times width. Homeowners hear it as a rule of thumb and expect a bid to land
+near it, and it is the number a caller holding a competitor's postcard will
+ask a crew to match on their own footprint.
+</p>
+<p>
+The rate behind it was set for one job &mdash; usually a low platform close
+to grade, with no railing, no stairs, and nothing to tear out &mdash; and
+then reused for every deck afterward, whether or not the next one is a
+third off the ground, wrapped in railing, reached by a stair run, or built
+on top of an existing deck that has to come out first.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+surface's length, width, height above grade, and material, plus railing
+lineal feet and style, stair runs by riser and width, and square footage of
+an existing deck to tear out, along with your own wage, payroll burden,
+travel, and overhead. It prices the height, the railing, the stairs, the
+footings, and the tear-out separately, and returns a walk-away price and
+price per square foot below which the job loses money &mdash; for this
+deck, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$28-a-foot estimate</th><th class="num" scope="col">Walk-away price</th><th scope="col">Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td>20&times;20 patio deck, 10 inches off grade, no railing, no stairs, no tear-out (400 sf)</td><td class="num">$11,200.00</td><td class="num">$10,773.09</td><td class="covers">Covers, $426.91 to spare</td></tr>
+<tr><td>14&times;20 main deck + 10&times;12 wrap, both 3 ft up, 46 lf wood railing, 1 stair run, 280 sf tear-out (this calculator's own default job, 400 sf)</td><td class="num">$11,200.00</td><td class="num">$17,692.80</td><td class="loses">Short $6,492.80</td></tr>
+<tr><td>16&times;24 elevated composite deck, 8 ft up, 80 lf cable railing, 14-riser stair (384 sf)</td><td class="num">$10,752.00</td><td class="num">$29,826.09</td><td class="loses">Short $19,074.09</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own material and railing presets at a $42 hourly wage, 30% payroll burden, 15% overhead on direct cost, and a 22% target margin &mdash; the form's own shipped defaults, not numbers invented for this page. Open the calculator to check any row yourself.</p>
+<p class="note">
+Notice the middle row: it is this calculator's own shipped starting point,
+not a job picked to prove a point, and it already runs $6,492.80 over a
+$28-a-foot estimate on the identical 400 square feet the low patio in the
+first row covers with room to spare. Nothing about it is extreme &mdash; a
+few feet of height, one stair, ordinary railing, and hauling away the old
+deck is the difference.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat $28-a-foot estimate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate whether the deck is 10 inches off grade or 8 feet up &mdash; an elevated frame needs more posts, usually a guard, and more framing and post-set hours than a low platform of the same footprint.</td>
+<td>Applies extra framing and post-set hours once a surface crosses the guard-height and elevated-height thresholds, so a low deck and a tall deck of the same square footage price differently.</td>
+</tr>
+<tr>
+<td>Has no separate line for railing, so a deck wrapped in 80 lineal feet of cable rail gets the same per-square-foot number as one with none at all.</td>
+<td>Prices railing by the lineal foot and by style &mdash; wood, aluminum, cable, or glass &mdash; on top of the deck surfaces, scaled to the run entered.</td>
+</tr>
+<tr>
+<td>Prices "a deck" the same whether or not it needs a stair run, and has no way to see risers or stair width.</td>
+<td>Adds stair hours and material per run, scaled to riser count and width, only when stairs are entered.</td>
+</tr>
+<tr>
+<td>Has no line for hauling away an existing deck, so a rebuild on the same footprint costs the same as building on a bare lot.</td>
+<td>Prices demo hours and disposal per square foot of tear-out separately, on top of the new build.</td>
+</tr>
+<tr>
+<td>Gives the homeowner a number to hold a crew to, not a number the crew can check a quote against once the deck turns out to be elevated, railed, and stepped after the estimate was already given.</td>
+<td>Reports the walk-away price and price per square foot for the job as entered, so a shopped rate can be scored against real cost before it is confirmed.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat $28-a-foot estimate is not wrong because it is simple &mdash; it is
+wrong when it is applied to a height, railing run, stair count, or tear-out
+condition it was not set on, and "square feet" alone never tells you that
+has happened. This calculator does not replace judgment about your market;
+it replaces the arithmetic a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat $28-a-foot deck estimate get the price wrong?</h3>
+<p>Because deck cost scales with height above grade, railing lineal feet, stair runs, footings, material, and tear-out &mdash; not with square footage alone. A 14x20 patio ten inches off grade and a 14x20 elevated deck eight feet up are the same 280 square feet and completely different jobs. A flat per-square-foot rate quotes both the same and is wrong on one of them every time.</p>
+<h3>What does a flat per-square-foot deck estimate usually leave out entirely?</h3>
+<p>The height above grade, the railing, the stairs, the footings, and the tear-out. A published per-square-foot rate is set on one configuration &mdash; usually a low platform close to grade, no railing, no stairs, no existing deck to remove &mdash; and has no separate line for the extra framing and post-set hours a guard-height or elevated deck needs, for railing priced by the lineal foot rather than the deck's footprint, for a stair run's risers and width, or for hauling away what was there before.</p>
+<h3>How much do height, railing, stairs, and tear-out actually add over the estimate?</h3>
+<p>On this calculator's own worked examples, at a $42 hourly wage, 30% burden, 15% overhead, and a 22% target margin: a low, simple 20x20 patio deck ten inches off grade, with no railing, stairs, or tear-out, walks away at $10,773.09, comfortably under a $28-a-foot estimate on the same 400 square feet ($11,200.00). This calculator's own shipped default job &mdash; a 14x20 main deck plus a 10x12 wrap, both three feet up, 46 lineal feet of wood railing, one five-riser stair, and 280 square feet of tear-out &mdash; walks away at $17,692.80, $6,492.80 over that same per-square-foot number on the same 400 square feet. A 16x24 elevated composite deck eight feet up, with 80 lineal feet of cable railing and a 14-riser stair, walks away at $29,826.09, $19,074.09 over a $28-a-foot estimate on its 384 square feet.</p>
+<h3>Is a flat $28-a-foot estimate ever the right way to quote?</h3>
+<p>For something close to the easy job it was probably priced on &mdash; a low platform near grade, no railing, no stairs, nothing to tear out &mdash; a flat per-square-foot rate can land close or even leave room to spare. The risk is guard height or an elevated frame, railing by the lineal foot, a stair run, or a tear-out stacking on top of each other, because a rate quoted per square foot has no way to see any of them until the framing is already up.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competitors charge. It takes the surfaces, height, material, railing, stairs, and tear-out you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the deck you describe &mdash; the arithmetic a flat per-square-foot rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat $28-a-foot estimate is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the height, railing, and tear-out condition it was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="index.html">Deck Bid Calculator</a> and price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a deck may be built. It is not a building-code, structural, guardrail, permit, or insurance inspection. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This free tool is experimental and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sod-install-bid-calculator/" data-pf-to="sod-install-bid-calculator">Sod Installation Bid Calculator</a></li>
+      <li><a href="../stump-grinding-price-calculator/" data-pf-to="stump-grinding-price-calculator">How much should I charge to grind a stump? Free bid calculator</a></li>
+      <li><a href="../tree-service-bid-calculator/" data-pf-to="tree-service-bid-calculator">Tree Service Bid Calculator</a></li>
+      <li><a href="../vinyl-liner-bid-calculator/" data-pf-to="vinyl-liner-bid-calculator">Vinyl Liner Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=deck-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="deck-bid-calculator"></script>
+</body></html>

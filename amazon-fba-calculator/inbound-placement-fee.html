@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amazon inbound placement fee vs splitting the shipment</title>
+  <meta name="description" content="Is Amazon inbound placement cheaper than splitting a shipment? Add one-warehouse freight plus the placement fee and compare it with extra freight on Amazon's…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/inbound-placement-fee.html">
+  <meta property="og:title" content="Amazon inbound placement fee vs splitting the shipment">
+  <meta property="og:description" content="The inbound decision is not the blended per-unit number. It is freight to one warehouse plus Amazon's placement fee versus extra freight to follow the split.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon inbound placement vs split freight",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "one-warehouse inbound plus placement fee, partial split, Amazon-optimized split, extra freight the optimized split can absorb, blended inbound per unit, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the Amazon inbound placement service fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is a per-unit fee Amazon charges when a shipment is sent to fewer fulfillment centers than the Amazon-optimized split. Sending to one warehouse usually costs the highest placement fee. Following Amazon's split usually costs $0 placement and more freight."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to pay inbound placement or split the shipment?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Compare three totals at the same unit count: freight to one warehouse plus the minimal placement fee; freight for a partial split plus the partial placement fee; and freight for the Amazon-optimized split plus its placement fee (often $0). The cheaper total inbound is the one to send. On the 200-unit large-standard example — $85 to one warehouse, $140 for a partial split, $210 to follow Amazon's split, and illustrative placement of $0.43 / $0.27 / $0 — one warehouse totals $171.00, the partial split $194.00, and the optimized split $210.00. Paying placement is $23.00 cheaper than the next option. The optimized split can absorb $86.00 more freight before one warehouse wins. Flip the freight quotes to $90 / $105 / $120 and a $0.55 minimal placement fee, and the optimized split wins by $80.00. Paste the fees from your inbound preview — this page does not publish Amazon's live schedule."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/inbound-placement-fee.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Amazon inbound placement fee vs splitting the shipment — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Amazon inbound placement fee vs splitting the shipment</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Is Amazon inbound placement cheaper than splitting the shipment?</h1>
+  <p>
+    Sellers search for “Amazon inbound placement fee” because the listing
+    calculator’s inbound field hides the real trade. That number is usually
+    freight plus placement blended into one unit cost. The decision Amazon
+    actually offers on a create-shipment flow is three splits:
+  </p>
+  <p>
+    <strong>Send to one warehouse</strong> — cheapest freight, highest
+    per-unit inbound placement fee.
+    <strong>Partial split</strong> — more destinations, a mid placement fee.
+    <strong>Amazon-optimized split</strong> — the destinations Amazon asks
+    for, usually $0 placement, more freight and more labels.
+  </p>
+  <p>
+    On a 200-unit large-standard example — $85 to one warehouse, $140 for a
+    partial split, $210 to follow Amazon’s split, and illustrative placement
+    of $0.43 / $0.27 / $0 — one warehouse totals $171.00, the partial split
+    $194.00, and the optimized split $210.00. Paying placement is $23.00
+    cheaper than the next option. The extra freight the optimized split can
+    absorb before one warehouse wins is $86.00. Flip the freight quotes to
+    $90 / $105 / $120 and a $0.55 minimal placement fee, and the optimized
+    split wins by $80.00.
+  </p>
+  <form id="placementForm" class="fields">
+    <label>Units in this inbound shipment <input id="units" type="number" min="1" step="1" value="200" inputmode="numeric"></label>
+    <label>Freight to one warehouse ($) <input id="freightMinimal" type="number" min="0" step="0.01" value="85" inputmode="decimal"></label>
+    <label>Freight for a partial split ($) <input id="freightPartial" type="number" min="0" step="0.01" value="140" inputmode="decimal"></label>
+    <label>Freight for Amazon-optimized split ($) <input id="freightOptimized" type="number" min="0" step="0.01" value="210" inputmode="decimal"></label>
+    <label>Placement fee / unit, one warehouse <input id="placementMinimalPerUnit" type="number" min="0" step="0.01" value="0.43" inputmode="decimal"></label>
+    <label>Placement fee / unit, partial split <input id="placementPartialPerUnit" type="number" min="0" step="0.01" value="0.27" inputmode="decimal"></label>
+    <label>Placement fee / unit, Amazon-optimized <input id="placementOptimizedPerUnit" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Split</th>
+        <th scope="col">Freight</th>
+        <th scope="col">Placement</th>
+        <th scope="col">Total inbound</th>
+        <th scope="col">Per unit</th>
+        <th scope="col">vs cheapest</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Rates change by size tier, weight, and account. This page does not
+    publish Amazon’s live inbound-placement schedule. Paste the per-unit
+    fees from your inbound preview and the freight quotes you actually
+    have. The same table lives on the
+    <a href="./#inbound-placement">Amazon FBA calculator</a>.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not recommend a split,
+    and it does not claim a shipment is cheaper after Amazon reprices
+    freight or placement.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is the Amazon inbound placement service fee?</h3>
+  <p>It is a per-unit fee Amazon charges when a shipment is sent to fewer fulfillment centers than the Amazon-optimized split. Sending to one warehouse usually costs the highest placement fee. Following Amazon's split usually costs $0 placement and more freight.</p>
+  <h3>Is it cheaper to pay inbound placement or split the shipment?</h3>
+  <p>Compare three totals at the same unit count: freight to one warehouse plus the minimal placement fee; freight for a partial split plus the partial placement fee; and freight for the Amazon-optimized split plus its placement fee (often $0). The cheaper total inbound is the one to send. On the 200-unit large-standard example — $85 to one warehouse, $140 for a partial split, $210 to follow Amazon's split, and illustrative placement of $0.43 / $0.27 / $0 — one warehouse totals $171.00, the partial split $194.00, and the optimized split $210.00. Paying placement is $23.00 cheaper than the next option. The optimized split can absorb $86.00 more freight before one warehouse wins. Flip the freight quotes to $90 / $105 / $120 and a $0.55 minimal placement fee, and the optimized split wins by $80.00. Paste the fees from your inbound preview — this page does not publish Amazon's live schedule.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareInboundPlacement, placementSummary } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "units", "freightMinimal", "freightPartial", "freightOptimized",
+      "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareInboundPlacement(raw);
+        document.getElementById("summary").textContent = placementSummary(result);
+        document.getElementById("verdict").textContent = result.winner === "tie"
+          ? "These splits cost the same"
+          : `${result.paths[result.winner].label} — ${money(result.nextBestDelta)} less than the next option`;
+        document.getElementById("compare").innerHTML = result.ranked.map((path) => {
+          const vs = result.extraVsCheapest[path.id];
+          return `<tr class="${result.cheapestIds.includes(path.id) ? "winner-row" : ""}"><td>${path.label}</td><td>${money(path.freight)}</td><td>${money(path.placementTotal)}</td><td>${money(path.total)}</td><td>${money(path.perUnit)}</td><td>${vs === 0 ? "cheapest" : `+${money(vs)}`}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "inbound_placement_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kdp-royalty-to-journal/" data-pf-to="kdp-royalty-to-journal">KDP royalty report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-fba-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amazon-fba-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="amazon-fba-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="amazon-fba-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

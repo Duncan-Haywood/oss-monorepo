@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Android Data Safety Checker — permissions/SDKs vs Play Console declaration</title>
+<meta name="description" content="Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Android Data Safety Checker">
+<meta property="og:description" content="Cross-check your app's permissions and SDKs against your Play Console Data safety declaration before a policy review finds the gap. Free, local, no upload.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Android Data Safety Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI is also provided",
+  "description": "Scans an Android project's AndroidManifest.xml permissions and Gradle dependencies for known SDKs, and cross-checks the result against the Google Play Data safety categories you say you've already declared. Runs entirely in the browser or as a local CLI; nothing is uploaded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Maps 20+ Android runtime permissions to Google Play's own Data safety category list",
+    "Detects common analytics/ads/crash SDKs (Firebase, AdMob, Facebook, and others) from Gradle dependency coordinates",
+    "Cross-checks detected categories against a plain list of what you've already declared in Play Console",
+    "Names the exact permission or SDK, file, and line behind an undeclared category",
+    "Runs fully client-side or as a Node CLI in your own CI; no upload, no account"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Google Play flag my app's Data safety declaration?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Most often because a permission your app requests, or an SDK it embeds (analytics, ads, crash reporting), collects a category of data your Play Console Data safety form doesn't declare. This tool scans your AndroidManifest.xml and Gradle files for the permissions and known SDKs that imply a category, and tells you which one is missing." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool read or fill in the Play Console form for me?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Play Console has no public file format this tool reads from or writes to. You tell it what you've already declared (a plain list of categories, or ticking the checkboxes in the browser tool), and it compares that against what your manifest and Gradle files suggest you collect. You still make every declaration decision in Play Console yourself." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my project uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean Google Play will accept my declaration?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This is pattern-matching against known permission names and SDK dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real behaviour, and Google can change its Data safety categories or a given SDK's practices at any time. Always confirm against Play Console's current Data safety form and each SDK's own privacy documentation before you submit." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 860px; margin: 0 auto; padding: 1.5rem; line-height: 1.5; }
+  h1 { font-size: 1.5rem; }
+  .picker { border: 2px dashed #888; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; }
+  legend { padding: 0 0.4rem; font-weight: 600; }
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.35rem 1rem; }
+  .cat-grid label { font-size: 0.92rem; display: flex; gap: 0.4rem; align-items: flex-start; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; }
+  .link-button { font-size: inherit; padding: 0; border: none; background: none; color: #0366d6; text-decoration: underline; cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: 0.6; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1.5rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.92rem; }
+  .status-declared { color: #1a7f37; font-weight: 600; }
+  .status-undeclared { color: #b42318; font-weight: 600; }
+  .status-declared-but-not-detected { color: #9a6700; font-weight: 600; }
+  .status-not-detected { color: #666; }
+  .examples { margin: 0.25rem 0 0; padding-left: 1.1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; color: #555; }
+  footer p { margin: 0.6rem 0; }
+  .summary-ok { color: #1a7f37; }
+  .summary-bad { color: #b42318; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Android Data Safety Checker","item":"https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Android Data Safety Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Android Data Safety Checker</span></span></nav>
+<h1>Android Data Safety Checker</h1>
+<p>
+  Scans your <code>AndroidManifest.xml</code> permissions and Gradle dependencies
+  for known analytics/ads/crash SDKs, maps each one to a
+  <strong>Google Play Data safety</strong> category, and checks it against a plain
+  list of the categories you've already declared in Play Console's
+  <strong>App content &gt; Data safety</strong> form -- so a missing declaration
+  doesn't cost you a policy warning or a listing taken down for an inaccurate
+  disclosure. Everything runs in this tab; nothing is uploaded. A command-line
+  version for CI is in the same
+  <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/android-data-safety-check" rel="noopener">repository</a>
+  (<code>node check.mjs . --declared declared.txt</code>).
+</p>
+<p>More: <a href="missing-data-safety-declaration.html">why does Play flag my Data safety form, and how do I fix it?</a>
+Checking a release deadline instead? <a href="target-api-level.html">Play Store Target API Level Checker</a> checks your
+<code>targetSdkVersion</code> against Google Play's target API level enforcement requirement -- a different Play Console gate than this page.</p>
+
+<div class="picker">
+  <label for="fileInput"><strong>1. Select your AndroidManifest.xml and build.gradle(.kts) files</strong></label><br>
+  <small>Open your project folder, select every <code>AndroidManifest.xml</code> and
+  <code>build.gradle</code>/<code>build.gradle.kts</code> (select-all works), then choose them here.
+  Not at your project right now? <button type="button" id="loadExample" class="link-button">Load a worked example</button> instead.</small><br><br>
+  <input type="file" id="fileInput" multiple accept=".xml,.gradle,.kts">
+  <p id="fileCount">No files selected yet.</p>
+</div>
+
+<fieldset>
+  <legend>2. Tick what's already declared in Play Console's Data safety form</legend>
+  <div class="cat-grid" id="categoryGrid"></div>
+</fieldset>
+
+<button id="runBtn" type="button" disabled>3. Compare</button>
+
+<div id="results" aria-live="polite"></div>
+
+<script type="module">
+  import { DATA_SAFETY_CATEGORIES, detectDataTypes, buildReport, suggestedAction } from './scan.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const fileInput = document.getElementById('fileInput');
+  const fileCountEl = document.getElementById('fileCount');
+  const runBtn = document.getElementById('runBtn');
+  const resultsEl = document.getElementById('results');
+  const loadExampleBtn = document.getElementById('loadExample');
+  const categoryGrid = document.getElementById('categoryGrid');
+
+  for (const cat of DATA_SAFETY_CATEGORIES) {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = cat.id;
+    input.className = 'declared-checkbox';
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(cat.label));
+    categoryGrid.appendChild(label);
+  }
+
+  let selected = [];
+
+  fileInput.addEventListener('change', () => {
+    selected = Array.from(fileInput.files);
+    fileCountEl.textContent = selected.length === 0
+      ? 'No files selected yet.'
+      : `${selected.length} file(s) selected.`;
+    runBtn.disabled = selected.length === 0;
+  });
+
+  function currentDeclaredSet() {
+    const boxes = Array.from(document.querySelectorAll('.declared-checkbox'));
+    const anyChecked = boxes.some((b) => b.checked);
+    if (!anyChecked) return null; // matches scan.mjs's "nothing declared at all" semantics
+    return new Set(boxes.filter((b) => b.checked).map((b) => b.value));
+  }
+
+  function setDeclaredChecked(ids) {
+    for (const box of document.querySelectorAll('.declared-checkbox')) {
+      box.checked = ids.has(box.value);
+    }
+  }
+
+  function runCheck(fileRecords, declaredSet, event) {
+    const detected = detectDataTypes(fileRecords);
+    const report = buildReport(detected, declaredSet);
+    renderReport(report, fileRecords.length);
+
+    const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
+    recordUsage(localStorage, optedOut, event);
+  }
+
+  runBtn.addEventListener('click', async () => {
+    const fileRecords = await Promise.all(
+      selected.map(async (f) => ({ path: f.webkitRelativePath || f.name, content: await f.text() })),
+    );
+    runCheck(fileRecords, currentDeclaredSet(), 'scan_run');
+  });
+
+  // A visitor deciding whether this tool is worth digging up their project
+  // files for has nothing to try it on -- every sibling file-upload tool in
+  // this portfolio ships a bundled worked example for exactly this reason
+  // (see ios-privacy-manifest-check, dependency-confusion-check, and
+  // others). Runs through the same detectDataTypes/buildReport path as a
+  // real scan; only the source of the files and the checkbox state differ.
+  const EXAMPLE_MANIFEST = `<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Used, but never declared below -- this is the gap the tool exists to catch. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Used AND declared below -- shows the "declared" state too. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+</manifest>
+`;
+  const EXAMPLE_GRADLE = `dependencies {
+    // Also undeclared below -- Firebase Analytics implies app-activity and device-ids.
+    implementation 'com.google.firebase:firebase-analytics:21.0.0'
+}
+`;
+  const EXAMPLE_DECLARED = new Set(['audio-files', 'health-fitness']);
+
+  loadExampleBtn?.addEventListener('click', () => {
+    fileInput.value = '';
+    selected = [];
+    fileCountEl.textContent = 'Showing a worked example — pick your own files above to check your project instead.';
+    setDeclaredChecked(EXAMPLE_DECLARED);
+    runCheck(
+      [
+        { path: 'app/src/main/AndroidManifest.xml', content: EXAMPLE_MANIFEST },
+        { path: 'app/build.gradle', content: EXAMPLE_GRADLE },
+      ],
+      EXAMPLE_DECLARED,
+      'example_loaded',
+    );
+  });
+
+  function statusLabel(status) {
+    return {
+      'not-detected': 'Not detected',
+      declared: 'Declared',
+      'declared-but-not-detected': 'Declared, not detected',
+      undeclared: 'Undeclared',
+    }[status];
+  }
+
+  function renderReport(report, scannedCount) {
+    resultsEl.innerHTML = '';
+
+    const summary = document.createElement('p');
+    summary.className = report.ok ? 'summary-ok' : 'summary-bad';
+    summary.textContent = report.ok
+      ? `Scanned ${scannedCount} file(s). Every detected category is in your declared list.`
+      : `Scanned ${scannedCount} file(s). ${report.declaredProvided ? `${report.undeclaredCount} categor${report.undeclaredCount === 1 ? 'y is' : 'ies are'} used but not in your declared list.` : 'No categories were ticked as already declared, so nothing could be confirmed.'}`;
+    resultsEl.appendChild(summary);
+
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Category</th><th>Detected</th><th>What to do</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+
+    for (const category of report.categories) {
+      const row = document.createElement('tr');
+
+      const nameCell = document.createElement('td');
+      nameCell.innerHTML = `<strong class="status-${category.status}">${statusLabel(category.status)}</strong><br>${category.label}`;
+      row.appendChild(nameCell);
+
+      const detectedCell = document.createElement('td');
+      if (category.detectedCount > 0) {
+        detectedCell.textContent = `${category.detectedCount} occurrence(s)`;
+        const ul = document.createElement('ul');
+        ul.className = 'examples';
+        for (const ex of category.examples.slice(0, 4)) {
+          const li = document.createElement('li');
+          li.textContent = `${ex.path}:${ex.line}  ${ex.hint}`;
+          ul.appendChild(li);
+        }
+        detectedCell.appendChild(ul);
+      } else {
+        detectedCell.textContent = 'none';
+      }
+      row.appendChild(detectedCell);
+
+      const actionCell = document.createElement('td');
+      actionCell.textContent = category.status === 'undeclared' ? suggestedAction(category.id) : (category.isDeclared ? 'Already ticked above.' : '—');
+      row.appendChild(actionCell);
+
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    resultsEl.appendChild(table);
+  }
+
+  // Remember the visitor's usage-counting choice between visits. The
+  // control was read on every record call and never stored, so the box
+  // came back unticked on the next load and counting resumed -- a
+  // control that quietly stops working is worse than none, because the
+  // visitor believes they have already used it.
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why does Google Play flag my app's Data safety declaration?</h3>
+  <p>Most often because a permission your app requests, or an SDK it embeds (analytics, ads, crash reporting), collects a category of data your Play Console Data safety form doesn't declare. This tool scans your AndroidManifest.xml and Gradle files for the permissions and known SDKs that imply a category, and tells you which one is missing.</p>
+  <h3>Does this tool read or fill in the Play Console form for me?</h3>
+  <p>No. Play Console has no public file format this tool reads from or writes to. You tell it what you've already declared (a plain list of categories, or ticking the checkboxes in the browser tool), and it compares that against what your manifest and Gradle files suggest you collect. You still make every declaration decision in Play Console yourself.</p>
+  <h3>Is my project uploaded anywhere?</h3>
+  <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
+  <h3>Does a clean report mean Google Play will accept my declaration?</h3>
+  <p>No. This is pattern-matching against known permission names and SDK dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real behaviour, and Google can change its Data safety categories or a given SDK's practices at any time. Always confirm against Play Console's current Data safety form and each SDK's own privacy documentation before you submit.</p>
+</section>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the
+  files you selected and what you ticked as already declared. It cannot see what a permission is actually
+  used for, dynamically loaded code, or a third-party SDK's real runtime behaviour, and Google can add
+  categories or change a listed SDK's practices at any time. A clean report is
+  not a guarantee Play Console will accept your submission -- verify against
+  <a href="https://support.google.com/googleplay/android-developer/answer/10787469" rel="noopener">Google Play's current Data safety documentation</a>
+  before you submit, and decide the actual collection purpose and sharing status yourself -- this tool never
+  picks on your behalf.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Google Play's own policy review process.
+  You are responsible for reviewing and verifying its output before relying on it, and for meeting any
+  obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no
+  liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Files you select are read locally with the File API and
+  never uploaded. The only thing stored is an anonymous local count of which features were used and the
+  day -- no file names, no file contents, no account, no tracking cookies, no analytics vendor. Turn it off
+  with the checkbox above.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Play Console, Android, and
+  Data safety are trademarks of Google LLC, named here only to describe what this tool checks.</p>
+  <p>Wondering why bother with a scanner instead of the docs or a review warning?
+  See <a href="vs-manually-reviewing-play-console-warnings.html">this checker vs. guessing from Google's docs or waiting for a Play Console policy warning</a>.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+  <p>Shipping the iOS side of the same release? <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a>
+  cross-checks Required Reason API usage against a PrivacyInfo.xcprivacy manifest -- the same
+  "read a manifest you already have, name the exact undeclared category" shape as this tool, for Apple's
+  App Store instead of Google Play.</p>
+  <p>Shipping a browser extension too? <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a>
+  cross-checks a manifest.json's declared permissions against detected chrome.* API usage -- the same
+  "read a manifest you already have, name the exact undeclared or unused entry" shape as this tool, for
+  Chrome.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../datadog-bill-estimator/" data-pf-to="datadog-bill-estimator">What will your Datadog bill be, and what cuts it most?</a></li>
+      <li><a href="../dependabot-config-check/" data-pf-to="dependabot-config-check">Is Dependabot actually watching all of your repo?</a></li>
+      <li><a href="../dependency-confusion-check/" data-pf-to="dependency-confusion-check">Could a public package be substituted for your internal one?</a></li>
+      <li><a href="../deploy-concurrency-check/" data-pf-to="deploy-concurrency-check">Deploy Concurrency Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=android-data-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/?pfEmbed=1&quot; title=&quot;Android Data Safety Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="android-data-safety-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/" data-pf-embed-title="Android Data Safety Checker" data-pf-embed-slug="android-data-safety-check"></script>
+</body>
+</html>

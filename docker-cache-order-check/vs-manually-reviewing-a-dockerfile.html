@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. reviewing a Dockerfile by eye — Docker Cache Order Check</title>
+<meta name="description" content="Reading a Dockerfile top to bottom catches an obvious COPY . . at the very top, and misses everything that depends on tracking state across the file…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. reviewing a Dockerfile by eye">
+<meta property="og:description" content="A Dockerfile review catches the obvious case and misses the state-tracking ones: which manifest was copied where, whether an install ever got an isolated copy…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a bad COPY . . before npm install obvious just from reading the file?","acceptedAnswer":{"@type":"Answer","text":"When the whole Dockerfile is five lines and the COPY . . is right above the install, yes. It stops being obvious the moment the file has multiple stages, several COPY instructions for different purposes, or the manifest copy and the broad copy are separated by other instructions — catching it by eye then means tracking, in your head, which lines named which files and in what order, across the whole file, which is exactly the kind of bookkeeping a deterministic scan does better than a read-through."}},{"@type":"Question","name":"What does reading the Dockerfile not tell you at all?","acceptedAnswer":{"@type":"Answer","text":"Two things this checker reports that a read-through has no natural way to surface. First, whether an install command ever has an isolated manifest COPY anywhere in the file, as opposed to only ever seeing the manifest bundled inside a broad copy — that requires tracking every COPY's sources against every install command's ecosystem, not just scanning for an obviously misplaced line. Second, whether a RUN apt-get update earlier in the file is the only update backing a RUN apt-get install several lines later — a split that looks completely ordinary read top to bottom, because nothing about either line looks wrong in isolation."}},{"@type":"Question","name":"Does multi-stage build syntax make this harder to review by eye?","acceptedAnswer":{"@type":"Answer","text":"Yes, more than it first appears. Each FROM starts a fresh build stage with its own cache lineage, so a broad COPY in an earlier stage that is never cache-sensitive (a throwaway builder stage, say) says nothing about a later stage's own instruction order — but by eye, seeing COPY . . anywhere in the file can read as a red flag regardless of which stage it is in. This checker resets its state at every FROM for exactly that reason."}},{"@type":"Question","name":"Is anything I paste into either process uploaded?","acceptedAnswer":{"@type":"Answer","text":"There is nothing to upload either way — reviewing a file by eye involves no tool at all, and this checker runs entirely in your browser against the text you paste in. The CLI makes no network call either; it only reads files already on your own disk."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reviewing a Dockerfile by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../docker-cache-order-check/">Is your Dockerfile busting its own build cache?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reviewing a Dockerfile by eye</span></span></nav>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. reviewing a Dockerfile by eye</h1>
+<p class="lede">The usual way to catch a cache-busting Dockerfile is to read it top to bottom during code review and notice anything that looks wrong. That works well for the textbook case &mdash; a five-line Dockerfile with <code>COPY . .</code> sitting right above <code>RUN npm ci</code>. It works much less well the moment catching the mistake requires tracking state across the whole file: which manifest was copied where, whether an install command ever got an isolated copy at all, or whether a later instruction silently depends on an earlier one several lines up.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Reviewing a Dockerfile by eye</strong> is free and needs no tool: read it start to finish and flag anything that looks off. It works well on short, single-stage Dockerfiles where the mistake is right next to its cause.</p>
+<p><strong>This checker</strong> tracks, per build stage, every manifest copy and every install command it has seen so far and reports exactly which instruction pairs violate the ordering — the bookkeeping a read-through has to do silently, in your head, across however many lines and stages the file has.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is a <code>COPY . .</code> sitting right above the install command, in an otherwise short Dockerfile?</td><td>Either one. A read-through catches this at a glance, and so does this checker.</td></tr>
+<tr><td>Was the manifest ever copied on its own, anywhere in the file, or only ever inside a broad copy?</td><td>This checker. Answering this by eye means cross-referencing every <code>COPY</code>'s source list against every install command's ecosystem across the whole file.</td></tr>
+<tr><td>Does a later <code>RUN apt-get install</code> quietly rely on an earlier, separately-cached <code>apt-get update</code>?</td><td>This checker. Neither line looks wrong read on its own — the split is only visible across the two.</td></tr>
+<tr><td>Does a broad copy in an unrelated build stage matter here?</td><td>This checker, which resets its state at every <code>FROM</code>. By eye, "there's a <code>COPY . .</code> somewhere in this file" can read as a red flag regardless of which stage it is actually in.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>Neither. A read-through involves no tool at all, and this checker runs entirely in your browser.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't a bad <code>COPY . .</code> before <code>npm install</code> obvious just from reading the file?</h3>
+<p>When the whole Dockerfile is five lines and the <code>COPY . .</code> is right above the install, yes. It stops being obvious the moment the file has multiple stages, several <code>COPY</code> instructions for different purposes, or the manifest copy and the broad copy are separated by other instructions — catching it by eye then means tracking, in your head, which lines named which files and in what order, across the whole file, which is exactly the kind of bookkeeping a deterministic scan does better than a read-through.</p>
+<h3>What does reading the Dockerfile not tell you at all?</h3>
+<p>Two things this checker reports that a read-through has no natural way to surface. First, whether an install command ever has an isolated manifest <code>COPY</code> anywhere in the file, as opposed to only ever seeing the manifest bundled inside a broad copy — that requires tracking every <code>COPY</code>'s sources against every install command's ecosystem, not just scanning for an obviously misplaced line. Second, whether a <code>RUN apt-get update</code> earlier in the file is the only update backing a <code>RUN apt-get install</code> several lines later — a split that looks completely ordinary read top to bottom, because nothing about either line looks wrong in isolation.</p>
+<h3>Does multi-stage build syntax make this harder to review by eye?</h3>
+<p>Yes, more than it first appears. Each <code>FROM</code> starts a fresh build stage with its own cache lineage, so a broad copy in an earlier stage that is never cache-sensitive (a throwaway builder stage, say) says nothing about a later stage's own instruction order — but by eye, seeing <code>COPY . .</code> anywhere in the file can read as a red flag regardless of which stage it is in. This checker resets its state at every <code>FROM</code> for exactly that reason.</p>
+<h3>Is anything I paste into either process uploaded?</h3>
+<p>There is nothing to upload either way — reviewing a file by eye involves no tool at all, and this checker runs entirely in your browser against the text you paste in. The CLI makes no network call either; it only reads files already on your own disk.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not engineering advice, and they do not replace actually building the image and measuring your cache hit rate. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Reviewing a Dockerfile by eye" describes a manual habit every developer already has access to, not any company's product or service.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pypi-provenance-check/" data-pf-to="pypi-provenance-check">Which of your PyPI dependencies lack a provenance attestation?</a></li>
+      <li><a href="../rds-instance-cost-advisor/" data-pf-to="rds-instance-cost-advisor">Why is your RDS bill so high?</a></li>
+      <li><a href="../rds-instance-rightsizer/" data-pf-to="rds-instance-rightsizer">Is your RDS instance too big?</a></li>
+      <li><a href="../redirect-chain-check/" data-pf-to="redirect-chain-check">Redirect Chain Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=docker-cache-order-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="docker-cache-order-check"></script>
+</body>
+</html>

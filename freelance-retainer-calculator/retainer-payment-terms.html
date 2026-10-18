@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should You Accept Net 30 on a Freelance Retainer?</title>
+  <meta name="description" content="A monthly retainer price is not cash. Compare prepaid, Net 15, Net 30, and month-end billing to see the cash a freelancer must float before the first payment.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Should You Accept Net 30 on a Freelance Retainer?">
+  <meta property="og:description" content="Invoicing at month-end plus Net 30 is about 60 days. Calculate the cash you must float before you agree.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-payment-terms.html">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-payment-terms.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff."}},{"@type":"Question","name":"How much cash do I need to float a retainer?","acceptedAnswer":{"@type":"Answer","text":"Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should You Accept Net 30 on a Freelance Retainer? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freelance-retainer-calculator/">Freelance Retainer Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should You Accept Net 30 on a Freelance Retainer?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">← Freelance retainer calculator</a></p>
+    <header>
+      <h1>A retainer price is not cash in the bank.</h1>
+      <p class="lede">Freelancers often accept Net 30 on a monthly retainer, then work 30–60 days before the first payment lands. The cash you must float is a pricing decision, not a courtesy.</p>
+    </header>
+    <section class="workspace" aria-label="Payment-term cash float">
+      <form id="floatForm" class="card">
+        <h2>Your monthly revenue target</h2>
+        <p class="note">Take-home plus business costs and taxes. The default $7,800 is the calculator’s default plan.</p>
+        <label>Monthly revenue target <span data-currency-symbol>$</span><input id="floatTarget" type="number" min="0" step="100" value="7800" required inputmode="numeric"></label>
+        <label>Currency <select id="floatCurrency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <button type="submit">Compare payment terms</button>
+        <p id="floatErrors" class="error" role="alert" hidden></p>
+      </form>
+      <section id="floatResults" class="card result" aria-live="polite" hidden>
+        <p class="eyebrow">CASH YOU LEND THE CLIENT</p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table class="usage-table">
+            <caption>Days until first cash × monthly target ÷ 30. Arithmetic only.</caption>
+            <thead>
+              <tr>
+                <th scope="col">If they pay</th>
+                <th scope="col">Days</th>
+                <th scope="col">Cash to float</th>
+              </tr>
+            </thead>
+            <tbody id="floatRows"></tbody>
+          </table></div>
+        </div>
+        <p id="floatVerdict" class="verdict"></p>
+      </section>
+    </section>
+    <section class="copy card">
+      <h2>How the float is calculated</h2>
+      <p>Take the monthly revenue target — take-home plus business costs and taxes — and multiply by days until first cash divided by 30. That is the savings or other-client cash you need while this retainer is unpaid.</p>
+      <ul>
+        <li>Prepaid on kickoff: 0 days, no float.</li>
+        <li>Invoice on kickoff, Net 15: about 15 days, half a month.</li>
+        <li>Invoice on kickoff, Net 30: about 30 days, one month.</li>
+        <li>Invoice at month-end, Net 15: about 45 days.</li>
+        <li>Invoice at month-end, Net 30: about 60 days, two months.</li>
+      </ul>
+      <p>If a $7,800 monthly target is billed at month-end plus Net 30, you float $15,600 before first cash. That is not a late fee. It is working capital you are lending the client.</p>
+      <h2>What to put in the agreement</h2>
+      <p>Write the payment trigger, not just “Net 30”. Prepaid on kickoff, or invoice on the first of each month due on receipt, removes the silent extra month. 50% on kickoff and 50% on the invoice date splits the float if the client will not prepay in full.</p>
+      <p>Price the block first, then check the float. <a href="index.html">Open the retainer calculator</a> to pair this with usage. <a href="retainer-vs-hourly.html">Retainer vs hourly</a> is the one-month failure mode. <a href="unused-hour-rollover.html">Unused-hour rollover</a> is the two-month version of the same gift.</p>
+      <p class="note">This page is a planning aid, not financial or legal advice. Review the numbers and the contract before you send either. Hosted URLs, when they exist, carry no availability SLA.</p>
+    </section>
+  <h2>Common questions</h2>
+  <h3>Should I accept Net 30 on a freelance retainer?</h3>
+  <p>Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff.</p>
+  <h3>How much cash do I need to float a retainer?</h3>
+  <p>Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months.</p>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser (<code>payment_terms_compared</code>, <code>payment-terms-float</code>); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it stopped you from floating two months of cash, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../coi-expiry-gap-checker/" data-pf-to="coi-expiry-gap-checker">COI tracker and gap checker for subcontractor insurance — free, private</a></li>
+      <li><a href="../construction-delay-claim-calculator/" data-pf-to="construction-delay-claim-calculator">Construction Delay Claim Calculator — free, private</a></li>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-retainer-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freelance-retainer-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="freelance-retainer-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="freelance-retainer-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

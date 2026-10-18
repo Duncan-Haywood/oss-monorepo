@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much to Charge for Embroidery: Per-Stitch Pricing, Setup and Quantity Breaks</title>
+  <meta name="description" content="How to price an embroidery job so it makes money: machine time, setup, digitizing and thread, the per-piece price at a target margin…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/how-much-to-charge-for-embroidery.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge to embroider a logo?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that the job covers its garments, thread, the clock time it ties up you and the machine, and digitizing, and still leaves your target margin. A price per 1000 stitches is only a starting point; the same logo costs far more per piece at 12 pieces than at 250 because setup and digitizing are paid once."}}, {"@type": "Question", "name": "Is a price per 1000 stitches a good way to price embroidery?", "acceptedAnswer": {"@type": "Answer", "text": "It is a fair rule for a long run and a poor one for a short run. It ignores digitizing, job setup, color setup, thread changes and hooping, so below a certain quantity it sells under cost. Work out that quantity for your own machine before you trust the rule."}}, {"@type": "Question", "name": "Should I set a minimum order charge?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, whenever setup and digitizing can outweigh the margin on a tiny order. The calculator shows the quantities at which your minimum, rather than your margin, sets the price, and the quantity from which the margin takes over."}}, {"@type": "Question", "name": "What hourly rate should I hold out for?", "acceptedAnswer": {"@type": "Answer", "text": "Whatever you need to make the shop worth running. The effective hourly rate is what is left per clock hour after garments, thread, overhead and digitizing are paid, so compare it with the lowest rate you would accept and counter any job that falls short."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b2a; background: #f5f3f8; color-scheme: light; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #3b1f5c; }
+    h2 { color: #3b1f5c; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ebe6f1; }
+    .tablewrap { overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #dad4e3; padding-top: 16px; font-size: .86rem; color: #5a5368; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/how-much-to-charge-for-embroidery.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How Much to Charge for Embroidery: Per-Stitch Pricing, Setup and Quantity Breaks">
+<meta property="og:description" content="How to price an embroidery job so it makes money: machine time, setup, digitizing and thread, the per-piece price at a target margin…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much to Charge for Embroidery: Per-Stitch Pricing, Setup and Quantity Breaks — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../embroidery-shop-quote-calculator/">How much should you charge for embroidery?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much to Charge for Embroidery: Per-Stitch Pricing, Setup and Quantity Breaks</span></span></nav>
+  <p class="note"><a href="./">Embroidery Shop Quote Calculator</a> · guide</p>
+  <h1>How much to charge for embroidery: per-stitch pricing, setup and quantity breaks</h1>
+  <p>Short answer: <strong>charge the price at which the job's real cost, including the clock time it ties up your machine and you, still leaves your target margin, and never less than a minimum charge.</strong> A price per 1000 stitches is a fair shorthand for a long run and a money-loser for a short one. Here is the arithmetic, with made-up shop numbers.</p>
+
+  <h2>A worked example</h2>
+  <p>A shop with a 2-head machine rated at 650 stitches a minute, really running at 75% of that, gets a job for 24 left-chest logos: 7,500 stitches, 4 thread colors, polos that cost $4.50 each, and a $25 digitizing fee. Hooping takes 1.5 minutes a piece, job setup 15 minutes plus 2 minutes per color, a thread change 8 seconds. Labor is $20 an hour, machine overhead $10 an hour, thread and backing $0.10 per 1000 stitches.</p>
+  <ul>
+    <li>One hoop runs 15.78 minutes (7,500 stitches at 487.5 a minute, plus 3 thread changes). Twenty-four pieces on 2 heads is 12 hoops: 189.4 minutes of stitching.</li>
+    <li>Add 36 minutes of hooping and 23 minutes of setup: <strong>248.4 clock minutes, 4.14 hours</strong>.</li>
+    <li>Cost: garments $108.00, thread and backing $18.00, labor $82.81, overhead $41.40, digitizing $25.00. <strong>True cost $275.21.</strong></li>
+    <li>For a 40% margin the quote is $275.21 / 0.60 = $458.69, rounded up per piece to <strong>$19.12 a piece, $458.88 in all</strong>, leaving $183.67 profit.</li>
+    <li>After garments, thread, overhead and digitizing are paid, $64.36 is left for each hour of your time.</li>
+  </ul>
+
+  <h2>Why a price per 1000 stitches loses money on small runs</h2>
+  <p>At $1.00 per 1000 stitches the same job is $7.50 of decoration plus the $4.50 polo, $12.00 a piece, $288.00 for 24. That covers the $275.21 cost by $12.79, a 4.4% margin and $23.09 an hour. Cut the order to 12 pieces and the same rule collects $144.00 against a cost of $155.86, a loss of $11.86: digitizing and setup did not shrink with the order. The rule only stays above cost from 20 pieces up, and it stays under a $35 an hour floor right up to 250.</p>
+
+  <h2>Quantity breaks for that job</h2>
+  <div class="tablewrap"><div class="pf-table-scroll"><table>
+    <thead><tr><th>Pieces</th><th>Per piece</th><th>Quote</th><th>Flat $1.00 rule profit</th></tr></thead>
+    <tbody>
+      <tr><td>12</td><td>$21.65</td><td>$259.80</td><td>-$11.86</td></tr>
+      <tr><td>24</td><td>$19.12</td><td>$458.88</td><td>$12.79</td></tr>
+      <tr><td>48</td><td>$17.85</td><td>$856.80</td><td>$62.09</td></tr>
+      <tr><td>100</td><td>$17.19</td><td>$1,719.00</td><td>$168.89</td></tr>
+      <tr><td>250</td><td>$16.83</td><td>$4,207.50</td><td>$476.96</td></tr>
+    </tbody>
+  </table></div></div>
+  <p>The price falls fastest at the start (12% from 12 to 24 pieces) and flattens, because after digitizing and setup are spread out the cost per piece is mostly garment, thread and run time.</p>
+
+  <h2>Set a minimum charge, then check it</h2>
+  <p>On a one- or two-piece order, setup and digitizing are most of the cost and the margin math gives a price nobody will pay. A minimum order charge fixes that, but only if it is above your cost at that size. The <a href="./">Embroidery Shop Quote Calculator</a> lists the quantities at which your minimum, rather than your margin, sets the price, and the quantity from which the margin takes over.</p>
+
+  <h2>Take the job, counter it, or pass</h2>
+  <p>Enter the price the customer offered per piece and the calculator works out your effective hourly rate at that price and compares it with the lowest rate you will accept. Below the floor it tells you the price that reaches it; below zero, where the job does not even pay for garments, thread and overhead, it says pass.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Your real efficiency, not the machine's rating: time a few jobs including trims, thread breaks and rehooping.</li>
+    <li>All the setup minutes, including threading each color and checking the first piece.</li>
+    <li>Overhead per machine hour: rent, power, maintenance and depreciation divided by the hours the machine really runs.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much should I charge to embroider a logo?</h3>
+  <p>Enough that the job covers its garments, thread, the clock time it ties up you and the machine, and digitizing, and still leaves your target margin. A price per 1000 stitches is only a starting point; the same logo costs far more per piece at 12 pieces than at 250 because setup and digitizing are paid once.</p>
+  <h3>Is a price per 1000 stitches a good way to price embroidery?</h3>
+  <p>It is a fair rule for a long run and a poor one for a short run. It ignores digitizing, job setup, color setup, thread changes and hooping, so below a certain quantity it sells under cost. Work out that quantity for your own machine before you trust the rule.</p>
+  <h3>Should I set a minimum order charge?</h3>
+  <p>Yes, whenever setup and digitizing can outweigh the margin on a tiny order. The calculator shows the quantities at which your minimum, rather than your margin, sets the price, and the quantity from which the margin takes over.</p>
+  <h3>What hourly rate should I hold out for?</h3>
+  <p>Whatever you need to make the shop worth running. The effective hourly rate is what is left per clock hour after garments, thread, overhead and digitizing are paid, so compare it with the lowest rate you would accept and counter any job that falls short.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for the quotes you give customers. The worked example is illustrative arithmetic on made-up shop numbers, not a forecast of what a job will cost you or what a customer will pay.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pto-accrual-liability-calculator/" data-pf-to="pto-accrual-liability-calculator">PTO accrual liability calculator</a></li>
+      <li><a href="../qcd-calculator/" data-pf-to="qcd-calculator">QCD calculator</a></li>
+      <li><a href="../real-estate-photographer-shoot-profit-calculator/" data-pf-to="real-estate-photographer-shoot-profit-calculator">Real Estate Photographer Shoot Profit Calculator — free, private</a></li>
+      <li><a href="../real-estate-professional-status-calculator/" data-pf-to="real-estate-professional-status-calculator">Do I qualify as a real estate professional? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=embroidery-shop-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="embroidery-shop-quote-calculator"></script>
+</body>
+</html>

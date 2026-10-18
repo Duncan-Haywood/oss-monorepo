@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wash Sale Checker</title>
+  <meta name="description" content="Free wash sale checker: paste your trades and see which losses are disallowed, the loss you can still claim, the adjusted basis of replacement shares…">
+  <meta property="og:title" content="Wash sale checker across all your accounts — free, private">
+  <meta property="og:description" content="Paste a trade list. See disallowed losses, IRA permanent losses, adjusted basis and the Form 8949 code W figures. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wash Sale Checker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the wash sale rule?", "acceptedAnswer": {"@type": "Answer", "text": "If you sell a security at a loss and buy substantially identical shares within 30 days before or after the sale (a 61-day window), the loss is disallowed for now. It is added to the basis of the replacement shares, and the holding period carries over, so the loss comes back when you finally sell those shares without another wash."}}, {"@type": "Question", "name": "Does a wash sale count across accounts?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The rule looks at you, not at one brokerage account. A purchase in a second taxable account, a spouse's account or an IRA can wash a loss, and brokers' 1099-B forms generally report wash sales only within the one account they hold. This page checks every account in the list you give it."}}, {"@type": "Question", "name": "What if the replacement shares were bought in an IRA?", "acceptedAnswer": {"@type": "Answer", "text": "The loss is disallowed and, under IRS Revenue Ruling 2008-5, the basis is not added back anywhere: the loss is permanently gone. The page flags these separately because they cost the most."}}, {"@type": "Question", "name": "How do I report a wash sale?", "acceptedAnswer": {"@type": "Answer", "text": "On Form 8949, enter code W in column (f) and the disallowed amount in column (g) as a positive adjustment. The report CSV from this page has that figure for each sale. Check the instructions for the form and confirm with a tax professional."}}, {"@type": "Question", "name": "When can I buy the stock back without a wash sale?", "acceptedAnswer": {"@type": "Answer", "text": "The 31st day after the sale, provided you also made no purchase of the same security in the 30 days before it. The page prints that date for each loss sale."}}, {"@type": "Question", "name": "Is my trade list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Wash sale checker across all your accounts — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wash sale checker across all your accounts — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Wash sale checker across all your accounts — free, private</span></span></nav>
+  <header>
+    <p class="note">WASH SALE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of my stock losses are wash sales, across every account?</h1>
+    <p>Paste or upload your trades from <strong>all</strong> your brokerage and IRA accounts. The page finds each loss sale, matches it to purchases of the same ticker in the 30 days before and after, and shows the <strong>loss disallowed</strong>, the loss you can still claim, whether the replacement was bought in an <strong>IRA</strong> (loss gone for good), and the Form 8949 code W figure.</p>
+    <p class="note">Brokers report wash sales only inside the account they hold. This page is a planning and cross-check tool: it matches identical tickers only, and is not tax advice. Confirm with a tax professional before filing.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your trades</h2>
+    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns: date, symbol, action (buy/sell), quantity, price (or amount), and optionally account (anything containing IRA, Roth or 401 is treated as retirement) and cost basis for sells. Without a basis column, sales use first-in, first-out lots from the same list, so include the original purchases.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the list</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Symbol,Action,Quantity,Price,Account&#10;2025-09-02,NVDA,buy,100,120.00,Taxable"></textarea>
+    <p>
+      <button type="button" id="validate">Check for wash sales</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the list, then click Check for wash sales.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Sale</th><th scope="col">Symbol</th><th scope="col" class="n">Gain / loss</th><th scope="col" class="n">Disallowed</th><th scope="col" class="n">Claimable loss</th><th scope="col">Replacement purchases</th><th scope="col">Buy back safely from</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <div id="notes" class="note"></div>
+    <p><button type="button" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Window:</strong> 30 days before through 30 days after the sale date, inclusive: 61 days.</li>
+      <li><strong>Matching:</strong> purchases of the same ticker, in any account in your list. Each replacement share is used against one sale only. Shares are matched in date order.</li>
+      <li><strong>Partial wash:</strong> if you bought back fewer shares than you sold, the disallowed part of the loss is proportional to the shares replaced.</li>
+      <li><strong>Basis:</strong> disallowed loss is added to the basis of the replacement shares in taxable accounts, and carries into later sales in the same list. Holding period carries over; the page does not track it.</li>
+      <li><strong>Rules reviewed:</strong> 2026-10-06, by the author from IRC section 1091, IRS Publication 550 and Revenue Ruling 2008-5, not by a tax professional. Rules can change.</li>
+      <li><strong>Not decided:</strong> whether two different securities are substantially identical (a different ETF tracking the same index, options, bonds), a spouse's or entity's accounts, dividend reinvestments you did not list, short sales, crypto treatment, commodities and Section 1256 contracts, and the tax rate your loss is worth.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the wash sale rule?</h3>
+    <p>If you sell a security at a loss and buy substantially identical shares within 30 days before or after the sale (a 61-day window), the loss is disallowed for now. It is added to the basis of the replacement shares, and the holding period carries over, so the loss comes back when you finally sell those shares without another wash.</p>
+    <h3>Does a wash sale count across accounts?</h3>
+    <p>Yes. The rule looks at you, not at one brokerage account. A purchase in a second taxable account, a spouse's account or an IRA can wash a loss, and brokers' 1099-B forms generally report wash sales only within the one account they hold. This page checks every account in the list you give it.</p>
+    <h3>What if the replacement shares were bought in an IRA?</h3>
+    <p>The loss is disallowed and, under IRS Revenue Ruling 2008-5, the basis is not added back anywhere: the loss is permanently gone. The page flags these separately because they cost the most.</p>
+    <h3>How do I report a wash sale?</h3>
+    <p>On Form 8949, enter code W in column (f) and the disallowed amount in column (g) as a positive adjustment. The report CSV from this page has that figure for each sale. Check the instructions for the form and confirm with a tax professional.</p>
+    <h3>When can I buy the stock back without a wash sale?</h3>
+    <p>The 31st day after the sale, provided you also made no purchase of the same security in the 30 days before it. The page prints that date for each loss sale.</p>
+    <h3>Is my trade list uploaded anywhere?</h3>
+    <p>No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a tax professional or your broker's tax forms. The figures it shows are estimates.</p>
+    <p><strong>Not affiliated with any court, housing agency or government body.</strong> This tool is independent; it is not sponsored, endorsed or connected to the IRS, the Department of the Treasury, any broker or any government body.</p>
+    <p><strong>Trade data.</strong> A trade list holds financial details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your list. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>trades_checked</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a> the <a href="../crypto-cost-basis-calculator/">crypto cost basis calculator</a> and the <a href="../section-1256-futures-tax-calculator/">Section 1256 futures tax calculator</a> cover the neighbouring decisions.</p>
+    <p>Trading a funded-account challenge? The <a href="../prop-firm-challenge-calculator/">prop firm challenge calculator</a> simulates the pass odds and expected fees from your own win rate and risk.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { evaluate, sampleList, reportCsv, money, isoDate, safeRebuyDate } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = evaluate(text);
+      if (r.error) { status.textContent = r.error; return; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${money(s.disallowed)} of ${money(s.grossLoss)} in losses disallowed</strong> across ${s.washed} of ${s.lossSales} loss sale${s.lossSales === 1 ? "" : "s"} · claimable now ${money(s.allowed)} · deferred into basis ${money(s.deferred)} · lost for good in IRAs ${money(s.permanent)}${r.errors.length ? ` · ${r.errors.length} row(s) unreadable` : ""}`;
+      $("#rows").innerHTML = r.sales.map((x) => {
+        const reps = x.replacements.map((p) => `${isoDate(p.date)} × ${+p.qty.toFixed(4)}${p.ira ? " <strong>(IRA: permanent)</strong>" : ""}`).join("<br>") || "none";
+        return `<tr><td>${isoDate(x.date)}</td><td>${esc(x.sym)}</td><td class="n">${money(x.gain)}</td><td class="n">${x.disallowed ? money(x.disallowed) : "-"}</td><td class="n">${x.gain < 0 ? money(x.allowed) : "-"}</td><td>${reps}</td><td>${x.gain < 0 ? isoDate(safeRebuyDate(x.date)) : "-"}</td></tr>`;
+      }).join("");
+      $("#notes").innerHTML = [...r.notes, ...r.errors].map((n) => `<p>${esc(n)}</p>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.sales.length} sale${r.sales.length === 1 ? "" : "s"} checked.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
+      run(text); record("trades_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleList(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up trades.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the list, then click Check for wash sales."; });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("wash-sale-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-rate-increase-calculator/" data-pf-to="self-storage-rate-increase-calculator">Self-Storage Rate Increase Calculator</a></li>
+      <li><a href="../seller-net-sheet/" data-pf-to="seller-net-sheet">Seller Net Sheet Calculator</a></li>
+      <li><a href="../senior-deduction-calculator/" data-pf-to="senior-deduction-calculator">Senior Deduction Calculator — free OBBBA $6,000 estimator</a></li>
+      <li><a href="../sep-ira-vs-solo-401k-calculator/" data-pf-to="sep-ira-vs-solo-401k-calculator">SEP-IRA vs Solo 401(k) Calculator — free, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wash-sale-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/?pfEmbed=1&quot; title=&quot;Wash sale checker across all your accounts — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="wash-sale-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/" data-pf-embed-title="Wash sale checker across all your accounts — free, private" data-pf-embed-slug="wash-sale-checker"></script>
+</body>
+</html>

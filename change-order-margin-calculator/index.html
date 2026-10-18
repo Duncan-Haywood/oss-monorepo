@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Change Order Margin Calculator — Price the Added Work</title>
+  <meta name="description" content="Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract's markup cap actually leaves you.">
+  <meta property="og:title" content="Change Order Margin Calculator"><meta property="og:description" content="Stop guessing at change-order prices. See your cost floor, target price, and margin before you ask for approval.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Change Order Margin Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Loaded labor, materials, subcontractor cost, overhead, target margin, cost floor, approval summary, shareable private link, printable customer proposal with scope and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between the walk-away price and the target price?","acceptedAnswer":{"@type":"Answer","text":"The walk-away price is your cost floor — loaded labor plus materials, subcontractor cost, and overhead, with zero profit. The target price divides that floor by one minus your target margin, so it already has the margin built in. On the defaults (8 hours at $28/hr, 25% burden, $350 materials, 10% overhead, 20% target margin), the floor is $693.00 and the target price is $866.25 — the gap between them is exactly the profit a 20% margin requires."}},{"@type":"Question","name":"Why is loaded labor $280 for 8 hours at $28/hour, not $224?","acceptedAnswer":{"@type":"Answer","text":"Because payroll burden is applied to the wage before multiplying by hours: hours × wage × (1 + burden). At the default 25% burden that adds $56 — the employer-side taxes and insurance cost of that labor, not profit. Change-order pricing built on the $224 bare-wage number would be quietly working at a loss on every hour billed."}},{"@type":"Question","name":"Why does overhead apply to materials and subcontractor cost, not just labor?","acceptedAnswer":{"@type":"Answer","text":"Overhead is a percentage of the whole direct cost — loaded labor plus materials plus subcontractor cost — because the business absorbs its overhead on every dollar that flows through a job, not only the payroll dollars. On the defaults that direct cost is $630.00, and 10% overhead on that full figure is $63.00."}},{"@type":"Question","name":"What does “above cost, but below your target margin” mean?","acceptedAnswer":{"@type":"Answer","text":"It means the proposed price covers your walk-away floor and leaves some profit, just not as much as your target margin asks for. On the defaults, proposing $750 against the $693 floor leaves $57 of profit — but margin is profit divided by price, not by cost, so $57 / $750 is 7.6%, short of a 20% target by 12.4 points. A price can clear cost by a comfortable-looking dollar amount and still miss the margin you were aiming for."}},{"@type":"Question","name":"My contract caps change-order markup. Does that change what I can charge?","acceptedAnswer":{"@type":"Answer","text":"Yes, and it is the field most likely to change your answer. Enter the cap and the calculator shows the most the contract permits you to bill \u2014 direct cost plus that percentage \u2014 next to what is left of it after your own overhead. The two come out of the same allowance, so a 10% cap against 10% overhead means the change order earns exactly nothing: on the defaults the cap and the $693.00 walk-away floor are the same number. Below that, at a 5% cap, the most you may bill is $661.50 and every change order on the contract is a loss. Leave the field at zero for a contract with no cap and nothing changes."}},{"@type":"Question","name":"The added work pushes the schedule. Where does that cost go?","acceptedAnswer":{"@type":"Answer","text":"Into \"days added\" and \"extended general conditions ($/day)\" \u2014 the supervision, site trailer, and rented plant the added scope keeps on site. It is treated as a direct cost of the change order, so overhead and margin carry on it like any other, which is the point: general conditions absorbed by the contractor are absorbed because they were never in the change order to begin with. Three days at $450 turns a $630 change order into $1,980 of direct cost and moves the target price from $866.25 to $2,722.50. Leave both at zero for work that fits inside the existing schedule."}},{"@type":"Question","name":"Why does the cap warning appear before I enter a proposed price?","acceptedAnswer":{"@type":"Answer","text":"Because the cap is a fact about your contract rather than about the price you are considering. If the markup the contract allows is below your overhead rate, every change order under it loses money whatever you propose, and waiting for a proposed price would keep that silent on exactly the page you have not finished filling in. The other messages still wait for a proposed price, because they are comparisons against one."}},{"@type":"Question","name":"Why is target margin capped at 99%?","acceptedAnswer":{"@type":"Answer","text":"The target price divides the cost floor by (1 − target margin). At 100% that division is by zero; the calculator caps the input at 99% so a mistyped margin produces a very large, clearly wrong price instead of an error or an infinite one."}},{"@type":"Question","name":"Where is my data saved?","acceptedAnswer":{"@type":"Answer","text":"Only in this browser's local storage, as a draft you can return to, and “Copy share link” encodes your entries into this page's own URL hash so a partner or the customer can open the exact numbers you priced. Anonymous feature counts (that you calculated, copied a summary, or copied a share link) are on by default and can be turned off with the button in the footer; Do Not Track and Global Privacy Control disable them automatically. Nothing you type is uploaded anywhere — a link only travels if you send it."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#20251f;background:#f3f0e8}body{max-width:980px;margin:auto;padding:28px 16px}header{max-width:700px}h1{font-size:clamp(2.2rem,6vw,4.4rem);line-height:.95;letter-spacing:-.06em;margin:8px 0 16px}.eyebrow{color:#a14d27;font-size:.78rem;font-weight:800;letter-spacing:.12em}p{line-height:1.5}.layout{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}section{background:#fffdf8;border:1px solid #d7d0c1;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 5px 18px #4a392012}h2{margin-top:0;font-size:1.2rem}.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}label{display:grid;gap:5px;font-size:.86rem;font-weight:700}input{font:inherit;padding:11px;border:1px solid #bcb3a1;border-radius:7px;background:white}button{font:inherit;font-weight:750;padding:11px 14px;border:1px solid #bcb3a1;border-radius:7px;background:#eee8db;cursor:pointer}button:hover{background:#e4dccb}.result{background:#193f35;color:#f8f4e9;border-color:#193f35;position:sticky;top:14px}.result a{color:inherit;text-decoration:underline}.hero{font-size:2.8rem;font-weight:800;letter-spacing:-.06em;margin:4px 0 18px}dl{display:grid;grid-template-columns:1fr auto;gap:10px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}.alert{padding:12px;border-radius:8px;background:#35644e;margin-top:16px}.alert.bad{background:#8a372b}.summary{width:100%;min-height:145px;margin-top:12px;padding:10px;box-sizing:border-box;font:inherit;border:1px solid #bcb3a1;border-radius:7px}footer{font-size:.8rem;color:#5e625c;margin-top:22px}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5854; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #193f35; --pr-accent: #a14d27;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Change Order Margin Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Change Order Margin Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Change Order Margin Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p class="eyebrow">FOR CONTRACTORS AND TRADE BUSINESSES</p><h1>Price the change before it changes your margin.</h1><p>A customer adds outlets, a wall, a repair, or a delivery. Enter the added labor and direct costs to see the walk-away floor, a target-margin price, and a summary you can send for written approval.</p><p><a href="./how-to-price-a-change-order.html">How do I price a construction change order?</a> · <a href="./vs-buildertrend.html">This calculator vs. Buildertrend</a> · <a href="./vs-jobtread.html">This calculator vs. JobTread</a> · <a href="./vs-a-rough-lump-sum.html">This calculator vs. a rough lump sum</a></p></header>
+<main class="layout"><div><section><h2>Change-order inputs</h2><div class="fields">
+  <label>Change description<input id="title" value="Added scope"></label>
+  <label>Added labor hours<input id="hours" type="number" min="0" step=".25" value="8" inputmode="decimal"></label>
+  <label>Hourly wage<input id="wage" type="number" min="0" step=".01" value="28" inputmode="decimal"></label>
+  <label>Payroll burden (%)<input id="burdenPercent" type="number" min="0" step=".1" value="25" inputmode="decimal"></label>
+  <label>Materials<input id="materials" type="number" min="0" step=".01" value="350" inputmode="decimal"></label>
+  <label>Subcontractor cost<input id="subcontractor" type="number" min="0" step=".01" value="0" inputmode="decimal"></label>
+  <label>Days added to the schedule<input id="daysAdded" type="number" min="0" step=".5" value="0" inputmode="decimal"></label>
+  <label>Extended general conditions ($/day)<input id="dailyGeneralConditions" type="number" min="0" step=".01" value="0" inputmode="decimal"></label>
+  <label>Contract markup cap (%, 0 = none)<input id="markupCapPercent" type="number" min="0" step=".1" value="0" inputmode="decimal"></label>
+  <label>Overhead on direct cost (%)<input id="overheadPercent" type="number" min="0" step=".1" value="10" inputmode="decimal"></label>
+  <label>Target margin (%)<input id="targetMarginPercent" type="number" min="0" max="99" step=".1" value="20" inputmode="decimal"></label>
+  <label>Proposed price (optional)<input id="proposedPrice" type="number" min="0" step=".01" value="0" inputmode="decimal"></label>
+</div></section><section><h2>Approval summary</h2><p>Copy this after checking quantities, schedule, and contract terms.</p><textarea id="summary" class="summary" aria-label="Change-order summary" readonly></textarea><button id="copy">Copy summary</button><button id="copyShare">Copy share link</button><span id="copyStatus" aria-live="polite"></span></section></div>
+<section class="result" aria-live="polite"><h2>Your price floor</h2><div class="hero" id="targetPrice">$0.00</div><p>Target price for the margin you entered.</p><dl><dt>Walk-away cost floor</dt><dd id="walkAwayPrice">$0.00</dd><dt>Loaded labor</dt><dd id="loadedLabor">$0.00</dd><dt>Materials + subcontractor</dt><dd id="otherCosts">$0.00</dd><dt>Overhead</dt><dd id="overheadCost">$0.00</dd><dt>Extended general conditions</dt><dd id="delayCost">$0.00</dd><dt>Most the contract allows</dt><dd id="cappedPrice">no cap</dd><dt>Margin at that cap</dt><dd id="marginAtCap">&mdash;</dd><dt>Estimated margin</dt><dd id="margin">0.0%</dd></dl><div id="verdict" class="alert" role="status" aria-live="polite">Enter a proposed price to compare it with your floor.</div></section><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Send the customer a written change order</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give the customer to approve before the added work begins — your details, theirs, what the change covers, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer’s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Your Company LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) — leave at 0 to bill on completion <input id="depositPercent" type="number" min="0" max="100" step="5" value="0" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>What this change order covers — one line each, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Added two exterior outlets on a dedicated 20A circuit"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder=""></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Due on completion of the added work, before it is folded into the next draw."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder=""></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print change order / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+<section id="faq">
+  <h2>Common questions</h2>
+
+  <h3>What is the difference between the walk-away price and the target price?</h3>
+  <p>The walk-away price is your cost floor &mdash; loaded labor plus materials, subcontractor cost, and
+    overhead, with zero profit. The target price divides that floor by one minus your target margin, so it
+    already has the margin built in. On the defaults (8 hours at $28/hr, 25% burden, $350 materials, 10%
+    overhead, 20% target margin), the floor is $693.00 and the target price is $866.25 &mdash; the gap
+    between them is exactly the profit a 20% margin requires.</p>
+
+  <h3>Why is loaded labor $280 for 8 hours at $28/hour, not $224?</h3>
+  <p>Because payroll burden is applied to the wage before multiplying by hours: hours &times; wage
+    &times; (1 + burden). At the default 25% burden that adds $56 &mdash; the employer-side taxes and
+    insurance cost of that labor, not profit. Change-order pricing built on the $224 bare-wage number
+    would be quietly working at a loss on every hour billed.</p>
+
+  <h3>Why does overhead apply to materials and subcontractor cost, not just labor?</h3>
+  <p>Overhead is a percentage of the whole direct cost &mdash; loaded labor plus materials plus
+    subcontractor cost &mdash; because the business absorbs its overhead on every dollar that flows
+    through a job, not only the payroll dollars. On the defaults that direct cost is $630.00, and 10%
+    overhead on that full figure is $63.00.</p>
+
+  <h3>What does &ldquo;above cost, but below your target margin&rdquo; mean?</h3>
+  <p>It means the proposed price covers your walk-away floor and leaves some profit, just not as much as
+    your target margin asks for. On the defaults, proposing $750 against the $693 floor leaves $57 of
+    profit &mdash; but margin is profit divided by price, not by cost, so $57 / $750 is 7.6%, short of a
+    20% target by 12.4 points. A price can clear cost by a comfortable-looking dollar amount and still miss
+    the margin you were aiming for.</p>
+
+  <h3>My contract caps change-order markup. Does that change what I can charge?</h3>
+  <p>Yes, and it is the field most likely to change your answer. Enter the cap and the calculator shows the most the contract permits you to bill &mdash; direct cost plus that percentage &mdash; next to what is left of it after your own overhead. The two come out of the same allowance, so a 10% cap against 10% overhead means the change order earns exactly nothing: on the defaults the cap and the $693.00 walk-away floor are the same number. Below that, at a 5% cap, the most you may bill is $661.50 and every change order on the contract is a loss. Leave the field at zero for a contract with no cap and nothing changes.</p>
+  <h3>The added work pushes the schedule. Where does that cost go?</h3>
+  <p>Into &quot;days added&quot; and &quot;extended general conditions ($/day)&quot; &mdash; the supervision, site trailer, and rented plant the added scope keeps on site. It is treated as a direct cost of the change order, so overhead and margin carry on it like any other, which is the point: general conditions absorbed by the contractor are absorbed because they were never in the change order to begin with. Three days at $450 turns a $630 change order into $1,980 of direct cost and moves the target price from $866.25 to $2,722.50. Leave both at zero for work that fits inside the existing schedule.</p>
+  <h3>Why does the cap warning appear before I enter a proposed price?</h3>
+  <p>Because the cap is a fact about your contract rather than about the price you are considering. If the markup the contract allows is below your overhead rate, every change order under it loses money whatever you propose, and waiting for a proposed price would keep that silent on exactly the page you have not finished filling in. The other messages still wait for a proposed price, because they are comparisons against one.</p>
+  <h3>Why is target margin capped at 99%?</h3>
+  <p>The target price divides the cost floor by (1 &minus; target margin). At 100% that division is by
+    zero; the calculator caps the input at 99% so a mistyped margin produces a very large, clearly wrong
+    price instead of an error or an infinite one.</p>
+
+  <h3>Where is my data saved?</h3>
+  <p>Only in this browser's local storage, as a draft you can return to, and &ldquo;Copy share link&rdquo;
+    encodes your entries into this page's own URL hash so a partner or the customer can open the exact
+    numbers you priced. Anonymous feature counts (that you calculated, copied a summary, or copied a share
+    link) are on by default and can be turned off with the button in the footer; Do Not Track and Global
+    Privacy Control disable them automatically. Nothing you type is uploaded anywhere &mdash; a link only
+    travels if you send it.</p>
+</section>
+<footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, engineering, or construction advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Inputs stay in this browser. Anonymous feature counts are local and opt-out; DNT/GPC disables them. <button id="usageToggle">Disable local usage counting</button><p>Need a dated site log of the change rather than a price? The <a href="../construction-evidence-log/">construction evidence log</a> builds a daily log and change-order evidence pack &mdash; nothing uploaded.</p><p>Billing recurring work instead of one-off change orders? The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> checks payment terms, unused-hour rollover, and whether a retainer hits your income goal &mdash; nothing uploaded.</p><p>Sending a lot of quotes? The <a href="../bid-win-rate-optimizer/">bid win-rate optimizer</a> turns your won and lost quotes into the markup that earns the most per bid &mdash; nothing uploaded.</p><p>Approved change orders move a job's contract and cost. The <a href="../contractor-wip-schedule/">contractor WIP schedule</a> shows what they do to over- and underbilling, margin and cash still to come across every open job &mdash; nothing uploaded.</p><p class="support">Free and open source. If it helped you price the next change order, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p> Before award, <a href="../bid-leveling-worksheet/">level the subcontractor bids</a> so scope gaps do not turn into change orders. Already under contract on a fixed price? <a href="../fixed-bid-overrun-forecaster/">Forecast whether the job finishes inside the price</a>.    <p>Related: <a href="../construction-delay-claim-calculator/">construction delay claim calculator</a>, for sizing a delay claim against liquidated damages.</p>
+  </footer>
+<script type="module">
+import {calculateChangeOrder,summaryText} from './calc.mjs';
+import {encodeShare,decodeShare,SHARE_FIELDS} from './share.mjs';
+import {recordUsage,disableUsage,usageEnabled} from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+const ids=['title','hours','wage','burdenPercent','materials','subcontractor','daysAdded','dailyGeneralConditions','markupCapPercent','overheadPercent','targetMarginPercent','proposedPrice'];const $=id=>document.getElementById(id);
+// `el` is the house-convention alias `platform/proposal/adopt.mjs` looks for
+// and generates its own wiring against; it is the same lookup as `$` above.
+const el = id => document.getElementById(id);
+const money=(n) => {
+                                                                                                                                                                                 const format = (n) => `$${n.toFixed(2)}`;
+                                                                                                                                                                                 const text = format(Math.abs(n));
+                                                                                                                                                                                 return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+                                                                                                                                                                               };let countTimer;
+function count(event){recordUsage(localStorage,event);}
+// Reads the same fields `update()` does, as one no-argument function --
+// separated out so the customer-proposal panel (which prices the job for
+// its own preview independently of the render loop) has a single source for
+// "the job currently on screen" instead of a second, easily-drifting copy.
+function readInput(){return Object.fromEntries(ids.map(id=>[id,$(id).value]));}
+function restoreDraft(){
+  // The FAQ tells the user their entries are "saved ... as a draft you can
+  // return to", and update() below does write one to localStorage on every
+  // change. Nothing ever read it back on load, so a returning user always
+  // got the hardcoded defaults instead of their own numbers — the draft was
+  // written but never restored. This reads it once, before the first
+  // render, so a reload actually returns to where the user left off.
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('change-order-draft') || 'null'); } catch { saved = null; }
+  if (!saved || typeof saved !== 'object') return;
+  // SHARE_FIELDS, not the calculator-only `ids`: it also carries the
+  // customer-proposal panel's deposit and terms fields, so a returning setter
+  // gets those back too, not just the pricing inputs.
+  SHARE_FIELDS.forEach(id => { if (typeof saved[id] === 'string' && $(id)) $(id).value = saved[id]; });
+}
+function restoreShared(){
+  // A share link takes priority over the saved draft: opening a link someone
+  // sent means seeing the change order they priced, not whatever this
+  // browser happened to have open last.
+  const shared = decodeShare(location.hash);
+  if (!shared) return false;
+  SHARE_FIELDS.forEach(id => { if (typeof shared[id] !== 'undefined' && $(id)) $(id).value = shared[id]; });
+  return true;
+}
+async function copyShare(){
+  // Gathered from SHARE_FIELDS (calculator inputs plus the proposal panel's
+  // deposit and terms), not the calculator-only `ids` -- otherwise a setter
+  // who priced a 50% deposit held for 15 days would send a link that quietly
+  // reopens under this venture's own defaults instead. `encodeShare` still
+  // re-filters through its own SHARE_FIELDS, so this is belt-and-braces, not
+  // load-bearing on its own.
+  const input=Object.fromEntries(SHARE_FIELDS.map(id=>[id,$(id).value]));
+  const hash=encodeShare(input);
+  const url=`${location.origin}${location.pathname}#${hash}`;
+  await navigator.clipboard.writeText(url);
+  history.replaceState(null,'',`#${hash}`);
+  $('copyStatus').textContent=' Share link copied.';
+  count('share-copied');
+}
+function update(){const input=readInput();const r=calculateChangeOrder(input);$('targetPrice').textContent=money(r.targetPrice);$('walkAwayPrice').textContent=money(r.walkAwayPrice);$('loadedLabor').textContent=money(r.loadedLabor);$('otherCosts').textContent=money(r.directCost-r.loadedLabor-r.delayCost);$('overheadCost').textContent=money(r.overheadCost);$('delayCost').textContent=money(r.delayCost);$('cappedPrice').textContent=r.cappedPrice===null?'no cap':money(r.cappedPrice);$('marginAtCap').textContent=r.marginAtCap===null?'\u2014':`${(r.marginAtCap*100).toFixed(1)}%`;$('margin').textContent=`${(r.proposedMargin*100).toFixed(1)}%`;const v=$('verdict');v.className='alert';v.textContent=r.proposedPrice?(r.belowCost?`Below the cost floor by ${money(r.walkAwayPrice-r.proposedPrice)}. Do not proceed without revising the price or scope.`:(r.targetMet?'This proposed price meets your target margin. Verify the estimate before approval.':`Above cost, but below your target margin by ${((Number(input.targetMarginPercent)||0)-r.proposedMargin*100).toFixed(1)} points.`)):'Enter a proposed price to compare it with your floor.';if(r.capBelowCost){v.textContent=`Your contract caps change-order markup at ${r.markupCapPercent}%, which is below your ${input.overheadPercent||0}% overhead: the most you may bill (${money(r.cappedPrice)}) is under your ${money(r.walkAwayPrice)} cost floor. Every change order on this contract loses money at these rates.`;v.className='alert bad';}else if(r.capBlocksTarget){v.textContent=`${v.textContent} Your contract caps markup at ${r.markupCapPercent}%, so the most you may bill is ${money(r.cappedPrice)} \u2014 ${(r.marginAtCap*100).toFixed(1)}% after overhead, not the ${input.targetMarginPercent||0}% target.`;}if(r.belowCost)v.className+=' bad';$('summary').value=summaryText(input,r);
+  // Saved from SHARE_FIELDS rather than `input`: the draft key also holds the
+  // proposal panel's deposit and terms (see restoreDraft above), and `input`
+  // is just the calculator's own fields.
+  localStorage.setItem('change-order-draft',JSON.stringify(Object.fromEntries(SHARE_FIELDS.map(id=>[id,$(id).value]))));
+  clearTimeout(countTimer);countTimer=setTimeout(()=>count('calculated'),800)}
+// SHARE_FIELDS, not just `ids`: editing the proposal panel's deposit or terms
+// must also re-save the draft (see the draft write inside update() above), or
+// a setter who only touches those fields before reloading loses them.
+SHARE_FIELDS.forEach(id=>$(id).addEventListener('input',update));$('copy').addEventListener('click',async()=>{await navigator.clipboard.writeText($('summary').value);$('copyStatus').textContent=' Copied.';count('summary-copied')});$('copyShare').addEventListener('click',()=>{copyShare().catch(()=>{$('copyStatus').textContent=' Copy failed; copy the address bar instead.'})});if(!usageEnabled(localStorage))$('usageToggle').textContent='Local usage counting disabled';$('usageToggle').addEventListener('click',()=>{disableUsage(localStorage);$('usageToggle').textContent='Local usage counting disabled'});if(!restoreShared())restoreDraft();update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'change-order-margin-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. This document prices the added scope only. It does not modify any other term of the underlying contract, does not itself constitute the contract’s required change-order approval process, and does not determine whether the added work is owed under that contract.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Change order: {changeTitle}",
+        {
+          "line": "{hours~2} additional labor hour(s) beyond the original scope",
+          "when": "hours"
+        },
+        {
+          "line": "Additional materials for the added scope",
+          "when": "materialsAmount"
+        },
+        {
+          "line": "Additional subcontracted work for the added scope",
+          "when": "subAmount"
+        },
+        {
+          "line": "{daysAdded~0} additional day(s) added to the project schedule, including extended site supervision and equipment",
+          "when": "daysAdded"
+        },
+        "Priced separately from, and not itself a change to, the underlying contract's other terms"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "changeTitle": el('title')?.value?.trim(),
+        "materialsAmount": Number(el('materials')?.value),
+        "subAmount": Number(el('subcontractor')?.value),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.targetPrice,
+        jobTitle: scopeLines(['Change order — {changeTitle}'], proposalFields(result))[0] || 'Change order',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateChangeOrder(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateChangeOrder(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../freelance-rate-increase-calculator/" data-pf-to="freelance-rate-increase-calculator">Freelance Rate Increase Calculator — free, private, in your browser</a></li>
+      <li><a href="../freelance-retainer-calculator/" data-pf-to="freelance-retainer-calculator">Freelance Retainer Pricing Calculator</a></li>
+      <li><a href="../freelance-retainer-vs-hourly-calculator/" data-pf-to="freelance-retainer-vs-hourly-calculator">Freelance Retainer vs Hourly Calculator — free, private, in your browser</a></li>
+      <li><a href="../grain-store-or-sell-calculator/" data-pf-to="grain-store-or-sell-calculator">Grain Store or Sell Calculator — break-even price for storing corn and soybeans</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=change-order-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/?pfEmbed=1&quot; title=&quot;Change Order Margin Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="change-order-margin-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/" data-pf-embed-title="Change Order Margin Calculator" data-pf-embed-slug="change-order-margin-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:wage,burdenRate:burdenPercent,overheadRate:overheadPercent,targetMargin:targetMarginPercent"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="change-order-margin-calculator" data-pf-jobs-amount="#targetPrice"></script>
+</body></html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flaky Test Finder vs. eyeballing two CI logs by hand</title>
+  <meta name="description" content="Eyeballing two CI console logs treats every red-then-green test the same way, and treats a test that failed identically in both runs as more of the same.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Flaky Test Finder vs. eyeballing two CI logs by hand">
+  <meta property="og:description" content="Two failing tests, one rerun: eyeballing the console output reads both as 'probably flaky'. The reports themselves say one flipped and one failed twice in a…">
+  <meta property="og:url" content="./vs-eyeballing-two-ci-logs-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does eyeballing two CI logs get wrong?","acceptedAnswer":{"@type":"Answer","text":"It conflates two different facts that look identical in a console: a test that failed once and passed on rerun (flaky), and a test that failed the same way in both runs (broken, not flaky). Once a suite reruns only its failed tests -- pytest --lf, jest --onlyFailures, and most CI 'retry failed tests' features all do this -- the second log legitimately contains only a fraction of the first, and a person skimming it tends to read 'mostly green now' as 'must have just been flaky' without checking whether every specific test that failed actually flipped, or whether one of them failed again."}},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A 4-test run fails test_checkout and test_export; test_login and test_search pass. The team reruns only the two failures with --lf. In the rerun, test_checkout passes and test_export fails again with the same TimeoutError. Eyeballing two logs, both failures look the same: 'failed in run 1'. Pasted into this tool, the two reports classify differently: test_checkout is flaky (1 pass, 1 fail across 2 runs), test_export is broken (2 fails, 0 passes across 2 runs) -- a real, consistent failure. Merging past it because 'the rerun looked mostly fine' ships the regression test_export exists to catch."}},{"@type":"Question","name":"Is this tool just automating something obvious?","acceptedAnswer":{"@type":"Answer","text":"The individual fact -- did this one test flip -- is obvious once you already know to check it test-by-test across every run it appeared in, including the runs where it did not appear. What eyeballing gets wrong is scale and attention, not logic: a report with 40, 200, or 2,000 tests makes 'read every test's status across every run and note which ones appeared in which' the kind of bookkeeping a person skips by pattern-matching on the overall shape of the log instead ('mostly green' or 'still red'). This tool does the same bookkeeping mechanically and exhaustively, so the answer does not depend on which test happened to catch the reader's eye."}},{"@type":"Question","name":"Does this replace reading the CI log at all?","acceptedAnswer":{"@type":"Answer","text":"No. It replaces the specific step of deciding, test by test, whether a failure is flaky or a real regression. You still need the JUnit-XML reports in hand -- most CI systems already produce or can be configured to produce them -- and you still decide what to do about a broken test once it is correctly identified as broken. This tool only removes the guessing from that one classification step."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #e7ebf0; padding: .1em .3em; border-radius: 4px; font-size: .9em; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Flaky Test Finder vs. eyeballing two CI logs by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../flaky-test-finder/">Which of your tests are actually flaky?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Flaky Test Finder vs. eyeballing two CI logs by hand</span></span></nav>
+  <p><a href="./">&larr; Flaky Test Finder</a></p>
+  <h1>Flaky Test Finder vs. eyeballing two CI logs by hand</h1>
+  <p>
+    <strong>Eyeballing two console logs</strong> is the default method, because
+    it needs no tool: open the first failed run, open its rerun, and compare
+    by eye. It works when a suite is small and exactly one test failed. It
+    stops working the moment a suite reruns only its failures &mdash;
+    <code>pytest --lf</code>, <code>jest --onlyFailures</code>, and most CI
+    "retry failed tests" features all do this by design &mdash; because the
+    second log then contains a different, smaller set of tests than the
+    first, and reading "the rerun looked mostly green" is not the same claim
+    as "every test that failed the first time passed the second time."
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Run 1 (full suite, 4 tests)</th><th scope="col">Run 2 (<code>--lf</code> rerun, 2 tests)</th><th scope="col">Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>test_login</code> &mdash; passed</td><td>not rerun</td><td>stable</td></tr>
+      <tr><td><code>test_checkout</code> &mdash; <strong>failed</strong> (cart total mismatch)</td><td><code>test_checkout</code> &mdash; passed</td><td><strong>flaky</strong> &mdash; flipped</td></tr>
+      <tr><td><code>test_export</code> &mdash; <strong>failed</strong> (export timeout)</td><td><code>test_export</code> &mdash; <strong>failed</strong> (same timeout)</td><td><strong>broken</strong> &mdash; failed both times</td></tr>
+      <tr><td><code>test_search</code> &mdash; passed</td><td>not rerun</td><td>stable</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    Eyeballing this pair of logs, both failures look the same shape: "failed
+    in run 1, and run 2 is a rerun of just the failures." The natural read is
+    "the rerun is mostly green, this was probably all flakiness" &mdash; which
+    is true of <code>test_checkout</code> and false of <code>test_export</code>,
+    which failed with the identical <code>TimeoutError</code> both times it
+    ran. Pasted into this tool, the two reports are read test-by-test across
+    every run each test appeared in: <code>test_checkout</code> classifies as
+    <strong>flaky</strong> (1 pass, 1 fail), <code>test_export</code>
+    classifies as <strong>broken</strong> (2 fails, 0 passes) &mdash; a
+    real, consistent failure, not noise. Merging on "the rerun looked fine"
+    ships whatever <code>test_export</code> exists to catch.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have a failed run and its rerun open in two tabs right now &mdash; which failures are flaky and which are real?</td>
+        <td>Flaky Test Finder &mdash; paste both reports, get a verdict per test in seconds, no guessing which one caught your eye.</td>
+      </tr>
+      <tr>
+        <td>The suite only reran its failures, so the second log is smaller &mdash; does that mean the missing tests broke?</td>
+        <td>Neither, by hand or here: a test absent from a rerun because it was not retried is not evidence of anything. This tool already treats that as the retry it is, not a missing result.</td>
+      </tr>
+      <tr>
+        <td>I want to know if this is the exact same test that has been flaky for weeks, across many past builds.</td>
+        <td>Neither this tool nor eyeballing two logs &mdash; that needs history across many runs over time, which two reports pasted once cannot provide. A connected dashboard tool is built for that job.</td>
+      </tr>
+      <tr>
+        <td>I have three or more reruns and want to be sure before I mark a test as quarantined.</td>
+        <td>Flaky Test Finder &mdash; it accepts any number of reports at once and classifies from all of them together, which gets more reliable with more runs; eyeballing gets slower and more error-prone with each additional log.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither method is wrong about small cases: one test, two logs, obviously
+    different failure messages &mdash; a person can read that correctly every
+    time. The gap opens exactly where CI already makes eyeballing hardest: a
+    suite with dozens or hundreds of tests, a rerun that only covers the
+    failures, and a reader under time pressure to just get the check green.
+    That is precisely when "mostly green now" and "every specific test that
+    failed actually flipped" stop being the same sentence, and it is the gap
+    this tool exists to close.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What does eyeballing two CI logs get wrong?</h3>
+  <p>It conflates two different facts that look identical in a console: a test that failed once and passed on rerun (flaky), and a test that failed the same way in both runs (broken, not flaky). Once a suite reruns only its failed tests -- <code>pytest --lf</code>, <code>jest --onlyFailures</code>, and most CI 'retry failed tests' features all do this -- the second log legitimately contains only a fraction of the first, and a person skimming it tends to read 'mostly green now' as 'must have just been flaky' without checking whether every specific test that failed actually flipped, or whether one of them failed again.</p>
+  <h3>Can you give a concrete example?</h3>
+  <p>A 4-test run fails <code>test_checkout</code> and <code>test_export</code>; <code>test_login</code> and <code>test_search</code> pass. The team reruns only the two failures with <code>--lf</code>. In the rerun, <code>test_checkout</code> passes and <code>test_export</code> fails again with the same <code>TimeoutError</code>. Eyeballing two logs, both failures look the same: 'failed in run 1'. Pasted into this tool, the two reports classify differently: <code>test_checkout</code> is flaky (1 pass, 1 fail across 2 runs), <code>test_export</code> is broken (2 fails, 0 passes across 2 runs) -- a real, consistent failure. Merging past it because 'the rerun looked mostly fine' ships the regression <code>test_export</code> exists to catch.</p>
+  <h3>Is this tool just automating something obvious?</h3>
+  <p>The individual fact -- did this one test flip -- is obvious once you already know to check it test-by-test across every run it appeared in, including the runs where it did not appear. What eyeballing gets wrong is scale and attention, not logic: a report with 40, 200, or 2,000 tests makes 'read every test's status across every run and note which ones appeared in which' the kind of bookkeeping a person skips by pattern-matching on the overall shape of the log instead ('mostly green' or 'still red'). This tool does the same bookkeeping mechanically and exhaustively, so the answer does not depend on which test happened to catch the reader's eye.</p>
+  <h3>Does this replace reading the CI log at all?</h3>
+  <p>No. It replaces the specific step of deciding, test by test, whether a failure is flaky or a real regression. You still need the JUnit-XML reports in hand -- most CI systems already produce or can be configured to produce them -- and you still decide what to do about a broken test once it is correctly identified as broken. This tool only removes the guessing from that one classification step.</p>
+  <p class="note">
+    More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a> &middot; <a href="vs-buildpulse.html">Flaky Test Finder vs. BuildPulse</a>, for ongoing team-wide tracking rather than a one-off verdict.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you &mdash; it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=flaky-test-finder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="flaky-test-finder"></script>
+</body>
+</html>

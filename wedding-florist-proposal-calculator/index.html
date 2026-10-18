@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin</title>
+<meta name="description" content="Free calculator for wedding and event florists: price a proposal from the recipe up, buying whole bunches instead of loose stems…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin">
+<meta property="og:description" content="A recipe calls for 85 garden roses; the wholesaler sells bunches of ten, so you buy 100. Marking up the 85 under-quotes the proposal.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Florist Proposal Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator for wedding and event florists that prices one proposal from the stem recipe up — buying whole wholesale bunches rather than loose stems, adding a shrink allowance before the bunch rounding, marking up what is actually purchased, pricing design and on-site labour by the hour, adding hard goods and delivery, topping up to a studio minimum, and reporting gross margin alongside what a per-stem markup sheet would have under-quoted."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does buying in bunches change the price so much?","acceptedAnswer":{"@type":"Answer","text":"Because a recipe is written in stems and a wholesaler sells bunches. A recipe calling for 85 garden roses from a variety that ships in tens means you buy 100 and pay for 100 — the other 15 are yours whether the design uses them or not. Multiply that across six varieties and the difference between the recipe's stem count and the invoice is real money. A per-stem markup never recovers it, because the markup was applied to a cost you never actually paid. This calculator buys whole bunches on every line and reports the gap as its own figure."}},{"@type":"Question","name":"Should the shrink allowance be a percentage on the flower cost?","acceptedAnswer":{"@type":"Answer","text":"No, and it is wrong in both directions. Adding the percentage to the line's cost at the end buys a fraction of a bunch, which no wholesaler sells. On 100 stems of a ten-stem variety the allowance genuinely needs a whole eleventh bunch, and a 5% cost bump does not pay for it — you arrive short. On 95 stems the allowance already fits inside the ten bunches the recipe forced, and the same 5% pads the quote for a bunch nobody buys. This calculator adds shrink to the stem count first and rounds bunches afterwards, so the allowance is always something you can actually purchase."}},{"@type":"Question","name":"Is labour really a third of the flower total?","acceptedAnswer":{"@type":"Answer","text":"It is a reasonable rule for a bouquets-and-centrepieces wedding, where the hours track the stems. It breaks on installations. An arch, a hanging piece, or a late strike takes hours and comparatively few stems, so a percentage of flowers under-prices exactly the events that cost you the most time. This calculator prices design and on-site labour by the hour and shows what the percentage rule would have quoted beside it, so the gap is a number you can look at. The rule never changes the total — it is reported for comparison only."}},{"@type":"Question","name":"Why is the studio's own design time counted as revenue but not as a cost?","acceptedAnswer":{"@type":"Answer","text":"Because it is billed, not paid out. The gross profit line subtracts the cash that actually leaves the studio for this event — flowers at purchase cost, hard goods, and anything paid to freelance designers or install crew. Your own hours are what the proposal is charging for, so counting them again as a cost would show every event you work yourself as less profitable than the identical event you hired out. If you want to see your own time as a cost, put it in the freelance crew payout field."}},{"@type":"Question","name":"Does anything about my costs or my clients get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Your wholesale prices and markup are commercially sensitive, so note that anyone who has that link can read the numbers in it — send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#22231f;background:#f6f5f0}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:760px}h1{font-size:clamp(1.9rem,5.6vw,3.2rem);line-height:1.04;letter-spacing:-.03em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .86fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e0e2d6;border-radius:16px;padding:20px;box-shadow:0 8px 24px #22231f12;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #eceee4;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#41663f;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stemrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #c3cbb8;border-radius:8px;font:inherit;background:#fefefc}.result{background:#1f3a21;color:#fff;border-color:#1f3a21;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.6rem;font-weight:750;letter-spacing:-.03em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#5c6154}.result .note{color:#c3dcc2}.err{color:#ffd0d0;font-weight:700}.warn{background:#fff3e0;border:1px solid #e0b071;color:#734a06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#162c18;border-color:#6aa46d;color:#d9f2d8}.good{background:#e7f6ec;border:1px solid #8dc9a3;color:#17512f;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #c3cbb8;background:#fff;cursor:pointer;color:#22231f}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}.stemrow{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Wedding Florist Proposal Calculator — Bunch Rounding, Labour \u0026 Margin","item":"https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR WEDDING &amp; EVENT FLORISTS</p><h1>Your recipe says 85 stems. Your invoice says ten bunches. Which one are you marking up?</h1><p class="lede">Flowers are quoted by the stem and bought by the bunch, so a proposal priced off the recipe marks up a cost you never paid. This free calculator buys whole bunches on every line, adds the shrink allowance before the rounding, prices labour by the hour instead of as a percentage of flowers, and reports the margin. Nothing you type leaves your browser.</p></header>
+
+<main class="layout">
+<section><h2>This proposal</h2>
+<fieldset><legend>Stem recipe — line 1</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded1" type="number" min="0" step="1" value="85" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize1" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost1" type="number" min="0" step="0.5" value="38" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Stem recipe — line 2</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded2" type="number" min="0" step="1" value="60" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize2" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost2" type="number" min="0" step="0.5" value="22" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Stem recipe — line 3</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded3" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize3" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost3" type="number" min="0" step="0.5" value="30" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Stem recipe — line 4</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded4" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize4" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost4" type="number" min="0" step="0.5" value="18" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Stem recipe — line 5</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded5" type="number" min="0" step="1" value="25" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize5" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost5" type="number" min="0" step="0.5" value="16" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Stem recipe — line 6</legend><div class="stemrow">
+<label>Stems needed<input id="stemsNeeded6" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+<label>Stems per bunch<input id="bunchSize6" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Cost per bunch ($)<input id="bunchCost6" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Flowers</legend><div class="fields">
+<label>Shrink allowance (%)<input id="shrinkPercent" type="number" min="0" max="100" step="1" value="8" inputmode="numeric"></label>
+<label>Flower markup (multiple)<input id="flowerMarkupMultiple" type="number" min="0" step="0.1" value="3.5" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Hard goods</legend><div class="fields">
+<label>Hard goods cost ($)<input id="hardGoodsCost" type="number" min="0" step="5" value="260" inputmode="numeric"></label>
+<label>Hard goods markup (multiple)<input id="hardGoodsMarkup" type="number" min="0" step="0.1" value="2" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Labour</legend><div class="fields">
+<label>Design hours (studio)<input id="designHours" type="number" min="0" step="0.5" value="14" inputmode="decimal"></label>
+<label>Design rate ($/hour)<input id="designRatePerHour" type="number" min="0" step="5" value="45" inputmode="numeric"></label>
+<label>Setup hours on site (per person)<input id="setupHours" type="number" min="0" step="0.5" value="3" inputmode="decimal"></label>
+<label>Strike hours on site (per person)<input id="strikeHours" type="number" min="0" step="0.5" value="1.5" inputmode="decimal"></label>
+<label>Install crew size<input id="installCrewSize" type="number" min="0" step="1" value="3" inputmode="numeric"></label>
+<label>Install rate ($/person/hour)<input id="installRatePerHour" type="number" min="0" step="5" value="45" inputmode="numeric"></label>
+<label>Rule of thumb: labour as % of flowers<input id="laborAsPercentOfFlowers" type="number" min="0" step="1" value="35" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Delivery</legend><div class="fields">
+<label>Round-trip miles<input id="deliveryMilesRoundTrip" type="number" min="0" step="1" value="46" inputmode="numeric"></label>
+<label>Delivery rate ($/mile)<input id="deliveryRatePerMile" type="number" min="0" step="0.05" value="1.25" inputmode="decimal"></label>
+<label>Flat delivery fee ($)<input id="deliveryFlatFee" type="number" min="0" step="5" value="75" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Your studio</legend><div class="fields">
+<label>Event minimum ($)<input id="minimumEventRevenue" type="number" min="0" step="100" value="3500" inputmode="numeric"></label>
+<label>Freelance crew payout ($)<input id="freelanceCrewCost" type="number" min="0" step="10" value="540" inputmode="numeric"></label>
+<label>Target gross margin (%)<input id="targetMarginPercent" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+</div></fieldset>
+<p style="margin:6px 0 4px"><button type="button" id="copyLink">Copy shareable link</button></p>
+<p id="shareStatus" class="note" role="status"></p>
+</section>
+
+<section class="result" aria-live="polite"><h2>Proposal total</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="totalHero" class="big">$0.00</div><p id="totalLine" class="note"></p>
+<dl>
+<dt>Flowers, at bunches actually bought</dt><dd id="flowerCostOut"></dd>
+<dt>Same recipe priced per stem</dt><dd id="flowerCostPerStemOut"></dd>
+<dt>Bunch-rounding gap (cost)</dt><dd id="roundingGapOut"></dd>
+<dt>Flowers, billed</dt><dd id="flowerRevenueOut"></dd>
+<dt>Under-quote if priced per stem</dt><dd id="revenueGapOut"></dd>
+<dt>Hard goods, billed</dt><dd id="hardGoodsOut"></dd>
+<dt>Design labour</dt><dd id="designLaborOut"></dd>
+<dt>On-site labour</dt><dd id="installLaborOut"></dd>
+<dt>Labour by the % rule, for comparison</dt><dd id="laborRuleOut"></dd>
+<dt>Delivery</dt><dd id="deliveryOut"></dd>
+<dt>Minimum top-up</dt><dd id="minimumOut"></dd>
+<dt>Cash out (flowers, hard goods, crew)</dt><dd id="cashCostOut"></dd>
+<dt>Gross profit</dt><dd id="grossProfitOut"></dd>
+<dt>Gross margin</dt><dd id="marginOut"></dd>
+<dt>Flowers as a share of the total</dt><dd id="flowerRatioOut"></dd>
+<dt>Stems bought but not in the recipe</dt><dd id="leftOverOut"></dd>
+</dl>
+<p id="roundingWarning" class="warn" hidden></p>
+<p id="laborWarning" class="warn" hidden></p>
+<p id="minimumWarning" class="warn" hidden></p>
+<p id="marginWarning" class="warn" hidden></p>
+<p id="healthyVerdict" class="good" hidden></p>
+<p class="note">A planning figure from the numbers you typed, not an audited statement or a contract. It does not add sales tax you collect and remit, income tax, card fees, or studio overhead unless you fold those into your rates yourself.</p>
+</section>
+<section><p>Related tool: the <a href="../wedding-flower-order-optimizer/">wedding flower order optimizer</a> (the cheapest wholesale order for the stems an event needs).</p></section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your wholesale costs, markup, and client figures are never uploaded, there is no account, and nothing is saved when you close the tab. <em>Copy shareable link</em> is the one way these figures leave this device, and only because you choose to send them: they ride in the page's URL fragment, which a browser never puts in a request line or a Referer header. Whoever holds that link can read the numbers in it, so send it the way you would send the numbers themselves. We count only anonymous local feature events (<code>proposal-priced</code>, <code>rounding-gap-shown</code>, <code>link_copied</code>) so we can tell whether the calculator gets used — no prices, recipes, or client details are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does buying in bunches change the price so much?</h3><p>Because a recipe is written in stems and a wholesaler sells bunches. A recipe calling for 85 garden roses from a variety that ships in tens means you buy 100 and pay for 100 — the other 15 are yours whether the design uses them or not. Multiply that across six varieties and the difference between the recipe's stem count and the invoice is real money. A per-stem markup never recovers it, because the markup was applied to a cost you never actually paid. This calculator buys whole bunches on every line and reports the gap as its own figure.</p>
+<h3>Should the shrink allowance be a percentage on the flower cost?</h3><p>No, and it is wrong in both directions. Adding the percentage to the line's cost at the end buys a fraction of a bunch, which no wholesaler sells. On 100 stems of a ten-stem variety the allowance genuinely needs a whole eleventh bunch, and a 5% cost bump does not pay for it — you arrive short. On 95 stems the allowance already fits inside the ten bunches the recipe forced, and the same 5% pads the quote for a bunch nobody buys. This calculator adds shrink to the stem count first and rounds bunches afterwards, so the allowance is always something you can actually purchase.</p>
+<h3>Is labour really a third of the flower total?</h3><p>It is a reasonable rule for a bouquets-and-centrepieces wedding, where the hours track the stems. It breaks on installations. An arch, a hanging piece, or a late strike takes hours and comparatively few stems, so a percentage of flowers under-prices exactly the events that cost you the most time. This calculator prices design and on-site labour by the hour and shows what the percentage rule would have quoted beside it, so the gap is a number you can look at. The rule never changes the total — it is reported for comparison only.</p>
+<h3>Why is the studio's own design time counted as revenue but not as a cost?</h3><p>Because it is billed, not paid out. The gross profit line subtracts the cash that actually leaves the studio for this event — flowers at purchase cost, hard goods, and anything paid to freelance designers or install crew. Your own hours are what the proposal is charging for, so counting them again as a cost would show every event you work yourself as less profitable than the identical event you hired out. If you want to see your own time as a cost, put it in the freelance crew payout field.</p>
+<h3>Does anything about my costs or my clients get uploaded?</h3><p>No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Your wholesale prices and markup are commercially sensitive, so note that anyone who has that link can read the numbers in it — send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">Curious how this compares to the markup-times-recipe sheet most studios start with? Read <a href="./vs-a-recipe-markup-spreadsheet.html">this calculator vs. a recipe markup spreadsheet</a>. Wondering what to do with the stems left over after bunch rounding? Read <a href="./how-many-wholesale-bunches-do-you-need-for-a-wedding.html">how many wholesale bunches you actually need for a wedding</a>.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not order your flowers, hold your dates, determine your sales-tax obligations, or replace your own accountant. Wholesale availability and price move week to week; a quote built on last season's bunch cost is your responsibility to refresh.</p><p>Planning the whole wedding budget instead? The <a href="../wedding-budget-allocator/">wedding budget allocator</a> splits a couple's total across every category. Taking a booking deposit on this proposal? The <a href="../appointment-deposit-calculator/">appointment deposit calculator</a> sets a deposit amount and drafts a cancellation policy — a different question this tool intentionally leaves to it. Working the same wedding from the other side of the getting-ready room, the <a href="../bridal-hair-makeup-pricing-calculator/">bridal hair &amp; makeup pricing calculator</a> prices per-person services against the morning's schedule. Pricing design work rather than flowers? The <a href="../interior-design-fee-calculator/">interior design fee calculator</a> compares hourly, flat and percent-of-cost fees with scope creep priced in.</p>
+<p>MIT licensed. If it helped you price a proposal, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateProposal } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, hasSharedInputs, formValues, FIELD_IDS } from './share.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (v) => `$${v.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const percent = (n) => n === null ? 'n/a' : `${n.toFixed(1)}%`;
+const OUT_IDS = ['totalLine', 'flowerCostOut', 'flowerCostPerStemOut', 'roundingGapOut',
+  'flowerRevenueOut', 'revenueGapOut', 'hardGoodsOut', 'designLaborOut', 'installLaborOut',
+  'laborRuleOut', 'deliveryOut', 'minimumOut', 'cashCostOut', 'grossProfitOut', 'marginOut',
+  'flowerRatioOut', 'leftOverOut'];
+let counted = false;
+let roundingCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function update(count = false) {
+  try {
+    const r = calculateProposal(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('totalHero').hidden = false;
+    el('totalHero').textContent = money(r.proposalTotal);
+    el('totalLine').textContent = `${r.stemsPurchasedTotal} stems bought for a ${r.stemsNeededTotal}-stem recipe`;
+    el('flowerCostOut').textContent = money(r.flowerCostActual);
+    el('flowerCostPerStemOut').textContent = money(r.flowerCostPerStemBasis);
+    el('roundingGapOut').textContent = money(r.bunchRoundingGap);
+    el('flowerRevenueOut').textContent = money(r.flowerRevenue);
+    el('revenueGapOut').textContent = money(r.flowerRevenueGap);
+    el('hardGoodsOut').textContent = money(r.hardGoodsRevenue);
+    el('designLaborOut').textContent = money(r.designLabor);
+    el('installLaborOut').textContent = `${money(r.installLabor)} (${r.onSiteCrewHours} crew-hours)`;
+    el('laborRuleOut').textContent = money(r.laborByPercentRule);
+    el('deliveryOut').textContent = money(r.deliveryRevenue);
+    el('minimumOut').textContent = money(r.minimumTopUp);
+    el('cashCostOut').textContent = money(r.cashCostTotal);
+    el('grossProfitOut').textContent = money(r.grossProfit);
+    el('marginOut').textContent = percent(r.grossMarginPercent);
+    el('flowerRatioOut').textContent = percent(r.flowerCostRatioPercent);
+    el('leftOverOut').textContent = String(r.stemsLeftOverTotal);
+
+    // Four separate findings, shown together: a proposal can price correctly
+    // and still be thin, or clear the margin target while the labour rule
+    // would have quoted it far lower.
+    if (r.bunchRoundingGap > 0) {
+      el('roundingWarning').hidden = false;
+      el('roundingWarning').textContent = `Buying whole bunches costs ${money(r.bunchRoundingGap)} more than this recipe's stem count implies. Marking up the stem count instead would have quoted ${money(r.flowerRevenueGap)} less for the same flowers.`;
+    } else {
+      el('roundingWarning').hidden = true;
+    }
+    if (r.laborRuleGap > 0) {
+      el('laborWarning').hidden = false;
+      el('laborWarning').textContent = `Priced by the hour, labour on this event is ${money(r.laborRuleGap)} more than the ${el('laborAsPercentOfFlowers').value}%-of-flowers rule would have quoted — the install is doing the work the rule cannot see.`;
+    } else {
+      el('laborWarning').hidden = true;
+    }
+    if (r.belowMinimum) {
+      el('minimumWarning').hidden = false;
+      el('minimumWarning').textContent = `This proposal priced at ${money(r.proposalSubtotal)}, below your ${money(Number(el('minimumEventRevenue').value) || 0)} event minimum — ${money(r.minimumTopUp)} was added to reach it.`;
+    } else {
+      el('minimumWarning').hidden = true;
+    }
+    if (r.belowTargetMargin) {
+      el('marginWarning').hidden = false;
+      el('marginWarning').textContent = `Gross margin is ${percent(r.grossMarginPercent)}, below your ${el('targetMarginPercent').value}% target. Raise the markup, cut the recipe, or bill the hours the install actually takes.`;
+    } else {
+      el('marginWarning').hidden = true;
+    }
+    const healthy = !r.belowTargetMargin && !r.belowMinimum;
+    el('healthyVerdict').hidden = !healthy;
+    if (healthy) {
+      el('healthyVerdict').textContent = `This proposal clears your event minimum and your ${el('targetMarginPercent').value}% margin target on the flowers you actually have to buy.`;
+    }
+
+    if (count && !counted) { recordEvent('proposal-priced'); counted = true; }
+    if (count && r.bunchRoundingGap > 0 && !roundingCounted) { recordEvent('rounding-gap-shown'); roundingCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('totalHero').hidden = true;
+    for (const id of ['roundingWarning', 'laborWarning', 'minimumWarning', 'marginWarning', 'healthyVerdict']) el(id).hidden = true;
+    for (const id of OUT_IDS) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => update(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// Thirty-five figures is more than anyone reads down a phone, so the whole
+// proposal goes in the link. It rides in the fragment, which a browser puts
+// in neither a request line nor a Referer header — and wholesale costs are
+// the sort of thing that should not sit in a server log.
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(fieldInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('shareStatus').textContent = 'Link copied. It carries this proposal, not a usage count.';
+  } catch {
+    el('shareStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A link replaces every field, including the ones it did not carry: see
+// share.mjs for why a plain `Object.entries` of the decoded link is not the
+// supported way in.
+const fromLink = decodeInputs(location.hash || location.search);
+if (hasSharedInputs(fromLink)) {
+  for (const [id, value] of Object.entries(formValues(fromLink))) el(id).value = value;
+  el('shareStatus').textContent = 'Opened a shared proposal. Check the bunch costs against this week’s wholesale list before you use them.';
+}
+
+update(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../gift-vs-inherit-basis-calculator/" data-pf-to="gift-vs-inherit-basis-calculator">Gift vs inherit basis calculator</a></li>
+      <li><a href="../golf-simulator-bay-profit-calculator/" data-pf-to="golf-simulator-bay-profit-calculator">Golf Simulator Bay Profit Calculator — monthly profit, payback and break-even utilization</a></li>
+      <li><a href="../good-faith-estimate-generator/" data-pf-to="good-faith-estimate-generator">Good Faith Estimate generator for self-pay patients — free, private</a></li>
+      <li><a href="../grape-grower-sell-vs-bottle-calculator/" data-pf-to="grape-grower-sell-vs-bottle-calculator">Sell grapes or bottle wine? A calculator for vineyard owners</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wedding-florist-proposal-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/?pfEmbed=1&quot; title=&quot;Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="wedding-florist-proposal-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/" data-pf-embed-title="Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin" data-pf-embed-slug="wedding-florist-proposal-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="wedding-florist-proposal-calculator" data-pf-jobs-amount=""></script>
+</body></html>

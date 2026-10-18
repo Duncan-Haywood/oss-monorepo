@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Ball Python Morph Odds Work — worked examples</title>
+  <meta name="description" content="How to work out ball python morph odds for recessive, incomplete dominant, dominant and lethal genes, with worked pairings such as het by het…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/how-to-work-out-ball-python-morph-odds.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you work out ball python morph odds?", "acceptedAnswer": {"@type": "Answer", "text": "Treat every gene as its own site. A recessive gene needs two copies to show, so two hets give 25% visual, 50% het and 25% normal. An incomplete dominant shows with one copy and makes a Super form with two, so two pastels give 25% Super Pastel, 50% Pastel and 25% normal. Multiply the odds of each gene together to get the odds of a combination."}}, {"@type": "Question", "name": "What does it mean that spider is lethal when doubled?", "acceptedAnswer": {"@type": "Answer", "text": "A double copy of the spider gene is reported not to hatch, so a spider-by-spider pairing loses about a quarter of its eggs and the rest are half spider and a quarter normal. The planner takes those eggs out of the expected hatchlings."}}, {"@type": "Question", "name": "Why not pair two genes from the same group?", "acceptedAnswer": {"@type": "Answer", "text": "Genes that sit at the same site on the chromosome, such as the Lesser, Butter and Mojave group, do not follow independent odds, so the simple multiplication gives wrong answers. The planner refuses those pairings rather than guess."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f4f8f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #44573f; }
+    .card { background: #fff; border: 1px solid #cfe0c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a2a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e8a62; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebd5; color: #1f4a2a; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f1e0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a2a; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #cfe0c8; }
+    table.t th { color: #1f4a2a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #a8c99c; border-radius: 12px; padding: 10px 12px; background: #f9fcf7; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #1f4a2a; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0c8; padding-top: 16px; }
+    .ghost { color: #44573f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/how-to-work-out-ball-python-morph-odds.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How Ball Python Morph Odds Work — worked examples">
+<meta property="og:description" content="How to work out ball python morph odds for recessive, incomplete dominant, dominant and lethal genes, with worked pairings such as het by het…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Ball Python Morph Odds Work — worked examples — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ball-python-morph-pairing-planner/">Ball Python Morph Pairing Planner — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Ball Python Morph Odds Work — worked examples</span></span></nav>
+<main>
+  <p class="note"><a href="./">← Ball Python Morph Pairing Planner</a></p>
+  <h1>How ball python morph odds work</h1>
+  <p>Every pairing question comes down to the same small piece of arithmetic repeated for each gene. This page shows it for the four kinds of gene the planner handles, with examples it recomputes. It is arithmetic on probabilities, not a promise about any one clutch.</p>
+  <h2>1. Recessive genes (Albino, Clown, Piebald)</h2>
+  <p>A baby needs a copy from each parent to show the trait, and a baby with one copy is a hidden het. Two hets give a quarter visual, half het and a quarter normal. A visual by a het gives half visual and half het.</p>
+  <h2>2. Incomplete dominant genes (Pastel, Enchi, Fire)</h2>
+  <p>One copy shows the trait. Two copies make the Super form. Two pastels give a quarter Super Pastel, half Pastel and a quarter normal; a Super Pastel bred to a normal gives all pastels.</p>
+  <h2>3. Dominant and lethal-when-doubled genes (Pinstripe, Spider)</h2>
+  <p>A dominant looks the same with one or two copies. A lethal one, like spider, loses the double-copy eggs: a quarter of a spider-by-spider clutch does not hatch.</p>
+  <h2>4. Put genes together</h2>
+  <p>Multiply the odds gene by gene. Two pastel het albinos give nine different outcomes: a quarter are Pastel het Albino, one in eight each for het Albino, Pastel, Albino Pastel and Super Pastel het Albino, and one in sixteen each for Normal, Albino, Super Pastel and Albino Super Pastel. <a href="./">The planner</a> does this for every male and female you own, then prices each outcome.</p>
+  <h2>Worked examples</h2>
+  <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t"><thead><tr><th>Pairing</th><th>Offspring</th><th class="n">Chance per egg</th></tr></thead><tbody>
+<tr><td>het Albino × het Albino</td><td>het Albino</td><td class="n">50%</td></tr>
+<tr><td></td><td>Normal</td><td class="n">25%</td></tr>
+<tr><td></td><td>Albino</td><td class="n">25%</td></tr>
+<tr><td>Albino × het Albino</td><td>het Albino</td><td class="n">50%</td></tr>
+<tr><td></td><td>Albino</td><td class="n">50%</td></tr>
+<tr><td>Pastel × Pastel</td><td>Pastel</td><td class="n">50%</td></tr>
+<tr><td></td><td>Normal</td><td class="n">25%</td></tr>
+<tr><td></td><td>Super Pastel</td><td class="n">25%</td></tr>
+<tr><td>Spider × Spider</td><td>Spider</td><td class="n">50%</td></tr>
+<tr><td></td><td>Normal</td><td class="n">25%</td></tr>
+<tr><td></td><td>double copy, does not hatch</td><td class="n">25%</td></tr>
+<tr><td>Clown × 66% het Clown</td><td>het Clown</td><td class="n">67%</td></tr>
+<tr><td></td><td>Clown</td><td class="n">33%</td></tr>
+<tr><td>Pastel, het Albino × Pastel, het Albino</td><td>Pastel, het Albino</td><td class="n">25%</td></tr>
+<tr><td></td><td>het Albino</td><td class="n">12.50%</td></tr>
+<tr><td></td><td>Pastel</td><td class="n">12.50%</td></tr>
+<tr><td></td><td>Albino Pastel</td><td class="n">12.50%</td></tr>
+<tr><td></td><td>Super Pastel, het Albino</td><td class="n">12.50%</td></tr>
+<tr><td></td><td>Normal</td><td class="n">6.25%</td></tr>
+<tr><td></td><td>Albino</td><td class="n">6.25%</td></tr>
+<tr><td></td><td>Super Pastel</td><td class="n">6.25%</td></tr>
+<tr><td></td><td>Albino Super Pastel</td><td class="n">6.25%</td></tr>
+</tbody></table></div></div>
+  <p class="note">A 66% het is treated as passing the gene to a third of eggs. These odds assume independent genes and are not guaranteed for any one clutch.</p>
+  <h2>Common questions</h2>
+  <h3>How do you work out ball python morph odds?</h3>
+  <p>Treat every gene as its own site. A recessive gene needs two copies to show, so two hets give 25% visual, 50% het and 25% normal. An incomplete dominant shows with one copy and makes a Super form with two, so two pastels give 25% Super Pastel, 50% Pastel and 25% normal. Multiply the odds of each gene together to get the odds of a combination.</p>
+  <h3>What does it mean that spider is lethal when doubled?</h3>
+  <p>A double copy of the spider gene is reported not to hatch, so a spider-by-spider pairing loses about a quarter of its eggs and the rest are half spider and a quarter normal. The planner takes those eggs out of the expected hatchlings.</p>
+  <h3>Why not pair two genes from the same group?</h3>
+  <p>Genes that sit at the same site on the chromosome, such as the Lesser, Butter and Mojave group, do not follow independent odds, so the simple multiplication gives wrong answers. The planner refuses those pairings rather than guess.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page and tool are provided free and as-is, without warranty of any kind. Not veterinary, animal husbandry, legal, tax or financial advice. Gene types follow common breeder convention and may be wrong or out of date for your line; check with the project that produced your animals.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working.</p>
+  <p>Related tools: the <a href="../backyard-egg-profit-calculator/">backyard egg profit calculator</a> and the <a href="../sheep-goat-flock-profit-planner/">sheep and goat flock profit planner</a>.</p>
+  <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../food-truck-prep-mix-optimizer/" data-pf-to="food-truck-prep-mix-optimizer">Food truck prep mix optimizer</a></li>
+      <li><a href="../franchise-item-19-reality-check/" data-pf-to="franchise-item-19-reality-check">Franchise Item 19 Reality Check — free, private, in your browser</a></li>
+      <li><a href="../franchise-unit-economics-calculator/" data-pf-to="franchise-unit-economics-calculator">Will this franchise pay? Free unit economics calculator</a></li>
+      <li><a href="../ghost-kitchen-brand-picker/" data-pf-to="ghost-kitchen-brand-picker">Ghost kitchen brand picker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ball-python-morph-pairing-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ball-python-morph-pairing-planner"></script>
+</body>
+</html>

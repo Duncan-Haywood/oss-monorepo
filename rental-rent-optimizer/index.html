@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rental Rent Optimizer — the asking rent that earns the most after vacancy</title>
+  <meta name="description" content="Free rental rent optimizer for small landlords. Paste your past listings (asking rent, days on market…">
+  <meta property="og:title" content="Rental Rent Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own listing history into a days-to-lease curve and the asking rent that maximises expected net income, with honest uncertainty.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rental Rent Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your past rental listings (asking rent, days on market, leased or still vacant) and the current market rent. Fits how fast your units lease at different asking rents, finds the asking rent with the highest expected net income after vacancy and turnover, shows the profit curve, a bootstrap range and the cost of asking 5% too high, and back-tests the fit on your latest listings. Runs entirely in your browser.", "featureList": "rental asking rent optimizer, days on market model, vacancy cost, turnover cost, small landlord pricing, survival model, bootstrap range, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the best asking rent for a rental unit?", "acceptedAnswer": {"@type": "Answer", "text": "The best asking rent is the one that maximises what you actually keep, not the highest one you could list. A higher rent earns more every month you are leased but usually sits empty longer, and every empty month costs you rent, utilities and a turnover bill. This tool fits how long your own listings took to lease at different asking rents, then picks the rent with the highest expected net income per month across vacancy and lease cycles."}}, {"@type": "Question", "name": "How much does asking too much rent cost a landlord?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how steeply your listings slow down as the rent rises. The tool prints the cost of asking 5% above the best rent in dollars over your planning horizon, using your own history. Because the profit curve is flat near the top, a small overshoot often costs little while a large one costs a lot, and the page draws the whole curve so you can see which side is steeper."}}, {"@type": "Question", "name": "How does the tool estimate days to lease from my history?", "acceptedAnswer": {"@type": "Answer", "text": "It uses a survival model with a constant leasing rate that depends on how far above or below market each listing was asked. Listings that are still vacant are counted as waiting time without a lease, which keeps slow listings from being ignored. The slope is fitted from your rows and shrunk toward the elasticity you assume, so a short history cannot swing the answer."}}, {"@type": "Question", "name": "How many past listings do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row is enough to get a typical time to lease, but fewer than six rows cannot show how rent changes vacancy, so the tool says so and uses your assumed elasticity instead. Around 15 to 30 listings with a spread of asking rents, including some above and below market, gives a slope the data can support. If your rents barely varied, nothing in your history can say what a higher rent would do."}}, {"@type": "Question", "name": "Does this account for rent control or fair housing rules?", "acceptedAnswer": {"@type": "Answer", "text": "No. Local rent control, rent stabilisation, maximum increases, application-fee rules and fair housing law are not modelled, and nothing here is legal advice. Check the rules where the unit is before advertising. The tool only compares rents you could lawfully ask, using the times to lease in your own records."}}, {"@type": "Question", "name": "Is my listing history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your rows are read and analysed in this browser tab, nothing is sent to a server, and there are no accounts or cookies. The page never stores your listings. It keeps working offline once loaded."}}, {"@type": "Question", "name": "Why would the result be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Rents are not set at random. If you asked more for the better units, or listed the expensive ones in the slow winter months, the history mixes those effects with price and the slope can be misleading; the tool flags a slope that points the wrong way. It also cannot see the quality of the listing photos, the season, or the neighbourhood. Treat the answer as a hypothesis for one small, reversible change."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .hint { font-size: .8rem; color: #4c5a68; font-weight: 400; margin: 2px 0 0; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Rental Rent Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rental Rent Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Rental Rent Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">RENTAL RENT OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your asking rent too high, or too low?</h1>
+    <p>Paste your past listings: <strong>asking rent, days on market, and whether it leased or is still vacant</strong>. The tool fits how quickly your units lease at each <strong>premium over market</strong>, finds the <strong>asking rent with the highest expected net income</strong> once vacancy, turnover and renewals are counted, draws the profit curve with a bootstrap range, prices <strong>asking 5% too high</strong>, and back-tests the fit on your newest listings. With fewer than six listings it falls back to an elasticity you choose and says so.</p>
+    <p class="note">Your listings never leave this browser tab. Statistical estimate from your own data, not advice. Not legal, tax, or financial advice; not fair-housing advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your listing history</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: asking_rent, days_on_market, leased, market_rent)</label>
+    <textarea id="rows" spellcheck="false" placeholder="asking_rent,days_on_market,leased&#10;1850,18,1&#10;1995,47,1&#10;2100,75,0"></textarea>
+    <p class="note">Leased is 1/0 or leased/vacant. A listing that is still vacant counts as waiting, not as missing: enter the days so far and 0. The optional market_rent column is what comparable units asked when you listed; without it every listing is compared with today's market rent below. Rows are read oldest first so the back-test can score your newest listings.</p>
+  </section>
+
+  <section class="card">
+    <h2>The unit you are pricing</h2>
+    <div class="cols">
+      <div><label for="market">Market rent today ($/month)</label><input id="market" inputmode="decimal" placeholder="what comparable units ask"></div>
+      <div><label for="planned">Rent you were going to ask (optional)</label><input id="planned" inputmode="decimal" placeholder="defaults to market rent"></div>
+      <div><label for="term">Lease term (months)</label><input id="term" inputmode="decimal" value="12"></div>
+      <div><label for="renew">Chance the tenant renews (%)</label><input id="renew" inputmode="decimal" value="0"></div>
+      <div><label for="turnover">Turnover cost per new tenant ($)</label><input id="turnover" inputmode="decimal" value="0"><p class="hint">Cleaning, paint, ads, make-ready, leasing fee.</p></div>
+      <div><label for="carry">Extra cost per vacant month ($)</label><input id="carry" inputmode="decimal" value="0"><p class="hint">Only what you pay because it is empty: utilities, vacant insurance, lawn.</p></div>
+      <div><label for="fixed">Costs you pay either way ($/month)</label><input id="fixed" inputmode="decimal" value="0"><p class="hint">Mortgage, property tax. Shown in net income; they do not change the best rent.</p></div>
+      <div><label for="problem">Chance of a costly tenancy (%)</label><input id="problem" inputmode="decimal" value="0"><p class="hint">Non-payment or eviction, per tenancy.</p></div>
+      <div><label for="problemcost">Cost if it happens ($)</label><input id="problemcost" inputmode="decimal" value="0"></div>
+      <div><label for="elasticity">Assumed slowdown from +10% rent (%)</label><input id="elasticity" inputmode="decimal" value="50"><p class="hint">Used to shrink a short history: +10% rent makes the wait this much longer.</p></div>
+      <div><label for="horizon">Planning horizon (months)</label><input id="horizon" inputmode="decimal" value="12"><p class="hint">Dollar figures are shown over this period.</p></div>
+    </div>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your listings, enter today's market rent, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Profit curve</h3>
+    <div class="legend note"><span>Line: expected net income over your horizon at each asking rent</span><span>Shaded: the rents your history covers</span><span>Band: 80% bootstrap range of the best rent</span></div>
+    <div id="chart"></div>
+    <h3>Asking more or less than the best rent</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="off"><thead><tr><th>Versus best</th><th class="n">Asking rent</th><th class="n">Expected days to lease</th><th class="n">Net over horizon</th><th class="n">You give up</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Sensitivity</h3>
+    <p class="note">The best rent when one assumption moves.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="sens"><thead><tr><th>Assumption</th><th class="n">Best rent</th><th class="n">Change</th><th class="n">Days to lease</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download results CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Days to lease:</strong> an exponential (constant leasing rate) survival model, rate per day = e^(a + b × x), where x = ln(asking rent ÷ market rent). The mean wait is 1 ÷ rate. Listings still vacant are right-censored: they add waiting days to the likelihood without a lease event. The slope b is fitted by penalised maximum likelihood (Newton-Raphson with step halving) with a Gaussian prior centred on your assumed elasticity, so a short or narrow history is shrunk toward the assumption; with fewer than 6 listings the prior is nearly fixed. <strong>Best rent:</strong> a cycle is one vacancy followed by a tenancy of term ÷ (1 − renewal chance) months. Expected net per month = (rent × tenancy months − turnover − vacant-month cost × mean vacancy − chance of a costly tenancy × its cost) ÷ (mean vacancy + tenancy months), minus costs you pay either way. The best rent is searched only inside the premiums your history covers (±15% around market when it cannot be learned). 300 seeded bootstrap resamples of your listings give the 80% range. <strong>Back-test:</strong> fit on the first 75% in the order given and score the rest by average log-likelihood against a model that ignores rent.</p>
+    <p><strong>Not modelled:</strong> rent control, rent stabilisation, caps on increases and fair-housing law; season, listing quality, location and amenities; tenants who negotiate; rent growth during the lease; rent concessions. Listings are not randomised, so this is correlation, not an experiment. <strong>Unverified:</strong> checked against simulated listings with known curves and closed-form optima in unit tests, not against a published rental dataset or a property-management product.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the best asking rent for a rental unit?</h3>
+    <p>The best asking rent is the one that maximises what you actually keep, not the highest one you could list. A higher rent earns more every month you are leased but usually sits empty longer, and every empty month costs you rent, utilities and a turnover bill. This tool fits how long your own listings took to lease at different asking rents, then picks the rent with the highest expected net income per month across vacancy and lease cycles.</p>
+    <h3>How much does asking too much rent cost a landlord?</h3>
+    <p>It depends on how steeply your listings slow down as the rent rises. The tool prints the cost of asking 5% above the best rent in dollars over your planning horizon, using your own history. Because the profit curve is flat near the top, a small overshoot often costs little while a large one costs a lot, and the page draws the whole curve so you can see which side is steeper.</p>
+    <h3>How does the tool estimate days to lease from my history?</h3>
+    <p>It uses a survival model with a constant leasing rate that depends on how far above or below market each listing was asked. Listings that are still vacant are counted as waiting time without a lease, which keeps slow listings from being ignored. The slope is fitted from your rows and shrunk toward the elasticity you assume, so a short history cannot swing the answer.</p>
+    <h3>How many past listings do I need?</h3>
+    <p>One row is enough to get a typical time to lease, but fewer than six rows cannot show how rent changes vacancy, so the tool says so and uses your assumed elasticity instead. Around 15 to 30 listings with a spread of asking rents, including some above and below market, gives a slope the data can support. If your rents barely varied, nothing in your history can say what a higher rent would do.</p>
+    <h3>Does this account for rent control or fair housing rules?</h3>
+    <p>No. Local rent control, rent stabilisation, maximum increases, application-fee rules and fair housing law are not modelled, and nothing here is legal advice. Check the rules where the unit is before advertising. The tool only compares rents you could lawfully ask, using the times to lease in your own records.</p>
+    <h3>Is my listing history uploaded anywhere?</h3>
+    <p>No. Your rows are read and analysed in this browser tab, nothing is sent to a server, and there are no accounts or cookies. The page never stores your listings. It keeps working offline once loaded.</p>
+    <h3>Why would the result be wrong?</h3>
+    <p>Rents are not set at random. If you asked more for the better units, or listed the expensive ones in the slow winter months, the history mixes those effects with price and the slope can be misleading; the tool flags a slope that points the wrong way. It also cannot see the quality of the listing photos, the season, or the neighbourhood. Treat the answer as a hypothesis for one small, reversible change.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not fair-housing advice; it does not replace a qualified professional. Rent control and local law caps are not modelled. Results are statistical estimates from the listings you supply; they do not guarantee how fast a unit will lease or what it will earn. You are responsible for reviewing and verifying its output and for following the rules where your property is.</p>
+    <p><strong>Independent.</strong> Not affiliated with any listing site, property-management or screening vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your listings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../rental-dscr-calculator/">rental DSCR calculator</a> and the <a href="../bid-win-rate-optimizer/">bid win-rate optimizer</a>, which fits the same kind of curve to won and lost quotes.</p>
+    <p>Holding a repair quote on a unit? The <a href="../landlord-repair-or-replace-planner/">landlord repair-or-replace planner</a> prices repairing against replacing over the years you will own it.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const t = $(id).value.trim(); return t === "" ? undefined : Number(t); };
+    let last = null;
+
+    function chart(r) {
+      const W = 900, H = 290, L = 64, R = 14, T = 14, B = 40;
+      const c = r.curve, xs = c.map((p) => p.rent), ys = c.map((p) => p.overHorizon);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      let y0 = Math.min(...ys), y1 = Math.max(...ys);
+      if (y1 - y0 < 1) y1 = y0 + 1;
+      const padY = (y1 - y0) * 0.08; y0 -= padY; y1 += padY;
+      const X = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R);
+      const Y = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      const o = r.optimum;
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => x0 + t * (x1 - x0));
+      const yt = [0, 0.5, 1].map((t) => y0 + t * (y1 - y0));
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Expected net income over the horizon at each asking rent, peaking at ${esc(money(o.rent))}">` +
+        `<rect x="${X(r.range.lo).toFixed(1)}" y="${T}" width="${(X(r.range.hi) - X(r.range.lo)).toFixed(1)}" height="${H - T - B}" fill="#1f5f86" fill-opacity=".08"/>` +
+        (Number.isFinite(o.rentRange80[0]) ? `<rect x="${X(Math.max(x0, o.rentRange80[0])).toFixed(1)}" y="${T}" width="${Math.max(2, X(Math.min(x1, o.rentRange80[1])) - X(Math.max(x0, o.rentRange80[0]))).toFixed(1)}" height="${H - T - B}" fill="#1d5a24" fill-opacity=".18"/>` : "") +
+        yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${esc(money(v))}</text>`).join("") +
+        ticks.map((v) => `<text x="${X(v).toFixed(1)}" y="${H - 14}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(money(v))}</text>`).join("") +
+        `<polyline fill="none" stroke="#1f5f86" stroke-width="2.5" points="${c.map((p) => X(p.rent).toFixed(1) + "," + Y(p.overHorizon).toFixed(1)).join(" ")}"/>` +
+        `<circle cx="${X(o.rent).toFixed(1)}" cy="${Y(o.overHorizon).toFixed(1)}" r="6" fill="#b5533c"/>` +
+        `<text x="${X(o.rent).toFixed(1)}" y="${(Y(o.overHorizon) - 10).toFixed(1)}" font-size="12" text-anchor="middle" fill="#1b1f2a">best ${esc(money(o.rent))}</text></svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, {
+        market: val("#market"), plannedRent: val("#planned"), leaseMonths: val("#term"),
+        renewal: val("#renew") === undefined ? 0 : val("#renew") / 100, turnover: val("#turnover"), carry: val("#carry"), fixed: val("#fixed"),
+        problemChance: val("#problem") === undefined ? 0 : val("#problem") / 100, problemCost: val("#problemcost"),
+        priorElasticity: val("#elasticity"), horizonMonths: val("#horizon"),
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const o = r.optimum;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(o.rent), `Best asking rent (${pct(o.premium, 0)} vs market); 80% of resamples: ${money(o.rentRange80[0])} to ${money(o.rentRange80[1])}`],
+        [num(o.meanDays, 0) + " days", `Expected time to lease at the best rent (${num(r.daysAt(r.econ.market), 0)} days at market rent)`],
+        [money(o.monthly), `Expected net income per month at the best rent, over ${r.horizon} months ${money(o.overHorizon)}`],
+        [money(o.gain), `Gain over asking ${money(o.plannedRent)} across ${r.horizon} months (80%: ${money(o.gainRange80[0])} to ${money(o.gainRange80[1])}; better in ${pct(o.pGain, 0)} of resamples)`],
+        [money(r.costTooHigh5), `What asking 5% above the best rent costs you over ${r.horizon} months`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pills = { usable: ["good", "usable"], weak: ["medium", "weak evidence"], assumption: ["info", "assumption-driven"], unidentified: ["high", "unidentified"] };
+      const pill = pills[r.verdict];
+      const msgs = {
+        usable: `Higher rents clearly leased more slowly and rent helped predict your held-out listings. Slope ${r.slope.toFixed(1)} (history alone: ${r.dataCi95[0].toFixed(1)} to ${r.dataCi95[1].toFixed(1)}); your data carries ${pct(r.fit.dataWeight, 0)} of the weight. Still a hypothesis: try a small change first.`,
+        weak: `The history leans toward higher rents leasing more slowly, but the interval is wide or the hold-out did not confirm it (your data carries ${pct(r.fit.dataWeight, 0)} of the slope; the rest is your assumption). Add listings or vary the asking rent before acting.`,
+        assumption: "Fewer than six listings: the slope is the elasticity you assumed. Only the typical time to lease comes from your data. Use this as a what-if, not as a finding.",
+        unidentified: "Your history cannot say what a different rent would do: the rents barely varied or higher rents did not lease more slowly. The slope is mostly your assumption. Do not set a rent from this curve.",
+      };
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msgs[r.verdict])}</div>`;
+      $("#chart").innerHTML = chart(r);
+      const rows = [...r.offBest.filter((x) => x.change < 0), { change: 0, rent: o.rent, meanDays: o.meanDays, overHorizon: o.overHorizon, cost: 0, tested: true }, ...r.offBest.filter((x) => x.change > 0)];
+      $("#off tbody").innerHTML = rows.map((s) => `<tr><td>${s.change === 0 ? "best" : (s.change > 0 ? "+" : "") + Math.round(s.change * 100) + "%"}</td><td class="n">${money(s.rent)}</td><td class="n">${num(s.meanDays, 0)}</td><td class="n">${money(s.overHorizon)}</td><td class="n">${money(s.cost)}</td><td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
+      $("#sens tbody").innerHTML = r.sens.map((s) => `<tr><td>${esc(s.label)}</td><td class="n">${money(s.rent)}</td><td class="n">${s.change === 0 ? "" : (s.change > 0 ? "+" : "") + money(s.change)}</td><td class="n">${num(s.meanDays, 0)}</td></tr>`).join("");
+      const h = r.holdout;
+      $("#bt-note").textContent = h ? `Fitted on the first ${h.train} listings, scored on the last ${h.test}. Average negative log-likelihood ${h.nllModel.toFixed(3)} with rent, ${h.nllBase.toFixed(3)} ignoring rent (lower is better). ${h.leasedTest ? `Typical error on the ${h.leasedTest} that leased: ${num(h.maeDays, 0)} days with rent, ${num(h.maeDaysBase, 0)} days ignoring it. ` : ""}${h.helps ? "Knowing the rent helped." : "Knowing the rent did not help, so do not read much into the slope."}` : "Fewer than 8 listings, so there is no back-test.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#market").value = "1800"; $("#planned").value = ""; $("#term").value = "12"; $("#renew").value = "30";
+      $("#turnover").value = "1200"; $("#carry").value = "350"; $("#fixed").value = "1100"; $("#problem").value = "0"; $("#problemcost").value = "0";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 60 invented listings for one unit type, not a real landlord."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Enter today's market rent and click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your listings, enter today's market rent, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "rental-rent-results.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../business-loan-offer-comparator/" data-pf-to="business-loan-offer-comparator">Business Loan Offer Comparator — free, private, in your browser</a></li>
+      <li><a href="../business-vehicle-depreciation-calculator/" data-pf-to="business-vehicle-depreciation-calculator">How much of your business vehicle can you deduct this year?</a></li>
+      <li><a href="../ca-gst-hst-small-supplier-checker/" data-pf-to="ca-gst-hst-small-supplier-checker">GST/HST small supplier checker: do you have to register? Free, private</a></li>
+      <li><a href="../ca-self-employed-tax-set-aside-calculator/" data-pf-to="ca-self-employed-tax-set-aside-calculator">Canada Self-Employed Tax Set-Aside Calculator. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rental-rent-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/?pfEmbed=1&quot; title=&quot;Rental Rent Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="rental-rent-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/" data-pf-embed-title="Rental Rent Optimizer — free, private, in your browser" data-pf-embed-slug="rental-rent-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="rental-rent-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="rental-rent-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

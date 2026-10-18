@@ -1,0 +1,55 @@
+{
+  "slug": "roofing-bid-calculator",
+  "name": "Roofing (reroof)",
+  "group": "Exterior & roofing",
+  "summary": "Reroofs priced by the square from footprint, pitch, tear-off layers, waste, dump and permit.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 35,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Tear off 1 layer and dump",
+      "unit": "square",
+      "qty": 24.34,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 35,
+      "source": "Default sections (index.html): main 1,800 sq ft at 6/12 + garage 400 sq ft at 4/12, x pitchFactor (calc.mjs) = 24.34 surface squares; tear-off 1 h/square, 1 layer, steep multiplier 1; dump $35/tear-off square"
+    },
+    {
+      "label": "Install architectural shingles + underlayment",
+      "unit": "square",
+      "qty": 24.34,
+      "hoursPerUnit": 1.98,
+      "materialPerUnit": 178.2,
+      "source": "Install 1.8 h/square and ($140 material + $22 underlayment) per square, each on squares x (1 + 10% waste) (index.html defaults; MATERIAL_PRESETS 'Architectural asphalt')"
+    },
+    {
+      "label": "Accessories (ridge, starter, flashing)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 450,
+      "source": "accessoriesFlat default $450 (index.html)"
+    },
+    {
+      "label": "Dumpster",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 450,
+      "source": "dumpsterFee default $450 (index.html)"
+    },
+    {
+      "label": "Permit and inspection",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 250,
+      "source": "permitFee default $250 (index.html)"
+    }
+  ],
+  "specialistModels": "Pitch-to-surface conversion per roof section, steep-slope labor multipliers above 6/12, multi-layer tear-off, and material presets from 3-tab to tile."
+}

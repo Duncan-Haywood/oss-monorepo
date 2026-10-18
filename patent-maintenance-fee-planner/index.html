@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Patent Maintenance Fee Planner — Due Dates, Surcharges and a Fee Budget for Your Portfolio</title>
+  <meta name="description" content="When is each US patent maintenance fee due, when does the surcharge start, and when does the patent expire?">
+  <meta property="og:title" content="Patent Maintenance Fee Planner"><meta property="og:description" content="Every maintenance-fee window, due date, surcharge date and expiry date for a patent portfolio, with a fee budget and calendar export. Private, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Patent Maintenance Fee Planner","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Due, surcharge and expiry dates for US patent maintenance fees, per-patent status, multi-year fee budget, what dropping a patent saves, calendar file and CSV export, shareable link, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is a US patent maintenance fee due?","acceptedAnswer":{"@type":"Answer","text":"Utility patents need three fees after grant: due 3 years 6 months, 7 years 6 months and 11 years 6 months after the grant date. Each can be paid without surcharge during the six months before its due date (the window opens at 3, 7 and 11 years). If you miss the due date there is a further six-month grace period in which the fee is payable with a surcharge. Design and plant patents have no maintenance fees."}},{"@type":"Question","name":"What happens if I miss a patent maintenance fee?","acceptedAnswer":{"@type":"Answer","text":"After the grace period the patent expires, effective at the end of the 4th, 8th or 12th anniversary of grant, depending on which fee was missed. The USPTO can accept a late payment only on a petition showing the delay was unintentional, which has its own fee and no guarantee. This tool shows the exact expiry date for each unpaid fee so it is visible before it arrives."}},{"@type":"Question","name":"What if the deadline falls on a weekend or holiday?","acceptedAnswer":{"@type":"Answer","text":"A payment due on a Saturday, Sunday or federal holiday can be made on the next business day. The planner moves weekend deadlines to the following Monday. It does not know federal holidays, so if a deadline lands on one, add a day yourself or pay early; paying early is always safe."}},{"@type":"Question","name":"How does entity size change the fee?","acceptedAnswer":{"@type":"Answer","text":"Large entities pay the full fee. Small entities (including most universities and nonprofits, and businesses under the size limit) and micro entities pay a reduced fee, with the surcharge reduced the same way. Entity status is a legal determination about the patent owner; the planner just applies the fee row you assign to each patent, and you should confirm the status before paying."}},{"@type":"Question","name":"Where do the fee amounts come from, and can I change them?","acceptedAnswer":{"@type":"Answer","text":"The default fee table is the USPTO schedule effective 19 January 2025 as understood by the author. Fee schedules are revised from time to time and this page cannot check them, so the table is an editable box: confirm the amounts against the current USPTO fee schedule and overwrite any that differ. Every total on the page recalculates from that table."}},{"@type":"Question","name":"Is my patent list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The planner runs entirely in your browser. The share link stores your patent list and fee table in the link itself, so anyone you send it to sees them, and the optional usage counter records only which features were used and the day."}}]}</script>
+  <style>
+    :root{--bg:#eef1f6;--fg:#20232a;--card:#fff;--line:#c7d0dd;--field:#a7b2c4;--accent:#1f4fbf;--warn:#9a3d00;--ok:#0f6b3a;--res:#18233c;--res-fg:#f3f6ff;--res-warn:#ffd09c;--res-ok:#a9e6c3;--res-line:#ffffff2b;font-family:system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+    @media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e6e9f0;--card:#1b202b;--line:#333c4d;--field:#4a566b;--accent:#8fb2ff;--warn:#ffb27a;--ok:#7fd9a6}}
+    body{max-width:1040px;margin:auto;padding:32px 16px;background:var(--bg);color:var(--fg)}
+    header{max-width:720px}h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
+    a{color:var(--accent)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px;align-items:start}
+    section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+    h2{font-size:1.1rem;margin-top:0}h3{font-size:1rem}
+    fieldset{border:0;padding:0;margin:0 0 16px;display:grid;gap:12px}legend{font-weight:700;margin-bottom:8px;padding:0}
+    label{display:grid;gap:4px;font-weight:650;font-size:.9rem}
+    .hint{font-weight:400;font-size:.8rem;opacity:.8}
+    input,select,textarea{font:inherit;padding:9px;border:1px solid var(--field);border-radius:7px;background:var(--card);color:var(--fg);min-width:0}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+    button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+    @media (prefers-color-scheme:dark){button{color:#0b1020}}
+    button.secondary{background:transparent;color:var(--accent)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    #result{background:var(--res);color:var(--res-fg);border-color:var(--res)}#result a{color:#bcd7ff}
+    .hero{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin:6px 0}.ok{color:var(--res-ok)}.warn{color:var(--res-warn)}
+    .err{color:var(--warn);font-weight:650}
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.88rem}
+    th,td{padding:6px 5px;border-bottom:1px solid var(--res-line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+    caption{text-align:left;font-weight:700;padding-bottom:4px}
+    dl{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;text-align:right}
+    .note{font-size:.83rem;opacity:.85;line-height:1.45}
+    #faq,footer{max-width:1040px;margin:18px auto 0}footer{font-size:.83rem}
+    footer label{display:flex;align-items:center;gap:8px;font-weight:600}footer input[type=checkbox]{width:auto;padding:0}
+    #result button.secondary{color:#bcd7ff;border-color:#bcd7ff}
+    @media(max-width:760px){.layout{grid-template-columns:1fr}}
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Patent Maintenance Fee Planner","item":"https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Patent Maintenance Fee Planner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Patent Maintenance Fee Planner</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p>FOR INVENTORS, FOUNDERS AND IP MANAGERS</p>
+    <h1>Which patent fees are due, when does the surcharge start, and what will the portfolio cost?</h1>
+    <p>Paste your US patents with their grant dates and entity size. The planner returns the window, due date, surcharge deadline and expiry date for the <strong>next maintenance fee on each patent</strong>, a multi-year fee budget, and what you would save by letting chosen patents go. It runs privately in your browser and uploads nothing.</p>
+  </header>
+  <main class="layout">
+    <section aria-labelledby="inputs-h">
+      <h2 id="inputs-h">Your portfolio</h2>
+      <form id="form" autocomplete="off" novalidate>
+        <fieldset><legend>Patents</legend>
+          <label for="patents">One patent per line: number or label, grant date, entity size (large, small or micro), optional <code>drop</code><span class="hint">Example: US 10,500,000, 2020-01-07, micro. Add <code>drop</code> to price letting it lapse. Fees already past their grace period are assumed paid.</span>
+            <textarea id="patents" rows="7">US 9,000,001, 2021-04-06, small
+US 10,500,000, 2020-01-07, micro
+US 10,402,001, 2019-11-05, large, drop
+US 11,234,567, 2022-02-01, small</textarea></label>
+        </fieldset>
+        <fieldset><legend>Planning</legend>
+          <label for="asOf">As-of date<span class="hint">Leave blank for today</span><input id="asOf" type="date" value=""></label>
+          <label for="horizonYears">Budget horizon (years)<input id="horizonYears" type="number" min="1" max="20" step="1" value="5" inputmode="numeric"></label>
+          <label for="warnDays">Calendar reminder: days before the due date<input id="warnDays" type="number" min="0" max="730" step="1" value="90" inputmode="numeric"></label>
+        </fieldset>
+        <fieldset><legend>Fee table</legend>
+          <label for="fees">entity, 3.5-year, 7.5-year, 11.5-year, surcharge (USD)<span class="hint">Defaults are the USPTO schedule effective 2025-01-19 as the author understood it. Check the current USPTO fee schedule and edit any amount that differs.</span>
+            <textarea id="fees" rows="4">large, 2150, 4040, 8280, 540
+small, 860, 1616, 3312, 216
+micro, 430, 808, 1656, 108</textarea></label>
+        </fieldset>
+      </form>
+      <p class="note">Utility patents granted on or after 1980-12-12 only; design and plant patents have no maintenance fees. Weekend deadlines roll to Monday; federal holidays are not modelled. Entity status is your responsibility to determine.</p>
+    </section>
+
+    <section id="result" aria-live="polite" aria-labelledby="result-h">
+      <h2 id="result-h">Deadlines and budget</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="out">
+        <div id="headline" class="hero"></div><div id="subhead"></div>
+        <dl>
+          <dt>Patents entered</dt><dd id="nPatents"></dd>
+          <dt>Fee window open now</dt><dd id="nOpen"></dd>
+          <dt>Already in the surcharge period</dt><dd id="nSurcharge"></dd>
+          <dt>Surcharges already incurred</dt><dd id="surchargeSum"></dd>
+          <dt>Fees to budget over the horizon (kept patents)</dt><dd id="budget"></dd>
+          <dt>Fees avoided by the patents marked drop</dt><dd id="savings"></dd>
+        </dl>
+        <p id="warnList" class="warn" hidden></p>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Next fee on each patent</caption><thead><tr><th scope="col">Patent</th><th scope="col">Fee</th><th scope="col">Status</th><th scope="col">Window opens</th><th scope="col">Due, no surcharge</th><th scope="col">Surcharge ends</th><th scope="col">Amount</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+        <h3>Budget by year</h3>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Planned at each no-surcharge due date, kept patents only</caption><thead><tr><th scope="col">Year</th><th scope="col">Fees</th></tr></thead><tbody id="years"></tbody></table></div></div>
+        <div class="actions"><button type="button" id="csv">Download CSV</button><button type="button" id="ics" class="secondary">Download calendar (.ics)</button><button type="button" id="share" class="secondary">Copy shareable link</button></div>
+        <p id="shareMsg" class="note" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>When is a US patent maintenance fee due?</h3>
+    <p>Utility patents need three fees after grant: due 3 years 6 months, 7 years 6 months and 11 years 6 months after the grant date. Each can be paid without surcharge during the six months before its due date (the window opens at 3, 7 and 11 years). If you miss the due date there is a further six-month grace period in which the fee is payable with a surcharge. Design and plant patents have no maintenance fees.</p>
+
+    <h3>What happens if I miss a patent maintenance fee?</h3>
+    <p>After the grace period the patent expires, effective at the end of the 4th, 8th or 12th anniversary of grant, depending on which fee was missed. The USPTO can accept a late payment only on a petition showing the delay was unintentional, which has its own fee and no guarantee. This tool shows the exact expiry date for each unpaid fee so it is visible before it arrives.</p>
+
+    <h3>What if the deadline falls on a weekend or holiday?</h3>
+    <p>A payment due on a Saturday, Sunday or federal holiday can be made on the next business day. The planner moves weekend deadlines to the following Monday. It does not know federal holidays, so if a deadline lands on one, add a day yourself or pay early; paying early is always safe.</p>
+
+    <h3>How does entity size change the fee?</h3>
+    <p>Large entities pay the full fee. Small entities (including most universities and nonprofits, and businesses under the size limit) and micro entities pay a reduced fee, with the surcharge reduced the same way. Entity status is a legal determination about the patent owner; the planner just applies the fee row you assign to each patent, and you should confirm the status before paying.</p>
+
+    <h3>Where do the fee amounts come from, and can I change them?</h3>
+    <p>The default fee table is the USPTO schedule effective 19 January 2025 as understood by the author. Fee schedules are revised from time to time and this page cannot check them, so the table is an editable box: confirm the amounts against the current USPTO fee schedule and overwrite any that differ. Every total on the page recalculates from that table.</p>
+
+    <h3>Is my patent list uploaded anywhere?</h3>
+    <p>No. The planner runs entirely in your browser. The share link stores your patent list and fee table in the link itself, so anyone you send it to sees them, and the optional usage counter records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice and is not a docketing system of record; it does not replace a registered patent attorney or agent, or the USPTO's own records. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your patent list is never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Looking at the cost side of an invention? The <a href="../safe-dilution-calculator/">SAFE dilution calculator</a> and the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a> run in the same browser-local style.</p>
+    <p>Valuing the equity side of a startup that holds the patents? The <a href="../startup-option-value-calculator/">startup option value calculator</a> works the same way.</p>
+  </footer>
+
+  <script type="module">
+    import { planPortfolio, toCsv, toIcs, encodeState, decodeState } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELDS = ['patents','asOf','horizonYears','warnDays','fees'];
+    const $ = (id) => document.getElementById(id);
+    const usd = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    const STATUS = { 'upcoming': 'Not yet open', 'window-open': 'Window open', 'surcharge': 'SURCHARGE period' };
+    let last = null;
+
+    const values = () => { const v = Object.fromEntries(FIELDS.map((id) => [id, $(id).value])); if (!v.asOf) v.asOf = todayIso(); return v; };
+
+    try {
+      const saved = decodeState(location.hash.replace(/^#/, '') || location.search);
+      for (const [k, v] of Object.entries(saved)) if ($(k)) $(k).value = v;
+    } catch { /* a malformed link just falls back to the defaults */ }
+
+    function row(tbody, cells, header = false) {
+      const tr = document.createElement('tr');
+      cells.forEach((c, i) => {
+        const cell = document.createElement(header || i === 0 ? 'th' : 'td');
+        if (cell.tagName === 'TH') cell.scope = header ? 'col' : 'row';
+        cell.textContent = c;
+        tr.appendChild(cell);
+      });
+      tbody.appendChild(tr);
+    }
+
+    function render(count = true) {
+      const errors = $('errors'); const out = $('out');
+      try {
+        const r = planPortfolio(values());
+        last = r;
+        errors.hidden = true; errors.textContent = ''; out.hidden = false;
+        const head = $('headline'); const sub = $('subhead');
+        const sur = r.counts.surcharge;
+        if (sur > 0) { head.textContent = sur + (sur === 1 ? ' fee is' : ' fees are') + ' already late'; head.className = 'hero warn'; sub.textContent = 'Pay inside the surcharge period or the patent expires.'; }
+        else if (r.urgent.length) { head.textContent = r.urgent.length + (r.urgent.length === 1 ? ' fee' : ' fees') + ' to act on soon'; head.className = 'hero'; sub.textContent = 'Next due: ' + r.urgent[0].label + ' by ' + r.urgent[0].next.due + '.'; }
+        else { head.textContent = 'Nothing urgent'; head.className = 'hero ok'; sub.textContent = 'No fee window is open or opening within the reminder period.'; }
+        $('nPatents').textContent = String(r.counts.patents);
+        $('nOpen').textContent = String(r.counts.windowOpen);
+        $('nSurcharge').textContent = String(sur);
+        $('surchargeSum').textContent = usd(r.surchargeExposure);
+        $('budget').textContent = usd(r.budgetTotal);
+        $('savings').textContent = usd(r.droppedSavings);
+        const wl = $('warnList'); const late = r.rows.filter((x) => x.next && x.next.status === 'surcharge' && !x.drop);
+        wl.hidden = late.length === 0;
+        wl.textContent = late.map((x) => x.label + ': pay by ' + x.next.graceEnds + ' or it expires (' + x.next.expiresIfUnpaid + ')').join('. ');
+        const tb = $('rows'); tb.replaceChildren();
+        for (const x of r.rows) {
+          if (x.complete) row(tb, [x.label, 'none left', 'Maintained to 12 years', '', '', '', '']);
+          else row(tb, [x.label + (x.drop ? ' (drop)' : ''), x.next.fee, STATUS[x.next.status], x.next.opens, x.next.due, x.next.graceEnds, usd(x.next.amount) + (x.next.surcharge ? ' incl. surcharge' : '')]);
+        }
+        const yb = $('years'); yb.replaceChildren();
+        if (!r.yearly.length) row(yb, ['None', usd(0)]);
+        for (const y of r.yearly) row(yb, [y.year, usd(y.amount)]);
+        if (count) recordUsage('plan_calculated', $('usageOptOut').checked);
+      } catch (e) {
+        last = null;
+        errors.textContent = e.message; errors.hidden = false; out.hidden = true;
+      }
+    }
+
+    FIELDS.forEach((id) => $(id).addEventListener('input', () => render()));
+    $('usageOptOut').addEventListener('change', () => render(false));
+
+    function download(text, type, name, event) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage(event, $('usageOptOut').checked);
+    }
+    $('csv').addEventListener('click', () => { if (last) download(toCsv(last), 'text/csv;charset=utf-8', 'patent-fee-plan.csv', 'csv_exported'); });
+    $('ics').addEventListener('click', () => { if (last) download(toIcs(last), 'text/calendar;charset=utf-8', 'patent-fee-deadlines.ics', 'calendar_exported'); });
+
+    $('share').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#' + encodeState(values());
+      try { history.replaceState(null, '', url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); $('shareMsg').textContent = 'Link copied. It contains your patent list, so share it only with people who may see it.'; }
+      catch { $('shareMsg').textContent = 'Copy this link from the address bar. It contains your patent list.'; }
+      recordUsage('share_link_copied', $('usageOptOut').checked);
+    });
+
+    {
+      const control = $('usageOptOut');
+      try {
+        control.checked = readOptOut(localStorage);
+        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+      } catch { /* storage blocked: counting stays off the persisted path */ }
+    }
+    render(false);
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ski-snowboard-tune-shop-profit-calculator/" data-pf-to="ski-snowboard-tune-shop-profit-calculator">Ski and Snowboard Tune Shop Profit Calculator — free, private</a></li>
+      <li><a href="../speaker-fee-calculator/" data-pf-to="speaker-fee-calculator">Speaker fee calculator</a></li>
+      <li><a href="../sports-official-game-fee-calculator/" data-pf-to="sports-official-game-fee-calculator">Referee &amp; Umpire Pay Calculator — free, private</a></li>
+      <li><a href="../staffing-markup-calculator/" data-pf-to="staffing-markup-calculator">Staffing Markup Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=patent-maintenance-fee-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/?pfEmbed=1&quot; title=&quot;Patent Maintenance Fee Planner — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="patent-maintenance-fee-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/" data-pf-embed-title="Patent Maintenance Fee Planner" data-pf-embed-slug="patent-maintenance-fee-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="patent-maintenance-fee-planner" data-pf-jobs-amount=""></script>
+</body>
+</html>

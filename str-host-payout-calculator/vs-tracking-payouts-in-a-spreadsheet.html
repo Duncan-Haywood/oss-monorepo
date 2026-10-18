@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. tracking payouts in a spreadsheet | STR Host Payout Calculator</title>
+  <meta name="description" content="A host tracking Airbnb, Vrbo, and direct payouts by hand has to keep Vrbo's two fee bases straight. This free calculator keeps all five channels on one screen.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This calculator vs. tracking payouts in a spreadsheet">
+  <meta property="og:description" content="Direct booking pays the most per stay here, the least per year, since it keeps only 70% of bookings. A spreadsheet tracking one row misses that.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every formula this calculator runs — Airbnb's host-only fee, the retired split, Vrbo's pay-per-booking commission and processing, Vrbo's annual subscription amortized over the bookings it covers, and direct booking's processing and site cost — is ordinary arithmetic. Getting it right means keeping straight that Vrbo's 5% commission and 3% processing are not on the same base (processing runs on the guest's total including tax and deposit, the commission does not), that the subscription plan's $499–699 has to be divided by how many stays it actually carries before it can be compared to a percentage, and that a cheaper per-stay fee on paper can still lose on paper once you weight it by the bookings you would actually keep."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep five channels' formulas in sync when a rate changes, and recompute the direct-booking break-even the moment you change how many bookings you would actually keep going direct. Airbnb's 2026 migration from a 3% host fee to a 15.5% host-only fee changed the number in one cell of a spreadsheet built before it; the five other cells that depend on it — the guest-paid total, the effective fee, the restore-payout figure — only update if someone remembers to touch them too. This calculator recomputes all of it the moment one input changes, and turns the occupancy trade-off in going direct into one figure instead of a rule of thumb."}},{"@type":"Question","name":"Why doesn't the channel with the highest per-stay payout also win the year?","acceptedAnswer":{"@type":"Answer","text":"Because a spreadsheet that only has a row for the per-stay number is answering a different question than the one that decides where to list. On this calculator's own worked example, direct booking's payout after its site cost, $958.27, is the highest of the four channels a host can actually choose today — only the retired split, a reference row almost no host can still select, pays more per stay at $970.00. But direct only keeps 28 of the host's 40 marketplace bookings a year, and once that 70% occupancy is priced in, its annual payout is $26,831.60: the lowest of the five, $11,273.40 below Vrbo's annual subscription. The per-stay number and the annual number rank the real channels in a different order, and a spreadsheet has to compute both to notice."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a shape this calculator's inputs cannot represent — a multi-property portfolio with different rates per listing, dynamic pricing that changes the nightly rate booking to booking, or a channel running a promotional commission this tool's fields cannot capture. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one stay moving through the fee, tax, and occupancy questions most hosts actually face."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers after the # in the URL rather than sending them to a server, and the optional usage counter records only which features were used and the day — never your rates, occupancy, or address."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241812; background: #f3ebe3; }
+    body { max-width: 780px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #7a2e1b; overflow-wrap: anywhere; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a2e1b; margin: 0 0 6px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: .3rem 0; max-width: 26ch; letter-spacing: -.04em; }
+    .lede { font-size: 1.05rem; max-width: 66ch; color: #5c4a3d; }
+    section { background: #fff; border: 1px solid #e0d2c4; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a22100d; margin: 1.2rem 0; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e8d8ca; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4a3d; }
+    tbody tr.best th { color: #7a2e1b; }
+    tbody tr.best th::after { content: " · best"; font-weight: 700; font-size: .78rem; }
+    tbody tr.ref { opacity: .78; }
+    tbody tr.ref th::after { content: " · reference"; font-weight: 650; font-size: .76rem; }
+    .note, .fine { font-size: .88rem; color: #5c4a3d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c4a3d; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. tracking payouts in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../str-host-payout-calculator/">Airbnb vs Vrbo host payout calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. tracking payouts in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Airbnb/Vrbo host payout calculator</a></p>
+<header>
+<h1>This calculator vs. tracking payouts in a spreadsheet</h1>
+<p class="lede">A host who compares more than one channel usually ends up with a spreadsheet: a cell for Airbnb's host-only fee, one for Vrbo's commission, another for Vrbo's processing rate, and a new tab whenever a rate changes or a booking count needs re-checking. Each formula is ordinary arithmetic. Keeping five channels' worth of them straight — especially the two Vrbo plans, which are not on the same fee base — is the part that gets skipped.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p><strong>A spreadsheet</strong> can reproduce every formula this calculator runs: Airbnb's host-only fee against the subtotal, the retired split against the same subtotal, Vrbo's 5% commission plus 3% processing on the guest's payment (tax and deposit included), Vrbo's annual subscription with its flat fee divided by the bookings it actually covers, and direct booking's card processing weighed against the bookings you would keep after leaving the marketplace. Building it means pulling each rate from a different payout statement or fee page, typing the right one into the right cell, and remembering that Vrbo's two percentages are not on the same base before comparing them.</p>
+<p><strong>This calculator</strong> keeps all five channels wired to the same stay, so a nightly-rate change, a tax-rate correction, or Airbnb's next fee migration updates every channel's payout, guest total, and annual figure at once instead of in whichever cells someone remembers to touch. The restore-payout figure and the direct-booking break-even are computed the same way, from the same inputs, rather than derived by hand each time the question comes up.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which channel actually pays the most for this stay, once occupancy is counted?</td><td>This calculator's annual-payout column — see below.</td></tr>
+<tr><td>Are Vrbo's pay-per-booking and annual-subscription plans on the same fee base?</td><td>No. This calculator prices each against its own base rather than one flat percentage.</td></tr>
+<tr><td>What do I need to list at under the 15.5% host-only fee to keep my old 3% payout?</td><td>This calculator's restore-payout figure — see below.</td></tr>
+<tr><td>My situation has a wrinkle this calculator doesn't model (a multi-property portfolio, dynamic nightly pricing).</td><td>A spreadsheet you build yourself — it can represent any rule you can describe.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No, for either approach — a spreadsheet file stays wherever you saved it, and this calculator runs entirely in your browser.</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>One stay, five channels, a spreadsheet has to get the base right on each</h2>
+<p>Using this calculator's own worked example: a $220 nightly rate for 4 nights plus a $120 cleaning fee, a $1,000.00 subtotal, 8% occupancy tax, and 40 bookings a year on the marketplace.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Channel</th><th scope="col">Payout / stay</th><th scope="col">Guest pays</th><th scope="col">Effective host fee</th><th scope="col">Annual payout</th></tr></thead>
+<tbody>
+<tr><th scope="row">Airbnb (host-only)</th><td>$845.00</td><td>$1,080.00</td><td>15.5%</td><td>$33,800.00</td></tr>
+<tr class="ref"><th scope="row">Airbnb (legacy split)</th><td>$970.00</td><td>$1,221.00</td><td>3%</td><td>$38,800.00</td></tr>
+<tr><th scope="row">Vrbo (pay-per-booking)</th><td>$917.60</td><td>$1,180.00</td><td>8.2%</td><td>$36,704.00</td></tr>
+<tr class="best"><th scope="row">Vrbo (annual subscription)</th><td>$952.63</td><td>$1,180.00</td><td>4.7%</td><td>$38,105.00</td></tr>
+<tr><th scope="row">Direct booking</th><td>$958.27</td><td>$1,080.00</td><td>4.2%</td><td>$26,831.60</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Direct booking's own payout per stay after its site cost, <strong>$958.27</strong>, is the highest of the four channels a host can actually choose today — only the retired split, a reference row almost no host can still select, pays more per stay at $970.00. A spreadsheet with a row for per-stay payout alone would call direct booking the winner among the real options. It is not: direct only keeps 28 of the host's 40 marketplace bookings a year, a 70% occupancy rate entered as an input, and once that trade is priced in, direct's annual payout is <strong>$26,831.60</strong> — the lowest of the five, <strong>$11,273.40</strong> below Vrbo's annual subscription. The break-even panel says exactly how tight that margin is: direct needs about <strong>39.6</strong> bookings a year, roughly <strong>99%</strong> of the 40 the host already gets on the marketplace, before the occupancy trade stops costing more than the fees it avoids.</p>
+<p class="fine">The reference row (Airbnb's retired split) is shown for comparison only; most hosts can no longer choose it. To keep that row's $970.00 payout under the 15.5% host-only fee, the listed subtotal has to rise from $1,000.00 to $1,147.93 — a 14.8% raise — and the guest's all-in total rises by only $6.93, from $1,221.00 to $1,227.93. Run your own stay through the calculator to see where it falls.</p>
+</section>
+<p>A spreadsheet is not wrong about the arithmetic — every number above is arithmetic a spreadsheet can do. What it does not do on its own is keep Vrbo's two fee bases apart, re-derive the occupancy break-even each time a booking count changes, or notice that the channel winning the per-stay row is losing the annual one. This calculator does not know your market's demand or your own booking history; it replaces the bookkeeping a spreadsheet has to be told to do every time.</p>
+<section>
+<h2>Common questions</h2>
+<h3>Can a spreadsheet do this math instead?</h3>
+<p>Yes. Every formula this calculator runs — Airbnb's host-only fee, the retired split, Vrbo's pay-per-booking commission and processing, Vrbo's annual subscription amortized over the bookings it covers, and direct booking's processing and site cost — is ordinary arithmetic. Getting it right means keeping straight that Vrbo's 5% commission and 3% processing are not on the same base (processing runs on the guest's total including tax and deposit, the commission does not), that the subscription plan's $499–699 has to be divided by how many stays it actually carries before it can be compared to a percentage, and that a cheaper per-stay fee on paper can still lose on paper once you weight it by the bookings you would actually keep.</p>
+<h3>What does a spreadsheet not do that this calculator does?</h3>
+<p>Keep five channels' formulas in sync when a rate changes, and recompute the direct-booking break-even the moment you change how many bookings you would actually keep going direct. Airbnb's 2026 migration from a 3% host fee to a 15.5% host-only fee changed the number in one cell of a spreadsheet built before it; the five other cells that depend on it — the guest-paid total, the effective fee, the restore-payout figure — only update if someone remembers to touch them too. This calculator recomputes all of it the moment one input changes, and turns the occupancy trade-off in going direct into one figure instead of a rule of thumb.</p>
+<h3>Why doesn't the channel with the highest per-stay payout also win the year?</h3>
+<p>Because a spreadsheet that only has a row for the per-stay number is answering a different question than the one that decides where to list. On this calculator's own worked example, direct booking's payout after its site cost, $958.27, is the highest of the four channels a host can actually choose today — only the retired split, a reference row almost no host can still select, pays more per stay at $970.00. But direct only keeps 28 of the host's 40 marketplace bookings a year, and once that 70% occupancy is priced in, its annual payout is $26,831.60: the lowest of the five, $11,273.40 below Vrbo's annual subscription. The per-stay number and the annual number rank the real channels in a different order, and a spreadsheet has to compute both to notice.</p>
+<h3>Is a spreadsheet ever the better choice?</h3>
+<p>Yes, when your situation has a shape this calculator's inputs cannot represent — a multi-property portfolio with different rates per listing, dynamic pricing that changes the nightly rate booking to booking, or a channel running a promotional commission this tool's fields cannot capture. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one stay moving through the fee, tax, and occupancy questions most hosts actually face.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No. The calculator runs entirely in your browser. A shareable link carries your numbers after the # in the URL rather than sending them to a server, and the optional usage counter records only which features were used and the day — never your rates, occupancy, or address.</p>
+<p class="note">This page names no vendor as a competitor — it compares against the generic method of tracking payouts across channels in a spreadsheet, not a competing calculator or service. Open <a href="./">the STR host payout calculator</a>, or see <a href="airbnb-vs-vrbo-host-fees.html">Airbnb vs Vrbo host fees, compared on the same stay</a> for the fee mechanics on their own.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This is not legal, tax, financial, or business advice, and it is not a quote from Airbnb, Vrbo, or any other platform. Verify every rate against your own payout statements before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device; nothing you enter is uploaded anywhere. This page names no spreadsheet application or property-management platform — it compares against the generic method of tracking payouts by hand, not a competing product.</p>
+<p class="support">Free and open source. If it saved you time, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+      <li><a href="../faire-wholesale-calculator/" data-pf-to="faire-wholesale-calculator">Faire Seller Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=str-host-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="str-host-payout-calculator"></script>
+</body>
+</html>

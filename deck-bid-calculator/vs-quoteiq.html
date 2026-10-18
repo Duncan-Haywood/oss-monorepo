@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. QuoteIQ | Deck Bid Calculator</title>
+<meta name="description" content="QuoteIQ is a paid mobile app that builds an itemized quote on your phone and tracks job costs afterward.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/vs-quoteiq.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. QuoteIQ | Deck Bid Calculator">
+<meta property="og:description" content="Two different jobs: QuoteIQ is a paid, ongoing quoting and job-costing app. This page is a free, one-time deck price built from height, railing, and stairs.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ventures/deck-bid-calculator/vs-quoteiq.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or QuoteIQ?","acceptedAnswer":{"@type":"Answer","text":"They fit different points in the job. QuoteIQ is a paid subscription app built to run a deck-building business day to day: build an itemized quote on a phone at the customer's house, send it, and track material cost against that quote once work starts, across every job you run. This page does one thing: you type a deck's surfaces, height, railing, and stairs into a browser, and it shows a walk-away price and a price per square foot for that one job, right now, with nothing to install or sign up for. If you want an app that runs quoting and job-costing for an ongoing deck business, that is what QuoteIQ is built for. If you want to sanity-check one bid against a square-foot special before you send it, this page does that with no account."}},{"@type":"Question","name":"Is this page affiliated with QuoteIQ?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by QuoteIQ. QuoteIQ is named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#2a2218;background:#f3eee6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b1f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#8a4b1f;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#2a2218}.lede{font-size:1.05rem;max-width:64ch;color:#5c5144}section{background:#fffdf8;border:1px solid #d8cbb8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #3a26140d;margin:1rem 0}h2{margin-top:0;color:#2a2218}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #d8cbb8;padding:.55rem .5rem;text-align:left;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5144}.fine{font-size:.88rem;color:#5c5144}footer{color:#5c5144;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. QuoteIQ | Deck Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../deck-bid-calculator/">Deck Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. QuoteIQ | Deck Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Deck Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. QuoteIQ</h1>
+<p class="lede">Both end with a number you can hand a customer, built on opposite assumptions about what you are willing to install and pay for.</p>
+</header>
+<section>
+<h2>What QuoteIQ is</h2>
+<p>
+<strong>QuoteIQ</strong> is a paid subscription app aimed at deck and other
+trade contractors who want to run quoting from a phone: build an itemized
+quote on-site, send it to the customer, and once the job is won, track
+material cost against that quote as the job runs. It is built to be the
+day-to-day quoting and job-costing tool for an ongoing contracting business
+across every job that business runs, not a one-off calculator.
+</p>
+<p>
+Getting there means installing the app, creating an account, and paying an
+ongoing subscription.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page does not install anything and keeps no account. You open it in a
+browser, type one deck's surfaces, height above grade, material, railing
+lineal feet, and stair runs, and it shows the walk-away price and price per
+square foot for that job. Close the tab and it is gone unless you save a
+share link or print a proposal — there is no ongoing job list, no cost
+tracking against a quote, and no subscription.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>I want to build every quote for my deck business on my phone, send it, and track material cost against it as each job runs.</td>
+<td>QuoteIQ or a comparable paid quoting app — ongoing job quoting and costing is exactly its job, and this calculator does not track a job after you close the tab.</td>
+</tr>
+<tr>
+<td>I have one deck to price right now and want the walk-away number before a $28-a-foot special goes out.</td>
+<td>This calculator — type height, railing, and stairs, get a price, no account.</td>
+</tr>
+<tr>
+<td>I do not want to install an app or start a subscription to price a single job.</td>
+<td>This calculator — nothing to install, nothing to pay for.</td>
+</tr>
+<tr>
+<td>I want the tool to remember every job I have quoted and compare estimated to actual cost over time.</td>
+<td>QuoteIQ or a comparable paid app — this calculator has no job list and no memory between visits beyond what your own browser keeps.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Neither tool is the wrong choice in general. A deck-building business quoting
+and tracking many jobs a season is the case a paid app is built for. A single
+bid, checked once against a flat-rate special before it goes out, is the case
+this page is built for.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or QuoteIQ?</h3>
+<p>They fit different points in the job. QuoteIQ is a paid subscription app built to run a deck-building business day to day: build an itemized quote on a phone at the customer's house, send it, and track material cost against that quote once work starts, across every job you run. This page does one thing: you type a deck's surfaces, height, railing, and stairs into a browser, and it shows a walk-away price and a price per square foot for that one job, right now, with nothing to install or sign up for. If you want an app that runs quoting and job-costing for an ongoing deck business, that is what QuoteIQ is built for. If you want to sanity-check one bid against a square-foot special before you send it, this page does that with no account.</p>
+<h3>Is this page affiliated with QuoteIQ?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by QuoteIQ. QuoteIQ is named here only to describe what this calculator is and is not.</p>
+<p class="fine">This page is a factual comparison of what each tool does, not an evaluation of which is better. Details about QuoteIQ above describe the general shape of the product as publicly described at the time of writing and may have changed &mdash; verify against QuoteIQ's own site before deciding.</p>
+</section>
+<p><a href="./">Open the Deck Bid Calculator</a> and price your own job.</p>
+<footer>
+<p><strong>No warranty.</strong> This free page is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a deck may be built. Verify every figure against your own costs and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sod-install-bid-calculator/" data-pf-to="sod-install-bid-calculator">Sod Installation Bid Calculator</a></li>
+      <li><a href="../stump-grinding-price-calculator/" data-pf-to="stump-grinding-price-calculator">How much should I charge to grind a stump? Free bid calculator</a></li>
+      <li><a href="../tree-service-bid-calculator/" data-pf-to="tree-service-bid-calculator">Tree Service Bid Calculator</a></li>
+      <li><a href="../vinyl-liner-bid-calculator/" data-pf-to="vinyl-liner-bid-calculator">Vinyl Liner Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=deck-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="deck-bid-calculator"></script>
+</body>
+</html>

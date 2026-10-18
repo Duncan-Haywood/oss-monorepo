@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Estimate Hours Worked from Git Commits</title>
+  <meta name="description" content="How freelancers and agencies turn commit history into defensible billable hours: session grouping, lead time, what git cannot see…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/git-timesheet/how-to-estimate-hours-from-git-commits.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this upload my git history?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page parses the text you paste in your own browser and sends nothing anywhere. The CLI reads your local repository and makes no network call."}}, {"@type": "Question", "name": "How are hours estimated from commits?", "acceptedAnswer": {"@type": "Answer", "text": "Commits less than the idle gap apart (default 2 hours) form one working session. A session counts its span plus lead time (default 30 minutes) for the work before the first commit. Each contributor is estimated separately."}}, {"@type": "Question", "name": "Is the estimate accurate enough to invoice?", "acceptedAnswer": {"@type": "Answer", "text": "It is a defensible starting point, not a time record. Meetings, research, review and debugging without commits are not captured, so check the total against your own notes before you send it."}}, {"@type": "Question", "name": "Which git log format does it need?", "acceptedAnswer": {"@type": "Answer", "text": "git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/git-timesheet/how-to-estimate-hours-from-git-commits.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Estimate Hours Worked from Git Commits">
+<meta property="og:description" content="How freelancers and agencies turn commit history into defensible billable hours: session grouping, lead time, what git cannot see…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/git-timesheet/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Estimate Hours Worked from Git Commits — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../git-timesheet/">Turn your git history into a timesheet your client can read</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Estimate Hours Worked from Git Commits</span></span></nav>
+  <p><a href="./">← Git Timesheet</a></p>
+  <h1>How to estimate hours worked from git commits</h1>
+  <p>Paste your history into <a href="./">Git Timesheet</a> to get hours per day and a client-ready summary. This is the method behind the number, and where it is weak.</p>
+  <h2>Does this upload my git history?</h2>
+  <p>No. The page parses the text you paste in your own browser and sends nothing anywhere. The CLI reads your local repository and makes no network call.</p>
+  <h2>How are hours estimated from commits?</h2>
+  <p>Commits less than the idle gap apart (default 2 hours) form one working session. A session counts its span plus lead time (default 30 minutes) for the work before the first commit. Each contributor is estimated separately.</p>
+  <h2>Is the estimate accurate enough to invoice?</h2>
+  <p>It is a defensible starting point, not a time record. Meetings, research, review and debugging without commits are not captured, so check the total against your own notes before you send it.</p>
+  <h2>Which git log format does it need?</h2>
+  <p>git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command.</p>
+  <h2>How should I present estimated hours to a client?</h2>
+  <p>Say they are estimated from commit activity, add the time you know git cannot see (calls, planning, review), and attach the day-by-day summary so each line of work is visible. Agree the method before the first invoice, not after.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not legal, tax or accounting advice; check your contract and local rules before billing on estimated time. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+      <li><a href="../s3-bucket-exposure-check/" data-pf-to="s3-bucket-exposure-check">S3 Bucket Exposure Checker</a></li>
+      <li><a href="../s3-storage-class-advisor/" data-pf-to="s3-storage-class-advisor">Is your S3 bucket in the wrong storage class?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=git-timesheet">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="git-timesheet"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Business Vehicle Depreciation Calculator — Section 179 vs bonus vs MACRS, heavy SUV and truck</title>
+  <meta name="description" content="Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS…">
+  <meta property="og:title" content="How much of your business vehicle can you deduct this year?">
+  <meta property="og:description" content="Section 179 vs bonus vs MACRS for a car, heavy SUV or work truck, with the real caps applied. No account, no upload.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Business Vehicle Depreciation Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare regular MACRS, 100% bonus depreciation and Section 179 for a business vehicle, with the passenger-car 280F caps and the heavy-SUV Section 179 cap, year by year, plus standard mileage. Browser tool or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies the published first-year limits to the numbers you type so you can compare write-off methods. Your return depends on facts it cannot see: placed-in-service date, GVWR from the door-jamb sticker, mid-quarter rules, state conformity and your other deductions. Confirm with a tax professional."}}, {"@type": "Question", "name": "Where do the limits come from?", "acceptedAnswer": {"@type": "Answer", "text": "The defaults are the 2025 placed-in-service figures: the Section 280F passenger-car caps, the Section 179 cap for SUVs over 6,000 lb, and the 70 cent standard mileage rate. The IRS republishes them each year, so every limit is editable in the CLI and the page shows an as-of line."}}, {"@type": "Question", "name": "Why can bonus beat Section 179 on a car?", "acceptedAnswer": {"@type": "Answer", "text": "For a car or light SUV under 6,000 lb, the Section 179 deduction counts inside the lower no-bonus first-year cap, while claiming bonus raises that cap. On an over-6,000 lb SUV the reverse can matter: Section 179 is capped but bonus is not."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"How much of your business vehicle can you deduct this year?","item":"https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much of your business vehicle can you deduct this year? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much of your business vehicle can you deduct this year?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">BUSINESS VEHICLE DEPRECIATION CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>How much of your business vehicle can you deduct this year, and which method wins?</h1>
+    <p>Enter the <strong>price</strong>, the <strong>vehicle class</strong> and the <strong>percentage of use that is for business</strong>. See the first-year deduction and tax saved under <strong>regular MACRS, 100% bonus depreciation and Section 179</strong>, the year-by-year schedule with the <strong>luxury-auto caps</strong> and the <strong>6,000 lb SUV cap</strong> applied, and the standard mileage alternative.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and limits you can see. It is not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The vehicle</h2>
+    <div class="grid">
+      <div><label for="price">Purchase price (USD)</label><input type="number" id="price" min="0" step="any" value="0" inputmode="decimal"></div>
+      <div><label for="klass">Vehicle class</label><select id="klass"></select></div>
+      <div><label for="biz">Business use (%)</label><input type="number" id="biz" min="0" max="100" step="any" value="100" inputmode="decimal"></div>
+      <div><label for="rate">Your marginal tax rate (%) <span class="note">federal plus state, optional</span></label><input type="number" id="rate" min="0" max="100" step="any" value="0" inputmode="decimal"></div>
+      <div><label for="income">Business taxable income (USD, optional) <span class="note">limits Section 179</span></label><input type="number" id="income" min="0" step="any" inputmode="decimal"></div>
+      <div><label for="miles">Business miles this year (optional) <span class="note">for the mileage comparison</span></label><input type="number" id="miles" min="0" step="any" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Comparison</h2>
+    <p id="summary"></p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Method</th><th>Year one deduction</th><th>Year one tax saved</th><th>Whole schedule</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Year by year</h3>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table><thead id="sched-head"></thead><tbody id="sched"></tbody></table></div></div>
+    <div id="notes"></div>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <pre class="cmd">node cli.mjs compare --price 80000 --business-pct 90 --class heavy_suv --tax-rate 32
+node cli.mjs compare --price 60000 --business-pct 100 --class passenger --json
+node cli.mjs compare --price 70000 --business-pct 100 --class exempt --income 50000
+node cli.mjs compare --price 80000 --business-pct 90 --class heavy_suv --limits limits.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-deduct-a-business-vehicle.html">how to deduct a business vehicle</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this tax advice?</h3><p>No. It applies the published first-year limits to the numbers you type so you can compare write-off methods. Your return depends on facts it cannot see: placed-in-service date, GVWR from the door-jamb sticker, mid-quarter rules, state conformity and your other deductions. Confirm with a tax professional.</p><h3>Where do the limits come from?</h3><p>The defaults are the 2025 placed-in-service figures: the Section 280F passenger-car caps, the Section 179 cap for SUVs over 6,000 lb, and the 70 cent standard mileage rate. The IRS republishes them each year, so every limit is editable in the CLI and the page shows an as-of line.</p><h3>Why can bonus beat Section 179 on a car?</h3><p>For a car or light SUV under 6,000 lb, the Section 179 deduction counts inside the lower no-bonus first-year cap, while claiming bonus raises that cap. On an over-6,000 lb SUV the reverse can matter: Section 179 is capped but bonus is not.</p><h3>Is my data uploaded anywhere?</h3><p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal or financial advice. It applies published limits as best known to numbers you type and ignores mid-quarter convention, state rules, the alternative minimum tax, lease and trade-in treatment and recapture; it is not a guarantee of what a return will show. Confirm with a tax professional before you buy or file.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../bonus-depreciation-calculator/">Bonus Depreciation Calculator</a>, <a href="../mileage-deduction-method-calculator/">Mileage Deduction Method Calculator</a>, <a href="../self-employment-tax-calculator/">Self-Employment Tax Calculator</a>, <a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CLASSES, DEFAULT_LIMITS, LIMITS_AS_OF, compute, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#klass").innerHTML = Object.entries(CLASSES).map(([k, v]) => `<option value="${k}">${escapeHtml(v)}</option>`).join("");
+
+    function render() {
+      const r = compute({ price: $("#price").value, businessPct: $("#biz").value, vehicleClass: $("#klass").value, taxRate: $("#rate").value, businessIncome: $("#income").value, miles: $("#miles").value }, DEFAULT_LIMITS);
+      if (r.status === "error") { $("#status").innerHTML = `<span class="error">${escapeHtml(r.text)}</span>`; return; }
+      $("#status").textContent = "";
+      $("#summary").innerHTML = `<span class="ok">${escapeHtml(r.text)}</span>`;
+      $("#rows").innerHTML = r.methods.map((m) => `<tr><td>${escapeHtml(m.label)}</td><td>${fmt(m.year1)}</td><td>${m.taxSavedYear1 ? fmt(m.taxSavedYear1) : "enter a tax rate"}</td><td>${fmt(m.total)}</td></tr>`).join("");
+      const yrs = Math.max(...r.methods.map((m) => m.schedule.reduce((n, v, i) => (v > 0.5 ? i + 1 : n), 1)));
+      $("#sched-head").innerHTML = `<tr><th>Method</th>${Array.from({ length: yrs }, (_, i) => `<th>Y${i + 1}</th>`).join("")}</tr>`;
+      $("#sched").innerHTML = r.methods.map((m) => `<tr><td>${escapeHtml(m.label)}</td>${m.schedule.slice(0, yrs).map((v) => `<td>${fmt(v)}</td>`).join("")}</tr>`).join("");
+      const notes = r.methods.flatMap((m) => m.notes).concat(r.warnings);
+      if (r.mileage) notes.push(`Standard mileage instead of depreciation: ${fmt(r.mileage.deduction)} at $${r.mileage.rate}/mile` + (r.mileage.taxSaved ? `, about ${fmt(r.mileage.taxSaved)} of tax.` : "."));
+      $("#notes").innerHTML = "<ul>" + [...new Set(notes)].map((n) => `<li>${escapeHtml(n)}</li>`).join("") + "</ul>";
+      $("#estimate").textContent = LIMITS_AS_OF + ". Your numbers; not tax advice.";
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { price: 80000, biz: 90, rate: 32, klass: "heavy_suv" };
+    $("#load-example").addEventListener("click", () => {
+      $("#price").value = EXAMPLE.price; $("#biz").value = EXAMPLE.biz; $("#rate").value = EXAMPLE.rate; $("#klass").value = EXAMPLE.klass;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#price").value = 0; $("#biz").value = 100; $("#rate").value = 0; $("#income").value = ""; $("#miles").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rd-tax-credit-calculator/" data-pf-to="rd-tax-credit-calculator">R&amp;D Tax Credit Calculator — free, private</a></li>
+      <li><a href="../renewal-rent-optimizer/" data-pf-to="renewal-rent-optimizer">Renewal Rent Optimizer — free, private, in your browser</a></li>
+      <li><a href="../rent-roll-delinquency-analyzer/" data-pf-to="rent-roll-delinquency-analyzer">Rent Roll Delinquency Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../rental-dscr-calculator/" data-pf-to="rental-dscr-calculator">Rental Property DSCR Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=business-vehicle-depreciation-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/?pfEmbed=1&quot; title=&quot;How much of your business vehicle can you deduct this year? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="business-vehicle-depreciation-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/" data-pf-embed-title="How much of your business vehicle can you deduct this year?" data-pf-embed-slug="business-vehicle-depreciation-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="business-vehicle-depreciation-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="business-vehicle-depreciation-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

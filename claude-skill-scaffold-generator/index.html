@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Skill Scaffold Generator — turn a plain-language description into a starter SKILL.md</title>
+  <meta name="description" content="Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles…">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/">
+  <meta property="og:title" content="Claude Skill Scaffold Generator">
+  <meta property="og:description" content="A skill with a vague or first-person description is one Claude quietly never loads. This free tool turns what it does and when to use it into a starter…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Claude Skill Scaffold Generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that turns a plain-language description of a Claude Agent Skill -- what it does, when Claude should use it, and any bundled scripts, references, or assets -- into a starter SKILL.md with YAML frontmatter and a suggested folder layout, flagging common authoring mistakes: a non-slug name, a first-person description, a missing trigger condition, and a name or description outside the practical length this tool documents.","featureList":"SKILL.md generation with valid YAML frontmatter; name slugification and length caution; description assembly from what-it-does and when-to-use fields; first-person description detection; empty-field detection; bundled scripts/references/assets folder layout; copyable SKILL.md and folder tree output, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this tool actually generate?","acceptedAnswer":{"@type":"Answer","text":"A starter SKILL.md file -- valid YAML frontmatter (name and description) plus a body naming any scripts, references, or assets you said the skill bundles -- and a suggested folder layout to put it in. It does not write the skill's actual instructions for you; the body is a placeholder you fill in."}},{"@type":"Question","name":"Does this tool call an AI model to write the skill?","acceptedAnswer":{"@type":"Answer","text":"No. The frontmatter and body are assembled from the fields you type by a fixed template, entirely in your browser. Nothing is uploaded and no model is called."}},{"@type":"Question","name":"Does a clean result mean Claude will actually load and use the skill correctly?","acceptedAnswer":{"@type":"Answer","text":"No. This tool checks the fields you supplied -- is the name a valid slug, does the description avoid first person, is a trigger condition present -- not whether Claude will invoke the skill correctly at runtime. Write real instructions in the body, then actually try the skill before relying on it."}},{"@type":"Question","name":"Why does the description field matter this much?","acceptedAnswer":{"@type":"Answer","text":"Claude decides whether to load a skill from its description alone, before reading anything else in it. A description with no concrete trigger condition, or one written in the first person as if the skill were speaking, is the most common reason a skill exists but never fires."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}h3{font-size:1rem}
+    p{color:var(--muted)}.lede{max-width:700px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    input[type=text],textarea{display:block;width:100%;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);margin-top:4px;resize:vertical}
+    textarea{min-height:90px}
+    textarea#skillMdOut,textarea#folderTreeOut{min-height:220px}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:760px){.grid2{grid-template-columns:1fr}}
+    .notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900;font-size:.9rem;border-radius:6px;margin:14px 0}
+    .small{font-size:.86rem}
+    .toggle{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}
+    .toggle input{width:auto;margin:0}
+    .summary{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 14px}
+    .summary[hidden]{display:none}
+    .stat{background:#f8f9fc;border:1px solid var(--line);border-radius:9px;padding:8px 14px;text-align:center;min-width:90px}
+    .stat strong{display:block;font-size:1.4rem}
+    .stat.high strong{color:#a3211a}.stat.medium strong{color:#8a5a00}.stat.low strong{color:#3a6b3f}
+    ul.findings{list-style:none;margin:0;padding:0}
+    ul.findings li{border-left:4px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0;background:#f8f9fc}
+    ul.findings li.high{border-left-color:#a3211a;background:#fdf1f0}
+    ul.findings li.medium{border-left-color:#c98a00;background:#fdf7e8}
+    ul.findings li.low{border-left-color:#3a6b3f;background:#f1f8f2}
+    .findings .src{font-size:.8rem;color:var(--muted);display:block;margin-bottom:2px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:.86rem}
+    footer p{margin:.6rem 0}
+    a{color:var(--accent)}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Claude Skill Scaffold Generator","item":"https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Claude Skill Scaffold Generator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Claude Skill Scaffold Generator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<main>
+  <p class="small"><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Free tools</a></p>
+  <h1>Claude Skill Scaffold Generator</h1>
+  <p class="lede">Type what a <a href="https://www.anthropic.com/">Claude</a> Agent Skill does, when Claude should use it, and any scripts, references, or assets it bundles — get a starter <code>SKILL.md</code> with valid YAML frontmatter and a suggested folder layout, checked for the mistakes that keep a skill from ever triggering.</p>
+  <p class="notice"><strong>Template-generated, not model-verified.</strong> This tool assembles the frontmatter and body from the fields you type — it never calls an AI model and never uploads anything. A clean result means your fields passed this tool's checks, not that Claude will invoke the skill correctly at runtime.</p>
+
+  <section class="panel">
+    <h2>1. Describe the skill</h2>
+    <label for="nameInput">Skill name
+      <input id="nameInput" type="text" spellcheck="false" placeholder="pdf-form-filler">
+    </label>
+    <label for="whatInput">What it does
+      <textarea id="whatInput" spellcheck="true" placeholder="Fills out a PDF form from a CSV of answers."></textarea>
+    </label>
+    <label for="whenInput">When Claude should use it
+      <textarea id="whenInput" spellcheck="true" placeholder="the user has a PDF form and a spreadsheet of values to put in it"></textarea>
+    </label>
+    <label for="titleInput">Heading for the skill body (optional — defaults to the name)
+      <input id="titleInput" type="text" spellcheck="false" placeholder="PDF Form Filler">
+    </label>
+    <div class="grid2">
+      <label for="scriptsInput">Scripts it bundles (one per line, "path — purpose")
+        <textarea id="scriptsInput" spellcheck="false" placeholder="fill_form.py — fills the PDF from a CSV"></textarea>
+      </label>
+      <label for="referencesInput">References it loads on demand (one per line)
+        <textarea id="referencesInput" spellcheck="false" placeholder="field-mapping.md — how CSV columns map to form fields"></textarea>
+      </label>
+    </div>
+    <label for="assetsInput">Assets it uses or outputs (one per line)
+      <textarea id="assetsInput" spellcheck="false" placeholder="template.pdf — the blank form template"></textarea>
+    </label>
+    <div class="row">
+      <button id="generateBtn" type="button">Generate SKILL.md</button>
+      <button id="loadExample" type="button" class="secondary">Load an example</button>
+      <button id="clearAll" type="button" class="secondary">Clear all</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <div id="summaryOut" class="summary" hidden>
+      <div class="stat high"><strong id="highCount">0</strong><span class="small">high-severity</span></div>
+      <div class="stat medium"><strong id="mediumCount">0</strong><span class="small">medium-severity</span></div>
+      <div class="stat low"><strong id="lowCount">0</strong><span class="small">caution</span></div>
+    </div>
+    <p id="statusOut" class="small" role="status" aria-live="polite">Fill in the fields above, or load the example, then press Generate.</p>
+    <ul id="findingsList" class="findings"></ul>
+  </section>
+
+  <section class="panel" id="outputSection" hidden>
+    <h2>2. Your SKILL.md</h2>
+    <label for="skillMdOut">SKILL.md
+      <textarea id="skillMdOut" spellcheck="false" readonly></textarea>
+    </label>
+    <div class="row">
+      <button id="copySkillMd" type="button" class="secondary">Copy SKILL.md</button>
+      <span id="copySkillMdStatus" class="small" role="status" aria-live="polite"></span>
+    </div>
+    <label for="folderTreeOut">Suggested folder layout
+      <textarea id="folderTreeOut" spellcheck="false" readonly></textarea>
+    </label>
+    <div class="row">
+      <button id="copyFolderTree" type="button" class="secondary">Copy folder layout</button>
+      <span id="copyFolderTreeStatus" class="small" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous generate events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that a SKILL.md was generated or copied. Nothing you type — no skill name, description, or file paths — is ever recorded, uploaded, or sent to an analytics service. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What does this tool actually generate?</h3>
+  <p>A starter SKILL.md file -- valid YAML frontmatter (name and description) plus a body naming any scripts, references, or assets you said the skill bundles -- and a suggested folder layout to put it in. It does not write the skill's actual instructions for you; the body is a placeholder you fill in.</p>
+  <h3>Does this tool call an AI model to write the skill?</h3>
+  <p>No. The frontmatter and body are assembled from the fields you type by a fixed template, entirely in your browser. Nothing is uploaded and no model is called.</p>
+  <h3>Does a clean result mean Claude will actually load and use the skill correctly?</h3>
+  <p>No. This tool checks the fields you supplied -- is the name a valid slug, does the description avoid first person, is a trigger condition present -- not whether Claude will invoke the skill correctly at runtime. Write real instructions in the body, then actually try the skill before relying on it.</p>
+  <h3>Why does the description field matter this much?</h3>
+  <p>Claude decides whether to load a skill from its description alone, before reading anything else in it. A description with no concrete trigger condition, or one written in the first person as if the skill were speaking, is the most common reason a skill exists but never fires.</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee that Claude will load or invoke the generated skill correctly at runtime, and it does not replace testing the skill in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking the frontmatter length guidance against Anthropic's current skill-authoring documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The fields you type, and every SKILL.md this tool generates, never leave your device — there is no upload, no server-side processing, no AI model call, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Checking whether an existing SKILL.md's frontmatter and description will trigger reliably instead of generating a new one? See <a href="../skill-manifest-check/">Skill Manifest Check</a>. Checking a Claude Code settings.json's hooks and permissions instead? See <a href="../claude-code-settings-check/">Claude Code Settings Check</a>. Auditing an MCP server's launch config instead? See <a href="../mcp-config-risk-check/">MCP Config Risk Check</a>.</p>
+    <p>See <a href="./vs-writing-the-frontmatter-by-hand.html">this generator vs. writing the frontmatter by hand</a>.</p>
+    <p>Shipping a release rather than a skill? <a href="../release-notes-generator/">Release Notes Generator</a> turns a git log into grouped release notes.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { scaffold } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  const EXAMPLE = {
+    name: "PDF Form Filler",
+    what: "Fills out a PDF form from a CSV of answers, matching columns to form fields by name.",
+    when: "the user has a PDF form and a spreadsheet or CSV of values to put in it",
+    title: "PDF Form Filler",
+    scripts: "fill_form.py — fills the PDF from a CSV using a field-name mapping",
+    references: "field-mapping.md — how CSV columns map to form field names when they don't match exactly",
+    assets: "",
+  };
+
+  $("loadExample").addEventListener("click", () => {
+    $("nameInput").value = EXAMPLE.name;
+    $("whatInput").value = EXAMPLE.what;
+    $("whenInput").value = EXAMPLE.when;
+    $("titleInput").value = EXAMPLE.title;
+    $("scriptsInput").value = EXAMPLE.scripts;
+    $("referencesInput").value = EXAMPLE.references;
+    $("assetsInput").value = EXAMPLE.assets;
+    runGenerate();
+  });
+
+  $("clearAll").addEventListener("click", () => {
+    for (const id of ["nameInput", "whatInput", "whenInput", "titleInput", "scriptsInput", "referencesInput", "assetsInput"]) {
+      $(id).value = "";
+    }
+    resetOutput();
+  });
+
+  function resetOutput() {
+    $("findingsList").innerHTML = "";
+    $("summaryOut").hidden = true;
+    $("outputSection").hidden = true;
+    $("statusOut").hidden = false;
+    $("statusOut").textContent = "Fill in the fields above, or load the example, then press Generate.";
+    lastResult = null;
+  }
+
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (e) => setUsageEnabled(e.target.checked));
+
+  let lastResult = null;
+
+  function severityLabel(sev) {
+    return sev === "high" ? "High" : sev === "medium" ? "Medium" : "Caution";
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function renderFindings(result) {
+    const list = $("findingsList");
+    list.innerHTML = "";
+    for (const f of result.findings) {
+      const li = document.createElement("li");
+      li.className = f.severity;
+      const src = document.createElement("span");
+      src.className = "src";
+      src.textContent = f.field;
+      const body = document.createElement("span");
+      body.innerHTML = `<strong>${severityLabel(f.severity)}</strong> (${f.category}): ${escapeHtml(f.detail)}`;
+      li.append(src, body);
+      list.appendChild(li);
+    }
+    $("highCount").textContent = String(result.counts.high);
+    $("mediumCount").textContent = String(result.counts.medium);
+    $("lowCount").textContent = String(result.counts.low);
+    $("summaryOut").hidden = false;
+    $("statusOut").hidden = result.findings.length > 0;
+    if (result.findings.length === 0) {
+      $("statusOut").hidden = false;
+      $("statusOut").textContent = "No authoring issues found. This checks the fields you supplied only -- see \"Does a clean result mean Claude will actually load and use the skill correctly?\" below.";
+    }
+  }
+
+  function runGenerate() {
+    lastResult = scaffold({
+      name: $("nameInput").value,
+      whatItDoes: $("whatInput").value,
+      whenToUse: $("whenInput").value,
+      title: $("titleInput").value,
+      scriptsText: $("scriptsInput").value,
+      referencesText: $("referencesInput").value,
+      assetsText: $("assetsInput").value,
+    });
+    renderFindings(lastResult);
+    $("skillMdOut").value = lastResult.skillMd;
+    $("folderTreeOut").value = lastResult.folderTree;
+    $("outputSection").hidden = false;
+    countUsage("generate");
+  }
+
+  $("generateBtn").addEventListener("click", runGenerate);
+
+  async function copyField(fieldId, statusId, eventName) {
+    const text = $(fieldId).value;
+    try {
+      await navigator.clipboard.writeText(text);
+      $(statusId).textContent = "Copied.";
+      countUsage(eventName);
+    } catch {
+      $(statusId).textContent = "Could not copy automatically -- select the text and copy manually.";
+    }
+    setTimeout(() => { $(statusId).textContent = ""; }, 4000);
+  }
+
+  $("copySkillMd").addEventListener("click", () => copyField("skillMdOut", "copySkillMdStatus", "skillmd_copied"));
+  $("copyFolderTree").addEventListener("click", () => copyField("folderTreeOut", "copyFolderTreeStatus", "folder_tree_copied"));
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../caption-quality-check/" data-pf-to="caption-quality-check">Caption Quality Checker</a></li>
+      <li><a href="../cargo-audit-triage/" data-pf-to="cargo-audit-triage">Which cargo audit findings actually matter?</a></li>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=claude-skill-scaffold-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/?pfEmbed=1&quot; title=&quot;Claude Skill Scaffold Generator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="claude-skill-scaffold-generator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/" data-pf-embed-title="Claude Skill Scaffold Generator" data-pf-embed-slug="claude-skill-scaffold-generator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="claude-skill-scaffold-generator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="claude-skill-scaffold-generator" data-pf-link-amount=""></script>
+</body>
+</html>

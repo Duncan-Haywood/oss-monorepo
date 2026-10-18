@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Are Etsy Offsite Ads worth it? | 12% vs 15% on a handmade order</title>
+  <meta name="description" content="Etsy Offsite Ads charge 12% or 15% of the order total on top of listing, transaction, and payment fees.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/are-etsy-offsite-ads-worth-it.html">
+  <meta property="og:title" content="Are Etsy Offsite Ads worth it?">
+  <meta property="og:description" content="Worked example: a $14 print that still profits organically loses money at the 15% Offsite Ads rate.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Etsy Offsite Ads fee?","acceptedAnswer":{"@type":"Answer","text":"Etsy Offsite Ads typically charge 15% of the order total for shops under $10,000 in trailing 12-month sales, or 12% for shops over that threshold. The fee applies on top of listing, transaction, and payment-processing fees when Etsy attributes the sale to an offsite ad. Those percentages are starting points you replace with the rate on your statement."}},{"@type":"Question","name":"Can Offsite Ads make an Etsy order unprofitable?","acceptedAnswer":{"@type":"Answer","text":"Yes. On a $14 handmade print with $3 shipping charged, $5.50 shipping cost, and $7 in materials, the order still clears $2.44 organically and $0.39 at 12%, but loses $0.12 at 15%. Cash invested is $12.50. The order stays at or above $0.00 leftover until Offsite Ads reach about 14.3%."}},{"@type":"Question","name":"Are Offsite Ads the same as Etsy Ads?","acceptedAnswer":{"@type":"Answer","text":"No. On-site Etsy Ads is a click you buy; ACOS is spend divided by attributed sales. Offsite Ads is a percentage Etsy takes when it sends the buyer from Google or social. They stack. On the calculator's default $30 listing, 15% Offsite Ads still leave $15.98 versus $21.23 organic — the $14 print is the case that flips to a loss."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.06em; } p { line-height: 1.5; }
+    a { color: #243d35; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .alert { background: #fff4e5; color: #25221f; border-radius: 8px; padding: 10px 12px; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/are-etsy-offsite-ads-worth-it.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Are Etsy Offsite Ads worth it? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Are Etsy Offsite Ads worth it?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p><a href="./">← Etsy order profit</a></p>
+    <h1>When Offsite Ads turn a handmade sale into a loss</h1>
+    <p>Sellers search for “are Etsy Offsite Ads worth it” because the fee is easy to miss on a profitable-looking listing. Offsite Ads are charged on the order total (item plus shipping charged), on top of listing, transaction, and payment fees. That is not <a href="is-etsy-ads-worth-it.html">on-site Etsy Ads</a>. Shops under $10,000 in trailing 12-month sales typically pay 15%; shops over that threshold typically pay 12%. Replace those starting points with the rate on your statement. This page does not opt a shop in or out.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order and fee assumptions</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="14" inputmode="decimal"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="3" inputmode="decimal"></label>
+        <label>Listing fee <input id="listingFee" type="number" min="0" step="0.01" value="0.20" inputmode="decimal"></label>
+        <label>Transaction fee (%) <input id="transactionRate" type="number" min="0" step="0.1" value="6.5" inputmode="decimal"></label>
+        <label>Payment processing (%) <input id="paymentRate" type="number" min="0" step="0.1" value="3" inputmode="decimal"></label>
+        <label>Payment fixed fee <input id="paymentFixed" type="number" min="0" step="0.01" value="0.25" inputmode="decimal"></label>
+        <label>Your Offsite Ads rate (%) <input id="offsiteAdRate" type="number" min="0" step="0.1" value="15" inputmode="decimal"></label>
+        <label>Shipping cost <input id="shippingCost" type="number" min="0" step="0.01" value="5.50" inputmode="decimal"></label>
+        <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="7" inputmode="decimal"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Offsite Ads leftover</h2>
+      <div id="profit" class="hero-number">−$0.12</div>
+      <div id="label">at your typed Offsite Ads rate</div>
+      <p id="insight" class="alert" hidden></p>
+      <dl>
+        <dt>Organic leftover</dt><dd id="organic"></dd>
+        <dt>12% leftover</dt><dd id="at12"></dd>
+        <dt>15% leftover</dt><dd id="at15"></dd>
+        <dt>Cash invested</dt><dd id="cash"></dd>
+        <dt>Ceiling that still breaks even</dt><dd id="cap"></dd>
+      </dl>
+      <hr>
+      <h2>Organic vs 12% vs 15%</h2>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Path</th><th>Offsite fee</th><th>Kept</th><th>ROI on cash</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <p id="offsiteNote" class="note"></p>
+      <div class="actions"><button id="reset" type="button">Reset to the $14 print</button></div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Your numbers stay in this browser. This is arithmetic from your inputs, not Etsy's live Offsite Ads schedule and not a recommendation to opt in or out. Open the <a href="./#offsite-ads">order calculator</a> to keep these fees next to Plus, Ads, and free shipping.</p>
+    </section>
+  </main>
+  <h2>Common questions</h2>
+  <h3>What is the Etsy Offsite Ads fee?</h3>
+  <p>Etsy Offsite Ads typically charge 15% of the order total for shops under $10,000 in trailing 12-month sales, or 12% for shops over that threshold. The fee applies on top of listing, transaction, and payment-processing fees when Etsy attributes the sale to an offsite ad. Those percentages are starting points you replace with the rate on your statement.</p>
+  <h3>Can Offsite Ads make an Etsy order unprofitable?</h3>
+  <p>Yes. On a $14 handmade print with $3 shipping charged, $5.50 shipping cost, and $7 in materials, the order still clears $2.44 organically and $0.39 at 12%, but loses $0.12 at 15%. Cash invested is $12.50. The order stays at or above $0.00 leftover until Offsite Ads reach about 14.3%.</p>
+  <h3>Are Offsite Ads the same as Etsy Ads?</h3>
+  <p>No. On-site Etsy Ads is a click you buy; ACOS is spend divided by attributed sales. Offsite Ads is a percentage Etsy takes when it sends the buyer from Google or social. They stack. On the calculator's default $30 listing, 15% Offsite Ads still leave $15.98 versus $21.23 organic — the $14 print is the case that flips to a loss.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the calculator does.</p>
+  </footer>
+  <script type="module">
+    import { compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'price', 'shippingCharged', 'listingFee', 'transactionRate', 'paymentRate',
+      'paymentFixed', 'offsiteAdRate', 'shippingCost', 'materialCost', 'otherCost',
+    ];
+    const DEFAULTS = {
+      price: 14, shippingCharged: 3, listingFee: 0.20, transactionRate: 6.5,
+      paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 15, shippingCost: 5.50,
+      materialCost: 7, otherCost: 0,
+    };
+    const INPUTS_KEY = 'etsy-offsite-ads-inputs';
+    const field = id => document.getElementById(id);
+    const money = value => `${value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+    const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+    function apply(values) {
+      for (const id of FIELD_IDS) {
+        if (values[id] !== undefined) field(id).value = values[id];
+      }
+    }
+
+    function update() {
+      const insight = document.getElementById('insight');
+      try {
+        const rows = compareOffsiteAdRates(currentInputs());
+        const cap = maxAffordableOffsiteRate(currentInputs());
+        const current = rows.find((row) => row.isCurrent) || rows[0];
+        const organic = rows.find((row) => row.offsiteAdRate === 0);
+        const at12 = rows.find((row) => row.offsiteAdRate === 12);
+        const at15 = rows.find((row) => row.offsiteAdRate === 15);
+        document.getElementById('profit').textContent = money(current.profit);
+        document.getElementById('profit').className = `hero-number ${current.profit < 0 ? 'negative' : 'positive'}`;
+        document.getElementById('label').textContent = current.stillProfitable
+          ? 'estimated leftover at your typed Offsite Ads rate'
+          : 'loss at your typed Offsite Ads rate';
+        document.getElementById('organic').textContent = money(organic.profit);
+        document.getElementById('at12').textContent = at12 ? money(at12.profit) : '—';
+        document.getElementById('at15').textContent = at15 ? money(at15.profit) : '—';
+        document.getElementById('cash').textContent = money(organic.cashInvested);
+        // null: the order is already below break-even at 0% ads, so there is
+        // no ceiling. "0.0%" would read as a real, if tight, headroom figure.
+        document.getElementById('cap').textContent = cap === null
+          ? 'none — already below at 0%'
+          : Number.isFinite(cap) ? `${cap.toFixed(1)}%` : 'any rate';
+        document.getElementById('offsiteNote').textContent = offsiteAdsNote(rows, cap);
+        if (at15 && !at15.stillProfitable && organic.stillProfitable) {
+          insight.hidden = false;
+          insight.textContent = `Organically this sale still clears ${money(organic.profit)}. At 15% you pay Etsy ${money(at15.offsiteAdFee)} and leave ${money(at15.profit)}.`;
+        } else {
+          insight.hidden = true;
+          insight.textContent = '';
+        }
+        document.getElementById('rows').replaceChildren(...rows.map((item) => {
+          const tr = document.createElement('tr');
+          for (const text of [
+            item.isCurrent && item.offsiteAdRate !== 0 ? `${item.label} (your rate)` : item.label,
+            money(item.offsiteAdFee),
+            money(item.profit),
+            item.roi == null ? '—' : `${item.roi.toFixed(1)}%`,
+          ]) {
+            tr.insertCell().textContent = text;
+          }
+          return tr;
+        }));
+      } catch (error) {
+        document.getElementById('profit').textContent = error.message;
+        document.getElementById('profit').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'fix the inputs to see a result';
+        document.getElementById('offsiteNote').textContent = '';
+        insight.hidden = true;
+      }
+    }
+
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+    }
+
+    const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null'));
+    if (saved) apply(saved);
+
+    FIELD_IDS.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
+    FIELD_IDS.forEach(id => field(id).addEventListener('change', () => (
+      recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'offsite_ads_compared')
+    )));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+    document.getElementById('reset').addEventListener('click', () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      apply(DEFAULTS);
+      update();
+      flash('Reset to the default $14 print.');
+    });
+
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="etsy-profit-calculator" data-pf-jobs-amount="#profit"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="etsy-profit-calculator" data-pf-link-amount="#profit"></script>
+</body>
+</html>

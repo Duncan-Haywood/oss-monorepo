@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat hang fee | EV Charger Install Bid Calculator</title>
+<meta name="description" content="A flat 'EV charger install' hang fee cannot see the run, the trench, or the panel work. This free…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/vs-a-flat-hang-fee.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat hang fee">
+<meta property="og:description" content="A 25-foot indoor hang on a spare slot and a 70-foot trench to a detached garage with a service upgrade both get called 'installing an EV charger.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/vs-a-flat-hang-fee.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat hang fee get an EV charger install wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the circuit, not the charger. A 25-foot indoor run to a panel with a spare breaker slot needs a short copper pull and about half an hour of panel work. A 70-foot trench to a detached garage that also needs a 200 A service upgrade needs a full day of trench and panel labor, restoration, and a much larger material bill, on the same charger. A flat hang fee charges both the same because it was priced on the charger, not the circuit."}},{"@type":"Question","name":"What does a flat hang fee usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The run, the trench, and the panel. A flat fee has no line for a 125%-continuous-load breaker sized off the charger's actual amps, no line for copper upsized to hold a 3% voltage drop over a long run, no line for trench footage or restoration, and no line for panel work heavier than a spare slot -- a relocate, a subpanel, or a full service upgrade."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting example: a 25-foot indoor hardwired hang for a 48 A charger, on a spare breaker slot with headroom on the existing 200 A service, prices at $1,263.36. The same 48 A charger over a 70-foot run through a 60-foot trench to a detached garage that also needs a 200 A service upgrade prices at $4,586.61 -- 3.6 times the easy job. Quoting the trench-and-upgrade job at the easy job's $1,263.36 flat fee prices it $2,176.59 below its own $3,439.95 break-even cost, before a dollar of profit or the crew's time is covered."}},{"@type":"Question","name":"Is a flat hang fee ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- an indoor or attached-garage run to a panel with a spare slot and headroom on the service -- a flat fee can land close, because that is probably the job the fee was set on. The risk is quoting a detached-garage trench or a tight panel the same way sight unseen, because the fee does not know the run length, the trench, or the panel's headroom until someone measures the house, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your supplier's copper and breaker pricing, or your permit fees. It takes the charger amps, the run, the trench footage, the mounting location, the panel work, and the existing service and load, plus your own wage, burden, overhead, permit, and target margin, and turns that into a price for this job -- the arithmetic a flat hang fee skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#13202c;background:#e8f0f4}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b6e8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #c5d4dc;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1020300d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c5d4dc;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat hang fee — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ev-charger-bid-calculator/">EV Charger Installation Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat hang fee</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; EV Charger Install Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat hang fee</h1>
+<p class="lede">"$1,200 to install an EV charger" is not a price for a job &mdash; it is a price for whatever circuit the fee happened to be built on, quietly applied to every driveway that also asks for a Level 2 charger.</p>
+</header>
+<section>
+<h2>What a flat hang fee is</h2>
+<p>
+A flat hang fee is the fastest way to quote a charger install over the
+phone: ask the charger's amperage, quote a number, skip the walkthrough.
+Homeowners shop it because a search result or a Facebook ad already gave
+them a number, and it is the number they will ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; usually a short
+indoor or attached-garage run to a panel with a spare breaker slot and
+plenty of service headroom &mdash; and then reused for every driveway
+afterward, whether or not the next one needs a trench, a longer run, or a
+panel that is already full.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+charger's continuous amps, the install type, the one-way run and any
+trench footage, the mounting location, the panel work, and the existing
+service amps and estimated existing load, plus your own wage, payroll
+burden, overhead, permit fee, and target margin. It sizes the breaker at
+125% of the continuous load, recommends copper that holds a 3% voltage
+drop over the actual run, flags a panel with no headroom for the new
+circuit, and returns the bid price, the effective hourly rate, and the
+walk-away price below which the job loses money &mdash; for this run and
+this panel, not a flat number for every driveway.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat hang fee does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same fee for a 25-foot indoor hang and a 70-foot trench to a detached garage &mdash; even though the trench job alone can need a full day more of labor.</td>
+<td>Prices the run and any trench footage separately, at minutes per foot for the run and hours plus restoration dollars per foot for the trench.</td>
+</tr>
+<tr>
+<td>Has no line for a service upgrade, a subpanel, or a relocate, regardless of whether the existing panel has headroom for the new breaker.</td>
+<td>Sizes the required breaker at 125% of the charger's continuous amps and flags when the existing service has no headroom for it, before you commit to a price.</td>
+</tr>
+<tr>
+<td>Quotes the same copper for a 20-foot run and a 150-foot run, with no check against voltage drop.</td>
+<td>Recommends the smallest copper conductor that carries the breaker and holds a 3% voltage-drop budget over the actual run, upsizing automatically on long pulls.</td>
+</tr>
+<tr>
+<td>Has no separate line for an outdoor disconnect, a driveway pedestal, or a NEMA 14-50 receptacle instead of a hardwired unit.</td>
+<td>Prices outdoor disconnects, pedestal hardware, and receptacle devices as their own material and labor lines when the job calls for them.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat hang fee would have quoted the same job, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two driveways, one flat fee</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+A 25-foot indoor hardwired hang for a 48 A charger, on a spare breaker
+slot with headroom on the existing 200 A service, prices at
+<strong>$1,263.36</strong>, on a job that costs $947.52 to run.
+</p>
+<p>
+Take the same 48 A charger to a detached garage instead &mdash; a 70-foot
+run through a 60-foot trench, with a panel that also needs a 200 A
+service upgrade &mdash; and the job costs <strong>$3,439.95</strong> to
+run before a dollar of profit, and this calculator bids it at
+<strong>$4,586.61</strong>: 3.6 times the easy job, on the identical
+charger. Quoting the trench-and-upgrade job at the easy job's flat
+<strong>$1,263.36</strong> fee prices it <strong>$2,176.59 below its own
+break-even cost</strong> &mdash; before counting the $3,323.25 it falls
+short of this calculator's own bid price at a 25% target margin. Same
+charger, same flat fee, one driveway that pays and one that loses money
+the moment the trench is dug.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat hang fee get an EV charger install wrong?</h3>
+<p>Because the cost driver is the circuit, not the charger. A 25-foot indoor run to a panel with a spare breaker slot needs a short copper pull and about half an hour of panel work. A 70-foot trench to a detached garage that also needs a 200 A service upgrade needs a full day of trench and panel labor, restoration, and a much larger material bill, on the same charger. A flat hang fee charges both the same because it was priced on the charger, not the circuit.</p>
+<h3>What does a flat hang fee usually leave out entirely?</h3>
+<p>The run, the trench, and the panel. A flat fee has no line for a 125%-continuous-load breaker sized off the charger's actual amps, no line for copper upsized to hold a 3% voltage drop over a long run, no line for trench footage or restoration, and no line for panel work heavier than a spare slot -- a relocate, a subpanel, or a full service upgrade.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting example: a 25-foot indoor hardwired hang for a 48 A charger, on a spare breaker slot with headroom on the existing 200 A service, prices at $1,263.36. The same 48 A charger over a 70-foot run through a 60-foot trench to a detached garage that also needs a 200 A service upgrade prices at $4,586.61 -- 3.6 times the easy job. Quoting the trench-and-upgrade job at the easy job's $1,263.36 flat fee prices it $2,176.59 below its own $3,439.95 break-even cost, before a dollar of profit or the crew's time is covered.</p>
+<h3>Is a flat hang fee ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- an indoor or attached-garage run to a panel with a spare slot and headroom on the service -- a flat fee can land close, because that is probably the job the fee was set on. The risk is quoting a detached-garage trench or a tight panel the same way sight unseen, because the fee does not know the run length, the trench, or the panel's headroom until someone measures the house, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market, your supplier's copper and breaker pricing, or your permit fees. It takes the charger amps, the run, the trench footage, the mounting location, the panel work, and the existing service and load, plus your own wage, burden, overhead, permit, and target margin, and turns that into a price for this job -- the arithmetic a flat hang fee skips, not a market survey.</p>
+<p class="note">
+  Open the <a href="./">EV Charger Install Bid Calculator</a> to price your own job, or read
+  <a href="how-much-to-charge.html">how much you should charge to install an EV charger</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. It is not a permit load calculation and does not determine NEC or local-code compliance. Verify every figure against your own takeoff, wage, and material costs, and against a licensed electrician, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it keeps you off a losing flat-fee quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hvac-maintenance-contract-calculator/" data-pf-to="hvac-maintenance-contract-calculator">HVAC Maintenance Contract Pricing Calculator</a></li>
+      <li><a href="../mini-split-bid-calculator/" data-pf-to="mini-split-bid-calculator">Mini-Split Install Bid Calculator</a></li>
+      <li><a href="../security-camera-bid-calculator/" data-pf-to="security-camera-bid-calculator">Security Camera Installation Bid Calculator</a></li>
+      <li><a href="../septic-pumping-bid-calculator/" data-pf-to="septic-pumping-bid-calculator">Septic Pumping Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ev-charger-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ev-charger-bid-calculator"></script>
+</body></html>

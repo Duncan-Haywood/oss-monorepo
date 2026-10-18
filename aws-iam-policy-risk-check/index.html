@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AWS IAM Policy Risk Check — Find Over-Broad Permissions in Your Policy</title>
+  <meta name="description" content="Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions…">
+  <meta property="og:title" content="AWS IAM Policy Risk Check — free, private, paste-the-policy">
+  <meta property="og:description" content="Admin wildcards, privilege escalation and public principals in one IAM policy. Nothing is uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AWS IAM Policy Risk Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste an AWS IAM policy, trust policy or bucket policy and see over-broad grants, privilege-escalation paths and public principals, each with a fix to review. Runs in your browser; nothing is uploaded and no AWS credentials are used.", "featureList": "Admin wildcard detection, privilege escalation actions, NotAction and NotResource, public principal detection, secret read scope, cross-account trust"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a policy with Action * and Resource * really that dangerous?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is full administrator access: the holder can read every secret, delete every resource, turn off CloudTrail and create new admin users. It is fine for a break-glass human role behind MFA and almost never right for an application, a CI job or a Lambda function."}}, {"@type": "Question", "name": "What is a privilege-escalation path in IAM?", "acceptedAnswer": {"@type": "Answer", "text": "A permission that lets a principal give itself or another identity more access: iam:CreatePolicyVersion, iam:AttachRolePolicy, iam:PutUserPolicy, iam:CreateAccessKey, iam:UpdateAssumeRolePolicy, or iam:PassRole on a wildcard resource. A role that holds one of these on Resource * is effectively an administrator even if it looks narrow."}}, {"@type": "Question", "name": "Why is Allow with NotAction risky?", "acceptedAnswer": {"@type": "Answer", "text": "NotAction with Allow grants every action except the ones listed, including services AWS launches later. It reads like a restriction but works as a very broad grant. Use NotAction in Deny statements instead."}}, {"@type": "Question", "name": "What does Principal * mean in a bucket or trust policy?", "acceptedAnswer": {"@type": "Answer", "text": "It matches every AWS principal on the internet. Without a Condition such as aws:PrincipalOrgID, aws:SourceVpce or aws:SourceArn the resource is public, or the role can be assumed from any account."}}, {"@type": "Question", "name": "Does this tool call AWS or need credentials?", "acceptedAnswer": {"@type": "Answer", "text": "No. You paste the policy JSON and it is checked in your browser. It never sees an account ID you did not paste, and nothing is uploaded."}}, {"@type": "Question", "name": "Does a good score mean the policy is safe?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies a fixed set of rules to the text of one policy. It does not see permission boundaries, SCPs, session policies, resource policies on the other side, or which identities the policy is attached to. Use IAM Access Analyzer and the policy simulator as well."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+      .pill.critical { background: #fbd5d5; color: #7f1d1d; }
+    .score { font-size: 2.4rem; font-weight: 800; color: #1f4a5d; margin: 0; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"AWS IAM Policy Risk Check — free, private, paste-the-policy","item":"https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AWS IAM Policy Risk Check — free, private, paste-the-policy — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">AWS IAM Policy Risk Check — free, private, paste-the-policy</span></span></nav>
+  <header>
+    <p class="note">AWS IAM POLICY RISK CHECK · RUNS IN YOUR BROWSER · NO AWS ACCESS NEEDED</p>
+    <h1>How dangerous is this IAM policy, really?</h1>
+    <p>Paste one <strong>IAM policy, role trust policy or bucket/queue/key policy</strong> as JSON. You get a score, and every <strong>admin wildcard, privilege-escalation action, Allow+NotAction grant and public principal</strong>, each with a fix to review.</p>
+    <p class="note">The text is read in this browser tab. No credentials, no account lookup, no upload.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste the policy</h2>
+    <label for="file">Choose a .json file</label>
+    <input type="file" id="file" accept=".json,application/json">
+    <label for="paste">…or paste the JSON</label>
+    <textarea id="paste" spellcheck="false" placeholder='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}' style="min-height:200px"></textarea>
+    <p>
+      <button type="button" id="analyze">Check policy</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste a policy or choose a file, then click Check policy. The output of <code>aws iam get-policy-version</code> and <code>get-role</code> works as is.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="score" id="score"></p>
+    <p class="stats" id="report-stats"></p>
+    <div id="findings"></div>
+    <p><button type="button" class="secondary" id="download">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What it checks, and what it leaves out</h2>
+    <ul>
+      <li><strong>Admin</strong> — <code>Action "*"</code> on <code>Resource "*"</code>.</li>
+      <li><strong>Escalation</strong> — actions that let a principal grant itself more (policy attach/put/version, access keys, login profiles, trust-policy edits, <code>iam:PassRole</code>, <code>sts:AssumeRole</code>), including wildcards that expand to them.</li>
+      <li><strong>Wildcards</strong> — whole-service <code>svc:*</code>, <code>Allow</code> with <code>NotAction</code> or <code>NotResource</code>, write actions on <code>Resource "*"</code>.</li>
+      <li><strong>Secrets</strong> — secret, parameter, key and object reads on every resource.</li>
+      <li><strong>Principals</strong> — <code>Principal "*"</code> with or without a Condition, and whole other accounts trusted with no Condition.</li>
+      <li><strong>Reconciles.</strong> The severity counts add up to the findings listed, and the score is 100 minus 25 per critical, 10 per high, 4 per medium.</li>
+      <li><strong>Not modelled:</strong> permission boundaries, SCPs, session policies, what the policy is attached to, whether Conditions are actually safe, and actions that do not support resource-level permissions. Use IAM Access Analyzer as well.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a policy with Action * and Resource * really that dangerous?</h3>
+    <p>Yes. It is full administrator access: the holder can read every secret, delete every resource, turn off CloudTrail and create new admin users. It is fine for a break-glass human role behind MFA and almost never right for an application, a CI job or a Lambda function.</p>
+    <h3>What is a privilege-escalation path in IAM?</h3>
+    <p>A permission that lets a principal give itself or another identity more access: iam:CreatePolicyVersion, iam:AttachRolePolicy, iam:PutUserPolicy, iam:CreateAccessKey, iam:UpdateAssumeRolePolicy, or iam:PassRole on a wildcard resource. A role that holds one of these on Resource * is effectively an administrator even if it looks narrow.</p>
+    <h3>Why is Allow with NotAction risky?</h3>
+    <p>NotAction with Allow grants every action except the ones listed, including services AWS launches later. It reads like a restriction but works as a very broad grant. Use NotAction in Deny statements instead.</p>
+    <h3>What does Principal * mean in a bucket or trust policy?</h3>
+    <p>It matches every AWS principal on the internet. Without a Condition such as aws:PrincipalOrgID, aws:SourceVpce or aws:SourceArn the resource is public, or the role can be assumed from any account.</p>
+    <h3>Does this tool call AWS or need credentials?</h3>
+    <p>No. You paste the policy JSON and it is checked in your browser. It never sees an account ID you did not paste, and nothing is uploaded.</p>
+    <h3>Does a good score mean the policy is safe?</h3>
+    <p>No. It applies a fixed set of rules to the text of one policy. It does not see permission boundaries, SCPs, session policies, resource policies on the other side, or which identities the policy is attached to. Use IAM Access Analyzer and the policy simulator as well.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It is not a security audit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any change you make to your AWS account. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your policy is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>policy_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with or endorsed by Amazon Web Services. “AWS” and “IAM” are trademarks of their respective owners. Also see the <a href="../s3-bucket-exposure-check/">S3 bucket exposure check</a> and the <a href="../terraform-plan-blast-radius-check/">Terraform plan blast-radius check</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePolicies, analyze, sampleText, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = [];
+
+    function run(text) {
+      const p = parsePolicies(text);
+      if (p.error) { status.textContent = p.error; report.hidden = true; return false; }
+      const r = analyze(p.policies, { chars: p.chars });
+      last = r.findings;
+      const s = r.summary, b = s.bySeverity;
+      $("#score").textContent = `${s.score}/100 · grade ${s.grade}`;
+      $("#report-stats").textContent = `${s.statements} statements (${s.allow} allow, ${s.deny} deny) in ${s.policies} policy document(s): ${b.critical} critical, ${b.high} high, ${b.medium} medium, ${b.info} info.`;
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.sid)}: ${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Fix:</strong> ${esc(f.fix)}</p></div>`).join("") || "<p>No findings. That is not proof the policy is safe; see what is not modelled below.</p>";
+      report.hidden = false;
+      status.textContent = `Read ${s.statements} statement(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste a policy or choose a file first."; return; }
+      if (run(text)) record("policy_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleText();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic deploy-role policy."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = []; status.textContent = "Paste a policy or choose a file, then click Check policy."; });
+    $("#download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "iam-policy-findings.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../k8s-resource-limits-check/" data-pf-to="k8s-resource-limits-check">Will this container take down its whole node?</a></li>
+      <li><a href="../k8s-rollout-safety-check/" data-pf-to="k8s-rollout-safety-check">Will your Kubernetes rollout drop live requests?</a></li>
+      <li><a href="../lambda-memory-rightsizer/" data-pf-to="lambda-memory-rightsizer">Is your Lambda memory setting costing you money?</a></li>
+      <li><a href="../lambda-vs-fargate-cost-breakeven/" data-pf-to="lambda-vs-fargate-cost-breakeven">Lambda or Fargate? Find your cost break-even</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=aws-iam-policy-risk-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/?pfEmbed=1&quot; title=&quot;AWS IAM Policy Risk Check — free, private, paste-the-policy — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="aws-iam-policy-risk-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/" data-pf-embed-title="AWS IAM Policy Risk Check — free, private, paste-the-policy" data-pf-embed-slug="aws-iam-policy-risk-check"></script>
+</body>
+</html>

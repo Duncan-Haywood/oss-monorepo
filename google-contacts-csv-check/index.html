@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Google Contacts CSV Check — Find Import Errors Before You Upload</title>
+  <meta name="description" content="Free Google Contacts CSV checker: finds headings Google skips, emails and phone numbers that will not import, impossible birthdays…">
+  <meta property="og:title" content="Google Contacts CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks or duplicates a Google Contacts import, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Google Contacts CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Google Contacts CSV file for unrecognised headings, mixed layouts, malformed emails and phone numbers, impossible birthdays, rows with no name, email or phone, duplicate rows and shared emails, and Excel damage before it is imported, applies safe fixes and splits big files. Runs entirely in your browser; the file is never uploaded.", "featureList": "Google Contacts CSV validator, heading spelling fixer, multiple email separator checker, scientific notation phone number finder, duplicate contact finder, birthday format checker, semicolon CSV fix, file splitter"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my Google Contacts CSV import fail or come in blank?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are headings Google does not recognise (Email 1 - Value instead of E-mail 1 - Value, so the whole column is skipped), a semicolon-separated file from Excel, several emails in one cell separated by commas instead of Google's three-colon separator, rows with no name, email or phone, and an Excel save that turned phone numbers into scientific notation. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "How do I check a Google Contacts CSV before importing it?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the file or drop it onto this page. It reads the headings against the Google Contacts layouts, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded."}}, {"@type": "Question", "name": "How do I put two emails or phone numbers in one Google Contacts cell?", "acceptedAnswer": {"@type": "Answer", "text": "Separate the values with space, three colons, space ( ::: ) inside one cell; that is how Google's own export writes them. A comma or semicolon makes Google read one broken address. This tool flags the cell and does not guess how to split it."}}, {"@type": "Question", "name": "Why did Google Contacts create duplicates when I imported?", "acceptedAnswer": {"@type": "Answer", "text": "Google imports each row as its own contact and does not merge on import, so two rows for the same person, or an import of people you already have, give you duplicates until you run Merge & fix. This tool lists rows that share an email address and exact copies of a row, and Apply safe fixes removes the exact copies."}}, {"@type": "Question", "name": "Why did my phone numbers turn into 4.41175E+11?", "acceptedAnswer": {"@type": "Answer", "text": "Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: the separator, Google heading spelling, stray spaces around a cell, a mailto: prefix on an email, a tel: prefix on a phone, blank rows and exact duplicate rows. It never edits the letters of a name, a note or an address, or the digits of a phone number, and it never merges two people."}}, {"@type": "Question", "name": "Is it safe to put my contacts into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. A contacts file is personal data about other people, so your own policies still decide what you may open in a browser."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether Google will accept the file today, whether a contact already exists in your account, whether a label or group exists, and anything Google changes in its importer. A clean result is not a promise of success: import a handful of contacts first."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Google Contacts CSV Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Google Contacts CSV Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Google Contacts CSV Check — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">GOOGLE CONTACTS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my Google Contacts import fail?</h1>
+    <p>Paste or drop your <strong>contacts CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>headings Google silently skips</strong> (Email 1 - Value instead of E-mail 1 - Value), an <strong>email cell holding two addresses the wrong way</strong>, phone numbers Excel turned into <code>4.41175E+11</code>, <strong>rows that would import as the same person twice</strong>, and a birthday of 30 February. Then download a cleaned copy.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Google. Column names and rules are read from memory of Google Contacts' public CSV format and help pages, both the current layout and the older one; no Google import was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your contacts CSV</h2>
+    <p class="note">A Google Contacts export, a file from Outlook, a phone or a CRM, or a spreadsheet you built, saved as CSV.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="First Name,Last Name,E-mail 1 - Value,Phone 1 - Value,..."></textarea>
+    <div class="grid">
+      <div><label for="splitsize">If you split the file, contacts per part</label>
+        <input type="number" id="splitsize" value="1000" min="1" step="1" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Contacts</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col">City</th></tr></thead><tbody id="contacts"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button> <button type="button" class="secondary" id="split">Split into parts</button></p>
+    </div>
+    <div id="split-box" hidden>
+      <h3>Split files</h3>
+      <ul id="split-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Two layouts:</strong> the current export (<code>First Name</code>, <code>Last Name</code>, <code>Labels</code>, <code>E-mail 1 - Value</code>) and the older one (<code>Given Name</code>, <code>Family Name</code>, <code>Group Membership</code>, <code>E-mail 1 - Type</code>). Numbered groups (E-mail, Phone, Address, Website, Custom Field and others) are matched by number.</li>
+      <li><strong>Headings are matched by name:</strong> a heading Google does not recognise is skipped along with its whole column. Spelling and case variants such as <code>Email 1 - Value</code> are restored by safe fixes.</li>
+      <li><strong>Several values in a cell:</strong> Google joins them with <code> ::: </code>. Commas and semicolons inside an email cell are an error.</li>
+      <li><strong>Something to build a contact from:</strong> a row with no name, email, phone or organization is flagged; a completely blank row is removed by safe fixes.</li>
+      <li><strong>Duplicates:</strong> Google imports every row as a new contact. Exact copies and rows sharing an email are reported, and exact copies are removed by safe fixes. Two people are never merged for you.</li>
+      <li><strong>Excel damage:</strong> phone numbers and postal codes in scientific notation are unrecoverable and flagged; ZIP codes and phone numbers that lost a leading zero are flagged but never rewritten, because the tool cannot know the original.</li>
+      <li><strong>Birthdays:</strong> year-month-day or <code>--MM-DD</code>, and a real calendar date. A month/day/year date is flagged, not rewritten, because 03/04 is ambiguous.</li>
+      <li><strong>Safe fixes</strong> change only the separator, heading spelling, stray spaces around a cell, a mailto: or tel: prefix, blank rows and exact duplicate rows. It never edits the letters of a name, a note or an address, or the digits of a phone number.</li>
+      <li><strong>Not checked:</strong> that Google will accept the file today, that a contact already exists in your account, that labels or groups exist, and anything Google changes in its importer. Import a handful first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my Google Contacts CSV import fail or come in blank?</h3>
+    <p>The usual causes are headings Google does not recognise (Email 1 - Value instead of E-mail 1 - Value, so the whole column is skipped), a semicolon-separated file from Excel, several emails in one cell separated by commas instead of Google's three-colon separator, rows with no name, email or phone, and an Excel save that turned phone numbers into scientific notation. This tool tests each of them and names the line.</p>
+    <h3>How do I check a Google Contacts CSV before importing it?</h3>
+    <p>Paste the file or drop it onto this page. It reads the headings against the Google Contacts layouts, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded.</p>
+    <h3>How do I put two emails or phone numbers in one Google Contacts cell?</h3>
+    <p>Separate the values with space, three colons, space ( ::: ) inside one cell; that is how Google's own export writes them. A comma or semicolon makes Google read one broken address. This tool flags the cell and does not guess how to split it.</p>
+    <h3>Why did Google Contacts create duplicates when I imported?</h3>
+    <p>Google imports each row as its own contact and does not merge on import, so two rows for the same person, or an import of people you already have, give you duplicates until you run Merge & fix. This tool lists rows that share an email address and exact copies of a row, and Apply safe fixes removes the exact copies.</p>
+    <h3>Why did my phone numbers turn into 4.41175E+11?</h3>
+    <p>Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the separator, Google heading spelling, stray spaces around a cell, a mailto: prefix on an email, a tel: prefix on a phone, blank rows and exact duplicate rows. It never edits the letters of a name, a note or an address, or the digits of a phone number, and it never merges two people.</p>
+    <h3>Is it safe to put my contacts into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. A contacts file is personal data about other people, so your own policies still decide what you may open in a browser.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Google will accept the file today, whether a contact already exists in your account, whether a label or group exists, and anything Google changes in its importer. A clean result is not a promise of success: import a handful of contacts first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Google's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before anything is imported into your contacts.</p>
+    <p><strong>Not affiliated with Google.</strong> This tool is independent and is not sponsored, endorsed or connected to Google LLC or any phone, email or CRM vendor. Google and Google Contacts are trademarks of their owner, used here only to say which file format the tool reads. The column list and rules are read from memory of public sources and may be out of date or miss a variant; check them against Google's current export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>file_split</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../vcard-contacts-check/">vCard contacts check</a> does the same for .vcf files from phones and Apple or Outlook contacts, the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> covers a CRM import, and the <a href="../email-list-csv-check/">email list CSV check</a> cleans a mailing list before it goes into an email platform.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, splitContacts, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null, lastText = "";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      lastText = text;
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.contacts} contact${s.contacts === 1 ? "" : "s"}, ${s.withEmail} with an email, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#contacts").innerHTML = s.list.slice(0, 500).map((c) => `<tr><td>${c.line}</td><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${esc(c.city)}</td></tr>`).join("") || `<tr><td colspan="5">No contacts found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#split-box").hidden = true;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses and phone, bank and tax numbers are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.contacts} contact(s).` : `No errors in ${s.contacts} contact(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of file after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#split").addEventListener("click", () => {
+      const split = splitContacts(fixedText || lastText, Number($("#splitsize").value) || 1000);
+      $("#split-box").hidden = false;
+      $("#split-list").innerHTML = split.error ? `<li>${esc(split.error)}</li>` : split.parts.map((p, i) => `<li>${esc(p.name)}: ${p.contacts} contacts <button type="button" class="secondary" data-part="${i}">Download</button></li>`).join("");
+      $("#split-list").onclick = (e) => { const i = e.target.dataset && e.target.dataset.part; if (i !== undefined && split.parts[i]) { record("file_split"); download(split.parts[i].name, split.parts[i].text, "text/csv"); } };
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; lastText = ""; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("google-contacts-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("google-contacts-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../employer-payroll-tax-cost-calculator/" data-pf-to="employer-payroll-tax-cost-calculator">Employer payroll tax and true cost of a hire. Free, private</a></li>
+      <li><a href="../eu-ai-act-risk-checker/" data-pf-to="eu-ai-act-risk-checker">EU AI Act risk checker: is your AI system high-risk? Free, private</a></li>
+      <li><a href="../eu-battery-regulation-checker/" data-pf-to="eu-battery-regulation-checker">EU Battery Regulation checker: which duties apply to your battery and by when? Free, private</a></li>
+      <li><a href="../eu-csrd-scope-checker/" data-pf-to="eu-csrd-scope-checker">CSRD scope checker: original vs Omnibus thresholds. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=google-contacts-csv-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/?pfEmbed=1&quot; title=&quot;Google Contacts CSV Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="google-contacts-csv-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/" data-pf-embed-title="Google Contacts CSV Check — free, private, in your browser" data-pf-embed-slug="google-contacts-csv-check"></script>
+</body>
+</html>

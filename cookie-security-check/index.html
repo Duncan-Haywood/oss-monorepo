@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cookie Security Checker — SameSite=None, __Host-/__Secure- prefixes</title>
+<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cookie Security Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on SameSite=None without Secure, broken __Host-/__Secure- prefix cookies…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cookie Security Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual probing",
+  "description": "Sends a real GET request to a target URL and classifies the response's Set-Cookie headers into named misconfiguration patterns: SameSite=None missing Secure (rejected outright by current browsers), a __Host-/__Secure- prefixed cookie that violates the attribute rules those prefixes require (also a silent rejection), a missing Secure attribute, a missing HttpOnly attribute, and no SameSite attribute at all.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends 1 real HTTP request to a target URL you choose",
+    "Reads Set-Cookie as Node's own already-split header array, never joined and re-split on commas (which breaks on the comma inside an Expires date)",
+    "Flags SameSite=None without Secure, which Chrome, Firefox, and Safari reject outright rather than merely weaken",
+    "Flags a __Host- or __Secure- prefixed cookie that violates the attribute rules the prefix requires, which browsers silently refuse to store",
+    "Flags a missing Secure attribute on an HTTPS response",
+    "Flags a missing HttpOnly attribute",
+    "Flags a missing SameSite attribute",
+    "CLI makes the actual request; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What actually happens if a cookie is SameSite=None without Secure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The browser refuses to set the cookie at all. SameSite=None is how a site opts in to a cookie being sent on cross-site requests -- embedded widgets, cross-site payment flows, federated login -- and the current SameSite specification requires Secure alongside it. Chrome, Firefox, and Safari all enforce that requirement by rejecting the Set-Cookie header outright when Secure is missing, so the failure mode is not a weaker cookie -- the feature the cookie exists for (an embed staying logged in, a cross-site checkout remembering its session) simply breaks, silently, with no error visible to the person who hit it." }
+    },
+    {
+      "@type": "Question",
+      "name": "What do the __Host- and __Secure- cookie name prefixes actually enforce?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They are a browser-enforced contract on the cookie's own name, not just documentation. A cookie named __Secure-... must carry the Secure attribute or the browser refuses to store it. A cookie named __Host-... must carry Secure, must not carry a Domain attribute, and must have Path=/ -- again, violate any one of those and the browser refuses to store it. The prefixes exist so that a server can guarantee, just by checking the incoming cookie's name, that it could only have been set by the same secure origin -- a guarantee that is worthless if this portfolio's tool (or any other) only checked the prefix looked right and not that every rule behind it was actually met." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a missing Secure or HttpOnly attribute only a notice, not a danger finding?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because whether it matters depends on context this tool cannot see from response headers alone. A missing Secure attribute widens exposure to anyone who can observe a future plain-HTTP request to the same host; a missing HttpOnly attribute widens the blast radius of any XSS bug the site might have. Both are real, worth fixing, and reported -- but neither is an unconditional fact about what the browser will do the way SameSite=None-without-Secure and a broken __Host-/__Secure- prefix are, which this tool reserves 'danger' for." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can't Set-Cookie headers just be joined into one string and split on commas like other headers?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because a comma can appear inside a single Set-Cookie header's own value -- the Expires attribute's date format is \"Expires=Wed, 21 Oct 2026 07:28:00 GMT\", comma included. Node's http and https clients already know this and expose set-cookie as an array of the individual raw header values rather than folding repeated headers into one comma-joined string the way they do for every other header name. This tool reads that array directly; a naive implementation that reused the comma-join-then-split pattern used for ordinary headers would silently corrupt any cookie carrying an Expires date." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the site's cookies have no security issues?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, well-documented set of Set-Cookie attribute patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (response security headers like CSP and X-Frame-Options are out of scope here -- see security-headers-check for those). Treat a clean report as evidence about these specific patterns, not a determination that the site's cookies are secure." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cookie Security Checker","item":"https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cookie Security Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cookie Security Checker</span></span></nav>
+<h1>Cookie Security Checker</h1>
+<p>
+  Sends one real HTTP GET request to a URL you choose and classifies the response's Set-Cookie
+  headers into well-documented misconfiguration patterns: <strong>SameSite=None missing Secure</strong>
+  (rejected outright by current browsers, not just weakened), a <strong>__Host-/__Secure- prefixed
+  cookie</strong> that violates the attribute rules those prefixes require (also silently rejected),
+  plus notices for a <strong>missing Secure</strong> attribute, a <strong>missing HttpOnly</strong>
+  attribute, and <strong>no SameSite</strong> attribute at all. Only point it at a system you own or
+  are authorised to test.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your site</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://example.com --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/cookie-security-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass; nothing goes
+    through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "protocol": "https:", "setCookie": [...]}}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (vulnerable)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Raw Set-Cookie headers</h3>
+  <div class="pf-table-scroll"><table id="cookie-table"><tbody></tbody></table></div>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What actually happens if a cookie is SameSite=None without Secure?</h3>
+  <p>The browser refuses to set the cookie at all. SameSite=None is how a site opts in to a cookie being sent on cross-site requests -- embedded widgets, cross-site payment flows, federated login -- and the current SameSite specification requires Secure alongside it. Chrome, Firefox, and Safari all enforce that requirement by rejecting the Set-Cookie header outright when Secure is missing, so the failure mode is not a weaker cookie -- the feature the cookie exists for (an embed staying logged in, a cross-site checkout remembering its session) simply breaks, silently, with no error visible to the person who hit it. More background: <a href="samesite-none-cookie-rejected.html">why a SameSite=None cookie disappears instead of just weakening</a>.</p>
+  <h3>What do the __Host- and __Secure- cookie name prefixes actually enforce?</h3>
+  <p>They are a browser-enforced contract on the cookie's own name, not just documentation. A cookie named __Secure-... must carry the Secure attribute or the browser refuses to store it. A cookie named __Host-... must carry Secure, must not carry a Domain attribute, and must have Path=/ -- again, violate any one of those and the browser refuses to store it. The prefixes exist so that a server can guarantee, just by checking the incoming cookie's name, that it could only have been set by the same secure origin -- a guarantee that is worthless if this portfolio's tool (or any other) only checked the prefix looked right and not that every rule behind it was actually met.</p>
+  <h3>Why is a missing Secure or HttpOnly attribute only a notice, not a danger finding?</h3>
+  <p>Because whether it matters depends on context this tool cannot see from response headers alone. A missing Secure attribute widens exposure to anyone who can observe a future plain-HTTP request to the same host; a missing HttpOnly attribute widens the blast radius of any XSS bug the site might have. Both are real, worth fixing, and reported -- but neither is an unconditional fact about what the browser will do the way SameSite=None-without-Secure and a broken __Host-/__Secure- prefix are, which this tool reserves 'danger' for.</p>
+  <h3>Why can't Set-Cookie headers just be joined into one string and split on commas like other headers?</h3>
+  <p>Because a comma can appear inside a single Set-Cookie header's own value -- the Expires attribute's date format is "Expires=Wed, 21 Oct 2026 07:28:00 GMT", comma included. Node's http and https clients already know this and expose set-cookie as an array of the individual raw header values rather than folding repeated headers into one comma-joined string the way they do for every other header name. This tool reads that array directly; a naive implementation that reused the comma-join-then-split pattern used for ordinary headers would silently corrupt any cookie carrying an Expires date.</p>
+  <h3>Does a clean report mean the site's cookies have no security issues?</h3>
+  <p>No. This checks a specific, well-documented set of Set-Cookie attribute patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (response security headers like CSP and X-Frame-Options are out of scope here -- see <a href="../security-headers-check/">security-headers-check</a> for those). Treat a clean report as evidence about these specific patterns, not a determination that the site's cookies are secure.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), cookieTable: $('#cookie-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://app.example.com/',
+    probe: {
+      ok: true, status: 200, protocol: 'https:',
+      setCookie: [
+        'session=abc123; Path=/; SameSite=None',
+        '__Host-csrf=def456; Domain=app.example.com; Path=/',
+      ],
+    },
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `The probe did not complete: ${report.probe.error} -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else if (report.probe.setCookie.length === 0) {
+      els.verdict.textContent = 'No Set-Cookie header on this response -- nothing to check.';
+    } else {
+      els.verdict.textContent = 'None of the patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidenceHeader)}</p>
+        </div>`).join('');
+
+    const cookies = report.probe.setCookie ?? [];
+    els.cookieTable.innerHTML = cookies.length === 0
+      ? '<tr><td>(no Set-Cookie header)</td></tr>'
+      : cookies.map((raw) => `<tr><td>${escapeHtml(raw)}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || !payload.probe || typeof payload.probe !== 'object') {
+        throw new Error('Expected an object with a "probe" object -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload.probe);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: SameSite=None without Secure, and a broken __Host- prefix cookie.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  Set-Cookie attribute patterns from one response. It is not a full security assessment, does not
+  crawl other pages on the site, and cannot see a pattern it doesn't check for. A clean report
+  describes what this one request found, not a guarantee the site's cookies are secure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the URL you name -- never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day -- no target URLs, no
+  Set-Cookie values, no account, no tracking cookies, no analytics vendor. Turn it off with the
+  checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your site: <a href="../security-headers-check/">Security Headers
+  checker</a> covers Content-Security-Policy and clickjacking headers, and
+  <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> covers a reflected
+  <code>Origin</code> header -- different response-header evidence classes than the Set-Cookie
+  attributes this tool checks. See also: <a href="vs-cookiebot.html">how this differs from
+  Cookiebot</a>, a consent-management platform that answers a different question (what is each
+  cookie for) than the security-attribute question this tool checks, and <a
+  href="vs-curl-and-reading-headers-yourself.html">this checker vs. curl -I and reading the
+  headers yourself</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../firebase-rules-check/" data-pf-to="firebase-rules-check">Firebase Security Rules Exposure Checker</a></li>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cookie-security-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/?pfEmbed=1&quot; title=&quot;Cookie Security Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cookie-security-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/" data-pf-embed-title="Cookie Security Checker" data-pf-embed-slug="cookie-security-check"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Class Price and Minimum Optimizer: What to Charge Per Seat — Free</title>
+  <meta name="description" content="Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs…">
+  <meta property="og:title" content="Class price and minimum optimizer">
+  <meta property="og:description" content="What should I charge per seat when a class only runs if enough people sign up? Expected-profit price from your own past terms. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Class Price and Minimum Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the class price with the highest expected profit when a class only runs above a minimum enrolment, from your own past price and sign-up figures. Runs in your browser.", "featureList": "Profit-maximising class price, chance the class runs, fitted price elasticity, break-even seats, price sensitivity table, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What price should I charge for a class that only runs if enough people sign up?", "acceptedAnswer": {"@type": "Answer", "text": "Charge the price where the expected profit per class offered is highest. Raising the price lowers sign-ups, which raises the chance the class is cancelled for missing the minimum. The tool fits how sign-ups responded to the prices you tried, then sums the exact chance of every enrolment from zero to capacity and picks the best price."}}, {"@type": "Question", "name": "How does the tool turn past terms into a demand curve?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the price and average sign-ups from each past term. It fits a constant-elasticity curve to those points by least squares on their logarithms. A term that filled the room is marked with a plus and left out of the fit, because the true demand was higher than the seats."}}, {"@type": "Question", "name": "What does the minimum to run change?", "acceptedAnswer": {"@type": "Answer", "text": "A class below the minimum is cancelled, so you earn nothing but also pay no fixed cost. Raising the minimum protects you from running at a loss but cancels more classes. The result shows the chance the class runs at the best price."}}, {"@type": "Question", "name": "Can I trust the fitted elasticity?", "acceptedAnswer": {"@type": "Answer", "text": "Only as far as the data allows. Two prices fit any line exactly, and sign-ups also move with season, teacher and marketing. The tool warns on two-point fits and scattered data, and flags a best price outside the range you have tried."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Check refund, cancellation and consumer rules where you operate with a qualified advisor."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Class price and minimum optimizer","item":"https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Class price and minimum optimizer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Class price and minimum optimizer</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CLASS PRICE AND MINIMUM OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should I charge per seat when a class only runs if enough people sign up?</h1>
+    <p>Enter the price and average sign-ups from your past terms, plus seats, minimum to run and what a class costs you. The tool fits how sign-ups responded to price, sums the exact chance of every enrolment, and shows the price with the highest expected profit per class offered, the chance the class runs, and what it gains over your current price.</p>
+    <p class="note">Arithmetic on figures you type. Not business, accounting or financial advice. The example figures are placeholders, not any school's prices, costs or sign-ups.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your class</h2>
+      <div class="grid">
+        <div><label for="capacity">Seats per class</label><input id="capacity" type="number" step="any" value="0" inputmode="decimal"><p class="note">Room or teacher limit. Extra sign-ups go on a wait-list.</p></div>
+        <div><label for="minToRun">Minimum sign-ups to run the class</label><input id="minToRun" type="number" step="any" value="0" inputmode="decimal"><p class="note">Below this you cancel. Zero means you always run.</p></div>
+        <div><label for="fixedCost">Cost of running one class ($)</label><input id="fixedCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Instructor pay, room and anything paid whether 3 or 12 students show.</p></div>
+        <div><label for="varCost">Extra cost per student ($)</label><input id="varCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Materials, books or payment fees for each enrolled student.</p></div>
+        <div><label for="currentPrice">Your current price per student ($)</label><input id="currentPrice" type="number" step="any" value="0" inputmode="decimal"><p class="note">Optional. Shows what the best price gains over it.</p></div>
+        <div><label for="elasticity">Price elasticity, if you know it</label><input id="elasticity" type="number" step="any" value="0" inputmode="decimal"><p class="note">Leave at 0 to fit it from the past terms below. 1.5 means a 10% price rise loses about 15% of sign-ups.</p></div>
+        <div><label for="classesPerMonth">Classes you offer per month</label><input id="classesPerMonth" type="number" step="any" value="0" inputmode="decimal"><p class="note">Used only to turn a per-class gain into a monthly one.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Past terms</h2>
+      <div class="grid">
+        <div><label for="points">Price and average sign-ups, one pair per term</label><input id="points" type="text" value=""><p class="note">Write price:signups separated by spaces, like 140:10 170:7.5. Put + after a term that filled the room and had a wait-list, like 110:13+, because real demand was higher.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best price</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Needs at least two different prices that did not fill the room, or an elasticity you enter above.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions owners ask</h2>
+      <h3>What price should I charge for a class that only runs if enough people sign up?</h3>
+      <p>Charge the price where the expected profit per class offered is highest. Raising the price lowers sign-ups, which raises the chance the class is cancelled for missing the minimum. The tool fits how sign-ups responded to the prices you tried, then sums the exact chance of every enrolment from zero to capacity and picks the best price.</p>
+      <h3>How does the tool turn past terms into a demand curve?</h3>
+      <p>Enter the price and average sign-ups from each past term. It fits a constant-elasticity curve to those points by least squares on their logarithms. A term that filled the room is marked with a plus and left out of the fit, because the true demand was higher than the seats.</p>
+      <h3>What does the minimum to run change?</h3>
+      <p>A class below the minimum is cancelled, so you earn nothing but also pay no fixed cost. Raising the minimum protects you from running at a loss but cancels more classes. The result shows the chance the class runs at the best price.</p>
+      <h3>Can I trust the fitted elasticity?</h3>
+      <p>Only as far as the data allows. Two prices fit any line exactly, and sign-ups also move with season, teacher and marketing. The tool warns on two-point fits and scattered data, and flags a best price outside the range you have tried.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Check refund, cancellation and consumer rules where you operate with a qualified advisor.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Season and weekday effects, teacher reputation, marketing spend, repeat students who enrol again regardless of price, bundle and sibling discounts, refund and cancellation rules, and whether a lower price today trains customers to wait for discounts. Sign-ups are treated as independent draws whose average depends only on price.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a>, the <a href="../tutor-package-pricing-calculator/">tutor package pricing calculator</a> and the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_PRICES, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; $("points").value = EXAMPLE_PRICES; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    const pct = (n) => Math.round(n * 100) + "%";
+    let last = null;
+    function run() {
+      const shared = {}; for (const k of KEYS) shared[k] = $(k).value;
+      const a = analyze($("points").value, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const b = a.best;
+      h += `<div class="finding"><h4>Best price: ${money2(b.price)} per seat, ${money(b.profit)} expected profit per class offered</h4><p>At that price you expect about ${one(b.lambda)} sign-ups on average. The class runs ${pct(b.pRun)} of the time, fills the room ${pct(b.pFull)} of the time, and needs ${Number.isFinite(b.breakEvenSeats) ? one(b.breakEvenSeats) : "more than any"} paying seats to cover its cost. About ${money(a.monthProfit)} a month at ${one(a.shared.classesPerMonth)} classes.</p></div>`;
+      if (a.current) {
+        const c = a.current;
+        h += `<div class="finding"><h4>Against your current ${money2(c.price)}</h4><p>Expected profit per class is ${money(c.profit)} (runs ${pct(c.pRun)} of the time). The best price is ${a.gain > 0.5 ? money(a.gain) + " better per class, about " + money(a.monthGain) + " a month" : "no better"}.</p></div>`;
+      }
+      h += `<div class="finding"><h4>Fitted demand</h4><p>Elasticity ${a.model.elasticity.toFixed(2)}${a.model.assumed ? " (the one you entered)" : " over " + a.model.n + " unfilled terms, R-squared " + a.model.r2.toFixed(2)}: a 10% price rise loses about ${one(a.model.elasticity * 10)}% of sign-ups.</p></div>`;
+      h += `<div class="finding"><h4>Around the best price</h4>${table(["Price", "Mean sign-ups", "Class runs", "Fills room", "Expected profit"], a.table.map((r) => [money2(r.price), one(r.lambda), pct(r.pRun), pct(r.pFull), money(r.profit)]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "class-price.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freelance-editor-quote-calculator/" data-pf-to="freelance-editor-quote-calculator">Editing quote calculator: price a proofread, copyedit or developmental edit. Free, private</a></li>
+      <li><a href="../freelance-writer-rate-calculator/" data-pf-to="freelance-writer-rate-calculator">Freelance Writer Rate Calculator — per-word vs. flat fee, free</a></li>
+      <li><a href="../freelancer-tax-pack/" data-pf-to="freelancer-tax-pack">Freelancer Tax Pack — free, private, 2026</a></li>
+      <li><a href="../funeral-price-list-checker/" data-pf-to="funeral-price-list-checker">Funeral price list checker: what is required, what is your choice</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=class-price-and-minimum-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/?pfEmbed=1&quot; title=&quot;Class price and minimum optimizer — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="class-price-and-minimum-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/" data-pf-embed-title="Class price and minimum optimizer" data-pf-embed-slug="class-price-and-minimum-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="class-price-and-minimum-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="class-price-and-minimum-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

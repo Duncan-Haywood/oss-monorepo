@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. changedetection.io | Vendor Change Watch</title>
+<meta name="description" content="changedetection.io is a general-purpose, open-source webpage change monitor you point at any URL.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/vs-changedetection-io.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. changedetection.io">
+<meta property="og:description" content="Two different shapes: changedetection.io watches any URL for any kind of change. This tool watches the vendor pages you choose and reports a source-linked diff…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/vs-changedetection-io.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or changedetection.io?","acceptedAnswer":{"@type":"Answer","text":"They overlap but aim at different jobs. changedetection.io is a general-purpose, open-source webpage change monitor: point it at any URL — a product page, a stock listing, a news page, a vendor's terms — and it watches for changes, with a browser extension, visual element selection, and a wide range of notification integrations (email, Slack, Discord, webhooks, and more). It is self-hosted (or run as a paid hosted service) and built to watch many kinds of pages for many kinds of teams. Vendor Change Watch is narrower on purpose: it watches only the vendor pages a security, procurement, or privacy practitioner already tracks by hand (terms, privacy policy, subprocessor list, security page), reports a source-linked, section-by-section, word-level diff, and uses a status vocabulary — observed, inconclusive, unknown — that a failed or blocked fetch can never collapse into “no change.” If you want one tool to watch many kinds of pages with rich notification routing, changedetection.io is the better fit. If you want a free, purpose-built watcher for vendor legal and security pages that a practitioner can also try instantly in the browser with a pasted page, this tool is the narrower, simpler fit."}},{"@type":"Question","name":"Is this page affiliated with changedetection.io?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by changedetection.io or its maintainers. changedetection.io is named here only to describe what this tool is and is not."}},{"@type":"Question","name":"Does changedetection.io have the inconclusive/unknown distinction this tool has?","acceptedAnswer":{"@type":"Answer","text":"Not as a first-class concept in its reporting the way this tool does. changedetection.io is built to alert on detected change across arbitrary pages; this tool's specific design constraint is that a failed, blocked, or mismatched capture must never look like “nothing changed” to a practitioner relying on it for a vendor's legal or security commitments, so it reports inconclusive or unknown separately from a real observed diff. That is a narrower, domain-specific guarantee, not a claim that changedetection.io lacks reliability features generally."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #1f6f8b; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; color: #1c3f5f; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c3f5f10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #1c3f5f; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. changedetection.io — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vendor-change-watch/">See exactly what changed in a vendor's terms</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. changedetection.io</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vendor Change Watch</a></p>
+<header>
+<h1>This tool vs. changedetection.io</h1>
+<p class="lede">Two different shapes: changedetection.io is a general-purpose, open-source webpage change monitor you point at any URL. This tool watches only the vendor legal and security pages a practitioner already tracks by hand, and its status vocabulary &mdash; observed, inconclusive, unknown &mdash; is built so a failed or blocked check can never quietly read as &ldquo;nothing changed.&rdquo;</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>changedetection.io</strong> is a well-known open-source webpage
+  change-detection tool. You give it any URL &mdash; a product page, a price
+  listing, a news page, a vendor's terms, anything &mdash; and it watches for
+  changes, with a browser extension for picking exactly the element on the
+  page to watch, visual/screenshot diffing, and a wide range of notification
+  integrations (email, Slack, Discord, webhooks, and more). It is self-hosted,
+  or available as a paid hosted service for people who do not want to run
+  their own instance. It is built to be one tool that watches many kinds of
+  pages for many kinds of reasons.
+</p>
+<p>
+  This tool does one job on purpose: it watches the vendor pages a security,
+  procurement, or privacy practitioner already cares about &mdash; terms of
+  service, privacy policy, subprocessor list, security page &mdash; and
+  reports a source-linked, section-by-section, word-level diff when the text
+  changes. It shares its diff logic and its exact status vocabulary between
+  the free CLI and a try-it-now browser page: a snapshot that did not capture
+  cleanly is <code>inconclusive</code>, a pair that looks like it describes
+  different pages is <code>unknown</code>, and neither may ever collapse to
+  &ldquo;no change&rdquo; &mdash; a failed check that looks like stability is
+  the one defect this venture exists to avoid. It makes no claim to
+  interpret what a change means; every report carries the source URL and
+  both capture timestamps and leaves the judgment to the practitioner.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want to watch many different kinds of pages (pricing, stock, news, vendor pages) in one tool with rich notification routing.</td><td>changedetection.io &mdash; built as a general-purpose watcher across arbitrary pages.</td></tr>
+<tr><td>I want a purpose-built watcher for vendor terms, privacy, subprocessor, and security pages with a status that never hides a failed check as &ldquo;unchanged.&rdquo;</td><td>This tool &mdash; free, source-linked, and built specifically for that failure mode.</td></tr>
+<tr><td>I want to try a diff instantly, without installing or hosting anything, by pasting a page I already have open.</td><td>This tool's browser page &mdash; paste, come back later, paste again.</td></tr>
+<tr><td>I want a browser extension to visually pick the exact element on a page to watch.</td><td>changedetection.io &mdash; built for that workflow across arbitrary pages.</td></tr>
+<tr><td>I want automated notifications routed to Slack, Discord, email, or a webhook when any watched page changes.</td><td>changedetection.io &mdash; that integration breadth is not this tool's job.</td></tr>
+<tr><td>I want to run scheduled checks on my own machine with no server, no account, and a CLI built around the same diff logic as the browser page.</td><td>This tool's CLI (<code>vendor-watch check</code>) &mdash; local storage under <code>~/.vendor-watch</code>, nothing uploaded.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most practitioners get different value from each: changedetection.io as a
+  broad, general-purpose page monitor with rich alerting when the surface to
+  watch is wide and varied, and a narrow tool like this one when the surface
+  is specifically the vendor legal and security pages a security, procurement,
+  or privacy review already depends on, and a missed or blocked check must
+  never be mistaken for a clean bill of health. Nothing here is a claim that
+  changedetection.io lacks reliability or accuracy &mdash; it is a claim
+  about which tool is built around which failure mode.
+</p>
+<p class="fine">This tool needs no account, no hosting, and no server to try: the comparison page runs entirely in your browser, and the CLI's stored data never leaves your own machine.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or changedetection.io?</h3>
+<p>They overlap but aim at different jobs. changedetection.io is a general-purpose, open-source webpage change monitor: point it at any URL &mdash; a product page, a stock listing, a news page, a vendor's terms &mdash; and it watches for changes, with a browser extension, visual element selection, and a wide range of notification integrations (email, Slack, Discord, webhooks, and more). It is self-hosted (or run as a paid hosted service) and built to watch many kinds of pages for many kinds of teams. Vendor Change Watch is narrower on purpose: it watches only the vendor pages a security, procurement, or privacy practitioner already tracks by hand (terms, privacy policy, subprocessor list, security page), reports a source-linked, section-by-section, word-level diff, and uses a status vocabulary &mdash; observed, inconclusive, unknown &mdash; that a failed or blocked fetch can never collapse into &ldquo;no change.&rdquo; If you want one tool to watch many kinds of pages with rich notification routing, changedetection.io is the better fit. If you want a free, purpose-built watcher for vendor legal and security pages that a practitioner can also try instantly in the browser with a pasted page, this tool is the narrower, simpler fit.</p>
+<h3>Is this page affiliated with changedetection.io?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by changedetection.io or its maintainers. changedetection.io is named here only to describe what this tool is and is not.</p>
+<h3>Does changedetection.io have the inconclusive/unknown distinction this tool has?</h3>
+<p>Not as a first-class concept in its reporting the way this tool does. changedetection.io is built to alert on detected change across arbitrary pages; this tool's specific design constraint is that a failed, blocked, or mismatched capture must never look like &ldquo;nothing changed&rdquo; to a practitioner relying on it for a vendor's legal or security commitments, so it reports inconclusive or unknown separately from a real observed diff. That is a narrower, domain-specific guarantee, not a claim that changedetection.io lacks reliability features generally.</p>
+<p class="note">
+  Open <a href="./">Vendor Change Watch</a> to try your own vendor page.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied. It is not legal, compliance, procurement, or security advice, and it does not replace a qualified professional. It reports what changed in the text of pages you configured; it does not assert that a vendor is or is not compliant with anything. You are responsible for reviewing and verifying its output before relying on it.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live connection to changedetection.io and no live comparison against it &mdash; it is a static page describing publicly documented facts about changedetection.io's product category.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../grant-writer-proposal-price-calculator/" data-pf-to="grant-writer-proposal-price-calculator">Grant Writer Proposal Price Calculator — free</a></li>
+      <li><a href="../gtin-list-check/" data-pf-to="gtin-list-check">GTIN List Check — free, private, in your browser</a></li>
+      <li><a href="../gumroad-sales-to-journal/" data-pf-to="gumroad-sales-to-journal">Gumroad sales export to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../hubspot-contacts-csv-check/" data-pf-to="hubspot-contacts-csv-check">HubSpot Contacts CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-change-watch">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vendor-change-watch"></script>
+</body></html>

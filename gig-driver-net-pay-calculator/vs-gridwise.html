@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. the Gridwise app | Gig Driver Net Pay Calculator</title>
+  <meta name="description" content="How this free, no-account gig-driver net pay calculator differs from the Gridwise app's automatic earnings and mileage tracking. Not affiliated with Gridwise.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/vs-gridwise.html">
+  <meta property="og:title" content="This calculator vs. the Gridwise app | Gig Driver Net Pay Calculator">
+  <meta property="og:description" content="Gridwise auto-tracks pay and mileage across a linked account. This one takes one session's own numbers, right now, with nothing installed and nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or the Gridwise app?","acceptedAnswer":{"@type":"Answer","text":"Both answer different questions. Gridwise is a phone app: you create a driver account, link your Uber, Lyft, DoorDash, or Instacart account so it can auto-import earnings, and it runs background GPS tracking to log mileage over days and weeks, building an ongoing effective-hourly and expense history. This page is a single static form: no account, no download, no linking a gig platform. You type one session's gross pay, miles, hours, gas price, MPG, and a maintenance-per-mile reserve, and it computes that session's net pay per hour and per mile, a self-employment tax reserve, and the gross pay needed to hit a take-home goal — right now, with nothing installed and nothing uploaded."}},{"@type":"Question","name":"Does Gridwise compute the same vehicle-cost breakdown this page does?","acceptedAnswer":{"@type":"Answer","text":"Not the same way. Gridwise's own material describes its effective-hourly figure as gross earnings minus logged mileage and expenses, drawn from its background GPS tracking and whatever expenses a driver has entered in the app — a rolling average built from tracked data, not a single session priced against a specific gas price and MPG you choose. This page asks for your own gas price, MPG, and a maintenance-per-mile reserve for one session, plus monthly insurance and other fixed costs prorated across your typical monthly mileage, so the figure is arithmetic you can check against a fuel receipt and your own odometer for that one session."}},{"@type":"Question","name":"Is Gridwise free?","acceptedAnswer":{"@type":"Answer","text":"The core tracking is free to use, but a driver account is required and deeper analytics sit behind Gridwise Plus, a paid tier that starts with a 14-day trial and then bills automatically unless cancelled. This calculator has no account, no trial, and nothing that bills — it is a free static page with no server behind the numbers you type."}},{"@type":"Question","name":"Is this page affiliated with Gridwise?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Gridwise, Inc. Gridwise is a trademark of its owner, named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5967; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #12233a; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4f5967; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/vs-gridwise.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. the Gridwise app | Gig Driver Net Pay Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../gig-driver-net-pay-calculator/">Gig Driver Net Pay Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. the Gridwise app | Gig Driver Net Pay Calculator</span></span></nav>
+  <p><a href="./">← Gig driver net pay calculator</a></p>
+  <h1>This calculator vs. the Gridwise app</h1>
+  <p>
+    <a href="https://gridwise.io/" rel="nofollow noopener">Gridwise</a> is a
+    phone app built for ongoing tracking: create a driver account, link your
+    Uber, Lyft, DoorDash, Instacart, or other gig-platform account so it can
+    auto-import earnings, and it runs background GPS tracking to log mileage
+    over days and weeks. Its effective-hourly figure is built from that
+    tracked history — gross earnings minus logged mileage and expenses —
+    and deeper analytics sit behind a paid Gridwise Plus tier that starts
+    with a 14-day trial and then bills automatically unless cancelled.
+  </p>
+  <p>
+    That makes Gridwise the right choice for <strong>tracking pay and
+    mileage automatically across every trip, every app, over time</strong>.
+    This page answers a narrower, faster question: <strong>for one session
+    you already have numbers for, right now, what did the car actually
+    cost, and what's really left</strong> — with no account, no install, and
+    nothing uploaded.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What's my average effective hourly rate across weeks of dashes, tracked automatically?</td>
+        <td>Gridwise's linked-account tracking.</td>
+      </tr>
+      <tr>
+        <td>For this one session, what did the car cost at my own gas price and MPG, and what's left per hour and per mile?</td>
+        <td>This calculator — type the session's numbers, get an answer immediately, nothing installed.</td>
+      </tr>
+      <tr>
+        <td>What should I set aside for self-employment tax on this session's profit?</td>
+        <td>This calculator's <a href="./#taxReserve">tax reserve figure</a> — enter your own reserve percentage.</td>
+      </tr>
+      <tr>
+        <td>What gross pay would this session need to hit a take-home goal?</td>
+        <td>This calculator's <a href="./#grossPayNeeded">target take-home solver</a>. Gridwise's public materials describe forward tracking, not a reverse solver for a take-home goal.</td>
+      </tr>
+      <tr>
+        <td>Can I check the number without creating an account or installing anything?</td>
+        <td>This calculator — a static page, no sign-up, no app store.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Run one session's numbers now</a>
+  <p>
+    This tool needs no account and no gig-platform link: it is a static
+    page, the arithmetic runs in your browser, and your gross pay, miles,
+    and every other figure stay on this device — nothing is uploaded
+    anywhere, and a shareable link carries your inputs after the
+    <code>#</code> in the URL rather than on a server.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or the Gridwise app?</h3>
+  <p>Both answer different questions. Gridwise is a phone app: you create a driver account, link your Uber, Lyft, DoorDash, or Instacart account so it can auto-import earnings, and it runs background GPS tracking to log mileage over days and weeks, building an ongoing effective-hourly and expense history. This page is a single static form: no account, no download, no linking a gig platform. You type one session's gross pay, miles, hours, gas price, MPG, and a maintenance-per-mile reserve, and it computes that session's net pay per hour and per mile, a self-employment tax reserve, and the gross pay needed to hit a take-home goal — right now, with nothing installed and nothing uploaded.</p>
+  <h3>Does Gridwise compute the same vehicle-cost breakdown this page does?</h3>
+  <p>Not the same way. Gridwise's own material describes its effective-hourly figure as gross earnings minus logged mileage and expenses, drawn from its background GPS tracking and whatever expenses a driver has entered in the app — a rolling average built from tracked data, not a single session priced against a specific gas price and MPG you choose. This page asks for your own gas price, MPG, and a maintenance-per-mile reserve for one session, plus monthly insurance and other fixed costs prorated across your typical monthly mileage, so the figure is arithmetic you can check against a fuel receipt and your own odometer for that one session.</p>
+  <h3>Is Gridwise free?</h3>
+  <p>The core tracking is free to use, but a driver account is required and deeper analytics sit behind Gridwise Plus, a paid tier that starts with a 14-day trial and then bills automatically unless cancelled. This calculator has no account, no trial, and nothing that bills — it is a free static page with no server behind the numbers you type.</p>
+  <h3>Is this page affiliated with Gridwise?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Gridwise, Inc. Gridwise is a trademark of its owner, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./how-much-should-i-set-aside-for-gig-driving-taxes.html">How much should I set aside for gig driving taxes?</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../installment-sale-tax-calculator/" data-pf-to="installment-sale-tax-calculator">Installment sale tax calculator: what do you owe each year on a seller-financed sale? Free, private</a></li>
+      <li><a href="../invoice-maker/" data-pf-to="invoice-maker">Invoice Maker — free invoice generator, no signup</a></li>
+      <li><a href="../mileage-deduction-calculator/" data-pf-to="mileage-deduction-calculator">Mileage Deduction Calculator — free, 2026</a></li>
+      <li><a href="../mobile-home-park-valuation-calculator/" data-pf-to="mobile-home-park-valuation-calculator">What is a mobile home park worth, and what is a lot rent increase worth? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=gig-driver-net-pay-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="gig-driver-net-pay-calculator"></script>
+</body>
+</html>

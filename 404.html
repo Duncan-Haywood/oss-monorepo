@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
+  <!-- GitHub Pages serves this body under every mistyped path, each of which is
+       a distinct URL a crawler may have followed from a stale link. Without
+       this they index as hundreds of duplicate "That page isn't here" pages
+       under the site's own name. offline.html already carries the same tag. -->
+  <meta name="robots" content="noindex">
+  <title>Not found</title>
+  <link rel="stylesheet" href="https://duncan-haywood.github.io/monorepo-projects/pf-site.css">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #1d2530; background: #eef2f7; }
+    .nf { max-width: 40rem; margin: 10vh auto; padding: 0 1.2rem; }
+    a { color: #12594a; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e8eef5; background: #10151c; } a { color: #7fd8c0; }
+    }
+  </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <!-- Absolute links throughout: GitHub Pages serves this file under whatever
+       path was mistyped, so a relative link would resolve against that. -->
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="https://duncan-haywood.github.io/monorepo-projects/" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="https://duncan-haywood.github.io/monorepo-projects/c/">Tools</a><a data-pfs-nav="research" href="https://duncan-haywood.github.io/monorepo-projects/research/">Research</a><a data-pfs-nav="writing" href="https://duncan-haywood.github.io/monorepo-projects/writing/">Writing</a><a data-pfs-nav="deploy" href="https://duncan-haywood.github.io/monorepo-projects/deploy/">Deploy your own</a><a data-pfs-nav="about" href="https://duncan-haywood.github.io/monorepo-projects/about/">About</a></span><a class="pfs-searchlink pfs-always" href="https://duncan-haywood.github.io/monorepo-projects/#search">Search</a></span></nav>
+  <main class="nf">
+  <h1>That page isn't here</h1>
+  <p>The tool may have moved, or the link may be mistyped.</p>
+  <p><a href="https://duncan-haywood.github.io/monorepo-projects/#search">Search every tool</a> or <a href="https://duncan-haywood.github.io/monorepo-projects/c/">browse them by category →</a></p>
+  </main>
+</body>
+</html>

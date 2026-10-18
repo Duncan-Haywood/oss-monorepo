@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Good, Better and Best HVAC Repairs</title>
+  <meta name="description" content="A worked HVAC price-book example: $113 a billable hour, a $265 diagnostic fee, Good, Better and Best repair prices of $745, $1,480 and $8,890…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/how-to-price-hvac-good-better-best-repairs.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price Good, Better and Best HVAC repair options?","acceptedAnswer":{"@type":"Answer","text":"Price each option the same way: your true cost per billable hour times its hours including the drive, divided by one minus your target margin, plus parts or equipment at a tiered markup, grossed up for a callback reserve and rounded up. On the default numbers that gives $745.00 for Good, $1,480.00 for Better and $8,890.00 for Best."}},{"@type":"Question","name":"Why does the Best option earn the lowest margin percentage?","acceptedAnswer":{"@type":"Answer","text":"Because most of its price is equipment, which carries the lowest markup tier. On the defaults Best leaves $2,434.55, the most dollars of the three, at a margin of 27.4%, while Good leaves $288.40 at 38.7%. Judge an option by the dollars and the hours it ties up as well as the percentage."}},{"@type":"Question","name":"What should an HVAC diagnostic fee cover?","acceptedAnswer":{"@type":"Answer","text":"At least the drive and the time on site to find the fault, at true cost and your margin. On the defaults that is 1.5 hours, $169.50 of cost and a $265.00 fee, which many shops credit against the repair the customer approves."}},{"@type":"Question","name":"Is this advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 24px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    a { color: #1a4560; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/how-to-price-hvac-good-better-best-repairs.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Price Good, Better and Best HVAC Repairs">
+<meta property="og:description" content="A worked HVAC price-book example: $113 a billable hour, a $265 diagnostic fee, Good, Better and Best repair prices of $745, $1,480 and $8,890…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Price Good, Better and Best HVAC Repairs — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hvac-repair-tier-price-calculator/">What should Good, Better and Best HVAC repair options cost?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Price Good, Better and Best HVAC Repairs</span></span></nav>
+  <p class="note"><a href="./">HVAC Repair Price Calculator</a> · guide</p>
+  <h1>How to price Good, Better and Best HVAC repairs: true hourly cost, tiered markup and the mix of choices</h1>
+  <p>Short answer: <strong>work out what one billable hour truly costs you, price three options for the same fault from that, and then check what an average call earns at the mix of options your customers actually choose.</strong> The <a href="./">calculator</a> does it with your own numbers and builds a price book you can export as CSV.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not business, tax, legal or licensing advice. Costs, prices and rules belong to your shop and your area. No warranty.</p>
+
+  <h2>Step 1: your true cost per billable hour</h2>
+  <p>A technician paid $36 an hour with 25 percent burden costs <strong>$45.00</strong> an hour loaded, or $93,600.00 over 2,080 paid hours. Only 1,200 of those hours are sold; the rest is driving between calls, supply-house runs, callbacks and paperwork, so each billable hour carries <strong>$78.00</strong> of wages. Add $17,000 for the van, $7,000 of insurance, $5,000 of gauges and tools and $13,000 of phone, software, licence, EPA certification and marketing: $42,000.00 a year, or <strong>$35.00</strong> per billable hour. The true cost is <strong>$113.00</strong> an hour.</p>
+  <p>If you count every paid hour as billable, the same shop looks like <strong>$65.19</strong> an hour and the Good repair below prices at $575.00 instead of $745.00; at 1,000 billable hours the cost is <strong>$135.60</strong> and Good needs $825.00.</p>
+
+  <h2>Step 2: price the diagnostic visit</h2>
+  <p>The drive (0.75 hours) plus the diagnosis (0.75 hours) is <strong>1.5</strong> hours, a cost of <strong>$169.50</strong>. At a 35 percent margin that is $260.77, rounded up to a <strong>$265.00</strong> diagnostic fee. If the customer approves any repair, the fee is credited against it, so the Good option is $745.00 on the quote and $480.00 due after the credit.</p>
+
+  <h2>Step 3: three options for the same fault</h2>
+  <p>Each option is 0.75 hours of travel plus its time on site. Parts and equipment are marked up on tiers like tax brackets: 100 percent on the first $100, 60 percent from $100 to $500, 40 percent from $500 to $2,000 and 30 percent above that. A 3 percent callback reserve is built into each price.</p>
+  <ul>
+    <li><strong>Good, repair:</strong> 1.5 hours on site, $180.00 of parts. The time charge is $391.15 and the markup is $148.00, so parts are charged at $328.00. Before the reserve and rounding the price is $741.40, rounded up to <strong>$745.00</strong>. Cost is $434.25, the reserve is $22.35, the profit is <strong>$288.40</strong>, 38.7%.</li>
+    <li><strong>Better, repair plus:</strong> 2.5 hours, $520.00 of parts that include the part likely to fail next. Time charge $565.00, markup $348.00, parts charged at $868.00; price before rounding $1,477.32, shown as <strong>$1,480.00</strong>. The profit is <strong>$548.35</strong>, 37.1%.</li>
+    <li><strong>Best, replace:</strong> 8 hours, $5,200.00 of equipment and materials. Time charge $1,521.15, markup $1,900.00, so equipment is charged at $7,100.00; the price before rounding is $8,887.79, shown as <strong>$8,890.00</strong>. Cost is $6,188.75, the reserve is $266.70 and the profit is <strong>$2,434.55</strong>, 27.4%.</li>
+  </ul>
+
+  <h2>Step 4: what an average call earns</h2>
+  <p>Suppose 20 percent of calls end with the diagnostic fee and nothing else, and of the customers who approve work 50 percent take Good, 35 percent Better and 15 percent Best. An average call tickets <strong>$1,832.20</strong> and earns <strong>$580.14</strong>. If you offered only the Good repair it would earn <strong>$249.82</strong> on a $649.00 ticket, so three options add <strong>$330.32</strong> a call. Each 10 points of approvals that move from Good to Best add <strong>$171.69</strong> a call. Those shares are assumptions: count a month of your own tickets before you trust them.</p>
+
+  <h2>How to measure your own numbers</h2>
+  <ul>
+    <li>Add up a year of van payments, fuel, repairs, insurance, tools, licence, phone, software and marketing from your statements.</li>
+    <li>Count billable hours from invoices, not the calendar: hours invoiced divided by weeks worked.</li>
+    <li>Time ten real calls door to door, including the supply-house run, before you set hours for an option.</li>
+    <li>Check your local licensing, refrigerant-handling and written-estimate rules before you publish a price book.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>How do I price Good, Better and Best HVAC repair options?</h3>
+  <p>Price each option the same way: your true cost per billable hour times its hours including the drive, divided by one minus your target margin, plus parts or equipment at a tiered markup, grossed up for a callback reserve and rounded up. On the default numbers that gives $745.00 for Good, $1,480.00 for Better and $8,890.00 for Best.</p>
+  <h3>Why does the Best option earn the lowest margin percentage?</h3>
+  <p>Because most of its price is equipment, which carries the lowest markup tier. On the defaults Best leaves $2,434.55, the most dollars of the three, at a margin of 27.4%, while Good leaves $288.40 at 38.7%. Judge an option by the dollars and the hours it ties up as well as the percentage.</p>
+  <h3>What should an HVAC diagnostic fee cover?</h3>
+  <p>At least the drive and the time on site to find the fault, at true cost and your margin. On the defaults that is 1.5 hours, $169.50 of cost and a $265.00 fee, which many shops credit against the repair the customer approves.</p>
+  <h3>Is this advice?</h3>
+  <p>No. It is arithmetic on invented numbers; check every figure against your own records. Not business, tax, legal or licensing advice. No warranty.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not business, tax, legal, licensing or mechanical-code advice. Not affiliated with, endorsed by or sponsored by any HVAC trade association, licensing board, equipment manufacturer, supplier or software vendor. You are responsible for verifying anything before relying on it.</p>
+    <p>Free and open source under the MIT licence. Support is optional: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>github.com/sponsors/Duncan-Haywood</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../revenue-target-lead-planner/" data-pf-to="revenue-target-lead-planner">Revenue Target Lead Planner — free, private, in your browser</a></li>
+      <li><a href="../rfp-compliance-matrix/" data-pf-to="rfp-compliance-matrix">RFP Compliance Matrix Generator</a></li>
+      <li><a href="../route-account-pruner/" data-pf-to="route-account-pruner">Route Account Pruner — free, private, in your browser</a></li>
+      <li><a href="../sawmill-custom-sawing-calculator/" data-pf-to="sawmill-custom-sawing-calculator">Sawmill Custom Sawing Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hvac-repair-tier-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hvac-repair-tier-price-calculator"></script>
+</body>
+</html>

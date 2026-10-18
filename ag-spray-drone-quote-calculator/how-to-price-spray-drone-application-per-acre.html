@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Spray Drone Application per Acre — worked example</title>
+  <meta name="description" content="How to price spray drone application per acre: real acres per hour, sortie limits from tank and battery, crew and driving time…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/how-to-price-spray-drone-application-per-acre.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a fair price per acre for drone spraying?","acceptedAnswer":{"@type":"Answer","text":"There is no single fair price: it depends on your cost per acre and the margin you need. Work out drone wear, battery wear, crew time, driving and your share of fixed costs for a typical field, then divide the cost per acre by one minus your target margin. Check the result against what local custom applicators charge, and against your minimum charge for small fields."}},{"@type":"Question","name":"Why is my real acres per hour lower than the spec sheet?","acceptedAnswer":{"@type":"Answer","text":"The spec sheet gives spray-only coverage at full speed. Real jobs add turns and overlap, pump limits when you spray at a high rate, refill and battery swaps between sorties, charging waits when you have few battery sets, setup at the field and driving to it."}},{"@type":"Question","name":"How many battery sets do I need?","acceptedAnswer":{"@type":"Answer","text":"Enough that a battery is charged by the time the crew has refilled the tank. If the charge time plus the flight time, divided by your number of sets, is longer than the flight plus the refill and swap, charging is slowing you down and another set will speed the job up. The calculator names which one applies."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f4f8f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #44573f; }
+    .card { background: #fff; border: 1px solid #cfe0c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a2a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e8a62; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebd5; color: #1f4a2a; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f1e0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a2a; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #cfe0c8; }
+    table.t th { color: #1f4a2a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #a8c99c; border-radius: 12px; padding: 10px 12px; background: #f9fcf7; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #1f4a2a; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0c8; padding-top: 16px; }
+    .ghost { color: #44573f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+      </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/how-to-price-spray-drone-application-per-acre.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Price Spray Drone Application per Acre — worked example">
+<meta property="og:description" content="How to price spray drone application per acre: real acres per hour, sortie limits from tank and battery, crew and driving time…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Price Spray Drone Application per Acre — worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ag-spray-drone-quote-calculator/">Ag Spray Drone Quote Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Price Spray Drone Application per Acre — worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./">Ag spray drone quote calculator</a> · guide</p>
+    <h1>How to price spray drone application per acre</h1>
+    <p>A per-acre price that ignores the tank, the battery, the charger, the drive and the setup will quietly lose money on small fields. Here is the arithmetic for one 80-acre field ten miles from the shop, using the calculator's example drone and costs (24 ft swath, 15 mph, 3.2 gal/min pump, 10.5 gal tank, 2 gal/acre, 3 battery sets, two-person crew). Every number below is recomputed by the calculator's test suite.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. Real coverage, not spec-sheet coverage</h2>
+    <p>Swath times speed gives acres per minute; the coverage efficiency removes turns and overlap. The pump caps the speed, because gallons per minute is the rate times acres per minute. A sortie then ends at the smaller of the tank and the battery, and the crew refills and swaps before the next one, waiting for a charged battery if there are too few sets.</p>
+    <h2>2. The worked field</h2>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t"><thead><tr><th>Step</th><th class="n">Example</th></tr></thead><tbody>
+<tr><td>Spray-only coverage (acres per hour)</td><td class="n">37.1</td></tr>
+<tr><td>Sorties (tank-limited)</td><td class="n">16</td></tr>
+<tr><td>Minutes from first takeoff to last landing</td><td class="n">204</td></tr>
+<tr><td>Crew hours incl. setup and driving</td><td class="n">4.05</td></tr>
+<tr><td>Drone wear</td><td class="n">$28.04</td></tr>
+<tr><td>Battery wear</td><td class="n">$14.93</td></tr>
+<tr><td>Crew labor</td><td class="n">$226.87</td></tr>
+<tr><td>Truck</td><td class="n">$14.00</td></tr>
+<tr><td>Share of yearly fixed cost</td><td class="n">$120.00</td></tr>
+<tr><td>Total cost</td><td class="n">$403.85</td></tr>
+<tr><td>Cost per acre</td><td class="n">$5.05</td></tr>
+<tr><td>Price per acre for a 30% margin</td><td class="n">$7.21</td></tr>
+    </tbody></table></div></div>
+    <p>The recommended price per acre is the cost per acre divided by 0.70 for a 30% margin. A tiny field costs almost as much to reach as a big one, which is why a minimum charge per field matters. <a href="./">Run it with your own drone and fields.</a></p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a fair price per acre for drone spraying?</h3>
+    <p>There is no single fair price: it depends on your cost per acre and the margin you need. Work out drone wear, battery wear, crew time, driving and your share of fixed costs for a typical field, then divide the cost per acre by one minus your target margin. Check the result against what local custom applicators charge, and against your minimum charge for small fields.</p>
+    <h3>Why is my real acres per hour lower than the spec sheet?</h3>
+    <p>The spec sheet gives spray-only coverage at full speed. Real jobs add turns and overlap, pump limits when you spray at a high rate, refill and battery swaps between sorties, charging waits when you have few battery sets, setup at the field and driving to it.</p>
+    <h3>How many battery sets do I need?</h3>
+    <p>Enough that a battery is charged by the time the crew has refilled the tank. If the charge time plus the flight time, divided by your number of sets, is longer than the flight plus the refill and swap, charging is slowing you down and another set will speed the job up. The calculator names which one applies.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not agronomic, pesticide, aviation, legal, tax or financial advice and do not replace your applicator licence, product labels, aviation authority rules, insurer or accountant. The numbers are an illustration on made-up costs, not a quote.</p>
+    <p>Related tools: the <a href="../drone-mapping-job-calculator/">drone mapping job calculator</a> and the <a href="../pressure-washing-bid-calculator/">pressure washing bid calculator</a>.</p>
+    <p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hay-baling-own-vs-hire-calculator/" data-pf-to="hay-baling-own-vs-hire-calculator">Should I buy a baler or hire custom baling? Free break-even calculator</a></li>
+      <li><a href="../hydroponic-farm-profit-calculator/" data-pf-to="hydroponic-farm-profit-calculator">Hydroponic farm calculator: how many heads a week to break even? Free, private</a></li>
+      <li><a href="../ice-cream-shop-seasonal-profit-calculator/" data-pf-to="ice-cream-shop-seasonal-profit-calculator">Ice cream shop seasonal profit calculator: break-even, off-season and loan coverage. Free, private</a></li>
+      <li><a href="../kombucha-brewery-profit-calculator/" data-pf-to="kombucha-brewery-profit-calculator">Kombucha brewery calculator: how many gallons a week to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ag-spray-drone-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ag-spray-drone-quote-calculator"></script>
+</body>
+</html>

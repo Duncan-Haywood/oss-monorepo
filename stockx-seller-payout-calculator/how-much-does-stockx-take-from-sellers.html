@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Much Does StockX Take From Sellers? | Payout Guide</title>
+<meta name="description" content="What StockX actually deducts from a sale before payout: the seller fee (which drops by Seller Level), the Fast Shipping discount, the payment processing fee…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="How Much Does StockX Take From Sellers?">
+<meta property="og:description" content="The seller fee is not one fixed percentage. Here is what actually comes out of a StockX sale, and how Seller Level and Fast Shipping change the answer.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/how-much-does-stockx-take-from-sellers.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does StockX take from a sale?","acceptedAnswer":{"@type":"Answer","text":"Three deductions come out before payout: a seller fee that drops as your Seller Level rises (roughly 9% at the lowest level down toward 3% at the highest, minus a further Fast Shipping discount if you're enrolled), a flat payment processing fee on the sale price, and what you pay to ship the item to a verification center. On a $150 sale, a new Level 1 seller with no Fast Shipping keeps about $126.00 before their own cost of goods; a high-level seller with Fast Shipping enrolled on the same sale keeps about $135.00 — a $9.00 difference on an identical item at an identical price."}},{"@type":"Question","name":"Does Fast Shipping actually pay for itself?","acceptedAnswer":{"@type":"Answer","text":"It reduces your seller fee by a fixed number of percentage points on every sale, so whether it pays for itself depends on your sale volume and the operational cost of keeping pre-verified local inventory ready to ship fast. On the worked example above, the discount alone is worth $4.50 on one $150 sale — multiply that by your typical monthly sale count to see whether it clears whatever Fast Shipping costs you to maintain."}},{"@type":"Question","name":"Why does the same seller fee percentage cost more on some items than others?","acceptedAnswer":{"@type":"Answer","text":"It doesn't cost a different percentage — it costs a different dollar amount, because the fee is a percentage of the sale price. What actually shifts disproportionately is the flat shipping cost: it eats a much bigger share of a cheap item's payout than an expensive one's, so two sales at the same fee percentage can have very different effective take rates once shipping is folded in."}},{"@type":"Question","name":"Is this StockX's official, current fee schedule?","acceptedAnswer":{"@type":"Answer","text":"No. Seller-level bands, the Fast Shipping discount, and the payment processing rate all change over time and can vary by seller, region, and category, and StockX does not publish a live feed a static page could read. Treat every rate here as an illustrative placeholder and confirm the actual numbers on your own seller dashboard and payout statements before relying on them."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#0d2038;background:#eaf1fb}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#0d3d7a}
+h2{color:#0d3d7a;font-size:1.15rem;margin-top:1.7em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #c0d3ee}
+a{color:#0d3d7a}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#0d3d7a;color:#fff;text-decoration:none;font-weight:700}
+footer{border-top:1px solid #c0d3ee;padding-top:18px;margin-top:2em;font-size:.85rem;color:#3d4f68}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/how-much-does-stockx-take-from-sellers.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does StockX Take From Sellers? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../stockx-seller-payout-calculator/">StockX Seller Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does StockX Take From Sellers?</span></span></nav>
+<p><a href="./">← StockX seller payout calculator</a></p>
+<h1>How much does StockX take from sellers?</h1>
+<p>The headline "seller fee" is not one fixed percentage, and it is not the only deduction. What actually lands in your account after a sale depends on your Seller Level, whether you're enrolled in Fast Shipping, a flat payment processing percentage, and what you pay to ship the item to a verification center — and two sellers moving the identical item at the identical price can keep meaningfully different amounts.</p>
+<p><a class="cta" href="./">Open the free payout calculator</a></p>
+
+<h2>What comes out of a sale before payout</h2>
+<p><strong>Seller fee, scaled by your Seller Level.</strong> StockX's transaction fee percentage drops as your completed-sale count and account history improve. A newer seller pays the highest rate; a high-volume seller with a clean record pays the lowest.</p>
+<p><strong>Fast Shipping discount, if you're enrolled.</strong> Sellers who ship from pre-verified local inventory get a further discount off their seller-level rate, on top of whatever level they've already earned.</p>
+<p><strong>Payment processing fee.</strong> A flat percentage of the sale price, charged the same way regardless of seller level or Fast Shipping status.</p>
+<p><strong>Shipping to the verification center.</strong> What you pay to get the item to StockX. Unlike the two fees above, this is closer to a flat dollar cost — it does not shrink as a percentage just because the item is expensive.</p>
+
+<h2>Worked example: a $9 swing on the same $150 sale</h2>
+<p>Same item, same $150 sale price, same $100 cost to acquire it, same $6 to ship it in, same 3% payment processing fee. Only the seller fee and Fast Shipping status change:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>New seller, no Fast Shipping</th><th>High-level seller + Fast Shipping</th></tr></thead>
+<tbody>
+<tr><td>Seller fee rate used</td><td>9%</td><td>4% base − 1pt Fast Shipping = 3%</td></tr>
+<tr><td>Seller fee ($)</td><td>$13.50</td><td>$4.50</td></tr>
+<tr><td>Payment processing (3%)</td><td colspan="2">$4.50</td></tr>
+<tr><td>Shipping to verification</td><td colspan="2">$6.00</td></tr>
+<tr><td>Total fees</td><td>$24.00</td><td>$15.00</td></tr>
+<tr><td>Net payout</td><td>$126.00</td><td>$135.00</td></tr>
+<tr><td>Net profit (after $100 cost)</td><td>$26.00</td><td>$35.00</td></tr>
+<tr><td>Profit margin</td><td>17.3%</td><td>23.3%</td></tr>
+<tr><td>Return on cost (ROI)</td><td>26.0%</td><td>35.0%</td></tr>
+</tbody>
+</table></div>
+<p>Same item, same sale price, same acquisition cost — a $9.00 difference in net profit, entirely from seller-level standing and a Fast Shipping enrollment. Multiply that gap across a month of sales and it is the difference between a target profit goal met or missed with nothing about the actual flipping changed.</p>
+
+<h2>Common questions</h2>
+<h3>How much does StockX take from a sale?</h3><p>Three deductions come out before payout: a seller fee that drops as your Seller Level rises (roughly 9% at the lowest level down toward 3% at the highest, minus a further Fast Shipping discount if you're enrolled), a flat payment processing fee on the sale price, and what you pay to ship the item to a verification center. On a $150 sale, a new Level 1 seller with no Fast Shipping keeps about $126.00 before their own cost of goods; a high-level seller with Fast Shipping enrolled on the same sale keeps about $135.00 &mdash; a $9.00 difference on an identical item at an identical price.</p>
+<h3>Does Fast Shipping actually pay for itself?</h3><p>It reduces your seller fee by a fixed number of percentage points on every sale, so whether it pays for itself depends on your sale volume and the operational cost of keeping pre-verified local inventory ready to ship fast. On the worked example above, the discount alone is worth $4.50 on one $150 sale &mdash; multiply that by your typical monthly sale count to see whether it clears whatever Fast Shipping costs you to maintain.</p>
+<h3>Why does the same seller fee percentage cost more on some items than others?</h3><p>It doesn't cost a different percentage &mdash; it costs a different dollar amount, because the fee is a percentage of the sale price. What actually shifts disproportionately is the flat shipping cost: it eats a much bigger share of a cheap item's payout than an expensive one's, so two sales at the same fee percentage can have very different effective take rates once shipping is folded in.</p>
+<h3>Is this StockX's official, current fee schedule?</h3><p>No. Seller-level bands, the Fast Shipping discount, and the payment processing rate all change over time and can vary by seller, region, and category, and StockX does not publish a live feed a static page could read. Treat every rate here as an illustrative placeholder and confirm the actual numbers on your own seller dashboard and payout statements before relying on them.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an authentication, inventory, or sourcing tool &mdash; it never verifies an item, tracks stock, or replaces your own StockX seller dashboard and payout statements. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. This calculator produces arithmetic observations from numbers you supply; it does not audit your books, confirm a payout amount, or replace your own accountant. StockX is a trademark of StockX LLC, named here only to describe what this tool calculates; this page is not affiliated with, endorsed by, or sponsored by StockX. Everything runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../esthetician-studio-profit-calculator/" data-pf-to="esthetician-studio-profit-calculator">Esthetician Studio Profit Calculator — free, private</a></li>
+      <li><a href="../etsy-ads-roi-analyzer/" data-pf-to="etsy-ads-roi-analyzer">Etsy Ads ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../etsy-listing-csv-check/" data-pf-to="etsy-listing-csv-check">Etsy Listing CSV Check — free, private, in your browser</a></li>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=stockx-seller-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="stockx-seller-payout-calculator"></script>
+</body>
+</html>

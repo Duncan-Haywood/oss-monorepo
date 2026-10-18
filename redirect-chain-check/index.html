@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
+  <meta name="description" content="Free tool: paste the hops a URL's redirects actually took (from your browser's Network tab, or a curl -sI trace) and check for a redirect loop…">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Redirect Chain Checker">
+  <meta property="og:description" content="Checks a URL's redirect chain for a loop, an over-long chain, an HTTPS-to-HTTP downgrade, a permanent move using a temporary status code…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Redirect Chain Checker","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a URL's HTTP redirect chain for a redirect loop, a chain longer than the recommended single hop, an HTTPS-to-HTTP protocol downgrade, a permanent site move (scheme or www normalization) using a temporary 302/303/307 status instead of a permanent 301/308, and a chain that ends in a 4xx/5xx error or is still redirecting with nowhere further to go. The zero-dependency CLI fetches the real chain over HTTP; the browser page works from a pasted list of hops.","featureList":["Detects a redirect loop that revisits an earlier URL in the chain","Flags a chain longer than the recommended single hop, per Google's own Search Central redirect guidance","Flags a redirect from HTTPS back to HTTP","Flags a permanent-looking site move (scheme or www change on the same path) that used a temporary 302/303/307 instead of a permanent 301/308","Flags a chain that ends in a 4xx or 5xx error, or is still redirecting when the data runs out","Zero-dependency CLI walks the real chain over HTTP for CI use; the browser page works from pasted hop data with no upload"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a redirect chain longer than one hop a problem?","acceptedAnswer":{"@type":"Answer","text":"Google's own Search Central documentation on redirects advises keeping a redirect chain as short as possible — ideally a single hop — because search engines may not follow a very long chain at all, and every extra hop adds a full network round-trip of latency for every visitor, not just the first crawl. A chain that grows over years of site migrations without ever being cleaned up is the most common way this happens."}},{"@type":"Question","name":"Why does a temporary redirect matter for a permanent site move?","acceptedAnswer":{"@type":"Answer","text":"A 301 or 308 tells a search engine the move is permanent, so it should consolidate ranking signal onto the new URL and eventually stop checking the old one. A 302, 303, or 307 says the opposite: \"this is temporary, keep the old URL as canonical and check back later.\" Using a temporary code for what is actually a permanent scheme or www change (the same page, just upgraded to HTTPS or normalized to a canonical host) is one of the most common redirect mistakes and slows down exactly the ranking consolidation the move was meant to achieve."}},{"@type":"Question","name":"Why can't this page follow the redirect chain itself?","acceptedAnswer":{"@type":"Answer","text":"A browser tab's fetch() to a different origin, by default, follows the whole chain silently and hides every intermediate hop and status code — exactly the information this tool needs. Asking for redirect: \"manual\" instead makes the response opaque, so JavaScript cannot read the status or the Location header of even the first hop. Either way, a page running in your browser cannot reliably inspect a cross-origin redirect chain. The zero-dependency CLI has no such restriction because it isn't a browser tab — it makes one real HTTP request per hop and reads each response directly."}},{"@type":"Question","name":"Is this a full technical-SEO audit?","acceptedAnswer":{"@type":"Answer","text":"No. It checks specific, mechanically verifiable properties of the redirect chain you provide or the CLI fetches — loop detection, chain length, protocol downgrades, temporary-vs-permanent status codes, and the final destination's own status. It is not a crawl of your whole site and not a ranking guarantee."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="url"], input[type="number"], textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 8px; }
+    input[type="url"] { font: 14px system-ui, sans-serif; }
+    textarea { min-height: 160px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Redirect Chain Checker","item":"https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Redirect Chain Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Redirect Chain Checker</span></span></nav>
+  <header>
+    <p class="note">REDIRECT CHAIN CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Does your redirect chain loop, run too long, or dead-end?</h1>
+    <p>
+      Paste the hops a URL's redirects actually took and check for a <strong>redirect loop</strong>
+      that never terminates, a <strong>chain longer</strong> than the single hop search engines
+      recommend, an <strong>HTTPS-to-HTTP downgrade</strong>, a permanent site move that used a
+      <strong>temporary status code</strong> instead of a permanent one, and a chain that
+      <strong>dead-ends in an error</strong> or is still redirecting with nowhere further to go.
+    </p>
+    <p class="note">Nothing is uploaded. The hop list you paste is parsed in this browser and never leaves your device — see "Why can't this page follow the chain itself?" below for what the CLI adds.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a redirect chain</h2>
+    <label for="hops-text">Hops, one per line: <code>&lt;status&gt; &lt;url&gt;</code></label>
+    <textarea id="hops-text" spellcheck="false" placeholder="301 https://example.com/old&#10;200 https://example.com/new"></textarea>
+    <p class="note">Get this from your browser's DevTools Network panel (the Status and Name columns, in order), or by running <code>curl -sI</code> against each hop by hand.</p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Hops parsed</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table id="hops-table" hidden>
+        <thead><tr><th>#</th><th>Status</th><th>URL</th></tr></thead>
+        <tbody id="hops-rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="no-hops-note" hidden></p>
+
+    <div id="findings-section" hidden>
+      <h3>Findings</h3>
+      <div id="findings"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>The CLI walks the real chain over HTTP itself, one hop at a time — no cross-origin restriction, because it isn't a browser, and it only reads each response's headers, never the body:</p>
+    <pre class="cmd" tabindex="0">node check.mjs https://example.com/old-page --json
+node check.mjs https://example.com/old-page --max-hops 5
+node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/redirect-chain-check" rel="noopener">check.mjs, fetch-chain.mjs, and engine.mjs from the repo</a> — plain Node 18+, nothing to install. It only ever talks to the URL you give it and the Location header that URL's own server sends back — nothing goes through this site. Exit code 1 when a danger-severity finding is produced or the chain could not be completed.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Check</th><th>What it flags</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>Redirect loop</td><td>A URL earlier in the chain is visited again later in it</td><td>Danger</td></tr>
+          <tr><td>Chain too long</td><td>More hops than recommended (default: 1) before landing</td><td>Notice</td></tr>
+          <tr><td>Protocol downgrade</td><td>A hop redirects from HTTPS back to HTTP</td><td>Danger</td></tr>
+          <tr><td>Temporary code for a permanent move</td><td>A scheme/www normalization redirect uses 302/303/307 instead of 301/308</td><td>Notice</td></tr>
+          <tr><td>Chain ends in an error</td><td>The final hop is a 4xx or 5xx response</td><td>Danger</td></tr>
+          <tr><td>Chain incomplete</td><td>The last hop given is itself still a redirect, with nowhere further to go</td><td>Danger</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">More: <a href="why-redirect-chains-matter.html">why redirect chains matter, and the most common ways they break</a>. See also: <a href="vs-httpstatus-io.html">how this differs from httpstatus.io's free redirect checker</a>, and <a href="vs-checking-a-chain-by-hand.html">what checking a chain by hand with curl or DevTools misses</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is a redirect chain longer than one hop a problem?</h3>
+    <p>Google's own Search Central documentation on redirects advises keeping a redirect chain as short as possible — ideally a single hop — because search engines may not follow a very long chain at all, and every extra hop adds a full network round-trip of latency for every visitor, not just the first crawl. A chain that grows over years of site migrations without ever being cleaned up is the most common way this happens.</p>
+    <h3>Why does a temporary redirect matter for a permanent site move?</h3>
+    <p>A 301 or 308 tells a search engine the move is permanent, so it should consolidate ranking signal onto the new URL and eventually stop checking the old one. A 302, 303, or 307 says the opposite: "this is temporary, keep the old URL as canonical and check back later." Using a temporary code for what is actually a permanent scheme or www change (the same page, just upgraded to HTTPS or normalized to a canonical host) is one of the most common redirect mistakes and slows down exactly the ranking consolidation the move was meant to achieve.</p>
+    <h3>Why can't this page follow the redirect chain itself?</h3>
+    <p>A browser tab's <code>fetch()</code> to a different origin, by default, follows the whole chain silently and hides every intermediate hop and status code — exactly the information this tool needs. Asking for <code>redirect: "manual"</code> instead makes the response opaque, so JavaScript cannot read the status or the <code>Location</code> header of even the first hop. Either way, a page running in your browser cannot reliably inspect a cross-origin redirect chain. The zero-dependency CLI has no such restriction because it isn't a browser tab — it makes one real HTTP request per hop and reads each response directly.</p>
+    <h3>Is this a full technical-SEO audit?</h3>
+    <p>No. It checks specific, mechanically verifiable properties of the redirect chain you provide or the CLI fetches — loop detection, chain length, protocol downgrades, temporary-vs-permanent status codes, and the final destination's own status. It is not a crawl of your whole site and not a ranking guarantee.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether the redirect chain you provided satisfies specific, mechanically checkable rules — nothing more. It is not a ranking guarantee and not a full technical-SEO audit. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Planning a migration? <a href="../redirect-map-check/">Redirect Map Checker</a> checks a whole old-to-new redirect map for loops, chains and 404 targets before anything is deployed. Also worth a pass over the same URL: <a href="../canonical-tag-check/">Canonical Tag Checker</a> checks which URL a page's own <code>rel=canonical</code> link names as authoritative. <a href="../security-headers-check/">Security Headers Checker</a> checks a page's response-header security posture. <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a> checks whether a sitemap's own freshness dates hold up.</p>
+    <p class="support">Free and open source. If this caught a redirect loop before your visitors did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { classifyChain, parseHopsText } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      text: $('#hops-text'), status: $('#status'),
+      reportCard: $('#report-card'),
+      hopsTable: $('#hops-table'), hopsRows: $('#hops-rows'), noHopsNote: $('#no-hops-note'),
+      findingsSection: $('#findings-section'), findings: $('#findings'),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    function render() {
+      const { hops, errors } = parseHopsText(els.text.value);
+
+      if (hops.length === 0) {
+        els.hopsTable.hidden = true;
+        els.noHopsNote.hidden = false;
+        els.noHopsNote.textContent = errors.length > 0
+          ? `Could not parse any hops: ${errors.join(' ')}`
+          : 'No hops found. Paste at least one "<status> <url>" line.';
+        els.findingsSection.hidden = true;
+        els.reportCard.hidden = false;
+        return;
+      }
+
+      const report = classifyChain(hops);
+
+      els.hopsTable.hidden = false;
+      els.noHopsNote.hidden = errors.length === 0;
+      if (errors.length > 0) els.noHopsNote.textContent = `Some lines could not be parsed and were skipped: ${errors.join(' ')}`;
+      els.hopsRows.innerHTML = hops.map((h, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${h.status}</td>
+          <td><code>${escapeHtml(h.url)}</code></td>
+        </tr>`).join('');
+
+      els.findingsSection.hidden = false;
+      els.findings.innerHTML = report.findings.length === 0
+        ? '<p class="ok">None of the checked redirect-chain issues were found.</p>'
+        : report.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+
+      els.reportCard.hidden = false;
+    }
+
+    $('#check').addEventListener('click', () => {
+      if (!els.text.value.trim()) {
+        els.status.innerHTML = '<span class="error">Paste at least one hop first (or load the worked example).</span>';
+        return;
+      }
+      els.status.textContent = '';
+      render();
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    });
+
+    const EXAMPLE = [
+      '302 http://example.com/old-landing-page',
+      '301 https://www.example.com/old-landing-page',
+      '301 https://example.com/old-landing-page',
+      '302 http://example.com/old-landing-page',
+    ].join('\n');
+
+    $('#load-example').addEventListener('click', () => {
+      els.text.value = EXAMPLE;
+      render();
+      els.status.textContent = 'Worked example: a chain that upgrades scheme/host with temporary codes and then loops back to its own starting URL.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+
+    $('#clear').addEventListener('click', () => {
+      els.text.value = '';
+      els.reportCard.hidden = true;
+      els.status.textContent = 'Paste a hop list and click Check.';
+    });
+
+    $('#usageOptOut').addEventListener('change', () => {});
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=redirect-chain-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/?pfEmbed=1&quot; title=&quot;Redirect Chain Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="redirect-chain-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/" data-pf-embed-title="Redirect Chain Checker" data-pf-embed-slug="redirect-chain-check"></script>
+</body>
+</html>

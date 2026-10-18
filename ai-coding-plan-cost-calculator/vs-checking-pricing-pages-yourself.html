@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Coding Plan Cost Calculator vs. Checking Pricing Pages Yourself</title>
+<meta name="description" content="Comparing a flat-rate AI coding plan to the API yourself means opening two pricing pages, finding four separate per-token rates…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Coding Plan Cost Calculator vs. Checking Pricing Pages Yourself">
+<meta property="og:description" content="Reading two pricing pages tells you the sticker prices. It doesn't do the break-even math for your own usage, or weigh cache reads correctly.">
+<meta property="og:url" content="./vs-checking-pricing-pages-yourself.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why not just check the plan's pricing page and the API pricing page myself?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You can, and the sticker prices alone take thirty seconds to find. What they don't give you is the answer to the actual question: given how much you personally use the tool, which one is cheaper, and by how much would your usage need to change for that to flip. That requires four separate API rates (input, output, cache write, cache read), your own token counts across the same four categories, and the arithmetic to compare a flat monthly number against a usage-weighted one. Most people stop at the sticker prices because the rest is tedious to do by hand, not because it doesn't matter." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does this calculator do that reading two pricing pages doesn't?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It runs the arithmetic you'd otherwise do by hand: multiplies your input, output, cache write, and cache read tokens by the matching API rate, compares the total to your plan's flat price, and reports the break-even usage level -- how far your usage would need to move before the cheaper option changes. It also starts you from a light/typical/heavy usage preset if you don't already know your own token counts, which most people checking pricing pages by hand don't." }
+    },
+    {
+      "@type": "Question",
+      "name": "Pricing pages already show cache pricing. Why does doing this by hand still miss it?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The rate is on the page; the mistake is in the mental math, not the lookup. Publicly reported usage breakdowns for heavy agentic coding put cache reads above 90% of total tokens processed, because these tools resend most of the file and conversation context on nearly every turn. A back-of-envelope estimate that blends input and output at a single rate -- the shortcut most people take when doing this by hand -- significantly overstates the API-equivalent cost for exactly the heavy users asking the question. Keeping four rates and four token counts straight through a multi-step comparison is exactly the kind of arithmetic a calculator does more reliably than a person doing it in their head." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is anything I enter here uploaded?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. All arithmetic happens in your own browser, the same as if you were doing it on paper -- there is no account, no server call, and no analytics vendor. The only difference is the calculator does not mis-add the columns." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4.2vw, 2.2rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AI Coding Plan Cost Calculator vs. Checking Pricing Pages Yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ai-coding-plan-cost-calculator/">Is your AI coding plan actually cheaper than the API?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">AI Coding Plan Cost Calculator vs. Checking Pricing Pages Yourself</span></span></nav>
+<p><a href="index.html">&larr; AI Coding Plan Cost Calculator</a></p>
+<h1>This calculator vs. checking pricing pages yourself</h1>
+<p>
+  <strong>Checking pricing pages yourself</strong> gets you the sticker prices: a flat monthly plan
+  price on one page, and per-token API rates on another. That is a fine first step, and it is enough
+  if all you want is the headline numbers. It does not answer the question that actually decides
+  whether the plan is worth it: given <em>your</em> usage, which option is cheaper this month, and
+  how far would that usage need to move before the answer flips.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same numbers a pricing-page lookup gives you &mdash; the
+  plan price, and the four separate API rates for input, output, cache write, and cache read tokens
+  &mdash; plus your own token counts (or a light/typical/heavy starting point if you don't know them),
+  and does the comparison arithmetic and the break-even math for you. It doesn't replace reading the
+  pricing pages; the rates it starts you from come straight from them. It replaces the multi-step
+  arithmetic afterward.
+</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I just want to see the sticker prices &mdash; the plan cost, or the per-token API rates.</td>
+      <td>The vendor's own pricing page &mdash; that quick lookup is exactly its job.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether my plan is actually cheaper than the API for how I use it, and by how much.</td>
+      <td>This calculator &mdash; runs the four-rate, four-token comparison against your own numbers instead of a blended guess.</td>
+    </tr>
+    <tr>
+      <td>I want to know how much my usage would need to change before the cheaper option flips.</td>
+      <td>This calculator &mdash; reports the break-even usage level, which a pricing page has no way to tell you.</td>
+    </tr>
+    <tr>
+      <td>I don't know my own token counts and don't want to dig them up first.</td>
+      <td>This calculator's light/typical/heavy presets &mdash; a starting point you edit, not a blank form.</td>
+    </tr>
+  </tbody>
+</table></div>
+<p>
+  In practice most people do both: check the vendor's pricing page for the current rates, then bring
+  those numbers here instead of multiplying four rates by four token counts by hand and hoping the
+  cache-read weighting didn't get lost along the way.
+</p>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why not just check the plan's pricing page and the API pricing page myself?</h3>
+  <p>You can, and the sticker prices alone take thirty seconds to find. What they don't give you is the answer to the actual question: given how much you personally use the tool, which one is cheaper, and by how much would your usage need to change for that to flip. That requires four separate API rates (input, output, cache write, cache read), your own token counts across the same four categories, and the arithmetic to compare a flat monthly number against a usage-weighted one. Most people stop at the sticker prices because the rest is tedious to do by hand, not because it doesn't matter.</p>
+  <h3>What does this calculator do that reading two pricing pages doesn't?</h3>
+  <p>It runs the arithmetic you'd otherwise do by hand: multiplies your input, output, cache write, and cache read tokens by the matching API rate, compares the total to your plan's flat price, and reports the break-even usage level -- how far your usage would need to move before the cheaper option changes. It also starts you from a light/typical/heavy usage preset if you don't already know your own token counts, which most people checking pricing pages by hand don't.</p>
+  <h3>Pricing pages already show cache pricing. Why does doing this by hand still miss it?</h3>
+  <p>The rate is on the page; the mistake is in the mental math, not the lookup. Publicly reported usage breakdowns for heavy agentic coding put cache reads above 90% of total tokens processed, because these tools resend most of the file and conversation context on nearly every turn. A back-of-envelope estimate that blends input and output at a single rate -- the shortcut most people take when doing this by hand -- significantly overstates the API-equivalent cost for exactly the heavy users asking the question. Keeping four rates and four token counts straight through a multi-step comparison is exactly the kind of arithmetic a calculator does more reliably than a person doing it in their head.</p>
+  <h3>Is anything I enter here uploaded?</h3>
+  <p>No. All arithmetic happens in your own browser, the same as if you were doing it on paper -- there is no account, no server call, and no analytics vendor. The only difference is the calculator does not mis-add the columns.</p>
+</section>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It produces an <em>estimate</em> from the plan, usage, and rates you
+  enter -- it is not a billing statement, a quote, or financial advice. <strong>You are responsible
+  for checking any figure here against the vendor's own current pricing page before relying on
+  it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss
+  or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> Everything you enter is compared locally, exactly
+  like doing the arithmetic on paper -- never uploaded, no account, no analytics vendor.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ai-coding-plan-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ai-coding-plan-cost-calculator"></script>
+</body>
+</html>

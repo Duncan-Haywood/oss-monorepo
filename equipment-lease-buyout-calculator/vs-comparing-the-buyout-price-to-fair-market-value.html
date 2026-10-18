@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. comparing the buyout price to fair market value | Equipment Lease Buyout Calculator</title>
+  <meta name="description" content="Checking a lease buyout against fair market value alone can call a bad deal a bargain. This free…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. comparing the buyout price to fair market value | Equipment Lease Buyout Calculator">
+  <meta property="og:description" content="A buyout 20% below fair market value looks like a bargain. On equipment with 6 months of life left against a replacement that lasts 60…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a buyout below fair market value still be the wrong deal?","acceptedAnswer":{"@type":"Answer","text":"Because fair market value prices the equipment, not the months of use you are actually buying. A buyout below FMV looks like a bargain on the payoff letter, but if the equipment only has a few months of useful life left and a replacement would run for years at a similar or lower price, the buyout can cost far more per month of use than walking away and replacing it. Using this calculator's own figures: a $8,000 buyout on equipment appraised at $10,000 fair market value -- 20% below FMV -- with 6 months of useful life left, against a $15,000 replacement good for 60 months, costs $1,333.33 per month to keep versus $250.00 per month to replace. The buyout is the worse deal by 5.33 times per month despite pricing 20% under fair market value."}},{"@type":"Question","name":"What does comparing the buyout price to fair market value alone leave out?","acceptedAnswer":{"@type":"Answer","text":"Remaining useful life, replacement cost, and how long the replacement would last. Fair market value answers one question -- is this price close to what the equipment is worth right now -- and says nothing about how many more months of service that price buys, what a replacement costs, or how long the replacement lasts. Two buyouts priced identically against fair market value can be opposite decisions once useful life and a replacement's cost and lifespan enter the comparison."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own figures: an $8,000 buyout against a $10,000 fair-market-value estimate reads as a 20% discount, which most people would take as settled. But at 6 months of remaining useful life, that buyout costs $1,333.33 per month to keep. A $15,000 replacement lasting 60 months costs $250.00 per month. Keeping the leased equipment costs $6,500 more over its remaining life than returning it and replacing it -- the break-even buyout price for this comparison is $1,500, over five times below the $8,000 actually quoted."}},{"@type":"Question","name":"Is comparing the buyout price to fair market value ever the right check?","acceptedAnswer":{"@type":"Answer","text":"It is a reasonable sanity check on the price itself -- a buyout well above fair market value is worth a second look at the lease contract before paying it. What it cannot tell you is whether paying that price is the cheaper path once remaining useful life and a real replacement's cost and lifespan are on the table, and by then a payoff letter is often already close to due."}},{"@type":"Question","name":"Does this calculator know my equipment's fair market value or what a replacement costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no appraisal data, no equipment pricing feed, and no knowledge of your lease terms. It takes the buyout price, your own estimate of fair market value, remaining useful life, a replacement's cost and expected life, and optional removal and downtime costs, and converts both paths to cost per month of use -- the arithmetic a fair-market-value comparison skips, not an appraisal."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#16232b; --muted:#5b6a72; --paper:#f4f1ea; --accent:#1f5c6f; --line:#d6cfc2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width:760px; margin:auto; padding:52px 20px 40px; }
+    .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+    h1 { font:800 clamp(1.8rem,5vw,2.8rem)/1.1 Georgia,serif; margin:14px 0; }
+    .lede { color:var(--muted); font-size:1.1rem; }
+    .card { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 10px 30px #2b3a3010; margin-top:28px; }
+    table.usage-table { width:100%; border-collapse:collapse; margin:18px 0; }
+    table.usage-table th, table.usage-table td { text-align:left; border-bottom:1px solid var(--line); padding:10px 8px; vertical-align:top; font-size:.95rem; }
+    table.usage-table caption { text-align:left; font-weight:700; margin-bottom:6px; }
+    h2 { font-size:1.25rem; margin-top:26px; }
+    h3 { font-size:1.05rem; margin-bottom:4px; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:32px; }
+    a { color:inherit; }
+    .note { margin-top:18px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. comparing the buyout price to fair market value | Equipment Lease Buyout Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../equipment-lease-buyout-calculator/">Equipment lease buyout calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. comparing the buyout price to fair market value | Equipment Lease Buyout Calculator</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Equipment lease buyout calculator</a></p>
+    <header>
+      <h1>This calculator vs. comparing the buyout price to fair market value</h1>
+      <p class="lede">A price below fair market value is not the same question as a price worth paying.</p>
+    </header>
+    <section class="card">
+      <p>
+        The habit most payoff letters get checked against is
+        <strong>fair market value</strong>: is the quoted buyout close to, above, or below
+        what the equipment is worth right now? It is the fastest sanity check available &mdash;
+        get an appraisal or a comparable listing, compare it to the number on the letter, and
+        decide from the gap.
+      </p>
+      <p>
+        That check answers one question &mdash; is this price close to the equipment's value
+        &mdash; and says nothing about how many more months of service that price buys, what a
+        replacement would cost, or how long the replacement would last. This calculator starts
+        from the same payoff letter but converts <strong>both paths to cost per month of use</strong>:
+        the buyout price against the useful life you have left, and a replacement's cost against
+        its own expected life, plus optional removal and downtime costs. A buyout can price well
+        under fair market value and still be the more expensive path per month, and a buyout
+        priced above fair market value can still be the cheaper one.
+      </p>
+      <div class="pf-table-scroll"><table class="usage-table">
+        <caption>What each check answers.</caption>
+        <thead>
+          <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Is this buyout price reasonable next to what the equipment is worth right now?</td>
+            <td>Comparing it to a fair-market-value estimate &mdash; a useful sanity check on the price alone.</td>
+          </tr>
+          <tr>
+            <td>Is paying the buyout actually the cheaper path once remaining life and a real replacement enter the picture?</td>
+            <td>This calculator &mdash; it converts both paths to cost per month of use and reports the cheaper one.</td>
+          </tr>
+          <tr>
+            <td>What buyout price would make the two paths cost the same per month?</td>
+            <td>This calculator's break-even buyout price &mdash; the number worth negotiating against, not the fair-market-value estimate.</td>
+          </tr>
+          <tr>
+            <td>What does removal, downtime, or a replacement's all-in cost do to the decision?</td>
+            <td>This calculator &mdash; both have their own fields rather than being folded into a headline price.</td>
+          </tr>
+        </tbody>
+      </table></div>
+      <h2>A bargain that is not one</h2>
+      <p>
+        Using this calculator's own figures: an <strong>$8,000 buyout</strong> quoted against
+        equipment appraised at <strong>$10,000 fair market value</strong> &mdash; 20% below FMV,
+        a number most people would read as settled &mdash; on equipment with
+        <strong>6 months of useful life left</strong>, compared against a
+        <strong>$15,000 replacement good for 60 months</strong>. The buyout costs
+        <strong>$1,333.33 per month</strong> to keep; the replacement costs
+        <strong>$250.00 per month</strong>. Despite pricing well under fair market value, the
+        buyout is the more expensive path by <strong>5.33 times per month</strong>, and keeping
+        the leased equipment costs <strong>$6,500 more</strong> over its remaining life than
+        returning it and replacing it. The break-even buyout price here is
+        <strong>$1,500</strong> &mdash; over five times below the $8,000 actually quoted.
+      </p>
+      <h2>Common questions</h2>
+      <h3>Why can a buyout below fair market value still be the wrong deal?</h3>
+      <p>Because fair market value prices the equipment, not the months of use you are actually buying. A buyout below FMV looks like a bargain on the payoff letter, but if the equipment only has a few months of useful life left and a replacement would run for years at a similar or lower price, the buyout can cost far more per month of use than walking away and replacing it. Using this calculator's own figures: a $8,000 buyout on equipment appraised at $10,000 fair market value -- 20% below FMV -- with 6 months of useful life left, against a $15,000 replacement good for 60 months, costs $1,333.33 per month to keep versus $250.00 per month to replace. The buyout is the worse deal by 5.33 times per month despite pricing 20% under fair market value.</p>
+      <h3>What does comparing the buyout price to fair market value alone leave out?</h3>
+      <p>Remaining useful life, replacement cost, and how long the replacement would last. Fair market value answers one question -- is this price close to what the equipment is worth right now -- and says nothing about how many more months of service that price buys, what a replacement costs, or how long the replacement lasts. Two buyouts priced identically against fair market value can be opposite decisions once useful life and a replacement's cost and lifespan enter the comparison.</p>
+      <h3>How big is the gap in practice?</h3>
+      <p>Using this calculator's own figures: an $8,000 buyout against a $10,000 fair-market-value estimate reads as a 20% discount, which most people would take as settled. But at 6 months of remaining useful life, that buyout costs $1,333.33 per month to keep. A $15,000 replacement lasting 60 months costs $250.00 per month. Keeping the leased equipment costs $6,500 more over its remaining life than returning it and replacing it -- the break-even buyout price for this comparison is $1,500, over five times below the $8,000 actually quoted.</p>
+      <h3>Is comparing the buyout price to fair market value ever the right check?</h3>
+      <p>It is a reasonable sanity check on the price itself -- a buyout well above fair market value is worth a second look at the lease contract before paying it. What it cannot tell you is whether paying that price is the cheaper path once remaining useful life and a real replacement's cost and lifespan are on the table, and by then a payoff letter is often already close to due.</p>
+      <h3>Does this calculator know my equipment's fair market value or what a replacement costs?</h3>
+      <p>No. It has no appraisal data, no equipment pricing feed, and no knowledge of your lease terms. It takes the buyout price, your own estimate of fair market value, remaining useful life, a replacement's cost and expected life, and optional removal and downtime costs, and converts both paths to cost per month of use -- the arithmetic a fair-market-value comparison skips, not an appraisal.</p>
+      <p class="note">
+        <a href="./">Open the buyout calculator</a> to check your own payoff
+        letter against a replacement, or read
+        <a href="./should-i-buy-out-my-equipment-lease.html">should I buy out my equipment lease?</a>
+      </p>
+    </section>
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, accounting, or legal advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../qsbs-exclusion-calculator/" data-pf-to="qsbs-exclusion-calculator">QSBS Exclusion Calculator — free, Section 1202</a></li>
+      <li><a href="../quarterly-estimated-tax-calendar/" data-pf-to="quarterly-estimated-tax-calendar">Quarterly Estimated Tax Calendar — free, no sign-up</a></li>
+      <li><a href="../quickbooks-chart-of-accounts-csv-check/" data-pf-to="quickbooks-chart-of-accounts-csv-check">QuickBooks Chart of Accounts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=equipment-lease-buyout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="equipment-lease-buyout-calculator"></script>
+</body>
+</html>

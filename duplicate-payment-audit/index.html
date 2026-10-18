@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger</title>
+  <meta name="description" content="Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.">
+  <meta property="og:title" content="Duplicate Payment Audit"><meta property="og:description" content="Find likely duplicate vendor payments in your AP CSV export, privately in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Duplicate Payment Audit","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser CSV checker that flags likely duplicate or double vendor payments in an accounts-payable ledger export."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a likely duplicate payment here?","acceptedAnswer":{"@type":"Answer","text":"Three patterns: the same vendor and invoice number paid twice for the same amount (an exact duplicate submission), the same vendor and invoice number paid twice at different amounts (a possible partial payment or data-entry error), and the same vendor and amount paid under two invoice numbers that are nearly identical or that land close together in time. Each flagged pair says which pattern matched and why."}},{"@type":"Question","name":"Will this flag legitimate recurring payments as duplicates?","acceptedAnswer":{"@type":"Answer","text":"It can, and it says so on that specific row. Rent, subscriptions, and retainers are the same vendor and the same amount by design, which is exactly the pattern the same-amount/near-date check looks for. Those rows are labeled \"review\", the lowest confidence tier, and the tool tells you to check whether the vendor is paid this amount on a regular schedule before treating it as a duplicate. The higher-confidence tiers (an exact invoice-number match, or two invoice numbers that look like a typo of each other) are far less likely to be a legitimate recurring charge, because a real recurring bill is issued under a new invoice number each cycle."}},{"@type":"Question","name":"Does this submit a refund request or contact my vendor?","acceptedAnswer":{"@type":"Answer","text":"No. It only reads the CSV you choose and produces a list of pairs to review, plus a downloadable CSV of the same list. It does not contact a vendor, file a dispute, request a credit, or take any action on your behalf — you decide what to do with each flagged pair."}},{"@type":"Question","name":"Is this the same as hiring a duplicate-payment recovery audit firm?","acceptedAnswer":{"@type":"Answer","text":"No. Recovery-audit firms typically work large enterprise AP ledgers on a contingency fee, taking a cut of whatever they help recover. This is a free, one-time, self-serve check of a CSV you already have, aimed at businesses too small for that kind of engagement. It finds candidates for you to verify yourself; it does not investigate, negotiate, or recover anything."}},{"@type":"Question","name":"What columns does my CSV need?","acceptedAnswer":{"@type":"Answer","text":"A vendor name, a payment amount, and a payment date, using common header names such as vendor, amount, and date (payment_date, paid_date, and similar variants are also recognized). An invoice or reference number column sharpens the check considerably but is optional."}},{"@type":"Question","name":"What if my export doesn't have an invoice number column?","acceptedAnswer":{"@type":"Answer","text":"The tool still runs, using only the same-vendor, same-amount, near-date check, and says so in the results. Add an invoice or reference column to your export if your accounting system can include one — it is what makes the exact-duplicate and near-duplicate-invoice checks possible."}},{"@type":"Question","name":"Are my payment records uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser; the CSV never leaves your device. The optional usage counter records only that a check ran, not any vendor names, amounts, dates, or file contents."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}body{max-width:980px;margin:auto;padding:2rem 1rem}header{border-bottom:3px solid #af6035;padding-bottom:1.5rem}h1{font-size:clamp(2rem,6vw,4rem);line-height:1;margin:.2rem 0;color:#17324d}h2{color:#17324d}main{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.card{background:#fff;border:1px solid #d8d2c8;border-radius:12px;padding:1.2rem;box-shadow:0 3px 12px #17324d12}.wide{grid-column:1/-1}label{display:block;font-weight:700;margin:.8rem 0 .3rem}input,select,button{font:inherit;padding:.65rem;border-radius:7px;border:1px solid #aaa}input,select{width:100%;box-sizing:border-box}button{background:#af6035;color:#fff;border:0;font-weight:700;cursor:pointer;margin-top:1rem}button.secondary{background:#17324d}small,.hint{color:#5d6973}.stats{display:flex;gap:1rem;flex-wrap:wrap}.stat{background:#eef3f4;padding:.8rem;border-radius:8px;min-width:130px}.stat strong{display:block;font-size:1.5rem;color:#17324d}.error{color:#a52d2d;font-weight:700}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.55rem}footer{margin-top:2rem;font-size:.9rem;color:#4d5963}button.linklike{background:none;border:0;color:#17324d;text-decoration:underline;padding:0;margin:0;font:inherit;font-weight:700;cursor:pointer}@media(max-width:700px){main{display:block}.card{margin-bottom:1rem}table{font-size:.85rem}}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Duplicate Payment Audit","item":"https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Duplicate Payment Audit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Duplicate Payment Audit</span></span></nav>
+  <header><p>PRIVATE, LOCAL-FIRST WORKFLOW</p><h1>Find a duplicate vendor payment before you write it off.</h1><p>Upload your accounts-payable payment history as a CSV and get a short list of likely double payments to review — the same kind of check a duplicate-payment recovery audit firm sells, run yourself, for free, on files that never leave your browser.</p></header>
+  <main>
+    <section class="card wide">
+      <h2>1. Payment ledger CSV</h2>
+      <p class="hint">Needs a vendor, amount, and date column. Common names like <code>vendor</code>, <code>amount</code>, and <code>payment_date</code> work automatically. An <code>invoice_number</code> or similar reference column is optional but sharpens the check.</p>
+      <input id="ledger" type="file" aria-label="Payment ledger CSV" accept=".csv,text/csv">
+      <p class="hint">No export handy? <button type="button" id="loadExample" class="linklike">Load a worked example</button> — an eleven-row ledger carrying one of each thing this tool looks for.</p>
+      <label for="window">Same-amount date window (days)</label>
+      <input id="window" type="number" min="0" max="90" value="7" inputmode="decimal">
+      <p class="hint">Two payments to the same vendor, for the same amount, landing within this many days of each other are flagged for review even with no invoice-number match.</p>
+      <button id="run">Check for duplicate payments</button>
+      <p id="message" class="error" role="alert"></p>
+    </section>
+    <section id="results" class="card wide" aria-live="polite" hidden>
+      <h2>Review queue</h2>
+      <div class="stats"><div class="stat"><strong id="checked">0</strong>payments checked</div><div class="stat"><strong id="flagged">0</strong>pairs flagged</div><div class="stat"><strong id="highConfidence">0</strong>high confidence</div></div>
+      <p class="hint">Every row is a lead to verify against your vendor statement or your accounting system, not a determination that a payment was a duplicate or that any wrongdoing occurred.</p>
+      <button id="download" class="secondary">Download review CSV</button>
+      <div id="table"></div>
+    </section>
+    <section class="card wide">
+      <h2>Common questions</h2>
+      <h3>What counts as a likely duplicate payment here?</h3>
+      <p>Three patterns: the same vendor and invoice number paid twice for the same amount (an exact duplicate submission), the same vendor and invoice number paid twice at different amounts (a possible partial payment or data-entry error), and the same vendor and amount paid under two invoice numbers that are nearly identical or that land close together in time. Each flagged pair says which pattern matched and why.</p>
+      <h3>Will this flag legitimate recurring payments as duplicates?</h3>
+      <p>It can, and it says so on that specific row. Rent, subscriptions, and retainers are the same vendor and the same amount by design, which is exactly the pattern the same-amount/near-date check looks for. Those rows are labeled "review", the lowest confidence tier, and the tool tells you to check whether the vendor is paid this amount on a regular schedule before treating it as a duplicate. The higher-confidence tiers (an exact invoice-number match, or two invoice numbers that look like a typo of each other) are far less likely to be a legitimate recurring charge, because a real recurring bill is issued under a new invoice number each cycle.</p>
+      <h3>Does this submit a refund request or contact my vendor?</h3>
+      <p>No. It only reads the CSV you choose and produces a list of pairs to review, plus a downloadable CSV of the same list. It does not contact a vendor, file a dispute, request a credit, or take any action on your behalf — you decide what to do with each flagged pair.</p>
+      <h3>Is this the same as hiring a duplicate-payment recovery audit firm?</h3>
+      <p>No. Recovery-audit firms typically work large enterprise AP ledgers on a contingency fee, taking a cut of whatever they help recover. This is a free, one-time, self-serve check of a CSV you already have, aimed at businesses too small for that kind of engagement. It finds candidates for you to verify yourself; it does not investigate, negotiate, or recover anything.</p>
+      <h3>What columns does my CSV need?</h3>
+      <p>A vendor name, a payment amount, and a payment date, using common header names such as <code>vendor</code>, <code>amount</code>, and <code>date</code> (<code>payment_date</code>, <code>paid_date</code>, and similar variants are also recognized). An invoice or reference number column sharpens the check considerably but is optional.</p>
+      <h3>What if my export doesn't have an invoice number column?</h3>
+      <p>The tool still runs, using only the same-vendor, same-amount, near-date check, and says so in the results. Add an invoice or reference column to your export if your accounting system can include one — it is what makes the exact-duplicate and near-duplicate-invoice checks possible.</p>
+      <h3>Are my payment records uploaded anywhere?</h3>
+      <p>No. Everything runs in your browser; the CSV never leaves your device. The optional usage counter records only that a check ran, not any vendor names, amounts, dates, or file contents.</p>
+      <p>Already checking your export by sorting a spreadsheet and scanning for repeats? See <a href="vs-a-spreadsheet.html">how this tool differs from a manual spreadsheet check</a> &mdash; it catches an invoice-number typo and a payment weeks apart that a vendor sort would not.</p>
+      <p>Already considering a full recovery audit from a firm like <a href="vs-prgx.html">PRGX</a>? See <a href="vs-prgx.html">how this one-time CSV check differs</a> from PRGX's contingency-fee audit across an entire company's supplier spend.</p>
+      <p>Wondering why a payment gets flagged even when the amount doesn't match? See <a href="why-does-the-same-invoice-at-two-amounts-get-flagged.html">why the same invoice number at two different amounts still gets flagged</a> for a worked example.</p>
+    </section>
+  </main>
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. It does not determine that any payment was fraudulent, wrongful, or actually duplicated — it flags statistical patterns in your own data for your review, and recurring charges of the same amount (rent, subscriptions, retainers) will also match some of these patterns. <strong>You are responsible for reviewing and verifying its output</strong> against your vendor statements and accounting records before requesting a refund, credit, or correction from anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Files are never uploaded. Anonymous feature counts are local-only, can be disabled below, and contain no financial data. <label><input id="usage" type="checkbox" checked> Count anonymous local usage</label><p>Weighing an AP automation platform like <a href="vs-bill-com.html">BILL (Bill.com)</a>? See <a href="vs-bill-com.html">how a retrospective check of an export you already have differs</a> from a platform's preventive duplicate warning inside an ongoing approval and payment workflow.</p><p>Matching processor payouts to bank deposits instead of checking for double vendor payments? The <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a> matches Stripe/Square/PayPal payouts to bank deposits — nothing uploaded there either.</p><p class="support">Free and open source. If it caught a duplicate payment, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p></footer>
+  <script type="module" src="app.mjs"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../lot-split-calculator/" data-pf-to="lot-split-calculator">Sell the lot whole or split it?</a></li>
+      <li><a href="../market-event-picker/" data-pf-to="market-event-picker">Which markets and festivals should you work?</a></li>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=duplicate-payment-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/?pfEmbed=1&quot; title=&quot;Duplicate Payment Audit — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="duplicate-payment-audit"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/" data-pf-embed-title="Duplicate Payment Audit" data-pf-embed-slug="duplicate-payment-audit"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TikTok Shop Fee Calculator vs. tracking it in a spreadsheet</title>
+  <meta name="description" content="A TikTok Shop seller pricing organic and affiliate listings usually builds a spreadsheet for it. This free calculator keeps the referral fee…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/vs-tracking-it-in-a-spreadsheet.html">
+  <meta property="og:title" content="TikTok Shop Fee Calculator vs. tracking it in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same referral-fee, affiliate-commission, and facilitation-fee formulas this calculator does.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every formula this calculator runs — the referral fee on the fee base, an affiliate commission that is not clawed back when the order is returned, the creator facilitation fee on affiliate-sourced orders, a break-even and target-margin price, and today's schedule against the announced 1 October 2026 one — is ordinary arithmetic you can put in a spreadsheet. Getting there means reading the rates off Seller University yourself, building a formula that keeps commission out of a refund credit without also keeping it out of the cost side, and duplicating the whole sheet to hold a second schedule next to the first."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep the organic-versus-affiliate split, the return rate, and the fee-schedule comparison on one screen without re-deriving the sheet each time a rate changes. The easiest mistake to make by hand is netting the affiliate commission back out of a returned order's cost — it is not: the creator keeps it. This calculator applies that rule the same way every time, computes a price that holds your margin, and produces a shareable link that carries the whole scenario instead of a file to keep in sync between two people."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a wrinkle this calculator does not model — a bundle of several SKUs in one order, a tiered commission that changes by volume, or a fee structure from a category or plan this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one SKU moving through the organic-versus-affiliate, returns, and schedule-change decisions."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices, costs, or creator rates."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #23202a; background: #f6f1fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #7a1fa2; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    section.card { background: #fffdff; border: 1px solid #ded4ea; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #2c24140d; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fffdff; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ded4ea; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5563; }
+    .note { font-size: .85rem; color: #5c5563; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c5563; }
+    footer a { color: #7a1fa2; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TikTok Shop Fee Calculator vs. tracking it in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tiktok-shop-fee-calculator/">TikTok Shop Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">TikTok Shop Fee Calculator vs. tracking it in a spreadsheet</span></span></nav>
+  <p><a href="./">&larr; TikTok Shop fee calculator</a></p>
+  <h1>TikTok Shop Fee Calculator vs. tracking it in a spreadsheet</h1>
+  <p>A seller who prices more than one TikTok Shop listing usually ends up with a spreadsheet: a cell for the referral rate, one for the creator commission, a note somewhere that the commission is not clawed back on a return, and a second copy of the whole sheet the week the announced 1 October 2026 schedule needs comparing against today's. Each formula is ordinary arithmetic. Keeping them right &mdash; especially the commission-survives-a-return rule, which is the one detail a generic "TikTok takes 6%" page or a rushed spreadsheet formula is most likely to get backwards &mdash; is the part that gets skipped when a listing needs a price today.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every formula this calculator runs &mdash; the referral fee on the fee base, an affiliate commission held back from the seller's net but kept by the creator on a return, the facilitation fee that applies only to affiliate-sourced orders, and a break-even or target-margin price. Building it means reading the current rates off Seller University, encoding the commission-survives-a-return rule correctly, and adding a second block of formulas to hold the announced October schedule beside today's on the same order.</p>
+  <p><strong>This calculator</strong> keeps the organic-versus-affiliate split, the return rate, and both fee schedules on one screen, already wired to the presets in <a href="./">the calculator</a>. A shareable link carries the full scenario in the URL, and the <a href="what-will-the-tiktok-shop-fee-change-cost-me.html">fee-change page</a> and <a href="affiliate-commission-on-returns.html">returns page</a> work a full example through the arithmetic this page only describes.</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>Does an affiliate-sourced order still profit after a return, commission and all?</td><td>This calculator's organic-vs-affiliate panel &mdash; one screen, the commission-on-returns rule already applied.</td></tr>
+  <tr><td>What does the announced October 2026 schedule do to this same order?</td><td>The <a href="what-will-the-tiktok-shop-fee-change-cost-me.html">fee-change page</a>, not a duplicated sheet.</td></tr>
+  <tr><td>My situation has a wrinkle this calculator doesn't model (a multi-SKU bundle, a tiered commission).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+  <tr><td>I want to compare TikTok Shop to eBay, Etsy, Amazon, Walmart, or my own store too.</td><td>The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> and <a href="../marketplace-fee-compare/">marketplace fee comparison</a>, carried over with this item's numbers.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. Every formula this calculator runs &mdash; the referral fee on the fee base, an affiliate commission that is not clawed back when the order is returned, the creator facilitation fee on affiliate-sourced orders, a break-even and target-margin price, and today's schedule against the announced 1 October 2026 one &mdash; is ordinary arithmetic you can put in a spreadsheet. Getting there means reading the rates off Seller University yourself, building a formula that keeps commission out of a refund credit without also keeping it out of the cost side, and duplicating the whole sheet to hold a second schedule next to the first.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Keep the organic-versus-affiliate split, the return rate, and the fee-schedule comparison on one screen without re-deriving the sheet each time a rate changes. The easiest mistake to make by hand is netting the affiliate commission back out of a returned order's cost &mdash; it is not: the creator keeps it. This calculator applies that rule the same way every time, computes a price that holds your margin, and produces a shareable link that carries the whole scenario instead of a file to keep in sync between two people.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when your situation has a wrinkle this calculator does not model &mdash; a bundle of several SKUs in one order, a tiered commission that changes by volume, or a fee structure from a category or plan this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one SKU moving through the organic-versus-affiliate, returns, and schedule-change decisions.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices, costs, or creator rates.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these decisions in a spreadsheet, not a competing calculator. For the tool-vs-tool comparison, see <a href="vs-tiktok-shops-seller-university.html">this calculator vs. TikTok Shop's own Seller University fee pages</a>. This site is not affiliated with, endorsed by, or sponsored by TikTok Inc. or ByteDance Ltd. TikTok and TikTok Shop are trademarks of TikTok Inc. or its affiliates, named here only to describe what this calculator is for.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
+    <p>Free and open source. If it saves you from a losing SKU, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../thrift-haul-buy-picker/" data-pf-to="thrift-haul-buy-picker">What should you buy to resell, and what's the most to pay for each?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tiktok-shop-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tiktok-shop-fee-calculator"></script>
+</body>
+</html>

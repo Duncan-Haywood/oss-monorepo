@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $180/sf special | Sunroom Bid Calculator</title>
+<meta name="description" content="A flat '$180 a square foot' sunroom special cannot see enclosure type, foundation, insulated roof, or HVAC.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat $180/sf special">
+<meta property="og:description" content="A 10x12 three-season on an existing deck and a 12x16 four-season with a new slab, insulated roof, and HVAC are not the same job.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat $180/sf special get a sunroom quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is enclosure type, foundation, roof, and HVAC, not floor area. A four-season room needs insulated glass, a new insulated slab instead of an existing deck overlay, an insulated roof instead of the existing one, and a mini-split -- none of which scale with the footprint the way a per-square-foot rate assumes. A flat $180/sf special charges all of that the same as the three-season room it was priced from."}},{"@type":"Question","name":"What does a flat $180/sf special usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Foundation work, an insulated roof, and HVAC or electrical. A room built on an existing deck with the existing roof left alone is doing three fewer things than one with a new insulated slab, a new insulated roof, and a mini-split and electrical package added -- and a per-square-foot number has no line for any of them."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped presets: a 120 sq ft three-season room on an existing deck and roof costs $11,395.50 to build. The flat $180/sf special charges $21,600.00 for that room -- $10,204.50 over cost, and even $6,406.00 above this calculator's own 25%-margin bid price. Applied to a 192 sq ft four-season room with a new slab, an insulated roof, and HVAC and electrical, the same $180/sf special charges $34,560.00 -- $870.47 below that room's own $35,430.47 cost to build, before a dollar of profit, and $12,680.63 below the calculator's own bid price."}},{"@type":"Question","name":"Is a flat $180/sf special ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical rooms -- same enclosure type, same foundation, no new roof or HVAC either time -- a flat rate can land close, and on this calculator's own cheap-end preset it lands generous. The risk is applying it outside that band without noticing, because the rate does not know which room it was built on and neither does the estimator until the enclosure, foundation, roof, and HVAC scope are actually spelled out."}},{"@type":"Question","name":"Does this calculator know what materials or labor cost in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material or labor rates. It takes the room's dimensions, enclosure type, foundation, roof, HVAC and electrical scope, plus the labor hours and material costs you enter, and turns that into a price for this room -- the arithmetic a flat rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1c5a3a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sunroom-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $180/sf special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sunroom-bid-calculator/">Sunroom Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $180/sf special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Sunroom Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $180/sf special</h1>
+<p class="lede">&ldquo;$180 a square foot&rdquo; is not a price for a sunroom &mdash; it is a price for one specific enclosure, foundation, roof, and HVAC scope, quietly applied to every room that calls in.</p>
+</header>
+<section>
+<h2>What a flat $180/sf special is</h2>
+<p>
+A flat rate per square foot is the fastest way to quote: multiply the room's
+footprint by a number and read off a price. Homeowners shop it because it is
+easy to compare between bids, and it is the number a homeowner holding a
+competitor's flyer will ask you to match.
+</p>
+<p>
+The number behind it was set for one room &mdash; a three-season enclosure
+on an existing deck, with the existing roof left alone, no HVAC, no
+electrical &mdash; and then reused for every room afterward, whether or not
+the next one looks anything like the one the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+attachment style, enclosure (three-season or four-season), foundation
+(existing deck, existing slab, or new slab), roof (existing or new
+insulated), wall height, dimensions, windows, and sliders, plus whether the
+room needs HVAC, electrical, or a permit, and your own labor hours and
+material costs. It prices the glass, floor, roof, and mechanical scope
+separately by enclosure and foundation type, then returns the walk-away
+price and a bid price above your target margin &mdash; for this room, not a
+generic one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat $180/sf special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/sf whether the enclosure is three-season vinyl or four-season insulated glass &mdash; even though four-season glass alone triples both the install hours per 100 sf and the material cost per foot.</td>
+<td>Prices glass hours and material by enclosure kit, so a four-season room is never quoted off a three-season rate.</td>
+</tr>
+<tr>
+<td>Has no line for foundation work, regardless of whether the room lands on an existing deck overlay or needs a full new insulated slab poured.</td>
+<td>Prices floor hours and material by foundation kit &mdash; existing deck, existing slab, or new slab &mdash; so a new pour costs more than a finish pass on what is already there.</td>
+</tr>
+<tr>
+<td>Has no line for an insulated roof, regardless of whether the existing roof is reused or a new one has to go on.</td>
+<td>Prices roof hours and material only when a new insulated roof is scoped, so leaving the existing roof alone never gets charged for one.</td>
+</tr>
+<tr>
+<td>Has no line for HVAC, electrical, or a permit, regardless of how many the room needs.</td>
+<td>Prices HVAC hours and a mini-split fee, electrical hours and package cost, and a permit fee separately when scoped, so a fully mechanical room costs more than a shell.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat rate would have quoted the same room, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two rooms, the same footprint-blind rate</h2>
+<p>
+Using this calculator's own shipped presets, at its own shipped shop rates
+($38/hr crew wage, 30% burden, $140 travel and equipment, 15% overhead, a
+25% target margin):
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Room</th><th scope="col">This calculator's price</th><th scope="col">A flat $180/sf special, applied by footprint alone</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>120 sq ft (10&times;12) three-season, existing deck, existing roof &mdash; the room the flat number is named for</td><td>$15,194.00 bid price; $11,395.50 break-even cost</td><td>$21,600.00</td><td>The flat special runs $10,204.50 <strong>over</strong> this room's own break-even cost, and $6,406.00 over the calculator's own bid price &mdash; generous on the cheap end.</td></tr>
+<tr><td>192 sq ft (12&times;16) four-season, new slab, insulated roof, HVAC and electrical</td><td>$47,240.63 bid price; $35,430.47 break-even cost</td><td>$34,560.00</td><td>The same $180/sf special quotes $870.47 <strong>below</strong> this room's own break-even cost &mdash; before a dollar of profit &mdash; and $12,680.63 below the calculator's bid price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Both flat-rate quotes use the literal $180/sf rate named in the calculator's own worked presets, applied to each room's own footprint (120 sf and 192 sf). The same number that pads the three-season room's margin by more than half again turns into an outright loss the moment the enclosure, foundation, roof, and mechanicals change &mdash; even though a per-square-foot rate has no way to see any of that. Run your own room's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat rate is not wrong because it is simple &mdash; it is wrong when it is
+applied outside the one room it was built for, and nothing about a
+per-square-foot number tells you when that has happened. This calculator
+does not know your local market; it replaces the arithmetic a flat rate
+skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat $180/sf special get a sunroom quote wrong?</h3>
+<p>Because the cost driver is enclosure type, foundation, roof, and HVAC, not floor area. A four-season room needs insulated glass, a new insulated slab instead of an existing deck overlay, an insulated roof instead of the existing one, and a mini-split -- none of which scale with the footprint the way a per-square-foot rate assumes. A flat $180/sf special charges all of that the same as the three-season room it was priced from.</p>
+<h3>What does a flat $180/sf special usually leave out entirely?</h3>
+<p>Foundation work, an insulated roof, and HVAC or electrical. A room built on an existing deck with the existing roof left alone is doing three fewer things than one with a new insulated slab, a new insulated roof, and a mini-split and electrical package added -- and a per-square-foot number has no line for any of them.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped presets: a 120 sq ft three-season room on an existing deck and roof costs $11,395.50 to build. The flat $180/sf special charges $21,600.00 for that room -- $10,204.50 over cost, and even $6,406.00 above this calculator's own 25%-margin bid price. Applied to a 192 sq ft four-season room with a new slab, an insulated roof, and HVAC and electrical, the same $180/sf special charges $34,560.00 -- $870.47 below that room's own $35,430.47 cost to build, before a dollar of profit, and $12,680.63 below the calculator's own bid price.</p>
+<h3>Is a flat $180/sf special ever the right way to quote?</h3>
+<p>For a narrow band of near-identical rooms -- same enclosure type, same foundation, no new roof or HVAC either time -- a flat rate can land close, and on this calculator's own cheap-end preset it lands generous. The risk is applying it outside that band without noticing, because the rate does not know which room it was built on and neither does the estimator until the enclosure, foundation, roof, and HVAC scope are actually spelled out.</p>
+<h3>Does this calculator know what materials or labor cost in my market?</h3>
+<p>No. It has no data on local material or labor rates. It takes the room's dimensions, enclosure type, foundation, roof, HVAC and electrical scope, plus the labor hours and material costs you enter, and turns that into a price for this room -- the arithmetic a flat rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Sunroom Bid Calculator</a> to price your own room, or read the <a href="how-much-to-charge-to-build-a-sunroom.html">pricing walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a build is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a room.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../home-elevator-bid-calculator/" data-pf-to="home-elevator-bid-calculator">Home Elevator Bid Calculator</a></li>
+      <li><a href="../home-staging-bid-calculator/" data-pf-to="home-staging-bid-calculator">Home Staging Bid Calculator</a></li>
+      <li><a href="../kitchen-tile-backsplash-bid-calculator/" data-pf-to="kitchen-tile-backsplash-bid-calculator">Kitchen Tile Backsplash Bid Calculator</a></li>
+      <li><a href="../painting-bid-calculator/" data-pf-to="painting-bid-calculator">Painting Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sunroom-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sunroom-bid-calculator"></script>
+</body></html>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Property Tax Appeal Calculator — Is Your Assessment Too High?</title>
+  <meta name="description" content="Free property tax appeal calculator: adjust comparable sales to your home, compare with your assessed value, and see the yearly tax saved…">
+  <meta property="og:title" content="Property Tax Appeal Calculator — free, private, in your browser">
+  <meta property="og:description" content="Comparable sales and equity comparison against your assessment, with the tax saved and whether filing pays. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Property Tax Appeal Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool: adjust comparable home sales to your house, compare the value with your assessment, and see the yearly tax saved and whether a property tax appeal pays for itself."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my property is over-assessed?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the market value your assessment implies with what similar nearby homes actually sold for, after adjusting each sale for size, bedrooms, bathrooms, lot, age and how long ago it sold. This tool does that arithmetic from figures you type in, and also compares your assessment per square foot with the assessments of the same homes."}}, {"@type": "Question", "name": "How many comparable sales do I need for a property tax appeal?", "acceptedAnswer": {"@type": "Answer", "text": "Three to six recent, nearby, similar sales is the usual ask. With fewer than three, or with sales older than about twelve months, boards tend to discount the case. The tool flags both."}}, {"@type": "Question", "name": "What is the assessment ratio?", "acceptedAnswer": {"@type": "Answer", "text": "In many jurisdictions the assessed value is a set percentage of market value (for example 100 percent, or 33.3 percent). The tool converts your assessment to the market value it implies using the ratio you enter, so a 100 percent and a 40 percent jurisdiction are both handled. Your notice or assessor's office states the ratio."}}, {"@type": "Question", "name": "What does it cost to appeal, and when is it worth it?", "acceptedAnswer": {"@type": "Answer", "text": "Many boards charge a small filing fee or none, and the yearly tax saved is the assessment reduction times your tax rate. The tool shows the saving, the net over the years you expect it to hold, the win probability at which the appeal breaks even, and what a contingency appeal firm would keep out of the same saving."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors, and no property data leaves your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5a7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 130px; font: 13px ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5a7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .verdict { font-size: 1.25rem; font-weight: 700; color: #1f4a5d; margin: 0 0 6px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 600; margin-top: 14px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Property Tax Appeal Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Property Tax Appeal Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Property Tax Appeal Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PROPERTY TAX APPEAL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your property tax assessment too high, and would an appeal pay?</h1>
+    <p>Enter your <strong>assessed value</strong> and a handful of <strong>recent comparable sales</strong>. Each sale is adjusted to your home for size, bedrooms, baths, lot, age and time since sale, then compared with the market value your assessment implies. A second test compares your assessment per square foot with the assessments of the same homes. Then the money: <strong>tax saved per year</strong>, the <strong>win probability an appeal needs to break even</strong>, and what a <strong>contingency appeal firm</strong> would keep.</p>
+    <p class="note">Nothing you type leaves this browser tab. Independent of every county assessor, appeal firm and listing site. Estimates from the figures you enter and the adjustment rates you choose; not an appraisal.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your home and your notice</h2>
+    <div class="grid">
+      <div><label for="assessed">Assessed value, $</label><input type="number" id="assessed" min="0" step="1000" inputmode="numeric"></div>
+      <div><label for="ratio">Assessment ratio, % of market value</label><input type="number" id="ratio" value="100" min="1" max="200" step="0.1" inputmode="decimal"></div>
+      <div><label for="rate">Total tax rate, % of assessed value</label><input type="number" id="rate" min="0" step="0.01" placeholder="1.85" inputmode="decimal"></div>
+      <div><label for="sqft">Living area, sq ft</label><input type="number" id="sqft" min="0" step="10" inputmode="numeric"></div>
+      <div><label for="beds">Bedrooms</label><input type="number" id="beds" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="baths">Bathrooms</label><input type="number" id="baths" min="0" step="0.5" inputmode="decimal"></div>
+      <div><label for="lot">Lot, sq ft</label><input type="number" id="lot" min="0" step="100" inputmode="numeric"></div>
+      <div><label for="year">Year built</label><input type="number" id="year" min="1700" max="2100" step="1" inputmode="numeric"></div>
+    </div>
+    <p class="note">Tax rate: mills divided by 10 (18.5 mills is 1.85%). The assessment ratio and rate are printed on the notice or at the assessor's site. Leave the rate blank to see values without dollars.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Comparable sales</h2>
+    <p class="note">One sale per line: <strong>label, sale price, sq ft, beds, baths, lot sq ft, year built, months since sale, assessed value</strong>. Only the price is required; blank fields are not adjusted. Leave commas out of numbers (or separate fields with tabs or semicolons). Lines starting with # are ignored. The assessed value column powers the equity test and needs at least three homes.</p>
+    <label for="comps">Comparable sales</label>
+    <textarea id="comps" spellcheck="false" placeholder="14 Maple Ct, 375000, 1900, 3, 2, 7000, 1992, 3, 371000"></textarea>
+    <details>
+      <summary>Adjustment rates and appeal costs (defaults are rules of thumb, change them)</summary>
+      <div class="grid">
+        <div><label for="sqftrate">$ per extra sq ft, blank = 40% of the median comp $/sq ft</label><input type="number" id="sqftrate" min="0" step="1" inputmode="numeric"></div>
+        <div><label for="bedadj">$ per bedroom</label><input type="number" id="bedadj" value="4000" min="0" step="500" inputmode="numeric"></div>
+        <div><label for="bathadj">$ per bathroom</label><input type="number" id="bathadj" value="6000" min="0" step="500" inputmode="numeric"></div>
+        <div><label for="lotadj">$ per 1,000 sq ft of lot</label><input type="number" id="lotadj" value="1500" min="0" step="100" inputmode="numeric"></div>
+        <div><label for="yearadj">$ per year newer</label><input type="number" id="yearadj" value="400" min="0" step="50" inputmode="numeric"></div>
+        <div><label for="drift">Market drift, % per month (negative if prices fell)</label><input type="number" id="drift" value="0.25" step="0.05" inputmode="decimal"></div>
+        <div><label for="fee">Filing fee and other costs, $</label><input type="number" id="fee" value="0" min="0" step="10" inputmode="numeric"></div>
+        <div><label for="years">Years the reduction should hold</label><input type="number" id="years" value="3" min="1" max="10" step="1" inputmode="numeric"></div>
+        <div><label for="cont">Contingency firm's share of first-year saving, %</label><input type="number" id="cont" value="33" min="0" max="100" step="1" inputmode="numeric"></div>
+      </div>
+    </details>
+    <p>
+      <button type="button" id="analyze">Check my assessment</button>
+      <button type="button" class="secondary" id="load-example">Load sample data</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status" role="status"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>3. What the numbers say</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Market value</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Measure</th><th class="n" scope="col">Indicated value</th><th class="n" scope="col">Over-assessed by</th><th class="n" scope="col">Assessment cut</th><th class="n" scope="col">Tax saved / yr</th></tr></thead><tbody id="scen"></tbody></table></div></div>
+    <h3>Equity (assessment per sq ft)</h3>
+    <p id="equity" class="note"></p>
+    <h3>Does filing pay?</h3>
+    <p id="pay" class="note"></p>
+    <h3>Adjusted comparables</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Comparable</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Adjustments</th><th class="n" scope="col">Adjusted</th><th class="n" scope="col">Gross %</th><th scope="col">Note</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Summary you can paste into a note or an email</label>
+    <textarea id="summary" readonly></textarea>
+    <p><button type="button" id="copy" class="secondary">Copy summary</button><button type="button" id="download" class="secondary">Download CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <p><strong>Model.</strong> Adjusted comp = sale price + time drift + (your sq ft − comp sq ft) × $/sq ft + bedroom, bath, lot and age differences × your rates. Comps that needed more than 25% gross or 15% net adjustment are flagged weak. The indicated value weights each comp by how little it needed adjusting; the conservative figure is the lower quartile of adjusted values. The equity value is the median assessed $/sq ft of your comps times your square footage.</p>
+    <p><strong>Not modelled.</strong> Condition, view, finished basement, garage, upgrades, deed restrictions, homestead caps and exemptions, assessment-limit rules, the board's own deadlines and evidence formats, and the chance a board agrees with you. The rates above are rules of thumb, not local market data: a defensible appeal uses paired sales or an appraiser's rates.</p>
+    <p><strong>Reconciles.</strong> The tax saved is the assessment reduction times the rate you entered, nothing else. A jurisdiction that recalculates other levies or drops an exemption after a cut can change the real figure.</p>
+    <p class="note">The numbers are estimates that depend entirely on the figures you provide. Check the filing deadline on your notice; it is often 30 to 90 days.</p>
+    <h3>How do I know if my property is over-assessed?</h3>
+    <p>Compare the market value your assessment implies with what similar nearby homes actually sold for, after adjusting each sale for size, bedrooms, bathrooms, lot, age and how long ago it sold. This tool does that arithmetic from figures you type in, and also compares your assessment per square foot with the assessments of the same homes.</p>
+    <h3>How many comparable sales do I need for a property tax appeal?</h3>
+    <p>Three to six recent, nearby, similar sales is the usual ask. With fewer than three, or with sales older than about twelve months, boards tend to discount the case. The tool flags both.</p>
+    <h3>What is the assessment ratio?</h3>
+    <p>In many jurisdictions the assessed value is a set percentage of market value (for example 100 percent, or 33.3 percent). The tool converts your assessment to the market value it implies using the ratio you enter, so a 100 percent and a 40 percent jurisdiction are both handled. Your notice or assessor's office states the ratio.</p>
+    <h3>What does it cost to appeal, and when is it worth it?</h3>
+    <p>Many boards charge a small filing fee or none, and the yearly tax saved is the assessment reduction times your tax rate. The tool shows the saving, the net over the years you expect it to hold, the win probability at which the appeal breaks even, and what a contingency appeal firm would keep out of the same saving.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors, and no property data leaves your device.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, not an appraisal, and does not replace a licensed appraiser, tax attorney or your assessor's own process. Verify every figure before relying on it or filing anything.</p>
+    <p><strong>Not affiliated with any assessor, appeal firm or listing site.</strong> County assessors, Zillow, Redfin, Ownwell and other names are trademarks of their owners; they are named only to say this tool is not sponsored, endorsed or connected to any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that the tool will stay available.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>appeal_analyzed</code>, <code>example_loaded</code>) are counted in this browser's local storage only, and are off if you turn counting off below or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../seller-net-sheet/">seller net sheet</a>, <a href="../estate-sale-net-proceeds-calculator/">estate sale net proceeds calculator</a>, <a href="../salt-cap-calculator/">SALT cap calculator</a>, <a href="../rental-property-schedule-e-categorizer/">rental property Schedule E categorizer</a>, <a href="../mortgage-escrow-analysis-checker/">mortgage escrow analysis checker</a> (what a tax change does to your escrow payment).</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseComps, analyze, reportCsv, summaryText, sampleData, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (Number.isFinite(n) ? (n < 0 ? "-$" : "$") + money(Math.abs(n)) : "—");
+    let last = null;
+    const v = (id) => $(id).value;
+
+    function run() {
+      const subject = { assessed: v("#assessed"), sqft: v("#sqft"), beds: v("#beds"), baths: v("#baths"), lot: v("#lot"), year: v("#year") };
+      const parsed = parseComps(v("#comps"));
+      const a = analyze(subject, parsed.comps, {
+        ratioPct: parseFloat(v("#ratio")), taxRatePct: parseFloat(v("#rate")), sqftRate: parseFloat(v("#sqftrate")),
+        bedAdj: parseFloat(v("#bedadj")), bathAdj: parseFloat(v("#bathadj")), lotPer1000: parseFloat(v("#lotadj")), yearAdj: parseFloat(v("#yearadj")),
+        monthlyTimePct: parseFloat(v("#drift")), fee: parseFloat(v("#fee")), yearsHeld: parseFloat(v("#years")), contingencyPct: parseFloat(v("#cont")),
+      });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      $("#verdict").textContent = a.verdict;
+      $("#report-stats").textContent = `Assessed ${usd(a.subject.assessed)} at ${a.options.ratioPct}% of market implies ${usd(a.impliedMarket)}. ${a.rows.length} comparable sale(s); adjusted range ${usd(a.market.low)} to ${usd(a.market.high)}, median ${usd(a.market.median)}.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : "<p class='note'>No warnings.</p>";
+      const sc = a.scenarios;
+      $("#scen").innerHTML = [["Weighted comps", sc.likely], ["Lower quartile of comps", sc.conservative]].map(([n, s]) => `<tr><td>${n}</td><td class="n">${usd(s.indicated)}</td><td class="n">${usd(s.overMarket)} (${s.overPct.toFixed(1)}%)</td><td class="n">${usd(s.assessedCut)}</td><td class="n">${usd(s.taxSaved)}</td></tr>`).join("");
+      $("#equity").textContent = a.equity ? `Your assessment is ${usd(a.equity.subjectPerSqft)}/sq ft; the median of ${a.equity.comps} similar homes is ${usd(a.equity.medianPerSqft)}/sq ft. At that rate your assessment would be ${usd(a.equity.target)}, a difference of ${usd(a.equity.over)} (${a.equity.overPct.toFixed(1)}%), worth ${usd(a.equity.taxSaved)} a year in tax.` : "Needs at least three comparables that include both an assessed value and square feet (and your square feet).";
+      const m = a.money;
+      $("#pay").textContent = Object.keys(m).length ? `Net of costs over ${a.options.yearsHeld} year(s), if the appeal wins in full: ${usd(m.likelyNet)} (lower-quartile case ${usd(m.conservativeNet)}). Filing breaks even if you win with probability ${(m.breakEvenOdds * 100).toFixed(0)}% or better. A contingency firm taking ${a.options.contingencyPct}% of the first-year saving would keep ${usd(m.contingencyKeeps)}.` : "Enter your tax rate to see dollars.";
+      $("#rows").innerHTML = a.rows.map((r) => `<tr><td>${esc(r.label)}</td><td class="n">${usd(r.price)}</td><td class="n">${usd(r.adjusted - r.price)}</td><td class="n">${usd(r.adjusted)}</td><td class="n">${r.grossPct.toFixed(1)}%</td><td>${r.weak ? "weak comp" : ""}</td></tr>`).join("");
+      $("#skipped").textContent = parsed.skipped.length ? `${parsed.skipped.length} line(s) skipped: ` + parsed.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + "." : "";
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = "Done.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("appeal_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleData();
+      for (const [k, id] of [["assessed", "#assessed"], ["sqft", "#sqft"], ["beds", "#beds"], ["baths", "#baths"], ["lot", "#lot"], ["year", "#year"]]) $(id).value = s.subject[k];
+      $("#ratio").value = s.opts.ratioPct; $("#rate").value = s.opts.taxRatePct; $("#comps").value = s.comps;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented house and invented sales, not a real property."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#assessed", "#rate", "#sqft", "#beds", "#baths", "#lot", "#year", "#comps", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "property-tax-appeal-comps.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../tfsa-over-contribution-checker/" data-pf-to="tfsa-over-contribution-checker">TFSA over-contribution checker: room left and cost of an excess. Free, private</a></li>
+      <li><a href="../tip-pool-compliance-calculator/" data-pf-to="tip-pool-compliance-calculator">Tip Pool Compliance Calculator</a></li>
+      <li><a href="../trade-show-roi-calculator/" data-pf-to="trade-show-roi-calculator">Is that trade show booth worth it?</a></li>
+      <li><a href="../travel-nurse-contract-comparison-calculator/" data-pf-to="travel-nurse-contract-comparison-calculator">Travel Nurse Contract Comparison Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=property-tax-appeal-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/?pfEmbed=1&quot; title=&quot;Property Tax Appeal Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="property-tax-appeal-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/" data-pf-embed-title="Property Tax Appeal Calculator — free, private, in your browser" data-pf-embed-slug="property-tax-appeal-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="property-tax-appeal-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="property-tax-appeal-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

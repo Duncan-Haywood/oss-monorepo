@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amazon Inventory Loader Check — Find Flat File Errors Before You Upload</title>
+  <meta name="description" content="Free Amazon Seller Central inventory file checker: finds comma or UTF-16 files, UPCs that lost a leading zero, bad UPC and EAN check digits…">
+  <meta property="og:title" content="Amazon Inventory Loader Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks an Amazon inventory file upload, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Amazon Inventory Loader Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an Amazon Seller Central inventory file for delimiter, SKU and product id problems, UPC and EAN check digits, price and quantity format, add-delete codes and condition notes before it is uploaded, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Amazon inventory file validator, UPC check digit checker, EAN check digit checker, Excel leading zero UPC fixer, tab delimited converter, scientific notation SKU finder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why was my Amazon inventory file rejected?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a file that is comma-separated or semicolon-separated instead of tab-delimited, a UPC that lost its leading zero in Excel, a UPC or EAN whose check digit is wrong, SKUs or product ids that Excel turned into scientific notation, prices with currency symbols or decimal commas, a quantity that is negative or has a decimal, an add-delete value other than a, d or x, and a used item with no condition note. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "How do I check a UPC or EAN before uploading it?", "acceptedAnswer": {"@type": "Answer", "text": "The last digit of a UPC or EAN is a checksum of the others. This tool recomputes it for every row, so a mistyped digit is reported before Amazon rejects the row. It also spots an 11-digit UPC that is a 12-digit one with its leading zero removed, and only offers the fix when the restored number passes the check."}}, {"@type": "Question", "name": "Does Seller Central want a tab-delimited file?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of Amazon's public documentation, inventory files are tab-delimited text. Excel's CSV save produces commas, and its Unicode Text save produces UTF-16. This tool reports either and converts to tabs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Amazon Inventory Loader Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Amazon Inventory Loader Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Amazon Inventory Loader Check — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">AMAZON INVENTORY LOADER CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did Amazon reject my inventory file?</h1>
+    <p>Paste or drop your <strong>inventory file</strong> and get every problem <strong>with its line number</strong> before you upload: files that are <strong>comma-separated instead of tab-delimited</strong>, <strong>UPCs that lost their leading zero</strong>, UPCs and EANs <strong>whose check digit is wrong</strong>, SKUs Excel turned into <code>1.23457E+12</code>, prices like <code>$18.00</code> or <code>26,50</code>, negative or fractional quantities, wrong <code>add-delete</code> codes and used items with no condition note. Then <strong>apply the safe fixes</strong> and download a cleaned tab-delimited file.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Amazon.com, Inc. Column names, codes and limits are read from memory of Amazon's public inventory file documentation; no Seller Central upload was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your inventory file</h2>
+    <p class="note">A price and quantity or inventory loader file saved as text or CSV, or a sheet exported from a repricer or inventory tool.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".txt,.tsv,.csv,text/csv,text/plain,text/tab-separated-values">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="sku&#9;product-id&#9;product-id-type&#9;price&#9;quantity&#9;..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Offers</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">SKU</th><th scope="col">Price</th><th class="n" scope="col">Quantity</th></tr></thead><tbody id="products"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Tab-delimited text.</strong> Seller Central reads inventory files as tab-separated text. A comma or semicolon file, or Excel's UTF-16 "Unicode Text", is read wrongly.</li>
+      <li><strong>sku</strong> is required, at most 40 characters, with no stray spaces. A SKU Excel rewrote to scientific notation is flagged because the original digits are gone.</li>
+      <li><strong>product-id and product-id-type</strong>: 1 is an ASIN (ten letters and digits), 2 an ISBN, 3 a UPC (12 digits), 4 an EAN (13 digits). The last digit of a UPC, EAN or ISBN is a checksum and is recomputed for every row.</li>
+      <li><strong>price</strong> is digits and a decimal point only. If minimum and maximum allowed prices are present, the price should sit between them.</li>
+      <li><strong>quantity</strong> is a whole number, zero or more. Amazon counts stock for offers it fulfils, so a quantity there is noted.</li>
+      <li><strong>add-delete</strong> is a (add or update), d (delete the offer) or x (delete the listing). <strong>item-condition</strong> and <strong>condition-type</strong> must be values Amazon knows, and a used item needs a condition note.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, header spelling, stray spaces around a SKU or product id, price formatting, a quantity written as 5.0, add-delete and condition-type capitalisation, and an 11-digit UPC whose restored leading zero passes the check digit. It never edits a SKU's characters, a note, or any other digit.</li>
+      <li><strong>Not checked:</strong> that Amazon will accept the file today, category-specific listing files and their columns, restricted products and brand approval, whether an ASIN exists or matches your item, fees, and anything Amazon changes in its importer. Upload two or three rows first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why was my Amazon inventory file rejected?</h3>
+    <p>The usual causes are a file that is comma-separated or semicolon-separated instead of tab-delimited, a UPC that lost its leading zero in Excel, a UPC or EAN whose check digit is wrong, SKUs or product ids that Excel turned into scientific notation, prices with currency symbols or decimal commas, a quantity that is negative or has a decimal, an add-delete value other than a, d or x, and a used item with no condition note. This tool tests each of them and names the line.</p>
+    <h3>How do I check a UPC or EAN before uploading it?</h3>
+    <p>The last digit of a UPC or EAN is a checksum of the others. This tool recomputes it for every row, so a mistyped digit is reported before Amazon rejects the row. It also spots an 11-digit UPC that is a 12-digit one with its leading zero removed, and only offers the fix when the restored number passes the check.</p>
+    <h3>Does Seller Central want a tab-delimited file?</h3>
+    <p>From memory of Amazon's public documentation, inventory files are tab-delimited text. Excel's CSV save produces commas, and its Unicode Text save produces UTF-16. This tool reports either and converts to tabs.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, header spelling, stray spaces, prices like $1,299.00 to 1299.00, a quantity of 5.0 to 5, add-delete and condition-type capitalisation, and an 11-digit UPC to 12 digits when the check digit confirms the restored zero. It never edits a SKU's characters or a note.</p>
+    <h3>Is it safe to put my inventory into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Amazon will accept the file today, category listing files, restricted products and brand approval, and whether a product id matches your item. A clean result is not a promise of success: upload a few rows first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Amazon's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small sample first, and a clean result is not a promise that Amazon will accept the file or that the offers will sell.</p>
+    <p><strong>Not affiliated with Amazon.</strong> This tool is independent and is not sponsored, endorsed or connected to Amazon.com, Inc. or any app or marketplace vendor. Amazon is a trademark of its owner, used here only to say which file format the tool reads. The column list, codes and limits are read from memory of public sources and may be out of date or miss a variant; check them against Amazon's current documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../amazon-fba-calculator/">Amazon FBA calculator</a> and the <a href="../amazon-seller-profit-analyzer/">Amazon seller profit analyzer</a> show what an offer earns after fees, the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> and the <a href="../etsy-listing-csv-check/">Etsy listing CSV check</a> do the same job for those platforms' files, the <a href="../ebay-file-exchange-check/">eBay File Exchange check</a> does it for eBay files, and the <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks where to sell an item.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.listings} offer${s.listings === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#products").innerHTML = s.groups.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.handle)}</td><td>${esc(g.title)}</td><td class="n">${esc(g.variants)}</td></tr>`).join("") || `<tr><td colspan="4">No offers found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. SKU characters, notes and other digits are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up seller's three offers, not real products."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of file after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("amazon-inventory-cleaned.txt", fixedText, "text/tab-separated-values"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("amazon-inventory-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+      <li><a href="../marketplace-fee-compare/" data-pf-to="marketplace-fee-compare">Which marketplace nets the most on this item?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-inventory-loader-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/?pfEmbed=1&quot; title=&quot;Amazon Inventory Loader Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="amazon-inventory-loader-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/" data-pf-embed-title="Amazon Inventory Loader Check — free, private, in your browser" data-pf-embed-slug="amazon-inventory-loader-check"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Printing &amp; Embroidery Price Calculator vs. a Flat $14-a-Shirt Price | Worked Comparison</title>
+  <meta name="description" content="Plenty of shops quote one flat 'per shirt' price no matter the job. On this calculator's own shipped defaults…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html">
+  <meta property="og:title" content="Screen Printing &amp; Embroidery Price Calculator vs. a Flat $14-a-Shirt Price">
+  <meta property="og:description" content="A flat per-shirt price is fine for a quote sheet. Here is what it hides once the job is real: the same $14 a shirt turns a real profit on a front-only run and…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat price per shirt wrong?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not go away. A quote sheet or a walk-in customer needs one number, and \"$14 a shirt\" is a fine headline rate. The point of this page is not that the flat rate is wrong — it is that the same per-shirt number is charged whether the job is a single 3-colour front placement or that same front plus a 3-colour back, and only a real cost breakdown separates the two."}},{"@type":"Question","name":"Does the flat $14-a-shirt price even cover a small front-only order?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped defaults, yes, with room to spare on paper but not much on target margin. A 12-piece, one-placement, 3-colour job costs $151.60 in total before any profit. At $14 a shirt that is $168.00 in revenue — a $16.40 profit, a 9.8% margin, well under the 40% target margin this calculator ships with by default."}},{"@type":"Question","name":"What happens to that same $14 price once a back placement is added?","acceptedAnswer":{"@type":"Answer","text":"It goes from a thin profit to a real loss. The identical 12-piece order printed front and back needs six screens instead of three, so total cost rises to $210.90 on this calculator's own defaults — and the same $14-a-shirt price still only brings in $168.00. That is a $42.90 loss, a -25.5% margin, on an order that looked exactly as biddable as the front-only one from the quote sheet."}},{"@type":"Question","name":"Does the calculator replace the flat per-shirt price?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The flat rate is what you quote to close the sale. This calculator is what you run once you know the quantity, the decoration method, and the number of placements, to check whether that job's version of \"the $14-a-shirt order\" still covers cost — and, on a job with more placements than the one the flat rate was set against, whether it needs its own price instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1b23; background: #f5f3f0; }
+    body { max-width: 780px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #5a2438; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; color: #5a2438; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e0d6d9; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5a2438; }
+    .note { font-size: .9rem; color: #55505c; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #5a2438; color: #fdf3e6; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 32px; font-size: .85rem; color: #4a1e2f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Screen Printing &amp; Embroidery Price Calculator vs. a Flat $14-a-Shirt Price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../apparel-decoration-price-calculator/">Screen Printing &amp; Embroidery Price Calculator — cost per shirt, setup &amp; margin</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Screen Printing &amp; Embroidery Price Calculator vs. a Flat $14-a-Shirt Price</span></span></nav>
+  <p><a href="index.html">&larr; Screen printing and embroidery price calculator</a></p>
+  <h1>This calculator vs. a flat $14-a-shirt price</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic
+    pricing habit apparel decorators are shopped against every day: one flat "per shirt" price
+    &mdash; commonly a "$14 a shirt" quote &mdash; charged the same regardless of decoration
+    method, colour count, or how many placements the job actually needs.</p>
+
+  <h2>First &mdash; the flat per-shirt price is right, and you should have one</h2>
+  <p>A quote sheet or a walk-in customer needs a number before anyone has counted screens.
+    "$14 a shirt" is a perfectly fine headline rate, and no calculator replaces having one. What
+    follows is not an argument that the flat rate is wrong. It is what that same rate stops
+    showing you the moment a job is real and you know its quantity, its decoration method, and how
+    many placements it needs.</p>
+
+  <h2>The worked example</h2>
+  <p>Both columns below are this calculator's own shipped default shop rates &mdash; a $20/hr wage
+    loaded 18% to $23.60/hr, $18 to burn and register each screen, $4.20 blanks with a 4% spoilage
+    allowance, $5,200 of monthly overhead spread across 2,600 monthly pieces &mdash; on the same
+    12-shirt, 3-colour screen-print order, quoted at the same $14-a-shirt price either way. The only
+    thing that changes between the two columns is whether the design is printed on the front only
+    or on the front and the back.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Front only &mdash; 12 shirts, 1 placement, 3 colours</th><th>Front + back &mdash; the same 12 shirts, 2 placements, 3 colours each</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What the flat $14/shirt price charges</strong></td>
+          <td>$168.00 &mdash; 12 &times; $14</td>
+          <td>$168.00 &mdash; 12 &times; $14, unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Screens needed</strong></td>
+          <td>3 &mdash; one per colour, one placement</td>
+          <td>6 &mdash; one per colour, at every placement</td>
+        </tr>
+        <tr>
+          <td><strong>Setup cost</strong> (screens + art time)</td>
+          <td>$65.80</td>
+          <td>$119.80</td>
+        </tr>
+        <tr>
+          <td><strong>Blanks</strong> (13 purchased at 4% spoilage)</td>
+          <td>$54.60</td>
+          <td>$54.60 &mdash; unchanged, same 12 shirts</td>
+        </tr>
+        <tr>
+          <td><strong>Run labour and ink</strong></td>
+          <td>$7.20</td>
+          <td>$12.50 &mdash; a second press pass, twice the ink</td>
+        </tr>
+        <tr>
+          <td><strong>Overhead share</strong></td>
+          <td>$24.00</td>
+          <td>$24.00 &mdash; unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Total cost before any profit</strong></td>
+          <td>$151.60</td>
+          <td>$210.90</td>
+        </tr>
+        <tr>
+          <td><strong>What the flat $14/shirt price actually nets</strong></td>
+          <td>$16.40 profit &mdash; a thin 9.8% margin</td>
+          <td>&minus;$42.90 &mdash; a real loss, not a thin margin</td>
+        </tr>
+        <tr>
+          <td><strong>This calculator's break-even price per piece</strong></td>
+          <td>$12.63</td>
+          <td>$17.57</td>
+        </tr>
+        <tr>
+          <td><strong>This calculator's price at a 40% target margin</strong></td>
+          <td>$21.06</td>
+          <td>$29.29 &mdash; $8.24 more, for the same $14/shirt headline</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The two places the flat rate goes quiet</h2>
+
+  <h3>1. Setup is per placement, not per design</h3>
+  <p>A flat per-shirt rate answers "what do I charge per shirt," not "how many screens this job
+    needs." Both live inside the same $14 either way. The calculator splits them out &mdash; 3
+    screens on the front-only job, 6 screens the moment a back placement is added &mdash; so a
+    second placement is a visible line item instead of one flat rate that happened to work out on
+    the last job.</p>
+
+  <h3>2. The same advertised rate does not scale with the job</h3>
+  <p>This is the one that costs real money. The flat rate charges $14 a shirt whether the order is
+    a single front placement or the same order printed front and back, but the cost behind it is
+    not the same &mdash; on this calculator's own defaults, the flat rate still nets a thin profit
+    on the front-only job and a real loss the moment a second placement is added, with nothing on
+    the quote sheet to say so. A shop quoting "$14 a shirt" on every job can price the front-only
+    orders fine and lose money on every one that turns out to need the back printed too.</p>
+
+  <h2>When the flat per-shirt price is still the better tool</h2>
+  <p>For a quote sheet, it plainly is. A walk-in customer or a phone quote cannot fill out a live
+    calculator, and most people asking "how much for a shirt" want one number, not a form. The
+    sensible arrangement is both: quote the flat rate to close the sale, then run this calculator
+    once you know the quantity, the decoration method, and the placement count, to check whether
+    that job's version of "the $14-a-shirt order" still covers cost &mdash; and, on a job with more
+    placements than the one the flat rate was set against, whether it needs its own price instead.</p>
+
+  <p class="note">Every figure on this page is this calculator's own worked example, computed from
+    its own shipped default shop rates ($20/hr wage, 18% payroll load, $18 screens, $4.20 blanks,
+    4% spoilage, $5,200 monthly overhead over 2,600 monthly pieces), not a claim about any real
+    shop's business or an industry benchmark. Your rates, wages, and overhead will produce
+    different numbers &mdash; the point is which numbers to produce, not what they should come out
+    to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Is a flat price per shirt wrong?</h3>
+  <p>No, and it should not go away. A quote sheet or a walk-in customer needs one number, and
+    "$14 a shirt" is a fine headline rate. The point of this page is not that the flat rate is
+    wrong &mdash; it is that the same per-shirt number is charged whether the job is a single
+    3-colour front placement or that same front plus a 3-colour back, and only a real cost
+    breakdown separates the two.</p>
+
+  <h3>Does the flat $14-a-shirt price even cover a small front-only order?</h3>
+  <p>On this calculator's own shipped defaults, yes, with room to spare on paper but not much on
+    target margin. A 12-piece, one-placement, 3-colour job costs $151.60 in total before any
+    profit. At $14 a shirt that is $168.00 in revenue &mdash; a $16.40 profit, a 9.8% margin, well
+    under the 40% target margin this calculator ships with by default.</p>
+
+  <h3>What happens to that same $14 price once a back placement is added?</h3>
+  <p>It goes from a thin profit to a real loss. The identical 12-piece order printed front and back
+    needs six screens instead of three, so total cost rises to $210.90 on this calculator's own
+    defaults &mdash; and the same $14-a-shirt price still only brings in $168.00. That is a $42.90
+    loss, a -25.5% margin, on an order that looked exactly as biddable as the front-only one from
+    the quote sheet.</p>
+
+  <h3>Does the calculator replace the flat per-shirt price?</h3>
+  <p>No, and it is not trying to. The flat rate is what you quote to close the sale. This
+    calculator is what you run once you know the quantity, the decoration method, and the number of
+    placements, to check whether that job's version of "the $14-a-shirt order" still covers cost
+    &mdash; and, on a job with more placements than the one the flat rate was set against, whether
+    it needs its own price instead.</p>
+
+  <p>
+    <a class="cta" href="index.html">Price your own decoration job &rarr;</a><br>
+    <a href="should-i-charge-extra-for-a-second-print-location.html">Should I charge extra for a second print location? &rarr;</a>
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you from matching a losing rate, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fbar-8938-checker/" data-pf-to="fbar-8938-checker">FBAR and Form 8938 checker</a></li>
+      <li><a href="../fire-extinguisher-inspection-route-margin/" data-pf-to="fire-extinguisher-inspection-route-margin">Fire Extinguisher Inspection Route Margin Calculator</a></li>
+      <li><a href="../fishing-charter-trip-pricing-calculator/" data-pf-to="fishing-charter-trip-pricing-calculator">Charter boat pricing calculator: what to charge per trip. Free, private</a></li>
+      <li><a href="../fishing-crew-share-settlement-calculator/" data-pf-to="fishing-crew-share-settlement-calculator">Fishing crew share settlement: who gets what from the trip</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=apparel-decoration-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="apparel-decoration-price-calculator"></script>
+</body>
+</html>

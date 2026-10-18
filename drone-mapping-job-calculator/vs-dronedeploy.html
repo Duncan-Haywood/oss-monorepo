@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. DroneDeploy | Drone Mapping Job Calculator</title>
+<meta name="description" content="DroneDeploy is a cloud drone-mapping and reality-capture platform, sold as an ongoing account-based subscription, used to fly…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/vs-dronedeploy.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. DroneDeploy">
+<meta property="og:description" content="Two different shapes: DroneDeploy is an account-based platform for flying, processing and sharing aerial maps.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/vs-dronedeploy.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or DroneDeploy?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a mapping pilot of any size will likely end up touching both. DroneDeploy is a cloud reality-capture platform used to plan and fly an automated mapping mission from a mobile app, upload the resulting images, process them into orthomosaics, 3D models and other survey outputs, and share and measure the results with a team or client, tied to one account used on an ongoing paid basis across a company's flights. DroneDeploy's own site is not reachable from this session to confirm today's specific feature list, plan names, or pricing, so only its well-documented identity and category are stated here, and no dollar figure for it appears anywhere on this page. This calculator does one narrower thing: starting from your camera's physical sensor width and true focal length, the site area, altitude, front and side overlap and ground speed, it computes ground sample distance, flight-line spacing, exposure spacing, image count, path length and airtime; adds sorties, battery swaps, setup, ground-control and travel time; adds the processing hours that follow the image count; and turns that into total cost and the price that clears a target margin taken on price, before any image is ever captured or a flight-planning app is opened. It runs free in any browser, keeps no account, and uploads nothing you type. A pilot who already flies through DroneDeploy and wants a cloud pipeline for capture, processing and client-facing maps is better served there; a pilot who wants an instant, private answer to what a mapping job should cost from its overlap, altitude and site size before ever opening a flight app is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with DroneDeploy?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by DroneDeploy. DroneDeploy is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#13405a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#45535e}section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccd4da;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#45535e}.fine,.note{font-size:.88rem;color:#45535e}footer{color:#45535e;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. DroneDeploy — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../drone-mapping-job-calculator/">Drone Mapping Job Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. DroneDeploy</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Drone Mapping Job Calculator</a></p>
+<header>
+<h1>This calculator vs. DroneDeploy</h1>
+<p class="lede">Two different shapes: DroneDeploy is an account-based cloud platform for flying, processing and sharing aerial maps and 3D models. This page is a free, private worksheet for one question &mdash; what should this mapping job cost, given its overlap, altitude, site size and processing time &mdash; before you ever open a flight-planning app.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>DroneDeploy</strong> is a cloud reality-capture platform used by
+  mapping and survey pilots, agronomists, construction and mining teams to
+  plan and fly an automated mission from a mobile app, upload the captured
+  images, process them into orthomosaics, point clouds, 3D models and other
+  survey outputs, and share and measure the results with a team or client,
+  tied to one account used on an ongoing paid basis across every flight a
+  company runs. DroneDeploy's own site is not reachable from this session to
+  confirm today's specific feature list, plan names, or pricing, so only its
+  well-documented identity and category are stated here: nothing about it is
+  invented, and no dollar figure for it appears on this page. Public
+  descriptions of that flight-planning and cloud-processing platform describe
+  capturing and turning images into maps and models once a mission is flown;
+  none describe working out what a mapping job should cost, in dollars, from
+  its ground sample distance, overlap settings, flight-line count, battery
+  swaps and processing time &mdash; which is the one thing this calculator
+  does.
+</p>
+<p>
+  This calculator does none of what DroneDeploy does. It does not fly a
+  mission, capture an image, stitch an orthomosaic, or store a project in an
+  account. It takes one job's sensor width and true focal length, site area,
+  altitude, front and side overlap, ground speed, usable battery window and
+  batteries carried, and turns that into ground sample distance, flight-line
+  spacing, exposure spacing, image count, path length, airtime, sorties and
+  battery swaps &mdash; then adds setup, ground-control-point time, battery
+  swap time and travel, prices field and processing hours separately, and
+  turns the total into the price that clears a target margin taken on price
+  rather than as a markup on cost, plus a side-by-side of the same site at
+  four overlap settings. It runs free in any browser, keeps no account, and
+  uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need to fly an automated mission, capture images, and turn them into an orthomosaic, point cloud or 3D model.</td><td>DroneDeploy, or a comparable reality-capture platform &mdash; capturing and processing imagery is not something this calculator does.</td></tr>
+<tr><td>What should I charge for this mapping job, given its site size, altitude, overlap and processing time?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>How much more does 80/80 overlap cost in images and processing than 70/70, for this exact site?</td><td>This calculator's four-overlap side-by-side table, not a flat per-acre rate.</td></tr>
+<tr><td>Would my target GSD need more altitude than the 400 ft Part 107 ceiling allows?</td><td>This calculator's Part 107 ceiling check.</td></tr>
+<tr><td>I already fly through DroneDeploy and need cloud processing, storage and client-facing maps across many projects.</td><td>DroneDeploy &mdash; built as an ongoing, account-based platform for exactly that job.</td></tr>
+<tr><td>How does the math behind a drone mapping bid actually work?</td><td>This calculator's own <a href="./how-much-to-charge-for-drone-mapping.html">worked example</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. DroneDeploy's tools are used through a paid account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most mapping pilots get different value from each: DroneDeploy (or a
+  comparable reality-capture platform) for flying, processing and sharing
+  maps as an ongoing account, and a private calculator like this one for an
+  instant, no-login answer to what one mapping job should cost from its
+  overlap, altitude and site size before a flight-planning app is ever
+  opened. This page's own figures are a pricing model, not a captured image,
+  a processed map, or a stored project.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section id="faq">
+<h2>Common questions</h2>
+<h3>Should I use this calculator or DroneDeploy?</h3>
+<p>They do different jobs, and a mapping pilot of any size will likely end up touching both. DroneDeploy is a cloud reality-capture platform used to plan and fly an automated mapping mission from a mobile app, upload the resulting images, process them into orthomosaics, 3D models and other survey outputs, and share and measure the results with a team or client, tied to one account used on an ongoing paid basis across a company's flights. DroneDeploy's own site is not reachable from this session to confirm today's specific feature list, plan names, or pricing, so only its well-documented identity and category are stated here, and no dollar figure for it appears anywhere on this page. This calculator does one narrower thing: starting from your camera's physical sensor width and true focal length, the site area, altitude, front and side overlap and ground speed, it computes ground sample distance, flight-line spacing, exposure spacing, image count, path length and airtime; adds sorties, battery swaps, setup, ground-control and travel time; adds the processing hours that follow the image count; and turns that into total cost and the price that clears a target margin taken on price, before any image is ever captured or a flight-planning app is opened. It runs free in any browser, keeps no account, and uploads nothing you type. A pilot who already flies through DroneDeploy and wants a cloud pipeline for capture, processing and client-facing maps is better served there; a pilot who wants an instant, private answer to what a mapping job should cost from its overlap, altitude and site size before ever opening a flight app is in the right place here.</p>
+<h3>Is this page affiliated with DroneDeploy?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by DroneDeploy. DroneDeploy is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Drone Mapping Job Calculator</a> to price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not aviation, legal, safety, surveying or financial advice, it is not a flight plan, and it grants no airspace authorisation. It does not know your terrain, obstacles, airspace, weather, battery health or aircraft endurance. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for planning and flying the actual mission safely, and for complying with 14 CFR Part 107 and every other rule that applies where you fly. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+<p class="seo-link"><a href="./how-much-to-charge-for-drone-mapping.html">How much should you charge for drone mapping?</a> &mdash; the worked example line by line, and why quoting by the acre loses money.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../party-bus-charter-profit-calculator/" data-pf-to="party-bus-charter-profit-calculator">Party Bus Charter Profit Calculator — true profit, margin and lowest quote per charter</a></li>
+      <li><a href="../patent-maintenance-fee-planner/" data-pf-to="patent-maintenance-fee-planner">Patent Maintenance Fee Planner</a></li>
+      <li><a href="../pawn-loan-profit-calculator/" data-pf-to="pawn-loan-profit-calculator">Pawn loan profit calculator for pawnbrokers</a></li>
+      <li><a href="../pay-application-generator/" data-pf-to="pay-application-generator">Progress billing and retainage, worked out line by line — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=drone-mapping-job-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="drone-mapping-job-calculator"></script>
+</body></html>

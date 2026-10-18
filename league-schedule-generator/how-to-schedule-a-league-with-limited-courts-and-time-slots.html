@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scheduling A League With Limited Courts And Time Slots</title>
+  <meta name="description" content="How to fit a round robin onto two courts and two time slots: how many slots a round needs, how to share early and late slots fairly…">
+  <meta property="og:title" content="Scheduling A League With Limited Courts And Time Slots">
+  <meta property="og:description" content="Slots per round, fair early and late slots, and a worked six-team, two-court example. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-schedule-a-league-with-limited-courts-and-time-slots.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many courts do I need for a round robin?", "acceptedAnswer": {"@type": "Answer", "text": "Half the number of teams, rounded down, matches per round, so you need that many court-and-time slots in each round. Six teams play 3 matches a round: three courts at one time, or two courts at two times, or one court at three times. Count courts times time slots, not courts alone."}}, {"@type": "Question", "name": "What happens if I do not have enough courts or time slots?", "acceptedAnswer": {"@type": "Answer", "text": "The tool refuses to build the schedule and says how many matches a round needs and how many your courts and times fit, rather than quietly double-booking a court. Add a court, add a time slot, or play fewer teams per night by splitting into pools."}}, {"@type": "Question", "name": "How do I make early and late slots fair?", "acceptedAnswer": {"@type": "Answer", "text": "Count how many early slots each team gets across the season and keep the counts within one of each other. The tool assigns slots by seeded simulated annealing against that cost, so in the six-team example every team plays the 18:00 slot two or three times out of five."}}, {"@type": "Question", "name": "Can a team that can only play early be given early slots?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give that team a time limit such as Lob Squad: 17:00 and it is only offered slots that start by then; rainout moves respect the limit and the validator flags any breach."}}, {"@type": "Question", "name": "Why does the same input always give the same schedule?", "acceptedAnswer": {"@type": "Answer", "text": "The slot search is seeded, so the same teams, courts, times and seed give the same schedule every time. Change the seed to get a different, equally valid arrangement."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-schedule-a-league-with-limited-courts-and-time-slots.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Scheduling A League With Limited Courts And Time Slots — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../league-schedule-generator/">League Schedule Generator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Scheduling A League With Limited Courts And Time Slots</span></span></nav>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to schedule a league with limited courts and time slots, with a worked example</h1>
+  <p>A round robin tells you who plays whom each week. It does not tell you which court or what time, and that is where hand-made schedules go wrong: a court booked twice, or one team stuck with the 8 pm slot all season. The rule is simple. Each round has half as many matches as teams (rounded down), and every match needs its own court-and-time slot.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (list your courts and start times; slots are shared out for you)</p>
+  <h2>A worked example: 6 teams, 2 courts, 2 start times</h2>
+  <p>Six invented teams play a single round robin on Tuesdays: 5 rounds of 3 matches. Two courts at 18:00 and 19:00 give four slots a round, one more than needed. Home team is listed first.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Matches (court and time)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Bears v Foxes (Court A 18:00), Hawks v Wolves (Court A 19:00), Owls v Lynx (Court B 19:00)</td></tr>
+      <tr><td>2</td><td>Wolves v Owls (Court A 18:00), Foxes v Hawks (Court B 18:00), Lynx v Bears (Court A 19:00)</td></tr>
+      <tr><td>3</td><td>Hawks v Lynx (Court A 18:00), Bears v Owls (Court B 18:00), Foxes v Wolves (Court B 19:00)</td></tr>
+      <tr><td>4</td><td>Owls v Hawks (Court A 18:00), Wolves v Bears (Court B 18:00), Lynx v Foxes (Court B 19:00)</td></tr>
+      <tr><td>5</td><td>Lynx v Wolves (Court B 18:00), Foxes v Owls (Court A 19:00), Hawks v Bears (Court B 19:00)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Across the five rounds every team plays the 18:00 slot two or three times and the 19:00 slot two or three times, and no court is used twice at the same time. The assignment is a seeded search, so the same input always gives the same table.</p>
+  <p>The table comes from the same code the page runs and a test recomputes it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How many courts do I need for a round robin?</h3>
+  <p>Half the number of teams, rounded down, matches per round, so you need that many court-and-time slots in each round. Six teams play 3 matches a round: three courts at one time, or two courts at two times, or one court at three times. Count courts times time slots, not courts alone.</p>
+  <h3>What happens if I do not have enough courts or time slots?</h3>
+  <p>The tool refuses to build the schedule and says how many matches a round needs and how many your courts and times fit, rather than quietly double-booking a court. Add a court, add a time slot, or play fewer teams per night by splitting into pools.</p>
+  <h3>How do I make early and late slots fair?</h3>
+  <p>Count how many early slots each team gets across the season and keep the counts within one of each other. The tool assigns slots by seeded simulated annealing against that cost, so in the six-team example every team plays the 18:00 slot two or three times out of five.</p>
+  <h3>Can a team that can only play early be given early slots?</h3>
+  <p>Yes. Give that team a time limit such as Lob Squad: 17:00 and it is only offered slots that start by then; rainout moves respect the limit and the validator flags any breach.</p>
+  <h3>Why does the same input always give the same schedule?</h3>
+  <p>The slot search is seeded, so the same teams, courts, times and seed give the same schedule every time. Change the seed to get a different, equally valid arrangement.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">byes with an odd number of teams</a>, and <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your event's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+</body>
+</html>

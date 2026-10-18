@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Store Target API Level Checker — targetSdkVersion deadline</title>
+<meta name="description" content="Free, browser-local checker: reads your AndroidManifest.xml or build.gradle(.kts) targetSdkVersion and compares it against Google Play's published target API…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/target-api-level.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Play Store Target API Level Checker">
+<meta property="og:description" content="Check your app's targetSdkVersion against Google Play's target API level enforcement deadline before an update stops reaching newer Android devices.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/target-api-level.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Play Store Target API Level Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI is also provided",
+  "description": "Reads a declared targetSdkVersion out of an Android project's AndroidManifest.xml or Gradle build files and checks it against Google Play's published target API level enforcement requirement for the chosen form factor. Runs entirely in the browser or as a local CLI; nothing is uploaded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Detects targetSdkVersion/targetSdk from AndroidManifest.xml, Gradle Groovy, and Kotlin DSL syntax",
+    "Compares against Google Play's published per-form-factor target API level requirement (phone/tablet, Wear OS, Android TV, Android XR, Android Automotive OS)",
+    "Names the exact file and line a declaration was found on, and flags a variable or version-catalog reference it cannot resolve instead of guessing",
+    "Shows both the existing-app-update floor and the new-app floor, and the days remaining to the primary and extension deadlines",
+    "Runs fully client-side or as a Node CLI in your own CI; no upload, no account"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What happens if my app's targetSdkVersion is below Google Play's requirement?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Your app is not removed from Google Play. Instead, it stops being visible to and installable by new users on a device running a newer Android version than your app targets. Existing installs, and users on an OS version at or below your app's target, are unaffected." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the required target API level the same for every app?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Google Play sets a different floor per form factor -- phone/tablet, Wear OS, Android TV, Android XR, and Android Automotive OS each have their own required level, and a newly published app must meet a higher floor than an update to an app already on Google Play. Pick your form factor above before reading the result." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I get more time to meet the deadline?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Google states that an extension to the primary deadline can be requested in Play Console. This tool shows both the primary deadline and the extension deadline it has on record, but whether an extension applies to your app is only visible in your own Play Console -- this tool cannot see that." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my project uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 860px; margin: 0 auto; padding: 1.5rem; line-height: 1.5; }
+  h1 { font-size: 1.5rem; }
+  .picker { border: 2px dashed #888; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  select, button { font-size: 1rem; padding: 0.4rem 0.7rem; }
+  button { cursor: pointer; }
+  .link-button { font-size: inherit; padding: 0; border: none; background: none; color: #0366d6; text-decoration: underline; cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: 0.6; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1.5rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.92rem; }
+  .status-ok { color: #1a7f37; font-weight: 600; }
+  .status-bad { color: #b42318; font-weight: 600; }
+  .declarations { margin: 0.25rem 0 0; padding-left: 1.1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; color: #555; }
+  footer p { margin: 0.6rem 0; }
+  .summary-ok { color: #1a7f37; }
+  .summary-bad { color: #b42318; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 600; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Play Store Target API Level Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../android-data-safety-check/">Android Data Safety Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Play Store Target API Level Checker</span></span></nav>
+<h1>Play Store Target API Level Checker</h1>
+<p>
+  Reads your <code>AndroidManifest.xml</code> or Gradle
+  <code>targetSdkVersion</code>/<code>targetSdk</code> declaration and checks it
+  against Google Play's published <strong>target API level requirement</strong> --
+  the gate that restricts an update from reaching devices on newer Android
+  versions once its target API level falls too far behind, separate from the
+  Data safety declaration the <a href="index.html">sibling checker on this
+  page</a> covers. Everything runs in this tab; nothing is uploaded. A
+  command-line version for CI is in the same
+  <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/android-data-safety-check" rel="noopener">repository</a>
+  (<code>node target-sdk-check.mjs . --form-factor phone-tablet</code>).
+</p>
+
+<div class="picker">
+  <label for="fileInput">1. Select your AndroidManifest.xml and/or build.gradle(.kts) files</label>
+  <small>Select-all works for multiple files. Not at your project right now?
+  <button type="button" id="loadExample" class="link-button">Load a worked example</button> instead.</small><br><br>
+  <input type="file" id="fileInput" multiple accept=".xml,.gradle,.kts">
+  <p id="fileCount">No files selected yet.</p>
+</div>
+
+<label for="formFactor">2. Form factor</label>
+<select id="formFactor"></select>
+
+<p><button id="runBtn" type="button" disabled>3. Check</button></p>
+
+<div id="results" aria-live="polite"></div>
+
+<script type="module">
+  import { detectTargetSdk, buildTargetSdkReport, FORM_FACTORS, TARGET_API_REQUIREMENT } from './target-sdk-scan.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const fileInput = document.getElementById('fileInput');
+  const fileCountEl = document.getElementById('fileCount');
+  const runBtn = document.getElementById('runBtn');
+  const resultsEl = document.getElementById('results');
+  const loadExampleBtn = document.getElementById('loadExample');
+  const formFactorSelect = document.getElementById('formFactor');
+
+  for (const f of FORM_FACTORS) {
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = `${f.label} (existing app >= API ${f.requiredExisting}, new app >= API ${f.requiredNew})`;
+    formFactorSelect.appendChild(opt);
+  }
+
+  let selected = [];
+
+  fileInput.addEventListener('change', () => {
+    selected = Array.from(fileInput.files);
+    fileCountEl.textContent = selected.length === 0
+      ? 'No files selected yet.'
+      : `${selected.length} file(s) selected.`;
+    runBtn.disabled = selected.length === 0;
+  });
+
+  function runCheck(fileRecords, event) {
+    const detected = detectTargetSdk(fileRecords);
+    const report = buildTargetSdkReport(detected, formFactorSelect.value);
+    renderReport(report);
+
+    const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
+    recordUsage(localStorage, optedOut, event);
+  }
+
+  runBtn.addEventListener('click', async () => {
+    const fileRecords = await Promise.all(
+      selected.map(async (f) => ({ path: f.webkitRelativePath || f.name, content: await f.text() })),
+    );
+    runCheck(fileRecords, 'target_sdk_scan_run');
+  });
+
+  // Same reasoning as the sibling Data safety tool: a visitor deciding
+  // whether to dig up their Gradle files needs something to try the tool on
+  // first.
+  const EXAMPLE_GRADLE = `android {
+    defaultConfig {
+        // Below the 2026-08-31 existing-app floor of 35 for phone/tablet.
+        targetSdkVersion 33
+    }
+}
+`;
+
+  loadExampleBtn?.addEventListener('click', () => {
+    fileInput.value = '';
+    selected = [];
+    fileCountEl.textContent = 'Showing a worked example — pick your own files above to check your project instead.';
+    formFactorSelect.value = 'phone-tablet';
+    runCheck([{ path: 'app/build.gradle', content: EXAMPLE_GRADLE }], 'example_loaded');
+  });
+
+  function fmtDays(n) {
+    if (n === 0) return 'today';
+    return n > 0 ? `in ${n} day(s)` : `${Math.abs(n)} day(s) ago`;
+  }
+
+  function renderReport(report) {
+    resultsEl.innerHTML = '';
+
+    const summary = document.createElement('p');
+    summary.className = report.meetsExisting ? 'summary-ok' : 'summary-bad';
+    summary.textContent = report.highest === null
+      ? 'No targetSdkVersion/targetSdk declaration was found in the selected files.'
+      : `Highest declared targetSdkVersion: ${report.highest}. ${report.meetsExisting ? 'Meets' : 'Below'} the existing-app-update floor for ${report.formFactor.label}.`;
+    resultsEl.appendChild(summary);
+
+    if (report.declarations.length > 0) {
+      const ul = document.createElement('ul');
+      ul.className = 'declarations';
+      for (const d of report.declarations) {
+        const li = document.createElement('li');
+        li.textContent = `${d.path}:${d.line}  ${d.value}`;
+        ul.appendChild(li);
+      }
+      resultsEl.appendChild(ul);
+    }
+
+    if (report.unresolvedRefs.length > 0) {
+      const p = document.createElement('p');
+      p.textContent = `${report.unresolvedRefs.length} declaration(s) reference a variable or version catalog this scan cannot resolve -- check them by hand:`;
+      resultsEl.appendChild(p);
+      const ul = document.createElement('ul');
+      ul.className = 'declarations';
+      for (const r of report.unresolvedRefs) {
+        const li = document.createElement('li');
+        li.textContent = `${r.path}:${r.line}  ${r.reference}`;
+        ul.appendChild(li);
+      }
+      resultsEl.appendChild(ul);
+    }
+
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Requirement</th><th>Floor</th><th>Your status</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    const rows = [
+      ['Update to an existing app', report.formFactor.requiredExisting, report.meetsExisting],
+      ['Newly published app', report.formFactor.requiredNew, report.meetsNew],
+    ];
+    for (const [label, floor, ok] of rows) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${label}</td><td>API ${floor}+</td><td class="status-${ok ? 'ok' : 'bad'}">${ok ? 'Meets it' : 'Below it'}</td>`;
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    resultsEl.appendChild(table);
+
+    const deadlines = document.createElement('p');
+    deadlines.innerHTML =
+      `Primary enforcement deadline: <strong>${TARGET_API_REQUIREMENT.primaryDeadline}</strong> (${fmtDays(report.daysUntilPrimaryDeadline)}). ` +
+      `Extension deadline, if requested in Play Console: <strong>${TARGET_API_REQUIREMENT.extensionDeadline}</strong> (${fmtDays(report.daysUntilExtensionDeadline)}).`;
+    resultsEl.appendChild(deadlines);
+  }
+
+  // Remember the visitor's usage-counting choice between visits.
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What happens if my app's targetSdkVersion is below Google Play's requirement?</h3>
+  <p>Your app is not removed from Google Play. Instead, it stops being visible to and installable by new users on a device running a newer Android version than your app targets. Existing installs, and users on an OS version at or below your app's target, are unaffected.</p>
+  <h3>Is the required target API level the same for every app?</h3>
+  <p>No. Google Play sets a different floor per form factor -- phone/tablet, Wear OS, Android TV, Android XR, and Android Automotive OS each have their own required level, and a newly published app must meet a higher floor than an update to an app already on Google Play. Pick your form factor above before reading the result.</p>
+  <h3>Can I get more time to meet the deadline?</h3>
+  <p>Google states that an extension to the primary deadline can be requested in Play Console. This tool shows both the primary deadline and the extension deadline it has on record, but whether an extension applies to your app is only visible in your own Play Console -- this tool cannot see that.</p>
+  <h3>Is my project uploaded anywhere?</h3>
+  <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
+</section>
+
+<footer>
+  <label style="font-weight:normal"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> The deadline and per-form-factor
+  floor above are reproduced from Google's own target API level requirement page,
+  dated 2026-09-23. Google revises these numbers and dates on its own schedule, and
+  whether an extension applies to your specific app is visible only in your own
+  Play Console. A clean report here is not a guarantee Google Play will treat your
+  app as compliant -- verify against
+  <a href="https://developer.android.com/google/play/requirements/target-sdk" rel="noopener">Google's current target API level requirement page</a>
+  before you rely on it.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Google Play's own policy review process.
+  You are responsible for reviewing and verifying its output before relying on it, and for meeting any
+  obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no
+  liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Files you select are read locally with the File API and
+  never uploaded. The only thing stored is an anonymous local count of which features were used and the
+  day -- no file names, no file contents, no account, no tracking cookies, no analytics vendor. Turn it off
+  with the checkbox above.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Play Console, Android, and
+  the target API level requirement are trademarks or policies of Google LLC, named here only to describe
+  what this tool checks.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+  <p>Checking your Data safety declaration too? <a href="index.html">Android Data Safety Checker</a>
+  cross-checks manifest permissions and Gradle SDK dependencies against your Play Console Data safety form
+  -- a different Play Console gate than this page.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../datadog-bill-estimator/" data-pf-to="datadog-bill-estimator">What will your Datadog bill be, and what cuts it most?</a></li>
+      <li><a href="../dependabot-config-check/" data-pf-to="dependabot-config-check">Is Dependabot actually watching all of your repo?</a></li>
+      <li><a href="../dependency-confusion-check/" data-pf-to="dependency-confusion-check">Could a public package be substituted for your internal one?</a></li>
+      <li><a href="../deploy-concurrency-check/" data-pf-to="deploy-concurrency-check">Deploy Concurrency Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=android-data-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="android-data-safety-check"></script>
+</body>
+</html>

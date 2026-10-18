@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Cumulative regret at 5, 20 and 100 hours for greedy, epsilon-greedy and Thompson policies with informed and uninformed priors">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cumulative regret vs offline oracle (simulated stream)</text>
+<line x1="64" x2="624" y1="309.3" y2="309.3" stroke="#ddd"/><text x="58" y="313.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="257.6" y2="257.6" stroke="#ddd"/><text x="58" y="261.6" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="218.5" y2="218.5" stroke="#ddd"/><text x="58" y="222.5" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="179.5" y2="179.5" stroke="#ddd"/><text x="58" y="183.5" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="127.8" y2="127.8" stroke="#ddd"/><text x="58" y="131.8" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
+<line x1="64" x2="624" y1="88.8" y2="88.8" stroke="#ddd"/><text x="58" y="92.8" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="49.7" y2="49.7" stroke="#ddd"/><text x="58" y="53.7" text-anchor="end" font-family="sans-serif" font-size="11">2000</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5 h</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20 h</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100 h</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">hours elapsed</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">cumulative regret (log scale)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,199.5 344.0,147.9 624.0,70.9"/>
+<circle cx="64.0" cy="199.5" r="2.5" fill="#c0392b"/>
+<circle cx="344.0" cy="147.9" r="2.5" fill="#c0392b"/>
+<circle cx="624.0" cy="70.9" r="2.5" fill="#c0392b"/>
+<line x1="76" x2="100" y1="58" y2="58" stroke="#c0392b" stroke-width="2"/><text x="106" y="62" font-family="sans-serif" font-size="11">uninformed greedy</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,183.5 344.0,127.4 624.0,59.6"/>
+<circle cx="64.0" cy="183.5" r="2.5" fill="#1f6fb2"/>
+<circle cx="344.0" cy="127.4" r="2.5" fill="#1f6fb2"/>
+<circle cx="624.0" cy="59.6" r="2.5" fill="#1f6fb2"/>
+<line x1="76" x2="100" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="106" y="78" font-family="sans-serif" font-size="11">uninformed eps</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,184.9 344.0,136.0 624.0,63.8"/>
+<circle cx="64.0" cy="184.9" r="2.5" fill="#2e8b57"/>
+<circle cx="344.0" cy="136.0" r="2.5" fill="#2e8b57"/>
+<circle cx="624.0" cy="63.8" r="2.5" fill="#2e8b57"/>
+<line x1="76" x2="100" y1="90" y2="90" stroke="#2e8b57" stroke-width="2"/><text x="106" y="94" font-family="sans-serif" font-size="11">uninformed thompson</text>
+<polyline fill="none" stroke="#8e44ad" stroke-width="2" points="64.0,304.4 344.0,249.6 624.0,168.5"/>
+<circle cx="64.0" cy="304.4" r="2.5" fill="#8e44ad"/>
+<circle cx="344.0" cy="249.6" r="2.5" fill="#8e44ad"/>
+<circle cx="624.0" cy="168.5" r="2.5" fill="#8e44ad"/>
+<line x1="76" x2="100" y1="106" y2="106" stroke="#8e44ad" stroke-width="2"/><text x="106" y="110" font-family="sans-serif" font-size="11">informed greedy</text>
+<polyline fill="none" stroke="#d68910" stroke-width="2" points="64.0,284.4 344.0,222.5 624.0,136.4"/>
+<circle cx="64.0" cy="284.4" r="2.5" fill="#d68910"/>
+<circle cx="344.0" cy="222.5" r="2.5" fill="#d68910"/>
+<circle cx="624.0" cy="136.4" r="2.5" fill="#d68910"/>
+<line x1="76" x2="100" y1="122" y2="122" stroke="#d68910" stroke-width="2"/><text x="106" y="126" font-family="sans-serif" font-size="11">informed eps</text>
+<polyline fill="none" stroke="#555555" stroke-width="2" points="64.0,267.0 344.0,224.2 624.0,160.1"/>
+<circle cx="64.0" cy="267.0" r="2.5" fill="#555555"/>
+<circle cx="344.0" cy="224.2" r="2.5" fill="#555555"/>
+<circle cx="624.0" cy="160.1" r="2.5" fill="#555555"/>
+<line x1="76" x2="100" y1="138" y2="138" stroke="#555555" stroke-width="2"/><text x="106" y="142" font-family="sans-serif" font-size="11">informed thompson</text>
+</svg>

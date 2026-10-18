@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. ServiceTitan | Fire Extinguisher Inspection Route Margin Calculator</title>
+<meta name="description" content="ServiceTitan is subscription field-service management software founded in 2007 by Ara Mahdessian and Vahe Kuzoyan, headquartered in Glendale, California…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/vs-servicetitan.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. ServiceTitan">
+<meta property="og:description" content="Two different shapes: ServiceTitan is account-based field-service software for running a whole route business.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or ServiceTitan?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and an independent fire-extinguisher and life-safety inspection route operator of any size will likely end up touching both eventually. ServiceTitan is a field service management platform, founded in 2007 by Ara Mahdessian and Vahe Kuzoyan and headquartered in Glendale, California, used by HVAC, plumbing, electrical, and other trades to run scheduling, dispatch, invoicing, marketing, and reporting across a business, sold as an ongoing subscription account. ServiceTitan's own pricing page is not reachable from this session to confirm today's exact plan names or dollar figures, so no price for it is invented here: only its well-documented identity and category — field-service management software, sold as a subscription account — are stated, and no dollar amount for ServiceTitan appears on this page. This calculator does one narrower thing: starting from a site's extinguisher count, certified visits per year, the inspection and tag fees, the share of units needing a recharge, hydrostatic test, or replacement this visit and each one's materials cost, on-site and drive time, and a monthly recordkeeping cost, it turns that into real monthly profit for that one site — then rolls a whole route of sites into a total and checks it against a monthly income goal. It runs free in any browser, keeps no account, and uploads nothing you type. An operator who already schedules routes, dispatches technicians, and invoices across every site and every job is better served by ServiceTitan or a comparable field-service platform; an operator who wants an instant, private answer to whether one site is actually worth keeping once recharge, hydro-test, and replacement materials come out is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with ServiceTitan?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by ServiceTitan, Inc. ServiceTitan is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241210; background: #fbeeea; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #a3341c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #6a4a43; }
+  section { background: #fff; border: 1px solid #e3c3ba; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #4a12060d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3c3ba; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #6a4a43; }
+  .fine, .note { font-size: .88rem; color: #6a4a43; }
+  footer { color: #6a4a43; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/vs-servicetitan.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. ServiceTitan — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fire-extinguisher-inspection-route-margin/">Fire Extinguisher Inspection Route Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. ServiceTitan</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Fire Extinguisher Inspection Route Margin Calculator</a></p>
+<header>
+<h1>This calculator vs. ServiceTitan</h1>
+<p class="lede">Two different shapes: ServiceTitan is account-based field-service software for running a route business across scheduling, dispatch, and every technician. This page is a free, private worksheet for one question &mdash; is this site actually profitable once recharge, hydro-test, and replacement materials come out.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>ServiceTitan</strong> is a field service management platform,
+  founded in 2007 by Ara Mahdessian and Vahe Kuzoyan and headquartered in
+  Glendale, California, used by HVAC, plumbing, electrical, and other trades
+  to run scheduling, dispatch, invoicing, marketing, and reporting across a
+  business, sold as an ongoing subscription account. ServiceTitan's own
+  pricing page is not reachable from this session to confirm today's exact
+  plan names or dollar figures, so no price for it is invented here: only
+  its well-documented identity and category &mdash; field-service
+  management software, sold as a subscription account &mdash; are stated,
+  and no dollar amount for ServiceTitan appears on this page.
+</p>
+<p>
+  This calculator does none of what ServiceTitan does. It does not manage
+  a customer list, schedule a technician's route, dispatch a crew, or
+  collect a payment, and it stores no customer or job record on a server.
+  It takes a site's extinguisher count, its certified visits per year, the
+  inspection and tag fees and the tag's own cost, the percentage of units
+  needing a recharge, a hydrostatic test, or a replacement on this visit
+  along with each one's fee and materials cost, on-site inspection minutes,
+  round-trip drive time and mileage, your target hourly rate, and a monthly
+  recordkeeping cost, and turns that into real monthly profit for that one
+  site &mdash; plus, once you have several sites priced, a roll-up of the
+  whole route's monthly profit against an income goal. It runs free in any
+  browser, keeps no account, and uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a fire-extinguisher or life-safety inspection route and need customer management, scheduling, dispatch, invoicing, and payments in one system across every technician and every site.</td><td>ServiceTitan, or a comparable field-service platform &mdash; running a whole business is not something this calculator does.</td></tr>
+<tr><td>Is this site actually profitable once recharge, hydro-test, and replacement materials come out, not just its inspection fee?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>Does my route as a whole hit my monthly income goal, and if not, how many more profitable sites close the gap?</td><td>This calculator's route roll-up and income-gap check.</td></tr>
+<tr><td>I need one shared account so my whole team is scheduling, dispatching, invoicing, and collecting payment the same way.</td><td>ServiceTitan, or a comparable field-service platform.</td></tr>
+<tr><td>Does this tool certify a site meets NFPA 10 or any other fire-code requirement?</td><td>Neither tool. This calculator prices your labor, materials, and route economics only &mdash; it does not perform, certify, or record a compliance determination.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. ServiceTitan is used through a subscription account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most independent inspection route operators get different value from
+  each: ServiceTitan (or a comparable field-service platform) for running
+  customer management, scheduling, dispatch, invoicing, and payments across
+  a whole business as an ongoing subscription, and a private calculator
+  like this one for an instant, no-login answer to whether one site is
+  actually worth keeping once its recharge, hydro-test, and replacement
+  materials are counted, before a business system is involved. This page's
+  own figures are a pricing model, not a scheduled visit, an invoice, or a
+  compliance record.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or ServiceTitan?</h3>
+<p>They do different jobs, and an independent fire-extinguisher and life-safety inspection route operator of any size will likely end up touching both eventually. ServiceTitan is a field service management platform, founded in 2007 by Ara Mahdessian and Vahe Kuzoyan and headquartered in Glendale, California, used by HVAC, plumbing, electrical, and other trades to run scheduling, dispatch, invoicing, marketing, and reporting across a business, sold as an ongoing subscription account. ServiceTitan's own pricing page is not reachable from this session to confirm today's exact plan names or dollar figures, so no price for it is invented here: only its well-documented identity and category — field-service management software, sold as a subscription account — are stated, and no dollar amount for ServiceTitan appears on this page. This calculator does one narrower thing: starting from a site's extinguisher count, certified visits per year, the inspection and tag fees, the share of units needing a recharge, hydrostatic test, or replacement this visit and each one's materials cost, on-site and drive time, and a monthly recordkeeping cost, it turns that into real monthly profit for that one site — then rolls a whole route of sites into a total and checks it against a monthly income goal. It runs free in any browser, keeps no account, and uploads nothing you type. An operator who already schedules routes, dispatches technicians, and invoices across every site and every job is better served by ServiceTitan or a comparable field-service platform; an operator who wants an instant, private answer to whether one site is actually worth keeping once recharge, hydro-test, and replacement materials come out is in the right place here.</p>
+<h3>Is this page affiliated with ServiceTitan?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by ServiceTitan, Inc. ServiceTitan is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="index.html">Fire Extinguisher Inspection Route Margin Calculator</a> to price your own route.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against ServiceTitan &mdash; it is a static page describing publicly documented facts. This calculator does not perform, certify, or replace a professional fire-extinguisher inspection, and it does not determine or record NFPA 10 (or any other) fire-code compliance status.</p>
+<p>MIT licensed. If it helped you decide which sites are worth keeping, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../capex-budget-prioritizer/" data-pf-to="capex-budget-prioritizer">Capex budget prioritizer</a></li>
+      <li><a href="../car-wash-membership-calculator/" data-pf-to="car-wash-membership-calculator">Car Wash Membership Calculator — free, private, in your browser</a></li>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fire-extinguisher-inspection-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fire-extinguisher-inspection-route-margin"></script>
+</body></html>

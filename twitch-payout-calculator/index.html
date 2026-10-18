@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twitch Payout Calculator — Real Take-Home From Subs and Bits</title>
+<meta name="description" content="Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Twitch Payout Calculator">
+<meta property="og:description" content="The dashboard number is not your payout. Find real monthly take-home from subs and Bits after your revenue split…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Twitch Payout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds a Twitch streamer's real monthly take-home from Tier 1/2/3 subscriptions and Bits after the revenue split, and compares it to a monthly income target."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a subscription bought on mobile pay me less because of Apple or Google's cut?","acceptedAnswer":{"@type":"Answer","text":"No, as of Twitch's October 2024 pricing change. Twitch charges more for a mobile subscription specifically to cover the app store's in-app-purchase fee, so your payout per sub is the same whether the viewer bought it on desktop or in the iOS/Android app. Enter your web tier price here either way — see the worked explainer."}},{"@type":"Question","name":"Why is the revenue split 50% for some streamers and 60% or 70% for others?","acceptedAnswer":{"@type":"Answer","text":"Everyone starts at 50% of subscription revenue. Affiliates and Partners who sustain 100 Plus Points for three consecutive months move to 60% under Twitch's Plus Program, and those who reach 300 Plus Points move to 70%. Plus Points come only from paid recurring subs — 1 point per Tier 1, 2 per Tier 2, 6 per Tier 3; gifted and Prime subs earn none. This is the one number that actually changes your payout per sub — read your own current split off your Twitch dashboard rather than assuming one."}},{"@type":"Question","name":"Why don't Bits follow the same split as subs?","acceptedAnswer":{"@type":"Answer","text":"A cheered Bit is worth a flat $0.01 to the streamer no matter what the viewer paid for the Bits bundle or what the streamer's subscription split is — Twitch's own cut is already built into what a viewer pays for Bits before the streamer ever sees the cheer. So Bits income is not reduced by a 50% or 70% split the way sub revenue is."}},{"@type":"Question","name":"Does this tool estimate ad revenue?","acceptedAnswer":{"@type":"Answer","text":"No. Twitch publishes no standard ad CPM a static calculator could model honestly, and ad payouts vary by campaign and channel. Enter any ad revenue, sponsorship, or other income as the single \"other monthly income\" figure instead — this tool only computes the parts with documented, deterministic mechanics: subs and Bits."}},{"@type":"Question","name":"Does anything about my numbers get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs and target are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#1d1233;background:#f3edfb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #d9c8f5;border-radius:16px;padding:20px;box-shadow:0 8px 24px #4b1d9a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e4d6f9;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#6441a5}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #c4a9ec;border-radius:8px;font:inherit;background:#fbf9ff}.result{background:#4b1d9a;color:#fff;border-color:#4b1d9a;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#5b4b78}.result .note{color:#ddc9f7}.err{color:#ffd9a6;font-weight:700}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #c4a9ec;background:#fff;cursor:pointer;color:#1d1233}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Twitch Payout Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Twitch Payout Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Twitch Payout Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR TWITCH STREAMERS</p><h1>The dashboard number isn't your payout. Take-home is.</h1><p class="lede">"$414 in sub revenue this month" is not what lands in your bank account — your revenue split (50% by default, or 60%/70% under the Plus Program) cuts subs, Bits pay a flat $0.01 each, and mobile subs pay exactly the same as desktop ones despite what the app store fee headlines suggest. This free calculator finds your real monthly take-home and checks it against an income goal.</p><p class="lede">Think buying on mobile pays you less? See <a href="does-a-mobile-subscription-pay-me-less.html">does a mobile subscription pay me less?</a> for the worked answer. Tracking this in a spreadsheet today instead? See <a href="vs-tracking-payouts-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>.</p></header>
+
+<main class="layout">
+<section><h2>Your month</h2>
+<fieldset><legend>Subs by tier</legend><div class="fields">
+<label>Tier 1 subs<input id="tier1Subs" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+<label>Tier 1 price ($)<input id="tier1Price" type="number" min="0" step="0.01" value="5.99" inputmode="decimal"></label>
+<label>Tier 2 subs<input id="tier2Subs" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Tier 2 price ($)<input id="tier2Price" type="number" min="0" step="0.01" value="9.99" inputmode="decimal"></label>
+<label>Tier 3 subs<input id="tier3Subs" type="number" min="0" step="1" value="3" inputmode="numeric"></label>
+<label>Tier 3 price ($)<input id="tier3Price" type="number" min="0" step="0.01" value="24.99" inputmode="decimal"></label>
+</div>
+<p class="note">Include gifted subs in the tier they were gifted at — the giver pays, but your payout works the same as any other sub. Include mobile-purchased subs in the same counts too: your payout per sub is the same regardless of platform (see the linked explainer above).</p>
+</fieldset>
+<fieldset><legend>Split &amp; other income</legend><div class="fields">
+<label>Your revenue split (%)<input id="splitPct" type="number" min="0" max="100" step="1" value="50" inputmode="numeric"></label>
+<label>Bits cheered<input id="bitsCheered" type="number" min="0" step="1" value="8000" inputmode="numeric"></label>
+<label>Other monthly income ($)<input id="otherMonthlyIncome" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+</div>
+<p class="note">50% is the default split. Sustaining 100 Plus Points for three consecutive months moves you to 60% under Twitch's Plus Program; 300 Plus Points moves you to 70%. Read yours off your own Twitch dashboard. "Other monthly income" is ads, sponsorships, or donations elsewhere — a figure you supply, since Twitch publishes no ad rate this tool could model honestly.</p>
+</fieldset>
+<p id="draftStatus" class="note" role="status">Your numbers above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>This month's take-home</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="payout" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross sub revenue</dt><dd id="grossOut"></dd>
+<dt>Your split of subs</dt><dd id="subPayoutOut"></dd>
+<dt>Bits payout</dt><dd id="bitsOut"></dd>
+<dt>Other income</dt><dd id="otherOut"></dd>
+<dt>Total payout</dt><dd id="totalOut"></dd>
+</dl>
+<h3 style="margin-top:14px">Against your goal</h3>
+<div class="fields">
+<label>Target monthly payout ($)<input id="targetMonthlyPayout" type="number" min="0" step="10" value="1500" inputmode="numeric"></label>
+</div>
+<dl style="margin-top:10px">
+<dt>Gap to goal</dt><dd id="gapOut"></dd>
+<dt>Additional Tier 1 subs to close it</dt><dd id="extraOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not your actual payout statement. It does not model ad revenue, currency conversion, or any promotional rate — fold those into "other monthly income" yourself. It never reads your Twitch account or replaces your own payout dashboard.</p>
+</section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your sub counts, prices, split, Bits, other income, and target payout are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. There is no account. We count only anonymous local feature events (<code>month-priced</code>, <code>gap-checked</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no sub counts, Bits totals, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Does a subscription bought on mobile pay me less because of Apple or Google's cut?</h3><p>No, as of Twitch's October 2024 pricing change. Twitch charges more for a mobile subscription specifically to cover the app store's in-app-purchase fee, so your payout per sub is the same whether the viewer bought it on desktop or in the iOS/Android app. Enter your web tier price here either way &mdash; see <a href="does-a-mobile-subscription-pay-me-less.html">the worked explainer</a>.</p>
+<h3>Why is the revenue split 50% for some streamers and 60% or 70% for others?</h3><p>Everyone starts at 50% of subscription revenue. Affiliates and Partners who sustain 100 Plus Points for three consecutive months move to 60% under Twitch's Plus Program, and those who reach 300 Plus Points move to 70%. Plus Points come only from paid recurring subs &mdash; 1 point per Tier 1, 2 per Tier 2, 6 per Tier 3; gifted and Prime subs earn none. This is the one number that actually changes your payout per sub &mdash; read your own current split off your Twitch dashboard rather than assuming one.</p>
+<h3>Why don't Bits follow the same split as subs?</h3><p>A cheered Bit is worth a flat $0.01 to the streamer no matter what the viewer paid for the Bits bundle or what the streamer's subscription split is &mdash; Twitch's own cut is already built into what a viewer pays for Bits before the streamer ever sees the cheer. So Bits income is not reduced by a 50% or 70% split the way sub revenue is.</p>
+<h3>Does this tool estimate ad revenue?</h3><p>No. Twitch publishes no standard ad CPM a static calculator could model honestly, and ad payouts vary by campaign and channel. Enter any ad revenue, sponsorship, or other income as the single "other monthly income" figure instead &mdash; this tool only computes the parts with documented, deterministic mechanics: subs and Bits.</p>
+<h3>Does anything about my numbers get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs and target are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an ad-revenue estimator, a payout tracker, or a substitute for your own Twitch dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your payout history, confirm a deposit amount, or replace your own accountant. Twitch is a trademark of Twitch Interactive, Inc., named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by Twitch, and its subscription prices, split terms, and Bits pricing change over time; verify every figure against your own current Twitch dashboard before relying on the result.</p><p>Also pricing sponsorships on a podcast? The <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> turns downloads per episode into an ad-slot price range. Pricing a single sponsored social post instead? The <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a> prices that from your follower count and engagement rate. Earning through Patreon memberships too? The <a href="../patreon-fee-calculator/">Patreon fee calculator</a> prices pledge tiers through Patreon's own platform and processing fees the same way this page prices subs and Bits through Twitch's.</p><p>MIT licensed. If it helped you see your real take-home, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, payoutGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'twitch-payout-calculator-draft';
+let counted = false;
+let gapCounted = false;
+
+function monthInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_INPUTS = monthInputs();
+
+function applyInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persist() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(monthInputs())));
+}
+
+function update(count = false) {
+  try {
+    const r = calculate(monthInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('payout').hidden = false;
+    el('payout').textContent = money(r.totalPayout);
+    el('rateLine').textContent = r.effectiveSubTakeRatePct === null
+      ? 'enter a sub count to see your effective take rate'
+      : `you keep ${r.effectiveSubTakeRatePct.toFixed(0)}% of sub revenue, plus Bits and other income`;
+    el('grossOut').textContent = money(r.grossSubRevenue);
+    el('subPayoutOut').textContent = money(r.subPayout);
+    el('bitsOut').textContent = money(r.bitsPayout);
+    el('otherOut').textContent = money(Number(el('otherMonthlyIncome').value) || 0);
+    el('totalOut').textContent = money(r.totalPayout);
+
+    const targetMonthlyPayout = parseFloat(el('targetMonthlyPayout').value) || 0;
+    const gap = payoutGap(targetMonthlyPayout, r.totalPayout, r.tier1PayoutPerSub);
+    el('gapOut').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('extraOut').textContent = gap.meetsTarget ? '0' : (gap.additionalTier1SubsNeeded === null ? 'add a positive Tier 1 price' : String(gap.additionalTier1SubsNeeded));
+
+    if (count && !counted) { recordEvent('month-priced'); counted = true; }
+    if (count && !gapCounted) { recordEvent('gap-checked'); gapCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('payout').hidden = true;
+    for (const id of ['rateLine', 'grossOut', 'subPayoutOut', 'bitsOut', 'otherOut', 'totalOut', 'gapOut', 'extraOut']) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { update(true); persist(); }));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(monthInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyInputs(DEFAULT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  update(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared month. Review the numbers before you use it.'
+      : 'Restored your last month from this browser.';
+  }
+})();
+
+update(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bail-bond-agency-exposure-calculator/" data-pf-to="bail-bond-agency-exposure-calculator">Bail Bond Agency Exposure Calculator — free</a></li>
+      <li><a href="../barbershop-chair-profit-calculator/" data-pf-to="barbershop-chair-profit-calculator">Barbershop Chair Profit Calculator — free, private</a></li>
+      <li><a href="../bigcommerce-product-csv-check/" data-pf-to="bigcommerce-product-csv-check">BigCommerce Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../braiding-studio-profit-calculator/" data-pf-to="braiding-studio-profit-calculator">Braiding Studio Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=twitch-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/?pfEmbed=1&quot; title=&quot;Twitch Payout Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="twitch-payout-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/" data-pf-embed-title="Twitch Payout Calculator" data-pf-embed-slug="twitch-payout-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="twitch-payout-calculator" data-pf-jobs-amount=""></script>
+</body></html>

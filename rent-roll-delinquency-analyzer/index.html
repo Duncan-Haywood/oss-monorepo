@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
+  <meta name="description" content="Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late…">
+  <meta property="og:title" content="Rent Roll Delinquency Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Unpaid rent aging by unit, habitually late tenants and collection rate from your own rent ledger. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rent Roll Delinquency Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a landlord's rent ledger into what is unpaid and how old it is, units that pay late, collection and on-time rates by month, and an upper bound on late fees. Runs entirely in your browser; the file is never uploaded.", "featureList": "Unpaid rent aging buckets, unpaid balance by unit, habitually late units, monthly collection rate, on-time rate, late fee upper bound, copyable summary, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Who owes me rent, and how old is it?", "acceptedAnswer": {"@type": "Answer", "text": "Export or copy your rent ledger into one table with a due date, a unit or tenant, the amount charged and the amount paid, and drop it here. Every charge that fell due on or before the date you choose is checked against what was paid. What is still owed is grouped by how long it has been past due (1\u201330, 31\u201360, 61\u201390 and over 90 days) and listed by unit. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "Which tenants pay late most often?", "acceptedAnswer": {"@type": "Answer", "text": "If the file has a date paid, each paid charge is compared with its due date. A unit is listed as habitually late when at least three of its charges, and at least half, were paid more than your grace period after the due date. The grace period is a number you type; the default of 5 days is a placeholder, so use what your lease says."}}, {"@type": "Question", "name": "How much in late fees could I have charged?", "acceptedAnswer": {"@type": "Answer", "text": "If you type a flat late fee, the tool multiplies it by the number of charges paid after the grace period or still unpaid past it. That is an upper bound, not an entitlement: your lease has to provide the fee and local law has to allow it, and many places cap late fees or require a longer grace period. A fee you already billed is not in the file and is not netted off."}}, {"@type": "Question", "name": "What is the collection rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is the rent collected divided by the rent charged for charges due on or before the date you chose, shown overall and per month. The on-time rate is the share of charges paid in full within the grace period. Overpayments are shown separately and are not used to cover other charges."}}, {"@type": "Question", "name": "Which columns does the file need?", "acceptedAnswer": {"@type": "Answer", "text": "A due date, a unit or tenant, an amount due and an amount paid; a date paid is used when present and is needed for late-payment figures. One row per monthly charge works best. Column names are matched by alias; if a row cannot be read the page lists it with its line number and reason."}}, {"@type": "Question", "name": "Is this legal or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you supply and the numbers you type. Notices, late fees, part-payments and collection steps are governed by your lease and by local law, which vary widely and are not modelled. It is independent of every property-management product and not affiliated with any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Rent Roll Delinquency Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rent Roll Delinquency Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Rent Roll Delinquency Analyzer — free, private, CSV in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">RENT ROLL DELINQUENCY ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who owes you rent, and how old is it?</h1>
+    <p>Load your <strong>rent ledger</strong> (a due date, a unit or tenant, the amount charged and the amount paid) and get <strong>unpaid rent by age and by unit</strong>, the <strong>units that habitually pay late</strong>, the <strong>share of rent collected and collected on time each month</strong>, and an <strong>upper bound on late fees</strong> if you type your lease's fee.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device, so tenant names stay with you. Independent of every property-management product: not affiliated with or endorsed by any of them. Not legal advice: notices, late fees and part-payments depend on your lease and local law.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your rent ledger</h2>
+    <p class="note">Needs a <strong>Due Date</strong>, a <strong>Unit</strong> (or <strong>Tenant</strong>), an <strong>Amount Due</strong> (or <strong>Rent</strong>) and an <strong>Amount Paid</strong>, one row per monthly charge. A <strong>Date Paid</strong> column is used when present and is needed for late-payment figures. Comma, tab and semicolon files, quoted fields, US and day-first dates and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Unit,Due Date,Amount Due,Amount Paid,Date Paid"></textarea>
+    <div class="grid">
+      <div><label for="asof">Read the ledger as of (blank = latest date in file)</label><input type="date" id="asof"></div>
+      <div><label for="grace">Grace period, days after due date</label><input type="number" id="grace" value="5" min="0" max="60" step="1" inputmode="numeric"></div>
+      <div><label for="fee">Flat late fee in your lease, $ (0 = none)</label><input type="number" id="fee" value="0" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Unpaid rent by age</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Past due</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Unpaid</th></tr></thead><tbody id="aging"></tbody></table></div></div>
+    <h3>By unit</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Unit</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Billed</th><th class="n" scope="col">Unpaid</th><th class="n" scope="col">Oldest, days</th><th class="n" scope="col">Late charges</th><th class="n" scope="col">Avg days late</th><th class="n" scope="col">Part-paid</th></tr></thead><tbody id="by-unit"></tbody></table></div></div>
+    <h3>By month due</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Billed</th><th class="n" scope="col">Collected</th><th class="n" scope="col">Unpaid</th><th class="n" scope="col">Collected %</th><th class="n" scope="col">On time %</th></tr></thead><tbody id="by-month"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download unit table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Owed</strong> is the amount due minus the amount paid on each charge that fell due on or before the as-of day. A payment dated after that day is treated as not yet made.</li>
+      <li><strong>Age</strong> is the days from a charge's due date to the as-of day. A charge is <strong>late</strong> when it was paid in full, or is still unpaid, more than the grace period after its due date.</li>
+      <li><strong>Collected</strong> is the money received against charges, capped at each charge's amount; <strong>on time</strong> is the share of charges paid in full within the grace period.</li>
+      <li><strong>Reconciles.</strong> The age rows plus the not-yet-late amount, the unit rows and the month rows each add up to the total unpaid at the top.</li>
+      <li><strong>Habitually late needs at least three late charges and half of a unit's charges</strong>; a unit with fewer is shown but never listed as habitual.</li>
+      <li><strong>The late fee figure is an upper bound.</strong> It multiplies the fee you type by the late charges; your lease must allow it and local law may cap, delay or forbid it. The 5-day grace default is a placeholder, not a measurement.</li>
+      <li><strong>Not modelled:</strong> security deposits, utilities and other non-rent charges unless they are rows in your file, fees already billed, notice periods, part-payment rules, interest, vacancy, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Who owes me rent, and how old is it?</h3>
+    <p>Export or copy your rent ledger into one table with a due date, a unit or tenant, the amount charged and the amount paid, and drop it here. Every charge that fell due on or before the date you choose is checked against what was paid. What is still owed is grouped by how long it has been past due (1–30, 31–60, 61–90 and over 90 days) and listed by unit. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>Which tenants pay late most often?</h3>
+    <p>If the file has a date paid, each paid charge is compared with its due date. A unit is listed as habitually late when at least three of its charges, and at least half, were paid more than your grace period after the due date. The grace period is a number you type; the default of 5 days is a placeholder, so use what your lease says.</p>
+    <h3>How much in late fees could I have charged?</h3>
+    <p>If you type a flat late fee, the tool multiplies it by the number of charges paid after the grace period or still unpaid past it. That is an upper bound, not an entitlement: your lease has to provide the fee and local law has to allow it, and many places cap late fees or require a longer grace period. A fee you already billed is not in the file and is not netted off.</p>
+    <h3>What is the collection rate?</h3>
+    <p>It is the rent collected divided by the rent charged for charges due on or before the date you chose, shown overall and per month. The on-time rate is the share of charges paid in full within the grace period. Overpayments are shown separately and are not used to cover other charges.</p>
+    <h3>Which columns does the file need?</h3>
+    <p>A due date, a unit or tenant, an amount due and an amount paid; a date paid is used when present and is needed for late-payment figures. One row per monthly charge works best. Column names are matched by alias; if a row cannot be read the page lists it with its line number and reason.</p>
+    <h3>Is this legal or accounting advice?</h3>
+    <p>No. It applies arithmetic to the file you supply and the numbers you type. Notices, late fees, part-payments and collection steps are governed by your lease and by local law, which vary widely and are not modelled. It is independent of every property-management product and not affiliated with any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any notice, fee, or collection step you take. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any property-management product.</strong> Names of accounting or property-management software are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Year-end instead? The <a href="../rental-property-schedule-e-categorizer/">rental property Schedule E categorizer</a> sorts a bank CSV into Schedule E lines per property &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const dash = (v, f) => (v === null || v === undefined ? "–" : f(v));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const asof = $("#asof").value ? Date.parse($("#asof").value + "T00:00:00Z") : null;
+      const g = parseFloat($("#grace").value), f = parseFloat($("#fee").value);
+      const r = analyze(n.items, { asOf: asof, graceDays: Number.isFinite(g) ? g : 5, lateFee: Number.isFinite(f) ? f : 0 });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.charges} charges on ${s.units} unit(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Billed $${money(s.billed)}, collected $${money(s.collected)} (${pct(s.collectedRate)}), <strong>unpaid $${money(s.owed)}</strong>` + (s.onTimeRate === null ? "." : `, ${pct(s.onTimeRate)} paid in full within ${s.grace} day(s).`);
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#aging").innerHTML = [{ label: "Not yet late", count: r.current.count, amount: r.current.amount }, ...r.aging].map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.count}</td><td class="n">${money(b.amount)}</td></tr>`).join("") + `<tr><th scope="row">Total unpaid</th><td class="n">${r.current.count + r.aging.reduce((a, b) => a + b.count, 0)}</td><td class="n">${money(s.owed)}</td></tr>`;
+      $("#by-unit").innerHTML = r.byUnit.map((u) => `<tr><th scope="row">${esc(u.label)}</th><td class="n">${u.charges}</td><td class="n">${money(u.billed)}</td><td class="n">${money(u.owed)}</td><td class="n">${dash(u.oldestDays, String)}</td><td class="n">${u.lateCount}</td><td class="n">${dash(u.avgDaysLate, (v) => v.toFixed(1))}</td><td class="n">${u.partials}</td></tr>`).join("");
+      $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.charges}</td><td class="n">${money(m.billed)}</td><td class="n">${money(m.collected)}</td><td class="n">${money(m.owed)}</td><td class="n">${dash(m.collectedRate, pct)}</td><td class="n">${dash(m.onTimeRate, pct)}</td></tr>`).join("");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      notes.push(`Read as of ${dateStr(s.to)}.`);
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} charges.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      $("#asof").value = "2026-09-15";
+      $("#fee").value = "50";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: six invented units in an invented building. Not a real landlord."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const rows = ["unit,charges,billed,unpaid,oldest_days,late_charges,avg_days_late,part_paid"].concat(last.byUnit.map((u) => [q(u.label), u.charges, u.billed.toFixed(2), u.owed.toFixed(2), u.oldestDays ?? "", u.lateCount, u.avgDaysLate === null ? "" : u.avgDaysLate.toFixed(1), u.partials].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "rent-by-unit.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bai2-statement-reader/" data-pf-to="bai2-statement-reader">BAI2 Statement Reader — free, private, in your browser</a></li>
+      <li><a href="../bank-csv-to-qbo-converter/" data-pf-to="bank-csv-to-qbo-converter">Bank CSV to QBO Converter — free, private, in your browser</a></li>
+      <li><a href="../bonus-depreciation-calculator/" data-pf-to="bonus-depreciation-calculator">Bonus Depreciation vs. Section 179 Calculator — free, 2025-2026</a></li>
+      <li><a href="../booking-request-chooser/" data-pf-to="booking-request-chooser">Which booking requests should you accept?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rent-roll-delinquency-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/?pfEmbed=1&quot; title=&quot;Rent Roll Delinquency Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="rent-roll-delinquency-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/" data-pf-embed-title="Rent Roll Delinquency Analyzer — free, private, CSV in your browser" data-pf-embed-slug="rent-roll-delinquency-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="rent-roll-delinquency-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="rent-roll-delinquency-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

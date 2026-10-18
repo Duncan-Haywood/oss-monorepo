@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This Checker vs. GovWin IQ</title>
+  <meta name="description" content="GovWin IQ, from Deltek, is an account-based government-contracting intelligence platform for finding opportunities and tracking competitors.">
+  <meta property="og:title" content="This checker vs. GovWin IQ">
+  <meta property="og:description" content="Two different jobs: GovWin IQ finds and tracks public-sector opportunities as an ongoing account.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tender-bid-readiness/vs-govwin.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or GovWin IQ?","acceptedAnswer":{"@type":"Answer","text":"Both, for different jobs, and a contractor who already subscribes to GovWin IQ to find opportunities can still paste a found notice into this checker before spending a day pricing it. GovWin IQ, from Deltek, is a government-contracting intelligence platform: opportunity discovery and forecasting, incumbent and competitor tracking, and agency spending research, run as an ongoing account. This checker does none of that. It takes the text of one solicitation you already have and scans it for seven readiness signals — deadline, bond, insurance, certification, mandatory pre-bid meeting or site visit, submission channel, and questions or addenda — entirely in your browser, with no account and nothing uploaded. A contractor who needs to find and forecast public-sector opportunities is better served by GovWin IQ or a comparable platform; a contractor who already has a notice in hand and wants a fast, free, private first pass at its paperwork risk is in the right place here."}},{"@type":"Question","name":"Does GovWin IQ check a tender for the readiness signals this tool looks for?","acceptedAnswer":{"@type":"Answer","text":"GovWin IQ's own research and alerts can surface an opportunity and its agency history, but reading one solicitation's own bond, insurance, and deadline requirements is not that platform's job any more than it is this checker's job to find the opportunity in the first place. Some contractors will use GovWin IQ or a comparable service to find and shortlist notices, then run each shortlisted notice through this free checker before committing estimating time; neither tool replaces the other."}},{"@type":"Question","name":"Is this page affiliated with GovWin IQ?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Deltek, Inc. or GovWin IQ. GovWin IQ is a trademark of its owner, named here only to describe what this checker is and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182230; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.06; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #b0451c; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #182230; color: #f7f3ec; text-decoration: none; font-weight: 650; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; margin: 1em 0; }
+    th, td { border-bottom: 1px solid #d9d2c5; padding: .5rem .45rem; text-align: left; vertical-align: top; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d9d2c5; padding-top: 16px; font-size: .85rem; color: #5a6470; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tender-bid-readiness/vs-govwin.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tender-bid-readiness/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. GovWin IQ — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tender-bid-readiness/">Tender Bid Readiness Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. GovWin IQ</span></span></nav>
+  <p><a href="./">← Tender bid readiness checker</a></p>
+  <h1>This checker vs. GovWin IQ</h1>
+  <p>Two different jobs: GovWin IQ, from Deltek, is an account-based government-contracting intelligence platform for finding public-sector opportunities and tracking who else bids on them. This page is a free, private readiness pass on one tender you already have, before you spend a day pricing it.</p>
+  <p><a class="cta" href="./">Open the free bid readiness checker</a></p>
+
+  <h2>What each tool is for</h2>
+  <p><strong>GovWin IQ</strong> is a government-contracting intelligence platform built by Deltek for contractors who sell into the public sector: opportunity discovery and forecasting, incumbent and competitor tracking, agency spending history, and market research, run as an ongoing account. GovWin IQ's own pricing and current feature list are not reachable from this session to confirm, so no dollar figure or plan name for GovWin IQ is invented here: only its well-documented identity and category — an account-based public-sector opportunity and competitive-intelligence platform — are stated.</p>
+  <p>This checker does none of what GovWin IQ does. It does not find opportunities, forecast agency spending, or track competitors. It takes the text of one solicitation you paste in and scans it for seven readiness signals — deadline, bid or performance bond, insurance limits, licences or certifications, a mandatory pre-bid meeting or site visit, the submission channel, and open questions or addenda — entirely in your browser, with no account and nothing uploaded.</p>
+
+  <div class="pf-table-scroll"><table>
+    <caption>Where to answer each question.</caption>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>I need to find public-sector opportunities and see who else usually bids on them.</td><td>GovWin IQ, or a comparable platform &mdash; opportunity discovery is not something this checker does.</td></tr>
+      <tr><td>I already have a notice. Is it worth a day of pricing time before I check the paperwork?</td><td>This checker &mdash; free, instant, private, no account.</td></tr>
+      <tr><td>What deadlines, bonds, insurance, licences, and site-visit requirements does this specific notice list?</td><td>This checker's readiness report, with an evidence excerpt for each finding.</td></tr>
+      <tr><td>How has this agency awarded similar contracts in the past?</td><td>GovWin IQ, or a comparable research platform &mdash; this checker reads only the notice you paste in.</td></tr>
+      <tr><td>Do I need to create an account or sign up to use the tool?</td><td>This checker: no. GovWin IQ is used through a Deltek account.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Most public-sector contractors get different value from each: GovWin IQ (or a comparable platform) for finding and forecasting opportunities as an ongoing account, and a private checker like this one for an instant, no-login readiness pass once a specific notice is already in hand. This page's own findings are a paperwork-risk pointer, not a market forecast or a competitor record.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this checker or GovWin IQ?</h3>
+  <p>Both, for different jobs, and a contractor who already subscribes to GovWin IQ to find opportunities can still paste a found notice into this checker before spending a day pricing it. GovWin IQ, from Deltek, is a government-contracting intelligence platform: opportunity discovery and forecasting, incumbent and competitor tracking, and agency spending research, run as an ongoing account. This checker does none of that. It takes the text of one solicitation you already have and scans it for seven readiness signals — deadline, bond, insurance, certification, mandatory pre-bid meeting or site visit, submission channel, and questions or addenda — entirely in your browser, with no account and nothing uploaded. A contractor who needs to find and forecast public-sector opportunities is better served by GovWin IQ or a comparable platform; a contractor who already has a notice in hand and wants a fast, free, private first pass at its paperwork risk is in the right place here.</p>
+  <h3>Does GovWin IQ check a tender for the readiness signals this tool looks for?</h3>
+  <p>GovWin IQ's own research and alerts can surface an opportunity and its agency history, but reading one solicitation's own bond, insurance, and deadline requirements is not that platform's job any more than it is this checker's job to find the opportunity in the first place. Some contractors will use GovWin IQ or a comparable service to find and shortlist notices, then run each shortlisted notice through this free checker before committing estimating time; neither tool replaces the other.</p>
+  <h3>Is this page affiliated with GovWin IQ?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Deltek, Inc. or GovWin IQ. GovWin IQ is a trademark of its owner, named here only to describe what this checker is and is not.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, procurement, financial, or insurance advice. It does not determine whether you are eligible to bid or whether a bid is compliant. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your text is never uploaded, and this page makes no live comparison against GovWin IQ — it is a static page describing publicly documented facts. We count anonymous feature events locally, never people, and counting honors Do Not Track and Global Privacy Control.</p>
+    <p><a href="./">Use the checker</a> · <a href="LICENSE" rel="noopener">Licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a> (optional; the tool stays free either way)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../home-service-lead-roi-analyzer/" data-pf-to="home-service-lead-roi-analyzer">Home Service Lead ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../hunting-lease-income-calculator/" data-pf-to="hunting-lease-income-calculator">Hunting Lease Income Calculator — free, private</a></li>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+      <li><a href="../invoice-aging-late-payer-analyzer/" data-pf-to="invoice-aging-late-payer-analyzer">Invoice Aging &amp; Late Payer Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tender-bid-readiness">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tender-bid-readiness"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Google Play Earnings Report Analyzer — Fees, Refunds and Net</title>
+  <meta name="description" content="Free analyzer for Android developers: drop in your Google Play Console Earnings report and see net earnings by app, product type, country and month…">
+  <meta property="og:title" content="Google Play Earnings Report Analyzer — free, private, in your browser">
+  <meta property="og:description" content="What each Android app and product really netted after Google's fee and refunds. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Google Play Earnings Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Google Play Console Earnings report CSV into net earnings by product, product type, country and month, the effective Google fee, refund rate and monthly trend. Runs entirely in your browser; the file is never uploaded.", "featureList": "Net earnings by product, effective Google fee, refund rate, fee by product type, by country, monthly trend, multi-currency handling, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see what Google Play actually paid me, by app and country?", "acceptedAnswer": {"@type": "Answer", "text": "Download the Earnings report from Play Console (Download reports, then Financial) and drop the CSV here. The tool adds up charges, refunds, Google fee rows and taxes by product, product type, country and month. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How do I see the fee Google took?", "acceptedAnswer": {"@type": "Answer", "text": "The Earnings report has a Google fee row for each charge. The tool adds them, shows the effective fee as a share of charges net of refunds overall and per product type, and lets you see whether subscriptions sit near the reduced 15% tier while paid apps and in-app products sit near 30%."}}, {"@type": "Question", "name": "What if I only have the Estimated sales report?", "acceptedAnswer": {"@type": "Answer", "text": "That report has charges and refunds but no fee rows. The tool then applies the fee percentage you enter (default 15%) to net charges and labels every fee and net figure as an estimate. Use the Earnings report for the real fee."}}, {"@type": "Question", "name": "How are refunds counted?", "acceptedAnswer": {"@type": "Answer", "text": "Refund rows subtract from charges; the refund rate is refunded value over charged value, shown per product. A product needs at least five charges before it is ever flagged for refunds."}}, {"@type": "Question", "name": "How does it handle currencies?", "acceptedAnswer": {"@type": "Answer", "text": "The Earnings report already gives an amount in your merchant currency, so no rate is needed for a normal account. If a file mixes merchant currencies, the most common one is the base; rows in another currency are left out and named until you type a rate such as EUR=1.10."}}, {"@type": "Question", "name": "Are the column names right for my report?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Play Console reports and no real report was available when this was built. If your file is not read, the page names the rows it skipped and why. Buyer city, postcode and order numbers are never read."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to your file and the assumptions you enter. It is independent of Google and is not affiliated with or endorsed by Google LLC."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Google Play Earnings Report Analyzer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Google Play Earnings Report Analyzer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Google Play Earnings Report Analyzer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">GOOGLE PLAY EARNINGS REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What did your Android apps really net after Google's cut?</h1>
+    <p>Drop in your <strong>Google Play Console Earnings report</strong> and get <strong>net earnings by product, product type, country and month</strong>, the <strong>effective Google fee</strong>, refunds netted out, the refund rate per product, and plain-language findings.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; buyer city, postcode and order numbers are not read. Independent of Google: not affiliated with or endorsed by Google LLC. Column names and transaction wording are matched by alias from memory of Play Console reports; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your earnings report</h2>
+    <p class="note">Needs a <strong>Transaction Type</strong> column and <strong>Amount (Merchant Currency)</strong> (the Estimated sales report’s <strong>Financial Status</strong> and <strong>Charged Amount</strong> also work). Used when present: <strong>Transaction Date</strong>, <strong>Product Title</strong>, <strong>Product Type</strong>, <strong>Buyer Country</strong> and <strong>Merchant Currency</strong>. Choose several files (for example one per month) and they are combined.</p>
+    <label for="file">Choose one or more report files (.csv)</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain" multiple>
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Description,Transaction Date,Transaction Type,Product Title,Product Type,Buyer Country,Merchant Currency,Amount (Merchant Currency)"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Assumptions (edit these)</h2>
+    <p class="note">Only used when the file needs them. The fee percentage applies only to a report with no Google fee rows. Base currency and rates apply only when a file mixes merchant currencies; a rate says what one unit of that currency is worth in the base currency.</p>
+    <div class="grid">
+      <div><label for="feepct">Fee % if the file has no fee rows</label><input type="number" id="feepct" min="0" max="99" step="any" value="15" inputmode="decimal"></div>
+      <div><label for="base">Base currency (optional)</label><input type="text" id="base" maxlength="3" placeholder="most common in the file" autocomplete="off"></div>
+      <div><label for="rates">Exchange rates (optional)</label><input type="text" id="rates" placeholder="EUR=1.10, GBP=1.27" autocomplete="off"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By product type</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Type</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Google fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Net</th></tr></thead><tbody id="by-type"></tbody></table></div></div>
+    <h3>By product</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Product</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Refund rate</th><th class="n" scope="col">Net</th></tr></thead><tbody id="by-product"></tbody></table></div></div>
+    <h3>By country (top 12)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Country</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Net</th></tr></thead><tbody id="by-country"></tbody></table></div></div>
+    <h3>By month (last 12 in the file)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Google fee</th><th class="n" scope="col">Net</th></tr></thead><tbody id="by-month"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download by-month table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Net</strong> is the sum of the merchant-currency amounts in the file with each row signed by its direction: charges positive; refunds and Google fees negative; fee refunds positive. Tax rows are shown on their own line and stay in the net exactly as the report gives them.</li>
+      <li><strong>Reconciles.</strong> The product type rows, product rows and month rows each add up to the same net figure in the summary line.</li>
+      <li><strong>Effective fee</strong> is Google fee rows (less fee refunds) over charges net of refunds. If buyer tax is inside the charge amount the rate reads slightly low; check against your payout statement.</li>
+      <li><strong>Refund rate</strong> is refunded value over charged value. Refunds appear in the month Google records them, not always the month of the sale.</li>
+      <li><strong>Estimates:</strong> a report with no fee rows gets the fee percentage you enter, and every fee and net figure is then labelled an estimate.</li>
+      <li><strong>Findings</strong> ignore groups under five charges. This tool cannot see your fee-tier enrollment.</li>
+      <li><strong>Not modelled:</strong> payout timing and payment-processor fees outside the report, taxes you owe, other income, ads, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see what Google Play actually paid me, by app and country?</h3>
+    <p>Download the Earnings report from Play Console (Download reports, then Financial) and drop the CSV here. The tool adds up charges, refunds, Google fee rows and taxes by product, product type, country and month. The file is read in your browser and never uploaded.</p>
+    <h3>How do I see the fee Google took?</h3>
+    <p>The Earnings report has a Google fee row for each charge. The tool adds them, shows the effective fee as a share of charges net of refunds overall and per product type, and lets you see whether subscriptions sit near the reduced 15% tier while paid apps and in-app products sit near 30%.</p>
+    <h3>What if I only have the Estimated sales report?</h3>
+    <p>That report has charges and refunds but no fee rows. The tool then applies the fee percentage you enter (default 15%) to net charges and labels every fee and net figure as an estimate. Use the Earnings report for the real fee.</p>
+    <h3>How are refunds counted?</h3>
+    <p>Refund rows subtract from charges; the refund rate is refunded value over charged value, shown per product. A product needs at least five charges before it is ever flagged for refunds.</p>
+    <h3>How does it handle currencies?</h3>
+    <p>The Earnings report already gives an amount in your merchant currency, so no rate is needed for a normal account. If a file mixes merchant currencies, the most common one is the base; rows in another currency are left out and named until you type a rate such as EUR=1.10.</p>
+    <h3>Are the column names right for my report?</h3>
+    <p>They are matched by alias from memory of Play Console reports and no real report was available when this was built. If your file is not read, the page names the rows it skipped and why. Buyer city, postcode and order numbers are never read.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to your file and the assumptions you enter. It is independent of Google and is not affiliated with or endorsed by Google LLC.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Not affiliated with Google.</strong> Google, Google Play and Play Console are trademarks of Google LLC. This tool is independent and is not sponsored, endorsed or connected to Google LLC. It is not connected to any other platform either. Column names and transaction wording are matched by alias from memory of Play Console reports and may not match every report.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>report_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also sell on iOS? The <a href="../app-store-sales-report-analyzer/">App Store sales report analyzer</a> does the same from your Apple summary sales report. Selling a game? The <a href="../indie-game-payout-calculator/">indie game payout calculator</a> compares Steam, Epic, itch.io and GOG. Thinking of raising a subscription price? See the <a href="../subscription-price-impact/">subscription price impact calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rows = (id, html, cols) => { $(id).innerHTML = html || `<tr><td colspan="${cols}">Nothing to show.</td></tr>`; };
+    let last = null;
+
+    function run(texts) {
+      const all = [], skipped = [];
+      let dmy = false;
+      for (const text of texts) {
+        const n = normalizeRows(parseCsv(text, detectDelimiter(text)));
+        if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+        all.push(...n.rows); skipped.push(...n.skipped); dmy = dmy || n.dmy;
+      }
+      const r = analyze(all, { baseCurrency: $("#base").value, rates: $("#rates").value, feePct: $("#feepct").value });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, b = s.base, est = s.feeEstimated ? " (estimated)" : "";
+      $("#report-stats").innerHTML = `${dateStr(s.first)} to ${dateStr(s.last)}: <strong>net ${money(s.net, b)}</strong>${est} from ${money(s.charges, b)} charged, less ${money(s.refunds, b)} refunded and ${money(s.fees, b)} Google fee${est}. Effective fee ${pct(s.feeRate)}${est}; refund rate ${pct(s.refundRate)}. ${s.chargeCount} charges, ${s.refundCount} refunds.` + (s.taxNet ? ` Tax rows net to ${money(s.taxNet, b)}.` : "");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      rows("#by-type", r.byType.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${money(g.fees, b)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 6);
+      rows("#by-product", r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${pct(g.refundRate)}${g.enough ? "" : " (few)"}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 5);
+      rows("#by-country", r.byCountry.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 3);
+      rows("#by-month", r.byMonth.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${money(g.fees, b)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 5);
+      const notes = [];
+      if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : ""));
+      if (dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${all.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const files = [...$("#file").files];
+      const texts = files.length ? await Promise.all(files.map(async (f) => decodeBuffer(await f.arrayBuffer()))) : [$("#paste").value];
+      if (texts.every((t) => !t.trim())) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(texts)) record("report_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run([$("#paste").value])) { record("example_loaded"); status.textContent = "Worked example: three synthetic products over eight months, not a real developer."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const out = ["month,charges,refunds,google_fee,net"].concat(last.byMonth.map((m) => [m.label, m.charges.toFixed(2), m.refunds.toFixed(2), m.fees.toFixed(2), m.net.toFixed(2)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([out.join("\n")], { type: "text/csv" }));
+      a.download = "google-play-net-by-month.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../eitc-calculator/" data-pf-to="eitc-calculator">EITC Calculator — free 2025/2026 Earned Income Tax Credit estimator</a></li>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+      <li><a href="../equipment-lease-buyout-calculator/" data-pf-to="equipment-lease-buyout-calculator">Equipment lease buyout calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=google-play-earnings-report-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/?pfEmbed=1&quot; title=&quot;Google Play Earnings Report Analyzer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="google-play-earnings-report-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/" data-pf-embed-title="Google Play Earnings Report Analyzer — free, private, in your browser" data-pf-embed-slug="google-play-earnings-report-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="google-play-earnings-report-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="google-play-earnings-report-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

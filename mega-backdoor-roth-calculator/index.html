@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mega Backdoor Roth 401(k) Calculator -- After-Tax Contribution Headroom</title>
+  <meta name="description" content="Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions…">
+  <meta property="og:title" content="Mega Backdoor Roth 401(k) Calculator">
+  <meta property="og:description" content="How much after-tax 401(k) headroom do you actually have left this year? Enter what you've already contributed and get the number, plus a per-paycheck target.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mega Backdoor Roth 401(k) Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based calculator that computes remaining after-tax 401(k) contribution headroom under the IRS Section 415(c) annual-additions limit, for savers using the mega backdoor Roth strategy."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the mega backdoor Roth 401(k) strategy?","acceptedAnswer":{"@type":"Answer","text":"Some 401(k) plans let you contribute after-tax dollars beyond the ordinary employee deferral limit, up to a much larger IRS ceiling that also covers your employer's contributions. Converting that after-tax money to Roth -- through an in-plan Roth conversion or an in-service withdrawal to a Roth IRA -- moves it into Roth tax treatment: no tax on qualified withdrawals in retirement. Most plans do not offer this; check your plan document or ask your plan administrator before assuming it applies to you."}},{"@type":"Question","name":"What's the difference between the $24,500 limit and the $72,000-$83,250 limit?","acceptedAnswer":{"@type":"Answer","text":"The $23,500 (2025) / $24,500 (2026) figure is the 402(g) elective deferral limit -- what you control directly through payroll withholding, pre-tax plus Roth 401(k) combined. The much larger $70,000-$81,250 (2025) / $72,000-$83,250 (2026) figure is the 415(c) overall limit -- your elective deferral, your employer's match and profit sharing, and any after-tax contributions, all added together. The gap between what you and your employer have already put in under the smaller limit and the larger limit is your after-tax headroom."}},{"@type":"Question","name":"If I changed jobs this year, does the 415(c) limit combine across both employers?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the opposite of how the other limit works. The 415(c) overall limit applies per employer plan (or per controlled group of related employers) -- a job change generally gives you a fresh 415(c) ceiling at the new employer. The 402(g) elective deferral limit is the reverse: it is one shared ceiling across every employer you contributed to during the calendar year, related or not, so your pre-tax and Roth paycheck deferrals at both jobs combined still cannot exceed it."}},{"@type":"Question","name":"Why does converting quickly matter more than converting eventually?","acceptedAnswer":{"@type":"Answer","text":"After-tax contributions themselves are not taxed again on withdrawal or conversion -- you already paid tax on that money once. Any investment growth on that after-tax balance before you convert it, though, is taxed as ordinary income at conversion. A plan with automatic or same-day in-plan Roth conversion leaves little or no growth to accumulate, so the conversion is close to tax-free. A plan that only lets you convert periodically (quarterly, annually) lets growth build up in the after-tax bucket first, and that growth is what gets taxed when you finally convert."}},{"@type":"Question","name":"Is this the same as a regular backdoor Roth IRA?","acceptedAnswer":{"@type":"Answer","text":"No, and the two get confused constantly. A backdoor Roth IRA is a nondeductible contribution to a traditional IRA (capped at $7,000 for 2025/2026, plus a $1,000 catch-up at 50+) that you then convert to a Roth IRA -- and it can trigger the IRA pro-rata rule if you hold other pre-tax IRA money. The mega backdoor Roth happens entirely inside your 401(k), uses the much larger 415(c) limit instead of the IRA limit, and has no IRA pro-rata-rule exposure at all."}},{"@type":"Question","name":"Does my plan have to offer this?","acceptedAnswer":{"@type":"Answer","text":"Yes -- and most plans do not. Three separate plan features all have to be present: the plan must allow after-tax (non-Roth) employee contributions above the elective-deferral limit, and it must allow either in-plan Roth conversions or in-service withdrawals so the after-tax money can actually move to Roth. Some plans that allow after-tax contributions still lock the money up until termination, which removes most of the benefit. Check your plan's summary plan description or ask your plan administrator before assuming any of this applies to you."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#2f6b4f; --line:#d9d2c4; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:900px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:760px; font:700 clamp(1.8rem,5vw,3rem)/1.05 Georgia,serif; letter-spacing:-.03em; margin:0 0 16px; } h2 { font:700 1.4rem Georgia,serif; } .intro { max-width:720px; color:var(--muted); font-size:1.05rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:720px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #3c2e1812; }
+    .row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; } label { display:grid; gap:5px; color:var(--muted); font-size:.85rem; } input, select { width:100%; padding:11px; border:1px solid #bdb4a5; border-radius:8px; font:inherit; color:var(--ink); background:white; }
+    .results dl { display:grid; grid-template-columns:1fr auto; gap:6px 14px; margin:0; } .results dt { color:var(--muted); } .results dd { margin:0; text-align:right; font-variant-numeric:tabular-nums; } .headline { font-size:1.6rem; font-weight:700; color:var(--accent); }
+    .privacy { font-size:.9rem; color:var(--muted); } footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
+    ul.findings { margin:10px 0 0; padding-left:18px; }
+    fieldset { border:1px solid var(--line); border-radius:10px; margin:14px 0 0; padding:12px 14px; } legend { color:var(--muted); font-size:.82rem; padding:0 6px; }
+    @media(max-width:760px) { .row { grid-template-columns:repeat(2,1fr); } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Mega Backdoor Roth 401(k) Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mega Backdoor Roth 401(k) Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mega Backdoor Roth 401(k) Calculator</span></span></nav><main>
+  <h1>How much mega backdoor Roth headroom do you have left this year?</h1>
+  <p class="intro">If your 401(k) plan allows after-tax contributions above the ordinary deferral limit, this calculates the after-tax room you have left under the IRS's overall 415(c) limit for 2025 or 2026 -- and the per-paycheck amount to use all of it before year-end.</p>
+  <p class="value"><strong>After using this, you can now</strong> see the exact dollar headroom left in your plan's after-tax bucket this year, the per-paycheck contribution that reaches it by December, and whether your own plan's contribution cap (not just the IRS limit) is what's actually binding. See <a href="which-conversion-cadence-should-i-use.html">how conversion frequency changes what you owe</a> or <a href="vs-doing-the-math-by-hand.html">what a hand estimate usually gets wrong</a>.</p>
+
+  <section class="card"><h2>Your numbers</h2><p class="privacy">Everything below is what you already have on your latest paystub or plan portal for this employer's plan. Nothing is uploaded -- the calculation runs entirely in this browser.</p>
+    <form id="calc-form"><div class="row">
+      <label>Plan year<select name="year" id="year"><option value="2025">2025</option><option value="2026" selected>2026</option></select></label>
+      <label>Your age on Dec 31 of that year<input name="age" type="number" min="18" max="100" step="1" value="35" inputmode="numeric"></label>
+      <label>Pay periods remaining this year<input name="payPeriodsRemaining" type="number" min="0" step="1" value="13" inputmode="numeric"></label>
+      <label>YTD elective deferral, pre-tax + Roth 401(k) ($)<input name="ytdElectiveDeferral" type="number" min="0" step="0.01" value="12000" inputmode="decimal"></label>
+      <label>YTD employer match + profit sharing ($)<input name="ytdEmployerContributions" type="number" min="0" step="0.01" value="6000" inputmode="decimal"></label>
+      <label>Employer contributions still expected this year ($)<input name="expectedAdditionalEmployerContributions" type="number" min="0" step="0.01" value="6000" inputmode="decimal"></label>
+      <label>YTD after-tax (non-Roth) contributed already ($)<input name="afterTaxContributedYTD" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+    </div>
+    <fieldset><legend>Optional: your plan's own after-tax cap (if it has one below the IRS limit)</legend><div class="row">
+      <label>Plan's after-tax contribution cap, % of eligible pay<input name="planAfterTaxCapPercent" type="number" min="0" max="100" step="0.1" placeholder="leave blank if none" inputmode="decimal"></label>
+      <label>Annual eligible compensation ($)<input name="eligibleCompensation" type="number" min="0" step="0.01" placeholder="only needed with a % cap above" inputmode="decimal"></label>
+    </div></fieldset>
+    <fieldset><legend>Optional: estimate the tax cost of a delayed conversion</legend><div class="row">
+      <label>How often can you convert to Roth?<select name="conversionFrequency"><option value="automatic" selected>Automatic / same-day</option><option value="periodic">Periodic (quarterly, annual, or manual)</option></select></label>
+      <label>Estimated growth before your next conversion ($)<input name="estimatedGrowthBeforeConversion" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+      <label>Your marginal tax rate on conversion (%)<input name="marginalTaxRatePercent" type="number" min="0" max="60" step="0.1" value="24" inputmode="decimal"></label>
+    </div></fieldset>
+    </form>
+  </section>
+
+  <section class="card results">
+    <h2>Your headroom</h2>
+    <dl>
+      <dt>Elective deferral limit (age-adjusted)</dt><dd id="out-deferralLimit"></dd>
+      <dt>Overall 415(c) limit (age-adjusted)</dt><dd id="out-overallLimit"></dd>
+      <dt>Already counted toward that limit</dt><dd id="out-alreadyCounted"></dd>
+      <dt>Headroom under the IRS limit</dt><dd id="out-irsHeadroom"></dd>
+      <dt>Headroom under your plan's own cap</dt><dd id="out-planHeadroom"></dd>
+    </dl>
+    <p style="margin-top:16px">Max additional after-tax you can contribute this year:</p>
+    <p class="headline" id="out-max"></p>
+    <p id="out-perPaycheck"></p>
+    <p id="out-conversionTax"></p>
+    <ul class="findings" id="out-findings"></ul>
+  </section>
+
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Everything you enter stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the mega backdoor Roth 401(k) strategy?</h3>
+    <p>Some 401(k) plans let you contribute after-tax dollars beyond the ordinary employee deferral limit, up to a much larger IRS ceiling that also covers your employer's contributions. Converting that after-tax money to Roth -- through an in-plan Roth conversion or an in-service withdrawal to a Roth IRA -- moves it into Roth tax treatment: no tax on qualified withdrawals in retirement. Most plans do not offer this; check your plan document or ask your plan administrator before assuming it applies to you.</p>
+    <h3>What's the difference between the $24,500 limit and the $72,000-$83,250 limit?</h3>
+    <p>The $23,500 (2025) / $24,500 (2026) figure is the 402(g) elective deferral limit -- what you control directly through payroll withholding, pre-tax plus Roth 401(k) combined. The much larger $70,000-$81,250 (2025) / $72,000-$83,250 (2026) figure is the 415(c) overall limit -- your elective deferral, your employer's match and profit sharing, and any after-tax contributions, all added together. The gap between what you and your employer have already put in under the smaller limit and the larger limit is your after-tax headroom.</p>
+    <h3>If I changed jobs this year, does the 415(c) limit combine across both employers?</h3>
+    <p>No, and this is the opposite of how the other limit works. The 415(c) overall limit applies per employer plan (or per controlled group of related employers) -- a job change generally gives you a fresh 415(c) ceiling at the new employer. The 402(g) elective deferral limit is the reverse: it is one shared ceiling across every employer you contributed to during the calendar year, related or not, so your pre-tax and Roth paycheck deferrals at both jobs combined still cannot exceed it. This calculator computes the 415(c) headroom for a single employer's plan; if you changed jobs, run it once per employer with each plan's own YTD figures.</p>
+    <h3>Why does converting quickly matter more than converting eventually?</h3>
+    <p>After-tax contributions themselves are not taxed again on withdrawal or conversion -- you already paid tax on that money once. Any investment growth on that after-tax balance before you convert it, though, is taxed as ordinary income at conversion. A plan with automatic or same-day in-plan Roth conversion leaves little or no growth to accumulate, so the conversion is close to tax-free. A plan that only lets you convert periodically (quarterly, annually) lets growth build up in the after-tax bucket first, and that growth is what gets taxed when you finally convert. See <a href="which-conversion-cadence-should-i-use.html">the full comparison</a>.</p>
+    <h3>Is this the same as a regular backdoor Roth IRA?</h3>
+    <p>No, and the two get confused constantly. A backdoor Roth IRA is a nondeductible contribution to a traditional IRA (capped at $7,000 for 2025/2026, plus a $1,000 catch-up at 50+) that you then convert to a Roth IRA -- and it can trigger the IRA pro-rata rule if you hold other pre-tax IRA money. The mega backdoor Roth happens entirely inside your 401(k), uses the much larger 415(c) limit instead of the IRA limit, and has no IRA pro-rata-rule exposure at all.</p>
+    <h3>Does my plan have to offer this?</h3>
+    <p>Yes -- and most plans do not. Three separate plan features all have to be present: the plan must allow after-tax (non-Roth) employee contributions above the elective-deferral limit, and it must allow either in-plan Roth conversions or in-service withdrawals so the after-tax money can actually move to Roth. Some plans that allow after-tax contributions still lock the money up until termination, which removes most of the benefit. Check your plan's summary plan description or ask your plan administrator before assuming any of this applies to you.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not legal, tax, or financial advice, and does not replace a qualified tax preparer, financial advisor, or your plan administrator. IRS contribution limits are compiled from secondary sources summarizing IRS Notice 2024-80 (2025) and Notice 2025-67 (2026), not the primary notices themselves, and Congress or the IRS can change these figures. This tool does not know whether your specific plan allows after-tax contributions, in-plan Roth conversions, or in-service withdrawals -- confirm all three with your plan document or administrator before contributing a dollar based on this page. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<p>Also self-employed or a pass-through owner? The <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> covers the other side of this year's federal income-tax picture. Filing as a senior instead? The <a href="../senior-deduction-calculator/">senior deduction calculator</a> checks the new federal $6,000 OBBBA deduction.</p><p>Reconciling a marketplace's 1099-K against what you actually kept instead of computing after-tax 401(k) headroom? See the <a href="../1099k-reconciliation-worksheet/">1099-K reconciliation worksheet</a>. Opening a savings account for a child instead? See the <a href="../trump-account-calculator/">Trump Account calculator</a> -- it uses a similar IRS dollar-limit-and-headroom shape, for a very different account. Checking an HSA limit instead of a 401(k) headroom? See the <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a> -- same annually-indexed IRS dollar-limit shape, with its own eligibility wrinkle (monthly proration or the last-month rule) instead of a plan's after-tax bucket. Self-employed instead of a W-2 employee with an after-tax 401(k) benefit? See the <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> -- a different plan type and eligibility mechanism entirely, computing an employer profit-sharing contribution from net self-employment earnings rather than after-tax headroom in an employer's plan. Doing the ordinary backdoor Roth (a nondeductible IRA contribution converted to Roth) and worried an old IRA will make the conversion taxable? See the <a href="../backdoor-roth-pro-rata-calculator/">backdoor Roth pro-rata calculator</a> -- the Form 8606 pro-rata rule, not a 401(k) plan's after-tax bucket. Wondering what your plan's fees are quietly costing you before you add after-tax dollars to it? See the <a href="../401k-plan-fee-calculator/">401(k) plan fee calculator</a> -- the all-in plan cost against a size benchmark, the other half of whether a plan is worth maxing.</p><p class="support">Free and open source. If it saved you from over- or under-contributing, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+    (() => {
+      const usagePreference = 'mega-backdoor-roth-calculator-usage-preference';
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl) return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { computeHeadroom } from './calc.mjs';
+  const form = document.querySelector('#calc-form');
+  const money = (n) => n == null ? '--' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const track = (event) => {
+    if (document.querySelector('#usage').checked && !navigator.doNotTrack && !navigator.globalPrivacyControl) {
+      try {
+        const key = 'mega-backdoor-roth-calculator-events';
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        data[event] = (data[event] || 0) + 1;
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch { /* ignore */ }
+    }
+  };
+  const FINDING_TEXT = {
+    'elective-deferral-exceeds-limit': 'The elective deferral you entered is above the age-adjusted 402(g) limit for this plan year -- double-check it, especially if you changed jobs mid-year (that limit is shared across every employer this calendar year).',
+    'already-over-415c': 'What you’ve already contributed this year is at or above the overall 415(c) limit for your age -- there is no after-tax headroom left, and it is worth confirming nothing was over-contributed.',
+    'plan-caps-below-irs': 'Your plan’s own after-tax percentage cap is lower than the IRS 415(c) headroom -- your plan, not the IRS, is what limits you this year.',
+    'no-pay-periods-remaining': 'There are no pay periods left this year to spread a per-paycheck contribution across -- ask your plan whether a lump-sum after-tax contribution is possible before year-end, or plan for next year.',
+    'periodic-conversion-has-a-tax-cost': 'With periodic (not automatic) conversion, the growth that accumulates before you convert is taxed as ordinary income at conversion -- see the estimated cost below.',
+  };
+  const render = () => {
+    const data = Object.fromEntries(new FormData(form));
+    const result = computeHeadroom(data);
+    document.querySelector('#out-deferralLimit').textContent = money(result.electiveDeferralLimit);
+    document.querySelector('#out-overallLimit').textContent = money(result.overall415cLimit);
+    document.querySelector('#out-alreadyCounted').textContent = money(result.alreadyCounted);
+    document.querySelector('#out-irsHeadroom').textContent = money(result.irsAfterTaxHeadroom);
+    document.querySelector('#out-planHeadroom').textContent = result.planAfterTaxHeadroom == null ? 'no plan cap entered' : money(result.planAfterTaxHeadroom);
+    document.querySelector('#out-max').textContent = money(result.maxAdditionalAfterTax) + (result.bindingConstraint === 'plan' ? ' (your plan’s own cap, not the IRS limit)' : result.bindingConstraint === 'irs' ? ' (the IRS 415(c) limit)' : '');
+    document.querySelector('#out-perPaycheck').textContent = result.perPaycheckAmount == null ? '' : `That is ${money(result.perPaycheckAmount)} per remaining paycheck to use all of it by year-end.`;
+    document.querySelector('#out-conversionTax').textContent = result.estimatedConversionTax > 0 ? `Estimated tax cost of the growth accumulated before a periodic conversion: ${money(result.estimatedConversionTax)}.` : '';
+    document.querySelector('#out-findings').innerHTML = result.findings.map((f) => `<li>${FINDING_TEXT[f] || f}</li>`).join('');
+  };
+  form.addEventListener('input', () => { render(); track('recalculated'); });
+  render();
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bookkeeping-client-fee-calculator/" data-pf-to="bookkeeping-client-fee-calculator">What should you charge a new bookkeeping client each month?</a></li>
+      <li><a href="../brrrr-calculator/" data-pf-to="brrrr-calculator">BRRRR Calculator — free, private, in your browser</a></li>
+      <li><a href="../business-loan-offer-comparator/" data-pf-to="business-loan-offer-comparator">Business Loan Offer Comparator — free, private, in your browser</a></li>
+      <li><a href="../business-vehicle-depreciation-calculator/" data-pf-to="business-vehicle-depreciation-calculator">How much of your business vehicle can you deduct this year?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mega-backdoor-roth-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/?pfEmbed=1&quot; title=&quot;Mega Backdoor Roth 401(k) Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="mega-backdoor-roth-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/" data-pf-embed-title="Mega Backdoor Roth 401(k) Calculator" data-pf-embed-slug="mega-backdoor-roth-calculator"></script>
+</body></html>

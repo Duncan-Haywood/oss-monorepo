@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
+  <meta name="description" content="Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage…">
+  <meta property="og:title" content="Redirect Map Check — free, private, in your browser">
+  <meta property="og:description" content="Catch loops, chains and redirects to 404s in your migration map before launch. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Redirect Map Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a site-migration redirect map (CSV, TSV or one old-new pair per line) for loops, chains, conflicting duplicates, redirects to the homepage, malformed URLs, targets missing from the new site and old URLs with no rule, then writes it flattened for Shopify, Netlify or Cloudflare Pages, Apache or nginx. Runs entirely in your browser; the file is never uploaded.", "featureList": "Redirect loop detector, redirect chain flattener, 301 redirect map validator, Shopify redirect CSV checker, htaccess and nginx redirect generator, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do redirect chains and loops hurt after a site migration?", "acceptedAnswer": {"@type": "Answer", "text": "A chain (/a to /b to /c) makes every visitor and crawler make extra requests, and search engines may stop following after a few hops, so the final page can inherit less of the old page's ranking. A loop (/a to /b to /a) never resolves and shows the visitor ERR_TOO_MANY_REDIRECTS. Both are common when a new map is stacked on top of an old one. This tool finds each and writes the map with every old URL pointing straight at its final destination."}}, {"@type": "Question", "name": "Should I redirect everything to the homepage?", "acceptedAnswer": {"@type": "Answer", "text": "No. Google treats a redirect from a page to an unrelated one, especially the homepage, as a soft 404, so the old page's ranking may not carry over. Send each old URL to its closest equivalent. If a page has no equivalent, a 410 Gone is more honest. The tool warns when more than a tenth of your rows go to the homepage."}}, {"@type": "Question", "name": "What format does the Shopify redirect import use?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of Shopify's help pages: a CSV with two columns, Redirect from and Redirect to, with paths starting with a slash. Shopify cannot redirect from another domain, does not match wildcards, and caps the list at 100,000 redirects. This tool flags each of those and can write the cleaned map in exactly that shape, or as Netlify or Cloudflare Pages _redirects lines, Apache Redirect directives or an nginx map block."}}, {"@type": "Question", "name": "What do I paste in the new-site and old-site boxes?", "acceptedAnswer": {"@type": "Answer", "text": "Both are optional. Paste the URLs your new site really serves (for example from its sitemap) and the tool errors on every redirect whose final destination is not among them, which is a redirect to a 404. Paste the old site's URLs (from a crawl or its sitemap) and it lists the ones that have no redirect at all."}}, {"@type": "Question", "name": "Is it safe to paste a redirect map into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the redirects actually behave that way on your live server, regular-expression or wildcard rules, query-string handling that differs by platform, hostname or protocol rules, and whether a destination page is a good match for the old one. It reads the file only. Test a sample of the live URLs after you deploy."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Redirect Map Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Redirect Map Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Redirect Map Check — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">REDIRECT MAP CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your migration redirect map break your search traffic?</h1>
+    <p>Paste or drop your <strong>old-URL to new-URL redirect map</strong> (CSV, TSV, or one <code>/old /new</code> pair per line) and get every problem <strong>with its line number</strong> before launch: <strong>loops</strong>, <strong>chains</strong> that should be one hop, the <strong>same old URL sent to two places</strong>, a quarter of the site <strong>redirected to the homepage</strong>, URLs with spaces or <code>#fragments</code>, and — if you paste your new site's URL list — <strong>redirects that end on a 404</strong>. Then download the map <strong>flattened</strong> as a Shopify CSV, Netlify or Cloudflare Pages <code>_redirects</code>, Apache or nginx.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of every platform named. Platform limits and import formats are read from memory of public help pages and may be out of date.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your redirect map</h2>
+    <p class="note">Headers like <em>Redirect from / Redirect to</em>, <em>source / destination</em>, <em>old url / new url</em> and the WordPress Redirection plugin's export are recognised, with an optional status-code column. No header is fine too.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Redirect from,Redirect to&#10;/about-us,/about&#10;/blog/2019/spring-sale,/blog/spring-sale"></textarea>
+    <div class="grid">
+      <div>
+        <label for="newurls">New site's URLs (optional)</label>
+        <textarea id="newurls" class="small" spellcheck="false" wrap="off" placeholder="One per line, e.g. from the new sitemap. Every redirect must end on one of these."></textarea>
+      </div>
+      <div>
+        <label for="oldurls">Old site's URLs (optional)</label>
+        <textarea id="oldurls" class="small" spellcheck="false" wrap="off" placeholder="One per line, e.g. from a crawl or the old sitemap. Lists the ones with no redirect."></textarea>
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="site">Your domain (optional)</label>
+        <input id="site" placeholder="example.com — otherwise the most common host in the file">
+      </div>
+      <div>
+        <label for="format">Write the cleaned map as</label>
+        <select id="format">
+          <option value="shopify">Shopify CSV (Redirect from, Redirect to)</option>
+          <option value="netlify">Netlify / Cloudflare Pages _redirects</option>
+          <option value="apache">Apache Redirect directives</option>
+          <option value="nginx">nginx map block</option>
+          <option value="csv">Plain CSV with status</option>
+        </select>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="case"><label for="case">Treat /About and /about as different pages (case-sensitive server)</label></div>
+    <p>
+      <button type="button" id="validate">Check map</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check map.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Cleaned map</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-fixed">Download cleaned map</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Loops:</strong> /a to /b to /a, or a page sent to itself (also with or without a trailing slash). Left out of the cleaned map: a human has to decide.</li>
+      <li><strong>Chains:</strong> any redirect whose target is itself redirected. Google follows a few hops but recommends one. The cleaned map points every source at the end of its chain.</li>
+      <li><strong>Duplicates:</strong> the same old URL listed twice. Identical rows are merged; different targets are an error, and the first is kept so you can see it. Paths are compared ignoring letter case unless you say your server is case-sensitive.</li>
+      <li><strong>Homepage:</strong> more than a tenth of a map (of ten rows or more) ending at <code>/</code> reads as soft 404s to Google. A few are noted but not warned.</li>
+      <li><strong>URL shape:</strong> spaces (written as %20 in the cleaned map), a <code>#fragment</code> in a source (never sent to the server; removed), a source with no leading slash (added), wildcards and regular expressions (exact-match importers ignore them), sources on another host, relative or http targets, over-long URLs, malformed %-escapes.</li>
+      <li><strong>Status codes:</strong> 301 and 308 are permanent; 302, 303 and 307 are flagged for a migration. 410 rows are carried through. The cleaned map uses 301 unless a row says otherwise.</li>
+      <li><strong>New-site list:</strong> each redirect's final destination must be in it, or it is a redirect to a 404. <strong>Old-site list:</strong> URLs with no rule are counted and the first few named.</li>
+      <li><strong>Limits from memory:</strong> Shopify takes a two-column CSV, only from paths on its own domain, no wildcards, up to 100,000 redirects. Other platforms differ; the page checks only what it can state.</li>
+      <li><strong>Not checked:</strong> that the redirects behave this way on your live server, regular-expression and query-string rules, hostname and protocol rules, and whether a destination is a good match for the old page. Test a sample of live URLs after you deploy.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why do redirect chains and loops hurt after a site migration?</h3>
+    <p>A chain (/a to /b to /c) makes every visitor and crawler make extra requests, and search engines may stop following after a few hops, so the final page can inherit less of the old page's ranking. A loop (/a to /b to /a) never resolves and shows the visitor ERR_TOO_MANY_REDIRECTS. Both are common when a new map is stacked on top of an old one. This tool finds each and writes the map with every old URL pointing straight at its final destination.</p>
+    <h3>Should I redirect everything to the homepage?</h3>
+    <p>No. Google treats a redirect from a page to an unrelated one, especially the homepage, as a soft 404, so the old page's ranking may not carry over. Send each old URL to its closest equivalent. If a page has no equivalent, a 410 Gone is more honest. The tool warns when more than a tenth of your rows go to the homepage.</p>
+    <h3>What format does the Shopify redirect import use?</h3>
+    <p>From memory of Shopify's help pages: a CSV with two columns, Redirect from and Redirect to, with paths starting with a slash. Shopify cannot redirect from another domain, does not match wildcards, and caps the list at 100,000 redirects. This tool flags each of those and can write the cleaned map in exactly that shape, or as Netlify or Cloudflare Pages _redirects lines, Apache Redirect directives or an nginx map block.</p>
+    <h3>What do I paste in the new-site and old-site boxes?</h3>
+    <p>Both are optional. Paste the URLs your new site really serves (for example from its sitemap) and the tool errors on every redirect whose final destination is not among them, which is a redirect to a 404. Paste the old site's URLs (from a crawl or its sitemap) and it lists the ones that have no redirect at all.</p>
+    <h3>Is it safe to paste a redirect map into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether the redirects actually behave that way on your live server, regular-expression or wildcard rules, query-string handling that differs by platform, hostname or protocol rules, and whether a destination page is a good match for the old one. It reads the file only. Test a sample of the live URLs after you deploy.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace testing redirects on your own site. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by testing a sample of the live URLs after you deploy, and a clean result is not a promise about search rankings or traffic.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Shopify, Netlify, Cloudflare, Google or any other company named. Their names are trademarks of their owners, used here only to say which file format the tool reads or writes. Import formats and limits are read from memory of public sources and may be out of date; check them against current documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../redirect-chain-check/">redirect chain check</a> follows a live URL's real hops, the <a href="../sitemap-lastmod-freshness-check/">sitemap lastmod check</a>, the <a href="../canonical-tag-check/">canonical tag check</a> and the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> cover the other files a migration touches. After the move, the <a href="../internal-link-planner/">internal link planner</a> finds the pages nothing links to.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const EXT = { shopify: ["redirects.csv", "text/csv"], csv: ["redirects.csv", "text/csv"], netlify: ["_redirects", "text/plain"], apache: ["redirects.conf", "text/plain"], nginx: ["redirects.conf", "text/plain"] };
+    let lastResult = null, fixedText = null, lastFormat = "shopify";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const options = () => ({ site: $("#site").value, newUrls: $("#newurls").value, oldUrls: $("#oldurls").value, caseSensitive: $("#case").checked, format: $("#format").value });
+
+    function run(text) {
+      const o = options();
+      const r = validate(text, o);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.redirects} redirect${s.redirects === 1 ? "" : "s"} · ${s.loops} in loops, ${s.chains} chained`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      const fix = repair(text, o);
+      fixedText = fix.text; lastFormat = o.format;
+      $("#fix-box").hidden = false;
+      $("#fixed-out").value = fix.text || "";
+      $("#download-fixed").hidden = $("#copy-fixed").hidden = !fix.text;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length ? `${fix.changes.length} change${fix.changes.length === 1 ? "" : "s"} made while writing the map. Rows that need a human decision are left as they are or left out, and named above.` : "The map is written as is: no changes were needed.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up site's six redirects, not a real business."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a map with a loop, a chain, a conflict and malformed rows."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#newurls", "#oldurls", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check map."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); const [n, t] = EXT[lastFormat] || EXT.csv; download(n, fixedText, t); } });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("redirect-map-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../grant-indirect-cost-calculator/" data-pf-to="grant-indirect-cost-calculator">How much indirect cost can you charge on your grant budget?</a></li>
+      <li><a href="../grant-reporting-tracker/" data-pf-to="grant-reporting-tracker">Grant Reporting Tracker for Small Nonprofits</a></li>
+      <li><a href="../grant-writer-proposal-price-calculator/" data-pf-to="grant-writer-proposal-price-calculator">Grant Writer Proposal Price Calculator — free</a></li>
+      <li><a href="../gtin-list-check/" data-pf-to="gtin-list-check">GTIN List Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=redirect-map-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/?pfEmbed=1&quot; title=&quot;Redirect Map Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="redirect-map-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/" data-pf-embed-title="Redirect Map Check — free, private, in your browser" data-pf-embed-slug="redirect-map-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="redirect-map-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="redirect-map-check" data-pf-link-amount=""></script>
+</body>
+</html>

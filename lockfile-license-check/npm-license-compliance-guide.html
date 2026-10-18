@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm License Compliance Checklist: GPL, AGPL and Unknown Licences in Dependencies</title>
+  <meta name="description" content="A practical checklist for auditing npm dependency licences before you ship: what copyleft means, how to read OR and AND expressions…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/npm-license-compliance-guide.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"An npm licence compliance checklist for shipping software","about":"Auditing dependency licences in package-lock.json","author":{"@type":"Organization","name":"Lockfile License Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/npm-license-compliance-guide.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="npm License Compliance Checklist: GPL, AGPL and Unknown Licences in Dependencies">
+<meta property="og:description" content="A practical checklist for auditing npm dependency licences before you ship: what copyleft means, how to read OR and AND expressions…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="npm License Compliance Checklist: GPL, AGPL and Unknown Licences in Dependencies — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../lockfile-license-check/">Is anything in your node_modules GPL?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">npm License Compliance Checklist: GPL, AGPL and Unknown Licences in Dependencies</span></span></nav>
+  <p><a href="./">← Lockfile License Check</a></p>
+  <h1>An npm licence compliance checklist for shipping software</h1>
+  <p>A typical web app pulls in hundreds of packages, each with its own licence. Most are permissive. The few that are not are the ones worth ten minutes before a release, an acquisition review or a customer security questionnaire.</p>
+
+  <h2>The categories this tool uses</h2>
+  <ul>
+    <li><strong>permissive</strong> — MIT, ISC, BSD, Apache-2.0 and similar. Keep the notice; little else is required.</li>
+    <li><strong>weak-copyleft</strong> — LGPL, MPL, EPL, CDDL. Changes to the library itself usually have to be shared; using it as a dependency usually does not.</li>
+    <li><strong>strong-copyleft</strong> — GPL, AGPL, SSPL. Distributing (or, for AGPL and SSPL, offering over a network) software that includes it can carry obligations on your own code. Review these first.</li>
+    <li><strong>unlicensed</strong> — <code>UNLICENSED</code> or <code>SEE LICENSE IN ...</code>. No grant is visible in the metadata; read the file it points to.</li>
+    <li><strong>unknown</strong> — no licence declared, or an identifier this tool does not recognise.</li>
+  </ul>
+
+  <h2>Checklist</h2>
+  <ol>
+    <li>Run the check on <code>package-lock.json</code>, once with devDependencies and once with <code>--no-dev</code>: build tools you do not ship matter far less.</li>
+    <li>Read every strong-copyleft entry's own repository. Declared metadata can be wrong.</li>
+    <li>For a dual-licensed <code>(MIT OR GPL-3.0)</code> package, record which option you rely on.</li>
+    <li>For an unknown package, look for a LICENSE file, then ask the maintainer to add a licence field.</li>
+    <li>Add <code>node license-check.mjs --fail-on copyleft</code> to CI so a new dependency cannot add one silently.</li>
+  </ol>
+
+  <h2>What this does not tell you</h2>
+  <p>It reads only the licence field package authors declared in their own package.json. It does not read licence files, detect code copied between packages, or follow transitive licences that npm did not record. It is a heuristic and is not legal advice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not legal advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+      <li><a href="../pip-audit-triage/" data-pf-to="pip-audit-triage">Which pip-audit findings actually matter?</a></li>
+      <li><a href="../postgres-explain-analyzer/" data-pf-to="postgres-explain-analyzer">Why is my Postgres query slow? Paste the plan.</a></li>
+      <li><a href="../postgres-index-auditor/" data-pf-to="postgres-index-auditor">Postgres Index Auditor — free, private, paste-the-output</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=lockfile-license-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="lockfile-license-check"></script>
+</body>
+</html>

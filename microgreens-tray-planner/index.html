@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</title>
+  <meta name="description" content="Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs…">
+  <meta property="og:title" content="Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix">
+  <meta property="og:description" content="Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Microgreens Tray Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many microgreen trays do I need to seed each week?","acceptedAnswer":{"@type":"Answer","text":"It depends on what you can sell and how long each crop sits on the rack. On the default numbers a plan of 55 trays a week (20 radish, 10 pea shoots, 15 sunflower and 10 broccoli) sells about $881.36 a week, but on the busiest weekday it holds 83 trays at once, so it needs 83 rack spaces. Enter your own crops, sales and rack size; the defaults are invented."}},{"@type":"Question","name":"Which microgreen crop earns the most for the rack space it uses?","acceptedAnswer":{"@type":"Answer","text":"Not the one with the highest price per ounce. Margin per tray divided by days on the rack is what a rack space earns: on the defaults Pea shoots earns $1.59 per tray per day and Broccoli $1.09, even though Broccoli sells for the highest price per ounce."}},{"@type":"Question","name":"What if I have fewer rack spaces than my orders need?","acceptedAnswer":{"@type":"Answer","text":"Fill the rack with the best-earning crops first, up to what you can sell. With a 40-tray rack the best fitting mix on the defaults is 10, 16, 0, 0 trays of radish, pea shoots, sunflower and broccoli and makes about $286.47 a week; the same plan on an 80-tray rack made $612.81."}},{"@type":"Question","name":"Is this advice or market data?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type. Prices, yields, days and costs are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your local cottage-food, produce-safety and licensing rules before selling."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2a1f; background: #f1f5f0; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a2c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a2c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4f5f54; }
+    .card { background: #fff; border: 1px solid #d2dcd3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a2c10; margin: 18px 0; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number], input[type=text] { padding: 6px; border: 1px solid #a3b3a6; border-radius: 6px; }
+    input[type=number] { width: 6em; }
+    input[type=text] { width: 9em; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6a3d; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e2ebe3; color: #1f4a2c; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e4ebe5; vertical-align: top; }
+    th { color: #4f5f54; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d2dcd3; padding-top: 16px; }
+    .days label { font-weight: 500; margin-right: 10px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix","item":"https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">MICROGREENS TRAY PLANNER · RUNS IN YOUR BROWSER</p>
+    <h1>How many trays should you seed, and of what?</h1>
+    <p>Enter your crops, days to harvest, yield, price, seed cost, your harvest days and your rack size. You get a <strong>seeding calendar</strong> that lands each cut on your harvest day, the <strong>rack spaces your busiest weekday needs</strong>, the <strong>profit per rack space</strong> each crop earns, and the <strong>best mix</strong> when the rack is the limit.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, yields and times are yours to check; every value is editable and the defaults are invented. Nothing is uploaded: inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your crops</h2>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Crop</th><th>Days to harvest</th><th>Oz per tray</th><th>Price per oz ($)</th><th>Seed per tray ($)</th><th>Trays per week</th><th>Most you can sell (trays)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><input type="text" id="c0-name" value="Radish"></td>
+        <td><input type="number" id="c0-days" value="8" min="1" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c0-oz" value="8" min="0" step="0.5" inputmode="decimal"></td>
+        <td><input type="number" id="c0-price" value="2" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c0-seed" value="0.9" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c0-trays" value="20" min="0" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c0-max" value="24" min="0" step="1" inputmode="numeric"></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="c1-name" value="Pea shoots"></td>
+        <td><input type="number" id="c1-days" value="10" min="1" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c1-oz" value="14" min="0" step="0.5" inputmode="decimal"></td>
+        <td><input type="number" id="c1-price" value="1.6" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c1-seed" value="2.4" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c1-trays" value="10" min="0" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c1-max" value="16" min="0" step="1" inputmode="numeric"></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="c2-name" value="Sunflower"></td>
+        <td><input type="number" id="c2-days" value="9" min="1" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c2-oz" value="10" min="0" step="0.5" inputmode="decimal"></td>
+        <td><input type="number" id="c2-price" value="1.8" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c2-seed" value="2" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c2-trays" value="15" min="0" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c2-max" value="20" min="0" step="1" inputmode="numeric"></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="c3-name" value="Broccoli"></td>
+        <td><input type="number" id="c3-days" value="10" min="1" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c3-oz" value="6" min="0" step="0.5" inputmode="decimal"></td>
+        <td><input type="number" id="c3-price" value="2.4" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c3-seed" value="0.9" min="0" step="0.1" inputmode="decimal"></td>
+        <td><input type="number" id="c3-trays" value="10" min="0" step="1" inputmode="numeric"></td>
+        <td><input type="number" id="c3-max" value="14" min="0" step="1" inputmode="numeric"></td>
+      </tr>
+      </tbody>
+    </table></div></div>
+    <h2>Your week</h2>
+    <p class="days"><strong>Harvest and delivery days:</strong>
+      <label for="hd0"><input type="checkbox" id="hd0"> Sun</label>
+      <label for="hd1"><input type="checkbox" id="hd1"> Mon</label>
+      <label for="hd2"><input type="checkbox" id="hd2" checked> Tue</label>
+      <label for="hd3"><input type="checkbox" id="hd3"> Wed</label>
+      <label for="hd4"><input type="checkbox" id="hd4"> Thu</label>
+      <label for="hd5"><input type="checkbox" id="hd5" checked> Fri</label>
+      <label for="hd6"><input type="checkbox" id="hd6"> Sat</label>
+    </p>
+    <p>
+      <label for="racktrays">Rack spaces (trays under lights)</label><input type="number" id="racktrays" value="80" min="0" step="1" inputmode="numeric">
+      <label for="losspct">Loss: failed, spoiled, unsold (%)</label><input type="number" id="losspct" value="8" min="0" step="1" inputmode="numeric">
+      <label for="mediaptray">Media per tray ($)</label><input type="number" id="mediaptray" value="0.75" min="0" step="0.05" inputmode="decimal">
+      <label for="packoz">Packaging per oz sold ($)</label><input type="number" id="packoz" value="0.12" min="0" step="0.01" inputmode="decimal">
+      <label for="mintray">Minutes of work per tray</label><input type="number" id="mintray" value="14" min="0" step="1" inputmode="numeric">
+      <label for="wage">Your wage per hour ($)</label><input type="number" id="wage" value="20" min="0" step="1" inputmode="numeric">
+      <label for="fixedweek">Fixed cost per week ($)</label><input type="number" id="fixedweek" value="90" min="0" step="5" inputmode="numeric">
+    </p>
+    <p>
+      <button type="button" id="go">Plan my week</button>
+      <button type="button" class="secondary" id="load-example">Load a small rack: 40 spaces</button>
+      <button type="button" class="secondary" id="apply">Use the best mix as my plan</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Your week</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Line</th><th>Per week</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div></div>
+    <h3>What each crop earns for the rack space it uses</h3>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Crop</th><th>Margin per tray</th><th>Days on rack</th><th>Margin per tray per day</th><th>Margin after your wage, per tray</th><th>Your trays</th><th>Best-mix trays</th></tr></thead>
+      <tbody id="crop-rows"></tbody>
+    </table></div></div>
+    <h3>Seeding calendar</h3>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Seed on</th><th>Crop</th><th>Trays</th><th>Cut on</th><th>Days</th></tr></thead>
+      <tbody id="schedule-rows"></tbody>
+    </table></div></div>
+    <h3>Trays on the rack, by weekday</h3>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Weekday</th><th>Trays on rack</th><th>Rack spaces left</th></tr></thead>
+      <tbody id="occ-rows"></tbody>
+    </table></div></div>
+    <p class="note">A tray holds a space from the day it is seeded until the morning it is cut. Time one real week, weigh your trays and count your losses before you trust the numbers.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div></div>
+    <p class="note">More: <a href="how-many-microgreen-trays-per-week.html">How many microgreen trays per week: rack space, days to harvest and the crop mix</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many microgreen trays do I need to seed each week?</h3>
+    <p>It depends on what you can sell and how long each crop sits on the rack. On the default numbers a plan of 55 trays a week (20 radish, 10 pea shoots, 15 sunflower and 10 broccoli) sells about $881.36 a week, but on the busiest weekday it holds 83 trays at once, so it needs 83 rack spaces. Enter your own crops, sales and rack size; the defaults are invented.</p>
+    <h3>Which microgreen crop earns the most for the rack space it uses?</h3>
+    <p>Not the one with the highest price per ounce. Margin per tray divided by days on the rack is what a rack space earns: on the defaults Pea shoots earns $1.59 per tray per day and Broccoli $1.09, even though Broccoli sells for the highest price per ounce.</p>
+    <h3>What if I have fewer rack spaces than my orders need?</h3>
+    <p>Fill the rack with the best-earning crops first, up to what you can sell. With a 40-tray rack the best fitting mix on the defaults is 10, 16, 0, 0 trays of radish, pea shoots, sunflower and broccoli and makes about $286.47 a week; the same plan on an 80-tray rack made $612.81.</p>
+    <h3>Is this advice or market data?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, yields, days and costs are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your local cottage-food, produce-safety and licensing rules before selling.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, food-safety or business advice, it is not a market price, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any seed company, agriculture agency or marketplace; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>best_mix_applied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../farmers-market-booth-calculator/">Farmers Market Booth Calculator</a>, <a href="../backyard-honey-profit-calculator/">Backyard Honey Profit Calculator</a>, <a href="../mushroom-fruiting-room-planner/">Mushroom Fruiting Room Planner</a>, <a href="../hydroponic-farm-profit-calculator/">Hydroponic Farm Profit Calculator</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computePlan, summarize, money, DAY_NAMES, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const CROPS = 4;
+    const options = () => ({
+      crops: Array.from({ length: CROPS }, (_, i) => ({
+        name: $(`#c${i}-name`).value,
+        days: $(`#c${i}-days`).value,
+        ozPerTray: $(`#c${i}-oz`).value,
+        pricePerOz: $(`#c${i}-price`).value,
+        seedPerTray: $(`#c${i}-seed`).value,
+        trays: $(`#c${i}-trays`).value,
+        maxTrays: $(`#c${i}-max`).value,
+      })),
+      harvestDays: DAY_NAMES.map((_, i) => i).filter((i) => $(`#hd${i}`).checked),
+      rackTrays: $("#racktrays").value,
+      lossPct: $("#losspct").value,
+      mediaPerTray: $("#mediaptray").value,
+      packPerOz: $("#packoz").value,
+      minutesPerTray: $("#mintray").value,
+      wage: $("#wage").value,
+      fixedWeek: $("#fixedweek").value,
+    });
+
+    let lastText = "";
+    let lastResult = null;
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = computePlan(options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return false;
+      }
+      status.textContent = "";
+      lastResult = r;
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#totals-rows").innerHTML = [
+        ["Trays seeded", String(r.trays)], ["Revenue", money(r.revenue)], ["Seed, media and packaging", money(r.variableCost)],
+        ["Fixed cost", money(r.input.fixedWeek)], ["Margin", money(r.margin)], ["Hours of work", r.hours.toFixed(1)],
+        ["Profit per hour", money(r.profitPerHour)], ["After your wage", money(r.afterWage)],
+        ["Busiest weekday: trays on rack", `${r.peak} of ${r.input.rackTrays}`],
+      ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      $("#crop-rows").innerHTML = r.ranking.map((c) => {
+        return `<tr><td>${escapeHtml(c.name)}</td><td>${money(c.margin)}</td><td>${c.days}</td><td>${money(c.marginPerTrayDay)}</td><td>${money(c.afterWagePerTray)}</td><td>${c.trays}</td><td>${r.optimised.trays[c.index]}</td></tr>`;
+      }).join("");
+      $("#schedule-rows").innerHTML = [...r.batches].sort((a, b) => a.seedDow - b.seedDow || a.harvestDow - b.harvestDow)
+        .map((b) => `<tr><td>${DAY_NAMES[b.seedDow]}</td><td>${escapeHtml(b.crop)}</td><td>${b.trays}</td><td>${DAY_NAMES[b.harvestDow]}</td><td>${b.days}</td></tr>`).join("");
+      $("#occ-rows").innerHTML = r.occupancy.map((n, i) => `<tr><td>${DAY_NAMES[i]}</td><td>${n}</td><td class="${n > r.input.rackTrays ? "error" : ""}">${r.input.rackTrays - n}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      return true;
+    }
+
+    $("#go").addEventListener("click", () => { if (render()) record("plan_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#racktrays").value = 40;
+      if (render()) record("example_loaded");
+    });
+    $("#apply").addEventListener("click", () => {
+      if (!render()) return;
+      lastResult.optimised.trays.forEach((t, i) => { $(`#c${i}-trays`).value = t; });
+      if (render()) record("best_mix_applied");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../shaved-ice-stand-profit-calculator/" data-pf-to="shaved-ice-stand-profit-calculator">Shaved Ice Stand Profit Calculator — free, private</a></li>
+      <li><a href="../sheep-goat-flock-profit-planner/" data-pf-to="sheep-goat-flock-profit-planner">Is raising sheep or goats profitable? Free flock profit planner</a></li>
+      <li><a href="../shift-cover-optimizer/" data-pf-to="shift-cover-optimizer">Shift-Cover Optimizer — free, private, in your browser</a></li>
+      <li><a href="../shift-roster-builder/" data-pf-to="shift-roster-builder">Shift Roster Builder — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=microgreens-tray-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/?pfEmbed=1&quot; title=&quot;Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="microgreens-tray-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/" data-pf-embed-title="Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix" data-pf-embed-slug="microgreens-tray-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="microgreens-tray-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="microgreens-tray-planner" data-pf-link-amount=""></script>
+</body>
+</html>

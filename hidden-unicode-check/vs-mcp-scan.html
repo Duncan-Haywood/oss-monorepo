@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hidden Unicode Check vs. MCP-Scan</title>
+  <meta name="description" content="MCP-Scan connects to your configured MCP servers and judges whether a tool description is malicious, using local checks plus a call to Invariant's own API.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/vs-mcp-scan.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Hidden Unicode Check vs. MCP-Scan">
+  <meta property="og:description" content="MCP-Scan is a CLI you install that connects to live MCP servers and judges tool descriptions for poisoning, shadowing, and rug pulls.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/vs-mcp-scan.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or MCP-Scan?","acceptedAnswer":{"@type":"Answer","text":"Different shapes of tool for a related but different question. MCP-Scan (uvx mcp-scan@latest, from Invariant Labs) reads your MCP client configuration, connects to each configured server, retrieves its live tool descriptions, and judges them for tool poisoning, prompt injection, cross-origin tool shadowing, and rug pulls (a tool's description changing after you approved it) — combining local checks with a call to Invariant's own Guardrailing API. This checker does one narrower, purely mechanical thing: you paste any text — a tool description, a README, a CLAUDE.md, a PR body — and it lists the exact zero-width, Unicode-Tag, bidi-override, or variation-selector codepoints in it, entirely in your browser, with no install and no network call of its own. If you want a live, judged audit of every MCP server you have configured, MCP-Scan is built for exactly that and this tool does not attempt it. If you want to check one piece of pasted text for this specific invisible-character technique with nothing to install and no data leaving your browser, this is the tool for that question."}},{"@type":"Question","name":"Wouldn't MCP-Scan already catch hidden Unicode in a tool description?","acceptedAnswer":{"@type":"Answer","text":"Likely often, since MCP-Scan's own stated scope covers prompt injection in tool descriptions generally, and hidden Unicode is one way to carry it. What this checker adds is not broader coverage of MCP — it is a specific, verifiable, offline second opinion: given the same text, it reports the exact codepoint, name, and byte offset of every invisible character on its list, with nothing sent anywhere and no dependence on a live server connection or an external API call being reachable or trusted. That is useful on its own even outside the MCP context this comparison is framed around — the same technique appears in a pasted README, a PR description, or any other text handed to an AI agent."}},{"@type":"Question","name":"Why would I need a separate checker if MCP-Scan already exists?","acceptedAnswer":{"@type":"Answer","text":"Two reasons. First, scope: MCP-Scan's job is auditing the MCP servers you have configured, which requires installing it and letting it connect to those servers and call Invariant's API; this tool's job is checking one piece of already-in-hand text for one specific, mechanical technique, with nothing to install and no server connection at all — useful the moment you are staring at a tool description and want a fast, local answer before deciding whether to run a fuller audit. Second, this checker is not MCP-specific: it is built to check any pasted text — a CLAUDE.md, an AGENTS.md, a README, a PR description — for the same invisible-character techniques, not only MCP tool descriptions."}},{"@type":"Question","name":"Is this page affiliated with MCP-Scan or Invariant Labs?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Invariant Labs or the MCP-Scan project. MCP-Scan is an open-source security scanner, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/invariantlabs-ai/mcp-scan."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #172033; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #172033; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #58657a; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d9e0eb; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17203310; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #58657a; }
+    code { background: #eef2fa; padding: 0 4px; border-radius: 4px; overflow-wrap: anywhere; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #2457d6; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d9e0eb; padding-top: 16px; }
+    footer a, main a { color: #2457d6; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hidden Unicode Check vs. MCP-Scan — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hidden-unicode-check/">Hidden Unicode Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Hidden Unicode Check vs. MCP-Scan</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Hidden Unicode Check</a></p>
+    <h1>Hidden Unicode Check vs. MCP-Scan</h1>
+    <p class="lede">Related tools, different jobs. MCP-Scan connects to the MCP servers in your client configuration and judges their live tool descriptions for poisoning, shadowing, and rug pulls. This checker answers one narrower, purely mechanical question about any text you paste &mdash; does it contain a specific invisible Unicode codepoint &mdash; entirely in your browser, with nothing to install.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>MCP-Scan</strong> (<code>github.com/invariantlabs-ai/mcp-scan</code>, run with
+        <code>uvx mcp-scan@latest</code>) is an open-source security scanner from Invariant Labs. Per its own
+        documentation, it searches your MCP client configuration files for configured servers, connects to each one,
+        retrieves its live tool descriptions, and scans them &mdash; combining local checks with a call to
+        Invariant's own Guardrailing API &mdash; for tool poisoning attacks, prompt injection in tool descriptions,
+        cross-origin tool-shadowing attacks, and rug pulls (a tool's description changing after you already approved
+        it, detected via hashing). Its proxy mode can also monitor and log live MCP traffic.
+      </p>
+      <p>
+        <strong>This checker</strong> does one narrower thing: you paste any text &mdash; an MCP tool description, a
+        <code>CLAUDE.md</code>, an <code>AGENTS.md</code>, a README, a PR body &mdash; and it lists every zero-width
+        or invisible-joiner character, every Unicode Tag-character run (decoded back to the hidden ASCII message it
+        spells out), every bidirectional-override control character, and every smuggling-pattern variation selector,
+        each with its codepoint, name, line/column, and byte offset. It runs entirely in your browser: no install,
+        no account, and no network call of its own.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Which MCP servers do I have configured, and does a live audit of their tool descriptions flag poisoning, shadowing, or a rug pull since I last approved them?</td><td>MCP-Scan &mdash; that is its entire job, and this tool does not attempt any of it.</td></tr>
+          <tr><td>Does this specific piece of text I already have in hand contain a zero-width character, a hidden Tag-character message, or a bidi override?</td><td>This checker &mdash; a codepoint-level list, offline, with nothing installed or connected.</td></tr>
+          <tr><td>I don't have <code>uv</code>/Python set up, or I just want to check one string before deciding whether to run a fuller audit.</td><td>This checker &mdash; open the page, paste the text, done.</td></tr>
+          <tr><td>I want ongoing, judged monitoring of live MCP servers, including techniques beyond invisible Unicode (semantic prompt injection, tool shadowing, rug pulls).</td><td>MCP-Scan &mdash; this checker's codepoint list does not attempt semantic judgement at all.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary, not competing: MCP-Scan's own stated scope already covers prompt injection in tool descriptions generally, of which invisible Unicode is one technique. This checker is a fast, offline, independently verifiable second opinion on that one specific technique &mdash; useful with or without MCP-Scan installed, and on text that has nothing to do with MCP at all.</p>
+      <p><a class="cta" href="./">Scan pasted text</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or MCP-Scan?</h3>
+      <p>Different shapes of tool for a related but different question. MCP-Scan (<code>uvx mcp-scan@latest</code>, from Invariant Labs) reads your MCP client configuration, connects to each configured server, retrieves its live tool descriptions, and judges them for tool poisoning, prompt injection, cross-origin tool shadowing, and rug pulls (a tool's description changing after you approved it) &mdash; combining local checks with a call to Invariant's own Guardrailing API. This checker does one narrower, purely mechanical thing: you paste any text &mdash; a tool description, a README, a <code>CLAUDE.md</code>, a PR body &mdash; and it lists the exact zero-width, Unicode-Tag, bidi-override, or variation-selector codepoints in it, entirely in your browser, with no install and no network call of its own. If you want a live, judged audit of every MCP server you have configured, MCP-Scan is built for exactly that and this tool does not attempt it. If you want to check one piece of pasted text for this specific invisible-character technique with nothing to install and no data leaving your browser, this is the tool for that question.</p>
+      <h3>Wouldn't MCP-Scan already catch hidden Unicode in a tool description?</h3>
+      <p>Likely often, since MCP-Scan's own stated scope covers prompt injection in tool descriptions generally, and hidden Unicode is one way to carry it. What this checker adds is not broader coverage of MCP &mdash; it is a specific, verifiable, offline second opinion: given the same text, it reports the exact codepoint, name, and byte offset of every invisible character on its list, with nothing sent anywhere and no dependence on a live server connection or an external API call being reachable or trusted. That is useful on its own even outside the MCP context this comparison is framed around &mdash; the same technique appears in a pasted README, a PR description, or any other text handed to an AI agent.</p>
+      <h3>Why would I need a separate checker if MCP-Scan already exists?</h3>
+      <p>Two reasons. First, scope: MCP-Scan's job is auditing the MCP servers you have configured, which requires installing it and letting it connect to those servers and call Invariant's API; this tool's job is checking one piece of already-in-hand text for one specific, mechanical technique, with nothing to install and no server connection at all &mdash; useful the moment you are staring at a tool description and want a fast, local answer before deciding whether to run a fuller audit. Second, this checker is not MCP-specific: it is built to check any pasted text &mdash; a <code>CLAUDE.md</code>, an <code>AGENTS.md</code>, a README, a PR description &mdash; for the same invisible-character techniques, not only MCP tool descriptions.</p>
+      <h3>Is this page affiliated with MCP-Scan or Invariant Labs?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by Invariant Labs or the MCP-Scan project. MCP-Scan is an open-source security scanner, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/invariantlabs-ai/mcp-scan.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own files and diffs before trusting them. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+      <li><a href="../actions-cache-poisoning-check/" data-pf-to="actions-cache-poisoning-check">Can a fork PR poison your GitHub Actions cache?</a></li>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hidden-unicode-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hidden-unicode-check"></script>
+</body>
+</html>

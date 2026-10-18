@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Effective doubling time in hours against vitamin import budget on log axes: the discrete-event and fluid curves fall with budget and flatten toward the import-free floor of about 35 hours">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Doubling time vs vitamin import budget (stylised model)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="232.0" y2="232.0" stroke="#ddd"/><text x="58" y="236.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="136.0" y2="136.0" stroke="#ddd"/><text x="58" y="140.0" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">10000</text>
+<text x="64.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="134.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="204.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="274.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="414.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="484.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="554.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="624.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">64</text>
+<line x1="64" x2="624" y1="276.1" y2="276.1" stroke="#888" stroke-dasharray="4 3"/><text x="620" y="272.1" text-anchor="end" font-family="sans-serif" font-size="11" fill="#555">no import limit: 34.7 h</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">vitamin import budget (units per hour)</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">effective doubling time (hours)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,53.9 134.0,82.8 204.0,111.6 274.0,140.3 344.0,168.8 414.0,196.9 484.0,224.3 554.0,250.4 624.0,258.1"/>
+<circle cx="64.0" cy="53.9" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="82.8" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="111.6" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="140.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="168.8" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="196.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="224.3" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="250.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="258.1" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">discrete-event median</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,54.0 134.0,82.9 204.0,111.8 274.0,140.7 344.0,169.6 414.0,198.0 484.0,225.1 554.0,248.6 624.0,265.8"/>
+<circle cx="64.0" cy="54.0" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="82.9" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="111.8" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="140.7" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="169.6" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="198.0" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="225.1" r="3" fill="#c0392b"/>
+<circle cx="554.0" cy="248.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="265.8" r="3" fill="#c0392b"/>
+<line x1="390" x2="414" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="420" y="94" font-family="sans-serif" font-size="11">fluid (closed form)</text>
+</svg>

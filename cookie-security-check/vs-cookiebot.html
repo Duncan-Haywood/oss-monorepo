@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. Cookiebot | Cookie Security Checker</title>
+<meta name="description" content="Cookiebot crawls a site over multiple pages and classifies every cookie it finds by consent purpose (necessary, preferences, statistics…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/vs-cookiebot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Cookiebot">
+<meta property="og:description" content="Cookiebot answers a consent-compliance question: what cookies does my site set, and what are they for?">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Cookiebot?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They answer different questions and most sites that need one eventually need both. Cookiebot crawls your site across multiple pages, finds every cookie (yours and any third party's) it can discover, and classifies each one by consent purpose -- necessary, preferences, statistics, marketing -- so you can show a legally compliant consent banner and publish a cookie declaration page, which is a GDPR/ePrivacy compliance job. This checker does not crawl anything and has no concept of consent categories: it sends one request to one URL, reads the raw Set-Cookie header the response actually carries, and reports whether that header is configured the way the current browser specifications require -- SameSite=None with Secure, a __Host-/__Secure- prefix cookie meeting the attribute rules those prefixes demand, Secure, HttpOnly, and SameSite present. Reach for Cookiebot to build a consent banner and cookie policy; reach for this to know whether a specific cookie will actually be stored by the browser or silently dropped." }
+    },
+    {
+      "@type": "Question",
+      "name": "If Cookiebot already lists my site's cookies, why do I also need this?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because listing a cookie for consent purposes and checking whether the browser will honour its security attributes are unrelated facts about it. Cookiebot's scan tells you a cookie named session exists and which consent category it falls into; it does not tell you that the same cookie is SameSite=None without Secure, which every current major browser rejects outright -- the cookie Cookiebot catalogued for your consent banner may never actually reach the browser's cookie jar at all. This checker reads exactly that: the raw Set-Cookie header, classified against the browser-enforced attribute rules, independent of what the cookie is for." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI and a one-page probe instead of crawling the whole site like Cookiebot does?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because the two tools are solving different-shaped problems. A consent-compliance scan needs to discover every cookie anywhere on the site, including ones set by third-party scripts days into a session, which is why Cookiebot crawls continuously. A Set-Cookie security check is a property of one response at a time -- does this specific header meet the attribute rules the browser enforces -- so a single request against the endpoint you care about is enough to answer it, and a small local CLI you run yourself (or wire into CI) answers it without a subscription, an account, or a third party's crawler ever touching your site." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Cookiebot free like this checker?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Cookiebot offers a free tier for a single domain with usage limits, alongside paid plans for more domains, more page scans, and consent-management features -- see Cookiebot's own site for current pricing and limits, which this page does not track. This checker is free and open source under an MIT licence with no tiers, no account, and no usage limits of its own; being free is not really the distinguishing question here, though -- the tools check different things regardless of price." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Cookiebot or Usercentrics?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its parent company Usercentrics, named here only to describe what this checker is and is not. What Cookiebot currently scans and how its consent platform works are described on its own site -- check there for what it covers today." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { overflow-wrap: anywhere; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/vs-cookiebot.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Cookiebot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cookie-security-check/">Cookie Security Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Cookiebot</span></span></nav>
+<p><a href="index.html">&larr; Cookie Security Checker</a></p>
+
+<h1>This checker vs. Cookiebot</h1>
+
+<p>
+  <strong>Cookiebot</strong>, from Usercentrics, is one of the best-known cookie consent management
+  platforms. It crawls a site over multiple pages on a schedule, discovers every cookie it can find
+  -- yours and any third party's -- and classifies each one into a consent category (necessary,
+  preferences, statistics, marketing) so the site can show a GDPR/ePrivacy-compliant consent banner
+  and publish an auto-generated cookie declaration page. That is a compliance and disclosure job:
+  which cookies exist, and what is each one for.
+</p>
+
+<p>
+  This checker does a completely different, much narrower job. It is a single zero-dependency Node
+  CLI: <code>node check.mjs &lt;url&gt; --json</code> sends <strong>one request</strong> to a URL you
+  choose and reads the response's raw <code>Set-Cookie</code> headers -- not what the cookie is
+  <em>for</em>, but whether it is configured the way current browsers actually <em>require</em>.
+  It flags <code>SameSite=None</code> without <code>Secure</code> (which Chrome, Firefox, and Safari
+  all reject outright, not just weaken), a <code>__Host-</code>/<code>__Secure-</code> prefixed cookie
+  that violates the attribute rules those prefixes demand (also silently rejected), and notices for a
+  missing <code>Secure</code>, missing <code>HttpOnly</code>, or missing <code>SameSite</code>
+  attribute. It has no crawler, no consent-category concept, and no banner -- the browser page here
+  only renders a report from JSON you already have.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Show a GDPR/ePrivacy-compliant consent banner and publish a cookie declaration listing every cookie the site sets and why.</td>
+      <td>Cookiebot -- that is its core product.</td>
+    </tr>
+    <tr>
+      <td>Discover cookies set by third-party scripts anywhere on the site, including ones that only appear days into a session.</td>
+      <td>Cookiebot -- continuous multi-page crawling is what finds those.</td>
+    </tr>
+    <tr>
+      <td>Know whether a specific cookie's <code>Secure</code>/<code>HttpOnly</code>/<code>SameSite</code> attributes and <code>__Host-</code>/<code>__Secure-</code> prefix are set the way the browser actually requires, so the cookie isn't silently dropped.</td>
+      <td>This checker -- that is the one thing it checks, in detail.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in your own CI on a <code>SameSite=None</code>-without-<code>Secure</code> or broken-prefix regression, with an exit code, at zero cost.</td>
+      <td>This checker -- <code>node check.mjs &lt;url&gt;</code> exits non-zero on a danger finding.</td>
+    </tr>
+    <tr>
+      <td>Get a legally defensible record of consent-category classification for a data protection audit.</td>
+      <td>Cookiebot -- this checker has no concept of consent purpose at all.</td>
+    </tr>
+    <tr>
+      <td>Check a single response without an account, a subscription, or any third party's crawler ever touching the site.</td>
+      <td>This checker -- free, local, one request, nothing uploaded.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These compose rather than compete, and a site handling real user data plausibly wants both: Cookiebot
+  for the consent banner and legal disclosure obligation, and this checker wired into CI so a
+  regression in the specific browser-enforced attribute rules it covers turns a build red the day it
+  lands, instead of being noticed later (or never) as cookies quietly failing to persist for some
+  fraction of users. Neither tool replaces the other -- they are not answering the same question.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or Cookiebot?</h3>
+<p>They answer different questions and most sites that need one eventually need both. Cookiebot crawls your site across multiple pages, finds every cookie (yours and any third party's) it can discover, and classifies each one by consent purpose -- necessary, preferences, statistics, marketing -- so you can show a legally compliant consent banner and publish a cookie declaration page, which is a GDPR/ePrivacy compliance job. This checker does not crawl anything and has no concept of consent categories: it sends one request to one URL, reads the raw Set-Cookie header the response actually carries, and reports whether that header is configured the way the current browser specifications require -- SameSite=None with Secure, a __Host-/__Secure- prefix cookie meeting the attribute rules those prefixes demand, Secure, HttpOnly, and SameSite present. Reach for Cookiebot to build a consent banner and cookie policy; reach for this to know whether a specific cookie will actually be stored by the browser or silently dropped.</p>
+
+<h3>If Cookiebot already lists my site's cookies, why do I also need this?</h3>
+<p>Because listing a cookie for consent purposes and checking whether the browser will honour its security attributes are unrelated facts about it. Cookiebot's scan tells you a cookie named session exists and which consent category it falls into; it does not tell you that the same cookie is SameSite=None without Secure, which every current major browser rejects outright -- the cookie Cookiebot catalogued for your consent banner may never actually reach the browser's cookie jar at all. This checker reads exactly that: the raw Set-Cookie header, classified against the browser-enforced attribute rules, independent of what the cookie is for.</p>
+
+<h3>Why does this need a CLI and a one-page probe instead of crawling the whole site like Cookiebot does?</h3>
+<p>Because the two tools are solving different-shaped problems. A consent-compliance scan needs to discover every cookie anywhere on the site, including ones set by third-party scripts days into a session, which is why Cookiebot crawls continuously. A Set-Cookie security check is a property of one response at a time -- does this specific header meet the attribute rules the browser enforces -- so a single request against the endpoint you care about is enough to answer it, and a small local CLI you run yourself (or wire into CI) answers it without a subscription, an account, or a third party's crawler ever touching your site.</p>
+
+<h3>Is Cookiebot free like this checker?</h3>
+<p>Cookiebot offers a free tier for a single domain with usage limits, alongside paid plans for more domains, more page scans, and consent-management features -- see Cookiebot's own site for current pricing and limits, which this page does not track. This checker is free and open source under an MIT licence with no tiers, no account, and no usage limits of its own; being free is not really the distinguishing question here, though -- the tools check different things regardless of price.</p>
+
+<h3>Is this page affiliated with Cookiebot or Usercentrics?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its parent company Usercentrics, named here only to describe what this checker is and is not. What Cookiebot currently scans and how its consent platform works are described on its own site -- check there for what it covers today.</p>
+
+<p>
+  <strong>Only point either tool at a system you own or are authorised to test.</strong> That rule
+  is unchanged by which one you pick.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at a specific,
+  well-documented set of Set-Cookie attribute patterns from one response. It is not a full
+  security assessment, does not crawl other pages on the site, and cannot see a pattern its
+  checks don't happen to cover. A clean report describes what this one request found, not a
+  guarantee the site's cookies are secure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page only parses JSON you paste into it
+  locally -- nothing typed here is uploaded or fetched by this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../firebase-rules-check/" data-pf-to="firebase-rules-check">Firebase Security Rules Exposure Checker</a></li>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cookie-security-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cookie-security-check"></script>
+</body>
+</html>

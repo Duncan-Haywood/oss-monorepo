@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Podcast Feeds Fail Validation</title>
+  <meta name="description" content="The specific, documented reasons a podcast RSS feed gets rejected by Apple Podcasts or breaks a subscriber's app: missing required elements…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/why-podcast-feeds-fail-validation.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why Podcast Feeds Fail Validation">
+  <meta property="og:description" content="The documented reasons a podcast feed gets rejected or breaks a subscriber's app, and the two bugs that cost the most…">
+  <meta property="og:url" content="./why-podcast-feeds-fail-validation.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the single most common reason a podcast feed fails Apple's review?","acceptedAnswer":{"@type":"Answer","text":"A missing required element — most often itunes:category, itunes:explicit, or the cover-artwork itunes:image tag. Apple's feed processor requires these at the channel level for every show; a feed missing any one of them cannot be submitted at all, regardless of how good the episodes are."}},{"@type":"Question","name":"What is the guid bug, and why is it the expensive one?","acceptedAnswer":{"@type":"Answer","text":"Two <item> elements sharing the same <guid> value. Podcast apps use guid, not the episode's title or position in the feed, to decide whether an item is one a subscriber has already been shown. A generator that reuses a guid — often because it derives the guid from something that isn't actually unique, like an episode number that got reused after a renumbering — causes one of two failures: the second item is treated as an edit to the first and never shown as new, or (worse) the change confuses an app's local cache into re-showing an old episode as unread. Both bugs are invisible in the feed's own rendered output and only show up as a support ticket from a confused subscriber."}},{"@type":"Question","name":"Why does the pubDate format matter so much?","acceptedAnswer":{"@type":"Answer","text":"The RSS 2.0 spec requires pubDate in RFC 822 date-time format (e.g. \"Wed, 02 Oct 2024 15:00:00 GMT\"). A different but still human-readable format — an ISO 8601 date like \"2024-10-02\", or a locale-formatted string — is technically invalid RSS even though most humans and many lenient parsers can read it. A strict podcast-app parser is entitled to reject the date, sort the episode incorrectly, or drop it from the feed's timeline entirely, and this is a documented, recurring cause of an episode appearing in the wrong order or not appearing at all."}},{"@type":"Question","name":"Does a feed that renders fine in a browser mean it's valid?","acceptedAnswer":{"@type":"Answer","text":"No. A browser (or a lenient RSS reader) tolerates almost any well-formed-enough XML and will happily display a feed that Apple's stricter, spec-conformant processor rejects outright. \"It looks fine when I open the URL\" and \"it satisfies the documented spec\" are different claims, and the gap between them is exactly what a feed validator checks."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.6; }
+    a { color: #5a2a7a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #3a1a4a; margin: .3rem 0; }
+    h2 { color: #3a1a4a; margin-top: 1.6rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+    code { background: #ece3f2; padding: .1rem .3rem; border-radius: 4px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Podcast Feeds Fail Validation — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../podcast-feed-check/">Podcast Feed Validator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Podcast Feeds Fail Validation</span></span></nav>
+  <p><a href="./">&larr; Podcast Feed Validator</a></p>
+  <h1>Why podcast feeds fail validation</h1>
+  <p>
+    A podcast RSS feed is just XML, and almost any well-formed-enough XML renders fine in a
+    browser or a lenient reader. Apple Podcasts' own feed processor, and most podcast apps'
+    parsers, are stricter than that — and the gap between "displays fine" and "satisfies the
+    documented spec" is where a show's episodes quietly stop showing up.
+  </p>
+
+  <h2>The two bugs that cost the most</h2>
+  <p>
+    Most validation failures are a missing required element — annoying, but the fix is obvious
+    the moment you see the finding. Two failure modes are worse, because the feed looks fine and
+    the failure shows up somewhere else entirely, later, as a confused subscriber.
+  </p>
+
+  <h3>A duplicate <code>&lt;guid&gt;</code></h3>
+  <p>
+    Podcast apps use an episode's <code>guid</code>, not its title or its position in the feed,
+    to decide whether it is one a subscriber has already been shown. If a feed generator produces
+    the same guid for two different items — often because the guid is derived from something that
+    turns out not to be unique, like an episode number that got reused after a renumbering — one
+    of two things happens: the second item gets treated as a silent edit to the first and never
+    appears as new, or an app's local cache gets confused enough to resurface an old episode as
+    unread. Neither shows up by looking at the feed; both show up as "why did episode 40
+    disappear?" in a support inbox.
+  </p>
+
+  <h3>A <code>&lt;pubDate&gt;</code> that isn't RFC 822</h3>
+  <p>
+    The RSS 2.0 spec requires <code>pubDate</code> in RFC 822 date-time format — something like
+    <code>Wed, 02 Oct 2024 15:00:00 GMT</code>. A format that a human (and many lenient parsers)
+    can read perfectly well, like an ISO 8601 date (<code>2024-10-02</code>) or a
+    locale-formatted string, is not valid RSS even though it looks like a date. A strict parser is
+    entitled to reject it outright, sort the episode into the wrong place in the timeline, or drop
+    it from the feed altogether — and because the date still <em>looks</em> like a date to anyone
+    reading the XML by eye, this is one of the easiest mistakes to ship without noticing.
+  </p>
+
+  <h2>The missing-element failures, briefly</h2>
+  <p>
+    Apple's documented requirements are exacting at the channel level: a title, a description (or
+    <code>itunes:summary</code>), a language code, at least one <code>itunes:category</code> from
+    Apple's own taxonomy, an <code>itunes:explicit</code> value in the current boolean
+    <code>true</code>/<code>false</code> format, and cover artwork declared via
+    <code>itunes:image</code>. Any one of these missing blocks a submission outright — see the
+    checker on the main page for the complete list, including the per-episode requirements
+    (title, enclosure, pubDate).
+  </p>
+
+  <h2>A feed that renders is not a feed that validates</h2>
+  <p>
+    The most common way any of this goes unnoticed is testing by opening the feed URL in a
+    browser and seeing that it displays. A browser's XML rendering is far more forgiving than
+    Apple's ingestion pipeline or a strict podcast app's parser — "it looks fine" and "it
+    satisfies the documented spec" are different claims, and the second one is what actually
+    determines whether an episode reaches a subscriber.
+  </p>
+
+  <p class="note">Check your own feed: <a href="./">Podcast Feed Validator</a>. See also: <a href="vs-w3c-feed-validator.html">how this differs from the W3C Feed Validator</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>What is the single most common reason a podcast feed fails Apple's review?</h3>
+  <p>A missing required element — most often <code>itunes:category</code>, <code>itunes:explicit</code>, or the cover-artwork <code>itunes:image</code> tag. Apple's feed processor requires these at the channel level for every show; a feed missing any one of them cannot be submitted at all, regardless of how good the episodes are.</p>
+  <h3>What is the guid bug, and why is it the expensive one?</h3>
+  <p>Two &lt;item&gt; elements sharing the same &lt;guid&gt; value. Podcast apps use guid, not the episode's title or position in the feed, to decide whether an item is one a subscriber has already been shown. A generator that reuses a guid — often because it derives the guid from something that isn't actually unique, like an episode number that got reused after a renumbering — causes one of two failures: the second item is treated as an edit to the first and never shown as new, or (worse) the change confuses an app's local cache into re-showing an old episode as unread. Both bugs are invisible in the feed's own rendered output and only show up as a support ticket from a confused subscriber.</p>
+  <h3>Why does the pubDate format matter so much?</h3>
+  <p>The RSS 2.0 spec requires pubDate in RFC 822 date-time format (e.g. "Wed, 02 Oct 2024 15:00:00 GMT"). A different but still human-readable format — an ISO 8601 date like "2024-10-02", or a locale-formatted string — is technically invalid RSS even though most humans and many lenient parsers can read it. A strict podcast-app parser is entitled to reject the date, sort the episode incorrectly, or drop it from the feed's timeline entirely, and this is a documented, recurring cause of an episode appearing in the wrong order or not appearing at all.</p>
+  <h3>Does a feed that renders fine in a browser mean it's valid?</h3>
+  <p>No. A browser (or a lenient RSS reader) tolerates almost any well-formed-enough XML and will happily display a feed that Apple's stricter, spec-conformant processor rejects outright. "It looks fine when I open the URL" and "it satisfies the documented spec" are different claims, and the gap between them is exactly what a feed validator checks.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a feed issue before Apple's own review did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+      <li><a href="../card-bonus-planner/" data-pf-to="card-bonus-planner">Card Bonus Planner — schedule sign-up bonuses around your real spending</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=podcast-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="podcast-feed-check"></script>
+</body>
+</html>

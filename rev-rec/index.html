@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rev Rec — Free Stripe Deferred Revenue &amp; Revenue Recognition Schedule</title>
+  <meta name="description" content="Turn Stripe invoices into a monthly revenue recognition schedule: billings, revenue recognised, deferred revenue and journal entries for your bookkeeper.">
+  <meta property="og:title" content="Rev Rec — Stripe deferred revenue schedule, self-hosted">
+  <meta property="og:description" content="Annual plans spread across the months they cover, with journal entries to import. Your server, a read-only key, no percentage-of-volume fee.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rev-rec/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rev Rec", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source deferred revenue and revenue recognition schedule for Stripe invoices, with month-end journal entries."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is this different from Stripe Revenue Recognition?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe Revenue Recognition is a paid add-on billed as a share of your Billing volume, with accounting-grade reports, multi-entity features and support. Rev Rec produces the core schedule most small SaaS companies hand to a bookkeeper (billings, revenue recognised, deferred revenue by month and the journal entries) on a server you run with a read-only key. It does not replace an audit-ready system."}}, {"@type": "Question", "name": "What does it recognise, exactly?", "acceptedAnswer": {"@type": "Answer", "text": "Each paid invoice line is spread evenly per day across its service period, net of discounts and of tax that is included in the price. One-off charges are recognised on their date. Credit notes reduce revenue in the month they are issued."}}, {"@type": "Question", "name": "Can it change anything in my Stripe account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It lists paid invoices and credit notes with a restricted key (Invoices: read, Credit notes: read) and the tests assert every request is a plain GET."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers."}}, {"@type": "Question", "name": "Is this accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a working schedule for your bookkeeping. Your revenue policy, your jurisdiction and your accountant decide what is correct for your books."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f7f5; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f5132; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0f5132; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f5132; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3d4f47; }
+    .card { background: #fff; border: 1px solid #cfe0d8; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+    .tiles div { background: #eaf3ee; border-radius: 10px; padding: 10px 12px; }
+    .tiles b { display: block; font-size: 1.35rem; color: #0f5132; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #9db8ac; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f5132; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.alt { background: #d7eadf; color: #0f5132; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid #e3eee9; }
+    th:first-child, td:first-child { text-align: left; }
+    table[style] th, table[style] td { text-align: left; }
+    tr.f { color: #5b6b64; }
+    pre { background: #eaf3ee; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Rev Rec — Stripe deferred revenue schedule, self-hosted","item":"https://duncan-haywood.github.io/monorepo-projects/rev-rec/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rev-rec/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rev-rec/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rev Rec — Stripe deferred revenue schedule, self-hosted — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Rev Rec — Stripe deferred revenue schedule, self-hosted</span></span></nav>
+  <main>
+  <h1>Annual plans, spread across the months they cover</h1>
+  <p>When a customer pays $2,900 up front for a year, only a twelfth of it is revenue this month. Bookkeepers want that as a schedule: <strong>billings, revenue recognised and deferred revenue by month, plus journal entries</strong>. Stripe sells this as an add-on priced on your volume. Rev Rec builds it from your paid invoices and credit notes. Try it below on an invoice-line export (nothing is uploaded), then <a href="#run">run the open-source server</a> with a read-only key.</p>
+
+  <section class="card" aria-labelledby="try">
+    <h2 id="try">Try it on an invoice export</h2>
+    <p class="note">One row per invoice line. Needs columns for amount, billing date and period start; period end, id and currency are used when present. Put credit notes in as negative amounts, or in parentheses. Or load made-up sample data.</p>
+    <label for="csv">Paste CSV</label>
+    <textarea id="csv" spellcheck="false" placeholder="id,date,period start,period end,amount"></textarea>
+    <button id="run" type="button">Build schedule</button><button id="sample" class="alt" type="button">Load sample data</button><button id="dl" class="alt" type="button" hidden>Download journal CSV</button>
+    <p class="note" id="msg" role="status" aria-live="polite"></p>
+    <div id="out" hidden>
+      <div class="tiles" id="tiles"></div>
+      <div style="overflow-x:auto" id="table"></div>
+      <p class="note">Rows marked ↗ are future months of revenue that is already invoiced. Closing deferred revenue is billed to date minus recognised to date.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <div class="pf-table-scroll"><table style="text-align:left">
+      <thead><tr><th>Today</th><th>Cost / catch</th></tr></thead>
+      <tbody>
+        <tr><td>Stripe Revenue Recognition</td><td>Accounting-grade and supported, but billed as a share of volume; more than a small SaaS needs for a monthly close</td></tr>
+        <tr><td>A spreadsheet of annual invoices</td><td>Free, but the day-count maths, proration lines and refunds drift after a few months</td></tr>
+        <tr><td>Your bookkeeper, by hand</td><td>Billable hours every month for something a script does the same way every time</td></tr>
+        <tr><td><strong>Rev Rec</strong></td><td>Free, MIT, read-only key, your server. Honest limits: one currency per instance, daily straight-line only (no usage-based or milestone rules), credit notes hit the month they are issued</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card" id="run">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/rev-rec
+STRIPE_SECRET_KEY=rk_live_...  ADMIN_KEY=$(openssl rand -hex 16) \
+COMPANY_NAME=Acme node server.mjs
+# open http://localhost:8080 and sign in with any user name and ADMIN_KEY</pre>
+    <p class="note">The key needs <em>Invoices: read</em> and <em>Credit notes: read</em> and nothing else. A one-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Same buyer: <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn, <a href="../dunning-engine/">Dunning Engine</a> recovers failed cards, and <a href="../stripe-payout-to-journal/">Stripe Payout to Journal</a> turns payouts into cash-side entries.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How is this different from Stripe Revenue Recognition?</h3>
+    <p>Stripe Revenue Recognition is a paid add-on billed as a share of your Billing volume, with accounting-grade reports, multi-entity features and support. Rev Rec produces the core schedule most small SaaS companies hand to a bookkeeper (billings, revenue recognised, deferred revenue by month and the journal entries) on a server you run with a read-only key. It does not replace an audit-ready system.</p>
+    <h3>What does it recognise, exactly?</h3>
+    <p>Each paid invoice line is spread evenly per day across its service period, net of discounts and of tax that is included in the price. One-off charges are recognised on their date. Credit notes reduce revenue in the month they are issued.</p>
+    <h3>Can it change anything in my Stripe account?</h3>
+    <p>No. It lists paid invoices and credit notes with a restricted key (Invoices: read, Credit notes: read) and the tests assert every request is a plain GET.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers.</p>
+    <h3>Is this accounting advice?</h3>
+    <p>No. It is a working schedule for your bookkeeping. Your revenue policy, your jurisdiction and your accountant decide what is correct for your books.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. The figures are estimates computed from the data you give it; check them against your books before relying on them for investors, taxes or audits. It is not legal, tax, or financial advice, and not accounting or audit advice. Everything on this page runs in your browser; nothing you paste is uploaded or stored. The only thing kept is an anonymous count of button clicks in your own browser, which you can switch off below.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { linesFromCsv, sampleCsv } from "./csv.mjs";
+    import { schedule, summary, journal, journalCsv, formatMoney } from "./revrec.mjs";
+    import { scheduleTable, esc } from "./page.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let csvOut = "";
+    function run() {
+      const { lines, skipped, missing } = linesFromCsv($("csv").value);
+      $("dl").hidden = true;
+      if (missing.length) { $("out").hidden = true; $("msg").textContent = `Missing column(s): ${missing.join(", ")}. Check the header row.`; return; }
+      if (!lines.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
+      const cur = lines.find((l) => l.currency)?.currency || "usd", now = Date.now();
+      const rows = schedule(lines, { asOf: now }), s = summary(rows, now), M = (v) => formatMoney(v, cur);
+      $("msg").textContent = `${lines.length} lines read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";
+      $("tiles").innerHTML = [["Deferred revenue now", M(s.deferredNow)], ["Recognised last month", s.lastMonth ? M(s.lastMonth.recognized) : "n/a"], ["Billed last month", s.lastMonth ? M(s.lastMonth.billed) : "n/a"], ["Still to recognise", M(s.backlog)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
+      $("table").innerHTML = scheduleTable(rows, cur);
+      csvOut = journalCsv(journal(rows.filter((r) => !r.future)));
+      $("dl").hidden = false; $("out").hidden = false;
+      record("compute");
+    }
+    $("run").addEventListener("click", run);
+    $("sample").addEventListener("click", () => { $("csv").value = sampleCsv(); run(); record("sample"); });
+    $("dl").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csvOut], { type: "text/csv" })); a.download = "rev-rec-journal.csv"; a.click(); URL.revokeObjectURL(a.href); record("download"); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.stripe.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pql-radar/" data-pf-to="pql-radar">PQL Radar — find the free signups about to become customers</a></li>
+      <li><a href="../referral-keeper/" data-pf-to="referral-keeper">Referral Keeper — a self-hosted affiliate program for Stripe sellers</a></li>
+      <li><a href="../self-hosted-saas-stack/" data-pf-to="self-hosted-saas-stack">Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout</a></li>
+      <li><a href="../sign-keeper/" data-pf-to="sign-keeper">Sign Keeper — self-hosted e-signature with a verifiable certificate</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rev-rec">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/rev-rec/?pfEmbed=1&quot; title=&quot;Rev Rec — Stripe deferred revenue schedule, self-hosted — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="rev-rec"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/rev-rec/" data-pf-embed-title="Rev Rec — Stripe deferred revenue schedule, self-hosted" data-pf-embed-slug="rev-rec"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. comparing headline commission rates — Estate Sale Net Proceeds Calculator</title>
+<meta name="description" content="Families pick an estate sale company by comparing the commission percentages they were quoted. A tiered schedule plus setup…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. comparing headline commission rates">
+<meta property="og:description" content="A headline commission rate is one number from a schedule that has several, and it leaves out the flat fees entirely.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a headline commission rate?","acceptedAnswer":{"@type":"Answer","text":"The single percentage a company leads with when asked what it charges — “we're 30%”, or “25% over $8,000”. It is a real number from the contract, but it is one number out of a schedule that usually has two or three, and it describes commission only. The flat fees are quoted separately or further down the page."}},{"@type":"Question","name":"Why can the company with the lower headline rate cost more?","acceptedAnswer":{"@type":"Answer","text":"Two reasons stack. A tiered schedule charges its highest rate on the first dollars of the sale, so the low tier a company leads with may only apply to the top slice — on a smaller sale it may never apply at all. And setup or staging, credit-card processing, and haul-away or donation fees are deducted on top of commission, so they raise the share retained without changing any percentage in the schedule."}},{"@type":"Question","name":"Is a headline rate ever enough to compare on?","acceptedAnswer":{"@type":"Answer","text":"Yes, when both companies quote one flat rate across the whole sale and neither adds flat fees. Then the headline rate is the whole contract and the lower one nets more. That is the case this calculator agrees with you about in a few seconds — the point is that you find out which case you are in rather than assuming it."}},{"@type":"Question","name":"What does “total retained” mean here?","acceptedAnswer":{"@type":"Answer","text":"Commission plus every flat fee, expressed as a share of the estimated gross sale. It is the number a headline rate is standing in for: what the company keeps in total, as one percentage you can hold next to another company's. It is computed from the schedule and fees you enter, so it changes with your estimated sale total."}},{"@type":"Question","name":"Do I need exact numbers from the contracts?","acceptedAnswer":{"@type":"Answer","text":"Enter what the written quotes say and treat the result as a planning estimate. The gross sale total is an estimate by nature, and the tiers interact with it — a schedule that looks better at $8,000 can look worse at $20,000, so it is worth re-running at a high and a low estimate rather than one figure."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter about either company's quote is uploaded."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#212a1e;background:#f2f6ee;color-scheme:light}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#2f5b17;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.05;margin:0 0 14px;letter-spacing:-.03em}
+h2{font-size:1.15rem;margin:0 0 10px}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#33402e}
+.card{background:#fff;border:1px solid #cfe0c3;border-radius:14px;padding:22px;box-shadow:0 8px 24px #12210610;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #dde9d4;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#4c5c46}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.note,footer{font-size:.86rem;color:#4c5c46}
+footer{margin-top:28px;border-top:1px solid #cfe0c3;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. comparing headline commission rates — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../estate-sale-net-proceeds-calculator/">Estate Sale Net Proceeds Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. comparing headline commission rates</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. comparing headline commission rates</h1>
+<p class="lede">Gathering two or three estate sale quotes is the standard advice, and the usual next step is to line up the percentages: 30% against 35%, take the lower one. That works when both companies charge one flat rate and nothing else. It stops working as soon as a schedule has tiers or the contract has flat fees — and most do both, which is how the company quoting the smallest number ends up keeping the larger share.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A headline commission rate</strong> is a real term from the contract and a fair way to start the conversation. What it cannot do is stand for the contract. A tiered schedule charges its <em>highest</em> rate on the first dollars of the sale, so the low tier a company leads with may apply only to the top slice — or, on a smaller sale, to nothing at all. And a headline rate describes commission only: setup or staging, credit-card processing, and haul-away or donation fees come off on top of it without moving any percentage in the schedule.</p>
+<p><strong>This calculator</strong> applies each company's actual tier schedule and each of its flat fees to the same estimated gross sale, applies a minimum guarantee if the contract has one, and reports what the family actually takes home — alongside <strong>total retained</strong>, the single percentage a headline rate was trying to be.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Roughly what do estate sale companies charge?</td><td>Either one — headline rates are a fine way to get oriented before you have written quotes.</td></tr>
+<tr><td>Of these two written quotes, which nets my family more?</td><td>This calculator — it is the question a pair of headline rates cannot answer once tiers or fees are involved.</td></tr>
+<tr><td>What is this company keeping in total, not just in commission?</td><td>This calculator's total-retained figure, which includes every flat fee.</td></tr>
+<tr><td>Does the answer change if the sale brings in less than we hope?</td><td>This calculator — re-run it at a lower gross estimate; tier thresholds can reverse the result.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>A worked example where the headline rate points the wrong way</h2>
+<p>Two quotes against the same <strong>$12,000</strong> estimated gross sale. Company A leads with “25% above $8,000” — the lowest percentage either company says out loud. Company B quotes a flat 35% and charges nothing else.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col"> </th><th scope="col">Company A</th><th scope="col">Company B</th></tr></thead>
+<tbody>
+<tr><td>Headline rate quoted</td><td>25% above $8,000</td><td>35% flat</td></tr>
+<tr><td>Tier schedule</td><td>40% to $2,000, 30% to $8,000, 25% above</td><td>35% throughout</td></tr>
+<tr><td>Commission</td><td class="num">$3,600.00</td><td class="num">$4,200.00</td></tr>
+<tr><td>Setup / staging, card processing, haul-away</td><td class="num">$950.00</td><td class="num">$0.00</td></tr>
+<tr><td><strong>Net to the family</strong></td><td class="num"><strong>$7,450.00</strong></td><td class="num"><strong>$7,800.00</strong></td></tr>
+<tr><td><strong>Total retained by the company</strong></td><td class="num"><strong>37.92%</strong></td><td class="num"><strong>35.00%</strong></td></tr>
+</tbody>
+</table></div>
+<p>Company A wins on commission and on every percentage it quoted, and still leaves the family <strong>$350 worse off</strong>. Its 25% tier only reaches the $4,000 above the threshold; the 40% tier takes the first $2,000 regardless; and the $950 of flat fees appears in no rate at all. Comparing the two headline numbers — 25% against 35% — gets this backwards.</p>
+<p class="note">These figures come from the same module the calculator itself uses, run on the inputs above. They illustrate how the arithmetic behaves; they are not a claim about any real company's pricing. Your own quotes will differ, which is the reason to enter them.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What is a headline commission rate?</h3><p>The single percentage a company leads with when asked what it charges — “we're 30%”, or “25% over $8,000”. It is a real number from the contract, but it is one number out of a schedule that usually has two or three, and it describes commission only. The flat fees are quoted separately or further down the page.</p>
+<h3>Why can the company with the lower headline rate cost more?</h3><p>Two reasons stack. A tiered schedule charges its highest rate on the first dollars of the sale, so the low tier a company leads with may only apply to the top slice — on a smaller sale it may never apply at all. And setup or staging, credit-card processing, and haul-away or donation fees are deducted on top of commission, so they raise the share retained without changing any percentage in the schedule.</p>
+<h3>Is a headline rate ever enough to compare on?</h3><p>Yes, when both companies quote one flat rate across the whole sale and neither adds flat fees. Then the headline rate is the whole contract and the lower one nets more. That is the case this calculator agrees with you about in a few seconds — the point is that you find out which case you are in rather than assuming it.</p>
+<h3>What does “total retained” mean here?</h3><p>Commission plus every flat fee, expressed as a share of the estimated gross sale. It is the number a headline rate is standing in for: what the company keeps in total, as one percentage you can hold next to another company's. It is computed from the schedule and fees you enter, so it changes with your estimated sale total.</p>
+<h3>Do I need exact numbers from the contracts?</h3><p>Enter what the written quotes say and treat the result as a planning estimate. The gross sale total is an estimate by nature, and the tiers interact with it — a schedule that looks better at $8,000 can look worse at $20,000, so it is worth re-running at a high and a low estimate rather than one figure.</p>
+<h3>Is anything I enter uploaded anywhere?</h3><p>No. The calculator this page links to runs entirely in your browser; nothing you enter about either company's quote is uploaded.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator produce planning estimates from numbers you supply. They are not legal, tax, financial, or estate-planning advice, and they do not replace a qualified professional or either company's written contract. <strong>You are responsible for verifying anything here against the quotes and contracts you were actually given.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>Nothing here says or implies that quoting a headline rate is dishonest, or that a tiered schedule is worse than a flat one. A headline rate is a summary, and the point of this page is only that a summary is not what you should sign against.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sign-shop-job-pricing-calculator/" data-pf-to="sign-shop-job-pricing-calculator">Sign shop job pricing calculator</a></li>
+      <li><a href="../ski-snowboard-tune-shop-profit-calculator/" data-pf-to="ski-snowboard-tune-shop-profit-calculator">Ski and Snowboard Tune Shop Profit Calculator — free, private</a></li>
+      <li><a href="../speaker-fee-calculator/" data-pf-to="speaker-fee-calculator">Speaker fee calculator</a></li>
+      <li><a href="../sports-official-game-fee-calculator/" data-pf-to="sports-official-game-fee-calculator">Referee &amp; Umpire Pay Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=estate-sale-net-proceeds-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="estate-sale-net-proceeds-calculator"></script>
+</body>
+</html>

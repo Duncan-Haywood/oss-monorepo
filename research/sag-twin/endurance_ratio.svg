@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the ratio of real to twin endurance against constant power: it falls from 0.99 to 0.5 as power approaches the fold at u0=1, matching the closed form">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Battery endurance ratio real/twin vs power u0 (flat EMF)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.8" y2="272.8" stroke="#ddd"/><text x="58" y="276.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="221.6" y2="221.6" stroke="#ddd"/><text x="58" y="225.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="170.4" y2="170.4" stroke="#ddd"/><text x="58" y="174.4" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="119.1" y2="119.1" stroke="#ddd"/><text x="58" y="123.1" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="67.9" y2="67.9" stroke="#ddd"/><text x="58" y="71.9" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="152.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="270.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="388.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="506.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="594.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.95</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">power u0</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">real / twin endurance</text>
+<polyline points="64.0,71.2 152.4,81.4 270.3,96.8 388.2,115.0 506.1,138.7 594.5,167.3 624.0,196.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="152.4" cy="81.4" r="3" fill="#c0392b"/>
+<circle cx="270.3" cy="96.8" r="3" fill="#c0392b"/>
+<circle cx="388.2" cy="115.0" r="3" fill="#c0392b"/>
+<circle cx="506.1" cy="138.7" r="3" fill="#c0392b"/>
+<circle cx="594.5" cy="167.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="196.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">real/twin endurance</text>
+<polyline points="64.0,71.2 152.4,81.4 270.3,96.8 388.2,115.0 506.1,138.7 594.5,167.3 624.0,196.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="152.4" cy="81.4" r="3" fill="#1f6fb2"/>
+<circle cx="270.3" cy="96.8" r="3" fill="#1f6fb2"/>
+<circle cx="388.2" cy="115.0" r="3" fill="#1f6fb2"/>
+<circle cx="506.1" cy="138.7" r="3" fill="#1f6fb2"/>
+<circle cx="594.5" cy="167.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="196.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">eta(u) closed form</text>
+</svg>

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopify Payout Profit Analyzer — Free Fee and Profit-per-Product Tool</title>
+  <meta name="description" content="Free Shopify payout analyzer: drop in your Shopify Payments Transactions CSV and Orders export and get a fee waterfall, net to bank per order…">
+  <meta property="og:title" content="Shopify Payout Profit Analyzer — free, private, CSVs in your browser">
+  <meta property="og:description" content="Fee waterfall and profit per product from your Shopify payouts. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shopify Payout Profit Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Shopify Payments Transactions CSV and the Orders export into a fee waterfall, net to bank per order, fee rate by card, profit per product, discount-code cost and dispute findings. Runs entirely in your browser; the files are never uploaded.", "featureList": "Fee waterfall, net to bank per order, effective fee rate by card and gateway, profit per product after unit costs, discount code cost, refund and chargeback findings, monthly table, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see profit per product from my Shopify payouts without paying for an app?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Shopify admin open Finances → Payments (Shopify Payments) → Transactions and export the CSV for the months you want, then export Orders as CSV for the same period. Drop both in here, type a cost per unit for each product, and the tool splits every order's net-to-bank across its line items. Nothing is uploaded and no app needs access to your store."}}, {"@type": "Question", "name": "Why do I need two files?", "acceptedAnswer": {"@type": "Answer", "text": "The transactions export has every charge, fee, refund, dispute and payout but names orders, not products. The Orders export names the products and the discount code on each order. Joining them by order name (#1001) is what turns a shop-level fee total into profit per product. The transactions file on its own still gives the fee waterfall, net-to-bank per order and the effective fee rate by card."}}, {"@type": "Question", "name": "What does “net to bank” mean here?", "acceptedAnswer": {"@type": "Answer", "text": "For each order it is everything that reached or left your Shopify balance because of it: the charge, less the processing fee, less any refund, less any chargeback and dispute fee. Payout rows are not counted, because they only move money that is already counted. The waterfall adds up to the same total as the sum of the Net column."}}, {"@type": "Question", "name": "How are chargebacks and dispute fees handled?", "acceptedAnswer": {"@type": "Answer", "text": "A chargeback row takes the disputed amount out of the balance and carries a dispute fee. If you win, a reversal row returns the amount and usually not the fee. The tool shows the disputed amount and the fees separately, counts opened and won disputes, and warns when the share of orders disputed is high."}}, {"@type": "Question", "name": "Where do unit costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "You. Neither Shopify file knows what a product costs you to make or buy, or what you pay for shipping. Type a cost per unit next to each product, or paste lines like Merino Beanie - Charcoal,9.50 (a SKU works in place of the name). Products without a cost are left out of profit rather than counted as free."}}, {"@type": "Question", "name": "What about orders paid with PayPal or another gateway?", "acceptedAnswer": {"@type": "Answer", "text": "They are not in a Shopify Payments transactions file, so their processor fees are missing. If they appear in your Orders export they are counted and listed, and if you enter a third-party transaction fee rate the tool shows an estimate of it separately. It is not added to the waterfall."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Your time, shipping you pay, packaging, the Shopify plan fee and apps, ad spend, income tax, sales tax beyond what the Orders export reports, currency effects on your bank, and anything sold off Shopify. Rows Shopify files under types this tool does not know are shown as “other” so they are visible rather than lost."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the files you provide and does not replace your own records or a qualified accountant."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0d6b45; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0d6b45; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefe5; color: #0b3d2a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #0b3d2a; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    td.small, th.small { font-size: .85rem; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Shopify Payout Profit Analyzer — free, private, CSVs in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shopify Payout Profit Analyzer — free, private, CSVs in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Shopify Payout Profit Analyzer — free, private, CSVs in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SHOPIFY PAYOUT PROFIT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where did your Shopify payout go, and which products actually make money?</h1>
+    <p>Drop in your <strong>Shopify Payments Transactions</strong> export (and, for products and discount codes, your <strong>Orders</strong> export) and get the <strong>fee waterfall</strong> (charges, processing fees, third-party gateway fees, refunds, chargebacks and dispute fees, adjustments), <strong>net to bank per order</strong> and <strong>profit per product</strong> once you enter what each one costs you.</p>
+    <p class="note">The files are read in this browser tab and never leave your device. Order numbers, product names and discount codes in them are not sent anywhere. To look at one order before it sells, use the <a href="../shopify-fee-calculator/">Shopify fee calculator</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Shopify files</h2>
+    <p class="note">Transactions: Shopify admin → Finances (or Settings → Payments) → Shopify Payments → Transactions → Export (columns “Transaction Date”, “Type”, “Order”, “Card Brand”, “Card Source”, “Payout Status”, “Amount”, “Fee”, “Net”, …). Orders (optional, for per-product profit and discount codes): Orders → Export → CSV for Excel, Numbers, or other spreadsheet programs.</p>
+    <label for="tx-file">Transactions CSV</label>
+    <input type="file" id="tx-file" accept=".csv,text/csv">
+    <label for="tx-paste">…or paste the transactions text</label>
+    <textarea id="tx-paste" spellcheck="false" placeholder="Transaction Date,Type,Order,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,…"></textarea>
+    <label for="orders-file">Orders CSV (optional)</label>
+    <input type="file" id="orders-file" accept=".csv,text/csv">
+    <label for="orders-paste">…or paste the orders text</label>
+    <textarea id="orders-paste" spellcheck="false" placeholder="Name,Email,Financial Status,Paid at,…,Discount Code,Discount Amount,…,Lineitem quantity,Lineitem name,Lineitem price,…"></textarea>
+    <label for="costs">Unit cost per product (optional): one <code>product name,cost</code> (or <code>sku,cost</code>) per line</label>
+    <textarea id="costs" spellcheck="false" placeholder="Merino Beanie - Charcoal,9.50"></textarea>
+    <label for="tp-rate">Third-party transaction fee rate, % (optional, for orders paid with PayPal or another gateway)</label>
+    <input type="text" id="tp-rate" inputmode="decimal" placeholder="e.g. 2">
+    <div class="checkbox-row"><input type="checkbox" id="resell" checked><label for="resell">Fully refunded orders go back into stock (their cost is not lost)</label></div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a transactions file or paste its text, then click Analyze. You can type costs in the table afterwards.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of charges</th></tr></thead><tbody id="waterfall"></tbody></table></div></div>
+    <h3>Effective fee rate by card</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Card · source</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="cards"></tbody></table></div></div>
+    <h3>By payment method name</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Payment method</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="gateways"></tbody></table></div></div>
+    <h3>Profit by product</h3>
+    <p class="note" id="product-note">Sorted by sales after discount. Type a unit cost to fill in profit; figures update as you type. Net includes shipping customers paid you, and excludes sales tax the Orders export reports; shipping you pay is not in either file.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Product</th><th class="n" scope="col">Units</th><th class="n" scope="col">In refunded orders</th><th class="n" scope="col">Sales after discount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds and disputes</th><th class="n" scope="col">Net to bank</th><th class="n" scope="col">Unit cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="products"></tbody></table></div></div>
+    <h3>Discount codes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Code</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Discount given</th><th class="n" scope="col">% of product sales</th><th class="n" scope="col">Share of all discounts</th><th class="n" scope="col">Net to bank per order</th></tr></thead><tbody id="codes"></tbody></table></div></div>
+    <h3>Net to bank per order</h3>
+    <p class="note" id="order-note"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Order</th><th class="n" scope="col">Charged</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunded</th><th class="n" scope="col">Disputed</th><th class="n" scope="col">Net to bank</th><th class="n" scope="col">% of charge</th></tr></thead><tbody id="orders"></tbody></table></div></div>
+    <h3>By month</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Adjustments and other</th><th class="n" scope="col">Net</th></tr></thead><tbody id="months"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the product table as CSV</button><button type="button" class="secondary" id="download-orders">Download net to bank per order as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Every transaction row lands in one line</strong>: charges, processing fees, third-party gateway fees, refunds, chargebacks, dispute fees, adjustments, other. A row's Net is split into its amount and its fee, so the lines always add up to the sum of the Net column. Payout rows only move money already counted, so they are excluded and shown as “paid out”. Row types the tool does not recognise go to “Other rows”; rows it cannot read are listed with line number and reason.</li>
+      <li><strong>Per order</strong>, net to bank is the charge less the fee, refunds, chargebacks and dispute fees on the same order name (#1001).</li>
+      <li><strong>Per product</strong>, each order's net (less the sales tax the Orders export reports, in proportion to what was not refunded) is split across its line items by their price after the order's discount. Fees not tied to an order stay at shop level.</li>
+      <li><strong>Profit</strong> is that amount minus unit cost × units, except that a fully refunded order returns its units to stock if the box is ticked.</li>
+      <li><strong>Not modelled:</strong> your time, shipping you pay, packaging, the Shopify plan and app fees, ad spend, income tax, currency effects on your bank account, partial refunds beyond the refunded amount, and orders paid through other gateways (their processor fees are not in the file).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see profit per product from my Shopify payouts without paying for an app?</h3>
+    <p>Yes. In Shopify admin open Finances → Payments (Shopify Payments) → Transactions and export the CSV for the months you want, then export Orders as CSV for the same period. Drop both in here, type a cost per unit for each product, and the tool splits every order's net-to-bank across its line items. Nothing is uploaded and no app needs access to your store.</p>
+    <h3>Why do I need two files?</h3>
+    <p>The transactions export has every charge, fee, refund, dispute and payout but names orders, not products. The Orders export names the products and the discount code on each order. Joining them by order name (#1001) is what turns a shop-level fee total into profit per product. The transactions file on its own still gives the fee waterfall, net-to-bank per order and the effective fee rate by card.</p>
+    <h3>What does “net to bank” mean here?</h3>
+    <p>For each order it is everything that reached or left your Shopify balance because of it: the charge, less the processing fee, less any refund, less any chargeback and dispute fee. Payout rows are not counted, because they only move money that is already counted. The waterfall adds up to the same total as the sum of the Net column.</p>
+    <h3>How are chargebacks and dispute fees handled?</h3>
+    <p>A chargeback row takes the disputed amount out of the balance and carries a dispute fee. If you win, a reversal row returns the amount and usually not the fee. The tool shows the disputed amount and the fees separately, counts opened and won disputes, and warns when the share of orders disputed is high.</p>
+    <h3>Where do unit costs come from?</h3>
+    <p>You. Neither Shopify file knows what a product costs you to make or buy, or what you pay for shipping. Type a cost per unit next to each product, or paste lines like Merino Beanie - Charcoal,9.50 (a SKU works in place of the name). Products without a cost are left out of profit rather than counted as free.</p>
+    <h3>What about orders paid with PayPal or another gateway?</h3>
+    <p>They are not in a Shopify Payments transactions file, so their processor fees are missing. If they appear in your Orders export they are counted and listed, and if you enter a third-party transaction fee rate the tool shows an estimate of it separately. It is not added to the waterfall.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Your time, shipping you pay, packaging, the Shopify plan fee and apps, ad spend, income tax, sales tax beyond what the Orders export reports, currency effects on your bank, and anything sold off Shopify. Rows Shopify files under types this tool does not know are shown as “other” so they are visible rather than lost.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the files you provide and does not replace your own records or a qualified accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Shopify and Shopify Payments are trademarks of Shopify Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by Shopify.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing a single order instead? The <a href="../shopify-fee-calculator/">Shopify fee calculator</a> works out one order's fees and profit before it sells. Selling on several channels? See the <a href="../marketplace-fee-compare/">marketplace fee comparison</a>. Running out of your best sellers? The <a href="../shopify-inventory-reorder-planner/">inventory reorder planner</a> turns an orders and stock export into reorder points and a dead-stock list.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeTransactions, normalizeOrders, analyze, parseCosts, sampleData, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let rows = [], orders = [], skipped = [], last = null, costs = {};
+    const MAX_ORDER_ROWS = 200;
+
+    const tpRate = () => { const v = parseFloat(($("#tp-rate").value || "").replace(/[^0-9.]/g, "")); return Number.isFinite(v) && v > 0 ? v / 100 : 0; };
+
+    function render() {
+      const r = last = analyze(rows, orders, { costs, returnsResellable: $("#resell").checked, thirdPartyRate: tpRate() });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary, t = s.totals;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.charges)}</strong> charged across ${s.orderCount} orders. <strong>${money(s.operating)}</strong> reached your Shopify balance after fees, refunds, disputes and adjustments (${money(s.payouts)} of payouts appear in the file)`
+        + (s.profit !== null ? `; after your unit costs${s.allCosted ? "" : " (costed products only)"} that leaves <strong>${money(s.profit)}</strong> (${s.charges ? pct(s.profit / s.charges) : "–"} of charges).` : ".");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const line = (label, v, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td class="n${v < 0 ? " neg" : ""}">${bold ? "<strong>" + money(v) + "</strong>" : money(v)}</td><td class="n">${s.charges ? pct(v / s.charges) : "–"}</td></tr>`;
+      const opt = (label, v) => (Math.abs(v) >= 0.005 ? line(label, v) : "");
+      $("#waterfall").innerHTML = [
+        line("Charges (customer payments)", t.charges),
+        opt("Processing fees", t.processing), opt("Third-party gateway fees", t.gateway),
+        opt("Refunds", t.refunds), opt("Chargebacks and dispute reversals", t.disputes), opt("Dispute fees", t.disputeFees),
+        opt("Adjustments and reserves", t.adjustments), opt("Other rows", t.other),
+        line("Net to bank (before cost of goods)", s.operating, true),
+        s.anyCosted ? line("Cost of goods (entered)", -s.cogsTotal) : "",
+        s.profit !== null ? line("Profit", s.profit, true) : "",
+      ].join("");
+      const rateRows = (list) => list.length ? list.map((g) => `<tr><th scope="row">${esc(g.key)}</th><td class="n">${g.count}</td><td class="n">${money(g.gross)}</td><td class="n">${money2(-g.fee)}</td><td class="n">${pct(g.rate, 2)}</td></tr>`).join("") : `<tr><td colspan="5">No charges in the file.</td></tr>`;
+      $("#cards").innerHTML = rateRows(r.cards);
+      $("#gateways").innerHTML = rateRows(r.gateways);
+      $("#products").innerHTML = r.products.length ? r.products.map((k) => {
+        const v = costs[k.name] ?? (k.sku ? costs[k.sku] : undefined);
+        return `<tr><th scope="row">${esc(k.name)}${k.sku ? ` <span class="note">${esc(k.sku)}</span>` : ""}</th><td class="n">${k.units}</td><td class="n">${k.unitsRefunded}${k.units ? " (" + pct(k.refundRate, 0) + ")" : ""}</td><td class="n">${money(k.revenue)}</td><td class="n">${money(k.fees)}</td><td class="n">${money(k.refunds)}</td><td class="n">${money(k.net)}</td>`
+          + `<td class="n"><input class="cost" data-name="${esc(k.name)}" inputmode="decimal" aria-label="Unit cost for ${esc(k.name)}" value="${v === undefined ? "" : v}"></td>`
+          + `<td class="n${k.profit !== null && k.profit < 0 ? " neg" : ""}">${k.profit === null ? "–" : money(k.profit)}</td><td class="n">${k.margin === null ? "–" : pct(k.margin)}</td></tr>`;
+      }).join("") : `<tr><td colspan="10">Add the Orders export to see this table.</td></tr>`;
+      $("#codes").innerHTML = r.codes.length ? r.codes.map((c) => `<tr><th scope="row">${esc(c.code)}</th><td class="n">${c.orders}</td><td class="n">${money(c.discount)}</td><td class="n">${pct(c.pct)}</td><td class="n">${pct(c.share, 0)}</td><td class="n">${c.netPerOrder === null ? "–" : money2(c.netPerOrder)}</td></tr>`).join("") : `<tr><td colspan="6">${orders.length ? "No discount codes in the Orders export." : "Add the Orders export to see discount codes."}</td></tr>`;
+      const shown = r.orders.slice().sort((a, b) => (a.netRate ?? 9) - (b.netRate ?? 9)).slice(0, MAX_ORDER_ROWS);
+      $("#order-note").textContent = `Lowest net-to-bank first${r.orders.length > MAX_ORDER_ROWS ? `; ${MAX_ORDER_ROWS} of ${r.orders.length} orders shown, all are in the CSV download` : ""}.`;
+      $("#orders").innerHTML = shown.map((o) => `<tr><th scope="row">${esc(o.id)}</th><td class="n">${money2(o.charged)}</td><td class="n">${money2(o.fees)}</td><td class="n">${money2(o.refunds)}</td><td class="n">${money2(o.disputes)}</td><td class="n${o.net < 0 ? " neg" : ""}">${money2(o.net)}</td><td class="n">${o.netRate === null ? "–" : pct(o.netRate)}</td></tr>`).join("");
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${money(m.charges)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.disputes)}</td><td class="n">${money(m.other)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) were skipped: ` + skipped.slice(0, 8).map((k) => `${k.file} line ${k.line} (${k.reason})`).join("; ") + (skipped.length > 8 ? "…" : "") : "";
+      report.hidden = false;
+      return true;
+    }
+
+    function run(txText, orderText) {
+      const n = normalizeTransactions(parseCsv(txText));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const o = normalizeOrders(parseCsv(orderText));
+      if (o.error) { status.textContent = o.error; report.hidden = true; return false; }
+      rows = n.rows; orders = o.orders;
+      skipped = n.skipped.map((k) => ({ ...k, file: "transactions" })).concat(o.skipped.map((k) => ({ ...k, file: "orders" })));
+      const c = parseCosts($("#costs").value);
+      costs = c.costs;
+      if (!render()) return false;
+      status.textContent = `Read ${rows.length} transaction rows` + (orders.length ? ` and ${orders.length} orders.` : ".") + (c.bad.length ? ` Ignored cost line(s): ${c.bad.join(", ")}.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    async function textOf(fileSel, pasteSel) {
+      const f = $(fileSel).files[0];
+      return f ? await f.text() : $(pasteSel).value;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const tx = await textOf("#tx-file", "#tx-paste");
+      if (!tx.trim()) { status.textContent = "Choose a transactions file or paste its text first."; return; }
+      const od = await textOf("#orders-file", "#orders-paste");
+      if (run(tx, od)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const d = sampleData();
+      $("#tx-paste").value = d.transactions; $("#orders-paste").value = d.orders; $("#costs").value = d.costs;
+      $("#tx-file").value = ""; $("#orders-file").value = "";
+      if (run(d.transactions, d.orders)) { record("example_loaded"); status.textContent = "Worked example: a synthetic four-product shop over four months. Replace it with your own files."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#tx-paste", "#orders-paste", "#costs", "#tp-rate"]) $(id).value = ""; $("#tx-file").value = ""; $("#orders-file").value = ""; report.hidden = true; rows = []; orders = []; costs = {}; status.textContent = "Cleared."; });
+    $("#resell").addEventListener("change", () => { if (rows.length) render(); });
+    $("#tp-rate").addEventListener("change", () => { if (rows.length) render(); });
+    $("#products").addEventListener("change", (e) => {
+      const el = e.target.closest("input.cost");
+      if (!el) return;
+      const t = el.value.trim();
+      const v = t === "" ? undefined : parseFloat(t.replace(/[^0-9.]/g, ""));
+      if (v === undefined || Number.isNaN(v)) delete costs[el.dataset.name]; else costs[el.dataset.name] = v;
+      render();
+    });
+    const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+    const save = (name, lines) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+    };
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      save("profit-by-product.csv", ["product,sku,units,units_in_refunded_orders,sales_after_discount,fees,refunds_and_disputes,net_to_bank,unit_cost,profit"].concat(last.products.map((k) => [q(k.name), q(k.sku), k.units, k.unitsRefunded, k.revenue.toFixed(2), k.fees.toFixed(2), k.refunds.toFixed(2), k.net.toFixed(2), k.unitCost ?? "", k.profit === null ? "" : k.profit.toFixed(2)].join(","))));
+    });
+    $("#download-orders").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      save("net-to-bank-per-order.csv", ["order,month,charged,fees,refunded,disputed,net_to_bank"].concat(last.orders.map((o) => [q(o.id), o.month, o.charged.toFixed(2), o.fees.toFixed(2), o.refunds.toFixed(2), o.disputes.toFixed(2), o.net.toFixed(2)].join(","))));
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-payout-profit-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/?pfEmbed=1&quot; title=&quot;Shopify Payout Profit Analyzer — free, private, CSVs in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="shopify-payout-profit-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/" data-pf-embed-title="Shopify Payout Profit Analyzer — free, private, CSVs in your browser" data-pf-embed-slug="shopify-payout-profit-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="shopify-payout-profit-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="shopify-payout-profit-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

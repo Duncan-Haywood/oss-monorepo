@@ -1,0 +1,271 @@
+import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
+import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
+import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
+import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
+
+export const DEFAULT_MAX_BYTES = 1_048_576;
+export const DEFAULT_MAX_FILES = 50;
+
+function redactValues(text) {
+  return String(text).replace(/\b\d+(?:\.\d+)?\b/g, "[value]");
+}
+
+export async function inspectInvoiceSource(name, source) {
+  let payload = source;
+  let envelope = "";
+  if (looksLikePdf(name, source)) {
+    const extracted = await extractEmbeddedInvoice(source);
+    payload = extracted.payload;
+    const peek = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+    envelope = envelopeNote(extracted.label, looksLikeCii(peek) ? "cii" : "ubl");
+  }
+  const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+  let invoice;
+  if (looksLikeXml(name, text) || looksLikeCii(text)) {
+    invoice = looksLikeCii(text) ? parseCiiInvoice(text) : parseUblInvoice(text);
+  } else {
+    invoice = JSON.parse(text);
+  }
+  return { invoice, envelope };
+}
+
+export async function parseInvoiceSource(name, source) {
+  return (await inspectInvoiceSource(name, source)).invoice;
+}
+
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "" } = {}) {
+  const reports = [];
+  const readErrors = [];
+  const parsed = [];
+
+  if (inputs.length > maxFiles) {
+    return {
+      reports,
+      readErrors: [{
+        file: "(batch)",
+        error: `Batch contains ${inputs.length} invoices, exceeding the ${maxFiles}-file limit. Split the batch.`,
+      }],
+    };
+  }
+
+  for (const input of inputs) {
+    const name = input.name || "invoice.json";
+    const source = input.source ?? "";
+    const bytes = typeof source === "string" ? new TextEncoder().encode(source).length : source.length;
+    if (bytes > maxBytes) {
+      readErrors.push({
+        file: name,
+        error: `File exceeds ${maxBytes} bytes; refusing to read it.`,
+      });
+      continue;
+    }
+    try {
+      const { invoice, envelope } = await inspectInvoiceSource(name, source);
+      const errors = checkInvoice(invoice);
+      if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
+      if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
+      if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
+      reports.push({ file: name, errors, envelope });
+      parsed.push({ name, invoice });
+    } catch (error) {
+      readErrors.push({
+        file: name,
+        error: error instanceof Error ? error.message : "Invoice could not be read.",
+      });
+    }
+  }
+
+  const duplicates = flagDuplicateInvoiceNumbers(parsed);
+  for (const report of reports) {
+    if (duplicates.has(report.file)) {
+      report.errors.push({
+        rule: "INV-019",
+        message: "Invoice number is repeated in this batch.",
+        fix: "Use a unique invoice number or remove the duplicate before submission.",
+        path: "/invoice_number",
+      });
+    }
+  }
+
+  return { reports, readErrors };
+}
+
+export function summarizePreflight({ reports, readErrors }) {
+  const findings = reports.flatMap((report) => report.errors);
+  const failed = reports.filter((report) => report.errors.length > 0).length;
+  const ruleCounts = {};
+  const ruleMessages = {};
+  const ruleFixes = {};
+  for (const error of findings) {
+    ruleCounts[error.rule] = (ruleCounts[error.rule] || 0) + 1;
+    ruleMessages[error.rule] = error.message;
+    ruleFixes[error.rule] = error.fix;
+  }
+  return {
+    status: findings.length || readErrors.length ? "fail" : "pass",
+    filesChecked: reports.length,
+    filesFailed: failed,
+    filesPassed: reports.length - failed,
+    observations: findings.length,
+    readErrors: readErrors.length,
+    ruleCounts,
+    ruleMessages,
+    ruleFixes,
+  };
+}
+
+export function buildChecklist({ reports, readErrors }) {
+  const summary = summarizePreflight({ reports, readErrors });
+  const lines = [
+    "E-invoice preflight repair checklist",
+    "",
+    `Status: ${summary.status === "pass" ? "PASS" : "FAIL"}`,
+    `Checked: ${summary.filesChecked} invoice(s)`,
+    `Observations: ${summary.observations}`,
+    `Read errors: ${summary.readErrors}`,
+    "",
+  ];
+  for (const report of reports) {
+    lines.push(`[ ] Review ${report.file}`);
+    if (report.envelope) lines.push(`    ${report.envelope}`);
+    if (report.errors.length === 0) {
+      lines.push("    No supported defects found.");
+      continue;
+    }
+    const grouped = new Map();
+    for (const error of report.errors) {
+      const item = grouped.get(error.rule) || { count: 0, paths: [], message: error.message, fix: error.fix };
+      item.count += 1;
+      if (!item.paths.includes(error.path)) item.paths.push(error.path);
+      grouped.set(error.rule, item);
+    }
+    for (const rule of [...grouped.keys()].sort()) {
+      const item = grouped.get(rule);
+      const suffix = item.count !== 1 ? ` (${item.count} occurrence(s))` : "";
+      lines.push(`    - [ ] ${rule}${suffix} at ${item.paths.join(", ")}: ${redactValues(item.message)}`);
+      lines.push(`      Fix: ${redactValues(item.fix)}`);
+    }
+  }
+  if (readErrors.length) {
+    lines.push("", "Unreadable inputs:");
+    for (const error of readErrors) lines.push(`- [ ] Review ${error.file}: ${error.error}`);
+  }
+  lines.push(
+    "",
+    "This is a local observation checklist, not a declaration of legal validity or compliance.",
+    "Review and verify each change before submitting an invoice.",
+  );
+  return lines.join("\n") + "\n";
+}
+
+export function buildMarkdown({ reports, readErrors }) {
+  const summary = summarizePreflight({ reports, readErrors });
+  const escape = (value) => String(value).replaceAll("\\", "\\\\").replaceAll("|", "\\|").replaceAll("`", "\\`");
+  const lines = [
+    "# E-invoice preflight",
+    "",
+    `Overall: **${summary.status.toUpperCase()}**`,
+    `Checked: ${summary.filesChecked} invoice(s)`,
+    `Passed: ${summary.filesPassed}`,
+    `Failed: ${summary.filesFailed}`,
+    `Observations: ${summary.observations}`,
+    `Read errors: ${summary.readErrors}`,
+    "",
+  ];
+  const rules = Object.keys(summary.ruleCounts).sort();
+  if (rules.length) {
+    lines.push("## Finding summary", "", "| Rule | Occurrences | Check | Recommended fix |", "| --- | ---: | --- | --- |");
+    for (const rule of rules) {
+      lines.push(`| \`${escape(rule)}\` | ${summary.ruleCounts[rule]} | ${escape(summary.ruleMessages[rule])} | ${escape(summary.ruleFixes[rule])} |`);
+    }
+    lines.push("");
+  }
+  for (const report of reports) {
+    lines.push(`## \`${escape(report.file)}\``);
+    if (report.envelope) lines.push("", report.envelope);
+    if (report.errors.length === 0) {
+      lines.push("", "Status: **PASS**", "", "No defects found in the supported checks.", "");
+      continue;
+    }
+    lines.push("", "Status: **FAIL**", "");
+    for (const error of report.errors) {
+      lines.push(`- **${escape(error.rule)}** at \`${escape(error.path || "/")}\`: ${escape(error.message)}`);
+      lines.push(`  Fix: ${escape(error.fix)}`);
+    }
+    lines.push("");
+  }
+  if (readErrors.length) {
+    lines.push("## Read errors", "");
+    for (const error of readErrors) lines.push(`- \`${escape(error.file)}\`: ${escape(error.error)}`);
+    lines.push("");
+  }
+  return lines.join("\n").replace(/\n+$/, "\n");
+}
+
+export function buildJsonReport({ reports, readErrors }) {
+  const summary = summarizePreflight({ reports, readErrors });
+  const errors = reports.flatMap((report) => report.errors.map((error) => ({ ...error, file: report.file })));
+  const fixes = Object.keys(summary.ruleCounts).sort().map((rule) => ({
+    rule,
+    occurrences: summary.ruleCounts[rule],
+    message: summary.ruleMessages[rule],
+    fix: summary.ruleFixes[rule],
+  }));
+  return {
+    schema_version: 1,
+    status: summary.status,
+    exit_code: readErrors.length ? 2 : errors.length ? 1 : 0,
+    files_checked: summary.filesChecked,
+    files_failed: summary.filesFailed,
+    observations: summary.observations,
+    rules: Object.fromEntries(Object.keys(summary.ruleCounts).sort().map((rule) => [rule, summary.ruleCounts[rule]])),
+    fixes,
+    file: reports.length === 1 ? reports[0].file : null,
+    errors,
+    read_errors: readErrors,
+    reports: reports.map((report) => ({
+      file: report.file,
+      status: report.errors.length ? "fail" : "pass",
+      observations: report.errors.length,
+      errors: report.errors,
+    })),
+  };
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+export function buildRemediationCsv({ reports, readErrors }) {
+  const grouped = new Map();
+  for (const report of reports) {
+    for (const finding of report.errors) {
+      const item = grouped.get(finding.rule) || {
+        rule: finding.rule,
+        occurrences: 0,
+        message: finding.message,
+        fix: finding.fix,
+      };
+      item.occurrences += 1;
+      grouped.set(finding.rule, item);
+    }
+  }
+  const rows = [...grouped.keys()].sort().map((rule) => grouped.get(rule));
+  if (readErrors.length) {
+    rows.push({
+      rule: "INV-READ",
+      occurrences: readErrors.length,
+      message: "Invoice could not be read.",
+      fix: "Resolve the read error and run the preflight again.",
+    });
+  }
+  const header = ["rule", "occurrences", "message", "fix"];
+  const lines = [
+    header.join(","),
+    ...rows.map((row) => header.map((key) => csvCell(row[key])).join(",")),
+  ];
+  return `${lines.join("\n")}\n`;
+}

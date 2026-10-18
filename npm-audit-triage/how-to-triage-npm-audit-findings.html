@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Triage npm audit Findings Without Ignoring Real Risk</title>
+  <meta name="description" content="A practical order of operations for a long npm audit report: what to fix first, what is build-time noise, and why not imported does not mean safe.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/how-to-triage-npm-audit-findings.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to triage npm audit findings without ignoring real risk","about":"Prioritising npm audit vulnerabilities by reachability","author":{"@type":"Organization","name":"npm Audit Triage"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/how-to-triage-npm-audit-findings.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Triage npm audit Findings Without Ignoring Real Risk">
+<meta property="og:description" content="A practical order of operations for a long npm audit report: what to fix first, what is build-time noise, and why not imported does not mean safe.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Triage npm audit Findings Without Ignoring Real Risk — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../npm-audit-triage/">Which npm audit findings actually matter?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Triage npm audit Findings Without Ignoring Real Risk</span></span></nav>
+  <p><a href="./">← npm Audit Triage</a></p>
+  <h1>How to triage npm audit findings without ignoring real risk</h1>
+  <p>A fresh <code>npm audit</code> on a mid-sized project routinely lists dozens of advisories. Most teams respond in one of two bad ways: fix none of them because the list is overwhelming, or run <code>npm audit fix --force</code> and break the build. A better first step is to sort the list by whether your code can reach the vulnerable package.</p>
+
+  <h2>The four buckets this tool uses</h2>
+  <ul>
+    <li><strong>imported</strong> — your runtime code imports or requires the vulnerable package directly. Read these first; a high or critical here deserves a fix this week.</li>
+    <li><strong>via-imported</strong> — your code imports a package that depends on the vulnerable one. Often fixed by upgrading the parent, which is what the <em>fix</em> column suggests.</li>
+    <li><strong>test-only</strong> — the package is imported only from test files or tooling configuration (test runners, bundler configs, linters). The risk is mostly to developer machines and CI, not your users.</li>
+    <li><strong>not-referenced</strong> — nothing in the scanned source imports it or a parent that does. Usually a deep build-time dependency.</li>
+  </ul>
+
+  <h2>A sensible order</h2>
+  <ol>
+    <li>Run <code>npm audit --json</code> and the triage together so the ranked list replaces the raw list.</li>
+    <li>Fix reachable high and critical findings first. Use <code>--fail-on high</code> in CI so a new reachable one blocks the merge.</li>
+    <li>For via-imported findings, upgrade the parent package the report names, and re-run. If the fix is a major version, schedule it rather than forcing it.</li>
+    <li>For test-only findings, patch on your normal dependency-update cadence. Do not ignore advisories about code that runs in CI with secrets, such as a malicious or compromised build tool.</li>
+    <li>For not-referenced findings, confirm the package is really unused (a bundler plugin, a framework convention or a postinstall script can load it without an <code>import</code> line), then batch the upgrades.</li>
+  </ol>
+
+  <h2>What this ranking cannot tell you</h2>
+  <p>It reads import statements as text. It cannot see a <code>require</code> built from a variable, code loaded by a framework by naming convention, or whether the specific vulnerable function is ever called. Not imported is a reason to lower the urgency, not a certificate of safety. It is a heuristic, not a security audit.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=npm-audit-triage">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="npm-audit-triage"></script>
+</body>
+</html>

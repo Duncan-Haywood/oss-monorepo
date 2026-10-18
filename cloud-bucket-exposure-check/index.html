@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
+<meta name="description" content="Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cloud Bucket Exposure Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on whether your S3, GCS, or Azure Blob bucket allows anonymous public listing.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cloud Bucket Exposure Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual probing",
+  "description": "Sends one real, read-only, unauthenticated GET request -- a cloud provider's own anonymous listing endpoint -- to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, and classifies the response body to report whether anyone on the internet can list its contents with no credentials. Never fetches any individual object's content -- only the listing.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends 1 real, read-only HTTP request to a bucket or container you choose, across AWS S3, Google Cloud Storage, or Azure Blob Storage",
+    "Classifies the response BODY against each provider's own documented listing-or-error XML shape, not just the status code",
+    "Names the exact evidence: object count and up to 5 example object names, never the objects' own content",
+    "CLI makes the actual request; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What can someone actually do with a publicly listable bucket?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Anyone can enumerate every object name in the bucket with no credentials at all -- and object names alone are often sensitive on their own: customer IDs, internal filenames, database backup dates, employee names in a photo path. If the same bucket is ALSO configured to allow public object reads (a separate setting this tool does not test), every listed name becomes directly downloadable. This is the mechanism behind a long list of real breaches -- Verizon (14 million customer records, 2017), a Pentagon contractor's exposed social-media-monitoring archive, and dozens of Have I Been Pwned entries -- and it is exactly why AWS now turns \"Block Public Access\" on by default for every new bucket." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this only check listing, and not whether the files themselves are downloadable?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Finding out a bucket allows public listing is the exposure this tool checks; downloading what is inside it is a different, higher-liability action a real authorised penetration test would take. This tool sends exactly one request -- the listing endpoint -- and never issues a GET against any individual object key it finds, the same restraint git-exposure-check documents for not requesting a repository's packed objects once HEAD/config already confirm exposure. A bucket can also be configured so objects are publicly readable even when listing is blocked (a direct link still works); that is a real, separate exposure this tool does not detect, because it never has an object key to test without a listing to find one in." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of just checking a bucket name I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A cloud provider's bucket-listing endpoint does not send permissive CORS headers by default, so a browser tab cannot reliably read the response even though the request itself would go out -- the same CORS restriction git-exposure-check and cors-misconfig-check document for checking an arbitrary third-party endpoint from inside a page. A small local CLI with no such restriction, run from your own machine, gets a definitive answer every time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my bucket has no exposure at all?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks one specific, well-documented exposure class -- anonymous public LISTING at the one bucket or container you point it at. It does not check public object-read access, bucket policies for authenticated-but-not-owner roles, object ACLs on individual files, server-side encryption, versioning, or logging, and it only checks the one bucket you name, not every bucket in an account. Treat a clean report as evidence about this one exposure class on this one bucket, not a full cloud security assessment." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why only AWS S3, Google Cloud Storage, and Azure Blob Storage?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Those three are the object-storage services most commonly left publicly listable by an accidental misconfiguration, and each publishes a stable, documented anonymous-listing response shape this tool can classify without guessing: AWS S3 and Google Cloud Storage share an S3-compatible XML API (a ListBucketResult root element), and Azure Blob Storage has its own EnumerationResults schema. A provider without a documented anonymous-listing endpoint in this same request-response shape is out of scope rather than guessed at." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; word-break: break-all; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cloud Bucket Exposure Checker","item":"https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cloud Bucket Exposure Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cloud Bucket Exposure Checker</span></span></nav>
+<h1>Cloud Bucket Exposure Checker</h1>
+<p>
+  Sends one real, read-only HTTP GET request -- a cloud provider's own anonymous listing
+  endpoint -- to an <strong>AWS S3</strong>, <strong>Google Cloud Storage</strong>, or
+  <strong>Azure Blob Storage</strong> bucket you choose, and checks whether the response is a
+  real, well-formed listing document, not just whether the status code is 200. A publicly
+  listable bucket lets anyone on the internet <strong>enumerate every object name with no
+  credentials</strong> -- and if the bucket also allows public object reads, every listed name is
+  directly downloadable. Only point it at a bucket you own or are authorised to test.
+</p>
+<p class="status-note">
+  See <a href="vs-manually-checking-in-the-cloud-console.html">this checker vs. manually checking
+  in the cloud console</a> — the case a quick console glance misses. Already found a publicly
+  listable bucket? <a href="how-to-fix-a-publicly-listable-bucket.html">How to fix it</a>, per
+  provider.
+</p>
+<p class="status-note">
+  A clean report here only covers listing. See
+  <a href="public-listing-vs-public-read.html">public listing vs. public read</a> for why a bucket
+  can still hand out object content even when this checker reports it private, and the exact
+  setting that closes each on S3, GCS, and Azure.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your bucket</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://your-bucket.s3.amazonaws.com/ --json
+node check.mjs --provider gcs --bucket your-bucket --json
+node check.mjs --provider azure --bucket your-container --account your-storage-account --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/cloud-bucket-exposure-check" rel="noopener">check.mjs, probe.mjs, and engine.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the bucket you name; nothing goes
+    through this site, and it never fetches any individual object's content, only the listing.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://s3.amazonaws.com/your-bucket", "provider": "s3", "status": 200, ...}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (exposed)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Raw probe result</h3>
+  <div class="pf-table-scroll"><table id="probe-table"><tbody></tbody></table></div>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What can someone actually do with a publicly listable bucket?</h3>
+  <p>Anyone can enumerate every object name in the bucket with no credentials at all -- and object names alone are often sensitive on their own: customer IDs, internal filenames, database backup dates, employee names in a photo path. If the same bucket is ALSO configured to allow public object reads (a separate setting this tool does not test), every listed name becomes directly downloadable. This is the mechanism behind a long list of real breaches -- Verizon (14 million customer records, 2017), a Pentagon contractor's exposed social-media-monitoring archive, and dozens of Have I Been Pwned entries -- and it is exactly why AWS now turns "Block Public Access" on by default for every new bucket. More background: <a href="why-do-cloud-buckets-end-up-publicly-listable.html">why cloud buckets end up publicly listable despite that default</a>.</p>
+  <h3>Why does this only check listing, and not whether the files themselves are downloadable?</h3>
+  <p>Finding out a bucket allows public listing is the exposure this tool checks; downloading what is inside it is a different, higher-liability action a real authorised penetration test would take. This tool sends exactly one request -- the listing endpoint -- and never issues a GET against any individual object key it finds, the same restraint <a href="../git-exposure-check/">git-exposure-check</a> documents for not requesting a repository's packed objects once HEAD/config already confirm exposure. A bucket can also be configured so objects are publicly readable even when listing is blocked (a direct link still works); that is a real, separate exposure this tool does not detect, because it never has an object key to test without a listing to find one in.</p>
+  <h3>Why does this need a CLI instead of just checking a bucket name I type into the page?</h3>
+  <p>A cloud provider's bucket-listing endpoint does not send permissive CORS headers by default, so a browser tab cannot reliably read the response even though the request itself would go out -- the same CORS restriction git-exposure-check and cors-misconfig-check document for checking an arbitrary third-party endpoint from inside a page. A small local CLI with no such restriction, run from your own machine, gets a definitive answer every time.</p>
+  <h3>Does a clean report mean my bucket has no exposure at all?</h3>
+  <p>No. This checks one specific, well-documented exposure class -- anonymous public LISTING at the one bucket or container you point it at. It does not check public object-read access, bucket policies for authenticated-but-not-owner roles, object ACLs on individual files, server-side encryption, versioning, or logging, and it only checks the one bucket you name, not every bucket in an account. Treat a clean report as evidence about this one exposure class on this one bucket, not a full cloud security assessment.</p>
+  <h3>Why only AWS S3, Google Cloud Storage, and Azure Blob Storage?</h3>
+  <p>Those three are the object-storage services most commonly left publicly listable by an accidental misconfiguration, and each publishes a stable, documented anonymous-listing response shape this tool can classify without guessing: AWS S3 and Google Cloud Storage share an S3-compatible XML API (a ListBucketResult root element), and Azure Blob Storage has its own EnumerationResults schema. A provider without a documented anonymous-listing endpoint in this same request-response shape is out of scope rather than guessed at.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './engine.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), probeTable: $('#probe-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://s3.amazonaws.com/staging-uploads-example',
+    provider: 's3',
+    status: 200,
+    ok: true,
+    bodySample: '<?xml version="1.0" encoding="UTF-8"?><ListBucketResult><Name>staging-uploads-example</Name><IsTruncated>false</IsTruncated><Contents><Key>2024-q1-customer-export.csv</Key></Contents><Contents><Key>backup-2024-01-15.sql.gz</Key></Contents><Contents><Key>logo.png</Key></Contents></ListBucketResult>',
+    error: null,
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `The request did not complete (${report.error}) -- re-run and try again.`;
+    } else if (report.state === 'public-listing') {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding. This bucket allows anonymous public listing.`;
+    } else if (report.state === 'private') {
+      els.verdict.textContent = 'The bucket exists and denied the anonymous listing request. Not publicly listable.';
+    } else if (report.state === 'not-found') {
+      els.verdict.textContent = 'No bucket/container by that name was found. Nothing to report.';
+    } else {
+      els.verdict.textContent = 'Inconclusive: the response did not match a recognised listing-or-error shape for this provider.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${f.objectCount}${f.truncated ? '+' : ''} object name(s) visible${f.sampleKeys.length ? `, for example: ${escapeHtml(f.sampleKeys.join(', '))}` : ''}</p>
+        </div>`).join('');
+
+    els.probeTable.innerHTML = `
+      <tr><th>Target</th><td>${escapeHtml(report.target)}</td></tr>
+      <tr><th>Provider</th><td>${escapeHtml(report.provider ?? '(unknown)')}</td></tr>
+      <tr><th>Status</th><td>${escapeHtml(String(report.status ?? '(request failed: ' + report.error + ')'))}</td></tr>
+      <tr><th>State</th><td>${escapeHtml(report.state)}</td></tr>`;
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || typeof payload.provider !== 'string') {
+        throw new Error('Expected an object with "provider", "status", and "bodySample" -- the exact shape "node check.mjs <bucket> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;bucket&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: this S3 bucket allows anonymous public listing.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+
+  // Remember the visitor's usage-counting choice between visits. The
+  // control was read on every record call and never stored, so the box
+  // came back unticked on the next load and counting resumed -- a
+  // control that quietly stops working is worse than none, because the
+  // visitor believes they have already used it.
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class -- anonymous public listing at the one bucket or container you give it. It does
+  not check public object-read access, authenticated-role policies, object ACLs, encryption,
+  versioning, or logging, and cannot see a pattern it doesn't check for. A clean report describes
+  what this one request found, not a guarantee the bucket has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or a cloud provider's own configuration audit. <strong>You are responsible for
+  reviewing and verifying its output before relying on it</strong>, and for having authorisation
+  to test any bucket or container you point the CLI at. To the maximum extent permitted by law,
+  the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the bucket you name — never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day — no bucket names, no provider,
+  no response bodies, no account, no tracking cookies, no analytics vendor. Turn it off with the
+  checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>A publicly listable bucket is one cloud-storage exposure class;
+  <a href="../supabase-rls-check/">Supabase RLS exposure checker</a> and
+  <a href="../firebase-rules-check/">Firebase security rules exposure checker</a> ask the same
+  "does this backend hand out real data with no login" question of two managed-database backends,
+  and <a href="../git-exposure-check/">Git exposure checker</a> and
+  <a href="../dotenv-exposure-check/">Dotenv exposure checker</a> cover two deployed-artifact
+  secret exposure classes on the webserver itself, not object storage.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../cloudwatch-logs-cost-advisor/" data-pf-to="cloudwatch-logs-cost-advisor">Why is your CloudWatch Logs bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-bucket-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/?pfEmbed=1&quot; title=&quot;Cloud Bucket Exposure Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cloud-bucket-exposure-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/" data-pf-embed-title="Cloud Bucket Exposure Checker" data-pf-embed-slug="cloud-bucket-exposure-check"></script>
+</body>
+</html>

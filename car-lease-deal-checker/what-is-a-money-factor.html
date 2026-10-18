@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Is A Money Factor? Lease APR Explained With An Example</title>
+  <meta name="description" content="What a car lease money factor is, how to turn it into an APR, and how the monthly payment is built from depreciation and rent charge…">
+  <meta property="og:title" content="What Is A Money Factor? Lease APR Explained With An Example">
+  <meta property="og:description" content="Money factor times 2,400 is the APR. The full lease payment formula, worked on a real-sized example. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/what-is-a-money-factor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I convert a money factor to APR?","acceptedAnswer":{"@type":"Answer","text":"Multiply the money factor by 2,400. A money factor of 0.00125 is 3.0 percent APR and 0.0025 is 6.0 percent."}},{"@type":"Question","name":"Why does the lease payment use the residual twice?","acceptedAnswer":{"@type":"Answer","text":"The rent charge is calculated on the average of what you owe over the lease, which is the capitalized cost plus the residual divided by two. Multiplying the sum by the money factor instead of the average by half the rate is the same arithmetic, which is why the formula adds the two before multiplying."}},{"@type":"Question","name":"Can a dealer change the money factor?","acceptedAnswer":{"@type":"Answer","text":"Often yes. The lender supplies a base money factor for each credit tier and the dealer may add a markup, which is the dealer's compensation. Asking for the base rate in writing, or entering your quote into the tool to find the rate inside the payment, shows how much markup there is."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #2a4aa6; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5daea; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #2a4aa6; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #444d63; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/what-is-a-money-factor.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Is A Money Factor? Lease APR Explained With An Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../car-lease-deal-checker/">Car Lease Deal Checker — money factor to APR and lease vs buy</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Is A Money Factor? Lease APR Explained With An Example</span></span></nav>
+  <p><a href="./">&larr; Car lease deal checker</a></p>
+  <h1>What is a money factor? Lease APR explained, with an example</h1>
+  <p>A car lease quote is built from a few numbers, and the one that hides the interest rate is the money factor. It is a small decimal such as 0.00125. Multiply it by 2,400 and you have the approximate APR: <strong>0.00125 &times; 2,400 = 3.0%</strong>.</p>
+  <p><a class="cta" href="./">Open the free lease checker</a></p>
+  <h2>The example quote</h2>
+  <div class="pf-table-scroll"><table>
+    <tbody>
+      <tr><td>MSRP</td><td>$35,000</td></tr>
+      <tr><td>Negotiated price</td><td>$33,000</td></tr>
+      <tr><td>Acquisition fee, rolled in</td><td>$895</td></tr>
+      <tr><td>Residual, 60% of MSRP, 36 months</td><td>$21,000</td></tr>
+      <tr><td>Money factor</td><td>0.00125</td></tr>
+    </tbody>
+  </table></div>
+  <h2>Step 1: the capitalized cost</h2>
+  <p>Price plus the capitalized fee, minus any rebates and cash down: $33,000 + $895 = <strong>$33,895</strong>.</p>
+  <h2>Step 2: depreciation</h2>
+  <p>You pay for the value the car loses: ($33,895 &minus; $21,000) &divide; 36 = <strong>$358.19 a month</strong>.</p>
+  <h2>Step 3: the rent charge</h2>
+  <p>The interest part: ($33,895 + $21,000) &times; 0.00125 = <strong>$68.62 a month</strong>.</p>
+  <h2>Step 4: the payment</h2>
+  <p>$358.19 + $68.62 = <strong>$426.81</strong> before tax. At 7% tax that is $456.69.</p>
+  <h2>Working backwards when the dealer will not say</h2>
+  <p>If you know the payment, the same formula gives the money factor: (payment &minus; depreciation) &divide; (capitalized cost + residual). From $426.81 that returns 0.00125, so the rate is 3.0%. If the manufacturer's base rate for your credit tier is 0.00085, the other 0.0004 is markup: about $22 a month, $790 over the lease.</p>
+  <p><a class="cta" href="./">Find the rate inside your quote</a></p>
+  <h2>Common questions</h2>
+  <h3>How do I convert a money factor to APR?</h3>
+  <p>Multiply the money factor by 2,400. A money factor of 0.00125 is 3.0 percent APR and 0.0025 is 6.0 percent.</p>
+  <h3>Why does the lease payment use the residual twice?</h3>
+  <p>The rent charge is calculated on the average of what you owe over the lease, which is the capitalized cost plus the residual divided by two. Multiplying the sum by the money factor instead of the average by half the rate is the same arithmetic, which is why the formula adds the two before multiplying.</p>
+  <h3>Can a dealer change the money factor?</h3>
+  <p>Often yes. The lender supplies a base money factor for each credit tier and the dealer may add a markup, which is the dealer's compensation. Asking for the base rate in writing, or entering your quote into the tool to find the rate inside the payment, shows how much markup there is.</p>
+  <footer>
+    <p>Arithmetic on invented numbers, not financial or legal advice; your lease contract controls what you owe. No warranty. Free, best-effort hosting with no SLA. Not affiliated with any automaker, dealership or lender.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../structured-settlement-buyout-calculator/" data-pf-to="structured-settlement-buyout-calculator">What rate is the settlement buyer charging you? Free calculator</a></li>
+      <li><a href="../student-loan-rap-ibr-standard-calculator/" data-pf-to="student-loan-rap-ibr-standard-calculator">Student loan RAP vs IBR vs Standard calculator</a></li>
+      <li><a href="../studio-class-slot-optimizer/" data-pf-to="studio-class-slot-optimizer">Studio Class Slot Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tax-lien-certificate-yield-calculator/" data-pf-to="tax-lien-certificate-yield-calculator">What does a tax lien certificate really yield? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=car-lease-deal-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="car-lease-deal-checker"></script>
+</body>
+</html>

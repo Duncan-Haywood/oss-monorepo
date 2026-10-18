@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is a Lower Offer Worth It on Poshmark? (Worked Examples)</title>
+  <meta name="description" content="What accepting a lower Poshmark offer or bundle price actually costs: how much comes from Poshmark's commission versus your own payout…">
+  <meta property="og:title" content="Is a Lower Offer Worth It on Poshmark?">
+  <meta property="og:description" content="Whether a discount comes out of Poshmark's cut or your own payout, and why crossing under $15 is usually a one-time break, not a penalty.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/is-a-lower-offer-worth-it-on-poshmark.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Poshmark share in a discount I offer?","acceptedAnswer":{"@type":"Answer","text":"Yes, but only above $15.00. In the 20% tier, commission is 20% of whatever the buyer pays, so a $5 discount only costs you $4 — Poshmark's cut shrinks by $1 automatically. Under $15.00 the fee is a fixed $2.95 no matter the price, so any discount there comes entirely out of your own payout."}},{"@type":"Question","name":"Does accepting an offer that drops below $15 cost me more?","acceptedAnswer":{"@type":"Answer","text":"Usually less, not more. Twenty percent of anything at or above $14.75 is at least $2.95, so switching to the flat fee is a one-time reduction in commission. A $20 listing dropping to a $14 offer loses $6 in sale price but only $4.95 in payout, because the fee itself dropped by $1.05."}},{"@type":"Question","name":"Can a lower price ever pay me more?","acceptedAnswer":{"@type":"Answer","text":"Yes, right at the boundary. A $15.00 sale pays 20% ($3.00 commission, $12.00 payout). A $14.99 sale — one cent lower — pays the flat $2.95 fee ($12.04 payout). The one-cent-lower sale nets four cents more."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #211327; background: #f6eef2; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #e3c6d4; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #f6dde9; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #fdf3f8; border: 1px solid #e3c6d4; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #b3175e; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #5c4351; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/is-a-lower-offer-worth-it-on-poshmark.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is a Lower Offer Worth It on Poshmark? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../poshmark-fee-calculator/">Poshmark Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is a Lower Offer Worth It on Poshmark?</span></span></nav>
+  <p><a href="./">&larr; Back to the Poshmark fee calculator</a></p>
+  <h1>Is a lower offer worth it on Poshmark?</h1>
+  <p>Whenever you accept a lower offer or set a bundle discount, part of that discount comes out of Poshmark's commission and part comes out of your own payout — and how the split works depends entirely on which side of $15.00 you land on.</p>
+
+  <h2>Above $15.00: Poshmark shares in every discount</h2>
+  <p>In the 20% tier, commission is 20% of whatever the buyer actually pays. Drop the price and the commission drops with it — automatically, proportionally.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Listed at $40</th><th>Offer at $35</th></tr></thead>
+    <tbody>
+      <tr><td>Commission (20%)</td><td>$8.00</td><td>$7.00</td></tr>
+      <tr><td>Payout</td><td>$32.00</td><td>$28.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>The $5 discount only costs $4.00 in payout — Poshmark absorbed the other dollar. Any discount that keeps both prices at $15 or more works this way: you only ever absorb 80% of it.</p>
+
+  <h2>Below $15.00: the fee is fixed, so you absorb the whole discount</h2>
+  <p>The flat $2.95 fee does not move once you are under $15.00, no matter how much lower the price goes. A discount that keeps both prices under $15 comes entirely out of your own pocket.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Listed at $12</th><th>Offer at $8</th></tr></thead>
+    <tbody>
+      <tr><td>Commission (flat)</td><td>$2.95</td><td>$2.95</td></tr>
+      <tr><td>Payout</td><td>$9.05</td><td>$5.05</td></tr>
+    </tbody>
+  </table></div>
+  <p>The full $4 discount lands in your payout, dollar for dollar — Poshmark's cut never moves.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">Crossing the line: usually a one-time break, not a penalty</h2>
+    <p>It is tempting to assume crossing under $15.00 makes things worse, since it feels like leaving one tier for a "cheaper item" tier. It is the opposite: twenty percent of anything at or above $14.75 is already at least $2.95, so the flat fee is never a bigger bite than the percent rate would have been at that price. Crossing the line is a one-time <em>reduction</em> in commission.</p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Line</th><th>Listed at $20</th><th>Offer at $14</th></tr></thead>
+      <tbody>
+        <tr><td>Commission</td><td>$4.00 (20%)</td><td>$2.95 (flat)</td></tr>
+        <tr><td>Payout</td><td>$16.00</td><td>$11.05</td></tr>
+      </tbody>
+    </table></div>
+    <p>The sticker discount is $6.00. The actual payout drop is $4.95 — never more than the discount, because the commission itself fell by $1.05 on the way down.</p>
+  </div>
+
+  <h2>Worked example: one cent can raise your payout</h2>
+  <p>The most surprising case is right at the boundary. A $15.00 sale pays 20% commission. A $14.99 sale — one cent lower — pays the flat fee instead.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Sale price</th><th>Tier</th><th>Commission</th><th>Payout</th></tr></thead>
+    <tbody>
+      <tr><td>$15.00</td><td>20%</td><td>$3.00</td><td>$12.00</td></tr>
+      <tr><td>$14.99</td><td>Flat</td><td>$2.95</td><td>$12.04</td></tr>
+    </tbody>
+  </table></div>
+  <p>The one-cent-lower sale pays four cents more. If a buyer's offer lands one cent under $15.00, taking it can put more in your pocket than holding firm at $15.00 — the opposite of what most sellers assume.</p>
+
+  <h2>Do this with your own offers</h2>
+  <p>The <a href="./">Poshmark fee calculator</a>'s offer comparison runs this same arithmetic on your own listed price and offer, and names how much of the discount came from Poshmark's cut versus your own payout. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>Does Poshmark share in a discount I offer?</h3>
+  <p>Yes, but only above $15.00. In the 20% tier, commission is 20% of whatever the buyer pays, so a $5 discount only costs you $4 — Poshmark's cut shrinks by $1 automatically. Under $15.00 the fee is a fixed $2.95 no matter the price, so any discount there comes entirely out of your own payout.</p>
+  <h3>Does accepting an offer that drops below $15 cost me more?</h3>
+  <p>Usually less, not more. Twenty percent of anything at or above $14.75 is at least $2.95, so switching to the flat fee is a one-time reduction in commission. A $20 listing dropping to a $14 offer loses $6 in sale price but only $4.95 in payout, because the fee itself dropped by $1.05.</p>
+  <h3>Can a lower price ever pay me more?</h3>
+  <p>Yes, right at the boundary. A $15.00 sale pays 20% ($3.00 commission, $12.00 payout). A $14.99 sale — one cent lower — pays the flat $2.95 fee ($12.04 payout). The one-cent-lower sale nets four cents more.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice. Rates change and are set by Poshmark, not by this site. Verify every figure against your own Poshmark payout statement before accepting an offer. Not affiliated with, endorsed by, or sponsored by Poshmark; Poshmark is a trademark of its owner, named here only to describe the published fee schedule.</p>
+    <p><a href="./">Open the calculator</a> · <a href="./how-much-does-poshmark-take.html">How much does Poshmark take?</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bundle-discount-optimizer/" data-pf-to="bundle-discount-optimizer">Bundle Discount Optimizer — free, private, in your browser</a></li>
+      <li><a href="../business-insurance-policy-reader/" data-pf-to="business-insurance-policy-reader">Check your business insurance policy for gaps and client-contract limits. Free, private</a></li>
+      <li><a href="../card-grading-submission-picker/" data-pf-to="card-grading-submission-picker">Which cards are worth sending to a grader, and which should you sell raw?</a></li>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=poshmark-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="poshmark-fee-calculator"></script>
+</body>
+</html>

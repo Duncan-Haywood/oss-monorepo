@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vendor Contract Clause Reader</title>
+  <meta name="description" content="Free SaaS and vendor contract reader: paste an agreement and get the auto-renewal cancel-by date (downloadable .ics)…">
+  <meta property="og:title" content="Find the cancel-by date and bad clauses in a SaaS contract. Free, private">
+  <meta property="og:description" content="Paste the contract. Get the auto-renewal deadline, the price schedule, and what to negotiate, each with the sentence it came from. Nothing is uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Vendor Contract Clause Reader", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a vendor contract auto-renewal clause?", "acceptedAnswer": {"@type": "Answer", "text": "A clause saying the agreement renews for another term unless you give written notice before a deadline. The deadline is often 30 to 90 days before the term ends, and the renewal is often a full year. Missing it commits you to the next term's fees."}}, {"@type": "Question", "name": "How far ahead do I have to cancel a SaaS contract?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the contract; 30, 60 and 90 days are all common. This page finds the notice period in your text and counts back from the end of the term to give a date, then lets you add it to your calendar with a 30-day alarm."}}, {"@type": "Question", "name": "What does 'then-current list price' at renewal mean?", "acceptedAnswer": {"@type": "Answer", "text": "The vendor can charge whatever its published price is at renewal, not the price you negotiated. Ask for a fixed cap on renewal increases, for example 3 to 5%, or CPI."}}, {"@type": "Question", "name": "What should a limitation of liability clause include?", "acceptedAnswer": {"@type": "Answer", "text": "A cap that is meaningful relative to the risk (many buyers ask for 2x annual fees or more), mutual application, and carve-outs for data breach, confidentiality breach, indemnities, and gross negligence or willful misconduct."}}, {"@type": "Question", "name": "What is termination for convenience?", "acceptedAnswer": {"@type": "Answer", "text": "The right to end the contract early without a reason, usually with notice. Without it, a multi-year term means you owe the remaining fees even if you stop using the product."}}, {"@type": "Question", "name": "Does this replace a lawyer?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads wording with fixed rules, shows the sentence each value came from so you can check it, and says what buyers commonly ask for. It does not decide whether terms are fair or enforceable where you are."}}, {"@type": "Question", "name": "Is my contract uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #14506b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #12303d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #12303d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #12303d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #14506b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #12303d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #12303d; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #12303d; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #12303d; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Find the cancel-by date and bad clauses in a SaaS contract. Free, private","item":"https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Find the cancel-by date and bad clauses in a SaaS contract. Free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">VENDOR CONTRACT CLAUSE READER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find the cancel-by date and the bad clauses before a SaaS contract renews itself.</h1>
+    <p>Paste the agreement or order form. The page pulls out the <strong>term, auto-renewal and cancel-by date, annual fee and price increases</strong>, shows <strong>what a missed deadline commits you to</strong>, builds a <strong>dated calendar you can add to your phone</strong>, and flags the clauses buyers push back on: <strong>list-price renewals, vendor-changes-terms-at-will, no exit, uncapped or tiny liability, one-way indemnity</strong>. Each value shows the sentence it came from so you can check it.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. It reads wording with fixed rules; it is not a lawyer and does not decide whether a contract is fair or enforceable.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>1. The contract</h2>
+    <label for="file">Choose a text file</label>
+    <input type="file" id="file" accept=".txt,.md,text/plain">
+    <label for="paste">…or paste the contract text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Paste the full text of the agreement or order form here (copy from the PDF)"></textarea>
+    <h2 style="margin-top:20px">2. Optional details</h2>
+    <p class="note">Fill in only to override what the page reads, or to label the abstract.</p>
+    <div class="grid">
+      <div><label for="fee">Annual fee, dollars</label><input id="fee" inputmode="decimal" placeholder="read from the contract"></div>
+      <div><label for="uplift">Annual price increase, percent</label><input id="uplift" inputmode="decimal" placeholder="read from the contract"></div>
+      <div><label for="effective">Start date (YYYY-MM-DD)</label><input id="effective" placeholder="read from the contract"></div>
+      <div><label for="today">Today's date (YYYY-MM-DD)</label><input id="today" placeholder="to show your next deadlines"></div>
+      <div><label for="vendor">Vendor name</label><input id="vendor"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Read the contract</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste the contract, then click Read the contract.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="verdict"></p>
+    <h3>Key terms (check each against the contract)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="terms"><thead><tr><th>Term</th><th>Value</th><th>Where it came from</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Key dates</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cal"><thead><tr><th>Date</th><th>What happens</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Fees by contract year (including one renewal if it auto-renews)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="sched"><thead><tr><th>Year</th><th class="n">Annual rate</th><th class="n">Months</th><th class="n">Total</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="total"></p>
+    <h3>Clauses to look at</h3>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-ics">Add dates to calendar (.ics)</button> <button type="button" class="secondary" id="dl-csv">Download findings (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it reads, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Extracted:</strong> start date, initial term, auto-renewal and renewal length, non-renewal notice days, annual or monthly fee, annual price increase, CPI or list-price renewal, payment days, late interest, liability cap, uptime, data deletion window.</li>
+      <li><strong>Flagged:</strong> long cancel windows, full-term renewals, list-price renewals, vendor-amends-at-will, no termination right, non-refundable fees, true-ups, short payment terms, suspension without notice, liability caps and missing carve-outs, one-way indemnity, missing data terms, arbitration.</li>
+      <li><strong>Not decided:</strong> whether any term is fair or enforceable where you are, what price to accept, or whether to sign. Terms in a separate order form, exhibit or linked policy are not seen unless you paste them.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a vendor contract auto-renewal clause?</h3>
+    <p>A clause saying the agreement renews for another term unless you give written notice before a deadline. The deadline is often 30 to 90 days before the term ends, and the renewal is often a full year. Missing it commits you to the next term's fees.</p>
+    <h3>How far ahead do I have to cancel a SaaS contract?</h3>
+    <p>It depends on the contract; 30, 60 and 90 days are all common. This page finds the notice period in your text and counts back from the end of the term to give a date, then lets you add it to your calendar with a 30-day alarm.</p>
+    <h3>What does 'then-current list price' at renewal mean?</h3>
+    <p>The vendor can charge whatever its published price is at renewal, not the price you negotiated. Ask for a fixed cap on renewal increases, for example 3 to 5%, or CPI.</p>
+    <h3>What should a limitation of liability clause include?</h3>
+    <p>A cap that is meaningful relative to the risk (many buyers ask for 2x annual fees or more), mutual application, and carve-outs for data breach, confidentiality breach, indemnities, and gross negligence or willful misconduct.</p>
+    <h3>What is termination for convenience?</h3>
+    <p>The right to end the contract early without a reason, usually with notice. Without it, a multi-year term means you owe the remaining fees even if you stop using the product.</p>
+    <h3>Does this replace a lawyer?</h3>
+    <p>No. It reads wording with fixed rules, shows the sentence each value came from so you can check it, and says what buyers commonly ask for. It does not decide whether terms are fair or enforceable where you are.</p>
+    <h3>Is my contract uploaded anywhere?</h3>
+    <p>No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, real estate, or financial advice, and it does not replace an attorney. Extracted values can be wrong or missing; check every one against the contract. A clean result means these rules found nothing, not that a contract is safe.</p>
+    <p><strong>Contract data.</strong> A contract can name prices and parties that are commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>contract_read</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>ics_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../saas-renewal-planner/">SaaS renewal planner</a> to track notice deadlines across all your subscriptions, and the <a href="../commercial-lease-abstract-reader/">commercial lease abstract reader</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summaryText, calendarIcs, findingsCsv, sampleAgreement, SAMPLE_SETTINGS, VERDICT_TEXT, dollars, iso } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const settings = () => ({ annualFee: $("#fee").value, upliftPct: $("#uplift").value.trim(), effective: $("#effective").value.trim(), today: $("#today").value.trim(), vendor: $("#vendor").value.trim() });
+
+    function termRows(t, src) {
+      const d = (v) => (v ? iso(v) : null);
+      const rows = [
+        ["Start date", d(t.effective), src.effective], ["Initial term", t.termMonths ? t.termMonths + " months (ends " + d(t.expiration) + ")" : null, src.termMonths],
+        ["Auto-renewal", t.autoRenew ? "Yes" + (t.renewalTermMonths ? ", for " + t.renewalTermMonths + " months" : "") : null, src.autoRenew],
+        ["Non-renewal notice", t.noticeDays ? t.noticeDays + " days before the term ends" : null, src.noticeDays],
+        ["Annual fee", t.annualFee ? dollars(t.annualFee) : null, src.annualFee],
+        ["Price increase", t.cpi ? "CPI-based" : t.listPriceRenewal ? "Vendor's list price at renewal" : t.upliftPct != null ? t.upliftPct + "% a year" : null, src.upliftPct || src.cpi || src.listPriceRenewal],
+        ["Payment terms", t.paymentDays ? "Net " + t.paymentDays + " days" : null, src.paymentDays],
+        ["Late interest", t.lateInterest || null, src.lateInterest],
+        ["Liability cap", t.liabilityCap ? (t.liabilityCap.months ? t.liabilityCap.months + " months of fees" : "Stated cap") : null, src.liabilityCap],
+        ["Uptime commitment", t.uptimePct ? t.uptimePct + "%" : null, src.uptimePct],
+        ["Data deletion after exit", t.deletionDays ? t.deletionDays + " days" : null, src.deletionDays],
+      ];
+      return rows.map(([k, v, s]) => `<tr><td>${esc(k)}</td><td>${v ? esc(v) : "<em>not found</em>"}</td><td class="note">${s ? esc(s) : ""}</td></tr>`).join("");
+    }
+
+    function run(text) {
+      const s = settings();
+      const r = analyze(text, s);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = { r, s };
+      $("#verdict").textContent = VERDICT_TEXT[r.verdict];
+      $("#terms tbody").innerHTML = termRows(r.terms, r.sources);
+      $("#cal tbody").innerHTML = r.calendar.map((c) => `<tr><td>${iso(c.date)}</td><td>${c.critical ? "<strong>" : ""}${esc(c.label)}${c.critical ? "</strong>" : ""}</td></tr>`).join("") || '<tr><td colspan="2"><em>No dates found.</em></td></tr>';
+      $("#sched tbody").innerHTML = r.schedule.map((y) => `<tr><td>${y.year}${y.renewal ? " (renewal)" : ""}</td><td class="n">${dollars(y.annual)}</td><td class="n">${y.months}</td><td class="n">${dollars(y.total)}</td></tr>`).join("") || '<tr><td colspan="4"><em>Need an annual fee and a term to build a schedule.</em></td></tr>';
+      $("#total").textContent = r.initialTotal ? `Initial term total: ${dollars(r.initialTotal)}.` + (r.renewalTotal ? ` If the cancel-by date is missed, you are committed to ${dollars(r.renewalTotal)} more.` : "") + " Taxes, overages and add-ons are extra." : "";
+      $("#report-findings").innerHTML = r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask for:</em> ${esc(g.ask)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} clause(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste the contract text first."; return; }
+      if (run(text)) record("contract_read");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleAgreement(); $("#file").value = "";
+      for (const [id, k] of [["fee", "annualFee"], ["uplift", "upliftPct"], ["effective", "effective"], ["today", "today"], ["vendor", "vendor"]]) $("#" + id).value = SAMPLE_SETTINGS[k];
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a made-up SaaS agreement with several problems at once.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste the contract, then click Read the contract."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("contract-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
+    $("#dl-ics").addEventListener("click", () => { if (last) { record("ics_downloaded"); download("contract-dates.ics", calendarIcs(last.r, last.s.vendor || "Vendor contract"), "text/calendar"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("contract-findings.csv", findingsCsv(last.r), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-contract-clause-reader">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/?pfEmbed=1&quot; title=&quot;Find the cancel-by date and bad clauses in a SaaS contract. Free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="vendor-contract-clause-reader"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/" data-pf-embed-title="Find the cancel-by date and bad clauses in a SaaS contract. Free, private" data-pf-embed-slug="vendor-contract-clause-reader"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="vendor-contract-clause-reader" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="vendor-contract-clause-reader" data-pf-link-amount=""></script>
+</body>
+</html>

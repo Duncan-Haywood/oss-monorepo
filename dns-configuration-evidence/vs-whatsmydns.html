@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. whatsmydns.net | DNS Change Evidence</title>
+<meta name="description" content="whatsmydns.net is a free global DNS propagation checker: point it at a domain and it shows what a network of DNS resolvers in many different countries…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/vs-whatsmydns.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. whatsmydns.net">
+<meta property="og:description" content="whatsmydns.net shows one worldwide snapshot right now. This tool captures two dated snapshots — before and after your change — and reports changed, unchanged…">
+<meta property="og:url" content="vs-whatsmydns.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or whatsmydns.net?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and a DNS cutover usually needs both. whatsmydns.net is a free, no-account web tool: enter a domain and a record type, and it queries a network of DNS resolvers located in many different countries at once, showing what each one currently answers right now. It is built for one question — has a change reached different parts of the world yet — and it answers that well as a single live snapshot. It keeps no history between visits and produces nothing you can save as a dated record: refresh the page tomorrow and today's view is gone. This tool does the opposite half of the job. It captures what named resolvers answer now, lets you make your change, captures again afterward, and diffs the two into a report that states changed, unchanged, and inconclusive separately rather than folding a timeout into 'no change'. That report is a file you keep or hand to a customer, not a page you have to remember to screenshot. It runs free in your browser, keeps no account, and uploads nothing you type. A cutover that needs to know how far a change has spread geographically is a job for whatsmydns.net or a comparable global checker; a cutover that needs a dated, source-linked record of what actually moved is a job for this tool."}},{"@type":"Question","name":"Does this tool check the same worldwide network of locations as whatsmydns.net?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The browser surface here queries three named public resolvers — Cloudflare, Google, and Quad9 — over DNS-over-HTTPS, and the command-line version can query any resolver you name yourself, such as a customer's internal one. Neither is a stand-in for a network of resolvers spread across many countries, which is what a global propagation checker like whatsmydns.net is built for. If what you need to know is whether a change has reached many different regions of the world, use a global checker for that view. If what you need is a comparable, dated answer from a specific handful of resolvers — before the change and after it — that is what this tool records."}},{"@type":"Question","name":"Is this page affiliated with whatsmydns.net?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by whatsmydns.net or its operators. whatsmydns.net is named here only to describe what this tool is and is not, and no claim is made about it beyond its well-documented category: a free, no-account, global DNS propagation checker."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2027; background: #f4f2ee; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1f6f5c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.03em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c6672; }
+  section { background: #fffefb; border: 1px solid #dcd7cd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a231812; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dcd7cd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c6672; }
+  .fine, .note { font-size: .88rem; color: #5c6672; }
+  footer { color: #5c6672; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. whatsmydns.net — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dns-configuration-evidence/">DNS Change Evidence — prove what a DNS change actually did</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. whatsmydns.net</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; DNS Change Evidence</a></p>
+<header>
+<h1>This tool vs. whatsmydns.net</h1>
+<p class="lede">whatsmydns.net shows one worldwide snapshot right now: what a network of resolvers in many countries currently answer for a domain. This tool captures two dated snapshots — before your change and after it — and reports what moved, what did not, and what could not be observed at all.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>whatsmydns.net</strong> is a free, no-account web tool built for one
+  question: has a DNS change reached different parts of the world yet? Enter a
+  domain and a record type, and it queries a network of DNS resolvers located
+  in many different countries at once, showing what each currently answers.
+  That single live view is exactly what it is for, and it does it well. It
+  keeps no history between visits — there is nothing to compare a later look
+  against, and nothing you can hand someone as a dated record of what a
+  resolver answered an hour ago.
+</p>
+<p>
+  This tool does the other half. It captures what named resolvers answer for
+  a domain now, lets you make your change, captures again afterward, and
+  diffs the two captures into a report that keeps <code>changed</code>,
+  <code>unchanged</code>, and <code>inconclusive</code> separate — a timeout
+  or a refused query is never folded into "no change". That report is a file
+  you keep or hand to a customer, source-linked to the exact resolvers and
+  timestamps behind it. It runs free in your browser, keeps no account, and
+  uploads nothing you type; a matching Python CLI lets you name a specific
+  resolver, such as a customer's internal one, that a browser cannot reach.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Has this change reached different regions of the world yet?</td><td>whatsmydns.net, or a comparable global propagation checker.</td></tr>
+<tr><td>I need a dated, source-linked record of what changed for a customer or a handover note.</td><td>This tool — free, no account.</td></tr>
+<tr><td>I want a distinct "could not be observed" state, not a timeout silently read as "unchanged".</td><td>This tool's <code>inconclusive</code> finding.</td></tr>
+<tr><td>I just want a quick worldwide look right now, no capture-then-recapture workflow.</td><td>whatsmydns.net.</td></tr>
+<tr><td>I need to query a specific resolver I name myself, such as a customer's internal one.</td><td>This tool's command-line version.</td></tr>
+<tr><td>Why does a change look done from one location and not another?</td><td>This tool's own <a href="how-long-does-dns-propagation-take.html">propagation walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>Neither tool requires one.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most DNS cutovers get value from both, at different points in the same
+  change: whatsmydns.net (or a comparable global checker) for a quick sense
+  of how far a change has spread across the world, and this tool for the
+  dated, resolver-by-resolver record that says exactly what a specific set of
+  resolvers answered before and after — the record a customer, a ticket, or
+  an audit actually needs to keep. Neither tool decides whether a difference
+  matters; that judgement stays with whoever is running the change.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, every capture runs in your own browser over DNS-over-HTTPS, and nothing you type is uploaded anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or whatsmydns.net?</h3>
+<p>They answer different questions, and a DNS cutover usually needs both. whatsmydns.net is a free, no-account web tool: enter a domain and a record type, and it queries a network of DNS resolvers located in many different countries at once, showing what each one currently answers right now. It is built for one question — has a change reached different parts of the world yet — and it answers that well as a single live snapshot. It keeps no history between visits and produces nothing you can save as a dated record: refresh the page tomorrow and today's view is gone. This tool does the opposite half of the job. It captures what named resolvers answer now, lets you make your change, captures again afterward, and diffs the two into a report that states changed, unchanged, and inconclusive separately rather than folding a timeout into 'no change'. That report is a file you keep or hand to a customer, not a page you have to remember to screenshot. It runs free in your browser, keeps no account, and uploads nothing you type. A cutover that needs to know how far a change has spread geographically is a job for whatsmydns.net or a comparable global checker; a cutover that needs a dated, source-linked record of what actually moved is a job for this tool.</p>
+<h3>Does this tool check the same worldwide network of locations as whatsmydns.net?</h3>
+<p>No, and it is not trying to. The browser surface here queries three named public resolvers — Cloudflare, Google, and Quad9 — over DNS-over-HTTPS, and the command-line version can query any resolver you name yourself, such as a customer's internal one. Neither is a stand-in for a network of resolvers spread across many countries, which is what a global propagation checker like whatsmydns.net is built for. If what you need to know is whether a change has reached many different regions of the world, use a global checker for that view. If what you need is a comparable, dated answer from a specific handful of resolvers — before the change and after it — that is what this tool records.</p>
+<h3>Is this page affiliated with whatsmydns.net?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by whatsmydns.net or its operators. whatsmydns.net is named here only to describe what this tool is and is not, and no claim is made about it beyond its well-documented category: a free, no-account, global DNS propagation checker.</p>
+<p class="note">
+  Open <a href="index.html">DNS Change Evidence</a> to capture a before/after record for your own domain.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is free and as-is. It is an operational observation record, not a DNS, security, deliverability, or compliance authority, and it is not legal or professional advice. It does not establish global DNS truth — only what the resolvers you selected answered at the moments you ran it. You are responsible for confirming your authorization to query a domain, for reviewing the record before relying on or sharing it, and for deciding whether any difference needs action. The authors accept no liability for loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every capture stays on this device, and this page makes no live comparison against whatsmydns.net &mdash; it is a static page describing a publicly documented category of tool.</p>
+<p class="support">Free and open source. If it helped you prove a DNS change did what you said it would, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, dns.google, and dns.quad9.net:5053, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mailchimp-audience-csv-check/" data-pf-to="mailchimp-audience-csv-check">Mailchimp Audience CSV Check — free, private, in your browser</a></li>
+      <li><a href="../mcp-supply-chain-watch/" data-pf-to="mcp-supply-chain-watch">MCP Supply-Chain Watch — compare MCP tool manifests for drift</a></li>
+      <li><a href="../mechanics-lien-deadline-calculator/" data-pf-to="mechanics-lien-deadline-calculator">Mechanics Lien Deadline Calculator — free, 5 states</a></li>
+      <li><a href="../meta-catalog-csv-check/" data-pf-to="meta-catalog-csv-check">Meta Catalog CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dns-configuration-evidence">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dns-configuration-evidence"></script>
+</body></html>

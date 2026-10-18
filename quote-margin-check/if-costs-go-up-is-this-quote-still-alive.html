@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>If costs go up, is this quote still alive? | Quote Margin Check</title>
+  <meta name="description" content="A fixed-price quote does not move when materials or a subcontractor go up. See the effective hourly rate and the price that still hits your target at +10%…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/if-costs-go-up-is-this-quote-still-alive.html">
+  <meta property="og:title" content="If costs go up, is this quote still alive?">
+  <meta property="og:description" content="Keep the quoted price and hours fixed. Raise only overhead and subcontractor cost. See what rate is left.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What happens to a fixed-price quote if materials go up after I send it?","acceptedAnswer":{"@type":"Answer","text":"The customer price stays the same. Extra overhead and subcontractor cost come out of the amount left for your hours. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), a 25% cost rise drops the effective rate from $54.86 to $51.43/hour. Holding $75/hour would take a $3,225 quote instead of $2,400."}},{"@type":"Question","name":"Is a 10% cost rise a 10% hit to my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"No. The rise applies only to overhead and subcontractor cost, not to the whole quote. On the example, +10% is $48 more of direct cost, so the effective rate falls from $54.86 to $53.49 — not 10%."}},{"@type":"Question","name":"Does this predict supplier prices?","acceptedAnswer":{"@type":"Answer","text":"No. The table is arithmetic on the figures you typed. Enter your own overhead and subcontractor numbers. It is not tax, financial, or pricing advice."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; background: #fff; }
+    @media (prefers-color-scheme: dark) {
+      :root { color: #eaeaea; background: #14161a; }
+      table, th, td { border-color: #33363c; }
+      a { color: #6ea8ff; }
+    }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #2b6cb0; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.15; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d8d8; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5a5a5a; }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/if-costs-go-up-is-this-quote-still-alive.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="If costs go up, is this quote still alive? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../quote-margin-check/">Quote Margin Check — free effective hourly rate calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">If costs go up, is this quote still alive?</span></span></nav>
+  <p><a href="./">← Quote Margin Check</a></p>
+  <h1>If costs go up, is this quote still alive?</h1>
+  <p>
+    Freelancers search this after a supplier or a sub comes back higher than
+    the figure they baked into a fixed price. Time-overrun tables answer a
+    different question — extra hours. This page holds hours still and moves
+    only overhead plus subcontractor cost.
+  </p>
+  <p>
+    Open the <a href="./#cost-spike">Quote Margin Check calculator</a> and keep
+    your own price, hours, and target rate. The table below uses the page
+    defaults: $2,400 quoted, 24 delivery + 5 admin + 6 revision hours,
+    $180 overhead, $300 subcontractor, $75/hour target.
+  </p>
+  <h2>The example quote, then a cost rise</h2>
+  <p>
+    As quoted, $480 of direct costs leaves $54.86/hour and a $705 gap below
+    the $3,105 target price. A 25% rise in those costs is $120 more cash
+    out — not 25% of the $2,400 quote. The effective rate falls to
+    $51.43/hour. Holding $75/hour would take $3,225.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th>Cost rise</th>
+        <th>Direct costs</th>
+        <th>Effective rate</th>
+        <th>Price to hold $75/hour</th>
+        <th>Gap to target</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>As quoted</td><td>$480.00</td><td>$54.86/hour</td><td>$3,105.00</td><td>−$705.00</td></tr>
+      <tr><td>+10%</td><td>$528.00</td><td>$53.49/hour</td><td>$3,153.00</td><td>−$753.00</td></tr>
+      <tr><td>+25%</td><td>$600.00</td><td>$51.43/hour</td><td>$3,225.00</td><td>−$825.00</td></tr>
+      <tr><td>+50%</td><td>$720.00</td><td>$48.00/hour</td><td>$3,345.00</td><td>−$945.00</td></tr>
+    </tbody>
+  </table></div>
+  <h2>When there is nothing left</h2>
+  <p>
+    A $1,000 quote with $800 of overhead and a $80 target already leaves
+    $20/hour. At +50% the same overhead is $1,200, so the quote no longer
+    covers direct costs (−$20/hour). The table will show a negative rate
+    rather than hiding it.
+  </p>
+  <p>
+    Enter the numbers from your own estimate. This page does not forecast
+    supplier prices, recommend a markup, or claim a quote is profitable.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What happens to a fixed-price quote if materials go up after I send it?</h3>
+  <p>The customer price stays the same. Extra overhead and subcontractor cost come out of the amount left for your hours. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), a 25% cost rise drops the effective rate from $54.86 to $51.43/hour. Holding $75/hour would take a $3,225 quote instead of $2,400.</p>
+  <h3>Is a 10% cost rise a 10% hit to my hourly rate?</h3>
+  <p>No. The rise applies only to overhead and subcontractor cost, not to the whole quote. On the example, +10% is $48 more of direct cost, so the effective rate falls from $54.86 to $53.49 — not 10%.</p>
+  <h3>Does this predict supplier prices?</h3>
+  <p>No. The table is arithmetic on the figures you typed. Enter your own overhead and subcontractor numbers. It is not tax, financial, or pricing advice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+      <li><a href="../cow-calf-breakeven-calculator/" data-pf-to="cow-calf-breakeven-calculator">What calf price do you need to break even on a cow?</a></li>
+      <li><a href="../crew-dispatch-optimizer/" data-pf-to="crew-dispatch-optimizer">Crew Dispatch Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=quote-margin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="quote-margin-check"></script>
+</body>
+</html>

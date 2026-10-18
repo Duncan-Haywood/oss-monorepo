@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Double-Elimination Tournament: Bracket, Byes And Grand Final Reset</title>
+  <meta name="description" content="How a double-elimination bracket works: winners and losers brackets, byes, the grand final reset and game counts, with a worked 6-team example.">
+  <meta property="og:title" content="How To Run A Double-Elimination Tournament: Bracket, Byes And Grand Final Reset">
+  <meta property="og:description" content="Winners and losers brackets, byes and the grand final reset, with a 6-team example. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-a-double-elimination-tournament.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many games is a double-elimination tournament?","acceptedAnswer":{"@type":"Answer","text":"With 6 teams it is 10 games, or 11 if the grand final reset is needed. In general a double-elimination field of n teams plays between 2n - 2 and 2n - 1 games, because every team except the champion loses exactly twice and the reset game is played only when the losers-bracket team wins the grand final."}},{"@type":"Question","name":"What is a grand final reset?","acceptedAnswer":{"@type":"Answer","text":"The winners-bracket finalist has not lost yet, the losers-bracket finalist has lost once. If the losers-bracket team wins the grand final, both teams now have one loss, so a second game decides the title. If the winners-bracket team wins the first game, the tournament is over."}},{"@type":"Question","name":"How do byes work when the field is not a power of two?","acceptedAnswer":{"@type":"Answer","text":"The bracket is sized up to the next power of two (8 for 6 teams) and the top seeds skip the first round. In the example, the #1 and #2 seeds have a first-round bye, and the losers bracket skips every match a bye leaves without an opponent."}},{"@type":"Question","name":"When should I use double elimination instead of single?","acceptedAnswer":{"@type":"Answer","text":"Use it when one bad game should not end a team's weekend, such as a youth or rec tournament where every team travelled. It costs about twice the games of a single-elimination bracket, so check you have the courts and daylight for them."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-a-double-elimination-tournament.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Run A Double-Elimination Tournament: Bracket, Byes And Grand Final Reset — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../league-schedule-generator/">League Schedule Generator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Run A Double-Elimination Tournament: Bracket, Byes And Grand Final Reset</span></span></nav>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run a double-elimination tournament: winners bracket, losers bracket and the reset</h1>
+  <p>In double elimination a team is out only after its second loss. That makes it fairer than single elimination for tournaments where teams travelled and one bad game should not end the weekend. The price is roughly twice the games.</p>
+  <p><a class="cta" href="./">Open the free bracket builder</a> (set the play-off to double elimination on the page)</p>
+  <h2>A worked example: 6 teams, 10 games</h2>
+  <p>Six invented teams are seeded 1 to 6. The bracket is sized to 8, so the #1 and #2 seeds get a first-round bye. Teams that lose in the winners bracket drop into the losers bracket; a second loss ends their run. Matches are named so you can follow who plays whom: "winner of W2M1" is whoever wins that game.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Match</th><th>Teams</th></tr></thead>
+    <tbody>
+      <tr><td>Winners Quarterfinals</td><td>W1M2</td><td>#4 Bears vs #5 Lynx</td></tr>
+      <tr><td>Winners Quarterfinals</td><td>W1M4</td><td>#3 Foxes vs #6 Wolves</td></tr>
+      <tr><td>Winners Semifinals</td><td>W2M1</td><td>#1 Hawks vs winner of W1M2</td></tr>
+      <tr><td>Winners Semifinals</td><td>W2M2</td><td>#2 Owls vs winner of W1M4</td></tr>
+      <tr><td>Winners Final</td><td>W3M1</td><td>winner of W2M1 vs winner of W2M2</td></tr>
+      <tr><td>Losers round 2 (WB drop-downs)</td><td>L2M1</td><td>loser of W1M2 vs loser of W2M2</td></tr>
+      <tr><td>Losers round 2 (WB drop-downs)</td><td>L2M2</td><td>loser of W1M4 vs loser of W2M1</td></tr>
+      <tr><td>Losers round 3</td><td>L3M1</td><td>winner of L2M1 vs winner of L2M2</td></tr>
+      <tr><td>Losers round 4 (WB drop-downs)</td><td>L4M1</td><td>winner of L3M1 vs loser of W3M1</td></tr>
+      <tr><td>Grand final</td><td>GF1</td><td>winner of W3M1 vs winner of L4M1</td></tr>
+      <tr><td>Grand final reset (only if the losers-bracket team wins GF1)</td><td>GF2</td><td>winner of GF1 vs loser of GF1</td></tr>
+    </tbody>
+  </table></div>
+  <p>If the losers-bracket team wins GF1, a reset game GF2 is played between the same two teams, which makes 11 games. Otherwise the tournament ends after GF1.</p>
+  <p>The bracket comes from the same code the page runs and a test recomputes this table from it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own bracket</a></p>
+  <h2>Questions</h2>
+  <h3>How many games is a double-elimination tournament?</h3>
+  <p>With 6 teams it is 10 games, or 11 if the grand final reset is needed. In general a double-elimination field of n teams plays between 2n - 2 and 2n - 1 games, because every team except the champion loses exactly twice and the reset game is played only when the losers-bracket team wins the grand final.</p>
+  <h3>What is a grand final reset?</h3>
+  <p>The winners-bracket finalist has not lost yet, the losers-bracket finalist has lost once. If the losers-bracket team wins the grand final, both teams now have one loss, so a second game decides the title. If the winners-bracket team wins the first game, the tournament is over.</p>
+  <h3>How do byes work when the field is not a power of two?</h3>
+  <p>The bracket is sized up to the next power of two (8 for 6 teams) and the top seeds skip the first round. In the example, the #1 and #2 seeds have a first-round bye, and the losers bracket skips every match a bye leaves without an opponent.</p>
+  <h3>When should I use double elimination instead of single?</h3>
+  <p>Use it when one bad game should not end a team's weekend, such as a youth or rec tournament where every team travelled. It costs about twice the games of a single-elimination bracket, so check you have the courts and daylight for them.</p>
+  <p>Related: <a href="./how-to-run-a-single-elimination-bracket.html">how a single-elimination bracket is seeded</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a>, and <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing before you announce it; your event's own rules apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a deploy ships an older commit | Deploy Concurrency Check</title>
+<meta name="description" content="A deployment race does not produce a failure. It produces two successes in the wrong order, a green check on the newer commit…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html">
+<meta property="og:title" content="How a deploy ships an older commit">
+<meta property="og:description" content="Nothing fails. Both runs go green. The older one finishes last, and that is what is live — with no line anywhere saying so.">
+<meta property="og:type" content="article">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does a deployment race not show up as a failed check?", "acceptedAnswer": {"@type": "Answer", "text": "Because nothing fails. Both runs do exactly what they were asked to do, and neither is aware the other existed. The branch ends up showing two green checks in commit order, so the obvious reading — that the newest commit is what is deployed — is wrong, and nothing on the page says so. The run that applied the older code does not report overwriting anything, because from inside that run nothing was overwritten."}}, {"@type": "Question", "name": "Why is a per-run concurrency group worse than no concurrency block at all?", "acceptedAnswer": {"@type": "Answer", "text": "The behaviour is identical: no run ever waits for another. The difference is that now there is a block to point at. A reviewer who sees a correctly spelled concurrency section with an obviously well-intentioned group key ticks the line off, so the defect is protected by the thing that looks like its fix. It usually arrives by copying a CI workflow, where keying the group on the ref is correct and useful, and then changing the key while keeping the shape."}}, {"@type": "Question", "name": "Why should a deploy queue instead of cancelling?", "acceptedAnswer": {"@type": "Answer", "text": "By the time a cancel signal arrives, a deploy may have uploaded 300 of 900 files, applied a migration the new code has not shipped for yet, or replaced half a release directory. The run stops where it is and nothing comes back to finish it, so the result is a state neither commit produced — which is worse than either of them being live. Queueing makes the newer run wait and then apply last, which is the order you wanted."}}, {"@type": "Question", "name": "Why can two correct workflow files still race each other?", "acceptedAnswer": {"@type": "Answer", "text": "A concurrency group is only a queue for the runs inside it. A repository with a push-triggered deploy and a manual deploy usually has two files, each declaring a group, each queueing rather than cancelling, and the two group names differ because nobody wrote them at the same time. Two names means two queues, which means no ordering between them. Reviewing either file alone shows nothing wrong, because the defect is in the relationship between the files and no single file contains it."}}, {"@type": "Question", "name": "Why is deploying a branch name a problem if the branch is correct?", "acceptedAnswer": {"@type": "Answer", "text": "A branch name is a pointer read at the moment the step executes, not when the run was queued. A job that waited twenty minutes for a runner checks out whatever that branch means twenty minutes later, and a re-run of last week's deploy clicked to redeploy that version deploys today's. The run log records the ref rather than the commit it resolved to, so afterwards there is often nothing that says which code actually went out."}}, {"@type": "Question", "name": "Does adding concurrency make a deployment safe?", "acceptedAnswer": {"@type": "Answer", "text": "No. Serializing runs makes them apply in queue order, which is what you want almost always. It does not make a deployment atomic, it does not help if the deploy step itself is not idempotent, and it does nothing about a target that pipelines outside this repository also write to. It is the cheapest correct thing, not the last word."}}]}</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
+    --border: #e2e2dd; --accent: #1f5f3f; --code: #f2f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
+      --border: #34353a; --accent: #7fd0a4; --code: #26272b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+  h1 { font-size: 1.8rem; line-height: 1.22; margin: 0 0 .5rem; max-width: 24ch; }
+  h2 { font-size: 1.12rem; margin: 2.1rem 0 .5rem; }
+  h3 { font-size: 1rem; margin: 1.5rem 0 .35rem; }
+  p.lede { color: var(--muted); font-size: 1.05rem; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  section { background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
+    padding: .65rem .75rem; overflow-x: auto; font-size: .85rem; }
+  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
+  .fine { font-size: .87rem; color: var(--muted); }
+  .timeline { list-style: none; padding-left: 0; margin: .8rem 0; }
+  .timeline li { border-left: 2px solid var(--border); padding: .1rem 0 .7rem .85rem; }
+  .timeline b { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .85rem; color: var(--muted); font-weight: 600; }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How a deploy ships an older commit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../deploy-concurrency-check/">Deploy Concurrency Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How a deploy ships an older commit</span></span></nav>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Deploy Concurrency Check</a></p>
+  <h1>How a deploy ships an older commit</h1>
+  <p class="lede">
+    Most pipeline bugs announce themselves with a red check. This one does the
+    opposite: both runs go green, and the wrong one is live. Here is what each
+    of the five patterns looks like from the outside, and why the evidence is so
+    hard to find afterwards.
+  </p>
+
+  <section>
+    <h2>The shape of it</h2>
+    <p>
+      You push commit <b>A</b>. A minute later you push <b>B</b>. Both trigger
+      the deploy workflow, and both runs start, because nothing told them not to.
+    </p>
+    <ul class="timeline">
+      <li><b>10:00</b> &mdash; A&rsquo;s run starts. It waits four minutes for a runner.</li>
+      <li><b>10:01</b> &mdash; B&rsquo;s run starts. A runner is free immediately.</li>
+      <li><b>10:04</b> &mdash; B finishes. B is live. Green check on B.</li>
+      <li><b>10:09</b> &mdash; A finishes. <strong>A is now live.</strong> Green check on A.</li>
+    </ul>
+    <p>
+      Nothing failed. Both runs did exactly what they were asked to do, and
+      neither one is aware the other existed. The branch shows two green checks
+      in commit order, so the obvious reading &mdash; the newest commit is
+      deployed &mdash; is wrong, and nothing on the page says so.
+    </p>
+    <p>
+      What makes it expensive is the debugging. The symptom arrives as &ldquo;the
+      fix I shipped isn&rsquo;t live&rdquo;, and every place you would look to
+      check that &mdash; the commit, the check, the run log &mdash; says it is.
+      The usual next step is to push again, which often fixes it, because this
+      time the runs did not overlap. That turns a reproducible bug into an
+      intermittent one, and an intermittent deployment bug can survive for years.
+    </p>
+  </section>
+
+  <section>
+    <h2>1. No concurrency group at all</h2>
+    <p>
+      The default. GitHub Actions runs whatever is triggered, in parallel, and
+      does not serialize deployments for you &mdash; not even two runs of the
+      same workflow, and not even two jobs naming the same
+      <code>environment:</code>. Environment protection rules gate <em>whether</em>
+      a deployment proceeds; they are not a queue.
+    </p>
+    <pre><code>concurrency:
+  group: deploy-production
+  cancel-in-progress: false</code></pre>
+    <p>
+      That is the whole fix for this one. Runs that share a group name never
+      overlap: the second waits for the first, so they apply in the order they
+      were queued.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. A group that is different on every run</h2>
+    <p>
+      This is the one worth knowing about, because it is invisible in review. The
+      block is present, it is spelled correctly, and it does nothing:
+    </p>
+    <pre><code>concurrency:
+  group: deploy-${{ github.sha }}   # a new group every single run</code></pre>
+    <p>
+      A concurrency group only serializes runs that land in <em>the same</em>
+      group. Key it on the commit, the run id, the run number or the attempt and
+      every run gets a private group, so no run ever waits for another. The
+      behaviour is identical to having no block at all &mdash; but now there is a
+      block to point at, and the next person to read the file concludes the
+      question has been dealt with.
+    </p>
+    <p>
+      It usually arrives by copying a CI workflow, where
+      <code>group: ci-${{ github.ref }}</code> is correct and useful, and then
+      changing the key while keeping the shape. <code>github.ref</code> and
+      <code>github.workflow</code> are stable across the runs you want
+      serialized; <code>github.sha</code> is not.
+    </p>
+  </section>
+
+  <section>
+    <h2>3. <code>cancel-in-progress</code> on a deploy</h2>
+    <p>
+      For a test run this is the right setting and saves real money: a superseded
+      run has nothing to protect, so cancelling it costs only the minutes it had
+      already spent. A deploy is not like that. By the time the cancel signal
+      arrives it may have uploaded 300 of 900 files, applied a migration the new
+      code has not shipped for yet, or replaced half a symlinked release
+      directory. The run stops where it is, and nothing comes back to finish it.
+    </p>
+    <p>
+      The result is a state neither commit produced, which is worse than either
+      of them being live. For a deploy, queue instead:
+    </p>
+    <pre><code>  cancel-in-progress: false</code></pre>
+  </section>
+
+  <section>
+    <h2>4. Two groups for one target</h2>
+    <p>
+      A repository with a push-triggered deploy and a manual
+      <code>workflow_dispatch</code> deploy usually has two workflow files. Each
+      one is internally correct &mdash; each declares a concurrency group, each
+      queues rather than cancels &mdash; and the two group names are different,
+      because nobody wrote them at the same time.
+    </p>
+    <p>
+      A group is only a queue for the runs inside it. Two names means two queues
+      means no ordering between them, so a manual deploy and an automatic one can
+      write to the same target simultaneously. Reviewing either file on its own
+      shows nothing wrong, which is exactly why this survives: the defect is in
+      the relationship between the files, and no file contains it.
+    </p>
+    <p class="fine">
+      The same thing happens inside one file when two jobs name the same
+      <code>environment:</code> and each carries its own job-level
+      <code>concurrency:</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>5. Deploying a branch name instead of a commit</h2>
+    <pre><code>- uses: actions/checkout@v4
+  with:
+    ref: main          # resolved when the step runs</code></pre>
+    <p>
+      A branch name is a pointer, and it is read at the moment the step executes
+      &mdash; not when the run was queued. A job that waited twenty minutes for a
+      runner checks out whatever <code>main</code> means twenty minutes later. A
+      re-run of last week&rsquo;s deploy, clicked to &ldquo;redeploy that
+      version&rdquo;, deploys today&rsquo;s.
+    </p>
+    <p>
+      This one is less about ordering than about identity: the run says it
+      deployed commit A because A triggered it, and it shipped the tree at C. The
+      run log records the ref, not the commit it resolved to, so afterwards there
+      is often nothing that says which code went out.
+    </p>
+    <pre><code>  with:
+    ref: ${{ github.sha }}</code></pre>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Why does a deployment race not show up as a failed check?</h3>
+    <p>Because nothing fails. Both runs do exactly what they were asked to do, and neither is aware the other existed. The branch ends up showing two green checks in commit order, so the obvious reading — that the newest commit is what is deployed — is wrong, and nothing on the page says so. The run that applied the older code does not report overwriting anything, because from inside that run nothing was overwritten.</p>
+    <h3>Why is a per-run concurrency group worse than no concurrency block at all?</h3>
+    <p>The behaviour is identical: no run ever waits for another. The difference is that now there is a block to point at. A reviewer who sees a correctly spelled concurrency section with an obviously well-intentioned group key ticks the line off, so the defect is protected by the thing that looks like its fix. It usually arrives by copying a CI workflow, where keying the group on the ref is correct and useful, and then changing the key while keeping the shape.</p>
+    <h3>Why should a deploy queue instead of cancelling?</h3>
+    <p>By the time a cancel signal arrives, a deploy may have uploaded 300 of 900 files, applied a migration the new code has not shipped for yet, or replaced half a release directory. The run stops where it is and nothing comes back to finish it, so the result is a state neither commit produced — which is worse than either of them being live. Queueing makes the newer run wait and then apply last, which is the order you wanted.</p>
+    <h3>Why can two correct workflow files still race each other?</h3>
+    <p>A concurrency group is only a queue for the runs inside it. A repository with a push-triggered deploy and a manual deploy usually has two files, each declaring a group, each queueing rather than cancelling, and the two group names differ because nobody wrote them at the same time. Two names means two queues, which means no ordering between them. Reviewing either file alone shows nothing wrong, because the defect is in the relationship between the files and no single file contains it.</p>
+    <h3>Why is deploying a branch name a problem if the branch is correct?</h3>
+    <p>A branch name is a pointer read at the moment the step executes, not when the run was queued. A job that waited twenty minutes for a runner checks out whatever that branch means twenty minutes later, and a re-run of last week's deploy clicked to redeploy that version deploys today's. The run log records the ref rather than the commit it resolved to, so afterwards there is often nothing that says which code actually went out.</p>
+    <h3>Does adding concurrency make a deployment safe?</h3>
+    <p>No. Serializing runs makes them apply in queue order, which is what you want almost always. It does not make a deployment atomic, it does not help if the deploy step itself is not idempotent, and it does nothing about a target that pipelines outside this repository also write to. It is the cheapest correct thing, not the last word.</p>
+  </section>
+
+  <section>
+    <h2>Why concurrency is not the whole answer</h2>
+    <p>
+      Serializing runs makes them apply in queue order, which is what you want
+      almost always. It does not make deployment atomic, it does not help if the
+      deploy step itself is not idempotent, and it does nothing about a target
+      that several pipelines outside this repository also write to. It is the
+      cheapest correct thing, not the last word.
+    </p>
+    <p>
+      <a href="./">Check a workflow of your own</a> &mdash; free, in your browser,
+      nothing uploaded. Or read the
+      <a href="./vs-reading-your-workflows-yourself.html">comparison against
+      reading them yourself</a>.
+    </p>
+    <p class="fine">
+      Free and provided as is, with <strong>no warranty</strong> of any kind.
+      This page describes patterns and is not professional advice, a security
+      audit, or a guarantee about any pipeline; check anything here against your
+      own workflows before acting on it. Nothing on this page is uploaded,
+      stored, or tracked &mdash; it makes no network request at all.
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring is
+      optional</a> and changes nothing about the tool.
+    </p>
+  </section>
+</div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+      <li><a href="../package-exports-drift-check/" data-pf-to="package-exports-drift-check">Does your package.json &quot;exports&quot; map point at files that actually exist?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=deploy-concurrency-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="deploy-concurrency-check"></script>
+</body>
+</html>

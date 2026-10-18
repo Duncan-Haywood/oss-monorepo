@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This tool vs. the GitHub Branches page | Repository Branch Hygiene</title>
+<meta name="description" content="GitHub's Branches page sorts refs by age and by commits ahead of the default branch. This is a free, private…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/vs-github-branches.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. the GitHub Branches page">
+<meta property="og:description" content="Two different questions. GitHub's Branches page answers how old a branch is and how far it has diverged.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/vs-github-branches.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this scanner or the GitHub Branches page?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and most teams cleaning up a branch list will use both. GitHub's Branches page is built into every repository and is the fastest way to see what refs exist, who last pushed to each one, how many commits each is ahead of and behind the default branch, whether a pull request is attached, and which branches GitHub considers stale — and it is where the delete button lives, along with the restore option that undoes a deletion made from that page. This scanner does one narrower thing: it reads commit ancestry from a checkout, or from a snapshot exported from one, and sorts every branch by whether its commits still exist somewhere else. A branch whose pull request merged but whose tip moved afterwards, and a branch whose work landed under a different filename, look ordinary in any branch list; they are the two cases this tool exists to separate out. It runs free, keeps no account, uploads nothing, and never deletes or writes anything. A team that wants to see and manage branches is in the right place on GitHub; a team about to delete a few hundred of them and wanting to know which ones hold the only copy of something is in the right place here."}},{"@type":"Question","name":"Does GitHub not already tell me a branch is merged?","acceptedAnswer":{"@type":"Answer","text":"It tells you a pull request merged, which is not the same claim. A merged pull request means some commits landed on the base branch; it does not mean the branch still points at those commits. If the tip moved after the merge — one more commit, an amend, a rebase — those newer commits are outside the base history and may exist nowhere else, while the branch still reads as merged. The same gap appears in the other direction: after a squash merge or a rebase merge the branch's original commits are not ancestors of the default branch at all, so an ahead/behind count can show a branch as ahead when its work is fully landed. This scanner classifies from commit ancestry rather than from merge state alone, and reports the moved-tip case separately instead of folding it into merged."}},{"@type":"Question","name":"Does this tool delete branches or need access to my repository?","acceptedAnswer":{"@type":"Answer","text":"No to both. It only reads refs, commit ancestry, and JSON files you pass it — it never fetches, pushes, or deletes, and it has no token, no account, and no API access of its own. Its output is a review queue and a recovery manifest that marks itself read-only and approval-required. This comparison page cannot reach your repository at all, and the browser version classifies a snapshot you paste entirely on your own device."}},{"@type":"Question","name":"Is this page affiliated with GitHub?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by GitHub, Inc. or Microsoft. GitHub is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#e8edf2;background:#0d1319}
+body{max-width:900px;margin:auto;padding:32px 18px 48px;line-height:1.55}
+a{color:#78d6b1;overflow-wrap:anywhere}
+.eyebrow{color:#78d6b1;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;font-weight:700}
+.eyebrow a{color:#78d6b1}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}
+.lede{font-size:1.05rem;max-width:66ch;color:#cfe0d8}
+section{background:#17212a;border:1px solid #30414d;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}
+h2{margin-top:0}
+h3{margin-bottom:.3rem}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #2a3844;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#93a3af}
+code{font-family:ui-monospace,SFMono-Regular,monospace;background:#0d1319;border:1px solid #30414d;border-radius:5px;padding:1px 5px;font-size:.88em}
+.fine,.note,footer{font-size:.86rem;color:#93a3af}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. the GitHub Branches page — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../repository-branch-hygiene/">Safe Git branch cleanup review</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. the GitHub Branches page</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Repository Branch Hygiene</a></p>
+<header>
+<h1>This tool vs. the GitHub Branches page</h1>
+<p class="lede">Two different questions. GitHub's Branches page tells you how old a branch is and how far it has diverged from the default branch. This page tells you whether deleting it would destroy the only copy of something &mdash; which is the question you actually need answered before a cleanup.</p>
+</header>
+
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>The GitHub Branches page</strong> is built into every repository on
+  GitHub and included at no extra cost. It lists every branch with its last
+  update and author, shows how many commits each branch is ahead of and behind
+  the default branch, surfaces the pull request attached to a branch where one
+  exists, and separates branches it considers active from ones it considers
+  stale. It is also where branches are deleted, and where a branch deleted from
+  that page can be restored. For seeing and managing what exists, it is the
+  right tool and nothing here replaces it.
+</p>
+<p>
+  This scanner does none of that. It does not list your remote branches, show
+  authorship, open a pull request, or delete anything &mdash; it has no token,
+  no account, and no API access to your repository at all. It takes commit
+  ancestry from a checkout (or from a snapshot exported from one) plus optional
+  pull-request metadata you export yourself, and classifies each branch by
+  whether its commits still exist somewhere else: <code>merged</code>,
+  <code>protected</code>, <code>active</code>, <code>shared</code>,
+  <code>moved-tip</code>, or <code>uncertain</code>. What comes out is a human
+  review queue, a recovery manifest, and a CSV &mdash; never a delete command.
+  It runs free in any browser or from a local checkout, keeps no account, and
+  uploads nothing you paste.
+</p>
+
+<h3>The gap this exists to cover</h3>
+<p>
+  A branch list sorts by age and by divergence, and neither is the same as
+  &ldquo;this work exists elsewhere&rdquo;. Two cases in particular look
+  entirely ordinary in any branch list:
+</p>
+<p>
+  <strong>A merged pull request whose branch tip moved afterwards.</strong>
+  Merging tells you some commits landed on the base branch. It does not tell
+  you the branch still points at them. One more commit, an amend, or a rebase
+  after the merge leaves the tip outside the base history, and those newer
+  commits may exist nowhere else &mdash; while the branch still reads as
+  merged. This tool classifies that case <code>moved-tip</code> and keeps it
+  out of the delete pile.
+</p>
+<p>
+  <strong>A squash or rebase merge.</strong> Both rewrite the branch's commits
+  into new ones, so the originals are not ancestors of the default branch even
+  though the work is fully landed. The ahead/behind count then reads as
+  &ldquo;ahead&rdquo; on a branch that is genuinely finished. Classifying from
+  ancestry plus recorded pull-request state, rather than from an ahead count
+  alone, is what separates those from branches that really are the only copy.
+</p>
+<p>
+  And a branch that is old is not thereby abandoned, while a branch touched
+  yesterday can be a duplicate of work that landed last month. Age is a useful
+  filter and a poor verdict.
+</p>
+
+<div class="table-scroll">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What branches exist, who last pushed to each, and which have open pull requests?</td><td>The GitHub Branches page &mdash; built in, live, and authoritative about your remote.</td></tr>
+<tr><td>I want to delete a branch, or restore one I just deleted.</td><td>The GitHub Branches page. This tool cannot delete anything and never will.</td></tr>
+<tr><td>Would deleting this branch destroy the only copy of some commits?</td><td>This scanner &mdash; free, private, no account, classified from commit ancestry.</td></tr>
+<tr><td>Its pull request merged, but has the tip moved since?</td><td>This scanner's <code>moved-tip</code> classification, the case a branch list cannot show.</td></tr>
+<tr><td>I have several hundred stale refs and need a reviewable queue, not a list.</td><td>This scanner's report, recovery manifest, and approval-queue CSV.</td></tr>
+<tr><td>I need the same review on GitLab, Bitbucket, or a self-hosted remote.</td><td>This scanner &mdash; it reads a Git checkout, so the host does not matter.</td></tr>
+<tr><td>I need this to run offline, or without granting any tool access to the repository.</td><td>This scanner &mdash; it makes no network call and holds no credential.</td></tr>
+<tr><td>What does &ldquo;safe to delete&rdquo; even mean for a Git branch?</td><td>This tool's own <a href="./is-it-safe-to-delete-this-branch.html">worked explainer</a>.</td></tr>
+<tr><td>Do I need an account or a sign-in to use the tool?</td><td>This scanner: no. The Branches page needs a GitHub account with access to the repository.</td></tr>
+</tbody>
+</table></div>
+</div>
+
+<p>
+  Most teams get different value from each: the Branches page for seeing and
+  managing what exists and for actually performing a deletion, and a private
+  read-only scanner like this one for deciding which of those deletions is safe
+  to make. This page's own classifications are a review queue, not permission
+  to delete a ref, and not a backup.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the classification runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+
+<h3>Should I use this scanner or the GitHub Branches page?</h3>
+<p>They answer different questions, and most teams cleaning up a branch list will use both. GitHub's Branches page is built into every repository and is the fastest way to see what refs exist, who last pushed to each one, how many commits each is ahead of and behind the default branch, whether a pull request is attached, and which branches GitHub considers stale &mdash; and it is where the delete button lives, along with the restore option that undoes a deletion made from that page. This scanner does one narrower thing: it reads commit ancestry from a checkout, or from a snapshot exported from one, and sorts every branch by whether its commits still exist somewhere else. A branch whose pull request merged but whose tip moved afterwards, and a branch whose work landed under a different filename, look ordinary in any branch list; they are the two cases this tool exists to separate out. It runs free, keeps no account, uploads nothing, and never deletes or writes anything. A team that wants to see and manage branches is in the right place on GitHub; a team about to delete a few hundred of them and wanting to know which ones hold the only copy of something is in the right place here.</p>
+
+<h3>Does GitHub not already tell me a branch is merged?</h3>
+<p>It tells you a pull request merged, which is not the same claim. A merged pull request means some commits landed on the base branch; it does not mean the branch still points at those commits. If the tip moved after the merge &mdash; one more commit, an amend, a rebase &mdash; those newer commits are outside the base history and may exist nowhere else, while the branch still reads as merged. The same gap appears in the other direction: after a squash merge or a rebase merge the branch's original commits are not ancestors of the default branch at all, so an ahead/behind count can show a branch as ahead when its work is fully landed. This scanner classifies from commit ancestry rather than from merge state alone, and reports the moved-tip case separately instead of folding it into merged.</p>
+
+<h3>Does this tool delete branches or need access to my repository?</h3>
+<p>No to both. It only reads refs, commit ancestry, and JSON files you pass it &mdash; it never fetches, pushes, or deletes, and it has no token, no account, and no API access of its own. Its output is a review queue and a recovery manifest that marks itself read-only and approval-required. This comparison page cannot reach your repository at all, and the browser version classifies a snapshot you paste entirely on your own device.</p>
+
+<h3>Is this page affiliated with GitHub?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by GitHub, Inc. or Microsoft. GitHub is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+
+<p class="note">
+  Open the <a href="./">branch hygiene scanner</a> to sort your own branch list.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including deletion of a branch it classified.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against GitHub &mdash; it is a static page describing publicly documented behaviour, and it holds no credential for any repository. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a> if this saved a unique branch &mdash; entirely optional, the tool stays free either way.</p>
+<p><a href="./">Use the scanner</a> &middot; <a href="LICENSE" rel="noopener">Licence</a></p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mcp-supply-chain-watch/" data-pf-to="mcp-supply-chain-watch">MCP Supply-Chain Watch — compare MCP tool manifests for drift</a></li>
+      <li><a href="../mechanics-lien-deadline-calculator/" data-pf-to="mechanics-lien-deadline-calculator">Mechanics Lien Deadline Calculator — free, 5 states</a></li>
+      <li><a href="../meta-catalog-csv-check/" data-pf-to="meta-catalog-csv-check">Meta Catalog CSV Check — free, private, in your browser</a></li>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=repository-branch-hygiene">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="repository-branch-hygiene"></script>
+</body></html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per window | Window Cleaning Bid Calculator</title>
+<meta name="description" content="A flat price per window is advertised as one number -- $5 a window, $6 a pane. That rate cannot see glass type or the drive…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/window-cleaning-bid-calculator/vs-a-flat-price-per-window.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per window">
+<meta property="og:description" content="Two 50-window stops, priced from this calculator's own arithmetic: a flat rate learned from ground-floor glass quotes $85.65 on a French-and-storefront mix…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per window get a bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the rate is learned on one kind of glass -- usually easy ground-floor exterior panes -- and then quoted on the next job sight unseen, whatever the glass turns out to be. This calculator's own arithmetic prices 50 ground-floor exterior panes at a real per-window rate of $1.71 once travel and margin are counted. Quote that same $1.71 a window on 50 French and storefront panes and the total comes to $85.65 against a job that actually costs $224.25 to run -- a $138.60 loss, not a thin margin, on a job this calculator prices at $280.31."}},{"@type":"Question","name":"What does a flat per-window rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Glass type and sides (a French or divided-light pane cleaned both sides can take five to six times as long as a ground-floor exterior plate on a water-fed pole), and travel and setup, which do not shrink because the stop is small. A flat rate has no line for either -- it is one number learned on one kind of stop and reused for the next job that calls, regardless of the glass or the drive."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own cost inputs -- $20 hourly wage, 25% burden, $8 supplies and $12 other cost per visit, 15% overhead, 20% target margin: 50 ground-floor exterior panes with a 20-minute drive cost $68.52 to run and price at $85.65 with no minimum charge applied. 50 panes split between French (both sides) and storefront plate glass, same 20-minute drive, cost $224.25 to run and price at $280.31. Quoting the second job at the first job's per-window rate ($1.71) comes to $85.65 -- $138.60 under the actual cost, not just under the target price."}},{"@type":"Question","name":"Is a flat per-window rate ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For stops that stay to one glass type -- a whole house of ground-floor exterior, say -- a flat number can land close to cost. The risk is quoting French panes, second-story or lift access, or storefront plate glass at that same rate over the phone, because the advertised rate does not know the glass mix until the cleaner is already looking at the windows."}},{"@type":"Question","name":"Does this calculator know my local labor rates or glass pricing?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or what a competitor charges. It takes the pane count, minutes per pane, and sides for each glass type on the stop, plus your own wage, payroll burden, travel minutes, supplies, overhead, and target margin, and turns that into a price for this visit -- the arithmetic a flat per-window rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1d2530;background:#eef2f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #d3dce6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #dbe4ec;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dce6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/window-cleaning-bid-calculator/vs-a-flat-price-per-window.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/window-cleaning-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per window — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../window-cleaning-bid-calculator/">Window Cleaning Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per window</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Window Cleaning Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per window</h1>
+<p class="lede">A price per window is the number homeowners and storefront managers ask for &mdash; $5 a window, $6 a pane, "we beat any quote." That rate cannot see glass type or the drive, and the same rate that clears a profit on a ground-floor house loses money outright on French panes or storefront plate.</p>
+</header>
+<section>
+<h2>What a flat price per window is</h2>
+<p>
+It is the fastest number to quote over the phone: one rate, times the
+window count, whatever the glass turns out to be when the cleaner
+arrives. It is learned on a stop that was easy to price &mdash; usually
+ground-floor exterior panes on a water-fed pole &mdash; and then quoted
+again on the next job that calls.
+</p>
+<p>
+Nothing about "how many windows" tells the operator whether those
+windows are ground-floor plates or French panes cleaned both sides,
+or how far the van has to drive to reach them. The flat rate does not
+ask, because it was never built to answer.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter one
+row per glass type &mdash; pane count, minutes per pane, and sides &mdash;
+plus travel minutes and your own wage, payroll burden, overhead, and
+target margin. It prices the visit from what this specific glass and this
+specific drive actually cost, not a rate learned on the last stop.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price per window does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate per window for ground-floor exterior glass and French panes cleaned both sides, even though the French panes can take five to six times as long.</td>
+<td>Prices each glass type from its own pane count, minutes per pane, and sides, so a harder mix costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for sides &mdash; interior-and-exterior work on the same pane count gets the same rate as exterior-only.</td>
+<td>Multiplies minutes by sides per glass-type row, so in-and-out work is priced as the two passes it actually is.</td>
+</tr>
+<tr>
+<td>Has no line for travel &mdash; a 10-minute hop and a 45-minute drive get the same rate.</td>
+<td>Prices travel and setup minutes separately, and reports travel's share of the visit so a short stop cannot hide that most of the invoice is the drive.</td>
+</tr>
+<tr>
+<td>Gives the operator a number to quote over the phone before the glass has been seen, not a number to check a quote against.</td>
+<td>Reports the break-even cost and the price at your target margin, so a flat rate can be scored against real cost before you match it.</td>
+</tr>
+<tr>
+<td>Cannot tell you when the flat rate is a loss rather than a thin margin.</td>
+<td>Prices the job from its own inputs, so a rate that undercuts cost shows up as a negative margin instead of a surprise at month-end.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same window count, two different jobs</h2>
+<p>
+Two 50-window stops, priced from this calculator's own arithmetic with a
+$20 hourly wage, 25% payroll burden, $8 supplies and $12 other cost per
+visit, 15% overhead, and a 20% target margin &mdash; no minimum job charge,
+so the numbers below are the real cost-and-margin price, not a floor.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Stop</th><th scope="col">Glass</th><th scope="col">Cost</th><th scope="col">This calculator's price</th><th scope="col">Real per-window rate</th></tr>
+</thead>
+<tbody>
+<tr><td>A &mdash; ground-floor house</td><td>50 ground-floor exterior panes, 20-min drive</td><td>$68.52</td><td>$85.65</td><td>$1.71</td></tr>
+<tr><td>B &mdash; French &amp; storefront job</td><td>30 French panes (both sides) + 20 storefront plate-glass panes, 20-min drive</td><td>$224.25</td><td>$280.31</td><td>$5.61</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Quote Stop B at the per-window rate learned from Stop A &mdash; $1.71 a
+window, times 50 windows &mdash; and the total comes to
+<strong>$85.65</strong>. Stop B actually costs <strong>$224.25</strong> to
+run. That flat quote is <strong>$138.60 under cost</strong>, not a thin
+margin: every visit at that rate loses money before overhead or profit
+are even counted. The two stops have the identical window count; only the
+glass differs.
+</p>
+</section>
+<section>
+<h2>When to still just quote a flat rate</h2>
+<p>
+If a route only ever sees one kind of glass &mdash; a subdivision of
+similar ground-floor houses, say &mdash; a flat per-window number can land
+close to cost, because the glass mix genuinely does not vary from stop to
+stop. The risk is the call that is not like the others: French panes, a
+second-story or lift job, or a storefront with plate glass, quoted at the
+same rate because the phone call never asked what kind of windows they
+were.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per window get a bid wrong?</h3>
+<p>Because the rate is learned on one kind of glass -- usually easy ground-floor exterior panes -- and then quoted on the next job sight unseen, whatever the glass turns out to be. This calculator's own arithmetic prices 50 ground-floor exterior panes at a real per-window rate of $1.71 once travel and margin are counted. Quote that same $1.71 a window on 50 French and storefront panes and the total comes to $85.65 against a job that actually costs $224.25 to run -- a $138.60 loss, not a thin margin, on a job this calculator prices at $280.31.</p>
+<h3>What does a flat per-window rate usually miss entirely?</h3>
+<p>Glass type and sides (a French or divided-light pane cleaned both sides can take five to six times as long as a ground-floor exterior plate on a water-fed pole), and travel and setup, which do not shrink because the stop is small. A flat rate has no line for either -- it is one number learned on one kind of stop and reused for the next job that calls, regardless of the glass or the drive.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own cost inputs -- $20 hourly wage, 25% burden, $8 supplies and $12 other cost per visit, 15% overhead, 20% target margin: 50 ground-floor exterior panes with a 20-minute drive cost $68.52 to run and price at $85.65 with no minimum charge applied. 50 panes split between French (both sides) and storefront plate glass, same 20-minute drive, cost $224.25 to run and price at $280.31. Quoting the second job at the first job's per-window rate ($1.71) comes to $85.65 -- $138.60 under the actual cost, not just under the target price.</p>
+<h3>Is a flat per-window rate ever a reasonable shorthand?</h3>
+<p>For stops that stay to one glass type -- a whole house of ground-floor exterior, say -- a flat number can land close to cost. The risk is quoting French panes, second-story or lift access, or storefront plate glass at that same rate over the phone, because the advertised rate does not know the glass mix until the cleaner is already looking at the windows.</p>
+<h3>Does this calculator know my local labor rates or glass pricing?</h3>
+<p>No. It has no data on your local labor market or what a competitor charges. It takes the pane count, minutes per pane, and sides for each glass type on the stop, plus your own wage, payroll burden, travel minutes, supplies, overhead, and target margin, and turns that into a price for this visit -- the arithmetic a flat per-window rate skips, not a market survey.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, drive time, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p>Nothing you enter here is uploaded &mdash; the calculator runs entirely in your browser.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+      <li><a href="../window-tinting-bid-calculator/" data-pf-to="window-tinting-bid-calculator">Window Tinting Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=window-cleaning-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="window-cleaning-bid-calculator"></script>
+</body>
+</html>

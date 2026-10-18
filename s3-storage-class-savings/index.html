@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S3 Storage Class Savings — Will an S3 Lifecycle Rule Actually Save Money</title>
+  <meta name="description" content="Paste an S3 Inventory CSV and see current monthly cost by storage class and the net 12-month saving of moving objects to Standard-IA…">
+  <meta property="og:title" content="Will an S3 lifecycle rule actually save money?">
+  <meta property="og:description" content="Paste an S3 Inventory report, get the net saving of each storage-class transition and a lifecycle rule with the size filter.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "S3 Storage Class Savings", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste an S3 Inventory CSV and see current monthly cost by storage class and the net 12-month saving of each lifecycle transition after request fees, minimum object sizes, minimum durations, Intelligent-Tiering monitoring and retrieval, with a ready-to-paste lifecycle configuration. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the S3 Inventory CSV you paste or choose and never contacts AWS. It cannot see your real bill, free tier, volume tiers, request or data-transfer charges, so every dollar figure is rows you supplied times list prices you can edit."}}, {"@type": "Question", "name": "Why can moving small objects to a cheaper class lose money?", "acceptedAnswer": {"@type": "Answer", "text": "Standard-IA and Glacier Instant Retrieval bill every object as at least 128 KB, Glacier Flexible and Deep Archive add about 40 KB of overhead per object, and every lifecycle transition is a billed request per object. For an object under about 128 KB those charges can exceed the storage you save. Add ObjectSizeGreaterThan 131071 to the lifecycle rule to leave them in Standard."}}, {"@type": "Question", "name": "What does it assume about how often my data is read?", "acceptedAnswer": {"@type": "Answer", "text": "An inventory lists what exists, not what is read, so retrieval is an input: the percentage of transitioned bytes retrieved each month (default 1%). Raise it if you read old data; Standard-IA and Glacier Instant Retrieval charge per GB retrieved and Intelligent-Tiering has no retrieval fee. The percentage of objects deleted early is also an input, because of the 30, 90 and 180 day minimum storage durations."}}, {"@type": "Question", "name": "Is my inventory uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page reads the file or text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+      pre.json { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .82rem; overflow-x: auto; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Will an S3 lifecycle rule actually save money?","item":"https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Will an S3 lifecycle rule actually save money? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Will an S3 lifecycle rule actually save money?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">S3 STORAGE CLASS SAVINGS · RUNS IN YOUR BROWSER</p>
+    <h1>Will an S3 lifecycle rule actually save money?</h1>
+    <p>Paste an <strong>S3 Inventory report</strong> (CSV) and get <strong>current monthly cost by storage class</strong> and the <strong>net 12-month saving</strong> of moving objects to Standard-IA, Glacier or Intelligent-Tiering — after the <strong>per-object transition fee</strong>, <strong>minimum billable size</strong>, <strong>minimum storage duration</strong>, <strong>monitoring fee</strong> and <strong>retrieval</strong> that make small objects lose money.</p>
+    <p class="note">Nothing is uploaded and AWS is never contacted. The file or text is read in this browser and never leaves your device. Estimates at editable list prices, not a bill.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Add your inventory</h2>
+    <label for="inv-file">Choose an inventory CSV (read locally) or paste it below</label>
+    <input type="file" id="inv-file" accept=".csv,text/csv,text/plain">
+    <label for="inv-input">Bucket,Key,Size,LastModifiedDate,StorageClass (optional: IntelligentTieringAccessTier, IsLatest, IsDeleteMarker)</label>
+    <textarea id="inv-input" spellcheck="false" placeholder="Bucket,Key,Size,LastModifiedDate,StorageClass&#10;my-bucket,&quot;logs/2025/app.log.gz&quot;,52428800,2025-03-01T00:00:00.000Z,STANDARD"></textarea>
+    <div class="row">
+      <div><label for="ret">Retrieved per month, % of bytes</label><input type="number" id="ret" min="0" max="100" step="0.5" value="1" inputmode="decimal"></div>
+      <div><label for="early">Deleted before minimum duration, %</label><input type="number" id="early" min="0" max="100" step="1" value="0" inputmode="numeric"></div>
+      <div><label for="mult">Region price multiplier</label><input type="number" id="mult" min="0.01" step="0.01" value="1" inputmode="decimal"></div>
+      <div><label for="thr">Waste threshold, USD per month</label><input type="number" id="thr" min="0" step="10" value="100" inputmode="numeric"></div>
+      <div><label for="asof">Age as of</label><input type="date" id="asof"></div>
+    </div>
+    <details>
+      <summary>List prices (USD per GB-month; edit to match your region and tier)</summary>
+      <div class="row" id="price-inputs"></div>
+    </details>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Current monthly storage cost by class</h3>
+    <div class="pf-table-scroll"><table><thead><tr><th>Class</th><th class="num">Objects</th><th>Size</th><th class="num">Per month</th></tr></thead><tbody id="class-rows"></tbody></table></div>
+    <h3>Standard objects by age (LastModified)</h3>
+    <div class="pf-table-scroll"><table><thead><tr><th>Age</th><th class="num">Objects</th><th>Size</th></tr></thead><tbody id="age-rows"></tbody></table></div>
+    <h3>Net 12-month saving per action</h3>
+    <div class="pf-table-scroll"><table><thead><tr><th>Action</th><th class="num">All eligible objects</th><th class="num">Objects of 128 KiB or more</th></tr></thead><tbody id="cand-rows"></tbody></table></div>
+    <h3>Findings</h3>
+    <div class="pf-table-scroll"><table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table></div>
+    <div id="lifecycle-box" hidden>
+      <h3>Lifecycle configuration for the best net saving</h3>
+      <pre class="json" id="lifecycle"></pre>
+      <p><button type="button" class="secondary" id="copy-lifecycle">Copy JSON</button> <span class="note">Review it, then <code>aws s3api put-bucket-lifecycle-configuration --bucket NAME --lifecycle-configuration file://rule.json</code>. That call replaces the bucket's existing lifecycle configuration, so merge this rule into any rules you already have.</span></p>
+    </div>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze inventory.csv
+node cli.mjs analyze inventory.csv --retrieval-pct 5 --region-multiplier 1.1
+node cli.mjs analyze inventory.csv --fail-on warn --waste-threshold 250   # exit 1 above $250/month avoidable
+node cli.mjs analyze inventory.csv --json --prices my-prices.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-move-s3-objects-to-glacier-without-losing-money.html">how to move S3 objects to Glacier without losing money</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">Prices are illustrative and dated; edit them above or with <code>--prices</code> in the CLI. Free tier, volume tiers, request and data-transfer charges, Glacier retrieval request fees and other regions are not modelled except through the multiplier.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my AWS account?</h3>
+    <p>No. It reads the S3 Inventory CSV you paste or choose and never contacts AWS. It cannot see your real bill, free tier, volume tiers, request or data-transfer charges, so every dollar figure is rows you supplied times list prices you can edit.</p>
+    <h3>Why can moving small objects to a cheaper class lose money?</h3>
+    <p>Standard-IA and Glacier Instant Retrieval bill every object as at least 128 KB, Glacier Flexible and Deep Archive add about 40 KB of overhead per object, and every lifecycle transition is a billed request per object. For an object under about 128 KB those charges can exceed the storage you save. Add ObjectSizeGreaterThan 131071 to the lifecycle rule to leave them in Standard.</p>
+    <h3>What does it assume about how often my data is read?</h3>
+    <p>An inventory lists what exists, not what is read, so retrieval is an input: the percentage of transitioned bytes retrieved each month (default 1%). Raise it if you read old data; Standard-IA and Glacier Instant Retrieval charge per GB retrieved and Intelligent-Tiering has no retrieval fee. The percentage of objects deleted early is also an input, because of the 30, 90 and 180 day minimum storage durations.</p>
+    <h3>Is my inventory uploaded anywhere?</h3>
+    <p>No. The browser page reads the file or text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It reads inventory rows you supply and applies list prices and access assumptions you can edit; it is an estimate, not a bill, and not a guarantee of what AWS will charge or of how a lifecycle rule will behave on your bucket. <strong>You are responsible for reviewing and verifying its output before relying on it,</strong> and for testing any lifecycle rule on a small prefix first. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The inventory you add is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>, <code>lifecycle_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans and reserved capacity, <a href="../cloud-egress-calculator/">Cloud Egress Calculator</a> prices the data-transfer side of the bill, and <a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Check</a> checks whether a bucket is publicly readable.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInventory, analyze, summarize, money, fmtBytes, DEFAULT_PRICES, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#inv-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      classRows: $("#class-rows"), ageRows: $("#age-rows"), candRows: $("#cand-rows"), lcBox: $("#lifecycle-box"), lc: $("#lifecycle"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    $("#asof").value = new Date().toISOString().slice(0, 10);
+
+    const PRICE_KEYS = ["STANDARD", "STANDARD_IA", "GLACIER_IR", "GLACIER", "DEEP_ARCHIVE"];
+    $("#price-inputs").innerHTML = PRICE_KEYS.map((k) => `<div><label for="p-${k}">${k}</label><input type="number" id="p-${k}" min="0" step="0.0001" value="${DEFAULT_PRICES.storage[k]}" inputmode="decimal"></div>`).join("");
+    const readPrices = () => ({ storage: Object.fromEntries(PRICE_KEYS.map((k) => [k, Number($(`#p-${k}`).value)]).filter(([, v]) => Number.isFinite(v) && v >= 0)) });
+    const pct = (sel, fallback) => { const v = Number($(sel).value); return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : fallback; };
+
+    let lastLifecycle = "";
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Choose a file, paste inventory rows, or load the worked example first.</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const mult = Number($("#mult").value);
+      const asOf = Date.parse($("#asof").value);
+      const report = analyze(parseInventory(text), { retrievalPct: pct("#ret", 1), earlyDeletePct: pct("#early", 0), regionMultiplier: mult > 0 ? mult : 1, wasteThresholdPerMonth: Math.max(0, Number($("#thr").value) || 0), prices: readPrices(), asOf: Number.isFinite(asOf) ? asOf : undefined });
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.classRows.innerHTML = (report.byClass || []).map((c) => `<tr><td>${escapeHtml(c.cls)}</td><td class="num">${c.count.toLocaleString("en-US")}</td><td>${fmtBytes(c.bytes)}</td><td class="num">${money(c.monthlyCost)}</td></tr>`).join("");
+      els.ageRows.innerHTML = (report.ageBuckets || []).map((b) => `<tr><td>${escapeHtml(b.label)}</td><td class="num">${b.standardCount.toLocaleString("en-US")}</td><td>${fmtBytes(b.standardBytes)}</td></tr>`).join("");
+      els.candRows.innerHTML = (report.candidates || []).map((c) => `<tr><td>${escapeHtml(c.label)} after ${c.minAgeDays} days</td><td class="num">${money(c.unfiltered.net)}</td><td class="num">${money(c.filtered.net)}</td></tr>`).join("");
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      lastLifecycle = report.lifecycle ? JSON.stringify(report.lifecycle, null, 2) : "";
+      els.lcBox.hidden = !lastLifecycle;
+      els.lc.textContent = lastLifecycle;
+      els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Retrieval and early deletion are assumptions you set, not measurements; an inventory lists what exists, not what is read.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+    $("#inv-file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      try { els.input.value = await f.text(); renderReport(); } catch { els.status.innerHTML = `<span class="error">Could not read that file.</span>`; }
+    });
+    $("#copy-lifecycle").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(lastLifecycle); record("lifecycle_copied"); $("#copy-lifecycle").textContent = "Copied"; } catch { $("#copy-lifecycle").textContent = "Select and copy the JSON above"; }
+    });
+
+    const EXAMPLE_SOURCE = `Bucket,Key,Size,LastModifiedDate,StorageClass,IntelligentTieringAccessTier,IsLatest,IsDeleteMarker
+acme-data,"backups/2024/db-full.tar",2362232012800,2025-03-01T00:00:00.000Z,STANDARD,,true,false
+acme-data,"backups/2025/db-full.tar",1932735283200,2025-11-15T00:00:00.000Z,STANDARD,,true,false
+acme-data,"exports/archive,2024.zip",966367641600,2024-12-31T00:00:00.000Z,STANDARD,,true,false
+acme-data,"logs/2026/08/app.log.gz",322122547200,2026-08-01T00:00:00.000Z,STANDARD,,true,false
+acme-data,"logs/2026/05/app.log.gz",483183820800,2026-05-20T00:00:00.000Z,STANDARD,,true,false
+acme-data,"media/raw/video-01.mov",128849018880,2026-09-20T00:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-000.jpg",8000,2025-01-10T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-010.jpg",11700,2025-02-11T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-020.jpg",15400,2025-03-12T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-030.jpg",19100,2025-04-13T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-040.jpg",22800,2025-05-14T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-050.jpg",26500,2025-06-15T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-060.jpg",30200,2025-07-16T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-070.jpg",33900,2025-08-17T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-080.jpg",37600,2025-09-18T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-090.jpg",41300,2025-01-10T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-100.jpg",45000,2025-02-11T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-110.jpg",48700,2025-03-12T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-120.jpg",52400,2025-04-13T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-130.jpg",56100,2025-05-14T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-140.jpg",59800,2025-06-15T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-150.jpg",63500,2025-07-16T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-160.jpg",67200,2025-08-17T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-170.jpg",70900,2025-09-18T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-180.jpg",74600,2025-01-10T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-190.jpg",78300,2025-02-11T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-200.jpg",82000,2025-03-12T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-210.jpg",85700,2025-04-13T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-220.jpg",89400,2025-05-14T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-230.jpg",93100,2025-06-15T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-240.jpg",96800,2025-07-16T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-250.jpg",100500,2025-08-17T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-260.jpg",104200,2025-09-18T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-270.jpg",107900,2025-01-10T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-280.jpg",111600,2025-02-11T10:00:00.000Z,STANDARD,,true,false
+acme-data,"thumbs/2025/img-290.jpg",115300,2025-03-12T10:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q0.pdf",204800,2026-02-10T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q1.pdf",307200,2026-02-11T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q2.pdf",409600,2026-02-12T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q3.pdf",512000,2026-02-13T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q4.pdf",614400,2026-02-14T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q5.pdf",716800,2026-02-15T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q6.pdf",819200,2026-02-16T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q7.pdf",921600,2026-02-17T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q8.pdf",1024000,2026-02-18T00:00:00.000Z,STANDARD,,true,false
+acme-data,"reports/q9.pdf",1126400,2026-02-10T00:00:00.000Z,STANDARD,,true,false
+acme-data,"current/hot.parquet",42949672960,2026-09-25T00:00:00.000Z,STANDARD,,true,false
+acme-data,"warm/ia-data.csv",53687091200,2026-01-01T00:00:00.000Z,STANDARD_IA,,true,false
+acme-data,"cold/glacier.tar",75161927680,2024-01-01T00:00:00.000Z,GLACIER,,true,false
+acme-data,"it/data.bin",26843545600,2025-01-01T00:00:00.000Z,INTELLIGENT_TIERING,INFREQUENT,true,false
+acme-data,"it/small.bin",20000,2025-01-01T00:00:00.000Z,INTELLIGENT_TIERING,FREQUENT,true,false
+acme-data,"backups/2024/db-full.tar",2362232012800,2024-03-01T00:00:00.000Z,STANDARD,,false,false
+acme-data,"backups/2025/deleted.tar",0,2026-03-01T00:00:00.000Z,STANDARD,,true,true`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      $("#asof").value = "2026-10-01";
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cors-misconfig-check/" data-pf-to="cors-misconfig-check">CORS Misconfiguration Checker</a></li>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+      <li><a href="../cron-dst-drift-check/" data-pf-to="cron-dst-drift-check">Will your cron job survive daylight saving?</a></li>
+      <li><a href="../csv-to-sql-generator/" data-pf-to="csv-to-sql-generator">CSV to SQL, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s3-storage-class-savings">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/?pfEmbed=1&quot; title=&quot;Will an S3 lifecycle rule actually save money? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="s3-storage-class-savings"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/" data-pf-embed-title="Will an S3 lifecycle rule actually save money?" data-pf-embed-slug="s3-storage-class-savings"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="s3-storage-class-savings" data-pf-jobs-amount=""></script>
+</body>
+</html>

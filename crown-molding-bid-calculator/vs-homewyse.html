@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. Homewyse | Crown Molding Bid Calculator</title>
+<meta name="description" content="Homewyse is a free online reference, running since 2006, whose crown-molding install estimator asks only a zip code and a linear-foot count.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Homewyse">
+<meta property="og:description" content="Homewyse prices crown molding from a zip code and a linear-foot count alone. This calculator adds the grade, profile, ceiling shape, height…">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/crown-molding-bid-calculator/vs-homewyse.html">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Homewyse?","acceptedAnswer":{"@type":"Answer","text":"They ask different questions. Homewyse is a free, vendor-neutral online reference for home projects, operating since 2006, offering cost estimators across maintenance, installation, and materials with no account needed for basic access. Its crown-molding install estimator takes two inputs — a zip code and a linear-foot count — and returns a per-foot range for what it labels \"BASIC mid-range work performed in readily serviceable conditions,\" by its own disclaimer. It does not ask about molding grade, profile, joint type, ceiling shape, story height, demo of existing trim, or corner count. This calculator asks for exactly those: linear feet, inside and outside corners, rooms, grade (paint versus stain), profile (simple cove, colonial, or built-up), ceiling type, ceiling height, demo, blocking, an LED cove, casing match, travel, loaded wage, burden, and target margin, and turns them into the walk-away price, the price per linear foot, and where the crew hours actually go, plus a printable customer proposal. On this calculator's own worked examples at a fixed wage, burden, and margin, 80 identical linear feet walk away at $1,182.95 as a flat paint-grade cove in one room and at $7,710.87 as stain-grade built-up crown in a two-story cathedral foyer with an LED cove — a spread a single zip-and-footage number cannot represent. A contractor who wants Homewyse's broad, cross-trade reference material and its BASIC-scope ballpark is well served there; a contractor pricing one specific crown-molding run by its actual grade, profile, ceiling, and corners is better served here."}},{"@type":"Question","name":"Is this page affiliated with Homewyse?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Homewyse. Homewyse is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2c2620; background: #efe8dc; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #7a4a22; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5348; }
+  section { background: #fff; border: 1px solid #d4c8b4; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2c26200d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d4c8b4; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5348; }
+  .fine, .note { font-size: .88rem; color: #5c5348; }
+  footer { color: #5c5348; font-size: .86rem; }
+  footer a { color: #7a4a22; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/crown-molding-bid-calculator/vs-homewyse.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/crown-molding-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Homewyse — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../crown-molding-bid-calculator/">Crown Molding Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Homewyse</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Crown Molding Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. Homewyse</h1>
+<p class="lede">Homewyse prices a crown-molding install from a zip code and a linear-foot count alone. This page is a free, private worksheet for the same question with the grade, profile, ceiling, and corners put back in &mdash; the inputs a zip-and-footage estimate has no field for.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Homewyse</strong> is a free, vendor-neutral online reference for
+  home projects, operating since 2006, offering cost estimators across
+  maintenance, installation, and materials categories with no account
+  required for basic access. Its crown-molding install estimator takes two
+  inputs &mdash; a zip code and a linear-foot count &mdash; and returns a
+  per-foot price range for what its own disclaimer labels
+  &ldquo;BASIC mid-range work performed in readily serviceable
+  conditions.&rdquo; It does not ask about molding grade, profile
+  (simple cove versus colonial versus built-up), joint type (mitered versus
+  coped), ceiling shape, story height, removal of existing trim, or the
+  number of inside and outside corners.
+</p>
+<p>
+  This calculator asks for exactly those. Starting from linear feet, inside
+  and outside corners, rooms, grade (paint-grade versus stain-grade),
+  profile, ceiling type (flat, cathedral, or tray), ceiling height, demo of
+  existing crown, blocking, an LED cove, casing match, travel, loaded wage,
+  burden, and overhead, it turns that into the walk-away price below which
+  the run loses money, the price per linear foot, and where the crew hours
+  are actually going &mdash; plus a printable customer proposal with scope
+  lines and a signature block. On this calculator's own worked examples, at
+  a fixed $42 crew wage, 32% burden, 15% overhead, and 20% target margin, 80
+  identical linear feet walk away at $1,182.95 as a flat paint-grade simple
+  cove in one 8-ft room and at $7,710.87 as stain-grade built-up crown in a
+  two-story cathedral foyer with fourteen coped inside corners and an LED
+  cove &mdash; a spread Homewyse's own two inputs, zip code and linear feet,
+  have no field to represent. It runs free in any browser, keeps no
+  account, and uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want a broad, cross-trade reference for home-project costs, materials, and maintenance beyond crown molding.</td><td>Homewyse &mdash; that breadth is not something this calculator covers.</td></tr>
+<tr><td>What should I charge for this specific run, given its grade, profile, ceiling, and corners?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>How much does stain-grade coping, a two-story foyer, or an LED cove actually add over a zip-and-footage ballpark?</td><td>This calculator's grade, ceiling, and extras line items, not a per-foot range.</td></tr>
+<tr><td>Is the price I'm about to quote still above my walk-away cost for this run?</td><td>This calculator's walk-away price check.</td></tr>
+<tr><td>I want a quick, scope-free ballpark before I've measured corners or picked a grade.</td><td>Homewyse's zip-and-footage estimate.</td></tr>
+<tr><td>How does the math behind a crown-molding bid actually work?</td><td>This calculator's own <a href="how-much-to-charge-to-install-crown-molding.html">pricing walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>Neither tool requires one for its basic estimator.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most finish carpenters get different value from each: Homewyse for a
+  quick, scope-free ballpark or its broader cross-trade reference material,
+  and a scope-aware calculator like this one for pricing one specific run
+  by its actual grade, profile, ceiling, and corners before a bid goes out.
+  This page's own figures are a pricing model, not a measured takeoff or a
+  signed proposal, and neither tool performs a millwork, structural, or
+  paint-spec inspection.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Homewyse?</h3>
+<p>They ask different questions. Homewyse is a free, vendor-neutral online reference for home projects, operating since 2006, offering cost estimators across maintenance, installation, and materials with no account needed for basic access. Its crown-molding install estimator takes two inputs — a zip code and a linear-foot count — and returns a per-foot range for what it labels "BASIC mid-range work performed in readily serviceable conditions," by its own disclaimer. It does not ask about molding grade, profile, joint type, ceiling shape, story height, demo of existing trim, or corner count. This calculator asks for exactly those: linear feet, inside and outside corners, rooms, grade (paint versus stain), profile (simple cove, colonial, or built-up), ceiling type, ceiling height, demo, blocking, an LED cove, casing match, travel, loaded wage, burden, and target margin, and turns them into the walk-away price, the price per linear foot, and where the crew hours actually go, plus a printable customer proposal. On this calculator's own worked examples at a fixed wage, burden, and margin, 80 identical linear feet walk away at $1,182.95 as a flat paint-grade cove in one room and at $7,710.87 as stain-grade built-up crown in a two-story cathedral foyer with an LED cove — a spread a single zip-and-footage number cannot represent. A contractor who wants Homewyse's broad, cross-trade reference material and its BASIC-scope ballpark is well served there; a contractor pricing one specific crown-molding run by its actual grade, profile, ceiling, and corners is better served here.</p>
+<h3>Is this page affiliated with Homewyse?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Homewyse. Homewyse is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="index.html">Crown Molding Bid Calculator</a> to price your own run.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not millwork, structural, paint-spec, legal, tax, or financial advice, and it does not replace a qualified professional. Verify every figure against your own payroll, insurance, and supply costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against Homewyse &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../wheelchair-ramp-bid-calculator/" data-pf-to="wheelchair-ramp-bid-calculator">Wheelchair Ramp Bid Calculator — ADA Slope &amp; Landings</a></li>
+      <li><a href="../basement-finishing-bid-calculator/" data-pf-to="basement-finishing-bid-calculator">Basement Finishing Bid Calculator</a></li>
+      <li><a href="../cabinet-refinishing-bid-calculator/" data-pf-to="cabinet-refinishing-bid-calculator">Cabinet Refinishing Bid Calculator</a></li>
+      <li><a href="../carpet-install-bid-calculator/" data-pf-to="carpet-install-bid-calculator">Carpet Installation Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=crown-molding-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="crown-molding-bid-calculator"></script>
+</body></html>

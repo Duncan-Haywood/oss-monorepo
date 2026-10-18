@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-door price | Interior Door Bid Calculator</title>
+<meta name="description" content="A flat '$150 a door installed' special cannot see the opening or the leaf. This free, private browser calculator prices what a flat per-door rate hides -- by…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/vs-a-flat-per-door-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-door price">
+<meta property="og:description" content="A hollow-slab hang-only and a French-pair pocket conversion are both 'one door.' A flat per-door price charges them the same…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-door price get an interior-door quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the scope and the leaf, not the count of doors. A hollow-core slab hung on an existing jamb and a French pair framed into a new pocket wall are both \"one door,\" but one is 0.75 hours of hanging and a $48 leaf while the other is a framed pocket, a heavier leaf, paint, a haul-away, and new hardware. A flat per-door price charges both the same."}},{"@type":"Question","name":"What does a flat per-door price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The scope. A per-door number has no line for framing a new opening or a wall pocket, no line for the jump from a hollow slab to a solid-core or French-or-barn leaf, no line for an 8-foot or double opening needing more casing, and no line for paint, haul-away, or a new lockset -- each its own hours and its own invoice."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples: a hang-only hollow-slab door at 80 inches costs $271.31 to run and prices at $339.14 with a 20% target margin -- already above a flat $150 quote before scope changes at all. Framing the same single opening as a pocket conversion for a French-or-barn pair at 96 inches, with paint, haul-away, and new hardware, costs $2,258.93 to run and prices at $2,823.66. The same $150 quote that already falls short on the easy hang is $2,108.93 below the pocket-conversion job's own break-even cost -- before a dollar of profit."}},{"@type":"Question","name":"Is a flat per-door price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- hang-only swaps on existing jambs, the same leaf and size every time -- a per-door number can land close, because that is probably the job it was built on. The risk is applying it to a job with a new opening, a pocket wall, a heavier leaf, or extras mixed in without pricing the scope separately, because the flat number does not know what the opening needs and neither does the estimator until the wall is already open."}},{"@type":"Question","name":"Does this calculator know what door leaf costs or labor rates are in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local millwork supplier's prices or your local labor market. It takes the door count, scope, leaf, size, and extras you choose, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this opening -- the arithmetic a flat per-door price skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1d6b7a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; }
+  section { background: #e8eef2; border: 1px solid #1d6b7a44; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #0000000d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1d6b7a33; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  .fine, .note { font-size: .88rem; }
+  footer { font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/vs-a-flat-per-door-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-door price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../interior-door-bid-calculator/">Interior Door Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-door price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Interior Door Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-door price</h1>
+<p class="lede">"$150 a door installed" is not a price for an opening &mdash; it is a price for whatever job the special was built on, quietly applied to a pocket conversion with a French pair.</p>
+</header>
+<section>
+<h2>What a flat per-door price is</h2>
+<p>
+A flat per-door number is the fastest way to quote a door job over the
+phone: ask how many doors, multiply by the special, skip the walkthrough.
+Homeowners shop it because it is easy to compare between carpenters, and it
+is the number a customer holding a competitor's quote will ask you to
+match.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; usually a
+hollow-core slab hung on an existing jamb &mdash; and then reused for every
+door afterward, whether or not the next opening needs framing, a heavier
+leaf, a taller or double size, or paint and a haul-away.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+door count, the scope (hang-only, prehung-swap, new-opening, or
+pocket-conversion), the leaf (hollow slab, hollow prehung, solid-core, or
+French-or-barn), the size (80-inch, 96-inch, or double), and whether paint,
+haul-away, and new hardware are included, plus your own wage, payroll
+burden, overhead, and target margin. It prices the hang, frame, and casing
+hours by scope, adds the leaf and extras invoices, and returns the walk-away
+price and the price per door &mdash; for this opening, not a generic count.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-door price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a hollow-slab hang and a French-pair pocket conversion &mdash; even though one is a slab on an existing jamb and the other is a framed wall opening.</td>
+<td>Prices frame, casing, and hang hours separately by scope, so a new opening or a pocket costs more than a hang-only swap.</td>
+</tr>
+<tr>
+<td>Has no line for the leaf itself, regardless of whether it is a $48 hollow slab or a $720 French-or-barn unit.</td>
+<td>Prices the leaf invoice by door type, plus an extra-leaf charge for a 96-inch or double opening.</td>
+</tr>
+<tr>
+<td>Has no line for paint, haul-away, or a new lockset, regardless of how many of them the job needs.</td>
+<td>Prices paint, haul-away, and hardware hours and invoices per door, only when each is included.</td>
+</tr>
+<tr>
+<td>Estimates travel by eye, with no separate check against trip time or mileage.</td>
+<td>Prices trip hours plus mileage as loaded labor, on top of the per-door work.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat per-door price would have quoted, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two doors, the same flat quote</h2>
+<p>
+Using this calculator's own shipped starting examples:
+</p>
+<p>
+A single hollow-core slab hung on an existing 80-inch jamb prices at
+<strong>$339.14</strong> with a 20% target margin, on a job that costs
+<strong>$271.31</strong> to run &mdash; already above a flat
+<strong>$150</strong> quote before any scope changes at all.
+</p>
+<p>
+Frame that same single opening as a pocket conversion instead, for a
+French-or-barn pair at 96 inches, with paint, haul-away, and new hardware
+included, and the job costs <strong>$2,258.93</strong> to run before a
+dollar of profit &mdash; almost entirely the frame kit, the leaf, and the
+extra labor hours a pocket wall needs. The same flat $150-a-door quote that
+already undercut the easy hang is <strong>$2,108.93 below this job's own
+break-even cost</strong>, before counting the <strong>$2,673.66</strong> it
+falls short of this calculator's own bid price at a 20% target margin. Same
+door count, same flat rate, one opening that barely clears the number and
+one that loses well over two thousand dollars the moment the header goes
+in.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-door price get an interior-door quote wrong?</h3>
+<p>Because the cost driver is the scope and the leaf, not the count of doors. A hollow-core slab hung on an existing jamb and a French pair framed into a new pocket wall are both "one door," but one is 0.75 hours of hanging and a $48 leaf while the other is a framed pocket, a heavier leaf, paint, a haul-away, and new hardware. A flat per-door price charges both the same.</p>
+<h3>What does a flat per-door price usually leave out entirely?</h3>
+<p>The scope. A per-door number has no line for framing a new opening or a wall pocket, no line for the jump from a hollow slab to a solid-core or French-or-barn leaf, no line for an 8-foot or double opening needing more casing, and no line for paint, haul-away, or a new lockset -- each its own hours and its own invoice.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own worked examples: a hang-only hollow-slab door at 80 inches costs $271.31 to run and prices at $339.14 with a 20% target margin -- already above a flat $150 quote before scope changes at all. Framing the same single opening as a pocket conversion for a French-or-barn pair at 96 inches, with paint, haul-away, and new hardware, costs $2,258.93 to run and prices at $2,823.66. The same $150 quote that already falls short on the easy hang is $2,108.93 below the pocket-conversion job's own break-even cost -- before a dollar of profit.</p>
+<h3>Is a flat per-door price ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- hang-only swaps on existing jambs, the same leaf and size every time -- a per-door number can land close, because that is probably the job it was built on. The risk is applying it to a job with a new opening, a pocket wall, a heavier leaf, or extras mixed in without pricing the scope separately, because the flat number does not know what the opening needs and neither does the estimator until the wall is already open.</p>
+<h3>Does this calculator know what door leaf costs or labor rates are in my market?</h3>
+<p>No. It has no data on your local millwork supplier's prices or your local labor market. It takes the door count, scope, leaf, size, and extras you choose, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this opening -- the arithmetic a flat per-door price skips, not a market survey.</p>
+<p class="note">
+  Open the <a href="index.html">Interior Door Bid Calculator</a> to price your own opening, or read
+  <a href="how-much-to-charge-to-replace-interior-doors.html">how much to charge to replace interior doors</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own supplier invoices, payroll, insurance, and overhead, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked examples.</p>
+<p class="support">Free and open source. If it keeps you off a losing flat-rate special, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../plantation-shutter-bid-calculator/" data-pf-to="plantation-shutter-bid-calculator">Plantation Shutter Bid Calculator</a></li>
+      <li><a href="../window-replacement-bid-calculator/" data-pf-to="window-replacement-bid-calculator">Window Replacement Bid Calculator</a></li>
+      <li><a href="../automatic-driveway-gate-bid-calculator/" data-pf-to="automatic-driveway-gate-bid-calculator">Automatic Driveway Gate Bid Calculator</a></li>
+      <li><a href="../egress-window-bid-calculator/" data-pf-to="egress-window-bid-calculator">Egress Window Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=interior-door-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="interior-door-bid-calculator"></script>
+</body></html>

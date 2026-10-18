@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Appointment No-Show Cost Calculator — Free</title>
+  <meta name="description" content="Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels…">
+  <meta property="og:title" content="What do no-shows cost your practice? Free calculator">
+  <meta property="og:description" content="Annual cost of no-shows and late cancels, best overbooking level, break-even fee and reminder price. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 5h2v3h10V5h2v3h2v19H7V8h2zm0 8v12h14V13zm3 3 3 3 5-6 1.4 1.4-6.4 7.6-4.4-4.4z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Appointment No-Show Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimate what no-shows and late cancellations cost a small appointment practice each year, net of refilled slots and collected fees, find the best overbooking level from an exact binomial model of arrivals, and see the break-even no-show fee and reminder price. Runs in your browser; nothing is uploaded.","featureList":"Annual revenue lost to no-shows, cost net of refills, best overbooking level, break-even no-show fee, break-even reminder price, sensitivity grid, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much do no-shows cost a small practice?","acceptedAnswer":{"@type":"Answer","text":"Multiply your scheduled slots per year by your no-show and late-cancel rates and by the revenue of a visit, then take off the slots you manage to refill and any fees you actually collect. The calculator shows each step so you can see which one moves the total most."}},{"@type":"Question","name":"How many extra patients should I book per day?","acceptedAnswer":{"@type":"Answer","text":"The calculator treats every booked patient as arriving or not, with the probability that matches your no-show and late-cancel rates, and finds the number of extra bookings with the best expected value after the cost you assign to a patient who has to wait or be rescheduled. It also shows how likely an over-full day is at each level."}},{"@type":"Question","name":"What no-show fee breaks even?","acceptedAnswer":{"@type":"Answer","text":"It is the fee per no-show or late cancel at which the fees you collect equal what the empty slots cost after refills, given how often a charged fee is actually paid. Below it a fee reduces the loss; at it the fees cover the loss in full."}},{"@type":"Question","name":"Are text reminders worth paying for?","acceptedAnswer":{"@type":"Answer","text":"Enter what a reminder costs per scheduled visit and how much of your no-show rate you expect it to remove. The calculator shows the yearly saving, the cost and the highest price per visit at which reminders still pay for themselves."}},{"@type":"Question","name":"Is this billing, legal or clinical advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not say whether a fee or deposit is allowed where you practise or under your payer contracts, and it makes no clinical judgement about any patient. Its defaults are placeholders."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"What do no-shows cost your practice? Free calculator","item":"https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What do no-shows cost your practice? Free calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What do no-shows cost your practice? Free calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">APPOINTMENT NO-SHOW COST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do no-shows and late cancels cost your practice?</h1>
+    <p>Enter your schedule, your typical visit revenue and your no-show and late-cancel rates. It shows the yearly cost before and after refills and fees, the number of extra bookings per day that works best, the no-show fee that breaks even, and the most a reminder service can cost and still pay.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your schedule</h2>
+      <div class="grid">
+        <div><label for="slotsPerDay">Appointment slots per day</label><input id="slotsPerDay" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="daysPerWeek">Days open per week</label><input id="daysPerWeek" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="weeksPerYear">Weeks open per year</label><input id="weeksPerYear" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="revenuePerVisit">Average revenue per visit ($)</label><input id="revenuePerVisit" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Empty slots and refills</h2>
+      <div class="grid">
+        <div><label for="noShowPct">No-show rate (% of slots), without reminders</label><input id="noShowPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="lateCancelPct">Late-cancel rate (% of slots)</label><input id="lateCancelPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="refillNoShowPct">Share of no-show slots you refill (%)</label><input id="refillNoShowPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="refillLateCancelPct">Share of late-cancel slots you refill (%)</label><input id="refillLateCancelPct" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Fees and reminders</h2>
+      <div class="grid">
+        <div><label for="feeAmount">No-show fee or forfeited deposit ($, 0 if none)</label><input id="feeAmount" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="feeCollectPct">Share of charged fees you actually collect (%)</label><input id="feeCollectPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="reminderCostPerVisit">Reminder cost per scheduled visit ($)</label><input id="reminderCostPerVisit" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="reminderCutPct">How much reminders cut the no-show rate (%)</label><input id="reminderCutPct" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Overbooking</h2>
+      <div class="grid">
+        <div><label for="overbookSlots">Extra patients you book per day now</label><input id="overbookSlots" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="overflowCost">Cost of each patient who arrives to a full day ($)</label><input id="overflowCost" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Work out the cost</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much do no-shows cost a small practice?</h3>
+      <p>Multiply your scheduled slots per year by your no-show and late-cancel rates and by the revenue of a visit, then take off the slots you manage to refill and any fees you actually collect. The calculator shows each step so you can see which one moves the total most.</p>
+      <h3>How many extra patients should I book per day?</h3>
+      <p>The calculator treats every booked patient as arriving or not, with the probability that matches your no-show and late-cancel rates, and finds the number of extra bookings with the best expected value after the cost you assign to a patient who has to wait or be rescheduled. It also shows how likely an over-full day is at each level.</p>
+      <h3>What no-show fee breaks even?</h3>
+      <p>It is the fee per no-show or late cancel at which the fees you collect equal what the empty slots cost after refills, given how often a charged fee is actually paid. Below it a fee reduces the loss; at it the fees cover the loss in full.</p>
+      <h3>Are text reminders worth paying for?</h3>
+      <p>Enter what a reminder costs per scheduled visit and how much of your no-show rate you expect it to remove. The calculator shows the yearly saving, the cost and the highest price per visit at which reminders still pay for themselves.</p>
+      <h3>Is this billing, legal or clinical advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not say whether a fee or deposit is allowed where you practise or under your payer contracts, and it makes no clinical judgement about any patient. Its defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you may charge a no-show fee or hold a deposit, how it must be disclosed, what your payer contracts or professional board allow, how to treat patients who miss for medical reasons, and which patients to double-book. The overbooking model assumes each booking arrives independently with the same probability and ignores refills on the day, so real days that cluster (weather, flu season) will be worse than it shows. The defaults are placeholders, not a benchmark and not a measurement: use your own schedule history.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> (reads your booking export), the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> (daily history and clustering), the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>, the <a href="../no-show-fee-calculator/">no-show fee calculator</a> the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> the <a href="../optical-dispensary-margin-calculator/">optical dispensary margin calculator</a> and the <a href="../veterinary-wellness-plan-pricing-calculator/">veterinary wellness plan pricing calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, clinical, legal, tax, billing, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any consumer, payer, professional-board or disclosure rule that applies to a fee, deposit or overbooking policy. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no patient information is asked for or needed. Anonymous feature events (<code>cost_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, annual, breakevenFee, reminderEffect, breakevenReminderPrice, bestOverbooking, sensitivity } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const int = (x) => Math.round(x).toLocaleString("en-US");
+    const pct1 = (x) => (x * 100).toFixed(1) + "%";
+    function run() {
+      const o = opts();
+      if (!(o.slotsPerDay > 0) || !(o.daysPerWeek > 0) || !(o.weeksPerYear > 0) || !(o.revenuePerVisit > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter slots per day, days, weeks and a revenue per visit above zero.</div>'; $("out").hidden = false; return; }
+      const a = annual(o);
+      let h = "";
+      h += `<div class="finding"><h4>What empty slots cost in a year</h4><p class="stats"><strong>${money(a.grossNoShow)}</strong> of revenue lost to no-shows (${int(a.noShows)} visits) and <strong>${money(a.grossLateCancel)}</strong> to late cancels (${int(a.lateCancels)} visits), out of ${int(a.slots)} scheduled slots. After the slots you refill (${money(a.refilledRevenue)} earned back) the cost is <strong>${money(a.costAfterRefills)}</strong>${a.feesCollected > 0 ? `, and after the ${money(a.feesCollected)} in fees you collect it is <strong>${money(a.netCost)}</strong>` : ""}.</p></div>`;
+      const bf = breakevenFee(o);
+      h += `<div class="finding"><h4>Break-even no-show fee</h4><p>${bf === null ? "There is no break-even fee: either nothing is lost after refills or no charged fee would be collected." : `Charging <strong>${money2(bf)}</strong> per no-show or late cancel would recover the whole ${money(a.costAfterRefills)} cost after refills, at your ${o.feeCollectPct}% collection rate. You entered ${money2(o.feeAmount)}, which recovers ${money(a.feesCollected)}. This is a number to think with, not a fee to charge: whether a fee or deposit is permitted is for you and your advisor.`}</p></div>`;
+      const r = reminderEffect(o), bp = breakevenReminderPrice(o);
+      h += `<div class="finding"><h4>Reminders</h4><p>If reminders cut your no-show rate by ${o.reminderCutPct}%, about <strong>${int(r.avoidedNoShows)}</strong> fewer no-shows a year is worth <strong>${money(r.benefit)}</strong> against a programme cost of ${money(r.programCost)}: <strong>${r.net >= 0 ? money(r.net) + " ahead" : money(-r.net) + " behind"}</strong>. Break-even price: <strong>${bp === null ? "n/a" : money2(bp)}</strong> per scheduled visit (you entered ${money2(o.reminderCostPerVisit)}).</p></div>`;
+      const b = bestOverbooking(o);
+      h += `<div class="finding"><h4>Best overbooking level</h4><p>Booking <strong>${b.best.extra}</strong> extra ${b.best.extra === 1 ? "patient" : "patients"} per day on top of ${int(o.slotsPerDay)} slots has the best expected value, <strong>${money(b.annualGainVsNone)}</strong> a year more than none. On such a day the chance more patients arrive than you have slots is ${pct1(b.best.probOverflow)}, with ${b.best.expectedOverflow.toFixed(2)} patients expected to wait and ${b.best.expectedLostSlots.toFixed(2)} empty slots left. You book ${int(o.overbookSlots)} extra now: the best level is ${money(b.annualGainVsCurrent)} a year ${b.annualGainVsCurrent >= 0 ? "better" : "worse"}.</p>${table(["Extra booked", "Expected seen", "Expected waiting", "Empty slots", "Chance of overflow", "Value per day"], b.rows.map((x) => [x.extra, x.expectedSeen.toFixed(2), x.expectedOverflow.toFixed(2), x.expectedLostSlots.toFixed(2), pct1(x.probOverflow), money(x.dailyValue)]))}<p class="note">Exact binomial arrivals with a ${pct1(b.best.showProb)} chance each booked patient comes. Value per day is revenue from patients seen less your cost per overflow patient; refills on the day are ignored.</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>If the no-show rate or the fee changes: yearly cost after refills and fees</h4>${table(["No-show rate \\ Fee", ...g[0].cells.map((c) => money2(c.fee))], g.map((row) => [row.noShowPct.toFixed(1) + "%", ...row.cells.map((c) => money(c.netCost))]))}<p class="note">Negative means the fees you collect would exceed the cost of the empty slots.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("cost_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freelance-contract-checker/" data-pf-to="freelance-contract-checker">Check a freelance contract before you sign it — free, private</a></li>
+      <li><a href="../freelance-project-picker/" data-pf-to="freelance-project-picker">Which freelance projects should you take?</a></li>
+      <li><a href="../freelance-proposal-maker/" data-pf-to="freelance-proposal-maker">Freelance Proposal Maker — free proposal generator, no signup</a></li>
+      <li><a href="../fundraising-event-net-calculator/" data-pf-to="fundraising-event-net-calculator">Fundraising Event Net Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-no-show-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/?pfEmbed=1&quot; title=&quot;What do no-shows cost your practice? Free calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="appointment-no-show-cost-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/" data-pf-embed-title="What do no-shows cost your practice? Free calculator" data-pf-embed-slug="appointment-no-show-cost-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="appointment-no-show-cost-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="appointment-no-show-cost-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. BeProfit | Shopify Fee &amp; Profit Calculator</title>
+<meta name="description" content="BeProfit is a profit-analytics app installed on your Shopify store, reporting profit across orders after they happen, on an ongoing subscription.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-beprofit.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. BeProfit">
+<meta property="og:description" content="Two different shapes: BeProfit reports the profit your store already made. This page works out what an order or a price will leave, before you set it.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-beprofit.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or BeProfit?","acceptedAnswer":{"@type":"Answer","text":"They answer questions on opposite sides of the sale. BeProfit is a profit-analytics and expense-tracking app for e-commerce merchants, distributed through the Shopify App Store and installed onto a store. It connects to the store and to advertising accounts and pulls order revenue, cost of goods, shipping, transaction fees, and ad spend into one dashboard, so profit and margin can be read across orders over time and broken down by product, channel, and campaign. It is sold as an ongoing subscription account tied to a store. This calculator does one narrower thing, and does it before the order exists: from the item price, shipping charged, cost of goods, shipping you pay, packaging, the monthly plan allocated across expected monthly orders, and the processing rates you enter, it reports what a single order nets on Shopify Payments and on a third-party processor side by side — including the extra Shopify third-party transaction fee that generic fee pages skip — plus the break-even listing price, the price that hits a target margin or a target dollar profit, and the monthly volume at which Grow, Advanced, or Plus covers its own extra monthly fee. It runs free in any browser, installs nothing on the store, keeps no account, and uploads nothing you type. A merchant who wants to know what the store actually earned last month across every order and ad campaign is better served by BeProfit or a comparable profit-analytics app; a merchant deciding what to charge, whether to switch payment paths, or whether a plan upgrade pays for itself is in the right place here."}},{"@type":"Question","name":"Does this calculator connect to my Shopify store?","acceptedAnswer":{"@type":"Answer","text":"No. It is a static page and installs nothing. There is no app to add to your store, no OAuth screen, no permissions to grant, and no read access to your orders, products, or payouts. You type the rates from your own Shopify billing and processor statements, and the arithmetic runs in your browser — which is also why it can answer questions about an order that has not happened yet, and why a profit-analytics app that reads real orders cannot."}},{"@type":"Question","name":"Is this page affiliated with BeProfit?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by BeProfit. BeProfit is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+  body { max-width: 860px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+  a { color: #0d6b45; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: .3rem 0; max-width: 24ch; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #33544a; }
+  section { background: #fff; border: 1px solid #c6ded2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #12241c0d; margin: 1.2rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c6ded2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #33544a; }
+  .fine, .note { font-size: .88rem; color: #33544a; }
+  footer { color: #33544a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. BeProfit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. BeProfit</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Shopify Fee &amp; Profit Calculator</a></p>
+<header>
+<h1>This calculator vs. BeProfit</h1>
+<p class="lede">Two different shapes, on opposite sides of the sale. BeProfit is a profit-analytics app installed on your store, reporting what your orders already earned. This page is a free, private worksheet for one question &mdash; what will this order, or this price, actually leave, before you set it.</p>
+</header>
+
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>BeProfit</strong> is a profit-analytics and expense-tracking app for
+  e-commerce merchants, distributed through the Shopify App Store and installed
+  onto a store. It connects to the store and to advertising accounts and pulls
+  order revenue, cost of goods, shipping, transaction fees, and ad spend into
+  one dashboard, so profit and margin can be read across orders over time and
+  broken down by product, channel, and campaign. It is sold as an ongoing
+  subscription account tied to a store. BeProfit's own pricing page is not
+  reachable from this session to confirm today's plan names or dollar figures,
+  so no price for it is invented here: only its well-documented category
+  &mdash; an installed, connected, subscription profit-analytics app for
+  e-commerce stores &mdash; is stated, and no dollar amount for BeProfit
+  appears anywhere on this page.
+</p>
+<p>
+  This calculator does none of what BeProfit does. It does not connect to your
+  store, read your orders, track ad spend, attribute revenue to a campaign, or
+  keep any history at all. It takes one order's figures &mdash; item price,
+  shipping charged, cost of goods, shipping you pay, packaging and other
+  variable costs, and the monthly Shopify plan allocated across your expected
+  monthly orders &mdash; plus the processing rates from your own statements,
+  and turns them into what the order nets on <strong>Shopify Payments</strong>
+  and on a <strong>third-party processor</strong> side by side, including the
+  extra Shopify third-party transaction fee that generic fee pages skip. From
+  the same inputs it reports the break-even listing price, the price that hits
+  a target margin or a target dollar profit, return on the cash the order ties
+  up, and the monthly volume at which Grow, Advanced, or Plus covers its own
+  extra monthly fee. It runs free in any browser, installs nothing, keeps no
+  account, and uploads nothing you type.
+</p>
+<p>
+  The distinction that matters is <em>tense</em>. A connected analytics app can
+  only report orders that exist &mdash; that is the source of its accuracy. This
+  page has no orders and needs none, which is exactly why it can price one that
+  has not happened yet, or test a plan change, or compare two payment paths on a
+  hypothetical basket. Neither can do the other's job.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What did my store actually earn last month, after ads, COGS, shipping and fees, across every order?</td><td>BeProfit, or a comparable profit-analytics app &mdash; reporting real order history is not something this calculator does.</td></tr>
+<tr><td>What will this one order leave me, before I accept it?</td><td>This calculator &mdash; free, instant, private, no account, no install.</td></tr>
+<tr><td>Does PayPal or Stripe actually cost me more than Shopify Payments on this order?</td><td>This calculator's <a href="why-paypal-costs-more.html">both-paths comparison</a>, including the extra Shopify third-party transaction fee.</td></tr>
+<tr><td>What do I have to charge to clear a 30% margin on this item?</td><td>This calculator's target-margin and target-profit price.</td></tr>
+<tr><td>At my volume, does upgrading from Basic to Grow pay for itself?</td><td>This calculator's <a href="basic-vs-grow.html">plan comparison</a> &mdash; extra monthly cost divided by per-order fee savings.</td></tr>
+<tr><td>Which product line and which ad campaign are quietly losing money over the quarter?</td><td>BeProfit, or a comparable analytics app with attribution across channels.</td></tr>
+<tr><td>Do I need to install an app or grant access to my store to use the tool?</td><td>This calculator: no. BeProfit is installed onto the store as a connected app on a subscription account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Many merchants get different value from each: a profit-analytics app for the
+  monthly, store-wide, after-the-fact picture across products and campaigns,
+  and a private calculator like this one for an instant, no-login answer on
+  what one order or one price leaves before it is committed to. This page's own
+  figures are arithmetic on the rates you enter, not a statement of what
+  Shopify will charge you.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or BeProfit?</h3>
+<p>They answer questions on opposite sides of the sale. BeProfit is a profit-analytics and expense-tracking app for e-commerce merchants, distributed through the Shopify App Store and installed onto a store. It connects to the store and to advertising accounts and pulls order revenue, cost of goods, shipping, transaction fees, and ad spend into one dashboard, so profit and margin can be read across orders over time and broken down by product, channel, and campaign. It is sold as an ongoing subscription account tied to a store. This calculator does one narrower thing, and does it before the order exists: from the item price, shipping charged, cost of goods, shipping you pay, packaging, the monthly plan allocated across expected monthly orders, and the processing rates you enter, it reports what a single order nets on Shopify Payments and on a third-party processor side by side &mdash; including the extra Shopify third-party transaction fee that generic fee pages skip &mdash; plus the break-even listing price, the price that hits a target margin or a target dollar profit, and the monthly volume at which Grow, Advanced, or Plus covers its own extra monthly fee. It runs free in any browser, installs nothing on the store, keeps no account, and uploads nothing you type. A merchant who wants to know what the store actually earned last month across every order and ad campaign is better served by BeProfit or a comparable profit-analytics app; a merchant deciding what to charge, whether to switch payment paths, or whether a plan upgrade pays for itself is in the right place here.</p>
+<h3>Does this calculator connect to my Shopify store?</h3>
+<p>No. It is a static page and installs nothing. There is no app to add to your store, no OAuth screen, no permissions to grant, and no read access to your orders, products, or payouts. You type the rates from your own Shopify billing and processor statements, and the arithmetic runs in your browser &mdash; which is also why it can answer questions about an order that has not happened yet, and why a profit-analytics app that reads real orders cannot.</p>
+<h3>Is this page affiliated with BeProfit?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by BeProfit. BeProfit is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Shopify Fee &amp; Profit Calculator</a> to price your own order.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not tell you what to charge. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Verify every rate against your own Shopify billing and processor statements. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no comparison in the sense of pulling live data from BeProfit or from Shopify &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it saved you from an underpriced order, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../str-nightly-rate-optimizer/" data-pf-to="str-nightly-rate-optimizer">STR Nightly Rate Optimizer — free, private, in your browser</a></li>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shopify-fee-calculator"></script>
+</body></html>

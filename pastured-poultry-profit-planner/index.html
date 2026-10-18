@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pastured Poultry Profit Calculator — Cost per Bird, Margin per Batch, Free</title>
+  <meta name="description" content="Free pastured poultry profit calculator. Chicks, feed, processing, labour and price per pound in; profit per batch, per bird and per hour…">
+  <meta property="og:title" content="Is pastured poultry profitable? Free batch and season profit planner">
+  <meta property="og:description" content="Birds, mortality, feed and prices in; profit per batch, per bird and per hour out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M9 20c0-5 4-9 9-9v5c0 4-3 7-7 7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/">
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pastured Poultry Profit Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Project profit per batch, per bird and per hour and the break-even price per pound for a pasture-raised broiler operation. Runs in your browser; nothing is uploaded.","featureList":"Batch and season profit, break-even price per pound, mortality and feed-price sensitivity, direct vs wholesale, flock size scenarios, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is raising pastured chickens profitable?","acceptedAnswer":{"@type":"Answer","text":"It can be, but the margin per bird is thin and labour is the swing factor. The planner shows profit before and after paying yourself, so you can see the hourly return on your own time, not just a profit figure."}},{"@type":"Question","name":"How much does it cost to raise a pastured broiler?","acceptedAnswer":{"@type":"Answer","text":"Chicks, feed, processing, bedding and fuel, then your time. Feed is usually the largest line. The planner prices each batch and gives a break-even price per dressed pound."}},{"@type":"Question","name":"How many batches a year can I run?","acceptedAnswer":{"@type":"Answer","text":"That depends on your climate and brooding set-up. Enter the number you will actually run; the planner multiplies one batch out to a season and spreads equipment over its life."}},{"@type":"Question","name":"Is this agricultural or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Licensing, processing rules, avian disease, predators, insurance, sales-tax and labelling are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f8f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #166534; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14532d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14532d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #cfe3c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14532d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c9a0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefd6; color: #14532d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e2efdd; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e2efdd; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dcefd6; color: #14532d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe3c8; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+      </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is pastured poultry profitable? Free batch and season profit planner","item":"https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is pastured poultry profitable? Free batch and season profit planner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is pastured poultry profitable? Free batch and season profit planner</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PASTURED POULTRY PROFIT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does a batch of pastured chickens pay you for your time?</h1>
+    <p>Enter your batch size, losses, feed, processing and prices. The planner works out profit per batch, per bird and per hour of your own labour, the dressed price per pound you need to break even, and how the season changes with mortality, feed price, sales channel and flock size.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-flock">
+      <h2 id="h-flock">1. Your batches</h2>
+      <div class="grid">
+        <div><label for="batches">Batches per season</label><input id="batches" type="number" step="any" value="6" inputmode="decimal"></div>
+        <div><label for="birdsPerBatch">Chicks placed per batch</label><input id="birdsPerBatch" type="number" step="any" value="100" inputmode="decimal"></div>
+        <div><label for="mortalityPct">Birds lost per batch (%)</label><input id="mortalityPct" type="number" step="any" value="6" inputmode="decimal"></div>
+        <div><label for="weeks">Weeks to finish a batch (for reference)</label><input id="weeks" type="number" step="any" value="8" inputmode="decimal"></div>
+        <div><label for="dressedLb">Dressed weight per bird (lb)</label><input id="dressedLb" type="number" step="any" value="4.2" inputmode="decimal"></div>
+      </div>
+      <p class="note">Birds lost still ate part of a bird’s feed; the planner counts half. Weeks to finish is shown for your reference and does not change the numbers.</p>
+    </section>
+    <section class="card" aria-labelledby="h-sales">
+      <h2 id="h-sales">2. What you sell</h2>
+      <div class="grid">
+        <div><label for="directSharePct">Share sold direct to customers (%)</label><input id="directSharePct" type="number" step="any" value="70" inputmode="decimal"></div>
+        <div><label for="directPricePerLb">Direct price per dressed lb ($)</label><input id="directPricePerLb" type="number" step="any" value="6.5" inputmode="decimal"></div>
+        <div><label for="wholesalePricePerLb">Wholesale / restaurant price per lb ($)</label><input id="wholesalePricePerLb" type="number" step="any" value="4.25" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-costs">
+      <h2 id="h-costs">3. What it costs</h2>
+      <div class="grid">
+        <div><label for="chickCost">Cost per chick ($)</label><input id="chickCost" type="number" step="any" value="2.1" inputmode="decimal"></div>
+        <div><label for="feedPerBirdLb">Feed eaten per finished bird (lb)</label><input id="feedPerBirdLb" type="number" step="any" value="16" inputmode="decimal"></div>
+        <div><label for="feedPricePerLb">Feed price per lb ($)</label><input id="feedPricePerLb" type="number" step="any" value="0.42" inputmode="decimal"></div>
+        <div><label for="processingPerBird">Processing per bird ($)</label><input id="processingPerBird" type="number" step="any" value="4.5" inputmode="decimal"></div>
+        <div><label for="suppliesPerBatch">Bedding, fuel, supplements per batch ($)</label><input id="suppliesPerBatch" type="number" step="any" value="90" inputmode="decimal"></div>
+        <div><label for="hoursPerBatch">Your hours per batch (moves, water, feed, processing day, sales)</label><input id="hoursPerBatch" type="number" step="any" value="28" inputmode="decimal"></div>
+        <div><label for="wage">What your hour is worth ($)</label><input id="wage" type="number" step="any" value="18" inputmode="decimal"></div>
+        <div><label for="fixedYear">Insurance, licences, other fixed ($/yr)</label><input id="fixedYear" type="number" step="any" value="900" inputmode="decimal"></div>
+        <div><label for="startupEquip">Equipment you buy: pens, brooder, feeders, trailer ($)</label><input id="startupEquip" type="number" step="any" value="5500" inputmode="decimal"></div>
+        <div><label for="equipLifeYears">Equipment life (years)</label><input id="equipLifeYears" type="number" step="any" value="6" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Project my season</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is raising pastured chickens profitable?</h3>
+      <p>It can be, but the margin per bird is thin and labour is the swing factor. The planner shows profit before and after paying yourself, so you can see the hourly return on your own time, not just a profit figure.</p>
+      <h3>How much does it cost to raise a pastured broiler?</h3>
+      <p>Chicks, feed, processing, bedding and fuel, then your time. Feed is usually the largest line. The planner prices each batch and gives a break-even price per dressed pound.</p>
+      <h3>How many batches a year can I run?</h3>
+      <p>That depends on your climate and brooding set-up. Enter the number you will actually run; the planner multiplies one batch out to a season and spreads equipment over its life.</p>
+      <h3>Is this agricultural or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Licensing, processing rules, avian disease, predators, insurance, sales-tax and labelling are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Licensing and on-farm or custom processing rules, avian disease and biosecurity, predators and weather, pasture and rotation, insurance, sales-tax and labelling rules, local demand for your price, and tax treatment of farm income. Feed, chick and processing prices vary a lot by region and season; the defaults are placeholders, not forecasts.</p>
+    </section>
+    <section class="card">
+      <p>Running other farm ventures? See the <a href="../backyard-egg-profit-calculator/">backyard egg profit calculator</a>, the <a href="../sheep-goat-flock-profit-planner/">sheep and goat flock profit planner</a>, the <a href="../apiary-profit-planner/">apiary profit planner</a> and the <a href="../u-pick-farm-profit-planner/">u-pick farm profit planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licence, processing, sales-tax or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>season_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a losing batch, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { season, breakEvenPricePerLb, mortalitySensitivity, feedSensitivity, channelScenarios, scaleScenarios, DEFAULTS, num, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const hr = (x) => (x === null ? "n/a" : money2(x) + "/hr");
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const s = season(o);
+      const b = s.batch;
+      const be = breakEvenPricePerLb(o);
+      const per = (x) => (b.lb > 0 ? money2(x / b.lb) : "n/a");
+      let h = `<div class="finding"><h4>Headline</h4><p class="stats">Season profit ${money(s.profit)} after paying yourself ${money2(o.wage)}/hr · ${money(s.profitBeforeLabour)} before labour · ${hr(s.perHour)} for your time · ${Math.round(s.birds).toLocaleString("en-US")} birds, ${Math.round(s.lb).toLocaleString("en-US")} lb sold · ${s.paybackSeasons ? "equipment pays back in about " + s.paybackSeasons + " season" + (s.paybackSeasons > 1 ? "s" : "") : "equipment does not pay back at this profit"}</p></div>`;
+      h += `<div class="finding"><h4>One batch</h4>${table(["Line", "Per batch", "Per dressed lb"], [["Revenue", money(b.revenue), per(b.revenue)], ["Chicks", money(b.chicks), per(b.chicks)], ["Feed", money(b.feed), per(b.feed)], ["Processing", money(b.processing), per(b.processing)], ["Bedding, fuel, supplements", money(b.supplies), per(b.supplies)], ["Your labour", money(b.labour), per(b.labour)], ["Profit", money(b.profit), per(b.profit)]])}<p class="note">${Math.round(b.sold)} birds sold at ${o.dressedLb} lb dressed, blended ${money2(b.price)}/lb.</p></div>`;
+      h += `<div class="finding"><h4>Break-even price</h4><p>${be === null ? '<span class="pill high">No break-even</span> No birds are sold at these settings.' : "To cover every cost including your time and equipment you need a blended <strong>" + money2(be) + "</strong> per dressed lb" + (be > b.price ? ", " + money2(be - b.price) + " above what you entered." : ", below the " + money2(b.price) + " you entered, so there is headroom.")}</p></div>`;
+      h += `<div class="finding"><h4>Mortality sensitivity</h4>${table(["Birds lost", "Season profit", "Birds sold", "Profit per bird"], mortalitySensitivity(o).map((r) => [r.mortalityPct + "%", money(r.profit), Math.round(r.birds).toLocaleString("en-US"), r.perBird === null ? "n/a" : money2(r.perBird)]))}</div>`;
+      h += `<div class="finding"><h4>Feed price sensitivity</h4>${table(["Feed price", "Per lb", "Season profit", "Profit per bird"], feedSensitivity(o).map((r) => [Math.round(r.mult * 100) + "%", money2(r.feedPrice), money(r.profit), r.perBird === null ? "n/a" : money2(r.perBird)]))}</div>`;
+      h += `<div class="finding"><h4>Sales channel</h4>${table(["Mix", "Blended $/lb", "Season profit", "Return before labour"], channelScenarios(o).map((r) => [r.label, money2(r.price), money(r.profit), hr(r.perHour)]))}<p class="note">Direct sales usually take more of your time per bird; the hours you entered apply to every channel.</p></div>`;
+      h += `<div class="finding"><h4>Flock size per batch</h4>${table(["Chicks per batch", "Your hours / season", "Season profit", "Return before labour"], scaleScenarios(o).map((r) => [r.birdsPerBatch, Math.round(r.hours), money(r.profit), hr(r.perHour)]))}<p class="note">Assumes hours per batch grow with the square root of flock size (a rough rule, not a measurement). Your own logbook beats it.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("season_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../weekly-staff-schedule-maker/" data-pf-to="weekly-staff-schedule-maker">Weekly Staff Schedule Maker — free, private, in your browser</a></li>
+      <li><a href="../winery-excise-tax-calculator/" data-pf-to="winery-excise-tax-calculator">Winery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../ag-spray-drone-quote-calculator/" data-pf-to="ag-spray-drone-quote-calculator">Ag Spray Drone Quote Calculator — free, private, in your browser</a></li>
+      <li><a href="../apiary-profit-planner/" data-pf-to="apiary-profit-planner">Is beekeeping profitable? Free apiary profit planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pastured-poultry-profit-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/?pfEmbed=1&quot; title=&quot;Is pastured poultry profitable? Free batch and season profit planner — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pastured-poultry-profit-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/" data-pf-embed-title="Is pastured poultry profitable? Free batch and season profit planner" data-pf-embed-slug="pastured-poultry-profit-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="pastured-poultry-profit-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="pastured-poultry-profit-planner" data-pf-link-amount=""></script>
+</body>
+</html>

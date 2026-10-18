@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Remove Hidden Unicode Characters Once You've Found Them | Hidden Unicode Check</title>
+<meta name="description" content="Found zero-width, tag, or bidi-override characters in a file? What actually strips them — and what silently fails to — across a text editor, sed/grep, and git…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/how-to-remove-hidden-unicode-characters.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How to remove hidden Unicode characters">
+<meta property="og:description" content="What actually strips zero-width and bidi-override characters once you've found them, what silently fails to, and how to stop them coming back.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just retype the affected line?","acceptedAnswer":{"@type":"Answer","text":"Yes, for a short, isolated finding this is the most reliable fix: select the visible text around it, delete the whole span, and retype it by hand. Because the hidden characters have no visible glyph, copy-pasting the same-looking text from elsewhere in the same file risks carrying the hidden character along with it — retyping guarantees a clean insertion."}},{"@type":"Question","name":"Will a plain text editor's find-and-replace remove them?","acceptedAnswer":{"@type":"Answer","text":"Only if it supports searching by Unicode codepoint or a regex character class, and you know which codepoint you're removing — which is exactly what a scan gives you. A visual find-and-replace box usually can't be given an invisible character as the search term at all, since there's nothing to type or paste into it that reliably represents one."}},{"@type":"Question","name":"Does a command-line tool like sed or grep handle this safely?","acceptedAnswer":{"@type":"Answer","text":"Yes, once you have the exact codepoint from a scan: sed -i \"s/\\xe2\\x80\\x8b//g\" removes every zero-width space (U+200B) from a file, referencing the character by its UTF-8 byte sequence or a \\u escape rather than by pasting it, which sidesteps the invisibility problem entirely. Repeat per codepoint found; a scan that lists every distinct codepoint present is what makes this safe rather than a guess."}},{"@type":"Question","name":"Does committing the fix to git actually remove it from history?","acceptedAnswer":{"@type":"Answer","text":"Not on its own. An ordinary commit removes the character from the current file, but any earlier commit that still contains it remains in the repository's history and is fetchable by anyone who clones it. If the hidden text was sensitive or the concern is supply-chain provenance, that needs a history rewrite (and force-push) on top of the content fix, not the content fix alone."}},{"@type":"Question","name":"How do I stop it from happening again?","acceptedAnswer":{"@type":"Answer","text":"Re-scan a file after any copy-paste from an external source — a dependency's README, a PR description, a chat transcript — before trusting it, since that is the common entry point. A few editors and linters can flag specific invisible-character classes automatically; where that exists, enabling it closes the gap this tool otherwise has to catch by hand each time."}}]}</script>
+<style>:root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}*{box-sizing:border-box}body{margin:0}main{max-width:820px;margin:auto;padding:1.5rem}a{color:var(--accent);overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:var(--muted)}section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}code{background:#eef2fa;border-radius:4px;padding:.1rem .35rem;font-size:.92em}.fine,.note{font-size:.88rem;color:var(--muted)}footer{color:var(--muted);font-size:.86rem;border-top:1px solid var(--line);padding-top:16px}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/how-to-remove-hidden-unicode-characters.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to remove hidden Unicode characters — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hidden-unicode-check/">Hidden Unicode Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to remove hidden Unicode characters</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Hidden Unicode Check</a></p>
+<header>
+<h1>How to remove hidden Unicode characters once you've found them</h1>
+<p class="lede">Finding a zero-width space or a bidi-override character is only step one. Here is what actually strips them cleanly, what silently fails to, and how to stop them coming back.</p>
+</header>
+<section>
+<h2>Short, isolated findings: retype the line</h2>
+<p>
+  For a short span flagged by a scan, select the visible text around it,
+  delete the whole span, and retype it by hand rather than editing around
+  the gap. Because the hidden character has no visible glyph, copying the
+  same-looking text from elsewhere in the file risks carrying the hidden
+  character along with it &mdash; retyping guarantees a clean insertion.
+</p>
+</section>
+<section>
+<h2>A visual find-and-replace usually can't do this</h2>
+<p>
+  A plain text editor's find box typically has nowhere to put an invisible
+  character as the search term &mdash; there's nothing to type or paste into
+  it that reliably represents one. This only works if the editor supports
+  searching by Unicode codepoint or a regex character class, which most
+  general-purpose editors don't expose directly.
+</p>
+</section>
+<section>
+<h2>The command line, once you have the codepoint</h2>
+<p>
+  This is where a scan's output becomes directly actionable: with the exact
+  codepoint in hand, reference it by its UTF-8 byte sequence or a Unicode
+  escape instead of by pasting the invisible character itself.
+</p>
+<p><code>sed -i "s/\xe2\x80\x8b//g" file.md</code> removes every zero-width space (U+200B). Repeat per distinct codepoint a scan reports &mdash; which is exactly why a scan that lists every codepoint present, not just "something was found," is what makes this a fix rather than a guess.</p>
+</section>
+<section>
+<h2>Git history is a separate problem</h2>
+<p>
+  An ordinary commit removes the character from the current file, but any
+  earlier commit that still contains it stays in the repository's history
+  and is fetchable by anyone who clones it. If the hidden text was
+  sensitive, or the concern is supply-chain provenance rather than just the
+  live file, that needs a history rewrite and force-push on top of the
+  content fix &mdash; not the content fix alone.
+</p>
+</section>
+<section>
+<h2>Stopping it from recurring</h2>
+<p>
+  The common entry point is a copy-paste from something external &mdash; a
+  dependency's README, a PR description, a chat transcript. Re-scan text
+  from an external source before trusting it, the same way you'd review a
+  diff before merging it.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can I just retype the affected line?</h3>
+<p>Yes, for a short, isolated finding this is the most reliable fix: select the visible text around it, delete the whole span, and retype it by hand. Because the hidden characters have no visible glyph, copy-pasting the same-looking text from elsewhere in the same file risks carrying the hidden character along with it — retyping guarantees a clean insertion.</p>
+<h3>Will a plain text editor's find-and-replace remove them?</h3>
+<p>Only if it supports searching by Unicode codepoint or a regex character class, and you know which codepoint you're removing — which is exactly what a scan gives you. A visual find-and-replace box usually can't be given an invisible character as the search term at all, since there's nothing to type or paste into it that reliably represents one.</p>
+<h3>Does a command-line tool like sed or grep handle this safely?</h3>
+<p>Yes, once you have the exact codepoint from a scan: sed -i "s/\xe2\x80\x8b//g" removes every zero-width space (U+200B) from a file, referencing the character by its UTF-8 byte sequence or a \u escape rather than by pasting it, which sidesteps the invisibility problem entirely. Repeat per codepoint found; a scan that lists every distinct codepoint present is what makes this safe rather than a guess.</p>
+<h3>Does committing the fix to git actually remove it from history?</h3>
+<p>Not on its own. An ordinary commit removes the character from the current file, but any earlier commit that still contains it remains in the repository's history and is fetchable by anyone who clones it. If the hidden text was sensitive or the concern is supply-chain provenance, that needs a history rewrite (and force-push) on top of the content fix, not the content fix alone.</p>
+<h3>How do I stop it from happening again?</h3>
+<p>Re-scan a file after any copy-paste from an external source — a dependency's README, a PR description, a chat transcript — before trusting it, since that is the common entry point. A few editors and linters can flag specific invisible-character classes automatically; where that exists, enabling it closes the gap this tool otherwise has to catch by hand each time.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own files and diffs before trusting them. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Use <a href="./">Hidden Unicode Check</a> to find the exact codepoints and positions in your own file first. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+      <li><a href="../actions-cache-poisoning-check/" data-pf-to="actions-cache-poisoning-check">Can a fork PR poison your GitHub Actions cache?</a></li>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hidden-unicode-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hidden-unicode-check"></script>
+</body></html>

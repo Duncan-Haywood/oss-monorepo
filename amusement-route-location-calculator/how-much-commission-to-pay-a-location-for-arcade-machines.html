@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much commission to pay a location for arcade machines — a worked example</title>
+  <meta name="description" content="How to work out the highest commission you can pay an arcade, pool table or claw machine location and still earn your hourly, with a worked five-location route.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/how-much-commission-to-pay-a-location-for-arcade-machines.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a fair commission split for amusement machines?","acceptedAnswer":{"@type":"Answer","text":"There is no single fair split. Splits of 40 to 60 percent are common, but the right one for a given location is the highest commission that still earns you your target hourly, which depends on take, visits and miles. The worked example below shows how far apart those ceilings can be."}},{"@type":"Question","name":"Why do some locations lose money even when they pay?","acceptedAnswer":{"@type":"Answer","text":"Because a visit costs the same whether the machines took much or little: the drive, the time on site, and per-machine repairs and licences. A low take spread over those fixed costs can go negative once the commission comes off."}},{"@type":"Question","name":"When should I pull machines from a location?","acceptedAnswer":{"@type":"Answer","text":"When even a zero commission cannot reach your target hourly at the current take, visits and miles. Otherwise the calculator gives the commission to ask for."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/how-much-commission-to-pay-a-location-for-arcade-machines.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How much commission to pay a location for arcade machines — a worked example">
+<meta property="og:description" content="How to work out the highest commission you can pay an arcade, pool table or claw machine location and still earn your hourly, with a worked five-location route.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much commission to pay a location for arcade machines — a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amusement-route-location-calculator/">Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much commission to pay a location for arcade machines — a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">Amusement route location calculator</a> · guide</p>
+    <h1>How much commission to pay a location for arcade machines</h1>
+    <p>Commission splits on a coin-op route are usually set once, by habit, and never looked at again. But what a location can afford to be paid depends on what its machines take, how often you visit and how far you drive. The same 50 percent can be a good deal at one stop and a loss at another.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The method</h2>
+    <p>For each location, take the monthly gross, then subtract prizes, card fees, repairs, licences, machine wear and driving. Divide what remains, after the commission, by the hours the stop takes. That is profit per route hour. Set it equal to the hourly you want and solve for the commission: that is the most you can pay.</p>
+    <p>Example assumptions: a target of $35 an hour, $0.60 per mile, prizes at 8% of takings, 40% of takings by card at 3.5%, $18 a month repairs and $120 a year licence per machine, machines costing $3,500 over 7 years.</p>
+  </section>
+  <section class="card">
+    <h2>A five-location route</h2>
+    <div class="scroll"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Location</th><th>Take / machine / week</th><th>Profit / hour</th><th>Highest commission</th></tr></thead>
+      <tbody>
+      <tr><td>Corner bar (pool tables)</td><td>$140.00</td><td>$103</td><td>66.9%</td></tr>
+      <tr><td>Bowling alley (arcade)</td><td>$85.00</td><td>$125</td><td>60.3%</td></tr>
+      <tr><td>Laundromat (claw machine)</td><td>$210.00</td><td>$158</td><td>72.1%</td></tr>
+      <tr><td>Truck stop (three games)</td><td>$60.00</td><td>-$5</td><td>39.6%</td></tr>
+      <tr><td>Pizza parlour (kiddie rides)</td><td>$40.00</td><td>-$13</td><td>38.5%</td></tr>
+      </tbody>
+    </table></div></div>
+    <p>The route averages <strong>$88</strong> an hour, which hides the fact that <strong>2</strong> of the five locations lose money before paying you. The truck stop pays its owner 55 percent and sits 70 miles away; the pizza parlour's rides take too little to carry a visit. The route looks healthy only because the bowling alley and laundromat carry it.</p>
+    <p>Try your own numbers in the <a href="./index.html">calculator</a>. It also shows the weekly take each location needs.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a fair commission split for amusement machines?</h3>
+    <p>There is no single fair split. Splits of 40 to 60 percent are common, but the right one for a given location is the highest commission that still earns you your target hourly, which depends on take, visits and miles. The worked example below shows how far apart those ceilings can be.</p>
+    <h3>Why do some locations lose money even when they pay?</h3>
+    <p>Because a visit costs the same whether the machines took much or little: the drive, the time on site, and per-machine repairs and licences. A low take spread over those fixed costs can go negative once the commission comes off.</p>
+    <h3>When should I pull machines from a location?</h3>
+    <p>When even a zero commission cannot reach your target hourly at the current take, visits and miles. Otherwise the calculator gives the commission to ask for.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not business, tax or financial advice. <strong>Use at your own risk.</strong> Check location agreements, licensing and tax with your accountant or local licensing office.</p>
+    <p><strong>Independent.</strong> Not affiliated with any machine maker, route software, location chain or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../embroidery-shop-quote-calculator/" data-pf-to="embroidery-shop-quote-calculator">How much should you charge for embroidery?</a></li>
+      <li><a href="../employment-contract-checker/" data-pf-to="employment-contract-checker">Check a job offer or employment agreement before you sign — free, private</a></li>
+      <li><a href="../escape-room-pricing-capacity-planner/" data-pf-to="escape-room-pricing-capacity-planner">What should my escape room charge, and how full must it be? Free planner</a></li>
+      <li><a href="../estate-sale-net-proceeds-calculator/" data-pf-to="estate-sale-net-proceeds-calculator">Estate Sale Net Proceeds Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amusement-route-location-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amusement-route-location-calculator"></script>
+</body>
+</html>

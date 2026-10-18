@@ -1,0 +1,9 @@
+{
+  "authorized": true,
+  "domain": "example.test",
+  "captured_at": "2026-08-24T12:00:00Z",
+  "observations": [
+    {"name": "example.test", "type": "A", "resolver": "resolver-a", "observed_at": "2026-08-24T12:00:00Z", "answers": ["192.0.2.10"]},
+    {"name": "example.test", "type": "TXT", "resolver": "resolver-a", "observed_at": "2026-08-24T12:00:00Z", "answers": ["v=spf1 include:mail.example.test ~all"]}
+  ]
+}

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This tool vs. your phone's built-in world clock — World Clock &amp; Daylight</title>
+<meta name="description" content="Your phone's built-in world clock shows a time per city, one row at a time. This free tool adds sunrise, sunset, daylight length…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/vs-your-phones-clock-app.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. your phone's built-in world clock">
+<meta property="og:description" content="A phone's world clock tells you the time somewhere. It doesn't tell you whether it's a good time to call.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't my phone already have a world clock?","acceptedAnswer":{"@type":"Answer","text":"Yes, and it is fine at the one job it does: showing the current time in a city you added. What it typically does not show is sunrise, sunset, daylight length, or any indication of whether that time is a reasonable one to call — you still have to do that math in your head from the clock digits alone."}},{"@type":"Question","name":"What does this add that a phone clock app doesn't?", "acceptedAnswer":{"@type":"Answer","text":"Sunrise, sunset, and daylight length for each city, computed from the same public-domain almanac algorithm regardless of platform, plus a plain waking-hours label (Asleep, Early, Working hours, Evening) so you can tell at a glance whether it is a kind time to call — not just what the clock reads. All of it is visible for every city at once, in one table, rather than one screen per city."}},{"@type":"Question","name":"Can I share my list of cities the way I could screenshot a phone widget?","acceptedAnswer":{"@type":"Answer","text":"Yes, and more usefully: the Copy share link button puts your exact city selection into a URL. The person you send it to opens the same cities in the same order, live and current — not a screenshot that goes stale the moment the clock ticks forward."}},{"@type":"Question","name":"Does this replace my phone's world clock?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily — a phone's world clock is still the faster glance for a city or two you check constantly, especially from a lock screen or widget. This tool is built for the case a phone clock handles poorly: several cities at once, with enough context to actually decide when to call, not just what the local time is."}},{"@type":"Question","name":"Is anything uploaded or tracked?","acceptedAnswer":{"@type":"Answer","text":"No. The tool this page links to runs entirely in your browser, with no account, no upload, and no network request of any kind."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:860px;margin:auto;padding:28px}
+a{color:#1a4560;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#17324a}
+h2{font-size:1.15rem;margin:0 0 10px;color:#17324a}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#3c3644}
+.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:22px;box-shadow:0 8px 24px #17324a10;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e6eaf0;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#55606f}
+.note,footer{font-size:.86rem;color:#55606f}
+footer{margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/vs-your-phones-clock-app.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. your phone's built-in world clock — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../world-clock-widget/">What time is it there — and are they awake?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. your phone's built-in world clock</span></span></nav>
+<p class="note"><a href="./">&larr; back to the world clock</a></p>
+<h1>This tool vs. your phone's built-in world clock</h1>
+<p class="lede">A phone's world clock is built for one question: what time is it there. It answers that well, one city and one row at a time. It is usually not built to answer the question that actually decides whether to call someone -- is this a reasonable time for them, or the middle of their night.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Your phone's world clock</strong> is fast, always in your pocket, and fine for the one or two cities you check constantly, especially as a lock-screen widget. It shows a time. Working out whether that time is a good one to call still happens in your head.</p>
+<p><strong>This tool</strong> shows current local time, sunrise, sunset, daylight length, and a plain waking-hours label (Asleep, Early, Working hours, Evening) for every city you pick, side by side in one table -- so the "is this a good time" judgment is answered on the screen, not left for you to do from the clock digits alone.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What time is it in one city I check constantly?</td><td>A phone's world clock or lock-screen widget is faster for this.</td></tr>
+<tr><td>Is now a reasonable time to call several people in different cities?</td><td>This tool's waking-hours label answers it for every city at once, without mental math.</td></tr>
+<tr><td>When does the sun rise or set there, and how long is the day?</td><td>Not shown by most phone clock apps. Computed here from a public-domain almanac algorithm.</td></tr>
+<tr><td>Can I send someone my exact city list, live rather than a screenshot?</td><td>This tool's Copy share link button -- a phone widget can only be screenshotted.</td></tr>
+<tr><td>Is anything uploaded or tracked?</td><td>No. Nothing leaves your browser; there is no account, upload, or network request.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Doesn't my phone already have a world clock?</h3>
+<p>Yes, and it is fine at the one job it does: showing the current time in a city you added. What it typically does not show is sunrise, sunset, daylight length, or any indication of whether that time is a reasonable one to call &mdash; you still have to do that math in your head from the clock digits alone.</p>
+<h3>What does this add that a phone clock app doesn't?</h3>
+<p>Sunrise, sunset, and daylight length for each city, computed from the same public-domain almanac algorithm regardless of platform, plus a plain waking-hours label (Asleep, Early, Working hours, Evening) so you can tell at a glance whether it is a kind time to call &mdash; not just what the clock reads. All of it is visible for every city at once, in one table, rather than one screen per city.</p>
+<h3>Can I share my list of cities the way I could screenshot a phone widget?</h3>
+<p>Yes, and more usefully: the Copy share link button puts your exact city selection into a URL. The person you send it to opens the same cities in the same order, live and current &mdash; not a screenshot that goes stale the moment the clock ticks forward.</p>
+<h3>Does this replace my phone's world clock?</h3>
+<p>Not necessarily &mdash; a phone's world clock is still the faster glance for a city or two you check constantly, especially from a lock screen or widget. This tool is built for the case a phone clock handles poorly: several cities at once, with enough context to actually decide when to call, not just what the local time is.</p>
+<h3>Is anything uploaded or tracked?</h3>
+<p>No. The tool this page links to runs entirely in your browser, with no account, no upload, and no network request of any kind.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked tool compute sunrise, sunset, and daylight length from a published almanac approximation using city-centre coordinates; they are not suitable for navigation, aviation, maritime use, or religious observance, and the waking-hours labels are a courtesy heuristic, not a claim about any individual's real schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The tool this page links to runs entirely client-side, with no account, no upload, and no network request of any kind.</p>
+<p>Nothing here says or implies that your phone's built-in world clock is bad at its job &mdash; it is a different job: a fast glance at one city's time, where this tool adds the context for several cities at once.</p>
+<p><a href="./">Back to the world clock</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../ai-engineering-academy/" data-pf-to="ai-engineering-academy">Free Electronics Calculators</a></li>
+      <li><a href="../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../yoga-pilates-studio-class-profit-calculator/" data-pf-to="yoga-pilates-studio-class-profit-calculator">Yoga &amp; Pilates Studio Class Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=world-clock-widget">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="world-clock-widget"></script>
+</body>
+</html>

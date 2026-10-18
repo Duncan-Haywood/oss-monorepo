@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixing a WordPress readme.txt "Stable tag" mismatch</title>
+<meta name="description" content="What a readme.txt Stable tag / plugin Version mismatch means for a WordPress plugin, why it happens…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/stable-tag-mismatch.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a WordPress plugin readme.txt Stable tag mismatch",
+  "step": [
+    { "@type": "HowToStep", "name": "Open your readme.txt and find the Stable tag line", "text": "Near the top of readme.txt, in the header block above the == Description == section, find the line reading 'Stable tag: X.Y.Z'. This is the version the Plugin Directory actually serves to users -- not your most recent commit, and not whatever your main plugin file says, unless the two happen to agree." },
+    { "@type": "HowToStep", "name": "Open your main plugin file and find the Version line", "text": "In the PHP comment block at the top of your plugin's main file (the one with 'Plugin Name:'), find the 'Version:' line. WordPress reads this to detect available updates and to display the installed version in the Plugins screen." },
+    { "@type": "HowToStep", "name": "Compare the two, exactly", "text": "The two must read identically (or Stable tag may deliberately say 'trunk', which tells the directory to always serve the latest commit instead of a tagged release). A stale Stable tag after a new release means the directory keeps serving the old version -- and it means a mismatch note the moment a reviewer looks." },
+    { "@type": "HowToStep", "name": "Update whichever one is behind, and re-check before resubmitting", "text": "Bump Stable tag to match your new release's Version, or vice versa if the plugin header is what's behind. Re-scan both files to confirm they agree before you tag the release or resubmit." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/stable-tag-mismatch.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Fixing a WordPress readme.txt &quot;Stable tag&quot; mismatch">
+<meta property="og:description" content="What a readme.txt Stable tag / plugin Version mismatch means for a WordPress plugin, why it happens…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fixing a WordPress readme.txt &quot;Stable tag&quot; mismatch — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../wordpress-plugin-review-check/">WordPress Plugin Review Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Fixing a WordPress readme.txt &quot;Stable tag&quot; mismatch</span></span></nav>
+<h1>Fixing a readme.txt "Stable tag" mismatch</h1>
+
+<p>
+  A <strong>Stable tag</strong> mismatch is one of the most common notes a WordPress plugin gets
+  during Plugin Directory review, and one of the easiest to introduce by accident: your
+  <code>readme.txt</code> and your plugin's main file each carry their own version string, in two
+  different files, in two different formats, and nothing forces them to move together.
+</p>
+
+<h2>Why it happens</h2>
+<p>
+  The Plugin Directory serves whichever version <code>readme.txt</code>'s <code>Stable tag</code>
+  line names -- not your latest commit, not your latest tag, and not whatever the plugin header
+  says. Bump the version in your main plugin file and forget the matching line in
+  <code>readme.txt</code> (or the reverse) and the two drift apart. Users downloading or
+  auto-updating your plugin keep getting the old build even after you've shipped the new one.
+</p>
+
+<h2>What "correct" looks like</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>File</th><th>Line</th><th>What it controls</th></tr></thead>
+<tbody>
+<tr><td><code>readme.txt</code></td><td><code>Stable tag: 1.4.2</code></td><td>Which tagged version the directory actually serves to users</td></tr>
+<tr><td>Main plugin file (PHP header comment)</td><td><code>Version: 1.4.2</code></td><td>What WordPress core shows in the Plugins screen and uses to detect an available update</td></tr>
+</tbody>
+</table></div>
+<p>
+  The two values should read identically at every release -- or <code>Stable tag</code> may
+  deliberately read <code>trunk</code>, which tells the directory to always serve whatever is in
+  the SVN trunk rather than a tagged release. That's a valid, if less common, choice; it just
+  isn't a version to compare against.
+</p>
+
+<h2>Find it automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> reads both files and tells you immediately if
+  they disagree, along with the other checks it runs (required readme/header fields, unescaped
+  superglobal output, missing nonce checks on <code>$_POST</code> handlers). It runs as a browser
+  tool (nothing uploaded) or a Node CLI you can add to your own pre-submission or pre-release check.
+</p>
+
+<p>
+  This is evidence of what the two files currently say, not a determination that Plugin Review
+  will pass in every respect -- see <a href="index.html">the checker</a> and its disclaimer for
+  what else it can and can't see, and verify against
+  <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">the Plugin Directory's current guidelines</a>
+  before you submit or tag a release.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or security advice, and it does not replace wordpress.org's own review
+  process. To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., or
+  WordPress.org. WordPress® is a registered trademark of the WordPress Foundation, named here only to
+  describe the field this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+      <li><a href="../docker-compose-security-check/" data-pf-to="docker-compose-security-check">What is your docker-compose.yml handing to the host?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wordpress-plugin-review-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="wordpress-plugin-review-check"></script>
+</body>
+</html>

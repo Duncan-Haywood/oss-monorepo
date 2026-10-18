@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. LCPtracker | Certified Payroll Calculator</title>
+  <meta name="description" content="How this free, no-account certified payroll overtime/fringe checker differs from LCPtracker, the subscription certified-payroll compliance platform.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/vs-lcptracker.html">
+  <meta property="og:title" content="This calculator vs. LCPtracker | Certified Payroll Calculator">
+  <meta property="og:description" content="LCPtracker runs a whole project's certified-payroll submission and audit workflow. This page checks one worker's one week of overtime and fringe math, free…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or LCPtracker?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems at different scales. LCPtracker is cloud-based, subscription compliance software that a contracting agency or general contractor rolls out across an entire project: every subcontractor's certified payroll is collected, validated against Davis-Bacon and state prevailing-wage rules, and stored for audit, often because the awarding agency requires certified payroll to be submitted through it. This page is a single free form: no account, no project setup, no submission workflow. You type one worker's wage-determination rate, fringe, actual pay, and hours for one week, and it checks the combined-compensation requirement and computes overtime correctly when part of the fringe is paid in cash instead of into a bona fide plan."}},{"@type":"Question","name":"Does LCPtracker check the same cash-in-lieu-of-fringe overtime rule this page does?","acceptedAnswer":{"@type":"Answer","text":"LCPtracker's own materials describe a validation engine that flags Davis-Bacon and prevailing-wage errors across submitted certified payrolls before they go to the agency, run against the payroll data a contractor's system feeds into it. This page does one narrower thing directly: given a wage determination's base and fringe rates plus what a worker was actually paid, it computes whether cash-in-lieu-of-fringe was correctly included in the overtime regular rate under 29 CFR 5.32 / 778.7, so you can check that one calculation by hand before it ever reaches a submission system."}},{"@type":"Question","name":"Is LCPtracker free?","acceptedAnswer":{"@type":"Answer","text":"No. LCPtracker is subscription software (LCPtracker Pro, with an add-on LCPtracker+ training/support tier), typically paid for by the contractor or required by the contracting agency as part of the project's compliance process. This calculator has no account and nothing that bills — it is a free static page with no server behind the numbers you type."}},{"@type":"Question","name":"Is this page affiliated with LCPtracker?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by LCPtracker, Inc. LCPtracker is a trademark of its owner, named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5967; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #12233a; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4f5967; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/vs-lcptracker.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. LCPtracker | Certified Payroll Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../certified-payroll-calculator/">Certified Payroll Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. LCPtracker | Certified Payroll Calculator</span></span></nav>
+  <p><a href="./">&larr; Certified payroll calculator</a></p>
+  <h1>This calculator vs. LCPtracker</h1>
+  <p>
+    <a href="https://lcptracker.com/" rel="nofollow noopener">LCPtracker</a> is
+    cloud-based, subscription software built for running an entire project's
+    certified-payroll compliance: a contracting agency or general contractor
+    rolls it out across every subcontractor, payroll data is collected and
+    validated against Davis-Bacon and state prevailing-wage rules, and the
+    results are stored for audit &mdash; often because the awarding agency
+    requires certified payroll to be submitted through it. An add-on
+    LCPtracker+ tier layers on training and priority support.
+  </p>
+  <p>
+    That makes LCPtracker the right choice for <strong>running an entire
+    project's certified-payroll submission and audit workflow across every
+    subcontractor</strong>. This page answers a narrower, faster question:
+    <strong>for one worker, one week, does the wage-determination math and
+    overtime calculation actually check out</strong> &mdash; with no account,
+    no project setup, and nothing uploaded.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>How do I submit and store certified payroll for an entire project, across every subcontractor, for audit?</td>
+        <td>LCPtracker's project-wide submission and validation workflow.</td>
+      </tr>
+      <tr>
+        <td>For this one worker this week, does the fringe and overtime math actually satisfy the wage determination?</td>
+        <td>This calculator &mdash; type the wage determination and the actual pay, get an answer immediately, nothing installed.</td>
+      </tr>
+      <tr>
+        <td>Is cash-in-lieu-of-fringe being paid at straight time when it should carry the overtime premium?</td>
+        <td>This calculator's overtime check &mdash; see <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">does overtime include fringe benefits?</a></td>
+      </tr>
+      <tr>
+        <td>How many apprentices exceed the approved apprentice-to-journeyman ratio this week?</td>
+        <td>This calculator's ratio check, from the counts you enter.</td>
+      </tr>
+      <tr>
+        <td>Can I check one week's numbers without an account, a project setup, or a subscription?</td>
+        <td>This calculator &mdash; a static page, no sign-up, no billing.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Check one week's numbers now</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and the wage determination, hours,
+    and every other figure you enter stay on this device &mdash; nothing is
+    uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or LCPtracker?</h3>
+  <p>They solve different problems at different scales. LCPtracker is cloud-based, subscription compliance software that a contracting agency or general contractor rolls out across an entire project: every subcontractor's certified payroll is collected, validated against Davis-Bacon and state prevailing-wage rules, and stored for audit, often because the awarding agency requires certified payroll to be submitted through it. This page is a single free form: no account, no project setup, no submission workflow. You type one worker's wage-determination rate, fringe, actual pay, and hours for one week, and it checks the combined-compensation requirement and computes overtime correctly when part of the fringe is paid in cash instead of into a bona fide plan.</p>
+  <h3>Does LCPtracker check the same cash-in-lieu-of-fringe overtime rule this page does?</h3>
+  <p>LCPtracker's own materials describe a validation engine that flags Davis-Bacon and prevailing-wage errors across submitted certified payrolls before they go to the agency, run against the payroll data a contractor's system feeds into it. This page does one narrower thing directly: given a wage determination's base and fringe rates plus what a worker was actually paid, it computes whether cash-in-lieu-of-fringe was correctly included in the overtime regular rate under 29 CFR 5.32 / 778.7, so you can check that one calculation by hand before it ever reaches a submission system.</p>
+  <h3>Is LCPtracker free?</h3>
+  <p>No. LCPtracker is subscription software (LCPtracker Pro, with an add-on LCPtracker+ training/support tier), typically paid for by the contractor or required by the contracting agency as part of the project's compliance process. This calculator has no account and nothing that bills &mdash; it is a free static page with no server behind the numbers you type.</p>
+  <h3>Is this page affiliated with LCPtracker?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by LCPtracker, Inc. LCPtracker is a trademark of its owner, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">Does overtime include fringe benefits on certified payroll?</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, payroll, or compliance advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it caught a payroll mistake before an auditor did, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../startup-exit-waterfall-calculator/" data-pf-to="startup-exit-waterfall-calculator">Startup Exit Waterfall Calculator — free, private, in your browser</a></li>
+      <li><a href="../startup-option-value-calculator/" data-pf-to="startup-option-value-calculator">Startup Stock Option Value Calculator — free, private, in your browser</a></li>
+      <li><a href="../state-residency-day-counter/" data-pf-to="state-residency-day-counter">State Residency Day Counter — free, private, in your browser</a></li>
+      <li><a href="../stripe-churn-cohort-analyzer/" data-pf-to="stripe-churn-cohort-analyzer">Stripe Churn and Cohort Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=certified-payroll-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="certified-payroll-calculator"></script>
+</body>
+</html>

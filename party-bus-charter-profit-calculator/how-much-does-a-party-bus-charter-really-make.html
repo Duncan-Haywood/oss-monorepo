@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a party bus charter really make: a worked example</title>
+  <meta name="description" content="How to work out what a party bus or limo charter really earns: billed and minimum hours, deadhead, miles, cleaning, gratuity share, card fees…">
+  <meta property="og:title" content="How much does a party bus charter really make: a worked example">
+  <meta property="og:description" content="How to work out what a party bus or limo charter really earns: billed and minimum hours, deadhead, miles, cleaning, gratuity share, card fees…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/party-bus-charter-profit-calculator/how-much-does-a-party-bus-charter-really-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a party bus charter so it makes money?","acceptedAnswer":{"@type":"Answer","text":"Start from the hours the vehicle is really tied up, not the hours the customer books: the billed hours (at least your minimum) plus the deadhead and positioning time to and from the garage. Pay the driver for all of them, add fuel and maintenance for every mile including empty ones, cleaning, the gratuity share you pay out, card fees, the vehicle's wear per charter and a share of your yearly insurance, storage and permits. Divide the costs that do not scale with price by one minus gratuity share, card fees and your target margin to get the lowest quote."}},{"@type":"Question","name":"Why does a charter that looks busy lose money?","acceptedAnswer":{"@type":"Answer","text":"Because the hours that cost the most are the ones nobody is billed for. A five-hour minimum with ninety miles and an hour and a half of positioning keeps the driver and the vehicle busy for six and a half hours, and a share of insurance and the vehicle payment lands on every charter whether or not the calendar is full."}},{"@type":"Question","name":"How many charters does a party bus have to run to pay for itself?","acceptedAnswer":{"@type":"Answer","text":"Take what one charter earns above its direct costs, which is everything except the vehicle's own depreciation, and divide the purchase price by that. The calculator shows the charters, and the years at the rate you expect to run the vehicle, and warns if the answer is more than the charters you expect in its life."}},{"@type":"Question","name":"Which charter should I take when I have one vehicle free?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per charter and profit per vehicle hour. When the vehicle is the limit, the charter with the higher profit per vehicle hour fills the calendar better, even if another one makes more by itself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/party-bus-charter-profit-calculator/how-much-does-a-party-bus-charter-really-make.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/party-bus-charter-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does a party bus charter really make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../party-bus-charter-profit-calculator/">Party Bus Charter Profit Calculator — true profit, margin and lowest quote per charter</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does a party bus charter really make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← Party Bus Charter Profit Calculator</a></p>
+    <h1>How much does a party bus charter really make?</h1>
+    <p>An $850 five-hour charter sounds like $170 an hour. After the driver, the empty miles and the bus's own wear it keeps about an eighth of that.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A customer books 4 hours and the minimum is 5, so the charter bills <strong>5 hours</strong> at <strong>$850.00</strong>. The driver also spends 1.5 hours positioning the bus from the garage and back, so driver and vehicle are tied up for <strong>6.5 hours</strong>. At $28 an hour plus 12% payroll cost, driver pay is <strong>$203.84</strong>. The route is 90 miles including the empty ones at 8 mpg and $3.90 a gallon, so fuel is <strong>$43.88</strong>, plus $49.50 of maintenance and tires. Detailing is $45, the gratuity share paid to the driver is 5% of the price and card fees are 3% of the price, <strong>$25.50</strong>.</p>
+    <p>The bus cost $85,000 and should run 900 charters, which is <strong>$94.44</strong> a charter. Yearly insurance, storage and permits are $38,000 over 160 charters, <strong>$237.50</strong> on each charter.</p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Per charter</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$850.00</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$742.16</strong></td></tr>
+<tr><td>True profit</td><td><strong>$107.84</strong></td></tr>
+<tr><td>Margin</td><td>12.7%</td></tr>
+<tr><td>Profit per vehicle hour</td><td><strong>$16.59</strong></td></tr>
+    </tbody></table></div>
+    <p>At 160 charters that is $17,254 of profit a year. The business needs about <strong>110</strong> charters a year just to cover the overhead.</p>
+  </section>
+  <section class="card">
+    <h2>What the quote has to be</h2>
+    <p>For a 25% margin after 5% gratuity share and 3% card fees, the costs that do not move with price ($674.16) are divided by 0.67, which gives <strong>$1006.21</strong>. At $850.00 this charter is $156.21 short.</p>
+    <h2 style="margin-top:20px">Does the bus pay for itself?</h2>
+    <p>One charter earns $202.28 above its direct costs, before the bus's own wear. The bus costs $85,000, so it needs <strong>420.2</strong> charters, about 4.7 years at 90 charters a year, well inside its 900-charter life.</p>
+    <h2 style="margin-top:20px">Comparing two charters</h2>
+    <p>A shorter local charter brings in $680 for 3 hours with half an hour of positioning and 45 miles. It makes <strong>$92.21</strong> against <strong>$107.84</strong> for the first, but <strong>$26.35</strong> per vehicle hour against <strong>$16.59</strong>. On a busy Saturday where the vehicle is the limit, the short charter fills the calendar better.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a party bus charter so it makes money?</h3>
+    <p>Start from the hours the vehicle is really tied up, not the hours the customer books: the billed hours (at least your minimum) plus the deadhead and positioning time to and from the garage. Pay the driver for all of them, add fuel and maintenance for every mile including empty ones, cleaning, the gratuity share you pay out, card fees, the vehicle's wear per charter and a share of your yearly insurance, storage and permits. Divide the costs that do not scale with price by one minus gratuity share, card fees and your target margin to get the lowest quote.</p>
+    <h3>Why does a charter that looks busy lose money?</h3>
+    <p>Because the hours that cost the most are the ones nobody is billed for. A five-hour minimum with ninety miles and an hour and a half of positioning keeps the driver and the vehicle busy for six and a half hours, and a share of insurance and the vehicle payment lands on every charter whether or not the calendar is full.</p>
+    <h3>How many charters does a party bus have to run to pay for itself?</h3>
+    <p>Take what one charter earns above its direct costs, which is everything except the vehicle's own depreciation, and divide the purchase price by that. The calculator shows the charters, and the years at the rate you expect to run the vehicle, and warns if the answer is more than the charters you expect in its life.</p>
+    <h3>Which charter should I take when I have one vehicle free?</h3>
+    <p>Compare profit per charter and profit per vehicle hour. When the vehicle is the limit, the charter with the higher profit per vehicle hour fills the calendar better, even if another one makes more by itself.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, insurance or financial advice. Not affiliated with any vehicle maker or booking platform. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sign-language-interpreter-rate-calculator/" data-pf-to="sign-language-interpreter-rate-calculator">Sign Language Interpreter Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../sign-shop-job-pricing-calculator/" data-pf-to="sign-shop-job-pricing-calculator">Sign shop job pricing calculator</a></li>
+      <li><a href="../ski-snowboard-tune-shop-profit-calculator/" data-pf-to="ski-snowboard-tune-shop-profit-calculator">Ski and Snowboard Tune Shop Profit Calculator — free, private</a></li>
+      <li><a href="../speaker-fee-calculator/" data-pf-to="speaker-fee-calculator">Speaker fee calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=party-bus-charter-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="party-bus-charter-profit-calculator"></script>
+</body>
+</html>

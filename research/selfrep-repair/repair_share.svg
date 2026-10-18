@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Working fleet size against repair cost share: repair roughly triples the fleet at a low cost share and falls back to the replace-only level near a cost share of 0.8, in both the simulation and the closed form">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Working fleet vs repair cost share (stylised model)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="280.0" y2="280.0" stroke="#ddd"/><text x="58" y="284.0" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="232.0" y2="232.0" stroke="#ddd"/><text x="58" y="236.0" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="184.0" y2="184.0" stroke="#ddd"/><text x="58" y="188.0" text-anchor="end" font-family="sans-serif" font-size="11">90</text>
+<line x1="64" x2="624" y1="136.0" y2="136.0" stroke="#ddd"/><text x="58" y="140.0" text-anchor="end" font-family="sans-serif" font-size="11">120</text>
+<line x1="64" x2="624" y1="88.0" y2="88.0" stroke="#ddd"/><text x="58" y="92.0" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">180</text>
+<text x="120.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="232.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="344.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="456.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="568.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">repair cost share c (fraction of a new machine's vitamins)</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">working machines (time average)</text>
+<polygon points="120.0,83.2 232.0,169.6 344.0,216.2 456.0,236.6 512.0,243.4 568.0,250.9 624.0,254.2 624.0,270.1 568.0,267.8 512.0,261.0 456.0,258.2 344.0,236.8 232.0,194.4 120.0,117.1" fill="#1f6fb2" fill-opacity="0.15"/>
+<line x1="64" x2="624" y1="254.9" y2="254.9" stroke="#888" stroke-dasharray="4 3"/><text x="620" y="250.9" text-anchor="end" font-family="sans-serif" font-size="11" fill="#555">replace only: 45.7</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="120.0,100.5 232.0,182.7 344.0,225.4 456.0,248.6 512.0,253.6 568.0,258.1 624.0,262.9"/>
+<circle cx="120.0" cy="100.5" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="182.7" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="225.4" r="3" fill="#1f6fb2"/>
+<circle cx="456.0" cy="248.6" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="253.6" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="258.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="262.9" r="3" fill="#1f6fb2"/>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 3" points="120.0,77.6 232.0,177.8 344.0,220.6 456.0,244.5 512.0,252.8 568.0,259.7 624.0,265.4"/>
+<circle cx="120.0" cy="77.6" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="177.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="220.6" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="244.5" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="252.8" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="259.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="265.4" r="3" fill="#c0392b"/>
+<line x1="340" x2="364" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="370" y="78" font-family="sans-serif" font-size="11">discrete-event median (band: 5th-95th pct)</text>
+<line x1="340" x2="364" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="370" y="94" font-family="sans-serif" font-size="11">closed-form vitamin balance</text>
+</svg>

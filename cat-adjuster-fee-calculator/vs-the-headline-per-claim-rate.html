@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. judging an offer by its headline per-claim rate | CAT Adjuster Fee Schedule Calculator</title>
+<meta name="description" content="A $550-a-claim offer and a $350-a-claim offer both sound like a rate you can compare on their face.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/vs-the-headline-per-claim-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. judging an offer by its headline per-claim rate">
+<meta property="og:description" content="The per-claim rate two IA firms quote does not say what either deployment actually pays per hour. This free calculator does, from your own pace and daily costs.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't the per-claim rate enough to compare two offers?","acceptedAnswer":{"@type":"Answer","text":"Because it says nothing about pace, and pace is what turns a rate into income. A $550-a-claim firm assigning 0.8 claims a day and a $350-a-claim firm assigning 1.5 a day can land on either side of each other once claims per day are multiplied out — and neither number alone tells you which. The rate is one factor in an hourly figure, not the figure itself."}},{"@type":"Question","name":"What do daily costs and travel days change that the per-claim rate can't show?","acceptedAnswer":{"@type":"Answer","text":"They are the same regardless of which firm you deploy for, so they shrink a slower firm's margin more than a faster one's. Lodging, per diem, vehicle cost, and an estimating-software subscription run every day in the field, and the unpaid days spent driving to and from the disaster zone add cost with zero claims closed. A fee schedule that never shows a loss on paper can still pay only a few dollars an hour once those costs are counted against a slower pace."}},{"@type":"Question","name":"Does a large-loss bonus change which offer actually pays more?","acceptedAnswer":{"@type":"Answer","text":"It can, because a bonus that looks identical on two fee schedules is worth different amounts depending on how many large-loss claims each firm actually assigns. A firm that pays a bigger bonus per large-loss claim but assigns fewer of them can blend lower than a firm with a smaller bonus and more large-loss volume — the headline bonus number alone does not say which."}},{"@type":"Question","name":"Does this calculator replace comparing firms on reputation or pay speed?","acceptedAnswer":{"@type":"Answer","text":"No. It only turns the numbers you enter — fee schedule, assumed pace, and daily costs — into an effective hourly rate for a deployment. It does not evaluate a firm's reputation, how quickly it actually pays, or its claim-volume promises; verify those independently before accepting a deployment."}}]}</script>
+<style>
+:root{font:16px/1.6 system-ui,sans-serif;color:#131b2e;background:#eef1f8}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#1f3ca3;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#1f3ca3;margin:0 0 6px}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}
+.lede{font-size:1.05rem;max-width:64ch;color:#4a5578}
+p{line-height:1.6}
+section.card{background:#fff;border:1px solid #d7dcef;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1f3ca310;margin:1rem 0}
+h2{margin-top:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d7dcef;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5578}
+.fine,.note{font-size:.88rem;color:#4a5578}
+footer{color:#4a5578;font-size:.86rem;margin-top:28px;border-top:1px solid #d7dcef;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/vs-the-headline-per-claim-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. judging an offer by its headline per-claim rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cat-adjuster-fee-calculator/">CAT Adjuster Fee Schedule &amp; Deployment Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. judging an offer by its headline per-claim rate</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; CAT Adjuster Fee Schedule Calculator</a></p>
+<header>
+<h1>This calculator vs. judging an offer by its headline per-claim rate</h1>
+<p class="lede">A $550-a-claim offer and a $350-a-claim offer both look like a rate you can rank on their face. Neither number says what the trip actually pays once pace, daily costs, unpaid travel days, and a blended large-loss bonus come out. This free calculator turns any fee schedule into an effective hourly rate so two offers can be ranked on what they actually pay.</p>
+</header>
+<section class="card">
+<h2>What each one tells you</h2>
+<p>
+  <strong>The headline per-claim rate</strong> is the number two IA firms
+  lead with, and it is real &mdash; but it is one factor in an hourly
+  figure, not the figure itself. It says nothing about how many claims a
+  day that firm's volume and assignment pattern actually support, and
+  nothing about the lodging, per diem, vehicle, software, and unpaid
+  travel-day cost that run every day in the field regardless of which
+  firm sent you.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same fee schedule &mdash;
+  per-claim fee, large-loss share and bonus &mdash; along with your
+  assumed pace and daily costs, and produces the number the rate alone
+  can't: profit per hour actually worked, and the break-even claims-per-day
+  pace below which the deployment loses money. The <a
+  href="./#offerRows">fee-schedule comparison table</a> runs two or three
+  offers side by side on that same basis.
+</p>
+<p>
+  It exists because a fee schedule that never shows a loss on paper can
+  still pay a few dollars an hour once a slower pace and the same daily
+  costs are counted against it. See <a
+  href="./is-this-cat-adjuster-fee-schedule-worth-it.html">a worked
+  example</a> where a $350/claim offer beats a $550/claim offer on paper
+  and loses badly once hours are counted.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which of two fee schedules actually pays more per hour?</td><td>This calculator's <a href="./#offerRows">fee-schedule comparison</a> &mdash; enter each offer, compare net profit for the same deployment.</td></tr>
+<tr><td>What claims-per-day pace do I need just to break even?</td><td>This calculator's <a href="./#profit">break-even pace</a> figure, from your own daily costs.</td></tr>
+<tr><td>Does a bigger large-loss bonus mean a better firm?</td><td>Only if that firm also assigns enough large-loss claims &mdash; enter the bonus and share to see the blended effect.</td></tr>
+<tr><td>Should I take this firm's reputation or pay-speed on faith?</td><td>No &mdash; verify those independently. This calculator only prices the fee schedule and pace you enter.</td></tr>
+<tr><td>Is my fee-schedule data uploaded anywhere?</td><td>No. Everything runs in your browser; comparison rows are never saved and clear on refresh by design.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  This calculator is arithmetic on the fee schedule, pace, and costs you
+  supply. It does not evaluate a firm's reputation, timeliness of payment,
+  or claim-volume promises, and it is not licensing, insurance, or
+  business advice.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why isn't the per-claim rate enough to compare two offers?</h3>
+<p>Because it says nothing about pace, and pace is what turns a rate into income. A $550-a-claim firm assigning 0.8 claims a day and a $350-a-claim firm assigning 1.5 a day can land on either side of each other once claims per day are multiplied out &mdash; and neither number alone tells you which. The rate is one factor in an hourly figure, not the figure itself.</p>
+<h3>What do daily costs and travel days change that the per-claim rate can't show?</h3>
+<p>They are the same regardless of which firm you deploy for, so they shrink a slower firm's margin more than a faster one's. Lodging, per diem, vehicle cost, and an estimating-software subscription run every day in the field, and the unpaid days spent driving to and from the disaster zone add cost with zero claims closed. A fee schedule that never shows a loss on paper can still pay only a few dollars an hour once those costs are counted against a slower pace.</p>
+<h3>Does a large-loss bonus change which offer actually pays more?</h3>
+<p>It can, because a bonus that looks identical on two fee schedules is worth different amounts depending on how many large-loss claims each firm actually assigns. A firm that pays a bigger bonus per large-loss claim but assigns fewer of them can blend lower than a firm with a smaller bonus and more large-loss volume &mdash; the headline bonus number alone does not say which.</p>
+<h3>Does this calculator replace comparing firms on reputation or pay speed?</h3>
+<p>No. It only turns the numbers you enter &mdash; fee schedule, assumed pace, and daily costs &mdash; into an effective hourly rate for a deployment. It does not evaluate a firm's reputation, how quickly it actually pays, or its claim-volume promises; verify those independently before accepting a deployment.</p>
+<p class="note">
+  Open the <a href="./">CAT Adjuster Fee Schedule Calculator</a> to compare your own offers, or read <a href="./is-this-cat-adjuster-fee-schedule-worth-it.html">a full worked example</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, licensing, insurance, or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any licensing or insurance obligation in your jurisdiction. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This page describes IA firm fee schedules and deployment pricing in general terms; it is not affiliated with, endorsed by, or sponsored by any specific firm, and it does not claim to reproduce any firm's proprietary fee schedule.</p>
+<p class="support">Free and open source. If it helps you compare a deployment, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+      <li><a href="../401k-plan-fee-calculator/" data-pf-to="401k-plan-fee-calculator">401(k) Plan Fee Calculator — free, private</a></li>
+      <li><a href="../ad-slot-sell-through-planner/" data-pf-to="ad-slot-sell-through-planner">Should you raise your sponsorship price? Free sell-through planner</a></li>
+      <li><a href="../affiliate-disclosure-checker/" data-pf-to="affiliate-disclosure-checker">Is your affiliate disclosure missing, or just too late?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cat-adjuster-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cat-adjuster-fee-calculator"></script>
+</body></html>

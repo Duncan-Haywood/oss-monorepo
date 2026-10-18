@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime data reachability | Development analyses</title>
+<meta name="description" content="Measured 2026-08-20. No credential, no account, no spend — read-only GETs.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>Runtime data reachability</h1>
+<p class="meta">Study · 2026-08-20 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/runtime-data-reachability/README.md">portfolio/research/runtime-data-reachability/README.md</a></p>
+<article class="doc">
+<p><strong>Measured 2026-08-20. No credential, no account, no spend — read-only GETs.</strong></p>
+<p>Reproduce: <code>python3 probe_reachability.py --json results-2026-08-20.json</code> Raw output: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/runtime-data-reachability/results-2026-08-20.json">results-2026-08-20.json</a>.</p>
+<h3>The question this asks, and why it is a third question</h3>
+<p>Three different reachability questions have now been asked about this environment. They are not the same question and they do not have the same answer:</p>
+<div class="scroll"><table><thead><tr><th></th><th>Question</th><th>Asked by</th><th>Answer</th></tr></thead><tbody><tr><td>1</td><td>Can we <strong>publish</strong> to a channel?</td><td><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/166">#166</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/177">#177</a></td><td>Yes — eight registries, publish endpoints answer</td></tr><tr><td>2</td><td>Can we <strong>verify a claim</strong> against its primary source?</td><td><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/232">#232</a>, <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> §2c</td><td>No — legal/standards hosts denied</td></tr><tr><td>3</td><td>Can the product <strong>fetch its own input data</strong>?</td><td><em>this note</em></td><td>Only for one of eight candidates</td></tr></tbody></table></div>
+<p>Question 3 was never asked. It decides something the other two do not: whether an agent session can build and test the thing at all. A candidate can be publishable (1) and still be impossible to develop, because the data it operates on cannot be fetched.</p>
+<h3>Method</h3>
+<p>Every probe distinguishes three outcomes, and the distinction is the whole measurement:</p>
+<ul><li><strong><code>origin_answered</code></strong> — any HTTP status came back from the host itself. The host is permitted. A 403/404 here is an origin-side answer (auth, path, user-agent), <strong>not</strong> a network denial.</li><li><strong><code>proxy_denied</code></strong> — <code>CONNECT tunnel failed, response 403</code>. The egress gateway refused the tunnel. No credential changes this from inside a session.</li><li><strong><code>scope_denied</code></strong> — the host answered, but the session&#39;s GitHub proxy refused the path: <em>&quot;sessions are bound to their configured repositories.&quot;</em> Reachable host, unreachable data.</li></ul>
+<p>The user-agent matters and is a live trap for this measurement: <strong>crates.io answers <code>403</code> to curl&#39;s default UA</strong>, which reads identically to a policy denial if you only look at the status code. An earlier pass in this session recorded crates.io as blocked for exactly that reason before re-probing with a descriptive UA returned <code>200</code>. Any future probe should assume a bare status code is not sufficient evidence of a denial.</p>
+<h3>Result: the allowlist is &quot;package registries, plus this repo&quot;</h3>
+<p>24 targets probed — <strong>7 reachable, 16 denied by egress policy, 1 scope-denied.</strong></p>
+<p>Reachable (<code>origin_answered</code>): <code>registry.npmjs.org</code>, <code>pypi.org</code>, <code>api.github.com</code> (this repo only), <code>crates.io</code>, <code>rubygems.org</code>, <code>repo.packagist.org</code>.</p>
+<p>Denied, in full: <code>example.com</code>, <code>www.wikipedia.org</code>, <code>www.gov.uk</code>, <code>www.shopify.com</code>, <code>shopify.dev</code>, <code>wordpress.org</code>, <code>api.wordpress.org</code>, <code>api.osv.dev</code>, <code>services.nvd.nist.gov</code>, <code>www.w3.org</code>, <code>www.etsi.org</code>, <code>ted.europa.eu</code>, <code>api.sam.gov</code>, <code>docs.peppol.eu</code>, <code>www.courtlistener.com</code>, <code>eur-lex.europa.eu</code>, <code>www.federalregister.gov</code>.</p>
+<p>The gateway&#39;s own status endpoint (<code>$HTTPS_PROXY/__agentproxy/status</code>) reports these as <code>connect_rejected</code> / <em>&quot;gateway answered 403 to CONNECT (policy denial or upstream failure)&quot;</em>, and lists a direct-connect bypass set that is itself entirely package registries: npm, jsr, PyPI, files.pythonhosted.org, index.crates.io, proxy.golang.org.</p>
+<p>So the policy is not &quot;a few hosts happen to be missing.&quot; It is an allowlist whose shape is <strong>package registries and this repository</strong>. Wikipedia is denied. <code>gov.uk</code> is denied. There is no category of general web access.</p>
+<p><strong><code>WebFetch</code> is not a way around it.</strong> Tested this session against <code>eur-lex.europa.eu</code> and <code>example.com</code>: both return <code>EGRESS_BLOCKED</code> from the same policy. Prior sessions established the block with <code>curl</code> only; the tool path is now tested too and behaves identically. <code>WebSearch</code> still works, but <code>portfolio/pipeline/README.md</code>&#39;s own graduation standard explicitly does not accept search summaries as primary-source verification.</p>
+<h3>What this means per candidate</h3>
+<p>Each candidate&#39;s <strong>runtime input feed</strong> — the data the product reads in order to produce what the customer pays for — classified against the measurement.</p>
+<div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>Runtime feed it needs</th><th>Reachable?</th></tr></thead><tbody><tr><td>1</td><td>eaa-remediation-pipeline</td><td>the customer&#39;s own pages (arbitrary hosts) + WCAG/EN 301 549</td><td><strong>No</strong></td></tr><tr><td>2</td><td>shopify-a11y-evidence</td><td>merchant storefronts (arbitrary hosts) + Shopify APIs</td><td><strong>No</strong></td></tr><tr><td>3</td><td>mcp-supply-chain-watch</td><td>npm, PyPI, GitHub repos</td><td><strong>Yes</strong></td></tr><tr><td>4</td><td>cra-evidence-desk</td><td>manifests (yes) + vulnerability feed (OSV/NVD/GH advisories)</td><td><strong>Partial — no vuln feed</strong></td></tr><tr><td>5</td><td>public-record-watch</td><td>court/permit portals</td><td><strong>No</strong></td></tr><tr><td>6</td><td>agent-permission-harness</td><td>local; parked</td><td>n/a</td></tr><tr><td>7</td><td>tender-radar</td><td>TED, SAM.gov</td><td><strong>No</strong></td></tr><tr><td>8</td><td>einvoice-preflight</td><td>Peppol / EN 16931 rules</td><td><strong>No</strong></td></tr></tbody></table></div>
+<p>Two details are worth stating rather than leaving inside the table:</p>
+<ul><li><strong>Candidates 1 and 2 need arbitrary-host fetching</strong>, which is the one thing an allowlist categorically cannot provide. They are not blocked on a missing host that could be added; scanning customer sites means fetching hosts nobody can enumerate in advance. This is a different and harder blocker than Asks 3/7, which each name a finite host list.</li><li><strong>Candidate 4 has no reachable vulnerability feed at all.</strong> OSV and NVD are proxy-denied, and GitHub&#39;s global advisories endpoint is scope-denied because sessions are bound to this repository. SBOM <em>generation</em> works; the CRA evidence record&#39;s other half does not.</li></ul>
+<h3>The retrospective test, which is what makes this more than an inventory</h3>
+<p>If this constraint is real, it should already have shaped the repo&#39;s history without anyone naming it. It did.</p>
+<p>Of the eight candidates, <strong>exactly one has ever had a probe actually advance on measured data: <code>mcp-supply-chain-watch</code></strong> (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/207">#207</a> — 152 real tool-description changes classified, alert volume measured, AI-leverage rescored 7→6 <em>by measurement</em>). That is also the only candidate whose runtime feed is fully reachable.</p>
+<p>Every other probe in this directory&#39;s history stalled into an owner ask. The pipeline recorded that as a distribution and credential problem. Part of it was: the data the work needed could not be fetched. The one candidate that progressed is the one whose data was on the allowlist — and nobody noticed the correlation because nobody had measured the allowlist.</p>
+<h3>Scope: what this does and does not claim</h3>
+<p><strong>Does not claim these are bad businesses.</strong> Reachability here is a fact about <em>this execution environment</em>, not about the market, the margin, or the idea. A production deployment on ordinary hosting would have unrestricted egress and could scan customer sites normally. Nothing above rescores any candidate on the pipeline&#39;s eight dimensions, and no score is changed.</p>
+<p><strong>Does claim there is currently no environment in this portfolio where five of these eight can be built or run.</strong> Agent sessions cannot reach the data (measured above), and there is no working deployed environment either — the Cloudflare Pages deploy fails on a missing <code>CLOUDFLARE_API_TOKEN</code> (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> Ask 4) and GitHub Pages has no source configured (Ask 6). Both halves are currently true at once. That is a statement about the portfolio&#39;s build capability today, and it is fixable, not a permanent property of the candidates.</p>
+<p><strong>Does not propose new automation</strong> and adds no candidate — the <code>CLAUDE.md</code> intake gate applies and was followed.</p>
+<h3>Consequence for the ask queue on <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a></h3>
+<p>This does not add an ask. It reprioritises the ones already there, on evidence rather than on the revenue model that currently orders them.</p>
+<p>Ask 7 (<code>api.wordpress.org</code>) is listed as the cheapest ask, justified by <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/219">#219</a>&#39;s modelled ≈$980/mo — which <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/225">#225</a> has since revised downward pending an actual WordPress.org measurement. It buys <strong>one demand measurement</strong>.</p>
+<p>The same policy decision, taken one step wider, buys the ability to <em>build</em> five candidates instead of one. Asks 3 and 7 are already known to be the same underlying policy rule (<a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/232">#232</a>). This measurement shows that rule is also what blocks: the graduation gate (§2c), <code>cra-evidence-desk</code>&#39;s vulnerability feed, and — for candidates 1 and 2 — the product&#39;s core loop.</p>
+<p>So the question worth putting to the account owner is not &quot;may we add <code>api.wordpress.org</code>&quot; but:</p>
+<blockquote><p><strong>Should agent sessions get general read-only outbound HTTP, or does the portfolio accept that it can only build businesses whose input data is a package registry?</strong></p></blockquote>
+<p>Both answers are legitimate. The narrow allowlist is a real security posture with a real benefit, and &quot;we only build registry-data businesses&quot; is a coherent strategy — it happens to describe the one candidate that has actually progressed. What is not sustainable is the current state, where five candidates sit ranked &quot;build now&quot; or &quot;probe&quot; in a directory whose own environment cannot fetch a single byte of what they operate on, and each cycle re-derives a distribution explanation for it.</p>
+<p>If the answer is the narrow allowlist, then the honest consequence is that candidates 1, 2, 5, 7 and 8 should be re-marked as blocked-by-environment rather than left at &quot;build now&quot; — and the pipeline&#39;s ranking should be led by <code>mcp-supply-chain-watch</code> and the reachable half of <code>cra-evidence-desk</code>.</p>
+<h3>Status of these claims</h3>
+<p>Unlike the rest of <code>portfolio/pipeline/</code>, <strong>this note is a direct measurement, not secondary-source research.</strong> Every row is reproducible in this environment by running the script. The caveats are:</p>
+<ul><li>Egress policy can change without notice; re-run the script rather than trusting this file&#39;s date.</li><li>Reachability was tested at one endpoint per host. A host that answers on one path may be rate-limited or auth-walled on the path a real product needs.</li><li><code>origin_answered</code> proves the network path, not that the data is usable, licensed, or permitted by the host&#39;s terms for a commercial product. That is a separate check every candidate still owes.</li></ul>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

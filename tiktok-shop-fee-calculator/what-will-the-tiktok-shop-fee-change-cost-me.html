@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What will the 1 Oct 2026 TikTok Shop fee change cost me? | Per order, per month, and the price that holds your margin</title>
+  <meta name="description" content="Free TikTok Shop fee-change calculator. Put your own SKU through today's 6% referral and the announced 8% + 1.5% facilitation schedule…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/what-will-the-tiktok-shop-fee-change-cost-me.html">
+  <meta property="og:title" content="What will the 1 Oct 2026 TikTok Shop fee change cost me?">
+  <meta property="og:description" content="Your SKU under today's referral and the announced October schedule — per order, per month, and the price that holds your margin.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TikTok Shop fee-change impact calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Cost per order and per month of the announced schedule, organic vs affiliate split, price that holds your margin, max buy cost after the change, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What will the 1 October 2026 TikTok Shop fee change cost me?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the SKU and on where the order came from. On the worked example — a $19.99 item, $4.99 shipping charged, 15% creator commission on item price only, 12% returns — the announced 8% referral plus 1.5% creator facilitation costs about $0.78 more on an affiliate-sourced order and about $0.45 more on an organic one. At 8 orders a day that is roughly $190 a month. Put your own numbers in the form to get your figure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the announced facilitation fee hit every TikTok Shop order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. In this model the 1.5% creator facilitation applies to affiliate-sourced orders only, so a shop selling mostly organic is hit less hard than the headline suggests. The page splits the two so you can weight them by your own affiliate share instead of assuming one number covers the catalogue."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much do I have to raise my price to hold my margin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The page solves for it. It takes the expected margin your SKU earns under today's schedule, then finds the list price under the announced schedule that lands on that same margin after returns, creator commission, fulfillment, and ads. On the worked example a $19.99 listing needs about $21.94 to hold a 27.7% margin."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is raising the price the only option?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The other lever is unit cost, so the page also shows the most the unit can cost and still clear, before and after. On the worked example that ceiling falls from about $11.73 to about $10.93 — which is the number to take to a supplier if the listing price cannot move."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a1fa2; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d7cce0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a183310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    h3 { font-size: .95rem; margin: 18px 0 6px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a88ad; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .checks input { width: auto; }
+    .hint { font-weight: 500; font-size: .78rem; color: #5c4e68; }
+    .result { position: sticky; top: 15px; background: #2a1038; color: #f7f1fb; border-color: #2a1038; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 1.15rem; font-weight: 650; line-height: 1.35; margin: 8px 0 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .82rem; opacity: .84; }
+    .error { color: #ffb0a2; }
+    .actions { margin: 14px 0 0; padding: 0; list-style: none; font-size: .9rem; }
+    .actions li { padding: 7px 0; border-bottom: 1px solid #ffffff22; }
+    .actions li:last-child { border-bottom: 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #53485f; }
+    footer a { color: #7a1fa2; }
+    a { color: #7a1fa2; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/what-will-the-tiktok-shop-fee-change-cost-me.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What will the 1 Oct 2026 TikTok Shop fee change cost me? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tiktok-shop-fee-calculator/">TikTok Shop Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What will the 1 Oct 2026 TikTok Shop fee change cost me?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="eyebrow">TIKTOK SHOP · ANNOUNCED FEE CHANGE</p>
+    <h1>The headline is 6% to 8%. What it costs you depends on where the order came from.</h1>
+    <p>
+      The announced US schedule adds a creator facilitation rate on top of a
+      higher referral — but facilitation lands on affiliate-sourced orders,
+      not on the organic ones. A shop selling mostly organic is hit less hard
+      than the headline implies, and a shop living on creator video is hit
+      harder. This page puts <em>your</em> SKU through both schedules, then
+      solves for the two things you can actually change: the list price and
+      the unit cost. <a href=".">Back to the full calculator</a>.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>The listing</h2>
+      <div class="fields">
+        <label>Compare from
+          <select id="fromId"></select>
+          <span class="hint">The schedule your SKU is priced against today.</span>
+        </label>
+        <label>Compare to
+          <select id="toId"></select>
+        </label>
+        <label>Item price
+          <input id="itemPrice" type="number" min="0" step="0.01" value="19.99" inputmode="decimal">
+        </label>
+        <label>Shipping charged
+          <input id="shippingCharged" type="number" min="0" step="0.01" value="4.99" inputmode="decimal">
+        </label>
+        <label>Affiliate commission you set (%)
+          <input id="affiliateRate" type="number" min="0" step="0.1" value="15" inputmode="decimal">
+        </label>
+        <label>Return rate (%)
+          <input id="returnRate" type="number" min="0" max="100" step="0.1" value="12" inputmode="decimal">
+        </label>
+        <label>You paid for the item
+          <input id="cogs" type="number" min="0" step="0.01" value="5.50" inputmode="decimal">
+        </label>
+        <label>Fulfillment / postage you pay
+          <input id="fulfillmentCost" type="number" min="0" step="0.01" value="4.28" inputmode="decimal">
+        </label>
+        <label>Packaging / other per order
+          <input id="otherPerOrder" type="number" min="0" step="0.01" value="0.40" inputmode="decimal">
+        </label>
+        <label>Ads allocated to this order
+          <input id="adSpend" type="number" min="0" step="0.01" value="1.50" inputmode="decimal">
+        </label>
+        <label>Returned units you cannot resell (%)
+          <input id="unsellableRate" type="number" min="0" max="100" step="1" value="80" inputmode="numeric">
+        </label>
+        <label>Orders per day (for the monthly figure)
+          <input id="unitsPerDay" type="number" min="0" step="0.1" value="8" inputmode="decimal">
+        </label>
+      </div>
+      <div class="checks">
+        <label>
+          <input id="affiliateOnItemOnly" type="checkbox" checked>
+          Creator commission is on item price only
+        </label>
+        <label>
+          <input id="affiliateRefundedOnReturn" type="checkbox">
+          Affiliate commission is clawed back on a return
+        </label>
+      </div>
+      <p class="hint" id="scheduleNote"></p>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <h2>What the change costs this SKU</h2>
+      <p class="hero-number" id="note"></p>
+      <p class="error" id="error" hidden></p>
+
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th scope="col">Order source</th>
+            <th scope="col" id="beforeHead">Before</th>
+            <th scope="col" id="afterHead">After</th>
+            <th scope="col">Costs you</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+
+      <h3>What you can do about it</h3>
+      <ul class="actions" id="actions"></ul>
+
+      <p class="note">Transparent arithmetic from your inputs — not TikTok’s live schedule, and not advice about what to charge. The announced rates are an announcement, not a guarantee they ship unchanged. Confirm your own referral, facilitation, and creator payout rules in Seller Center before you relist.</p>
+    </section>
+  </main>
+
+  <h2>Common questions</h2>
+  <h3>What will the 1 October 2026 TikTok Shop fee change cost me?</h3>
+  <p>It depends on the SKU and on where the order came from. On the worked example — a $19.99 item, $4.99 shipping charged, 15% creator commission on item price only, 12% returns — the announced 8% referral plus 1.5% creator facilitation costs about $0.78 more on an affiliate-sourced order and about $0.45 more on an organic one. At 8 orders a day that is roughly $190 a month. Put your own numbers in the form to get your figure.</p>
+  <h3>Does the announced facilitation fee hit every TikTok Shop order?</h3>
+  <p>No. In this model the 1.5% creator facilitation applies to affiliate-sourced orders only, so a shop selling mostly organic is hit less hard than the headline suggests. The page splits the two so you can weight them by your own affiliate share instead of assuming one number covers the catalogue.</p>
+  <h3>How much do I have to raise my price to hold my margin?</h3>
+  <p>The page solves for it. It takes the expected margin your SKU earns under today's schedule, then finds the list price under the announced schedule that lands on that same margin after returns, creator commission, fulfillment, and ads. On the worked example a $19.99 listing needs about $21.94 to hold a 27.7% margin.</p>
+  <h3>Is raising the price the only option?</h3>
+  <p>No. The other lever is unit cost, so the page also shows the most the unit can cost and still clear, before and after. On the worked example that ceiling falls from about $11.73 to about $10.93 — which is the number to take to a supplier if the listing price cannot move.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
+      <input id="usageOptOut" type="checkbox" style="width:auto">
+      Do not keep anonymous local usage counts
+    </label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
+    <p>Free and open source. <a href=".">Full TikTok Shop calculator</a> · <a href="should-i-offer-free-shipping-on-tiktok-shop.html">Free shipping comparison</a> · <a href="affiliate-commission-on-returns.html">Affiliate returns example</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional.</p>
+  </footer>
+
+  <script type="module">
+    import { feeChangeImpact, feeChangeNote, FEE_SCHEDULE_PRESETS } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const FIELD_IDS = [
+      "itemPrice", "shippingCharged", "affiliateRate", "returnRate", "cogs",
+      "fulfillmentCost", "otherPerOrder", "adSpend", "unsellableRate", "unitsPerDay",
+    ];
+
+    const money = (value) => {
+      if (value === null || value === undefined) return "n/a";
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+    const pct = (value) => (value === null ? "n/a" : `${value.toFixed(1)}%`);
+    const el = (id) => document.getElementById(id);
+    const count = (event) => recordUsage(localStorage, el("usageOptOut").checked, event);
+
+    for (const [id, preset] of Object.entries(FEE_SCHEDULE_PRESETS)) {
+      for (const selectId of ["fromId", "toId"]) {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = preset.label;
+        el(selectId).append(option);
+      }
+    }
+    el("fromId").value = "us_standard";
+    el("toId").value = "oct_2026";
+
+    function readInput() {
+      const value = (id) => el(id).value;
+      return {
+        itemPrice: value("itemPrice"),
+        shippingCharged: value("shippingCharged"),
+        affiliateRate: value("affiliateRate"),
+        returnRate: value("returnRate"),
+        cogs: value("cogs"),
+        fulfillmentCost: value("fulfillmentCost"),
+        otherPerOrder: value("otherPerOrder"),
+        adSpend: value("adSpend"),
+        unsellableRate: value("unsellableRate"),
+        unitsPerDay: value("unitsPerDay"),
+        affiliateOnItemOnly: el("affiliateOnItemOnly").checked,
+        affiliateRefundedOnReturn: el("affiliateRefundedOnReturn").checked,
+      };
+    }
+
+    function paint() {
+      el("error").hidden = true;
+      try {
+        const impact = feeChangeImpact(readInput(), el("fromId").value, el("toId").value);
+        el("note").textContent = feeChangeNote(impact);
+        el("scheduleNote").textContent = impact.to.note;
+        el("beforeHead").textContent = impact.from.short;
+        el("afterHead").textContent = impact.to.short;
+
+        const rows = [
+          ["Organic (no creator)", impact.organic],
+          ["Affiliate-sourced", impact.affiliate],
+        ];
+        el("rows").innerHTML = rows.map(([label, split]) => `<tr>
+          <td>${label}</td>
+          <td>${money(split.before.expectedProfit)}</td>
+          <td>${money(split.after.expectedProfit)}</td>
+          <td>${money(split.extraCostPerOrder)}</td>
+        </tr>`).join("");
+
+        // Only the levers that apply. A SKU the change does not touch, or one
+        // already under water, must not be handed a price rise it does not need.
+        const actions = [];
+        actions.push(`Margin on this SKU moves from ${pct(impact.marginBefore)} to ${pct(impact.marginAfter)}.`);
+        // Half a cent of rise is not a relist instruction; a schedule that
+        // costs nothing should not produce a "raise your price by $0.00" line.
+        if (impact.priceToHoldMargin !== null && impact.priceRise >= 0.005) {
+          actions.push(`Relist at <strong>${money(impact.priceToHoldMargin)}</strong> (up ${money(impact.priceRise)}) to hold ${pct(impact.heldMargin)}.`);
+        }
+        if (!impact.stillClears) {
+          actions.push(impact.clearedBefore
+            ? `This SKU stops clearing. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new rates.`
+            : `This SKU already loses money at today's rates. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new ones.`);
+        }
+        // A null ceiling means the SKU loses money even on free goods, so
+        // there is no supplier price to go and ask for. Saying "n/a before,
+        // n/a after — the number to take to a supplier" would point a seller
+        // at a negotiation that cannot fix this listing.
+        if (impact.maxBuyCostAfter === null) {
+          actions.push(impact.maxBuyCostBefore === null
+            ? `No unit cost clears this SKU under either schedule — even free goods lose money on it. Only the listing price (or the fulfilment and ad costs) can fix that.`
+            : `Under the new schedule no unit cost clears this SKU — even free goods lose money on it. It cleared at up to ${money(impact.maxBuyCostBefore)} before, so a supplier conversation alone will not recover it; the listing price has to move.`);
+        } else {
+          actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        }
+        if (impact.extraCostPerMonth > 0) {
+          actions.push(`Doing nothing costs about ${money(impact.extraCostPerMonth)} a month at ${impact.before.monthlyOrders.toFixed(0)} orders.`);
+        }
+        el("actions").innerHTML = actions.map((line) => `<li>${line}</li>`).join("");
+      } catch (error) {
+        el("error").hidden = false;
+        el("error").textContent = error.message;
+        el("note").textContent = "";
+        el("rows").innerHTML = "";
+        el("actions").innerHTML = "";
+      }
+    }
+
+    FIELD_IDS.forEach((id) => {
+      el(id).addEventListener("input", paint);
+      el(id).addEventListener("change", () => count("fee_change_compared"));
+    });
+    ["fromId", "toId", "affiliateOnItemOnly", "affiliateRefundedOnReturn", "usageOptOut"].forEach((id) => {
+      el(id).addEventListener("change", () => {
+        if (id !== "usageOptOut") count("fee_change_compared");
+        paint();
+      });
+    });
+
+    paint();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../thrift-haul-buy-picker/" data-pf-to="thrift-haul-buy-picker">What should you buy to resell, and what's the most to pay for each?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tiktok-shop-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tiktok-shop-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tiktok-shop-fee-calculator" data-pf-jobs-amount="#note"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tiktok-shop-fee-calculator" data-pf-link-amount="#note"></script>
+</body>
+</html>

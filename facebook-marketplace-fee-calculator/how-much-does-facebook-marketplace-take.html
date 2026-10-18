@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Facebook Marketplace Take Per Sale? (Worked Examples)</title>
+  <meta name="description" content="Facebook Marketplace's current seller fee worked through: the 10% fee on the buyer-paid total (item + shipping) for a shipped order…">
+  <meta property="og:title" content="How Much Does Facebook Marketplace Take Per Sale?">
+  <meta property="og:description" content="The current 10% shipped-order fee with an $0.80 minimum, $0 for local pickup, and worked examples of each.">
+  <meta property="og:type" content="website">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/how-much-does-facebook-marketplace-take.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Facebook Marketplace take on a $50 sale?","acceptedAnswer":{"@type":"Answer","text":"For a shipped checkout order with no buyer-paid shipping: 10% of $50, which is $5.00, leaving a $45.00 payout."}},{"@type":"Question","name":"How much does Facebook Marketplace take on a small $5 sale?","acceptedAnswer":{"@type":"Answer","text":"10% of $5 would be $0.50, but Facebook charges an $0.80 minimum fee on every shipped order, so the fee is $0.80, not $0.50 -- leaving a $4.20 payout instead of the $4.50 a flat 10% calculation would suggest."}},{"@type":"Question","name":"How much does Facebook Marketplace take on a local pickup sale?","acceptedAnswer":{"@type":"Answer","text":"Nothing. Local pickup sales carry no selling fee, listing fee, or subscription cost -- the full item price is the payout, minus whatever you spent on the item and packaging yourself."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16202e; background: #eef4f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #c3d7e6; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #dde9f5; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #f3f8fc; border: 1px solid #c3d7e6; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #0a5cad; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #47576b; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/how-much-does-facebook-marketplace-take.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Facebook Marketplace Take Per Sale? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Facebook Marketplace Take Per Sale?</span></span></nav>
+  <p><a href="./">&larr; Back to the Facebook Marketplace fee calculator</a></p>
+  <h1>How much does Facebook Marketplace take per sale?</h1>
+  <p>Facebook Marketplace charges a <strong>10% selling fee</strong> on a <strong>shipped checkout</strong> order, applied to the buyer-paid total -- the item price plus any buyer-paid shipping, and sales tax where Facebook collects it -- with an <strong>$0.80 minimum fee</strong> per sale. A sale arranged for <strong>local pickup</strong> instead carries no selling fee at all. The rate has changed more than once in the last two years, so a number quoted from an old blog post or forum thread may already be stale.</p>
+
+  <h2>The shipped-order formula</h2>
+  <p><code>fee = max(10% &times; (item price + buyer-paid shipping), $0.80)</code></p>
+  <p><code>payout = item price + buyer-paid shipping &minus; fee &minus; your own shipping-label cost</code></p>
+  <p>Local pickup skips the formula entirely: the fee is $0, so the payout is simply the item price minus whatever you spent on the item and packaging.</p>
+
+  <h2>Worked example 1: $50 item, shipped, no buyer-paid shipping</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item price</td><td>$50.00</td></tr>
+      <tr><td>Selling fee (10% of $50.00)</td><td>$5.00</td></tr>
+      <tr><td>Payout</td><td>$45.00</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Worked example 2: the $0.80 minimum takes over on a small sale</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item price</td><td>$5.00</td></tr>
+      <tr><td>10% of $5.00 would be</td><td>$0.50</td></tr>
+      <tr><td>Selling fee actually charged ($0.80 minimum)</td><td>$0.80</td></tr>
+      <tr><td>Payout</td><td>$4.20</td></tr>
+    </tbody>
+  </table></div>
+  <p>Not $4.50 (item price minus 10%) -- once the buyer-paid total falls under $8, the $0.80 minimum is the binding fee, not the 10% rate. This is the detail sellers who mentally calculate "just take 10% off" get wrong on small sales.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">Shipping counts toward the fee base too</h2>
+    <p>A $50 item with $10 in buyer-paid shipping pays 10% of the combined $60, which is $6.00 -- not 10% of the $50 item price alone. The payout is $54.00 ($60.00 collected minus the $6.00 fee), assuming you did not also pay for your own shipping label.</p>
+  </div>
+
+  <h2>Local pickup: genuinely $0</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Item price</td><td>$50.00</td></tr>
+      <tr><td>Selling fee</td><td>$0.00</td></tr>
+      <tr><td>Payout</td><td>$50.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>No selling fee, listing fee, or subscription cost applies to a sale arranged for local pickup rather than Facebook's shipped checkout.</p>
+
+  <h2>Do this with your own listings</h2>
+  <p>The <a href="./">Facebook Marketplace fee calculator</a> runs this same arithmetic on your own item price, shipping, and costs, flags when the $0.80 minimum is the binding fee, models a disputed order's flat $20 chargeback penalty, and solves for the price you need to hit a target profit. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much does Facebook Marketplace take on a $50 sale?</h3>
+  <p>For a shipped checkout order with no buyer-paid shipping: 10% of $50, which is $5.00, leaving a $45.00 payout.</p>
+  <h3>How much does Facebook Marketplace take on a small $5 sale?</h3>
+  <p>10% of $5 would be $0.50, but Facebook charges an $0.80 minimum fee on every shipped order, so the fee is $0.80, not $0.50 -- leaving a $4.20 payout instead of the $4.50 a flat 10% calculation would suggest.</p>
+  <h3>How much does Facebook Marketplace take on a local pickup sale?</h3>
+  <p>Nothing. Local pickup sales carry no selling fee, listing fee, or subscription cost -- the full item price is the payout, minus whatever you spent on the item and packaging yourself.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice. Rates change and are set by Facebook, not by this site. Verify every figure against your own payout statement before you price a listing. Not affiliated with, endorsed by, or sponsored by Meta or Facebook; Facebook Marketplace is a trademark of Meta Platforms, Inc., named here only to describe the published fee schedule.</p>
+    <p><a href="./">Open the calculator</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../print-on-demand-profit-calculator/" data-pf-to="print-on-demand-profit-calculator">Print-on-Demand Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../reseller-books/" data-pf-to="reseller-books">Reseller Books — all your marketplaces in one set of books</a></li>
+      <li><a href="../restaurant-delivery-commission-analyzer/" data-pf-to="restaurant-delivery-commission-analyzer">Restaurant Delivery Commission Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../returns-policy-cost-analyzer/" data-pf-to="returns-policy-cost-analyzer">What do returns really cost your store?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=facebook-marketplace-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="facebook-marketplace-fee-calculator"></script>
+</body>
+</html>

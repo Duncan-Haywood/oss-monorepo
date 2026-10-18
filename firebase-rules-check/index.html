@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
+<meta name="description" content="Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Firebase Security Rules Exposure Checker">
+<meta property="og:description" content="Enter your Firebase project ID and see which Realtime Database paths or Firestore collections return real data to an unauthenticated request -- the…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Firebase Security Rules Exposure Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI is also included for CI",
+  "description": "Sends real, read-only, unauthenticated requests to a Firebase project's Realtime Database (a shallow key listing) and/or named Firestore collections (one document max), naming which paths return real data with no login -- the default-open / left-in-test-mode security rules exposure class.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Reads a Realtime Database path with shallow=true -- child key names only, never field values",
+    "Requests at most one document per named Firestore collection, and reports field names only",
+    "Names the exact path or collection that returns real data to an unauthenticated request",
+    "Distinguishes a genuinely empty path from one it cannot confirm is blocked",
+    "Runs in your browser for the Realtime Database check; a Node.js CLI performs the identical check for CI, and for Firestore if your browser reports a CORS/network error"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't my Firebase project's config supposed to be public?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — the Firebase web config object (apiKey, projectId, databaseURL, and the rest) is meant to be embedded in your client-side app, and Google's own documentation says so explicitly. It identifies your project; it does not authorise access to it. Security Rules are the only thing standing between that public config and your actual data — a database left in test mode, or hand-written with a rule like allow read, write: if true, is readable by anyone who has ever loaded your app." }
+    },
+    {
+      "@type": "Question",
+      "name": "What actually goes wrong here?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Both Firebase products default new projects to a 30-day \"test mode\" with a rule that allows any read and write with no authentication, specifically so a team can build first and lock down rules before shipping. More background: why Firebase test mode exposes your data." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to enter my project ID and database URL into this page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — both are already public. This page never sends either of them (or anything it reads back) to our servers: the Realtime Database request goes straight from your browser to your own project's REST endpoint, the same way your app's own client already talks to it. Still, only run this against a project you own or are authorised to test." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from the Firebase console's own Rules Playground?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The Rules Playground simulates a request against your rules source and needs you to be logged in as a project member. This tool sends a real, live, unauthenticated request to your project's actual REST endpoint from the outside — the same view an attacker, an external auditor, or a developer without console access would have." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my project is secure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks one specific, well-documented exposure — does an unauthenticated request return real data — at the Realtime Database root and at the Firestore collection names you name. It does not test authenticated roles, Cloud Storage buckets, Cloud Functions, write access, or any path/collection you did not list. Treat a clean report as evidence about what this run checked, not a full security audit." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  input[type="text"], input[type="password"] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; margin: 0.3rem 0 0.8rem; }
+  label { font-weight: 600; font-size: 0.9rem; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Firebase Security Rules Exposure Checker","item":"https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Firebase Security Rules Exposure Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Firebase Security Rules Exposure Checker</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<h1>Firebase Security Rules Exposure Checker</h1>
+<p>
+  Enter your Firebase project ID, plus its Realtime Database URL and/or one or more Firestore
+  collection names. This sends real, read-only, unauthenticated requests and names which paths
+  return <strong>real data with no login</strong> — the default-open / left-in-test-mode
+  <strong>security rules</strong> exposure documented since
+  <a href="why-does-firebase-test-mode-expose-my-data.html">Appthority's 2018 "Firebase
+  mismanagement" report and still recurring today</a>. Only run this against a project you own or
+  are authorised to test.
+</p>
+
+<div class="card">
+  <h2>Run the check</h2>
+  <label for="projectId">Firebase project ID</label>
+  <input type="text" id="projectId" placeholder="my-app-a1b2c" autocomplete="off" spellcheck="false">
+  <label for="databaseUrl">Realtime Database URL (optional)</label>
+  <input type="text" id="databaseUrl" placeholder="https://my-app-a1b2c-default-rtdb.firebaseio.com" autocomplete="off" spellcheck="false">
+  <label for="collections">Firestore collection names to check (optional, comma-separated)</label>
+  <input type="text" id="collections" placeholder="users, orders" autocomplete="off" spellcheck="false">
+  <p class="status-note">
+    Firestore has no public "list every collection" endpoint the way the Realtime Database does,
+    so name the collections your app itself reads — check your app's own source or its network
+    tab. Leave this blank to check the Realtime Database only.
+  </p>
+  <p>
+    <button type="button" class="primary" id="run">Check this project</button>
+    <button type="button" id="load-example">Load worked example (exposed)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter a project ID and at least one of the two fields above, then click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Every path/collection checked</h3>
+  <div class="pf-table-scroll"><table id="result-table"><thead><tr><th>Path / collection</th><th>Result</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<div class="card">
+  <h2>Prefer a CLI for CI, or does your browser block the Firestore check?</h2>
+  <p>Same check, same modules, no browser — and never subject to browser CORS restrictions:</p>
+  <pre class="cmd"><code>node check.mjs my-app-a1b2c --database-url https://my-app-a1b2c-default-rtdb.firebaseio.com --collection users --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/firebase-rules-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
+    exit code 1 if anything is exposed, so you can gate a deploy on it. Run it after every rules
+    change and after adding a new collection: a rule that is correct everywhere else and missing
+    on the newest collection is the ordinary way this reopens.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Isn't my Firebase project's config supposed to be public?</h3>
+  <p>Yes — the Firebase web config object (<code>apiKey</code>, <code>projectId</code>, <code>databaseURL</code>, and the rest) is meant to be embedded in your client-side app, and Google's own documentation says so explicitly. It identifies your project; it does not authorise access to it. Security Rules are the only thing standing between that public config and your actual data — a database left in test mode, or hand-written with a rule like <code>allow read, write: if true</code>, is readable by anyone who has ever loaded your app.</p>
+  <h3>What actually goes wrong here?</h3>
+  <p>Both Firebase products default new projects to a 30-day "test mode" with a rule that allows any read and write with no authentication, specifically so a team can build first and lock down rules before shipping. More background: <a href="why-does-firebase-test-mode-expose-my-data.html">why Firebase test mode exposes your data</a>.</p>
+  <h3>Is it safe to enter my project ID and database URL into this page?</h3>
+  <p>Yes — both are already public. This page never sends either of them (or anything it reads back) to our servers: the Realtime Database request goes straight from your browser to your own project's REST endpoint, the same way your app's own client already talks to it. Still, only run this against a project you own or are authorised to test.</p>
+  <h3>How is this different from the Firebase console's own Rules Playground?</h3>
+  <p>The Rules Playground simulates a request against your rules source and needs you to be logged in as a project member. This tool sends a real, live, unauthenticated request to your project's actual REST endpoint from the outside — the same view an attacker, an external auditor, or a developer without console access would have.</p>
+  <h3>Does a clean report mean my project is secure?</h3>
+  <p>No. This checks one specific, well-documented exposure — does an unauthenticated request return real data — at the Realtime Database root and at the Firestore collection names you name. It does not test authenticated roles, Cloud Storage buckets, Cloud Functions, write access, or any path/collection you did not list. Treat a clean report as evidence about what this run checked, not a full security audit.</p>
+  <h3>How does this compare to just requesting the URL myself?</h3>
+  <p>See <a href="vs-requesting-the-url-by-hand.html">how this compares to checking it by hand</a> — the shallow, values-free read and the blocked-vs-unconfirmed distinction are easy to skip when eyeballing a raw request.</p>
+</section>
+
+<script type="module">
+  import { runProbes } from './probe.mjs';
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    projectId: $('#projectId'), databaseUrl: $('#databaseUrl'), collections: $('#collections'),
+    status: $('#status'), reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    resultTable: $('#result-table tbody'), run: $('#run'),
+  };
+
+  const EXAMPLE_REPORT = buildReport({
+    projectId: 'demo-app-a1b2c',
+    databaseUrl: 'https://demo-app-a1b2c-default-rtdb.firebaseio.com',
+    realtimeDatabase: { path: '/', ok: true, status: 200, keys: ['users', 'orders'], isNull: false, error: null },
+    firestore: [
+      { collection: 'admin_config', ok: false, status: 403, documentCount: 0, fieldNames: [], error: null },
+      { collection: 'feedback', ok: true, status: 200, documentCount: 0, fieldNames: [], error: null },
+    ],
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function locationOf(c) {
+    return c.source === 'realtime-database' ? `Realtime Database "${c.path}"` : `Firestore "${c.collection}"`;
+  }
+
+  function rowFor(c) {
+    if (c.category === 'exposed') {
+      return c.source === 'realtime-database'
+        ? { label: 'EXPOSED', detail: `${c.keyCount} key(s): ${c.keys.join(', ')}` }
+        : { label: 'EXPOSED', detail: `${c.documentCount} document(s)` };
+    }
+    if (c.category === 'blocked') return { label: 'blocked (good)', detail: `HTTP ${c.status}` };
+    if (c.category === 'unconfirmed') return { label: 'unconfirmed', detail: 'no data returned -- could be empty or blocked' };
+    return { label: 'error', detail: c.error ?? 'request did not complete' };
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.checked === 0) {
+      els.verdict.textContent = 'Nothing was checked -- enter a database URL and/or collection names.';
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} of ${report.checked} path/collection returned real data with no authentication.`;
+    } else {
+      els.verdict.textContent = `Nothing returned real data to an unauthenticated request (${report.checked} checked).`;
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No exposed paths or collections found.</p>'
+      : report.findings.map((f) => `
+        <div class="finding">
+          <h3>${escapeHtml(f.title)} <small>(danger)</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidenceStatus)}</p>
+        </div>`).join('');
+
+    els.resultTable.innerHTML = report.classified.map((c) => {
+      const r = rowFor(c);
+      return `<tr><td>${escapeHtml(locationOf(c))}</td><td>${escapeHtml(r.label)}</td><td>${escapeHtml(r.detail)}</td></tr>`;
+    }).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runLiveCheck() {
+    const projectId = els.projectId.value.trim();
+    const databaseUrl = els.databaseUrl.value.trim() || undefined;
+    const collections = els.collections.value.split(',').map((s) => s.trim()).filter(Boolean);
+    if (!projectId || (!databaseUrl && collections.length === 0)) {
+      els.status.innerHTML = '<span class="error">Enter a project ID and at least a database URL or one collection name.</span>';
+      return;
+    }
+    els.status.textContent = 'Checking… this sends real requests to your project.';
+    els.run.disabled = true;
+    try {
+      const probeResult = await runProbes(projectId, { databaseUrl, collections });
+      const report = buildReport(probeResult);
+      render(report);
+      els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us. ' +
+        'If the Firestore rows above all show an error, your browser may be blocking a cross-origin request -- try the CLI below instead.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
+    } finally {
+      els.run.disabled = false;
+    }
+  }
+
+  els.run.addEventListener('click', runLiveCheck);
+
+  $('#load-example').addEventListener('click', () => {
+    render(EXAMPLE_REPORT);
+    els.status.textContent = 'Worked example: an open Realtime Database root, a correctly blocked Firestore collection, and one empty/unconfirmed collection.';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.projectId.value = '';
+    els.databaseUrl.value = '';
+    els.collections.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter a project ID and at least one of the two fields above, then click Check.';
+  });
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure at the Realtime Database root and the Firestore collection names you name. It never
+  writes, updates, or deletes anything, does not test authenticated roles, Cloud Storage, or Cloud
+  Functions, and cannot see an exposure at a path or collection you did not name. A clean report
+  describes what this run found, not a guarantee the project has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any project you point it at. To
+  the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The Realtime Database request goes straight
+  from your browser to the URL you name — never through this site, and never logged or stored by
+  us. The only thing stored is an anonymous local count of which features were used and the day —
+  no project IDs, no database URLs, no collection names, no data contents, no account, no tracking
+  cookies, no analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your stack: <a href="../supabase-rls-check/">Supabase RLS exposure
+  checker</a> covers the same "default-open unless a rule locks it down" shape for a different
+  backend, <a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Checker</a> asks the
+  same "does this storage hand out data with no login" question of AWS S3, Google Cloud Storage,
+  and Azure Blob Storage buckets rather than a Firebase project, and
+  <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> and
+  <a href="../security-headers-check/">Security Headers checker</a> cover other response-evidence
+  classes in the same "read what's actually there, name the exact evidence" shape as this tool.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=firebase-rules-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/?pfEmbed=1&quot; title=&quot;Firebase Security Rules Exposure Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="firebase-rules-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/" data-pf-embed-title="Firebase Security Rules Exposure Checker" data-pf-embed-slug="firebase-rules-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="firebase-rules-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="firebase-rules-check" data-pf-link-amount=""></script>
+</body>
+</html>

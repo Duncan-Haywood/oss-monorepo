@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Docker Build Cache Gets Busted</title>
+  <meta name="description" content="Why COPY . . before installing dependencies, an install with no isolated manifest copy, and a split apt-get update / apt-get install each defeat Docker's layer…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/why-docker-build-cache-gets-busted.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't this just what hadolint or a Dockerfile linter already does?","acceptedAnswer":{"@type":"Answer","text":"A per-line Dockerfile linter (hadolint and similar tools) checks each instruction in isolation against a rule — pin this FROM tag, add --no-install-recommends here. As far as this project could determine from hadolint's own published rule index, none of its rules reason about the relative order of two different instructions across a Dockerfile, which is what all three checks here do: they only make sense read as a sequence (was the manifest copied before or after the broad copy; did the same RUN combine update and install)."}},{"@type":"Question","name":"Does BuildKit already fix this automatically with its own caching improvements?","acceptedAnswer":{"@type":"Answer","text":"No. BuildKit changed how layers are cached and introduced cache mounts (RUN --mount=type=cache) for a package manager's own download cache, which is a genuinely different, complementary optimization. It does not reorder your instructions or infer that a COPY . . before an install was a mistake — the Dockerfile's instruction order is still exactly what you wrote, and BuildKit still invalidates a layer whenever an earlier layer's cache key changes, which is the mechanism this checker's three patterns each defeat."}},{"@type":"Question","name":"Will this tell me whether my build cache is actually being reused?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not try to. Measuring actual cache hit rate requires running real builds and reading BuildKit's own build output. This tool is a static check of the Dockerfile text: it reports an instruction order that is a documented cause of cache invalidation, before you have run a single build, so you can fix it in review instead of noticing it from a slow CI pipeline."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/why-docker-build-cache-gets-busted.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Docker Build Cache Gets Busted">
+<meta property="og:description" content="Why COPY . . before installing dependencies, an install with no isolated manifest copy, and a split apt-get update / apt-get install each defeat Docker's layer…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Docker Build Cache Gets Busted — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../docker-cache-order-check/">Is your Dockerfile busting its own build cache?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Docker Build Cache Gets Busted</span></span></nav>
+  <p><a href="./">← Back to Docker Cache Order Check</a></p>
+  <h1>Why Docker build cache gets busted</h1>
+
+  <p>Docker builds an image layer by layer, one per instruction, and caches
+  each layer keyed on that instruction and everything that fed it. On a
+  later build, the moment one layer's cache key changes, that layer and
+  <em>every layer after it</em> re-run from scratch — caching is not
+  per-instruction independent, it is a chain that breaks at the first
+  change and stays broken for the rest of the build. All three checks here
+  are different ways of breaking that chain earlier than necessary.</p>
+
+  <h2>Mistake 1: copying the whole build context before installing dependencies</h2>
+  <p>A very common Dockerfile shape:</p>
+  <pre>FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm ci</pre>
+  <p><code>COPY . .</code>'s cache key is derived from every file in your
+  build context. Change one line of application source — not a dependency —
+  and that <code>COPY</code> layer's key changes, which invalidates it and
+  the <code>RUN npm ci</code> layer after it, so dependencies reinstall on
+  every single build regardless of whether <code>package.json</code>
+  actually changed. Docker's own "Leverage build cache" documentation gives
+  the fix directly: copy the manifest alone first, install, <em>then</em>
+  copy the rest of the source:</p>
+  <pre>FROM node:20
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .</pre>
+  <p>Now <code>RUN npm ci</code>'s cache key depends only on the two files
+  named in the <code>COPY</code> immediately before it. A source-only change
+  invalidates the final <code>COPY . .</code> but reuses the cached install
+  layer untouched.</p>
+
+  <h2>Mistake 2: an install with no isolated manifest copy at all</h2>
+  <p>Sometimes there is no separate manifest <code>COPY</code> to reorder —
+  the manifest only ever reaches the image via a broad copy:</p>
+  <pre>FROM python:3.12
+COPY . .
+RUN pip install -r requirements.txt</pre>
+  <p>Reordering these two lines does not fix anything, because there is no
+  instruction whose cache key depends on <code>requirements.txt</code> alone
+  — <code>COPY . .</code>'s key depends on the entire tree either way. The
+  fix is to add a manifest-only copy, not just move existing lines:</p>
+  <pre>FROM python:3.12
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .</pre>
+
+  <h2>Mistake 3: <code>apt-get update</code> in its own layer</h2>
+  <p>Docker's own Dockerfile best practices documentation names this one
+  directly. Splitting the package index refresh from the install:</p>
+  <pre>RUN apt-get update
+RUN apt-get install -y curl</pre>
+  <p>caches the <code>update</code> as its own layer. On a later build where
+  nothing above it changed, Docker reuses that cached layer rather than
+  re-running <code>apt-get update</code> — so the install step can resolve
+  package versions against an index that is now stale, weeks or months old,
+  even though the <code>RUN apt-get install</code> line itself looks
+  unchanged. Combining them in one instruction means the index is always as
+  fresh as the layer that installs against it:</p>
+  <pre>RUN apt-get update && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*</pre>
+
+  <h2>What this tool checks, and what it deliberately doesn't</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Check</th><th>Source</th><th>Out of scope for v0</th></tr></thead>
+    <tbody>
+      <tr><td>Manifest copy/install after a broad copy</td><td>Text/regex scan of <code>COPY</code>/<code>ADD</code> and <code>RUN</code> instruction order, per build stage</td><td>Whether the broad copy was actually necessary before the manifest copy for some other reason specific to your build — this tool reports the pattern, not your intent</td></tr>
+      <tr><td>Install with no isolated manifest copy</td><td>Same scan, checking whether any earlier <code>COPY</code>/<code>ADD</code> names the ecosystem's manifest file specifically</td><td>Manifests split across multiple non-standard file names this tool's ecosystem list does not recognize</td></tr>
+      <tr><td>apt update/install split</td><td>Text match for <code>apt-get update</code>/<code>apt update</code> and <code>install</code>/<code>upgrade</code>/<code>dist-upgrade</code> within the same <code>RUN</code></td><td>Other package managers' equivalent split (<code>apk update</code>/<code>apk add</code>, <code>yum makecache</code>/<code>yum install</code>) — not checked in v0</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Wiring it into CI before a merge</h2>
+  <p>Check a changed Dockerfile before it merges:</p>
+  <pre>- name: Check Dockerfile cache order
+  run: node ventures/docker-cache-order-check/cli.mjs --fail-on-risk</pre>
+  <p>Exits 2 when any of the three patterns is found, so a Dockerfile change
+  that would reinstall dependencies on every build is caught in the same
+  review that introduces it.</p>
+
+  <h2>Common questions</h2>
+  <h3>Isn't this just what hadolint or a Dockerfile linter already does?</h3>
+  <p>A per-line Dockerfile linter (hadolint and similar tools) checks each instruction in isolation against a rule — pin this <code>FROM</code> tag, add <code>--no-install-recommends</code> here. As far as this project could determine from hadolint's own published rule index, none of its rules reason about the <em>relative order</em> of two different instructions across a Dockerfile, which is what all three checks here do: they only make sense read as a sequence (was the manifest copied before or after the broad copy; did the same <code>RUN</code> combine update and install).</p>
+  <h3>Does BuildKit already fix this automatically with its own caching improvements?</h3>
+  <p>No. BuildKit changed <em>how</em> layers are cached and introduced cache mounts (<code>RUN --mount=type=cache</code>) for a package manager's own download cache, which is a genuinely different, complementary optimization. It does not reorder your instructions or infer that a <code>COPY . .</code> before an install was a mistake — the Dockerfile's instruction order is still exactly what you wrote, and BuildKit still invalidates a layer whenever an earlier layer's cache key changes, which is the mechanism this checker's three patterns each defeat.</p>
+  <h3>Will this tell me whether my build cache is actually being reused?</h3>
+  <p>No, and it does not try to. Measuring actual cache hit rate requires running real builds and reading BuildKit's own build output. This tool is a static check of the Dockerfile text: it reports an instruction order that is a documented cause of cache invalidation, before you have run a single build, so you can fix it in review instead of noticing it from a slow CI pipeline.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report whether a Dockerfile's instruction order matches one of three documented cache-busting patterns — nothing more. It is not engineering advice and does not know whether a flagged pattern was deliberate in your case. Verify against your own build's measured cache behavior before relying on it.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pypi-provenance-check/" data-pf-to="pypi-provenance-check">Which of your PyPI dependencies lack a provenance attestation?</a></li>
+      <li><a href="../rds-instance-cost-advisor/" data-pf-to="rds-instance-cost-advisor">Why is your RDS bill so high?</a></li>
+      <li><a href="../rds-instance-rightsizer/" data-pf-to="rds-instance-rightsizer">Is your RDS instance too big?</a></li>
+      <li><a href="../redirect-chain-check/" data-pf-to="redirect-chain-check">Redirect Chain Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=docker-cache-order-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="docker-cache-order-check"></script>
+</body>
+</html>

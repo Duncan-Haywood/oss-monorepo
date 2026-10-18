@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IR35 Calculator UK 2026/27 — Inside vs Outside Take-Home and Break-Even Day Rate</title>
+  <meta name="description" content="Free UK IR35 calculator: compare contractor take-home outside IR35 (own limited company, best salary and dividends) and inside IR35 (umbrella)…">
+  <meta property="og:title" content="IR35 inside vs outside, 2026/27: what the same day rate really pays">
+  <meta property="og:description" content="See take-home both ways and the day rate you need to ask for inside IR35.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK IR35 Inside vs Outside Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does inside IR35 mean for take-home pay?", "acceptedAnswer": {"@type": "Answer", "text": "Inside IR35 you are treated as an employee for tax: employer National Insurance of 15% above £5,000 is taken out of what the client pays, then income tax and employee National Insurance come out of your pay. You lose the dividend route and most expense claims, so the same day rate leaves you with much less than outside IR35."}}, {"@type": "Question", "name": "What day rate do I need inside IR35 to match my outside-IR35 take-home?", "acceptedAnswer": {"@type": "Answer", "text": "Enter your outside rate and the calculator finds the inside-IR35 day rate that gives the same take-home. For a typical contractor it is well above the outside rate, before counting the holiday pay, sick pay and pension an employment-like contract can add."}}, {"@type": "Question", "name": "How is the best outside-IR35 salary chosen?", "acceptedAnswer": {"@type": "Answer", "text": "The calculator tries director salaries in steps and keeps the one that leaves you the most after employer National Insurance, corporation tax, income tax and dividend tax at 2026/27 rates, keeping a State Pension qualifying year by default."}}, {"@type": "Question", "name": "Does this decide whether I am inside or outside IR35?", "acceptedAnswer": {"@type": "Answer", "text": "No. Status depends on the facts of the engagement. HMRC provides a CEST tool, and a specialist can review a contract. This page only shows what each answer is worth to you."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an estimate from published 2026/27 rates for England, Wales and Northern Ireland. Scottish bands, student loans, pension contributions, VAT and holiday pay are not modelled. Confirm figures on GOV.UK or with an accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f7f5; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #0b5a46; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0a2e25; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0a2e25; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f5a52; }
+    .card { background: #fff; border: 1px solid #cfe0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0a2e2510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9fbab1; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b5a46; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcece6; color: #0a2e25; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e0ece8; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #3f5a52; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { font-size: 1.9rem; font-weight: 800; color: #0a2e25; }
+    .finding { border-bottom: 1px solid #e0ece8; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e0ece8; color: #0a2e25; }
+    .error { color: #9a3412; font-weight: 600; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #f6faf8; border: 1px solid #cfe0da; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0da; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"IR35 inside vs outside, 2026/27: what the same day rate really pays","item":"https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="IR35 inside vs outside, 2026/27: what the same day rate really pays — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/uk-tax/">UK tax, pay &amp; benefits</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">IR35 inside vs outside, 2026/27: what the same day rate really pays</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">UK IR35 · INSIDE VS OUTSIDE · 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>IR35: what does your day rate really pay inside and outside?</h1>
+    <p>Enter your day rate. You get the <strong>take-home outside IR35</strong> through your own company, the <strong>take-home inside IR35</strong> through an umbrella, and the <strong>day rate you would need inside IR35</strong> to keep the same money.</p>
+    <p class="note">England, Wales and Northern Ireland rates for 2026/27. Not tax advice. Confirm rates on <a href="https://www.gov.uk/income-tax-rates" rel="noopener">GOV.UK</a>. Scottish bands, student loans, pension contributions, VAT and holiday pay are not modelled. This page does not decide your IR35 status.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="dayRate">Day rate outside IR35 (£)</label><input id="dayRate" type="number" min="0" step="10" inputmode="decimal" value="500"></div>
+      <div><label for="daysPerYear">Days invoiced a year</label><input id="daysPerYear" type="number" min="0" max="260" step="1" inputmode="decimal" value="220"></div>
+      <div><label for="expenses">Yearly business expenses outside IR35 (£)</label><input id="expenses" type="number" min="0" step="100" inputmode="decimal" value="1500"></div>
+      <div><label for="companyCosts">Yearly company running costs (£)</label><input id="companyCosts" type="number" min="0" step="50" inputmode="decimal" value="1500"></div>
+      <div><label for="umbrellaFeeWeekly">Umbrella fee a week (£)</label><input id="umbrellaFeeWeekly" type="number" min="0" step="1" inputmode="decimal" value="25"></div>
+      <div><label for="insideRate">Day rate offered inside IR35 (£, optional)</label><input id="insideRate" type="number" min="0" step="10" inputmode="decimal" value="" placeholder="same as outside"></div>
+      <div><label for="employmentAllowance">Employment Allowance available</label><select id="employmentAllowance"><option value="no">No (sole director, or no other staff)</option><option value="yes">Yes (company has other employees)</option></select></div>
+      <div><label for="keepNiYear">Keep a State Pension qualifying year</label><select id="keepNiYear"><option value="yes">Yes (salary at least £6,500)</option><option value="no">No, only maximise take-home</option></select></div>
+    </div>
+    <p><button type="button" id="calc">Compare</button><button type="button" class="secondary" id="example">Load an example</button></p>
+    <p id="msg" class="error" role="alert"></p>
+  </section>
+
+  <section class="card" id="result" hidden aria-live="polite">
+    <h2>What you keep</h2>
+    <p class="big" id="headline"></p>
+    <p class="note" id="sub"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Line</th><th class="n">Outside IR35</th><th class="n">Inside IR35</th></tr></thead><tbody id="lines"></tbody></table></div></div>
+    <div id="findings"></div>
+    <h3>Across day rates (same settings)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th class="n">Day rate</th><th class="n">Outside keeps</th><th class="n">Inside keeps</th><th class="n">Gap</th><th class="n">Inside rate to match</th></tr></thead><tbody id="levels"></tbody></table></div></div>
+    <h3>Summary to copy</h3>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" class="secondary" id="download">Download as text</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>How it is worked out</h2>
+    <p>Outside IR35: your company invoices day rate times days, pays expenses and running costs, then a director salary (the best one is found by trying salaries in £100 steps), employer National Insurance at 15% above £5,000, corporation tax at 19% to £50,000 rising to 25% from £250,000, and dividends taxed at 10.75% / 35.75% / 39.35% after a £500 allowance. Inside IR35: the invoice less the umbrella fee must cover your gross pay <em>and</em> the 15% employer National Insurance on it; you then pay income tax and employee National Insurance (8% to £50,270, 2% above) on the gross pay. <strong>Not decided here:</strong> your IR35 status, Scottish bands, student loans, pension contributions, VAT, holiday and sick pay, apprenticeship levy, and travel and subsistence rules.</p>
+  </section>
+
+  <section class="card" id="faq"><h2>Common questions</h2><h3>What does inside IR35 mean for take-home pay?</h3><p>Inside IR35 you are treated as an employee for tax: employer National Insurance of 15% above £5,000 is taken out of what the client pays, then income tax and employee National Insurance come out of your pay. You lose the dividend route and most expense claims, so the same day rate leaves you with much less than outside IR35.</p><h3>What day rate do I need inside IR35 to match my outside-IR35 take-home?</h3><p>Enter your outside rate and the calculator finds the inside-IR35 day rate that gives the same take-home. For a typical contractor it is well above the outside rate, before counting the holiday pay, sick pay and pension an employment-like contract can add.</p><h3>How is the best outside-IR35 salary chosen?</h3><p>The calculator tries director salaries in steps and keeps the one that leaves you the most after employer National Insurance, corporation tax, income tax and dividend tax at 2026/27 rates, keeping a State Pension qualifying year by default.</p><h3>Does this decide whether I am inside or outside IR35?</h3><p>No. Status depends on the facts of the engagement. HMRC provides a CEST tool, and a specialist can review a contract. This page only shows what each answer is worth to you.</p><h3>Is this tax advice?</h3><p>No. It is an estimate from published 2026/27 rates for England, Wales and Northern Ireland. Scottish bands, student loans, pension contributions, VAT and holiday pay are not modelled. Confirm figures on GOV.UK or with an accountant.</p></section>
+
+  <footer>
+    <p>Not sure whether a limited company is worth it at all? Compare with the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a>.</p>
+    <p>Comparing a contract day rate with a salaried job instead? See the <a href="../contract-vs-fte-rate-calculator/">contract vs FTE rate calculator</a>.</p>
+    <p>Sole trader in construction? See the <a href="../uk-cis-deduction-refund-calculator/">UK CIS deduction and refund calculator</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, accounting, compliance, or financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing its output and the current rates before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, summaryText, SAMPLE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ids = ["dayRate", "daysPerYear", "expenses", "companyCosts", "umbrellaFeeWeekly", "insideRate", "employmentAllowance", "keepNiYear"];
+    const read = () => Object.fromEntries(ids.map((id) => [id, $(id).value]));
+    const money = (n) => `£${Math.round(n).toLocaleString("en-GB")}`;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastText = "";
+    function run() {
+      const input = read();
+      const r = compare(input);
+      if (!r.ok) { $("msg").textContent = r.errors.join(" "); $("result").hidden = true; return false; }
+      $("msg").textContent = "";
+      $("headline").textContent = r.diff >= 0 ? `Outside IR35 keeps ${money(r.diff)} more a year` : `Inside IR35 keeps ${money(-r.diff)} more a year`;
+      $("sub").textContent = `Outside ${money(r.out.takeHome)} · inside ${money(r.inside.takeHome)} · to match outside you need about ${money(r.needDayRate)} a day inside IR35.`;
+      const rows = [
+        ["Invoiced", r.out.invoice, r.inside.invoice], ["Expenses and company costs / umbrella fee", r.expenses + r.companyCosts, r.yearlyFee],
+        ["Salary / gross pay", r.out.salary, r.inside.grossPay], ["Dividends", r.out.dividends, ""],
+        ["Employer National Insurance", r.out.employerNi, r.inside.employerNi], ["Corporation tax", r.out.corporationTax, ""],
+        ["Employee National Insurance", r.out.employeeNi, r.inside.employeeNi], ["Income tax", r.out.incomeTax, r.inside.incomeTax],
+        ["Dividend tax", r.out.dividendTax, ""], ["Total tax and NI", r.out.tax, r.inside.tax], ["You keep", r.out.takeHome, r.inside.takeHome],
+      ];
+      $("lines").innerHTML = rows.map(([l, a, b]) => `<tr><td>${esc(l)}</td><td class="n">${a === "" ? "–" : money(a)}</td><td class="n">${b === "" ? "–" : money(b)}</td></tr>`).join("");
+      $("findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span><strong>${esc(f.title)}</strong><p>${esc(f.detail)}</p></div>`).join("");
+      $("levels").innerHTML = r.table.map((t) => `<tr${t.current ? ' style="font-weight:700"' : ""}><td class="n">${money(t.dayRate)}</td><td class="n">${money(t.outside)}</td><td class="n">${money(t.inside)}</td><td class="n">${t.diff >= 0 ? "+" : "-"}${money(Math.abs(t.diff))}</td><td class="n">${money(t.breakEvenDayRate)}</td></tr>`).join("");
+      lastText = summaryText(input, r);
+      $("summary").textContent = lastText;
+      $("result").hidden = false;
+      return true;
+    }
+    $("calc").addEventListener("click", () => { if (run()) record("comparison_run"); });
+    for (const id of ids) { $(id).addEventListener("input", () => { if (!$("result").hidden) run(); }); $(id).addEventListener("change", () => { if (!$("result").hidden) run(); }); }
+    $("example").addEventListener("click", () => { for (const id of ids) $(id).value = SAMPLE[id] ?? ""; run(); record("example_loaded"); });
+    $("download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastText], { type: "text/plain" }));
+      a.download = "uk-ir35-inside-vs-outside.txt"; a.click(); URL.revokeObjectURL(a.href);
+      record("summary_downloaded");
+    });
+    $("optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../uk-shared-parental-pay-planner/" data-pf-to="uk-shared-parental-pay-planner">UK Shared Parental Pay planner 2026/27. Free, private</a></li>
+      <li><a href="../uk-simplified-expenses-calculator/" data-pf-to="uk-simplified-expenses-calculator">Simplified expenses or actual costs? Which claim is bigger for a UK sole trader</a></li>
+      <li><a href="../uk-sole-trader-vs-limited-company-calculator/" data-pf-to="uk-sole-trader-vs-limited-company-calculator">Sole trader vs limited company, UK 2026/27: what you actually keep</a></li>
+      <li><a href="../uk-stamp-duty-calculator/" data-pf-to="uk-stamp-duty-calculator">UK Stamp Duty calculator: how much SDLT on my house? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=uk-ir35-inside-outside-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/?pfEmbed=1&quot; title=&quot;IR35 inside vs outside, 2026/27: what the same day rate really pays — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="uk-ir35-inside-outside-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/" data-pf-embed-title="IR35 inside vs outside, 2026/27: what the same day rate really pays" data-pf-embed-slug="uk-ir35-inside-outside-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="uk-ir35-inside-outside-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="uk-ir35-inside-outside-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

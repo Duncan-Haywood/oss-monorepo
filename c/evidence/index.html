@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free compliance check and evidence record tools | Open Tools and Research</title>
+  <meta name="description" content="Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/evidence/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free compliance check and evidence record tools">
+  <meta property="og:description" content="Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/evidence/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-evidence.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Free compliance check and evidence record tools — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Free compliance check and evidence record tools","url":"https://duncan-haywood.github.io/monorepo-projects/c/evidence/","description":"Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Compliance checks \u0026 evidence records","item":"https://duncan-haywood.github.io/monorepo-projects/c/evidence/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":116,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/","name":"1099-K Threshold Checker"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/","name":"1099-NEC Vendor Tracker"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/activecampaign-import-csv-check/","name":"ActiveCampaign Import CSV Check — free, private, in your browser"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/","name":"ADA Title II Website Accessibility Evidence Report"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/airbnb-payout-to-journal/","name":"Airbnb transaction history to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/","name":"Backup night-over-night trend"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/bai2-to-ofx-converter/","name":"BAI2 to OFX, QBO, QIF and Xero CSV — free, private"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/","name":"Bank statement PDF to CSV, checked against the statement's own balances. Free, private"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/boi-reporting-exemption-checker/","name":"BOI Reporting Exemption Checker — free, 2026"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/brevo-contacts-csv-check/","name":"Brevo Contacts CSV Check — free, private, in your browser"},{"@type":"ListItem","position":11,"url":"https://duncan-haywood.github.io/monorepo-projects/buymeacoffee-payout-to-journal/","name":"Buy Me a Coffee transactions to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":12,"url":"https://duncan-haywood.github.io/monorepo-projects/call-recording-consent-check/","name":"Do you need consent to record this call?"},{"@type":"ListItem","position":13,"url":"https://duncan-haywood.github.io/monorepo-projects/camt053-statement-check/","name":"camt.053 Statement Check — free, private, in your browser"},{"@type":"ListItem","position":14,"url":"https://duncan-haywood.github.io/monorepo-projects/camt053-to-ofx-converter/","name":"camt.053 / MT940 to OFX, QBO, QIF and Xero CSV — free, private"},{"@type":"ListItem","position":15,"url":"https://duncan-haywood.github.io/monorepo-projects/cbam-cost-estimator/","name":"CBAM cost estimator: what the EU carbon border levy adds to your imports. Free, private"},{"@type":"ListItem","position":16,"url":"https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/","name":"Chargeback Evidence Packet Builder"},{"@type":"ListItem","position":17,"url":"https://duncan-haywood.github.io/monorepo-projects/consent-change-record/","name":"Consent Change Record"},{"@type":"ListItem","position":18,"url":"https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/","name":"CRA Evidence Desk — free SBOM vs advisory matcher"},{"@type":"ListItem","position":19,"url":"https://duncan-haywood.github.io/monorepo-projects/dac7-seller-reporting-checker/","name":"DAC7 checker: will the platform report your sales to the tax authority? Free, private"},{"@type":"ListItem","position":20,"url":"https://duncan-haywood.github.io/monorepo-projects/distrokid-royalty-to-journal/","name":"DistroKid earnings report to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":21,"url":"https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/","name":"DNS Change Evidence — prove what a DNS change actually did"},{"@type":"ListItem","position":22,"url":"https://duncan-haywood.github.io/monorepo-projects/eaa-accessibility-act-checker/","name":"European Accessibility Act checker: does the EAA apply to your product or service? Free, private"},{"@type":"ListItem","position":23,"url":"https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/","name":"Economic Nexus Threshold Tracker"},{"@type":"ListItem","position":24,"url":"https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/","name":"E-invoice Preflight — catch defects before submission"},{"@type":"ListItem","position":25,"url":"https://duncan-haywood.github.io/monorepo-projects/employer-payroll-tax-cost-calculator/","name":"Employer payroll tax and true cost of a hire. Free, private"},{"@type":"ListItem","position":26,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-ai-act-risk-checker/","name":"EU AI Act risk checker: is your AI system high-risk? Free, private"},{"@type":"ListItem","position":27,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-battery-regulation-checker/","name":"EU Battery Regulation checker: which duties apply to your battery and by when? Free, private"},{"@type":"ListItem","position":28,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-csrd-scope-checker/","name":"CSRD scope checker: original vs Omnibus thresholds. Free, private"},{"@type":"ListItem","position":29,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-data-act-checker/","name":"EU Data Act checker: does the Data Act apply to your connected product or cloud service? Free, private"},{"@type":"ListItem","position":30,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-dora-readiness-checker/","name":"EU DORA checker: in scope?, what is missing, when is the incident report due. Free, private"},{"@type":"ListItem","position":31,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-dsa-obligations-checker/","name":"DSA obligations checker: which Articles apply to your platform. Free, private"},{"@type":"ListItem","position":32,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-einvoicing-mandate-checker/","name":"EU e-invoicing mandate checker: your receive and issue dates by country. Free, private"},{"@type":"ListItem","position":33,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-espr-readiness-checker/","name":"EU ESPR checker: unsold-clothes destruction ban, disclosure table, Digital Product Passport. Free, private"},{"@type":"ListItem","position":34,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-green-claims-checker/","name":"EU green claims checker: is your eco-friendly claim banned from 27 September 2026? Free, private"},{"@type":"ListItem","position":35,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-green-claims-copy-scanner/","name":"EU green claims checker: is your eco-friendly copy now illegal? Free, private"},{"@type":"ListItem","position":36,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-packaging-regulation-checker/","name":"EU packaging regulation (PPWR) checker: which duties apply to your packaging and by when? Free, private"},{"@type":"ListItem","position":37,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-pay-gap-report-calculator/","name":"EU Pay Gap Report Calculator — free, private"},{"@type":"ListItem","position":38,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-platform-work-directive-checker/","name":"Platform Work Directive checker: scope, employment presumption, algorithm rules. Free, private"},{"@type":"ListItem","position":39,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-price-reduction-claim-checker/","name":"Is your crossed-out price legal? EU 30-day lowest price checker, free and private"},{"@type":"ListItem","position":40,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-product-liability-directive-checker/","name":"EU Product Liability Directive checker: are you in scope from 9 Dec 2026? Free, private"},{"@type":"ListItem","position":41,"url":"https://duncan-haywood.github.io/monorepo-projects/eu-whistleblower-channel-checker/","name":"EU Whistleblower Directive checker: do you need a channel, what is missing, when is the reply due. Free, private"},{"@type":"ListItem","position":42,"url":"https://duncan-haywood.github.io/monorepo-projects/eudr-scope-checker/","name":"EUDR scope checker: are you covered, what must you do, and by when? Free, private"},{"@type":"ListItem","position":43,"url":"https://duncan-haywood.github.io/monorepo-projects/expense-tracker/","name":"Expense Tracker — free, private, Schedule C ready"},{"@type":"ListItem","position":44,"url":"https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/","name":"FIFO Pick Evidence"},{"@type":"ListItem","position":45,"url":"https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/","name":"Final Paycheck Deadline Calculator — free, by state"},{"@type":"ListItem","position":46,"url":"https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-to-journal/","name":"Fiverr earnings to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":47,"url":"https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/","name":"Freelance Lead Tracker — free pipeline and follow-up reminders, no signup"},{"@type":"ListItem","position":48,"url":"https://duncan-haywood.github.io/monorepo-projects/gbp-bulk-location-check/","name":"GBP Bulk Location Check — free, private, in your browser"},{"@type":"ListItem","position":49,"url":"https://duncan-haywood.github.io/monorepo-projects/google-ads-editor-csv-check/","name":"Google Ads Editor CSV Check — free, private, in your browser"},{"@type":"ListItem","position":50,"url":"https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/","name":"Google Contacts CSV Check — free, private, in your browser"},{"@type":"ListItem","position":51,"url":"https://duncan-haywood.github.io/monorepo-projects/gpsr-product-safety-checker/","name":"GPSR checker: do you need an EU responsible person to sell consumer goods in the EU? Free, private"},{"@type":"ListItem","position":52,"url":"https://duncan-haywood.github.io/monorepo-projects/gpx-track-check/","name":"GPX Track Check — free, private, in your browser"},{"@type":"ListItem","position":53,"url":"https://duncan-haywood.github.io/monorepo-projects/grant-deadline-tracker/","name":"Grant Deadline Tracker for Small Nonprofits"},{"@type":"ListItem","position":54,"url":"https://duncan-haywood.github.io/monorepo-projects/grant-indirect-cost-calculator/","name":"How much indirect cost can you charge on your grant budget?"},{"@type":"ListItem","position":55,"url":"https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/","name":"Grant Reporting Tracker for Small Nonprofits"},{"@type":"ListItem","position":56,"url":"https://duncan-haywood.github.io/monorepo-projects/grant-writer-proposal-price-calculator/","name":"Grant Writer Proposal Price Calculator — free"},{"@type":"ListItem","position":57,"url":"https://duncan-haywood.github.io/monorepo-projects/gtin-list-check/","name":"GTIN List Check — free, private, in your browser"},{"@type":"ListItem","position":58,"url":"https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-to-journal/","name":"Gumroad sales export to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":59,"url":"https://duncan-haywood.github.io/monorepo-projects/hubspot-contacts-csv-check/","name":"HubSpot Contacts CSV Check — free, private, in your browser"},{"@type":"ListItem","position":60,"url":"https://duncan-haywood.github.io/monorepo-projects/iban-list-check/","name":"IBAN List Check — free, private, in your browser"},{"@type":"ListItem","position":61,"url":"https://duncan-haywood.github.io/monorepo-projects/ics-calendar-check/","name":"ICS Calendar Check — free, private, in your browser"},{"@type":"ListItem","position":62,"url":"https://duncan-haywood.github.io/monorepo-projects/internal-link-planner/","name":"Internal Link Planner — orphan pages and missing links, found for you"},{"@type":"ListItem","position":63,"url":"https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/","name":"Job Application Tracker — free, private, no sign-up"},{"@type":"ListItem","position":64,"url":"https://duncan-haywood.github.io/monorepo-projects/klaviyo-profile-csv-check/","name":"Klaviyo Profile CSV Check — free, private, in your browser"},{"@type":"ListItem","position":65,"url":"https://duncan-haywood.github.io/monorepo-projects/ko-fi-payout-to-journal/","name":"Ko-fi transactions to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":66,"url":"https://duncan-haywood.github.io/monorepo-projects/lemonsqueezy-payout-to-journal/","name":"Lemon Squeezy earnings export to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":67,"url":"https://duncan-haywood.github.io/monorepo-projects/mailchimp-audience-csv-check/","name":"Mailchimp Audience CSV Check — free, private, in your browser"},{"@type":"ListItem","position":68,"url":"https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/","name":"MCP Supply-Chain Watch — compare MCP tool manifests for drift"},{"@type":"ListItem","position":69,"url":"https://duncan-haywood.github.io/monorepo-projects/mechanics-lien-deadline-calculator/","name":"Mechanics Lien Deadline Calculator — free, 5 states"},{"@type":"ListItem","position":70,"url":"https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/","name":"Meta Catalog CSV Check — free, private, in your browser"},{"@type":"ListItem","position":71,"url":"https://duncan-haywood.github.io/monorepo-projects/mt940-statement-check/","name":"MT940 Statement Check — free, private, in your browser"},{"@type":"ListItem","position":72,"url":"https://duncan-haywood.github.io/monorepo-projects/nis2-scope-checker/","name":"NIS2 scope checker: is your company an essential or important entity? Free, private"},{"@type":"ListItem","position":73,"url":"https://duncan-haywood.github.io/monorepo-projects/npm-deployment-evidence/","name":"npm Deployment Evidence"},{"@type":"ListItem","position":74,"url":"https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/","name":"NY LLC Transparency Act Tracker"},{"@type":"ListItem","position":75,"url":"https://duncan-haywood.github.io/monorepo-projects/ofx-file-check/","name":"OFX File Check — free, private, in your browser"},{"@type":"ListItem","position":76,"url":"https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/","name":"OSHA TRIR \u0026 DART Rate Calculator"},{"@type":"ListItem","position":77,"url":"https://duncan-haywood.github.io/monorepo-projects/paddle-payout-to-journal/","name":"Paddle earnings export to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":78,"url":"https://duncan-haywood.github.io/monorepo-projects/paid-sick-leave-accrual-calculator/","name":"Paid sick leave accrual calculator by state. Free, private"},{"@type":"ListItem","position":79,"url":"https://duncan-haywood.github.io/monorepo-projects/patreon-payout-to-journal/","name":"Patreon earnings export to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":80,"url":"https://duncan-haywood.github.io/monorepo-projects/pay-transparency-directive-checker/","name":"EU Pay Transparency Directive checker: reporting dates, open duties and the 5% gap test. Free, private"},{"@type":"ListItem","position":81,"url":"https://duncan-haywood.github.io/monorepo-projects/payoneer-statement-to-journal/","name":"Payoneer statement to Xero / QuickBooks journal with realised FX — free, private"},{"@type":"ListItem","position":82,"url":"https://duncan-haywood.github.io/monorepo-projects/paypal-activity-to-journal/","name":"PayPal activity to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":83,"url":"https://duncan-haywood.github.io/monorepo-projects/payroll-hours-csv-check/","name":"Payroll Hours CSV Check — free, private, in your browser"},{"@type":"ListItem","position":84,"url":"https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/","name":"Payroll register to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":85,"url":"https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/","name":"PDF Accessibility Tag Checker"},{"@type":"ListItem","position":86,"url":"https://duncan-haywood.github.io/monorepo-projects/pipedrive-import-csv-check/","name":"Pipedrive Import CSV Check — free, private, in your browser"},{"@type":"ListItem","position":87,"url":"https://duncan-haywood.github.io/monorepo-projects/print-atelier/","name":"Print File Preflight — free DPI and print-size checker"},{"@type":"ListItem","position":88,"url":"https://duncan-haywood.github.io/monorepo-projects/public-record-watch/","name":"Public-Record Watch"},{"@type":"ListItem","position":89,"url":"https://duncan-haywood.github.io/monorepo-projects/qif-file-check/","name":"QIF File Check — free, private, in your browser"},{"@type":"ListItem","position":90,"url":"https://duncan-haywood.github.io/monorepo-projects/quickbooks-iif-file-check/","name":"QuickBooks IIF File Check — free, private, in your browser"},{"@type":"ListItem","position":91,"url":"https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/","name":"MLS Listing Photo Preflight — free listing photo checker"},{"@type":"ListItem","position":92,"url":"https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/","name":"Redirect Map Check — free, private, in your browser"},{"@type":"ListItem","position":93,"url":"https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/","name":"Safe Git branch cleanup review"},{"@type":"ListItem","position":94,"url":"https://duncan-haywood.github.io/monorepo-projects/retirement-plan-startup-credit-calculator/","name":"Retirement plan startup credit calculator. Free, private"},{"@type":"ListItem","position":95,"url":"https://duncan-haywood.github.io/monorepo-projects/revolut-business-statement-to-journal/","name":"Revolut statement to Xero / QuickBooks journal with realised FX — free, private"},{"@type":"ListItem","position":96,"url":"https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/","name":"Does your job posting state a pay range?"},{"@type":"ListItem","position":97,"url":"https://duncan-haywood.github.io/monorepo-projects/sales-call-notes-desk/","name":"Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private"},{"@type":"ListItem","position":98,"url":"https://duncan-haywood.github.io/monorepo-projects/sales-export-to-journal/","name":"Any sales export to a Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":99,"url":"https://duncan-haywood.github.io/monorepo-projects/salesforce-lead-import-csv-check/","name":"Salesforce Lead Import CSV Check — free, private, in your browser"},{"@type":"ListItem","position":100,"url":"https://duncan-haywood.github.io/monorepo-projects/shopify-a11y-evidence/","name":"Shopify Accessibility Evidence Report"},{"@type":"ListItem","position":101,"url":"https://duncan-haywood.github.io/monorepo-projects/shopify-permission-drift/","name":"Shopify Permission Drift Record — compare app scopes and webhooks"},{"@type":"ListItem","position":102,"url":"https://duncan-haywood.github.io/monorepo-projects/square-sales-to-journal/","name":"Square sales to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":103,"url":"https://duncan-haywood.github.io/monorepo-projects/stripe-payout-to-journal/","name":"Stripe payout report to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":104,"url":"https://duncan-haywood.github.io/monorepo-projects/teachable-payout-to-journal/","name":"Teachable transactions to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":105,"url":"https://duncan-haywood.github.io/monorepo-projects/time-tracker/","name":"Time Tracker — free billable hours timer, no signup"},{"@type":"ListItem","position":106,"url":"https://duncan-haywood.github.io/monorepo-projects/upwork-earnings-to-journal/","name":"Upwork earnings to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":107,"url":"https://duncan-haywood.github.io/monorepo-projects/vcard-contacts-check/","name":"vCard Contacts Check — free, private, in your browser"},{"@type":"ListItem","position":108,"url":"https://duncan-haywood.github.io/monorepo-projects/vendor-change-evidence/","name":"Vendor Change Evidence"},{"@type":"ListItem","position":109,"url":"https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/","name":"See exactly what changed in a vendor's terms"},{"@type":"ListItem","position":110,"url":"https://duncan-haywood.github.io/monorepo-projects/vendor-watch/","name":"Vendor Watch | Vendor terms change tracker"},{"@type":"ListItem","position":111,"url":"https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/","name":"Free VPAT / Accessibility Conformance Report Generator"},{"@type":"ListItem","position":112,"url":"https://duncan-haywood.github.io/monorepo-projects/wise-statement-to-journal/","name":"Wise statement to Xero / QuickBooks journal with realised FX — free, private"},{"@type":"ListItem","position":113,"url":"https://duncan-haywood.github.io/monorepo-projects/xero-bank-statement-csv-check/","name":"Xero Bank Statement CSV Check — free, private, in your browser"},{"@type":"ListItem","position":114,"url":"https://duncan-haywood.github.io/monorepo-projects/youtube-adsense-payout-to-journal/","name":"YouTube AdSense payments to Xero / QuickBooks journal — free, private"},{"@type":"ListItem","position":115,"url":"https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/","name":"YouTube Chapters Check — free, private, in your browser"},{"@type":"ListItem","position":116,"url":"https://duncan-haywood.github.io/monorepo-projects/zoho-crm-import-csv-check/","name":"Zoho CRM Import CSV Check — free, private, in your browser"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Compliance checks &amp; evidence records</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Compliance checks &amp; evidence records</p>
+      <h1>Free compliance check and evidence record tools</h1>
+      <p class="lede">The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.</p>
+      <p class="count">116 free tools · no account · nothing you type is uploaded, except on DNS Change Evidence and Sales Call Notes Desk</p>
+    </header>
+
+    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these 116 tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>
+
+    <main>
+      <ul class="cards">
+          <li class="card">
+            <a href="../../1099-k-threshold-checker/" data-tool="1099-k-threshold-checker" data-pf-to="1099-k-threshold-checker">
+              <h3>1099-K Threshold Checker</h3>
+            </a>
+            <p>Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold's four changes since 2022…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../1099-vendor-tracker/" data-tool="1099-vendor-tracker" data-pf-to="1099-vendor-tracker">
+              <h3>1099-NEC Vendor Tracker</h3>
+            </a>
+            <p>Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../activecampaign-import-csv-check/" data-tool="activecampaign-import-csv-check" data-pf-to="activecampaign-import-csv-check">
+              <h3>ActiveCampaign Import CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free ActiveCampaign contacts, accounts and deals CSV checker: finds contacts with no or invalid email, duplicate emails, tags separated by semicolons, deals with a Value like…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ada-title-ii-evidence/" data-tool="ada-title-ii-evidence" data-pf-to="ada-title-ii-evidence">
+              <h3>ADA Title II Website Accessibility Evidence Report</h3>
+            </a>
+            <p>Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../airbnb-payout-to-journal/" data-tool="airbnb-payout-to-journal" data-pf-to="airbnb-payout-to-journal">
+              <h3>Airbnb transaction history to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Airbnb host earnings to journal converter: splits every reservation into rental income, cleaning fees, Airbnb host fees and cancellations, books pass-through occupancy tax as…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../backup-verification-evidence/" data-tool="backup-verification-evidence" data-pf-to="backup-verification-evidence">
+              <h3>Backup night-over-night trend</h3>
+            </a>
+            <p>Drop backup-evidence run records in your browser to see whether last night's archive shrank or a verified job quietly got worse. Nothing is uploaded.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../bai2-to-ofx-converter/" data-tool="bai2-to-ofx-converter" data-pf-to="bai2-to-ofx-converter">
+              <h3>BAI2 to OFX, QBO, QIF and Xero CSV — free, private</h3>
+            </a>
+            <p>Free BAI2 converter: check the file's control totals and balances, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../bank-statement-pdf-to-csv/" data-tool="bank-statement-pdf-to-csv" data-pf-to="bank-statement-pdf-to-csv">
+              <h3>Bank statement PDF to CSV, checked against the statement's own balances. Free, private</h3>
+            </a>
+            <p>Free bank and credit card statement PDF to CSV converter that proves the result: opening balance plus the transactions must equal the closing balance. CSV for Xero, QuickBooks…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../boi-reporting-exemption-checker/" data-tool="boi-reporting-exemption-checker" data-pf-to="boi-reporting-exemption-checker">
+              <h3>BOI Reporting Exemption Checker — free, 2026</h3>
+            </a>
+            <p>Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN's August 2026 final rule permanently exempted every…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../brevo-contacts-csv-check/" data-tool="brevo-contacts-csv-check" data-pf-to="brevo-contacts-csv-check">
+              <h3>Brevo Contacts CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Brevo (Sendinblue) contacts import CSV checker: finds invalid and duplicate emails, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../buymeacoffee-payout-to-journal/" data-tool="buymeacoffee-payout-to-journal" data-pf-to="buymeacoffee-payout-to-journal">
+              <h3>Buy Me a Coffee transactions to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Buy Me a Coffee to QuickBooks and Xero journal converter: books tips, memberships, shop orders and commissions to separate income accounts, derives the Buy Me a Coffee and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../call-recording-consent-check/" data-tool="call-recording-consent-check" data-pf-to="call-recording-consent-check">
+              <h3>Do you need consent to record this call?</h3>
+            </a>
+            <p>Pick the caller's and recipient's US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../camt053-statement-check/" data-tool="camt053-statement-check" data-pf-to="camt053-statement-check">
+              <h3>camt.053 Statement Check — free, private, in your browser</h3>
+            </a>
+            <p>Free camt.053 checker: finds why an ISO 20022 XML bank statement fails to import or does not balance (opening plus entries versus closing, gaps between statements, batch totals…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../camt053-to-ofx-converter/" data-tool="camt053-to-ofx-converter" data-pf-to="camt053-to-ofx-converter">
+              <h3>camt.053 / MT940 to OFX, QBO, QIF and Xero CSV — free, private</h3>
+            </a>
+            <p>Free camt.053 and MT940 converter: balance-check the statement, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../cbam-cost-estimator/" data-tool="cbam-cost-estimator" data-pf-to="cbam-cost-estimator">
+              <h3>CBAM cost estimator: what the EU carbon border levy adds to your imports. Free, private</h3>
+            </a>
+            <p>Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../chargeback-evidence-packet/" data-tool="chargeback-evidence-packet" data-pf-to="chargeback-evidence-packet">
+              <h3>Chargeback Evidence Packet Builder</h3>
+            </a>
+            <p>Build a structured chargeback response packet from your order, delivery, and customer-contact evidence. Free, private, and browser-local.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../consent-change-record/" data-tool="consent-change-record" data-pf-to="consent-change-record">
+              <h3>Consent Change Record</h3>
+            </a>
+            <p>Compare before-and-after consent browser traces and create a local request and storage change record.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../cra-evidence-desk/" data-tool="cra-evidence-desk" data-pf-to="cra-evidence-desk">
+              <h3>CRA Evidence Desk — free SBOM vs advisory matcher</h3>
+            </a>
+            <p>Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../dac7-seller-reporting-checker/" data-tool="dac7-seller-reporting-checker" data-pf-to="dac7-seller-reporting-checker">
+              <h3>DAC7 checker: will the platform report your sales to the tax authority? Free, private</h3>
+            </a>
+            <p>Free DAC7 checker for online sellers and hosts: will the platform report your sales or rentals to the tax authority this year? Checks the 30-sales / EUR 2,000 goods exemption…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../distrokid-royalty-to-journal/" data-tool="distrokid-royalty-to-journal" data-pf-to="distrokid-royalty-to-journal">
+              <h3>DistroKid earnings report to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free DistroKid to QuickBooks and Xero journal converter: books music earnings by store (streaming, downloads, TikTok and YouTube) and sale month, songwriter royalties withheld as…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dns-configuration-evidence/" data-tool="dns-configuration-evidence" data-pf-to="dns-configuration-evidence">
+              <h3>DNS Change Evidence — prove what a DNS change actually did</h3>
+            </a>
+            <p>Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../eaa-accessibility-act-checker/" data-tool="eaa-accessibility-act-checker" data-pf-to="eaa-accessibility-act-checker">
+              <h3>European Accessibility Act checker: does the EAA apply to your product or service? Free, private</h3>
+            </a>
+            <p>Free European Accessibility Act checker: pick what you make or sell, your role and your size to see whether Directive (EU) 2019/882 likely applies, whether the microenterprise…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../economic-nexus-threshold-tracker/" data-tool="economic-nexus-threshold-tracker" data-pf-to="economic-nexus-threshold-tracker">
+              <h3>Economic Nexus Threshold Tracker</h3>
+            </a>
+            <p>Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states' economic-nexus…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../einvoice-preflight/" data-tool="einvoice-preflight" data-pf-to="einvoice-preflight">
+              <h3>E-invoice Preflight — catch defects before submission</h3>
+            </a>
+            <p>Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../employer-payroll-tax-cost-calculator/" data-tool="employer-payroll-tax-cost-calculator" data-pf-to="employer-payroll-tax-cost-calculator">
+              <h3>Employer payroll tax and true cost of a hire. Free, private</h3>
+            </a>
+            <p>Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers' comp, match and health cost, and the true cost…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-ai-act-risk-checker/" data-tool="eu-ai-act-risk-checker" data-pf-to="eu-ai-act-risk-checker">
+              <h3>EU AI Act risk checker: is your AI system high-risk? Free, private</h3>
+            </a>
+            <p>Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU)…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-battery-regulation-checker/" data-tool="eu-battery-regulation-checker" data-pf-to="eu-battery-regulation-checker">
+              <h3>EU Battery Regulation checker: which duties apply to your battery and by when? Free, private</h3>
+            </a>
+            <p>Free EU Batteries Regulation (2023/1542) checker for makers, importers and online sellers: which duties reach your battery, when each applies (label, removability, QR code…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-csrd-scope-checker/" data-tool="eu-csrd-scope-checker" data-pf-to="eu-csrd-scope-checker">
+              <h3>CSRD scope checker: original vs Omnibus thresholds. Free, private</h3>
+            </a>
+            <p>Free EU CSRD scope checker: are you in mandatory sustainability reporting under the original CSRD and under the Omnibus thresholds (1,000 employees and EUR 450M turnover), from…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-data-act-checker/" data-tool="eu-data-act-checker" data-pf-to="eu-data-act-checker">
+              <h3>EU Data Act checker: does the Data Act apply to your connected product or cloud service? Free, private</h3>
+            </a>
+            <p>Free EU Data Act checker: pick your role and size to see whether Regulation (EU) 2023/2854 likely applies, whether the micro and small enterprise exemption covers you, the Article…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-dora-readiness-checker/" data-tool="eu-dora-readiness-checker" data-pf-to="eu-dora-readiness-checker">
+              <h3>EU DORA checker: in scope?, what is missing, when is the incident report due. Free, private</h3>
+            </a>
+            <p>Free EU DORA checker for financial entities and the software vendors that sell to them: whether Regulation (EU) 2022/2554 reaches you, which duty areas and Article 30 contract…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-dsa-obligations-checker/" data-tool="eu-dsa-obligations-checker" data-pf-to="eu-dsa-obligations-checker">
+              <h3>DSA obligations checker: which Articles apply to your platform. Free, private</h3>
+            </a>
+            <p>Free EU Digital Services Act checker: enter your service type, size and EU users to get the exact list of DSA duties that apply (notice and action, complaints, marketplace trader…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-einvoicing-mandate-checker/" data-tool="eu-einvoicing-mandate-checker" data-pf-to="eu-einvoicing-mandate-checker">
+              <h3>EU e-invoicing mandate checker: your receive and issue dates by country. Free, private</h3>
+            </a>
+            <p>Free EU e-invoicing mandate checker: when your business must receive and issue structured e-invoices in Germany, France, Belgium, Poland, Italy, Croatia, Greece or Spain, in what…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-espr-readiness-checker/" data-tool="eu-espr-readiness-checker" data-pf-to="eu-espr-readiness-checker">
+              <h3>EU ESPR checker: unsold-clothes destruction ban, disclosure table, Digital Product Passport. Free, private</h3>
+            </a>
+            <p>Free EU ESPR checker for brands, importers and retailers: whether the ban on destroying unsold apparel and footwear reaches you, a draft of the annual unsold-goods disclosure…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-green-claims-checker/" data-tool="eu-green-claims-checker" data-pf-to="eu-green-claims-checker">
+              <h3>EU green claims checker: is your eco-friendly claim banned from 27 September 2026? Free, private</h3>
+            </a>
+            <p>Free EU green claims checker (Directive 2024/825, Empowering Consumers): tick the eco, climate and durability claims you use and see which are banned for consumer marketing from…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-green-claims-copy-scanner/" data-tool="eu-green-claims-copy-scanner" data-pf-to="eu-green-claims-copy-scanner">
+              <h3>EU green claims checker: is your eco-friendly copy now illegal? Free, private</h3>
+            </a>
+            <p>Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-packaging-regulation-checker/" data-tool="eu-packaging-regulation-checker" data-pf-to="eu-packaging-regulation-checker">
+              <h3>EU packaging regulation (PPWR) checker: which duties apply to your packaging and by when? Free, private</h3>
+            </a>
+            <p>Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-pay-gap-report-calculator/" data-tool="eu-pay-gap-report-calculator" data-pf-to="eu-pay-gap-report-calculator">
+              <h3>EU Pay Gap Report Calculator — free, private</h3>
+            </a>
+            <p>Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-platform-work-directive-checker/" data-tool="eu-platform-work-directive-checker" data-pf-to="eu-platform-work-directive-checker">
+              <h3>Platform Work Directive checker: scope, employment presumption, algorithm rules. Free, private</h3>
+            </a>
+            <p>Free EU Platform Work Directive (2024/2831) checker for gig and app platforms and platform workers: is the platform in scope, how strong is the employment presumption, which…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-price-reduction-claim-checker/" data-tool="eu-price-reduction-claim-checker" data-pf-to="eu-price-reduction-claim-checker">
+              <h3>Is your crossed-out price legal? EU 30-day lowest price checker, free and private</h3>
+            </a>
+            <p>Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-product-liability-directive-checker/" data-tool="eu-product-liability-directive-checker" data-pf-to="eu-product-liability-directive-checker">
+              <h3>EU Product Liability Directive checker: are you in scope from 9 Dec 2026? Free, private</h3>
+            </a>
+            <p>Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eu-whistleblower-channel-checker/" data-tool="eu-whistleblower-channel-checker" data-pf-to="eu-whistleblower-channel-checker">
+              <h3>EU Whistleblower Directive checker: do you need a channel, what is missing, when is the reply due. Free, private</h3>
+            </a>
+            <p>Free EU Whistleblower Directive checker for employers: whether you must run an internal reporting channel at your headcount, which requirements are still open, and the 7-day and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../eudr-scope-checker/" data-tool="eudr-scope-checker" data-pf-to="eudr-scope-checker">
+              <h3>EUDR scope checker: are you covered, what must you do, and by when? Free, private</h3>
+            </a>
+            <p>Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../expense-tracker/" data-tool="expense-tracker" data-pf-to="expense-tracker">
+              <h3>Expense Tracker — free, private, Schedule C ready</h3>
+            </a>
+            <p>Free expense tracker for freelancers and the self-employed: log expenses, import a bank CSV, see deductible totals by Schedule C line and by quarterly payment period, flag missing…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../fifo-pick-evidence/" data-tool="fifo-pick-evidence" data-pf-to="fifo-pick-evidence">
+              <h3>FIFO Pick Evidence</h3>
+            </a>
+            <p>Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../final-paycheck-deadline-calculator/" data-tool="final-paycheck-deadline-calculator" data-pf-to="final-paycheck-deadline-calculator">
+              <h3>Final Paycheck Deadline Calculator — free, by state</h3>
+            </a>
+            <p>Free calculator for the legal deadline on a departing employee's final paycheck — by US state and separation type (fired/laid off vs. quit), including California's notice-based…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../fiverr-earnings-to-journal/" data-tool="fiverr-earnings-to-journal" data-pf-to="fiverr-earnings-to-journal">
+              <h3>Fiverr earnings to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Fiverr to QuickBooks and Xero journal converter: books order revenue and tips gross, the Fiverr 20% service fee and withdrawal fees as expenses, refunds and cancellations as…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../freelance-lead-tracker/" data-tool="freelance-lead-tracker" data-pf-to="freelance-lead-tracker">
+              <h3>Freelance Lead Tracker — free pipeline and follow-up reminders, no signup</h3>
+            </a>
+            <p>Free freelance lead tracker: a simple pipeline from new lead to won, who to follow up today, a weighted income forecast, win rate by lead source and a one-click hand-off into a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../gbp-bulk-location-check/" data-tool="gbp-bulk-location-check" data-pf-to="gbp-bulk-location-check">
+              <h3>GBP Bulk Location Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Google Business Profile bulk-location spreadsheet checker: finds semicolon or UTF-16 files, missing columns, duplicate store codes, ZIPs that lost a leading zero, bad phone…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../google-ads-editor-csv-check/" data-tool="google-ads-editor-csv-check" data-pf-to="google-ads-editor-csv-check">
+              <h3>Google Ads Editor CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Google Ads Editor CSV checker: finds headlines over 30 characters, descriptions over 90, responsive search ads with too few headlines, exclamation marks, duplicate headlines…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../google-contacts-csv-check/" data-tool="google-contacts-csv-check" data-pf-to="google-contacts-csv-check">
+              <h3>Google Contacts CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Google Contacts CSV checker: finds headings Google skips, emails and phone numbers that will not import, impossible birthdays, blank and duplicate rows and Excel damage, with…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../gpsr-product-safety-checker/" data-tool="gpsr-product-safety-checker" data-pf-to="gpsr-product-safety-checker">
+              <h3>GPSR checker: do you need an EU responsible person to sell consumer goods in the EU? Free, private</h3>
+            </a>
+            <p>Free EU General Product Safety Regulation (GPSR) checker for online sellers: is your product in scope, is an EU responsible person behind it, and which basic duties are still…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../gpx-track-check/" data-tool="gpx-track-check" data-pf-to="gpx-track-check">
+              <h3>GPX Track Check — free, private, in your browser</h3>
+            </a>
+            <p>Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../grant-deadline-tracker/" data-tool="grant-deadline-tracker" data-pf-to="grant-deadline-tracker">
+              <h3>Grant Deadline Tracker for Small Nonprofits</h3>
+            </a>
+            <p>Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../grant-indirect-cost-calculator/" data-tool="grant-indirect-cost-calculator" data-pf-to="grant-indirect-cost-calculator">
+              <h3>How much indirect cost can you charge on your grant budget?</h3>
+            </a>
+            <p>Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15%…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../grant-reporting-tracker/" data-tool="grant-reporting-tracker" data-pf-to="grant-reporting-tracker">
+              <h3>Grant Reporting Tracker for Small Nonprofits</h3>
+            </a>
+            <p>Track nonprofit grant reporting deadlines, restricted balances, and award review status in a private browser-based tracker. No account or upload required.</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../grant-writer-proposal-price-calculator/" data-tool="grant-writer-proposal-price-calculator" data-pf-to="grant-writer-proposal-price-calculator">
+              <h3>Grant Writer Proposal Price Calculator — free</h3>
+            </a>
+            <p>Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../gtin-list-check/" data-tool="gtin-list-check" data-pf-to="gtin-list-check">
+              <h3>GTIN List Check — free, private, in your browser</h3>
+            </a>
+            <p>Free bulk barcode checker: validates a list of UPC, EAN, GTIN and ISBN codes, finds bad check digits, leading zeros lost to Excel, scientific notation, duplicates and reserved…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../gumroad-sales-to-journal/" data-tool="gumroad-sales-to-journal" data-pf-to="gumroad-sales-to-journal">
+              <h3>Gumroad sales export to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Gumroad sales to journal converter: proves the sales add up to your payout, splits product sales, shipping, tax you collected, Gumroad fees and refunds by month, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../hubspot-contacts-csv-check/" data-tool="hubspot-contacts-csv-check" data-pf-to="hubspot-contacts-csv-check">
+              <h3>HubSpot Contacts CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free HubSpot contacts and companies CSV checker: finds duplicate and invalid emails, Excel-damaged phone numbers and ZIP codes, date format problems, bad lifecycle stage and lead…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../iban-list-check/" data-tool="iban-list-check" data-pf-to="iban-list-check">
+              <h3>IBAN List Check — free, private, in your browser</h3>
+            </a>
+            <p>Free bulk IBAN checker: validates a whole column of IBANs, finds wrong check digits (with the swapped-digit fix), wrong lengths, unknown countries, stray spaces, duplicates and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ics-calendar-check/" data-tool="ics-calendar-check" data-pf-to="ics-calendar-check">
+              <h3>ICS Calendar Check — free, private, in your browser</h3>
+            </a>
+            <p>Free iCalendar (.ics) checker: finds the missing UID, DTSTAMP and VERSION, events that end before they start, bad recurrence rules, time zones without definitions, duplicate UIDs…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../internal-link-planner/" data-tool="internal-link-planner" data-pf-to="internal-link-planner">
+              <h3>Internal Link Planner — orphan pages and missing links, found for you</h3>
+            </a>
+            <p>Free internal link audit and planner. Drop in your site's HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../job-application-tracker/" data-tool="job-application-tracker" data-pf-to="job-application-tracker">
+              <h3>Job Application Tracker — free, private, no sign-up</h3>
+            </a>
+            <p>Free job application tracker that stays on your device: no account, nothing uploaded. Log applications, get follow-up reminders (calendar export), see which sources actually…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../klaviyo-profile-csv-check/" data-tool="klaviyo-profile-csv-check" data-pf-to="klaviyo-profile-csv-check">
+              <h3>Klaviyo Profile CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Klaviyo profile import CSV checker: finds invalid and duplicate emails, phone numbers that are not E.164, rows with no identifier, zips and phones Excel damaged, bad…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../ko-fi-payout-to-journal/" data-tool="ko-fi-payout-to-journal" data-pf-to="ko-fi-payout-to-journal">
+              <h3>Ko-fi transactions to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Ko-fi to QuickBooks and Xero journal converter: books tips, memberships, shop orders and commissions to separate income accounts, derives the Ko-fi and PayPal or Stripe fee…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../lemonsqueezy-payout-to-journal/" data-tool="lemonsqueezy-payout-to-journal" data-pf-to="lemonsqueezy-payout-to-journal">
+              <h3>Lemon Squeezy earnings export to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Lemon Squeezy payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Lemon Squeezy platform and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../mailchimp-audience-csv-check/" data-tool="mailchimp-audience-csv-check" data-pf-to="mailchimp-audience-csv-check">
+              <h3>Mailchimp Audience CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Mailchimp audience import CSV checker: finds invalid and duplicate emails, rows with no email, unquoted commas in Tags, birthdays with a year or mixed DD/MM and MM/DD, mixed…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../mcp-supply-chain-watch/" data-tool="mcp-supply-chain-watch" data-pf-to="mcp-supply-chain-watch">
+              <h3>MCP Supply-Chain Watch — compare MCP tool manifests for drift</h3>
+            </a>
+            <p>Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../mechanics-lien-deadline-calculator/" data-tool="mechanics-lien-deadline-calculator" data-pf-to="mechanics-lien-deadline-calculator">
+              <h3>Mechanics Lien Deadline Calculator — free, 5 states</h3>
+            </a>
+            <p>Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, and Washington. Enter your first and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../meta-catalog-csv-check/" data-tool="meta-catalog-csv-check" data-pf-to="meta-catalog-csv-check">
+              <h3>Meta Catalog CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency, bad sale prices…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../mt940-statement-check/" data-tool="mt940-statement-check" data-pf-to="mt940-statement-check">
+              <h3>MT940 Statement Check — free, private, in your browser</h3>
+            </a>
+            <p>Free MT940 checker: finds why a SWIFT MT940 bank statement fails to import or does not balance (opening plus transactions versus closing, gaps between statements, bad :61: lines…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../nis2-scope-checker/" data-tool="nis2-scope-checker" data-pf-to="nis2-scope-checker">
+              <h3>NIS2 scope checker: is your company an essential or important entity? Free, private</h3>
+            </a>
+            <p>Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../npm-deployment-evidence/" data-tool="npm-deployment-evidence" data-pf-to="npm-deployment-evidence">
+              <h3>npm Deployment Evidence</h3>
+            </a>
+            <p>Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ny-llc-transparency-act-tracker/" data-tool="ny-llc-transparency-act-tracker" data-pf-to="ny-llc-transparency-act-tracker">
+              <h3>NY LLC Transparency Act Tracker</h3>
+            </a>
+            <p>Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../ofx-file-check/" data-tool="ofx-file-check" data-pf-to="ofx-file-check">
+              <h3>OFX File Check — free, private, in your browser</h3>
+            </a>
+            <p>Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../osha-trir-dart-calculator/" data-tool="osha-trir-dart-calculator" data-pf-to="osha-trir-dart-calculator">
+              <h3>OSHA TRIR &amp; DART Rate Calculator</h3>
+            </a>
+            <p>Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log's recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../paddle-payout-to-journal/" data-tool="paddle-payout-to-journal" data-pf-to="paddle-payout-to-journal">
+              <h3>Paddle earnings export to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Paddle payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Paddle fee and refunds by month, and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../paid-sick-leave-accrual-calculator/" data-tool="paid-sick-leave-accrual-calculator" data-pf-to="paid-sick-leave-accrual-calculator">
+              <h3>Paid sick leave accrual calculator by state. Free, private</h3>
+            </a>
+            <p>Free paid sick leave calculator for small employers: pick your state and headcount to see how many hours an employee accrues per pay period, the annual and balance caps, whether…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../patreon-payout-to-journal/" data-tool="patreon-payout-to-journal" data-pf-to="patreon-payout-to-journal">
+              <h3>Patreon earnings export to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Patreon payout to journal converter: proves the pledges add up to your payout, splits membership income, shipping, tax you collected, Patreon platform and processing fees and…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../pay-transparency-directive-checker/" data-tool="pay-transparency-directive-checker" data-pf-to="pay-transparency-directive-checker">
+              <h3>EU Pay Transparency Directive checker: reporting dates, open duties and the 5% gap test. Free, private</h3>
+            </a>
+            <p>Free EU Pay Transparency Directive checker for employers: which duties apply at your headcount, which are still open, and which job categories hit the 5% pay gap trigger. Runs in…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../payoneer-statement-to-journal/" data-tool="payoneer-statement-to-journal" data-pf-to="payoneer-statement-to-journal">
+              <h3>Payoneer statement to Xero / QuickBooks journal with realised FX — free, private</h3>
+            </a>
+            <p>Free Payoneer to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../paypal-activity-to-journal/" data-tool="paypal-activity-to-journal" data-pf-to="paypal-activity-to-journal">
+              <h3>PayPal activity to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free PayPal activity report to journal converter: proves the Balance column is continuous, splits sales, fees, refunds, disputes and bank transfers by month, and downloads a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../payroll-hours-csv-check/" data-tool="payroll-hours-csv-check" data-pf-to="payroll-hours-csv-check">
+              <h3>Payroll Hours CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free payroll hours CSV checker: finds 8:30 mixed with 8.5, text like 8h, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End times that…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../payroll-register-to-journal/" data-tool="payroll-register-to-journal" data-pf-to="payroll-register-to-journal">
+              <h3>Payroll register to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free payroll register to journal converter: checks every employee row, books wages and employer taxes as expenses and every withholding as a liability, totals the 941 deposit for…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../pdf-accessibility-tag-check/" data-tool="pdf-accessibility-tag-check" data-pf-to="pdf-accessibility-tag-check">
+              <h3>PDF Accessibility Tag Checker</h3>
+            </a>
+            <p>Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text, and form-field labels -- the structural checks behind PDF/UA and…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../pipedrive-import-csv-check/" data-tool="pipedrive-import-csv-check" data-pf-to="pipedrive-import-csv-check">
+              <h3>Pipedrive Import CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Pipedrive deals, people and organizations CSV checker: finds deals with a bad status, value or currency, missing names and titles, invalid and duplicate emails, Excel-damaged…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../print-atelier/" data-tool="print-atelier" data-pf-to="print-atelier">
+              <h3>Print File Preflight — free DPI and print-size checker</h3>
+            </a>
+            <p>Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../public-record-watch/" data-tool="public-record-watch" data-pf-to="public-record-watch">
+              <h3>Public-Record Watch</h3>
+            </a>
+            <p>Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../qif-file-check/" data-tool="qif-file-check" data-pf-to="qif-file-check">
+              <h3>QIF File Check — free, private, in your browser</h3>
+            </a>
+            <p>Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../quickbooks-iif-file-check/" data-tool="quickbooks-iif-file-check" data-pf-to="quickbooks-iif-file-check">
+              <h3>QuickBooks IIF File Check — free, private, in your browser</h3>
+            </a>
+            <p>Free QuickBooks Desktop IIF checker: finds why an IIF import fails or posts wrong (missing ENDTRNS, transactions that do not balance, stray tabs, bad dates, Excel quotes, unknown…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../real-estate-agent-photo-app/" data-tool="real-estate-agent-photo-app" data-pf-to="real-estate-agent-photo-app">
+              <h3>MLS Listing Photo Preflight — free listing photo checker</h3>
+            </a>
+            <p>Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser —…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../redirect-map-check/" data-tool="redirect-map-check" data-pf-to="redirect-map-check">
+              <h3>Redirect Map Check — free, private, in your browser</h3>
+            </a>
+            <p>Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../repository-branch-hygiene/" data-tool="repository-branch-hygiene" data-pf-to="repository-branch-hygiene">
+              <h3>Safe Git branch cleanup review</h3>
+            </a>
+            <p>Paste a branch snapshot and see which stale Git branches are delete candidates and which still hold unique work. Runs in your browser; nothing is uploaded and nothing is deleted.</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../retirement-plan-startup-credit-calculator/" data-tool="retirement-plan-startup-credit-calculator" data-pf-to="retirement-plan-startup-credit-calculator">
+              <h3>Retirement plan startup credit calculator. Free, private</h3>
+            </a>
+            <p>Free calculator for the SECURE 2.0 small-employer retirement plan startup credit: setup costs, employer contribution and auto-enrollment credits over five years, with the net…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../revolut-business-statement-to-journal/" data-tool="revolut-business-statement-to-journal" data-pf-to="revolut-business-statement-to-journal">
+              <h3>Revolut statement to Xero / QuickBooks journal with realised FX — free, private</h3>
+            </a>
+            <p>Free Revolut Business to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../salary-range-posting-check/" data-tool="salary-range-posting-check" data-pf-to="salary-range-posting-check">
+              <h3>Does your job posting state a pay range?</h3>
+            </a>
+            <p>Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sales-call-notes-desk/" data-tool="sales-call-notes-desk" data-pf-to="sales-call-notes-desk">
+              <h3>Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</h3>
+            </a>
+            <p>Free sales call notes to CRM tool. Paste your notes or transcript and get the CRM fields, what BANT and MEDDIC still miss, dated next steps and a checked follow-up email. Runs in…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../sales-export-to-journal/" data-tool="sales-export-to-journal" data-pf-to="sales-export-to-journal">
+              <h3>Any sales export to a Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free sales export to journal converter for Airbnb, Amazon, eBay, Etsy, Gumroad, Amazon KDP, PayPal, Shopify, Square and Stripe: drop the CSV, the page detects the platform, proves…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../salesforce-lead-import-csv-check/" data-tool="salesforce-lead-import-csv-check" data-pf-to="salesforce-lead-import-csv-check">
+              <h3>Salesforce Lead Import CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Salesforce lead import CSV checker: finds rows with no LastName or Company, invalid or duplicate emails, status, rating and salutation values the default picklists do not…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../shopify-a11y-evidence/" data-tool="shopify-a11y-evidence" data-pf-to="shopify-a11y-evidence">
+              <h3>Shopify Accessibility Evidence Report</h3>
+            </a>
+            <p>Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../shopify-permission-drift/" data-tool="shopify-permission-drift" data-pf-to="shopify-permission-drift">
+              <h3>Shopify Permission Drift Record — compare app scopes and webhooks</h3>
+            </a>
+            <p>Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser —…</p>
+            <p class="meta">3 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../square-sales-to-journal/" data-tool="square-sales-to-journal" data-pf-to="square-sales-to-journal">
+              <h3>Square sales to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Square transactions to journal converter: checks every payment, books gross sales, discounts, sales tax, tips, refunds and Square fees separately by month, totals each…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../stripe-payout-to-journal/" data-tool="stripe-payout-to-journal" data-pf-to="stripe-payout-to-journal">
+              <h3>Stripe payout report to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Stripe payout reconciliation to journal converter: proves the rows add up to the payout, splits gross sales, Stripe fees, refunds and disputes by month, and downloads a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../teachable-payout-to-journal/" data-tool="teachable-payout-to-journal" data-pf-to="teachable-payout-to-journal">
+              <h3>Teachable transactions to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Teachable to QuickBooks and Xero journal converter: books course sales, bundles, memberships and coaching to separate income accounts, derives the Teachable and PayPal or…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../time-tracker/" data-tool="time-tracker" data-pf-to="time-tracker">
+              <h3>Time Tracker — free billable hours timer, no signup</h3>
+            </a>
+            <p>Free time tracker for freelancers and contractors: start a timer or add hours by hand, set a rate per project, round up the way you bill, see unbilled money by client, and turn…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../upwork-earnings-to-journal/" data-tool="upwork-earnings-to-journal" data-pf-to="upwork-earnings-to-journal">
+              <h3>Upwork earnings to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free Upwork to QuickBooks and Xero journal converter: books hourly, fixed-price and bonus earnings gross, Upwork service fees and Connects as expenses, checks the running balance…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../vcard-contacts-check/" data-tool="vcard-contacts-check" data-pf-to="vcard-contacts-check">
+              <h3>vCard Contacts Check — free, private, in your browser</h3>
+            </a>
+            <p>Free vCard (.vcf) checker: finds cards with no FN or N, bad email and phone values, impossible birthdays, quoted-printable text, unclosed cards, identical duplicates and wrong…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../vendor-change-evidence/" data-tool="vendor-change-evidence" data-pf-to="vendor-change-evidence">
+              <h3>Vendor Change Evidence</h3>
+            </a>
+            <p>Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../vendor-change-watch/" data-tool="vendor-change-watch" data-pf-to="vendor-change-watch">
+              <h3>See exactly what changed in a vendor's terms</h3>
+            </a>
+            <p>Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../vendor-watch/" data-tool="vendor-watch" data-pf-to="vendor-watch">
+              <h3>Vendor Watch | Vendor terms change tracker</h3>
+            </a>
+            <p>Watch a vendor's public terms, privacy policy or subprocessor page and get a timestamped, word-level diff when the text changes. Open source, free, runs from a cron job on your…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../vpat-acr-generator/" data-tool="vpat-acr-generator" data-pf-to="vpat-acr-generator">
+              <h3>Free VPAT / Accessibility Conformance Report Generator</h3>
+            </a>
+            <p>Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP --…</p>
+            <p class="meta">4 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../wise-statement-to-journal/" data-tool="wise-statement-to-journal" data-pf-to="wise-statement-to-journal">
+              <h3>Wise statement to Xero / QuickBooks journal with realised FX — free, private</h3>
+            </a>
+            <p>Free Wise to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../xero-bank-statement-csv-check/" data-tool="xero-bank-statement-csv-check" data-pf-to="xero-bank-statement-csv-check">
+              <h3>Xero Bank Statement CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Xero bank statement CSV checker: finds why a statement will not import or imports with wrong dates (rows above the header, separate Debit/Credit columns, bad amounts, mixed…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../youtube-adsense-payout-to-journal/" data-tool="youtube-adsense-payout-to-journal" data-pf-to="youtube-adsense-payout-to-journal">
+              <h3>YouTube AdSense payments to Xero / QuickBooks journal — free, private</h3>
+            </a>
+            <p>Free YouTube AdSense to Xero and QuickBooks journal converter: books AdSense payments to revenue, US tax withheld to a separate receivable, the bank deposit and the realised FX…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../youtube-chapters-check/" data-tool="youtube-chapters-check" data-pf-to="youtube-chapters-check">
+              <h3>YouTube Chapters Check — free, private, in your browser</h3>
+            </a>
+            <p>Free YouTube chapters checker: finds why chapters do not show (no 0:00 start, fewer than three, under 10 seconds, out of order), fixes the list, and converts Premiere or Audacity…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../zoho-crm-import-csv-check/" data-tool="zoho-crm-import-csv-check" data-pf-to="zoho-crm-import-csv-check">
+              <h3>Zoho CRM Import CSV Check — free, private, in your browser</h3>
+            </a>
+            <p>Free Zoho CRM leads, contacts, accounts and deals CSV checker: finds leads with no Last Name or Company, deals with a misspelled Stage or an Amount like $12,000, invalid and…</p>
+            
+          </li>
+      </ul>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/self-hosted/">Self-hosted business apps</a> <span>(30)</span></li>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(54)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../../c/ci/">Free CI checks and developer gates</a> <span>(173)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/evidence" defer></script>
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>
+</body>
+</html>

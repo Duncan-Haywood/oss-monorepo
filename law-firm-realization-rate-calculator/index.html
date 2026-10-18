@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Law Firm Realization Rate Calculator — Where Billable Time Leaks</title>
+  <meta name="description" content="Free law firm realization calculator: realization, collection rate and yield per lawyer, dollars lost before and after billing, lockup days…">
+  <meta property="og:title" content="Law Firm Realization Rate Calculator — free, private">
+  <meta property="og:description" content="See how much recorded time becomes cash, which timekeeper costs most, and what one point of realization is worth. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Law Firm Realization Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser calculator for law firms and solo lawyers: realization, collection and yield per timekeeper, dollars lost before and after billing, lockup days and what a point of realization is worth."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a law firm's realization rate?", "acceptedAnswer": {"@type": "Answer", "text": "Realization is the share of the standard value of recorded time that actually gets billed: amount billed divided by hours recorded times standard rate. Collection rate is the share of what was billed that gets paid. Multiply the two and you get the yield, the share of recorded time that turns into cash. This calculator gives all three per timekeeper and for the firm."}}, {"@type": "Question", "name": "Why rank timekeepers by dollars lost instead of by rate?", "acceptedAnswer": {"@type": "Answer", "text": "A low rate on a small number of hours can cost less than a mediocre rate on a full-time book. The calculator sorts by dollars of standard value that never became cash, and says when the lowest-yield person is not the biggest loss, so the first conversation is the one worth the most."}}, {"@type": "Question", "name": "Where do the three numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From reports most billing systems already print: the value of time recorded at standard rates (a WIP or timekeeper productivity report), the amount billed, and the amount collected, each for the same period and per timekeeper. No client or matter data is needed."}}, {"@type": "Question", "name": "What is lockup?", "acceptedAnswer": {"@type": "Answer", "text": "Lockup is the days of work tied up between recording time and receiving cash: unbilled time (WIP) divided by recorded value per day, plus receivables divided by billing per day. Enter your balances to see it."}}, {"@type": "Question", "name": "Is it a good idea to just raise the standard rate?", "acceptedAnswer": {"@type": "Answer", "text": "A higher standard rate only helps if the extra reaches the client invoice and gets paid. Check the yield first: if a third of recorded value is already trimmed or never collected, a higher rate can increase the write-down by the same amount. The target section shows whether your gap is hours or yield."}}, {"@type": "Question", "name": "Is my firm's data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser tab, a test in the code asserts there are no network calls, and nothing is stored except opt-out-able anonymous feature counts on your own device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+      input.num { text-align: right; }
+    .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi div { background: #f2f6fb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.4rem; color: #1d3f66; }
+    td input { min-width: 90px; }
+    .err { color: #9a3412; font-size: .85rem; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Law Firm Realization Rate Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Law Firm Realization Rate Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Law Firm Realization Rate Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">LAW FIRM REALIZATION RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your recorded time becomes cash?</h1>
+    <p>Enter, per lawyer or paralegal, the <strong>hours recorded</strong>, the <strong>standard rate</strong>, the <strong>amount billed</strong> and the <strong>amount collected</strong> for the same period. You get <strong>realization, collection rate and yield</strong>, the dollars lost <strong>before</strong> the invoice (write-downs) and <strong>after</strong> it (discounts and unpaid balances), a ranking by <strong>dollars lost</strong> rather than by rate, <strong>lockup days</strong>, and what <strong>one point of realization</strong> is worth a year.</p>
+    <p class="note">Every figure is a total for a timekeeper and a period; no client or matter names are needed. Your numbers are used in this browser tab and never leave your device. Independent of every product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Timekeepers</h2>
+    <p class="note">From your billing system's timekeeper report for one period (a quarter or a year). Hours available is optional and gives utilization.</p>
+    <div class="scroll">
+      <div class="pf-table-scroll"><table id="rows">
+        <thead><tr><th>Name</th><th class="n">Hours recorded</th><th class="n">Standard rate $/hr</th><th class="n">Billed $</th><th class="n">Collected $</th><th class="n">Hours available</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+    <p><button type="button" class="secondary" id="add-row">Add a timekeeper</button></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Period and optional balances</h2>
+    <div class="grid">
+      <div><label for="periodMonths">Months covered</label><input class="num" id="periodMonths" inputmode="decimal" value="12"></div>
+      <div><label for="wipBalance">Unbilled time (WIP) today, $</label><input class="num" id="wipBalance" inputmode="decimal" placeholder="optional"></div>
+      <div><label for="receivables">Receivables today, $</label><input class="num" id="receivables" inputmode="decimal" placeholder="optional"></div>
+      <div><label for="targetCollected">Target collections per year, $</label><input class="num" id="targetCollected" inputmode="decimal" placeholder="optional"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load a made-up five-person firm</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the table, then click Calculate.</p>
+    <div id="errors" class="err" role="alert"></div>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="kpi" id="kpi"></div>
+    <div id="findings"></div>
+    <h3>By timekeeper (largest dollar loss first)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="result-table"><thead><tr><th>Name</th><th class="n">Standard value</th><th class="n">Billed</th><th class="n">Collected</th><th class="n">Written down</th><th class="n">Lost after billing</th><th class="n">Realization</th><th class="n">Collection</th><th class="n">Yield</th><th class="n">Effective $/hr</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>What a better yield is worth, per year</h3>
+    <ul id="sensitivity"></ul>
+    <div id="target-box" hidden><h3>Against your target</h3><p id="target-text"></p></div>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" class="secondary" id="download-csv">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li><strong>Standard value</strong> = hours recorded × standard rate. <strong>Realization</strong> = billed ÷ standard value. <strong>Collection</strong> = collected ÷ billed. <strong>Yield</strong> = collected ÷ standard value. <strong>Effective rate</strong> = collected ÷ hours recorded.</li>
+      <li><strong>Lockup days</strong> = unbilled time ÷ (standard value per day) + receivables ÷ (billing per day). Period days are months × 30.4.</li>
+      <li><strong>One point of realization</strong> = 1% of standard value, collected at your current collection rate, scaled to a year.</li>
+      <li><strong>Billing above standard</strong> (fixed fees, premiums) is allowed and shows as realization over 100%. Collected above billed is rejected as a probable period mismatch.</li>
+      <li><strong>Not included:</strong> costs, overhead, partner compensation, contingency or flat-fee profitability, trust-account balances, whether any fee is reasonable or permitted, and any benchmark for what a good yield is, because that varies by practice area and firm size and no figure here is a standard.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a law firm's realization rate?</h3>
+    <p>Realization is the share of the standard value of recorded time that actually gets billed: amount billed divided by hours recorded times standard rate. Collection rate is the share of what was billed that gets paid. Multiply the two and you get the yield, the share of recorded time that turns into cash. This calculator gives all three per timekeeper and for the firm.</p>
+    <h3>Why rank timekeepers by dollars lost instead of by rate?</h3>
+    <p>A low rate on a small number of hours can cost less than a mediocre rate on a full-time book. The calculator sorts by dollars of standard value that never became cash, and says when the lowest-yield person is not the biggest loss, so the first conversation is the one worth the most.</p>
+    <h3>Where do the three numbers come from?</h3>
+    <p>From reports most billing systems already print: the value of time recorded at standard rates (a WIP or timekeeper productivity report), the amount billed, and the amount collected, each for the same period and per timekeeper. No client or matter data is needed.</p>
+    <h3>What is lockup?</h3>
+    <p>Lockup is the days of work tied up between recording time and receiving cash: unbilled time (WIP) divided by recorded value per day, plus receivables divided by billing per day. Enter your balances to see it.</p>
+    <h3>Is it a good idea to just raise the standard rate?</h3>
+    <p>A higher standard rate only helps if the extra reaches the client invoice and gets paid. Check the yield first: if a third of recorded value is already trimmed or never collected, a higher rate can increase the write-down by the same amount. The target section shows whether your gap is hours or yield.</p>
+    <h3>Is my firm's data uploaded?</h3>
+    <p>No. The calculation runs in your browser tab, a test in the code asserts there are no network calls, and nothing is stored except opt-out-able anonymous feature counts on your own device.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your accountant, your billing system's reports or your jurisdiction's rules on fees and trust accounting. Results depend entirely on the figures you provide. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to any billing, practice-management or accounting vendor or any bar association. Any product names are trademarks of their owners, used here only to say which report is meant.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../bookkeeping-client-fee-calculator/">bookkeeping client fee calculator</a>, the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>, the <a href="../service-hourly-yield-analyzer/">service hourly yield analyzer</a> the <a href="../client-profitability-time-analyzer/">client profitability time analyzer</a> and the <a href="../iolta-three-way-reconciliation-checker/">IOLTA three-way reconciliation checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { realization, sampleRows, summaryText, resultCsv, ROW_FIELDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const pct = (x) => (x * 100).toFixed(1) + "%";
+    const LABELS = { name: "Name", hoursWorked: "Hours recorded", standardRate: "Standard rate", billed: "Billed", collected: "Collected", hoursAvailable: "Hours available" };
+    const tbody = $("#rows tbody");
+    let last = null;
+
+    function addRow(values = {}) {
+      const i = tbody.children.length;
+      const tr = document.createElement("tr");
+      tr.innerHTML = ROW_FIELDS.map((f) => `<td><input id="row-${i}-${f}" aria-label="${LABELS[f]}, timekeeper ${i + 1}" ${f === "name" ? 'type="text"' : 'class="num" inputmode="decimal"'} value="${esc(values[f] ?? "")}"></td>`).join("");
+      tbody.appendChild(tr);
+    }
+    function setRows(rows) { tbody.innerHTML = ""; rows.forEach(addRow); }
+    function readRows() {
+      return [...tbody.children].map((tr, i) => Object.fromEntries(ROW_FIELDS.map((f) => [f, tr.querySelector(`#row-${i}-${f}`).value])));
+    }
+    setRows(Array.from({ length: 5 }, () => ({})));
+
+    function run() {
+      const r = realization({ rows: readRows(), periodMonths: $("#periodMonths").value, wipBalance: $("#wipBalance").value, receivables: $("#receivables").value, targetCollected: $("#targetCollected").value });
+      $("#errors").innerHTML = "";
+      if (!r.ok) {
+        $("#errors").innerHTML = r.errors.map((e) => `<div>${esc(e.message)}</div>`).join("");
+        $("#report").hidden = true; last = null;
+        $("#form-status").textContent = "Fix the highlighted figures and calculate again.";
+        const first = document.getElementById(r.errors[0].id); if (first) first.focus();
+        return false;
+      }
+      last = r;
+      const f = r.firm;
+      $("#kpi").innerHTML = [["Realization", pct(f.realization)], ["Collection", pct(f.collection)], ["Yield", pct(f.yield)], ["Effective rate", usd(f.effectiveRate) + "/hr"], ["Standard rate", usd(f.standardRate) + "/hr"], ...(f.utilization !== null ? [["Utilization", pct(f.utilization)]] : []), ...(r.lockup.total !== null ? [["Lockup", Math.round(r.lockup.total) + " days"]] : [])].map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join("");
+      $("#findings").innerHTML = "<ul>" + r.findings.map((t) => `<li>${esc(t)}</li>`).join("") + "</ul>";
+      $("#result-table tbody").innerHTML = [...r.timekeepers, f].map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${usd(t.standardValue)}</td><td class="n">${usd(t.billed)}</td><td class="n">${usd(t.collected)}</td><td class="n">${usd(t.preBillWriteDown)}</td><td class="n">${usd(t.postBillLoss)}</td><td class="n">${pct(t.realization)}</td><td class="n">${pct(t.collection)}</td><td class="n">${pct(t.yield)}</td><td class="n">${usd(t.effectiveRate)}</td></tr>`).join("");
+      $("#sensitivity").innerHTML = r.sensitivity.map((s) => `<li>+${s.points} point${s.points > 1 ? "s" : ""} of realization ≈ <strong>${usd(s.annualValue)}</strong> more cash a year</li>`).join("");
+      const tp = r.targetPlan;
+      $("#target-box").hidden = !tp;
+      if (tp) $("#target-text").textContent = `Your target is ${usd(tp.target)} a year against ${usd(r.annual.collected)} now (a gap of ${usd(tp.gap)}). At today's effective rate that takes about ${Math.round(tp.hoursNeededAtCurrentYield).toLocaleString("en-US")} recorded hours a year (now ${Math.round(r.annual.hours).toLocaleString("en-US")}); at today's hours it takes a ${pct(tp.yieldNeededAtCurrentHours)} yield (now ${pct(tp.currentYield)}).`;
+      $("#report").hidden = false;
+      $("#form-status").textContent = `Yield ${pct(f.yield)} across ${r.timekeepers.length} timekeeper(s).`;
+      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      setRows(sampleRows()); $("#periodMonths").value = "12"; $("#wipBalance").value = "210000"; $("#receivables").value = "380000"; $("#targetCollected").value = "2000000";
+      if (run()) { record("example_loaded"); $("#form-status").textContent = "Worked example: a made-up five-person firm, not real data."; }
+    });
+    $("#clear-all").addEventListener("click", () => { setRows(Array.from({ length: 5 }, () => ({}))); for (const id of ["wipBalance", "receivables", "targetCollected"]) $("#" + id).value = ""; $("#periodMonths").value = "12"; $("#report").hidden = true; $("#errors").innerHTML = ""; last = null; $("#form-status").textContent = "Fill in the table, then click Calculate."; });
+    $("#add-row").addEventListener("click", () => addRow());
+    $("#copy-summary").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(summaryText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Select the findings and copy them."; } });
+    $("#download-csv").addEventListener("click", () => {
+      if (!last) return; record("csv_downloaded");
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([resultCsv(last)], { type: "text/csv" })); a.download = "realization-by-timekeeper.csv"; a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../childcare-enrollment-mix-optimizer/" data-pf-to="childcare-enrollment-mix-optimizer">Childcare enrollment mix optimizer</a></li>
+      <li><a href="../childcare-tuition-calculator/" data-pf-to="childcare-tuition-calculator">Daycare Tuition Calculator</a></li>
+      <li><a href="../client-rebooking-predictor/" data-pf-to="client-rebooking-predictor">Client Rebooking Predictor — free, private, in your browser</a></li>
+      <li><a href="../climbing-gym-profit-calculator/" data-pf-to="climbing-gym-profit-calculator">Climbing Gym Profit Calculator — monthly profit, payback and break-even members</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=law-firm-realization-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/?pfEmbed=1&quot; title=&quot;Law Firm Realization Rate Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="law-firm-realization-rate-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/" data-pf-embed-title="Law Firm Realization Rate Calculator — free, private" data-pf-embed-slug="law-firm-realization-rate-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="law-firm-realization-rate-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

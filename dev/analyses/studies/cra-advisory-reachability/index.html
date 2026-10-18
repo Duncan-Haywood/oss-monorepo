@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRA evidence desk: the feed is reachable, the wedge is not, and the triage is worth more than both | Development analyses</title>
+<meta name="description" content="Measured 2026-08-20. Primary sources, reproducible from this repo.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>CRA evidence desk: the feed is reachable, the wedge is not, and the triage is worth more than both</h1>
+<p class="meta">Study · 2026-08-20 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/cra-advisory-reachability/README.md">portfolio/research/cra-advisory-reachability/README.md</a></p>
+<article class="doc">
+<p><strong>Measured 2026-08-20. Primary sources, reproducible from this repo.</strong></p>
+<p>This directory advances step 1 of the first experiment <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/candidates/cra-evidence-desk.md"><code>cra-evidence-desk</code></a> specifies for itself, which had never been run:</p>
+<blockquote><p>Take three real open-source-heavy products, produce the inventory, and match against EUVD. <strong>Measure false-positive rate against manual review — this is the only number that matters.</strong></p></blockquote>
+<p>It was not run because the candidate was recorded as blocked. That turns out to be half right, and the half that is wrong is the half everyone assumed.</p>
+<h3>1. Correction: the vulnerability feed is reachable</h3>
+<p>PR <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/240">#240</a> measured which pipeline candidates can fetch their own runtime input data, and concluded that <code>cra-evidence-desk</code> &quot;can generate SBOMs but has no reachable vulnerability feed (OSV/NVD proxy-denied, GitHub advisories scope-denied to this repo).&quot; That conclusion is now recorded in §2d of issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a> and is load-bearing for the claim that only <code>mcp-supply-chain-watch</code> has a reachable feed.</p>
+<p>Both denials are real. But they do not exhaust the feeds, and three others answer: run <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/cra-advisory-reachability/probe_feeds.py"><code>probe_feeds.py</code></a>.</p>
+<div class="scroll"><table><thead><tr><th>Feed</th><th>Result</th></tr></thead><tbody><tr><td><code>registry.npmjs.org/-/npm/v1/security/advisories/bulk</code> — the endpoint <code>npm audit</code> itself uses</td><td><strong>200</strong></td></tr><tr><td><code>github/advisory-database</code> via <code>raw.githubusercontent.com</code> — the full GitHub Advisory Database, OSV format</td><td><strong>200</strong></td></tr><tr><td><code>pypa/advisory-database</code> via <code>raw.githubusercontent.com</code> — PyPI ecosystem</td><td><strong>200</strong></td></tr><tr><td><code>api.github.com</code></td><td><strong>200</strong></td></tr><tr><td><code>pypi.org</code> JSON API</td><td><strong>200</strong></td></tr><tr><td><code>api.osv.dev</code></td><td>denied</td></tr><tr><td><code>services.nvd.nist.gov</code> (NVD)</td><td>denied</td></tr><tr><td><code>api.first.org</code> (EPSS)</td><td>denied</td></tr><tr><td><code>euvd.enisa.europa.eu</code>, <code>www.enisa.europa.eu</code></td><td>denied</td></tr><tr><td>control: <code>example.com</code> (per <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/232">#232</a>)</td><td>denied</td></tr></tbody></table></div>
+<p>The GitHub Advisory Database is not only readable, it is <strong>clonable</strong>: <code>git clone --depth 1 --filter=blob:none --sparse</code> succeeds, and the <code>advisories/github-reviewed/2026</code> slice alone carries 9,275 OSV records. The same advisory content that <code>api.osv.dev</code> would have served is distributed as a git repository on a host this environment already allows for package installs.</p>
+<p>The reason four sessions recorded this as blocked is that they tested the <em>API endpoints</em> for vulnerability data and not the <em>git distribution</em> of the same data. Where a dataset is published as a public repository, egress policy aimed at APIs does not necessarily block it — worth checking for the other candidates before accepting any &quot;feed unreachable&quot; verdict.</p>
+<h3>2. The honest counterweight: the differentiator is still blocked</h3>
+<p>This is not a green light, and reporting it as one would repeat the pattern <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/distribution-first.md"><code>distribution-first.md</code></a> exists to stop.</p>
+<p>The candidate&#39;s write-up names its own wedge explicitly:</p>
+<blockquote><p>Dependency-Track — the common open-source choice — does not natively integrate the EU Vulnerability Database, which is the register the CRA regime points at. <strong>That last item is the wedge.</strong> The generic answer (&quot;generate an SBOM&quot;) is crowded and partly free.</p></blockquote>
+<p><strong>EUVD is denied.</strong> So is ENISA, so is NVD, so is EPSS. What became reachable is precisely the part the candidate itself calls &quot;crowded and partly free&quot; — the commodity half. The claimed differentiator remains unbuildable here, and it is blocked by the same general non-registry-egress policy behind Asks 3 and 7, not by anything specific to ENISA.</p>
+<p>So the correct status change is narrow: <strong>not &quot;unblocked&quot;, but &quot;the experiment that measures its real value is now runnable.&quot;</strong> Which is what follows.</p>
+<h3>3. The measurement</h3>
+<p>Inventory built from npm lockfiles directly, no install (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/cra-advisory-reachability/sbom_match.py"><code>sbom_match.py</code></a>), matched against the npm bulk advisory feed, then every finding reviewed for reachability (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/cra-advisory-reachability/review.py"><code>review.py</code></a>).</p>
+<p><strong>9 real products · 3,573 components · 144 version-range findings.</strong></p>
+<div class="scroll"><table><thead><tr><th>Verdict</th><th>Findings</th></tr></thead><tbody><tr><td>Reachable in the shipped artifact</td><td>49</td></tr><tr><td>False positive</td><td>93</td></tr><tr><td>Arguable</td><td>2</td></tr></tbody></table></div>
+<blockquote><h4><strong>False-positive rate: 64.6% – 66.0%</strong></h4></blockquote>
+<p>Causes, which matter more than the headline:</p>
+<div class="scroll"><table><thead><tr><th>Cause</th><th>Findings</th></tr></thead><tbody><tr><td>A — vulnerable version exists only on a <strong>dev-only path</strong></td><td>41</td></tr><tr><td>B — advisory describes a <strong>server-runtime feature</strong> in a statically-exported product</td><td>40</td></tr><tr><td>B — package is <strong>build-time only</strong>, absent from the static artifact</td><td>12</td></tr><tr><td>B? — needs per-request CSP nonces; rests on config, counted both ways</td><td>2</td></tr></tbody></table></div>
+<p>Cause A is a multi-version artifact and is why name-level matching misleads: in <code>print-atelier</code>, <code>glob</code> is installed at both <code>10.3.10</code> and <code>7.2.3</code>, the advisory range <code>&gt;=10.2.0 &lt;10.5.0</code> matches the former, and the only path carrying it is a dev dependency. Matching on package name plus range says &quot;vulnerable.&quot; Matching on the dependency <em>path</em> says the shipped product never contains it.</p>
+<h3>4. The finding that was not expected: the false-positive rate is bimodal</h3>
+<p>Per product, the rate does not vary — it switches.</p>
+<div class="scroll"><table><thead><tr><th>Product</th><th>Findings</th><th>True</th><th>False</th><th>Rate</th></tr></thead><tbody><tr><td><code>ai-first-markets</code></td><td>5</td><td>5</td><td>0</td><td>0%</td></tr><tr><td><code>local-site-studio</code></td><td>14</td><td>14</td><td>0</td><td>0%</td></tr><tr><td><code>photo-editing/docs-site</code></td><td>5</td><td>5</td><td>0</td><td>0%</td></tr><tr><td><code>print-atelier</code></td><td>26</td><td>25</td><td>1</td><td>4%</td></tr><tr><td><code>real-estate-agent-photo-app/docs-site</code></td><td>55</td><td>0</td><td>54 (+1 arguable)</td><td>~98%</td></tr><tr><td><code>real-estate-agent-photo-app/research</code></td><td>39</td><td>0</td><td>38 (+1 arguable)</td><td>~97%</td></tr></tbody></table></div>
+<p>The split is exactly the deployment mode. The two products at ~98% set <code>output: &quot;export&quot;</code> and <code>images: { unoptimized: true }</code> in <code>next.config.js</code>: they ship pre-rendered HTML to a CDN and run no Next.js server at all. Every <code>next</code> advisory that matched them — all 21 distinct ones — describes request handling: Server Actions, Middleware, the Image Optimizer, rewrites, cache poisoning, request smuggling, Server Function disclosure. None of that code path exists in the artifact the customer ships. The other four products run <code>next start</code>, so their findings are genuine and were left as true positives.</p>
+<p><strong>The discriminating input is not the advisory feed. It is one fact about how the product is deployed</strong> — a fact the customer knows for free and the scanner cannot see. Two lines of <code>next.config.js</code> move a product&#39;s noise from 4% to 98%.</p>
+<p>This reframes the candidate&#39;s weakest score. Defensibility is scored 4, on the reasoning that &quot;SBOM generation is commodity and partly open source; the durable part is the archive and the EUVD mapping.&quot; The archive is public data (see PR <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/245">#245</a> for the same conclusion reached about <code>mcp-supply-chain-watch</code>) and the EUVD mapping is unreachable — so both stated defensibility sources are weaker than scored. But the measured triage above is neither commodity nor blocked, it needs no egress grant, and it is the difference between a report a customer acts on and one they stop opening. Whether that is <em>defensible</em> is a separate question this measurement does not answer; it is at least the first candidate attribute in this directory that was measured rather than asserted.</p>
+<h3>5. Limits</h3>
+<ul><li><strong>npm only.</strong> The PyPA feed is reachable but was not run; the repo&#39;s two Python surfaces are <code>requirements.txt</code> without pinned transitive closure, so the inventory step is not comparable. The candidate&#39;s own risk register already flags partial ecosystem coverage as worse than none.</li><li><strong>The products are this portfolio&#39;s own.</strong> They are real, open-source-heavy, and were not selected for the result, but they are not customer products and four of nine are documentation sites. A customer sample would likely have a lower static-export share and so a lower false-positive rate.</li><li><strong>Reachability was judged from advisory titles and deployment config, not from call-graph analysis.</strong> For the static-export cases the judgement is structural — no server, no server code path — but &quot;reachable&quot; here means &quot;the vulnerable feature is shipped,&quot; not &quot;an exploit exists.&quot;</li><li><strong><code>in_range()</code> is a minimal semver comparator</strong>, not <code>node-semver</code>. It covers the operators the npm bulk feed emits in this dataset; cross-checked against <code>npm audit --omit=dev</code>, which reports 3 and 2 vulnerable <em>packages</em> for the two products spot-checked, consistent with this tool&#39;s per-advisory counts.</li><li><strong>Not verified against primary regulatory sources.</strong> The CRA obligation dates in the candidate write-up remain unverifiable from here (§2c of <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a>). Nothing in this directory changes that.</li></ul>
+<h3>6. Reproduce</h3>
+<pre><code>python3 portfolio/research/cra-advisory-reachability/probe_feeds.py
+python3 portfolio/research/cra-advisory-reachability/sbom_match.py /tmp/findings.json
+python3 portfolio/research/cra-advisory-reachability/review.py</code></pre>
+<p><code>results-2026-08-20-findings.json</code> and <code>results-2026-08-20-reviewed.json</code> are the outputs as measured on 2026-08-20. Advisory feeds change daily; re-running will not reproduce the counts exactly, and the reachability table should be re-probed rather than trusted.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

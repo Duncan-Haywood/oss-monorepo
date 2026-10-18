@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. checking the FLSA salary threshold yourself</title>
+<meta name="description" content="A manual FLSA salary-threshold check usually applies one number to every employee -- but five states set a higher figure…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking the FLSA salary threshold yourself">
+<meta property="og:description" content="The federal FLSA white-collar salary threshold is one number, but five states set a higher one, and New York's higher figure applies to only two of the three…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"If a salary clears the federal $684/week threshold, is that always enough?","acceptedAnswer":{"@type":"Answer","text":"No -- only in a state that has not set its own higher figure. Five states currently have: California, Washington, Maine, Alaska, and New York. An employee paid well above $684/week can still fail the applicable threshold if they work in one of those states and the state figure is higher, which is the single most common way a manual check that only knows the federal number gets the answer wrong."}},{"@type":"Question","name":"Does New York's higher salary threshold apply to every exemption category?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the detail most likely to be missed by hand. New York's higher regional figures ($1,275/week in NYC and Nassau/Suffolk/Westchester, $1,199.10/week elsewhere in the state) apply only to the executive and administrative exemptions. New York sets no separate threshold for the professional exemption, so the federal $684/week figure governs a professional-exemption classification even in New York -- while an executive or administrative employee at the identical salary and location is judged against the much higher state figure."}},{"@type":"Question","name":"Why would the same weekly salary pass for one employee and fail for another at the identical company location?","acceptedAnswer":{"@type":"Answer","text":"Because the applicable threshold depends on the exemption category, not just the state. A $900/week employee in the NYC area classified under the professional exemption meets the threshold -- the federal $684/week figure governs, since New York sets no professional-specific figure. A $900/week employee at the same company, same location, classified under the administrative exemption instead does not meet the threshold: New York's $1,275/week figure applies to that category, and $900 is $375 short."}},{"@type":"Question","name":"Does every state's higher threshold take effect on the same date?","acceptedAnswer":{"@type":"Answer","text":"No. California, Washington, Maine, and New York's 2026 figures are effective January 1, 2026, but Alaska's $1,120/week figure does not take effect until July 1, 2026 -- a manual check applied before that date should still use the federal $684/week figure for an Alaska employee, not the higher figure that has not taken effect yet."}},{"@type":"Question","name":"If a salary meets the applicable threshold, does that make the employee exempt?","acceptedAnswer":{"@type":"Answer","text":"No. The salary threshold is a necessary condition, never a sufficient one. The employee must also be paid on a true salary basis (not reducible for partial-day absences or variations in the quantity of work performed) and must actually perform exempt duties under the executive, administrative, or professional duties test. This tool checks only the salary-level half of the test."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. checking the FLSA salary threshold yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../exempt-salary-threshold-checker/">Exempt Salary Threshold Checker — free, 2026</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. checking the FLSA salary threshold yourself</span></span></nav>
+<p class="note"><a href="index.html">&larr; back to the checker</a></p>
+<h1>This checker vs. checking the FLSA salary threshold yourself</h1>
+<p class="lede">Checking a salary against the FLSA white-collar exemption threshold looks like comparing one number to another. It is, once you have the right number -- but which number applies depends on the employee's work state, and in one state, on the exemption category too. A manual check that reaches for a single figure and applies it everywhere gets exactly the case that differs wrong.</p>
+
+<section class="card">
+<h2>Where a manual check usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake checking it by hand</th><th scope="col">What this checker does</th></tr></thead>
+<tbody>
+<tr><td>Picking the right threshold for the state</td><td>Applying the federal $684/week figure to every employee, missing that California, Washington, Maine, Alaska, and New York each set a higher figure that controls instead for an employee working there.</td><td>Applies the federal figure or the applicable state figure, whichever is higher, based on the state you select.</td></tr>
+<tr><td>New York's category-specific carve-out</td><td>Applying New York's higher regional figure to every exemption category, when it applies only to the executive and administrative exemptions -- a professional-exemption classification in New York is governed by the federal $684/week figure instead.</td><td>Applies New York's higher figure only to the executive and administrative categories, and the federal figure to the professional category, automatically.</td></tr>
+<tr><td>State effective dates</td><td>Applying a state's higher 2026 figure before it actually takes effect -- Alaska's $1,120/week figure is not effective until July 1, 2026, unlike the other four states' January 1, 2026 dates.</td><td>States each figure's effective date alongside the result, so a check run before that date isn't silently overclaiming it.</td></tr>
+<tr><td>Treating "meets the threshold" as "is exempt"</td><td>Stopping at the salary comparison and classifying the employee exempt on that basis alone.</td><td>States every time that the salary threshold is necessary, not sufficient -- the salary-basis and duties tests still apply and are not checked here.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The checker runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Worked example: the same salary and location, two exemption categories</h2>
+<p>This is the checker's own shipped "load an example" scenario -- open the checker and click it to see the same numbers.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Employee</th><th scope="col">Applicable threshold</th><th scope="col">Meets it?</th></tr></thead>
+<tbody>
+<tr><td>$900/week, professional exemption, NYC area</td><td>$684.00/week (federal -- New York sets no professional-specific figure)</td><td><strong>Yes</strong></td></tr>
+<tr><td>$900/week, administrative exemption, NYC area</td><td>$1,275.00/week (New York's downstate figure)</td><td><strong>No</strong> -- $375.00 short</td></tr>
+</tbody>
+</table></div>
+<p>Same salary, same office. A manual check that learned "the New York figure is $1,275/week" from the first case and applied it to every category would have wrongly failed the professional employee, or one that learned "$900 clears the threshold here" from the professional case and applied it to the administrative employee would have wrongly passed them. Both mistakes run in this checker's worked example, in opposite directions, from the same starting fact.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>If a salary clears the federal $684/week threshold, is that always enough?</h3>
+<p>No -- only in a state that has not set its own higher figure. Five states currently have: California, Washington, Maine, Alaska, and New York. An employee paid well above $684/week can still fail the applicable threshold if they work in one of those states and the state figure is higher, which is the single most common way a manual check that only knows the federal number gets the answer wrong.</p>
+<h3>Does New York's higher salary threshold apply to every exemption category?</h3>
+<p>No, and this is the detail most likely to be missed by hand. New York's higher regional figures ($1,275/week in NYC and Nassau/Suffolk/Westchester, $1,199.10/week elsewhere in the state) apply only to the executive and administrative exemptions. New York sets no separate threshold for the professional exemption, so the federal $684/week figure governs a professional-exemption classification even in New York -- while an executive or administrative employee at the identical salary and location is judged against the much higher state figure.</p>
+<h3>Why would the same weekly salary pass for one employee and fail for another at the identical company location?</h3>
+<p>Because the applicable threshold depends on the exemption category, not just the state. A $900/week employee in the NYC area classified under the professional exemption meets the threshold -- the federal $684/week figure governs, since New York sets no professional-specific figure. A $900/week employee at the same company, same location, classified under the administrative exemption instead does not meet the threshold: New York's $1,275/week figure applies to that category, and $900 is $375 short.</p>
+<h3>Does every state's higher threshold take effect on the same date?</h3>
+<p>No. California, Washington, Maine, and New York's 2026 figures are effective January 1, 2026, but Alaska's $1,120/week figure does not take effect until July 1, 2026 -- a manual check applied before that date should still use the federal $684/week figure for an Alaska employee, not the higher figure that has not taken effect yet.</p>
+<h3>If a salary meets the applicable threshold, does that make the employee exempt?</h3>
+<p>No. The salary threshold is a necessary condition, never a sufficient one. The employee must also be paid on a true salary basis (not reducible for partial-day absences or variations in the quantity of work performed) and must actually perform exempt duties under the executive, administrative, or professional duties test. This tool checks only the salary-level half of the test.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker apply published federal and state figures to numbers you supply. They are not legal, tax, or financial advice, and do not replace a qualified employment attorney or HR compliance professional. <strong>You are responsible for reviewing and verifying the output before relying on it</strong>, and for confirming an employee's full exemption status before classifying them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="index.html">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../social-security-survivor-spousal-benefit-calculator/" data-pf-to="social-security-survivor-spousal-benefit-calculator">Social Security survivor and spousal benefit calculator. Free, private</a></li>
+      <li><a href="../solar-payback-calculator/" data-pf-to="solar-payback-calculator">Solar Payback Calculator — free, private, in your browser</a></li>
+      <li><a href="../solo-401k-contribution-calculator/" data-pf-to="solo-401k-contribution-calculator">Solo 401(k) Contribution Calculator — free, 2026</a></li>
+      <li><a href="../startup-exit-waterfall-calculator/" data-pf-to="startup-exit-waterfall-calculator">Startup Exit Waterfall Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=exempt-salary-threshold-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="exempt-salary-threshold-checker"></script>
+</body>
+</html>

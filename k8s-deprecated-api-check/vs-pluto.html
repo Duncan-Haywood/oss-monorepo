@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. Pluto | Kubernetes Deprecated API Check</title>
+<meta name="description" content="Pluto, from FairwindsOps, is a Go binary you install (or run via Docker) that scans local files, a Helm release…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/vs-pluto.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Pluto">
+<meta property="og:description" content="Pluto is an installed Go binary with cluster and Helm-release scanning built in. This checker is a zero-install browser page and a single dependency-free Node…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Pluto?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They answer the same underlying question with different adoption costs. Pluto is a Go binary (install via Homebrew, a release download, or Docker) that can scan local files, a rendered Helm chart, or -- with cluster credentials -- a live cluster's currently deployed API versions, using its own maintained version database updated release by release. This tool is a zero-install browser page and a single dependency-free Node file: paste or load manifest YAML, optionally name a target Kubernetes version, get a report. If you want live-cluster scanning, Helm release introspection, or a tool already wired into a release pipeline, use Pluto. If you want a one-off check with nothing to install, or a CI gate that is a single committed file with no external dependency to pin and update, this is built for exactly that." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Pluto already cover what this checks?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For the specific removals this tool's table covers, yes -- both are checking the same underlying fact, sourced from the same place: Kubernetes' own Deprecated API Migration Guide. Pluto's database is broader and more actively maintained release over release, including in-progress deprecations this tool deliberately leaves out until a removal release is fixed. What differs is not the answer but what it costs to get one: Pluto needs installing and, for cluster or Helm-release scanning, credentials; this tool needs nothing but a browser tab or one Node file already sitting next to the manifest you want to check." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just install Pluto instead of adding another tool?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because they cost different amounts to adopt for a quick check. Pluto is a versioned binary with its own release cadence to track and, for live-cluster or Helm-release scanning, credentials to grant. This tool is one dependency-free JavaScript file: node cli.mjs check manifests.yaml, nothing to install, nothing to authenticate. If a team already runs Pluto in its release pipeline for the broader live-cluster and Helm-aware scanning it offers, this does not replace that -- it is a lighter, no-install option for a one-off check or a CI gate that should not depend on an external binary being present." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Pluto or FairwindsOps?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Pluto or FairwindsOps, named here only to describe what this checker is and is not. What Pluto currently scans and how it is licensed are described on its own project page and repository -- check there for what it covers today." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; overflow-wrap: anywhere; }
+  h2 { color: #17324a; margin-top: 30px; }
+  code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #d5dbe3; padding: 0.5rem 0.7rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  a { color: #17604a; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/vs-pluto.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Pluto — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../k8s-deprecated-api-check/">Will this manifest survive your next Kubernetes upgrade?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Pluto</span></span></nav>
+<p><a href="./">&larr; Back to Kubernetes Deprecated API Check</a></p>
+
+<h1>This checker vs. Pluto</h1>
+
+<div class="card">
+<p>
+  <strong>Pluto</strong>, maintained by <strong>FairwindsOps</strong>, is a widely used open-source Go
+  tool for exactly this problem: finding deprecated or removed Kubernetes API versions. It ships as an
+  installable binary (Homebrew, a GitHub release download, or a Docker image) with three scan modes --
+  local files, a rendered Helm chart or release, or, given cluster credentials, the API versions
+  currently deployed in a live cluster -- backed by a version database FairwindsOps updates as each new
+  Kubernetes release ships.
+</p>
+<p>
+  This checker answers the same underlying question with a much smaller footprint. It is a
+  zero-dependency, zero-install browser page and a single Node file: paste or load manifest YAML,
+  optionally name a target Kubernetes version, and get a report of every <code>apiVersion</code> +
+  <code>kind</code> pair that release has removed or will remove. It has no cluster-scanning mode, no
+  Helm-release introspection, and nothing to install: <code>node cli.mjs check manifests.yaml</code>.
+</p>
+</div>
+
+<h2>Which one answers your question</h2>
+<div class="card">
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Scan a live cluster's currently deployed resources for deprecated API versions, with cluster credentials.</td>
+      <td>Pluto -- that mode is built in.</td>
+    </tr>
+    <tr>
+      <td>Check a Helm release already installed in a cluster, or a chart's rendered output as part of a release pipeline.</td>
+      <td>Pluto -- it has dedicated Helm-aware scanning.</td>
+    </tr>
+    <tr>
+      <td>Get the broadest, most current coverage of in-progress and future-dated deprecations, maintained release over release by a dedicated team.</td>
+      <td>Pluto -- this checker deliberately lists only removals with a fixed release number already documented.</td>
+    </tr>
+    <tr>
+      <td>Check one manifest file or a small repo with nothing to install, no binary to pin a version of, and nothing uploaded anywhere.</td>
+      <td>This checker -- open the page, paste or load the file, done.</td>
+    </tr>
+    <tr>
+      <td>Add a CI gate that is a single committed file with no external binary dependency to fetch, cache, or update.</td>
+      <td>This checker -- <code>cli.mjs</code> is the whole dependency.</td>
+    </tr>
+    <tr>
+      <td>Get a pass/fail against a specific target Kubernetes version without installing anything first.</td>
+      <td>This checker -- <code>--target-version 1.25</code>, right in the browser or the CLI.</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+
+<div class="card">
+<p>
+  These compose rather than compete. A team already running Pluto in its release pipeline for
+  live-cluster or Helm-release scanning loses nothing by also keeping this narrower, install-free
+  checker around for a quick one-off check on a manifest someone is about to hand-edit. And a team that
+  does not want an external binary in its toolchain just for this one question can reach for this
+  instead, with nothing to install at all. Neither replaces the other; they trade breadth and
+  cluster-awareness for zero install cost in opposite directions.
+</p>
+</div>
+
+<h2>Common questions</h2>
+<div class="card">
+<h3>Should I use this checker or Pluto?</h3>
+<p>They answer the same underlying question with different adoption costs. Pluto is a Go binary (install via Homebrew, a release download, or Docker) that can scan local files, a rendered Helm chart, or -- with cluster credentials -- a live cluster's currently deployed API versions, using its own maintained version database updated release by release. This tool is a zero-install browser page and a single dependency-free Node file: paste or load manifest YAML, optionally name a target Kubernetes version, get a report. If you want live-cluster scanning, Helm release introspection, or a tool already wired into a release pipeline, use Pluto. If you want a one-off check with nothing to install, or a CI gate that is a single committed file with no external dependency to pin and update, this is built for exactly that.</p>
+<h3>Does Pluto already cover what this checks?</h3>
+<p>For the specific removals this tool's table covers, yes -- both are checking the same underlying fact, sourced from the same place: Kubernetes' own Deprecated API Migration Guide. Pluto's database is broader and more actively maintained release over release, including in-progress deprecations this tool deliberately leaves out until a removal release is fixed. What differs is not the answer but what it costs to get one: Pluto needs installing and, for cluster or Helm-release scanning, credentials; this tool needs nothing but a browser tab or one Node file already sitting next to the manifest you want to check.</p>
+<h3>Why not just install Pluto instead of adding another tool?</h3>
+<p>Because they cost different amounts to adopt for a quick check. Pluto is a versioned binary with its own release cadence to track and, for live-cluster or Helm-release scanning, credentials to grant. This tool is one dependency-free JavaScript file: <code>node cli.mjs check manifests.yaml</code>, nothing to install, nothing to authenticate. If a team already runs Pluto in its release pipeline for the broader live-cluster and Helm-aware scanning it offers, this does not replace that -- it is a lighter, no-install option for a one-off check or a CI gate that should not depend on an external binary being present.</p>
+<h3>Is this page affiliated with Pluto or FairwindsOps?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Pluto or FairwindsOps, named here only to describe what this checker is and is not. What Pluto currently scans and how it is licensed are described on its own project page and repository -- check there for what it covers today.</p>
+</div>
+
+<p><strong>Only point either tool at a manifest or cluster you own or are authorised to test.</strong> That rule is unchanged by which one you pick.</p>
+
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. It matches a fixed table of documented removals against the manifest you supplied -- it cannot prove your manifests will apply cleanly on every future release, only report the matches it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+  <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-deprecated-api-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="k8s-deprecated-api-check"></script>
+</body>
+</html>

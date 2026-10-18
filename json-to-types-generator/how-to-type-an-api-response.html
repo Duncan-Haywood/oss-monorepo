@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Type an API Response Safely: Optional, Nullable and Why Generated Types Lie</title>
+  <meta name="description" content="Why one JSON sample gives wrong types, how optional and nullable differ, when to validate at runtime with Zod, and how to generate types from several samples.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/how-to-type-an-api-response.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to type an API response safely","about":"typing JSON API responses","author":{"@type":"Organization","name":"JSON to Types Generator"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/how-to-type-an-api-response.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Type an API Response Safely: Optional, Nullable and Why Generated Types Lie">
+<meta property="og:description" content="Why one JSON sample gives wrong types, how optional and nullable differ, when to validate at runtime with Zod, and how to generate types from several samples.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Type an API Response Safely: Optional, Nullable and Why Generated Types Lie — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../json-to-types-generator/">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Type an API Response Safely: Optional, Nullable and Why Generated Types Lie</span></span></nav>
+  <p><a href="./">← JSON to Types Generator</a></p>
+  <h1>How to type an API response safely</h1>
+  <p>Generated types are a description of the samples you gave the generator, not a promise about the API. They are still the fastest way to a correct first draft, as long as you know where they lie.</p>
+
+  <h2>Optional is not nullable</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Case</th><th>In the JSON</th><th>TypeScript</th></tr>
+    <tr><td>Optional</td><td>The key is sometimes absent</td><td><code>name?: string</code></td></tr>
+    <tr><td>Nullable</td><td>The key is present with <code>null</code></td><td><code>name: string | null</code></td></tr>
+    <tr><td>Both</td><td>Absent in some, null in others</td><td><code>name?: string | null</code></td></tr>
+  </table></div>
+  <p>A single sample can show neither. That is why the tool asks for several samples and warns when you give it one: every field of a one-sample type is marked required.</p>
+
+  <h2>Pick samples that disagree</h2>
+  <ul>
+    <li>A record with every field filled, and one with as many as possible empty.</li>
+    <li>A list with items and the same list empty (an empty array has no item type).</li>
+    <li>An error response, if your code receives them on the same path.</li>
+  </ul>
+
+  <h2>Types vanish at runtime: validate at the edge</h2>
+  <p>TypeScript types are erased when the code runs, so a response that no longer matches fails somewhere far from the cause. The Zod output gives you a schema to parse the response with, and an inferred type from the same definition, so the check and the type cannot drift apart.</p>
+
+  <h2>What the tool guesses, and flags</h2>
+  <ul>
+    <li>Strings that are always ISO dates, UUIDs, emails or URLs are annotated; one odd value turns the annotation off.</li>
+    <li>An object with many ID-like keys becomes a map instead of one field per ID.</li>
+    <li>Fields that hold more than one type are listed so you can check they are intended.</li>
+    <li>Whole numbers stay integers until a decimal shows up. A price that happens to be 10 in your sample may be 10.5 tomorrow.</li>
+  </ul>
+
+  <h2>Using the generator</h2>
+  <p>Paste the samples into <a href="./">the tool</a> or run <code>node cli.mjs a.json b.json --style zod</code>, read the notes it prints, and commit the result. Re-run it when the API changes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general information about typing practice, not professional advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Generate types from JSON</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../env-example-drift-check/" data-pf-to="env-example-drift-check">Does your .env.example still match what the code actually reads?</a></li>
+      <li><a href="../error-tracking-pricing-calculator/" data-pf-to="error-tracking-pricing-calculator">What will error tracking cost at your event volume, and who is cheapest?</a></li>
+      <li><a href="../feature-flag-pricing-calculator/" data-pf-to="feature-flag-pricing-calculator">What will feature flags cost at your requests-per-month volume, and who is cheapest?</a></li>
+      <li><a href="../firebase-rules-check/" data-pf-to="firebase-rules-check">Firebase Security Rules Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=json-to-types-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="json-to-types-generator"></script>
+</body>
+</html>

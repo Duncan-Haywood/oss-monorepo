@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invoice Factoring Cost Calculator — True Cost and APR of a Factoring Offer</title>
+  <meta name="description" content="Free invoice factoring calculator: enter advance rate, fee per period and days to pay, and see the true cost, percent of invoice, annualised rate and rebate.">
+  <meta property="og:title" content="Invoice Factoring Cost Calculator — free, private">
+  <meta property="og:description" content="What a factoring offer really costs: dollars, percent of the invoice and annual rate, side by side.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Invoice Factoring Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free invoice factoring cost calculator: compare factoring offers by true cost per invoice, percent of the invoice, annualised rate, rebate and yearly cost."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the real cost of invoice factoring?", "acceptedAnswer": {"@type": "Answer", "text": "Add the factor's fee for every fee period your customer takes to pay, plus flat fees such as ACH or wire charges, and compare that to the cash you were advanced. A 3% fee per 30 days on a 90% advance paid in 38 days is two periods, 6% of the invoice, which is about 38% a year on the cash advanced."}}, {"@type": "Question", "name": "Why does paying one day late cost so much?", "acceptedAnswer": {"@type": "Answer", "text": "Many factors charge a whole fee period at a time. If the period is 30 days and your customer pays on day 31, you pay a second full period. Daily accrual avoids that cliff."}}, {"@type": "Question", "name": "What is the reserve and rebate?", "acceptedAnswer": {"@type": "Answer", "text": "The factor holds back the part of the invoice it did not advance. When the customer pays, the factor takes its fees out of that reserve and rebates the remainder to you."}}, {"@type": "Question", "name": "Is factoring cheaper than a line of credit?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not on rate, but it can be easier to get and scales with sales. Enter a line-of-credit rate to see the cost of borrowing the same advance for the same days."}}, {"@type": "Question", "name": "Which fees does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Setup, termination and monthly minimum fees, fees on disputed or charged-back invoices, credit check fees and recourse terms. Add recurring per-invoice items to the flat fee."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. Read the factoring agreement and its full fee schedule before signing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Invoice Factoring Cost Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Invoice Factoring Cost Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Invoice Factoring Cost Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">INVOICE FACTORING COST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does that factoring offer really cost?</h1>
+    <p>Enter an invoice, how long your customer takes to pay, and one or more factoring offers. You get <strong>the cost in dollars, as a share of the invoice and as an annual rate on the cash advanced</strong>, the rebate you get back, and what each offer costs over a year at your invoice volume. A "3% fee" that is charged every 30 days and a customer who pays in 38 days is a very different number.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not an offer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your invoice and the offers</h2>
+    <div class="grid">
+      <div><label for="invoice">Invoice amount ($)</label><input type="number" id="invoice" min="0" step="any" value="8000" inputmode="decimal"></div>
+      <div><label for="days">Days your customer takes to pay</label><input type="number" id="days" min="1" step="1" value="38" inputmode="numeric"></div>
+      <div><label for="perMonth">Invoices factored per month</label><input type="number" id="perMonth" min="0" step="1" value="6" inputmode="numeric"></div>
+      <div><label for="altApr">Line of credit rate for comparison (% a year, optional)</label><input type="number" id="altApr" min="0" step="any" value="0" inputmode="decimal"></div>
+    </div>
+    <p class="note">One offer per line: <code>name, advance %, fee % per period, period days, flat fee per invoice, stepped or daily</code>. Stepped charges a whole period for any part of one; daily prorates.</p>
+    <label for="offers">Offers</label>
+    <textarea id="offers" rows="4" spellcheck="false">Quick Funds Factoring, 90, 3, 30, 0, stepped</textarea>
+    <p>
+      <button type="button" id="analyze">Calculate the cost</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter an invoice and your offers, or load the example, then click Calculate the cost.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Offers compared</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Offer</th><th scope="col">Advance</th><th scope="col">Total cost</th><th scope="col">% of invoice</th><th scope="col">Annual rate</th><th scope="col">Rebate</th><th scope="col">Per year</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>The advance is the invoice times the advance rate. The rest is the <strong>reserve</strong>.</li>
+      <li>The factor fee is the invoice times the fee rate, <strong>once per fee period</strong> (rounded up to a whole period when stepped, prorated by day when daily), plus any flat fee per invoice.</li>
+      <li>The rebate is the reserve minus all fees. If fees exceed the reserve it goes negative and you owe the difference.</li>
+      <li>The annual rate is simple, not compounded: cost divided by the cash advanced, scaled to 365 days.</li>
+      <li><strong>Not modelled:</strong> setup, termination and monthly minimum fees, fees on disputed invoices, recourse and chargeback terms, credit-check fees and taxes. Ask the factor for the full fee schedule.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the real cost of invoice factoring?</h3>
+    <p>Add the factor's fee for every fee period your customer takes to pay, plus flat fees such as ACH or wire charges, and compare that to the cash you were advanced. A 3% fee per 30 days on a 90% advance paid in 38 days is two periods, 6% of the invoice, which is about 38% a year on the cash advanced.</p>
+    <h3>Why does paying one day late cost so much?</h3>
+    <p>Many factors charge a whole fee period at a time. If the period is 30 days and your customer pays on day 31, you pay a second full period. Daily accrual avoids that cliff.</p>
+    <h3>What is the reserve and rebate?</h3>
+    <p>The factor holds back the part of the invoice it did not advance. When the customer pays, the factor takes its fees out of that reserve and rebates the remainder to you.</p>
+    <h3>Is factoring cheaper than a line of credit?</h3>
+    <p>Usually not on rate, but it can be easier to get and scales with sales. Enter a line-of-credit rate to see the cost of borrowing the same advance for the same days.</p>
+    <h3>Which fees does this leave out?</h3>
+    <p>Setup, termination and monthly minimum fees, fees on disputed or charged-back invoices, credit check fees and recourse terms. Add recurring per-invoice items to the flat fee.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is a planning estimate from numbers you enter. Read the factoring agreement and its full fee schedule before signing.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace the factoring agreement, the factor's fee schedule or your advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the terms you sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>cost_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../merchant-cash-advance-true-cost-calculator/">merchant cash advance true cost</a>, <a href="../invoice-payment-terms-calculator/">invoice payment terms</a>, <a href="../freight-broker-load-margin-calculator/">freight broker load margin</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["invoice", "days", "perMonth", "altApr", "offers"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.name)}</th><td>${usd(x.advanced)}</td><td>${usd(x.cost)}</td><td>${x.pctOfInvoice}%</td><td>${x.apr}%</td><td>${usd(x.rebate)}</td><td>${usd(x.yearly)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Cheapest: ${r.best.name} at ${usd(r.best.cost)} per invoice.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("cost_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "factoring-cost.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../fuel-surcharge-schedule-calculator/" data-pf-to="fuel-surcharge-schedule-calculator">Fuel Surcharge Calculator — free, private</a></li>
+      <li><a href="../hos-trip-planner/" data-pf-to="hos-trip-planner">HOS Trip Planner — free, private</a></li>
+      <li><a href="../ifta-quarterly-fuel-tax-calculator/" data-pf-to="ifta-quarterly-fuel-tax-calculator">IFTA Quarterly Fuel Tax Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=invoice-factoring-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/?pfEmbed=1&quot; title=&quot;Invoice Factoring Cost Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="invoice-factoring-cost-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/" data-pf-embed-title="Invoice Factoring Cost Calculator — free, private" data-pf-embed-slug="invoice-factoring-cost-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="invoice-factoring-cost-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="invoice-factoring-cost-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

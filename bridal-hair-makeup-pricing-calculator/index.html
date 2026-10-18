@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</title>
+<meta name="description" content="Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids' services…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check">
+<meta property="og:description" content="A 5-person bridal party starting before 7am can need a second artist to finish on time — and crediting a trial fee toward the wedding day quietly discounts the…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bridal Hair & Makeup Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator for mobile bridal hair and makeup artists that prices a wedding-day booking across the bride, bridal party, hair-only, makeup-only, and kids' services, applies an early-start fee and mileage, tops up to a service minimum, reports the total contract value alongside a trial fee credit, and checks whether the booked artists can finish the whole group before the must-be-ready deadline — flagging exactly how many additional artists the schedule needs."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does crediting the trial fee toward the wedding day cost me money?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is easy to miss. \"Your trial fee comes off your wedding day total if you book\" reads as goodwill, but it lowers the combined amount you collect across both bookings by up to the trial fee itself — the same booking is worth less to you than the identical booking without that policy. This calculator shows the total contract value both ways so the discount is a number you chose rather than one that fell out of a rate card nobody added up."}},{"@type":"Question","name":"How do I know if I need a second artist?","acceptedAnswer":{"@type":"Answer","text":"Add up every person's service minutes plus a buffer for setup and product changes, then compare that to the minutes available from arrival to the moment the bride has to be dressed, multiplied by the artists already booked. If the group needs more minutes than that window has, one artist cannot finish everyone on time no matter how early they start within the window — the fix is an additional artist, not a faster pace. The calculator runs this check and reports exactly how many more artists the schedule needs."}},{"@type":"Question","name":"Why does the bride get extra minutes on top of the bridal-party rate?","acceptedAnswer":{"@type":"Answer","text":"A bride's look is typically more detailed and often includes a final check right before photos, so it takes longer than the identical service on a bridal-party member. Pricing the bride separately from the party, and scheduling extra minutes for her specifically, keeps both the price and the timeline honest about that difference instead of averaging it away."}},{"@type":"Question","name":"What is the point of a dollar service minimum if I also have a headcount minimum?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. A headcount minimum is about whether a small booking is worth the morning's commitment at all, regardless of price. A dollar minimum is the enforceable floor once you have decided to take it — it tops up a small or heavily-discounted booking to a total that still covers your time and travel, rather than declining it outright."}},{"@type":"Question","name":"Does anything about my clients or my prices get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the numbers in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d2a;background:#fbf3f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:740px}h1{font-size:clamp(1.9rem,5.6vw,3.3rem);line-height:1.02;letter-spacing:-.03em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .86fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #ecd8e2;border-radius:16px;padding:20px;box-shadow:0 8px 24px #2b1d2a12;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f3e5ec;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#943b66;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d8b3c6;border-radius:8px;font:inherit;background:#fffdfe}.result{background:#4a1338;color:#fff;border-color:#4a1338;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.6rem;font-weight:750;letter-spacing:-.03em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b5062}.result .note{color:#e3bdd2}.err{color:#ffd0d0;font-weight:700}.warn{background:#fff2e2;border:1px solid #e8b878;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3a1a30;border-color:#b9578f;color:#ffdcef}.good{background:#e7f6ec;border:1px solid #8dc9a3;color:#17512f;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d8b3c6;background:#fff;cursor:pointer;color:#2b1d2a}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Bridal Hair \u0026 Makeup Pricing Calculator — Total, Balance Due \u0026 Assistant Check","item":"https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR MOBILE BRIDAL HAIR &amp; MAKEUP ARTISTS</p><h1>Can one artist finish this bridal party on time — and what does the booking actually total?</h1><p class="lede">A rate card with one row per service can't tell you whether the group fits your schedule before the ceremony, or how much crediting a trial fee is quietly discounting the booking. This free calculator prices every person, tops up to your minimum, checks the schedule against the artists you've booked, and reports one total. Nothing you type leaves your browser.</p></header>
+
+<main class="layout">
+<section><h2>This booking</h2>
+<fieldset><legend>Who you're servicing</legend><div class="fields">
+<label>Bride price ($)<input id="bridePrice" type="number" min="0" step="5" value="225" inputmode="numeric"></label>
+<label>Bride count<input id="brideCount" type="number" min="0" step="1" value="1" inputmode="numeric"></label>
+<label>Full service (hair+makeup) price ($)<input id="fullServicePrice" type="number" min="0" step="5" value="150" inputmode="numeric"></label>
+<label>Full service count<input id="fullServiceCount" type="number" min="0" step="1" value="4" inputmode="numeric"></label>
+<label>Hair-only price ($)<input id="hairOnlyPrice" type="number" min="0" step="5" value="85" inputmode="numeric"></label>
+<label>Hair-only count<input id="hairOnlyCount" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+<label>Makeup-only price ($)<input id="makeupOnlyPrice" type="number" min="0" step="5" value="95" inputmode="numeric"></label>
+<label>Makeup-only count<input id="makeupOnlyCount" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+<label>Kids' price ($)<input id="kidsPrice" type="number" min="0" step="5" value="55" inputmode="numeric"></label>
+<label>Kids count<input id="kidsCount" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Trial</legend><div class="fields">
+<label>Trial fee ($)<input id="trialFee" type="number" min="0" step="5" value="125" inputmode="numeric"></label>
+<label>Trial requested? (1=yes, 0=no)<input id="trialRequested" type="number" min="0" max="1" step="1" value="1" inputmode="numeric"></label>
+<label>Credit trial to booking? (1=yes, 0=no)<input id="creditTrialToBooking" type="number" min="0" max="1" step="1" value="1" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Timing &amp; travel</legend><div class="fields">
+<label>Arrival time, 24h (6.5 = 6:30am)<input id="startHour" type="number" min="0" max="24" step="0.5" value="6" inputmode="decimal"></label>
+<label>Early-start threshold hour<input id="earlyStartThresholdHour" type="number" min="0" max="24" step="0.5" value="7" inputmode="decimal"></label>
+<label>Early-start fee ($)<input id="earlyStartFee" type="number" min="0" step="5" value="75" inputmode="numeric"></label>
+<label>Round-trip miles<input id="milesRoundTrip" type="number" min="0" step="5" value="40" inputmode="numeric"></label>
+<label>Travel rate ($/mile, billed)<input id="travelRatePerMile" type="number" min="0" step="0.1" value="1" inputmode="decimal"></label>
+<label>Travel surcharge — parking/tolls ($)<input id="travelSurcharge" type="number" min="0" step="5" value="0" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Your minimums</legend><div class="fields">
+<label>Service minimum ($)<input id="serviceMinimumRevenue" type="number" min="0" step="25" value="500" inputmode="numeric"></label>
+<label>Service minimum headcount<input id="serviceMinimumHeadcount" type="number" min="0" step="1" value="3" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Schedule &amp; capacity</legend><div class="fields">
+<label>Minutes per full service<input id="minutesPerFullService" type="number" min="5" step="5" value="60" inputmode="numeric"></label>
+<label>Minutes per hair-only<input id="minutesPerHairOnly" type="number" min="0" step="5" value="40" inputmode="numeric"></label>
+<label>Minutes per makeup-only<input id="minutesPerMakeupOnly" type="number" min="0" step="5" value="45" inputmode="numeric"></label>
+<label>Minutes per kid<input id="minutesPerKid" type="number" min="0" step="5" value="20" inputmode="numeric"></label>
+<label>Bride's extra minutes<input id="brideExtraMinutes" type="number" min="0" step="5" value="30" inputmode="numeric"></label>
+<label>Buffer minutes per person<input id="bufferMinutesPerPerson" type="number" min="0" step="5" value="10" inputmode="numeric"></label>
+<label>Prep window (minutes, arrival to ready)<input id="prepWindowMinutes" type="number" min="15" step="15" value="240" inputmode="numeric"></label>
+<label>Artists already booked<input id="artistsBooked" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+<label>Extra-artist fee billed to client ($)<input id="assistantChargeToClient" type="number" min="0" step="5" value="150" inputmode="numeric"></label>
+<label>Extra-artist payout ($)<input id="assistantPayout" type="number" min="0" step="5" value="125" inputmode="numeric"></label>
+</div></fieldset>
+<p style="margin:6px 0 4px"><button type="button" id="copyLink">Copy shareable link</button></p>
+<p id="shareStatus" class="note" role="status"></p>
+</section>
+
+<section class="result" aria-live="polite"><h2>Total contract value</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="totalHero" class="big">$0.00</div><p id="totalLine" class="note"></p>
+<dl>
+<dt>Service revenue</dt><dd id="serviceRevenueOut"></dd>
+<dt>Early-start fee</dt><dd id="earlyStartOut"></dd>
+<dt>Travel</dt><dd id="travelOut"></dd>
+<dt>Minimum top-up</dt><dd id="minimumOut"></dd>
+<dt>Additional artists needed</dt><dd id="artistsNeededOut"></dd>
+<dt>Extra-artist fee (billed)</dt><dd id="assistantChargeOut"></dd>
+<dt>Extra-artist payout (paid out)</dt><dd id="assistantPayoutOut"></dd>
+<dt>Wedding-day total, before trial credit</dt><dd id="weddingDayTotalOut"></dd>
+<dt>Trial fee collected</dt><dd id="trialCollectedOut"></dd>
+<dt>Trial credit applied</dt><dd id="trialCreditOut"></dd>
+<dt>Wedding-day balance due</dt><dd id="balanceDueOut"></dd>
+<dt>Net after artist payouts</dt><dd id="netOut"></dd>
+<dt>Per person</dt><dd id="perPersonOut"></dd>
+</dl>
+<p id="capacityWarning" class="warn" hidden></p>
+<p id="headcountWarning" class="warn" hidden></p>
+<p id="minimumWarning" class="warn" hidden></p>
+<p id="fitsVerdict" class="good" hidden></p>
+<p class="note">A planning figure from the numbers you typed, not an audited statement or a contract. It does not add sales tax you collect and remit, income tax, or product cost per client unless you fold those into your prices yourself.</p>
+</section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your prices, headcounts, and fees are never uploaded, there is no account, and nothing is saved when you close the tab. <em>Copy shareable link</em> is the one way these figures leave this device, and only because you choose to send them: they ride in the page's URL fragment, which a browser never puts in a request line or a Referer header. Whoever holds that link can read the numbers in it, so send it the way you would send the numbers themselves. We count only anonymous local feature events (<code>booking-priced</code>, <code>assistant-needed</code>, <code>link_copied</code>) so we can tell whether the calculator gets used — no prices, headcounts, or client details are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Does crediting the trial fee toward the wedding day cost me money?</h3><p>Yes, and that is easy to miss. "Your trial fee comes off your wedding day total if you book" reads as goodwill, but it lowers the combined amount you collect across both bookings by up to the trial fee itself — the same booking is worth less to you than the identical booking without that policy. This calculator shows the total contract value both ways so the discount is a number you chose rather than one that fell out of a rate card nobody added up.</p>
+<h3>How do I know if I need a second artist?</h3><p>Add up every person's service minutes plus a buffer for setup and product changes, then compare that to the minutes available from arrival to the moment the bride has to be dressed, multiplied by the artists already booked. If the group needs more minutes than that window has, one artist cannot finish everyone on time no matter how early they start within the window — the fix is an additional artist, not a faster pace. The calculator runs this check and reports exactly how many more artists the schedule needs.</p>
+<h3>Why does the bride get extra minutes on top of the bridal-party rate?</h3><p>A bride's look is typically more detailed and often includes a final check right before photos, so it takes longer than the identical service on a bridal-party member. Pricing the bride separately from the party, and scheduling extra minutes for her specifically, keeps both the price and the timeline honest about that difference instead of averaging it away.</p>
+<h3>What is the point of a dollar service minimum if I also have a headcount minimum?</h3><p>They answer different questions. A headcount minimum is about whether a small booking is worth the morning's commitment at all, regardless of price. A dollar minimum is the enforceable floor once you have decided to take it — it tops up a small or heavily-discounted booking to a total that still covers your time and travel, rather than declining it outright.</p>
+<h3>Does anything about my clients or my prices get uploaded?</h3><p>No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the numbers in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">Curious how this compares to charging one flat day rate for the whole bridal party? Read <a href="./vs-flat-day-rate.html">this calculator vs. a flat day rate</a>. Already running your client pipeline through HoneyBook? Read <a href="./vs-honeybook.html">this calculator vs. HoneyBook</a>. Wondering how a big bridal party can price fine and still not fit your morning? Read <a href="./why-a-priced-booking-can-still-be-impossible.html">why a priced booking can still be impossible to finish</a>.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not book your clients, draft your contract, determine your sales-tax obligations, or replace your own accountant.</p><p>Booking a trial or a wedding-day deposit? The <a href="../appointment-deposit-calculator/">appointment deposit calculator</a> sets a deposit amount and drafts a cancellation policy — a different question this tool intentionally leaves to it. Quoting flowers for the same wedding? The <a href="../wedding-florist-proposal-calculator/">wedding florist proposal calculator</a> prices a floral proposal from the stem recipe up, buying in whole wholesale bunches.</p>
+<p>MIT licensed. If it helped you price a booking, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, hasSharedInputs, formValues, FIELD_IDS } from './share.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (v) => `$${v.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const OUT_IDS = ['totalLine', 'serviceRevenueOut', 'earlyStartOut', 'travelOut', 'minimumOut',
+  'artistsNeededOut', 'assistantChargeOut', 'assistantPayoutOut', 'weddingDayTotalOut',
+  'trialCollectedOut', 'trialCreditOut', 'balanceDueOut', 'netOut', 'perPersonOut'];
+let counted = false;
+let assistantCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function update(count = false) {
+  try {
+    const r = calculateQuote(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('totalHero').hidden = false;
+    el('totalHero').textContent = money(r.totalContractValue);
+    el('totalLine').textContent = `${r.totalHeadcount} ${r.totalHeadcount === 1 ? 'person' : 'people'} serviced`;
+    el('serviceRevenueOut').textContent = money(r.serviceRevenue);
+    el('earlyStartOut').textContent = r.earlyStartApplies ? money(r.earlyStartFeeCharged) : 'not charged';
+    el('travelOut').textContent = money(r.travelFeeCharged + Number(el('travelSurcharge').value || 0));
+    el('minimumOut').textContent = money(r.minimumShortfallFee);
+    el('artistsNeededOut').textContent = String(r.additionalArtistsNeeded);
+    el('assistantChargeOut').textContent = money(r.assistantChargeRevenue);
+    el('assistantPayoutOut').textContent = money(r.assistantPayoutCost);
+    el('weddingDayTotalOut').textContent = money(r.weddingDayServiceTotal);
+    el('trialCollectedOut').textContent = money(r.trialFeeCollected);
+    el('trialCreditOut').textContent = money(r.trialCreditApplied);
+    el('balanceDueOut').textContent = money(r.weddingDayBalanceDue);
+    el('netOut').textContent = money(r.netAfterAssistantPayout);
+    el('perPersonOut').textContent = r.effectiveRevenuePerPerson === null ? 'n/a' : money(r.effectiveRevenuePerPerson);
+
+    // Three separate findings, shown together: a booking can be priced fine
+    // and still be impossible to staff, or small enough to flag without
+    // actually being under the enforced dollar floor.
+    if (r.additionalArtistsNeeded > 0) {
+      el('capacityWarning').hidden = false;
+      el('capacityWarning').textContent = `${r.artistsBooked ?? Number(el('artistsBooked').value)} artist(s) booked cannot finish this group in the prep window — book ${r.additionalArtistsNeeded} more artist(s), billed at ${money(r.assistantChargeRevenue)} and paid out ${money(r.assistantPayoutCost)}.`;
+    } else {
+      el('capacityWarning').hidden = true;
+    }
+    if (r.belowHeadcountMinimum) {
+      el('headcountWarning').hidden = false;
+      el('headcountWarning').textContent = `This group (${r.totalHeadcount}) is below your usual headcount minimum (${el('serviceMinimumHeadcount').value}) — informational only; it does not change the price.`;
+    } else {
+      el('headcountWarning').hidden = true;
+    }
+    if (r.belowRevenueMinimum) {
+      el('minimumWarning').hidden = false;
+      el('minimumWarning').textContent = `Before any top-up this booking priced at ${money(r.preMinimumSubtotal)}, below your ${money(Number(el('serviceMinimumRevenue').value) || 0)} minimum — ${money(r.minimumShortfallFee)} was added to reach it.`;
+    } else {
+      el('minimumWarning').hidden = true;
+    }
+    el('fitsVerdict').hidden = !(r.additionalArtistsNeeded === 0 && !r.belowRevenueMinimum);
+    if (r.additionalArtistsNeeded === 0 && !r.belowRevenueMinimum) {
+      el('fitsVerdict').textContent = `The artists booked can finish this group on time, and the booking clears your service minimum.`;
+    }
+
+    if (count && !counted) { recordEvent('booking-priced'); counted = true; }
+    if (count && r.additionalArtistsNeeded > 0 && !assistantCounted) { recordEvent('assistant-needed'); assistantCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('totalHero').hidden = true;
+    for (const id of ['capacityWarning', 'headcountWarning', 'minimumWarning', 'fitsVerdict']) el(id).hidden = true;
+    for (const id of OUT_IDS) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => update(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// Thirty-one figures is more than anyone reads down a phone, so the whole
+// booking goes in the link. It rides in the fragment, which a browser puts
+// in neither a request line nor a Referer header.
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(fieldInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('shareStatus').textContent = 'Link copied. It carries this booking, not a usage count.';
+  } catch {
+    el('shareStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A link replaces every field, including the ones it did not carry: see
+// share.mjs for why a plain `Object.entries` of the decoded link is not the
+// supported way in.
+const fromLink = decodeInputs(location.hash || location.search);
+if (hasSharedInputs(fromLink)) {
+  for (const [id, value] of Object.entries(formValues(fromLink))) el(id).value = value;
+  el('shareStatus').textContent = 'Opened a shared booking. Check the prices against your own rate card before you use them.';
+}
+
+update(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../private-pilot-training-cost-calculator/" data-pf-to="private-pilot-training-cost-calculator">Private pilot training cost calculator: what will your license really cost? Free, private</a></li>
+      <li><a href="../private-school-tuition-discount-calculator/" data-pf-to="private-school-tuition-discount-calculator">Private School Tuition Discount Calculator — discount rate and net tuition revenue</a></li>
+      <li><a href="../process-server-day-picker/" data-pf-to="process-server-day-picker">Which serves should an independent process server take today?</a></li>
+      <li><a href="../process-server-fee-calculator/" data-pf-to="process-server-fee-calculator">Process Server Fee &amp; Route Profit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bridal-hair-makeup-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/?pfEmbed=1&quot; title=&quot;Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="bridal-hair-makeup-pricing-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/" data-pf-embed-title="Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check" data-pf-embed-slug="bridal-hair-makeup-pricing-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="bridal-hair-makeup-pricing-calculator" data-pf-jobs-amount=""></script>
+</body></html>

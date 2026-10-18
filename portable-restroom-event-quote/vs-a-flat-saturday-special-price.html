@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat Saturday-special price | Porta Potty Event Quote Calculator</title>
+<meta name="description" content="A flat Saturday-special price -- $150 a unit, done -- prices the event day and nothing else. This free…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/vs-a-flat-saturday-special-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat Saturday-special price">
+<meta property="og:description" content="A promoter shopping yards asks for a flat per-unit Saturday price. That number prices one event day; it does not see the Friday drop, the Sunday pickup…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/vs-a-flat-saturday-special-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat Saturday-special price get an event rental wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a flat per-unit Saturday price prices the event day, not the rental. A promoter shopping yards for \"$150 a unit for Saturday\" is asking every yard to quote the same number for a job that is not the same job everywhere: one yard drops Friday and picks up Monday, another drops and picks up same-day; one event needs an extra mid-weekend pump-out, another does not; one site is five miles from the yard, another is forty. The unit count is the only variable the flat price sees, and it is not the only variable the job has."}},{"@type":"Question","name":"What does a flat Saturday-special price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The days on site beyond the event itself, the pump-out visits, and one of the two round trips. Rent is normally charged for every day a unit sits -- Friday drop through Sunday pickup is three days, not one -- but a flat per-unit number is set once against a typical single-day job and then quoted for every booking. It has no separate line for an extra pump-out, and it prices one truck trip when a delivery and a pickup are two round trips: four times the one-way mileage, not one."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped fleet -- four standard units and one wheelchair-accessible unit, $85 delivery, $85 pickup, 18 miles one way at $3.50/mile, $8/unit consumables, 12% overhead, 25% target margin -- a genuine Friday-through-Sunday weekend booking with one extra pump-out costs $1,061.76 to run and this calculator prices it at $1,415.68. A flat Saturday-special quote of $150 a unit for the same five units comes to $750: $311.76 below the job's own break-even cost, before counting the $665.68 it falls short of this calculator's own price at the same 25% target margin. Same five units, same weekend, one number that loses money the moment the extra day, the extra pump-out, and the second round trip are counted."}},{"@type":"Question","name":"Is a flat Saturday-special price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a same-day drop-and-pickup job with no extra pump-out and a short haul -- the case the flat number was probably set from -- it can land close. The risk is the multi-day weekend booking under the identical per-unit ask, because the flat price does not know how many days the boxes will actually sit, how many pump-outs the site will need, or how far the yard is driving until the booking details are in, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local rental or pump-out rates?","acceptedAnswer":{"@type":"Answer","text":"No. It has no price book and no data on your market's going rate. It takes your own per-unit rent and service price, the days the boxes actually sit, pump-out visits, delivery and pickup fees, mileage, and your target margin, and turns that into a price for this event -- the arithmetic a flat Saturday-special number skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#20252b;background:#f4efe6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#5c5348}section{background:#fff;border:1px solid #d9d0c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #3a2a120d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d9d0c2;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5348}.fine,.note{font-size:.88rem;color:#5c5348}footer{color:#5c5348;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat Saturday-special price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../portable-restroom-event-quote/">Porta Potty Event Quote Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat Saturday-special price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Porta Potty Event Quote Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat Saturday-special price</h1>
+<p class="lede">&ldquo;$150 a unit for Saturday&rdquo; prices the event day. It does not see the Friday drop, the Sunday pickup, the extra pump-out, or the second round trip &mdash; the four lines that turn a job that looked like last week's into one that loses money.</p>
+</header>
+<section>
+<h2>What a flat Saturday-special price is</h2>
+<p>
+A flat Saturday-special price is a single per-unit dollar figure, quoted for
+the event day and multiplied by however many units the promoter says they
+need. It is fast to say on the phone, and it is the number a promoter
+holding one yard's quote will read back to the next yard and ask them to
+match.
+</p>
+<p>
+The figure was set once, usually against a same-day drop-and-pickup job with
+no extra pump-out and a short haul, and then reused for every booking under
+the same headcount &mdash; whether the actual job is that same-day booking
+or a full weekend with the boxes sitting three days, an extra service visit,
+and a delivery yard forty miles out instead of five.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter your
+unit mix and their per-day rent and per-visit service price, the days the
+boxes actually sit on site, service (pump-out) visits, delivery and pickup
+fees, one-way mileage and your rate per mile, an optional weekend haul
+premium, consumables per unit, overhead, and target margin. It prices the
+rental days, the pump-outs, and the full two-round-trip haul as their own
+lines and returns the event price, the price per unit-day, and the
+walk-away price below which the job loses money &mdash; for this event's
+own days and trips, not a per-unit number set from a different booking.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat Saturday-special price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same per-unit figure whether the boxes sit for the event day alone or for a full Friday-through-Sunday weekend.</td>
+<td>Prices rent per unit for every day on site, so a three-day sit costs three times what a one-day sit costs &mdash; on this booking, not the headcount average.</td>
+</tr>
+<tr>
+<td>Has no separate line for an extra pump-out during a multi-day event.</td>
+<td>Prices service visits per unit, per visit, so an added pump-out is priced when it is booked, not absorbed into a flat number that never planned for it.</td>
+</tr>
+<tr>
+<td>Prices one truck trip, when a delivery and a pickup are two &mdash; four times the one-way mileage, not one.</td>
+<td>Prices delivery, pickup, and mileage as a full round-trip haul, plus an optional weekend premium on that haul.</td>
+</tr>
+<tr>
+<td>Gives the yard a number to quote against a promoter's ask, not a number to check that ask against.</td>
+<td>Reports the walk-away price and flags a proposed price that falls below break-even, so a shopped number can be scored before you agree to match it.</td>
+</tr>
+<tr>
+<td>Has no view of the fleet a headcount actually needs.</td>
+<td>This calculator's own <a href="how-many.html">fleet-size estimate</a> from attendance, event length, and alcohol/food service.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same five units, one flat price</h2>
+<p>
+Using this calculator's own shipped fleet &mdash; four standard portable
+restrooms and one wheelchair-accessible unit, $85 delivery, $85 pickup, 18
+miles one way at $3.50 a mile, $8 per unit in consumables, 12% overhead, and
+a 25% target margin:
+</p>
+<p>
+A genuine weekend booking &mdash; Friday drop through Sunday pickup, three
+days on site, one extra mid-weekend pump-out &mdash; costs
+<strong>$1,061.76</strong> to run before a dollar of profit, and this
+calculator prices it at <strong>$1,415.68</strong>.
+</p>
+<p>
+A flat Saturday-special quote of <strong>$150 a unit</strong> for the same
+five units comes to <strong>$750</strong>: <strong>$311.76 below the job's
+own break-even cost</strong> &mdash; before counting the $665.68 it falls
+short of this calculator's own price at the same 25% target margin. Same
+five units, same weekend, one flat number that loses money the moment the
+extra day, the extra pump-out, and the second round trip are counted.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat Saturday-special price get an event rental wrong?</h3>
+<p>Because a flat per-unit Saturday price prices the event day, not the rental. A promoter shopping yards for "$150 a unit for Saturday" is asking every yard to quote the same number for a job that is not the same job everywhere: one yard drops Friday and picks up Monday, another drops and picks up same-day; one event needs an extra mid-weekend pump-out, another does not; one site is five miles from the yard, another is forty. The unit count is the only variable the flat price sees, and it is not the only variable the job has.</p>
+<h3>What does a flat Saturday-special price usually leave out entirely?</h3>
+<p>The days on site beyond the event itself, the pump-out visits, and one of the two round trips. Rent is normally charged for every day a unit sits -- Friday drop through Sunday pickup is three days, not one -- but a flat per-unit number is set once against a typical single-day job and then quoted for every booking. It has no separate line for an extra pump-out, and it prices one truck trip when a delivery and a pickup are two round trips: four times the one-way mileage, not one.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped fleet -- four standard units and one wheelchair-accessible unit, $85 delivery, $85 pickup, 18 miles one way at $3.50/mile, $8/unit consumables, 12% overhead, 25% target margin -- a genuine Friday-through-Sunday weekend booking with one extra pump-out costs $1,061.76 to run and this calculator prices it at $1,415.68. A flat Saturday-special quote of $150 a unit for the same five units comes to $750: $311.76 below the job's own break-even cost, before counting the $665.68 it falls short of this calculator's own price at the same 25% target margin. Same five units, same weekend, one number that loses money the moment the extra day, the extra pump-out, and the second round trip are counted.</p>
+<h3>Is a flat Saturday-special price ever the right way to quote?</h3>
+<p>For a same-day drop-and-pickup job with no extra pump-out and a short haul -- the case the flat number was probably set from -- it can land close. The risk is the multi-day weekend booking under the identical per-unit ask, because the flat price does not know how many days the boxes will actually sit, how many pump-outs the site will need, or how far the yard is driving until the booking details are in, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local rental or pump-out rates?</h3>
+<p>No. It has no price book and no data on your market's going rate. It takes your own per-unit rent and service price, the days the boxes actually sit, pump-out visits, delivery and pickup fees, mileage, and your target margin, and turns that into a price for this event -- the arithmetic a flat Saturday-special number skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Porta Potty Event Quote Calculator</a> to price your own event, or read <a href="how-many.html">how many porta potties for 200 people?</a>
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or health-department advice, and it does not tell you what to charge or how many units an event requires. Verify every figure against your own rates, insurance, and a qualified professional before relying on it or sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="nofollow noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bonus-take-home-gross-up-calculator/" data-pf-to="bonus-take-home-gross-up-calculator">How much of my bonus do I keep? Free take-home and gross-up calculator</a></li>
+      <li><a href="../booth-rent-vs-commission/" data-pf-to="booth-rent-vs-commission">Booth Rent vs Commission Calculator</a></li>
+      <li><a href="../bounce-house-rental-calculator/" data-pf-to="bounce-house-rental-calculator">Bounce House Rental Calculator</a></li>
+      <li><a href="../boutique-fitness-studio-pricing-planner/" data-pf-to="boutique-fitness-studio-pricing-planner">Is my studio's unlimited membership priced right? Free pricing planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=portable-restroom-event-quote">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="portable-restroom-event-quote"></script>
+</body></html>

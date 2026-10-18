@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>These calculators vs. doing the math by hand | Free Electronics Calculators</title>
+<meta name="description" content="Every formula these six calculators run -- Ohm's law, the LED resistor equation, a loaded voltage divider, 555 timer astable/monostable design…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/vs-doing-the-math-by-hand.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b6cb0'/%3E%3Cpath d='M6 20h4l3-9 4 14 3-8h6' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="These calculators vs. doing the math by hand">
+<meta property="og:description" content="Every formula here can be worked by hand. These six tools run the same formulas, snap the answer to a resistor or capacitor you can actually buy…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just work these formulas out by hand?","acceptedAnswer":{"@type":"Answer","text":"Yes. Ohm's law, the LED series-resistor equation, a loaded voltage divider, the 555 astable/monostable equations, an RC or RL time constant, and a resistor's color-code value are all standard formulas you can write down from a datasheet or a textbook and evaluate with any calculator app. Nothing about them requires a purpose-built tool to compute correctly once."}},{"@type":"Question","name":"Where does a hand calculation usually stop short?","acceptedAnswer":{"@type":"Answer","text":"Two places. First, the raw answer is rarely a resistor or capacitor you can buy — a hand calculation gives you 8,342 ohms and leaves rounding it to a real E24 part, and re-checking the result still meets spec at that rounded value, as a separate step that is easy to skip under time pressure. Second, a 555 design that solves the formula can still be one a real chip cannot run — a duty cycle at or below 50% in the standard astable topology, an R1 low enough to over-current the discharge pin, or resistor values so large that leakage and drift dominate — and a hand calculation that only checks the formula has no reason to catch any of those on its own."}},{"@type":"Question","name":"What do these calculators do that a hand calculation does not do for you?","acceptedAnswer":{"@type":"Answer","text":"Where a tool has a design mode — the LED, voltage-divider, 555-timer, RC-filter, and RC-time calculators — it runs the same formula you would write by hand, then snaps the result to the nearest standard E24 resistor or capacitor and shows the exact pair to buy, and the 555-timer calculator additionally flags a duty cycle at or below 50%, an over-current risk on the discharge pin, or drift-prone resistor values. The voltage-divider calculator also applies the loading correction a bare Vout = Vin × R2/(R1+R2) hand formula omits, which is why a real 1k load pulls a 12V/10k/10k divider well below the textbook 6V answer."}},{"@type":"Question","name":"If I can already do this by hand, is there a reason to use the calculator instead?","acceptedAnswer":{"@type":"Answer","text":"Only if you want the E24 rounding and the chip-feasibility checks done for you, and want to avoid re-deriving the loading correction or the 555 feasibility rules from memory each time. If you would rather work the formula by hand and already know the E24 series and the 555's operating limits, a hand calculation is exactly as correct."}},{"@type":"Question","name":"Is anything typed into these calculators uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Each calculator is a static page that runs entirely in your browser; nothing you type is uploaded anywhere, the same as working the formula on paper or in an offline calculator app."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a1a1a; background: #f6f6f4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #2b6cb0; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.6rem, 5vw, 2.5rem); line-height: 1.08; margin: .3rem 0; max-width: 26ch; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 66ch; color: #5a5a5a; }
+  section { background: #fff; border: 1px solid #d8d8d8; border-radius: 12px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 20px #1a1a1a12; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d8d8; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5a5a5a; }
+  .fine, .note { font-size: .88rem; color: #5a5a5a; }
+  footer { color: #5a5a5a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/vs-doing-the-math-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="These calculators vs. doing the math by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ai-engineering-academy/">Free Electronics Calculators</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">These calculators vs. doing the math by hand</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Free electronics calculators</a></p>
+<header>
+<h1>These calculators vs. doing the math by hand</h1>
+<p class="lede">Every formula here -- Ohm's law, the LED resistor equation, a loaded voltage divider, 555 timer design, an RC/RL time constant -- can be worked by hand with a datasheet and a calculator app. This page names no specific product or company; it compares against that generic method, not a competing tool.</p>
+</header>
+<section>
+<h2>What each is for</h2>
+<p>
+  <strong>Doing the math by hand</strong> gets the formula right as often as
+  the person applying it does. Every equation these six tools use is
+  published and ordinary: nothing here is beyond what a datasheet, a
+  textbook, or a search already gives you, and a careful hand calculation
+  reaches the same number the calculator does.
+</p>
+<p>
+  <strong>These calculators</strong> run the same formula, then take two
+  steps a hand calculation usually leaves for later. Where a tool has a
+  design mode &mdash; LED, voltage-divider, 555-timer, RC-filter, and RC-time
+  &mdash; it snaps the computed value to the nearest standard E24 resistor or
+  capacitor and shows the exact pair to buy, instead of leaving an odd value
+  like 8,342&nbsp;&Omega; to round and re-check by hand. The 555-timer
+  calculator also flags a design a real chip cannot run: a duty cycle at or
+  below 50%, an R1 that over-currents the discharge pin, or drift-prone
+  resistor values. The voltage-divider calculator applies the loading
+  correction a bare Vout&nbsp;=&nbsp;Vin&nbsp;&times;&nbsp;R2/(R1+R2) hand
+  formula omits, which is why a real 1&nbsp;k&Omega; load pulls a
+  12V/10k/10k divider well below the textbook 6V answer.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Can I get the same number by working the formula out by hand?</td><td>Yes &mdash; every formula here is a standard, published equation.</td></tr>
+<tr><td>Does a hand calculation automatically round to a resistor or capacitor I can buy?</td><td>Not on its own &mdash; that E24 rounding is a separate step these tools do for you.</td></tr>
+<tr><td>Does a hand-calculated 555 design automatically run on a real chip?</td><td>Not necessarily &mdash; this tool's 555 calculator flags an over-current or invalid duty cycle a formula alone would not catch.</td></tr>
+<tr><td>Does the textbook voltage-divider formula account for a real load?</td><td>No &mdash; this tool's loading correction does; a bare formula assumes nothing draws current.</td></tr>
+<tr><td>Do I need an account or sign-up to use the calculator?</td><td>No &mdash; same as a pocket calculator or a piece of paper.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Neither replaces reading a datasheet or measuring the circuit you actually
+  built. A hand calculation and these tools reach the same formula's answer;
+  the tools spend less time getting from that answer to a buyable part and a
+  chip that can actually run the design.
+</p>
+<p class="fine">These tools need no account and no sign-in: each is a static page, every calculation runs in your browser, and once a page has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can I just work these formulas out by hand?</h3>
+<p>Yes. Ohm's law, the LED series-resistor equation, a loaded voltage divider, the 555 astable/monostable equations, an RC or RL time constant, and a resistor's color-code value are all standard formulas you can write down from a datasheet or a textbook and evaluate with any calculator app. Nothing about them requires a purpose-built tool to compute correctly once.</p>
+<h3>Where does a hand calculation usually stop short?</h3>
+<p>Two places. First, the raw answer is rarely a resistor or capacitor you can buy &mdash; a hand calculation gives you 8,342 ohms and leaves rounding it to a real E24 part, and re-checking the result still meets spec at that rounded value, as a separate step that is easy to skip under time pressure. Second, a 555 design that solves the formula can still be one a real chip cannot run &mdash; a duty cycle at or below 50% in the standard astable topology, an R1 low enough to over-current the discharge pin, or resistor values so large that leakage and drift dominate &mdash; and a hand calculation that only checks the formula has no reason to catch any of those on its own.</p>
+<h3>What do these calculators do that a hand calculation does not do for you?</h3>
+<p>Where a tool has a design mode &mdash; the LED, voltage-divider, 555-timer, RC-filter, and RC-time calculators &mdash; it runs the same formula you would write by hand, then snaps the result to the nearest standard E24 resistor or capacitor and shows the exact pair to buy, and the 555-timer calculator additionally flags a duty cycle at or below 50%, an over-current risk on the discharge pin, or drift-prone resistor values. The voltage-divider calculator also applies the loading correction a bare Vout = Vin &times; R2/(R1+R2) hand formula omits, which is why a real 1k load pulls a 12V/10k/10k divider well below the textbook 6V answer.</p>
+<h3>If I can already do this by hand, is there a reason to use the calculator instead?</h3>
+<p>Only if you want the E24 rounding and the chip-feasibility checks done for you, and want to avoid re-deriving the loading correction or the 555 feasibility rules from memory each time. If you would rather work the formula by hand and already know the E24 series and the 555's operating limits, a hand calculation is exactly as correct.</p>
+<h3>Is anything typed into these calculators uploaded anywhere?</h3>
+<p>No. Each calculator is a static page that runs entirely in your browser; nothing you type is uploaded anywhere, the same as working the formula on paper or in an offline calculator app.</p>
+<p class="note">
+  Open <a href="index.html">the electronics calculators</a>, jump straight to the
+  <a href="resistor-calculator/">resistor color code</a>,
+  <a href="led-resistor-calculator/">LED series resistor</a>,
+  <a href="voltage-divider-calculator/">voltage divider</a>,
+  <a href="555-timer-calculator/">555 timer</a>,
+  <a href="rc-filter-calculator/">RC/RL filter</a>, or
+  <a href="rc-time-calculator/">RC charge/discharge time</a> calculator, or read
+  <a href="vs-omni-calculator.html">how these compare to a general calculator site</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not engineering advice, and they do not replace reading a datasheet or measuring the circuit you actually built. <strong>You are responsible for reviewing and verifying their output before relying on it</strong>, including for anything safety-critical. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every value you type stays on this device, on this page and every calculator it links to. This page names no specific product or company: it compares against the generic method of working these formulas by hand, not a competing tool.</p>
+<p class="support">Free and open source, MIT licensed &mdash; each calculator ships its own <code>LICENSE</code> file. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what a tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../world-clock-widget/" data-pf-to="world-clock-widget">What time is it there — and are they awake?</a></li>
+      <li><a href="../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ai-engineering-academy">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ai-engineering-academy"></script>
+</body></html>

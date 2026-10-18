@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. pricing from your income goal alone | Freelance Retainer Calculator</title>
+  <meta name="description" content="The fastest way to price a retainer is take-home income divided by billable hours, with nothing added for business costs or scope drift.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/vs-pricing-from-income-goal-alone.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. pricing from your income goal alone | Freelance Retainer Calculator">
+  <meta property="og:description" content="Two ways to price a retainer: take-home income divided by billable hours, or the same division with business costs and a scope buffer added in.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/vs-pricing-from-income-goal-alone.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just divide my income goal by my billable hours?","acceptedAnswer":{"@type":"Answer","text":"Because a retainer priced that way only ever covers take-home pay. Software, insurance, a laptop replacement fund, and self-employment tax do not stop needing money because a client pays on time, and none of that is in an income goal by itself. A scope buffer is missing too: a retainer without one prices the hours a client is expected to use, not the revisions and small extras that actually show up. Skip both and the number still looks like a real rate, because dividing two numbers always produces one -- it is just the wrong one."}},{"@type":"Question","name":"How much difference does it actually make?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped example -- a $6,000 income goal, 160 available hours, 65% utilization, $1,800 in monthly business costs, a 20-hour retainer, and a 15% scope buffer -- dividing income alone by billable capacity prices the retainer at $1,153.85. This calculator, adding the $1,800 in costs and the 15% buffer, prices the same retainer at $1,725.00. That is $571.15 a month, or $6,853.80 a year, quietly absorbed as an unpaid business expense instead of billed to the client who is using the hours."}},{"@type":"Question","name":"Where would the extra costs come from?","acceptedAnswer":{"@type":"Answer","text":"From whatever it costs to run the practice for a month: software subscriptions, business insurance, a coworking desk or home-office share, an accountant, marketing, hardware replacement set aside monthly, and the self-employment tax portion an employee's paycheck would have withheld automatically. None of that has to be exact to be worth entering -- a rough monthly total from a bank statement is already closer to the truth than leaving the field at zero, which is what pricing from income alone does by omission."}},{"@type":"Question","name":"What if I don't have a scope buffer figured out yet?","acceptedAnswer":{"@type":"Answer","text":"A buffer between 10% and 20% is a reasonable default until a freelancer has enough retainer months behind them to know their own pattern of small unplanned requests. The buffer is not padding for its own sake -- it is priced-in room for the revision or two that almost every ongoing engagement produces, so that a normal month does not quietly run over the hours a client bought."}},{"@type":"Question","name":"Is this the same as looking at last year's tax return?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not replace a tax return, a bookkeeper, or an accountant. Those confirm what already happened and what is owed. This calculator does the one thing neither hands over on its own: turning an income goal, real billable capacity, monthly costs, and a scope buffer into a single retainer price, before the work starts. It is arithmetic on numbers a freelancer supplies, not a tax or accounting determination."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. pricing from your income goal alone | Freelance Retainer Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freelance-retainer-calculator/">Freelance Retainer Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. pricing from your income goal alone | Freelance Retainer Calculator</span></span></nav>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">&larr; Freelance retainer calculator</a></p>
+    <header>
+      <h1>This calculator vs. pricing from your income goal alone</h1>
+      <p class="lede">The fastest way to price a retainer is take-home income divided by billable hours. This page is about what changes when business costs and a scope buffer are added to that division instead of left out.</p>
+    </header>
+    <section class="copy card">
+      <p>
+        <strong>Pricing from income alone</strong> means taking the monthly
+        take-home a freelancer wants, dividing it by the hours they expect to
+        bill, and quoting a retainer off that single number &mdash; nothing
+        added for software, insurance, self-employment tax, or the revisions
+        a real engagement tends to produce. It is one division, it takes no
+        time, and because dividing two numbers always produces an answer, the
+        result looks like a real rate even though half of what it needs to
+        cover was never in the calculation.
+      </p>
+      <p>
+        <strong>This calculator</strong> takes the same income goal and adds
+        the two figures that method skips: monthly business costs and a scope
+        buffer for the extras a client relationship generates. It runs once,
+        in the browser, on nothing that leaves the device, and it prices the
+        retainer from what actually has to be covered rather than from
+        take-home pay by itself.
+      </p>
+      <p>
+        The gap is not rounding error. On this calculator's own shipped
+        example &mdash; a $6,000 income goal, 160 available hours, 65%
+        utilization, $1,800 in monthly business costs, a 20-hour retainer, and
+        a 15% scope buffer &mdash; dividing income alone by billable capacity
+        (6,000 &divide; 104 billable hours &times; 20 hours) prices the
+        retainer at <strong>$1,153.85</strong>. This calculator, folding in
+        the $1,800 of costs and the 15% buffer, prices the same 20-hour block
+        at <strong>$1,725.00</strong>. That is <strong>$571.15 a
+        month</strong> &mdash; <strong>$6,853.80 a year</strong> &mdash; that
+        the income-only guess quietly treats as free: money spent running the
+        business, or hours spent on scope drift, delivered to the client at
+        no charge.
+      </p>
+      <div class="pf-table-scroll"><table class="usage-table">
+        <caption>Two ways to answer "what should the retainer be".</caption>
+        <thead>
+          <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>I want a number in ten seconds and I have not looked at my business costs.</td>
+            <td>Income divided by billable hours &mdash; free, but blind to costs and scope drift.</td>
+          </tr>
+          <tr>
+            <td>What should this retainer actually cost, once my costs and a buffer are counted?</td>
+            <td>This calculator &mdash; free, instant, private, no account, no upload.</td>
+          </tr>
+          <tr>
+            <td>Is a rate built on income alone actually covering what the business spends?</td>
+            <td>Run the same numbers through this calculator and compare the two prices directly.</td>
+          </tr>
+          <tr>
+            <td>Does this retainer still clear my income goal once the rest of the month is priced in honestly?</td>
+            <td>This calculator's <a href="will-this-retainer-hit-my-income-goal.html">income-goal check</a>, not a single division.</td>
+          </tr>
+          <tr>
+            <td>Do I need to create an account, upload financial data, or sign up?</td>
+            <td>No, for either approach &mdash; the division needs nothing and neither does this calculator.</td>
+          </tr>
+        </tbody>
+      </table></div>
+      <p>
+        The income-only division is not a bad habit so much as a shortcut
+        whose cost stays invisible until a slow month or an unusually
+        demanding client makes it obvious. This calculator keeps the
+        shortcut's convenience &mdash; still one page, still free, still
+        nothing to sign into &mdash; it just adds the two numbers that were
+        missing from the division.
+      </p>
+      <p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+      <h2>Common questions</h2>
+      <h3>Why not just divide my income goal by my billable hours?</h3>
+      <p>Because a retainer priced that way only ever covers take-home pay. Software, insurance, a laptop replacement fund, and self-employment tax do not stop needing money because a client pays on time, and none of that is in an income goal by itself. A scope buffer is missing too: a retainer without one prices the hours a client is expected to use, not the revisions and small extras that actually show up. Skip both and the number still looks like a real rate, because dividing two numbers always produces one -- it is just the wrong one.</p>
+      <h3>How much difference does it actually make?</h3>
+      <p>On this calculator's own shipped example -- a $6,000 income goal, 160 available hours, 65% utilization, $1,800 in monthly business costs, a 20-hour retainer, and a 15% scope buffer -- dividing income alone by billable capacity prices the retainer at $1,153.85. This calculator, adding the $1,800 in costs and the 15% buffer, prices the same retainer at $1,725.00. That is $571.15 a month, or $6,853.80 a year, quietly absorbed as an unpaid business expense instead of billed to the client who is using the hours.</p>
+      <h3>Where would the extra costs come from?</h3>
+      <p>From whatever it costs to run the practice for a month: software subscriptions, business insurance, a coworking desk or home-office share, an accountant, marketing, hardware replacement set aside monthly, and the self-employment tax portion an employee's paycheck would have withheld automatically. None of that has to be exact to be worth entering -- a rough monthly total from a bank statement is already closer to the truth than leaving the field at zero, which is what pricing from income alone does by omission.</p>
+      <h3>What if I don't have a scope buffer figured out yet?</h3>
+      <p>A buffer between 10% and 20% is a reasonable default until a freelancer has enough retainer months behind them to know their own pattern of small unplanned requests. The buffer is not padding for its own sake -- it is priced-in room for the revision or two that almost every ongoing engagement produces, so that a normal month does not quietly run over the hours a client bought.</p>
+      <h3>Is this the same as looking at last year's tax return?</h3>
+      <p>No, and it does not replace a tax return, a bookkeeper, or an accountant. Those confirm what already happened and what is owed. This calculator does the one thing neither hands over on its own: turning an income goal, real billable capacity, monthly costs, and a scope buffer into a single retainer price, before the work starts. It is arithmetic on numbers a freelancer supplies, not a tax or accounting determination.</p>
+      <p class="note">
+        <a href="./">Open the retainer calculator</a> to price your own plan,
+        then check it against the <a href="will-this-retainer-hit-my-income-goal.html">income-goal check</a>.
+      </p>
+    </section>
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or tax advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../coi-expiry-gap-checker/" data-pf-to="coi-expiry-gap-checker">COI tracker and gap checker for subcontractor insurance — free, private</a></li>
+      <li><a href="../construction-delay-claim-calculator/" data-pf-to="construction-delay-claim-calculator">Construction Delay Claim Calculator — free, private</a></li>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-retainer-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freelance-retainer-calculator"></script>
+</body>
+</html>

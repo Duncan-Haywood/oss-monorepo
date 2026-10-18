@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why a Clean Hooks Scan Isn't a Safety Guarantee | Claude Code Hooks Security Check</title>
+<meta name="description" content="A zero-finding hooks scan means none of this tool's known-dangerous patterns matched -- not that a hook command is safe.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/why-a-clean-scan-isnt-a-safety-guarantee.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why a clean hooks scan isn't a safety guarantee">
+<meta property="og:description" content="Zero findings means none of this tool's known-dangerous patterns matched, not that a hook command is safe. What the checks can and can't see.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"If a hooks scan comes back with zero findings, are my hooks safe?","acceptedAnswer":{"@type":"Answer","text":"No. A zero-finding result means none of this tool's known-dangerous patterns matched the command text you pasted -- it does not mean the hooks are safe to run unattended. The scan looks for specific textual shapes (a download piped into a shell, a credential read sent over the network, and the others it documents), not at what a command actually does when it runs, and it cannot see a shape it doesn't yet know about."}},{"@type":"Question","name":"What can a textual pattern scan actually catch?","acceptedAnswer":{"@type":"Answer","text":"Command strings that match a documented, specific shape: a remote download piped straight into a shell interpreter, a credential file read and sent over the network in the same line, environment variables dumped and sent over the network, an unguarded recursive delete of a broad path, TLS verification disabled, persistence via a shell startup file or crontab, world-writable permissions, a base64-obfuscated payload executed, and a process started detached from the hook. These are common, well-known dangerous shapes -- mechanized so a rushed review doesn't miss one."}},{"@type":"Question","name":"What can't it catch?","acceptedAnswer":{"@type":"Answer","text":"Anything that isn't one of the specific shapes above, and anything hidden from a simple text match: a command built at runtime from a variable this tool can't see the value of, a shape phrased in a way the patterns don't recognise, a malicious MCP tool or script the command merely invokes by name, or a legitimate-looking command whose actual danger only shows up given the environment it runs in. A textual scan cannot execute the command in a sandbox and observe what it does, and it does not try to."}},{"@type":"Question","name":"Does a match always mean a command is dangerous?","acceptedAnswer":{"@type":"Answer","text":"No. Several patterns here are shapes shared by ordinary, safe commands -- rm -rf on a build directory has the same shape as rm -rf on a home directory; nohup for a legitimate long-running dev-server hook looks the same as one used to persist something unwanted. Every finding is worded as worth a look, not a verdict, and reviewing the actual command in context is still yours to do."}},{"@type":"Question","name":"So what is a clean scan actually worth?","acceptedAnswer":{"@type":"Answer","text":"It rules out the specific, common dangerous shapes it checks for, cheaply, before you trust a hooks configuration someone else wrote or a project you just cloned -- the same value a linter has before a human review. Treat it as a floor: worth running on every hooks config you're about to trust, and worth pairing with actually reading the commands, not a substitute for reading them."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:820px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/why-a-clean-scan-isnt-a-safety-guarantee.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a clean hooks scan isn't a safety guarantee — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../claude-code-hooks-security-check/">Claude Code Hooks Security Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a clean hooks scan isn't a safety guarantee</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Claude Code Hooks Security Check</a></p>
+<header>
+<h1>Why a clean scan isn't a safety guarantee</h1>
+<p class="lede">Zero findings means none of this tool's known-dangerous patterns matched the command text you pasted &mdash; not that the hooks you're about to trust are safe. Here is what a textual pattern scan can and can't see, and why the difference matters.</p>
+</header>
+<section>
+<h2>What "textual pattern" means here</h2>
+<p>
+  Every check this tool runs looks for a specific, documented shape in a hook's
+  command string: a download piped straight into a shell, a credential file
+  read and sent over the network in the same line, environment variables
+  dumped and sent over the network, an unguarded recursive delete, TLS
+  verification disabled, persistence via a shell startup file or crontab,
+  world-writable permissions, a base64-obfuscated payload executed, and a
+  process started detached from the hook. These are common, well-known
+  dangerous shapes &mdash; mechanized so they don't get missed on a rushed
+  review of a hooks config someone else wrote.
+</p>
+</section>
+<section>
+<h2>What it can't see</h2>
+<p>
+  Anything that isn't one of the specific shapes above, and anything hidden
+  from a simple text match: a command built at runtime from a variable this
+  tool can't see the value of, a shape phrased in a way the patterns don't
+  recognise, a malicious MCP tool or script the command merely invokes by
+  name without any of it appearing in the command string itself, or a
+  legitimate-looking command whose actual danger only shows up given the
+  environment it runs in. This tool never executes the command in a sandbox
+  and observes what it does &mdash; it only reads the text.
+</p>
+<p class="fine">This is the same reason a linter passing doesn't mean a test suite would: they check different, complementary things.</p>
+</section>
+<section>
+<h2>A match isn't always dangerous, either</h2>
+<p>
+  Several patterns here are shapes shared by ordinary, safe commands.
+  <code>rm -rf</code> on a build directory has the exact same shape as
+  <code>rm -rf</code> on a home directory; <code>nohup</code> behind a
+  legitimate long-running dev-server hook looks the same as one used to
+  persist something unwanted. Every finding is worded as worth a look, not a
+  verdict &mdash; reviewing the actual command in its real context is still
+  yours to do.
+</p>
+</section>
+<section>
+<h2>What a clean scan is worth, then</h2>
+<p>
+  It rules out the specific, common dangerous shapes above, cheaply, before
+  you trust a hooks configuration someone else wrote or a project you just
+  cloned &mdash; worth running on every hooks config before you let it fire
+  unattended. Treat it as a floor: pair it with actually reading the
+  commands, not a substitute for reading them.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>If a hooks scan comes back with zero findings, are my hooks safe?</h3>
+<p>No. A zero-finding result means none of this tool's known-dangerous patterns matched the command text you pasted -- it does not mean the hooks are safe to run unattended. The scan looks for specific textual shapes (a download piped into a shell, a credential read sent over the network, and the others it documents), not at what a command actually does when it runs, and it cannot see a shape it doesn't yet know about.</p>
+<h3>What can a textual pattern scan actually catch?</h3>
+<p>Command strings that match a documented, specific shape: a remote download piped straight into a shell interpreter, a credential file read and sent over the network in the same line, environment variables dumped and sent over the network, an unguarded recursive delete of a broad path, TLS verification disabled, persistence via a shell startup file or crontab, world-writable permissions, a base64-obfuscated payload executed, and a process started detached from the hook. These are common, well-known dangerous shapes -- mechanized so a rushed review doesn't miss one.</p>
+<h3>What can't it catch?</h3>
+<p>Anything that isn't one of the specific shapes above, and anything hidden from a simple text match: a command built at runtime from a variable this tool can't see the value of, a shape phrased in a way the patterns don't recognise, a malicious MCP tool or script the command merely invokes by name, or a legitimate-looking command whose actual danger only shows up given the environment it runs in. A textual scan cannot execute the command in a sandbox and observe what it does, and it does not try to.</p>
+<h3>Does a match always mean a command is dangerous?</h3>
+<p>No. Several patterns here are shapes shared by ordinary, safe commands -- rm -rf on a build directory has the same shape as rm -rf on a home directory; nohup for a legitimate long-running dev-server hook looks the same as one used to persist something unwanted. Every finding is worded as worth a look, not a verdict, and reviewing the actual command in context is still yours to do.</p>
+<h3>So what is a clean scan actually worth?</h3>
+<p>It rules out the specific, common dangerous shapes it checks for, cheaply, before you trust a hooks configuration someone else wrote or a project you just cloned -- the same value a linter has before a human review. Treat it as a floor: worth running on every hooks config you're about to trust, and worth pairing with actually reading the commands, not a substitute for reading them.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified professional's review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Use <a href="./">Claude Code Hooks Security Check</a> to scan your own hooks configuration. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+      <li><a href="../canonical-tag-check/" data-pf-to="canonical-tag-check">Canonical Tag Checker</a></li>
+      <li><a href="../caption-quality-check/" data-pf-to="caption-quality-check">Caption Quality Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=claude-code-hooks-security-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="claude-code-hooks-security-check"></script>
+</body></html>

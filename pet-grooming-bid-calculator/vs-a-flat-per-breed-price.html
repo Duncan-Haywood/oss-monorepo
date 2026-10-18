@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pet Grooming Bid Calculator vs. a Flat Per-Breed Price | Worked Comparison</title>
+  <meta name="description" content="You already have a size chart — small $55, medium $75, large $95. Here is exactly what that flat number hides: coat type, matting, add-ons…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html">
+  <meta property="og:title" content="Pet Grooming Bid Calculator vs. a Flat Per-Breed Price">
+  <meta property="og:description" content="The size chart is fine for a menu. Here is what it hides once the dog is on the table: coat, matting, and add-ons that can turn the same card price into a loss.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat per-size price card wrong?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not go away. A website, a phone quote, or a price list on the wall needs one number per size — \"medium dogs $75\" is a fine headline price, and no calculator replaces having one. The point of this page is not that the card is wrong. It is that the card is the same number for every medium dog, and a medium poodle with matted fur is not the same job as a medium lab with a smooth coat."}},{"@type":"Question","name":"How much do coat type and matting actually add to a groom?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own defaults, a medium-size, medium-coat dog with no matting and no add-ons is a 69-minute groom. Change only the coat to curly/doodle and add moderate matting plus three common add-ons (nail trim, ear cleaning, de-shedding) and the same \"medium dog\" is a 171-minute groom — nearly three times as long — with $30 of matting surcharge and $52 of add-on charges added on top."}},{"@type":"Question","name":"Can the same card price actually lose money?","acceptedAnswer":{"@type":"Answer","text":"Yes, and this calculator's own worked example shows exactly that. The simple medium groom nets $61.75 on a $75 card price — an 82.3% margin. The matted, curly-coat, three-add-on medium groom at the identical $75 price has $93 of direct costs before the card fee, so it nets -$20.25 — a real loss, not just a thinner one, because the break-even price for that job ($95.88) is already above the $75 the card charges."}},{"@type":"Question","name":"Does the calculator replace the price card?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The price card is what you quote on the phone before you have seen the coat. This calculator is what you run once the dog is on the table (or from a clear photo and a few questions) to decide whether that day's version of \"the $75 medium groom\" still clears your floor — and, if the coat and matting are bad enough, whether the card price needs a same-day adjustment before you start."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #f3f6f1; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d4ded3; vertical-align: top; }
+    code { background: #e3e9e1; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    .note { font-size: .9rem; color: #4d5b52; }
+    footer { margin-top: 32px; font-size: .82rem; color: #4d5b52; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pet Grooming Bid Calculator vs. a Flat Per-Breed Price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pet-grooming-bid-calculator/">Pet Grooming Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Pet Grooming Bid Calculator vs. a Flat Per-Breed Price</span></span></nav>
+  <p><a href="./">← Pet grooming bid calculator</a></p>
+  <h1>This calculator vs. a flat per-breed price card</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic method
+    every groomer already has: a price card by size — small, medium, large, giant — quoted the same
+    regardless of coat, matting, or add-ons.</p>
+
+  <h2>First — the price card is right, and you should have one</h2>
+  <p>A website, a phone quote, or a sheet on the wall needs one number per size before the dog is in front
+    of you. "Medium dogs $75" is a fine headline price, and no calculator replaces having one. What
+    follows is not an argument that the card is wrong. It is what the same flat number stops showing you
+    the moment the dog is on the table and you can see the coat.</p>
+
+  <h2>The worked example</h2>
+  <p>Both rows below quote the identical $75 medium-dog card price from this calculator's own starting
+    numbers. The only thing that changes between them is the coat, the matting, and three common add-ons
+    — nail trim, ear cleaning, and de-shedding.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Simple — medium coat, no matting, no add-ons</th><th>Real — curly coat, moderate matting, 3 add-ons</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What the price card shows</strong></td>
+          <td>$75 — medium dog</td>
+          <td>$75 — medium dog, unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Groom time</strong></td>
+          <td>69 minutes</td>
+          <td>171 minutes — nearly 3× as long, and the card cannot see coat or matting</td>
+        </tr>
+        <tr>
+          <td><strong>Matting surcharge</strong></td>
+          <td>$0 — no matting</td>
+          <td>$30.00 — moderate matting across the coat</td>
+        </tr>
+        <tr>
+          <td><strong>Add-on charges</strong></td>
+          <td>$0 — none selected</td>
+          <td>$52.00 — nail trim, ear cleaning, de-shedding</td>
+        </tr>
+        <tr>
+          <td><strong>Direct costs this job actually carries</strong></td>
+          <td>$11.00 (supplies + overhead)</td>
+          <td>$93.00 (supplies + overhead + matting surcharge + add-ons)</td>
+        </tr>
+        <tr>
+          <td><strong>Break-even price</strong></td>
+          <td>$11.34 — far below the $75 card price</td>
+          <td>$95.88 — already above the $75 card price, before any profit</td>
+        </tr>
+        <tr>
+          <td><strong>What $75 actually nets after costs and the fee</strong></td>
+          <td>$61.75 — an 82.3% margin</td>
+          <td>&minus;$20.25 — a real loss, a &minus;27.0% margin</td>
+        </tr>
+        <tr>
+          <td><strong>Effective hourly</strong></td>
+          <td>$53.70 an hour</td>
+          <td>&minus;$7.11 an hour — paying to do the job</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The two places the price card goes quiet</h2>
+
+  <h3>1. Coat and matting are invisible to a size chart</h3>
+  <p>A price card answers "what size is the dog," not "how long will this coat actually take." Both
+    groom the same "medium dog" either way. The calculator prices the coat multiplier and the matting
+    time and surcharge separately, so a curly/doodle coat with moderate matting is visibly a 171-minute
+    job instead of silently the same 69 minutes the card assumes.</p>
+
+  <h3>2. Add-ons and matting can add up to more than the card charges</h3>
+  <p>This is the one that costs real money. The card charges $75 whether the groom needs three add-ons
+    and a matting surcharge or none at all, but this job's own direct costs — $93 — are already above the
+    $75 the card quotes, before the card fee is even taken out. A groomer working off the card alone can
+    finish a "profitable" day of $75 medium dogs and have actually lost money on the ones that came in
+    matted with add-ons, with nothing on the card to say so in advance.</p>
+
+  <h2>When the price card is still the better tool</h2>
+  <p>For quoting on the phone, it plainly is. A caller wants one number, not a form, and you usually
+    cannot see the coat before the dog arrives. The sensible arrangement is both: quote the card price to
+    book the appointment, then run this calculator once the dog is on the table to see whether that day's
+    version of "the $75 medium groom" still clears your floor — and, if the coat and matting are bad
+    enough, whether the day-of price needs to move before you start.</p>
+
+  <p class="note">Every figure on this page is this calculator's own worked example, not a claim about
+    any real groomer or an industry benchmark. Your rates, coats, and add-on pricing will produce
+    different numbers — the point is which numbers to produce, not what they should come out to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Is a flat per-size price card wrong?</h3>
+  <p>No, and it should not go away. A website, a phone quote, or a price list on the wall needs one
+    number per size — "medium dogs $75" is a fine headline price, and no calculator replaces having one.
+    The point of this page is not that the card is wrong. It is that the card is the same number for
+    every medium dog, and a medium poodle with matted fur is not the same job as a medium lab with a
+    smooth coat.</p>
+
+  <h3>How much do coat type and matting actually add to a groom?</h3>
+  <p>On this calculator's own defaults, a medium-size, medium-coat dog with no matting and no add-ons is
+    a 69-minute groom. Change only the coat to curly/doodle and add moderate matting plus three common
+    add-ons (nail trim, ear cleaning, de-shedding) and the same "medium dog" is a 171-minute groom —
+    nearly three times as long — with $30 of matting surcharge and $52 of add-on charges added on top.</p>
+
+  <h3>Can the same card price actually lose money?</h3>
+  <p>Yes, and this calculator's own worked example shows exactly that. The simple medium groom nets
+    $61.75 on a $75 card price — an 82.3% margin. The matted, curly-coat, three-add-on medium groom at
+    the identical $75 price has $93 of direct costs before the card fee, so it nets -$20.25 — a real
+    loss, not just a thinner one, because the break-even price for that job ($95.88) is already above
+    the $75 the card charges.</p>
+
+  <h3>Does the calculator replace the price card?</h3>
+  <p>No, and it is not trying to. The price card is what you quote on the phone before you have seen the
+    coat. This calculator is what you run once the dog is on the table (or from a clear photo and a few
+    questions) to decide whether that day's version of "the $75 medium groom" still clears your floor —
+    and, if the coat and matting are bad enough, whether the card price needs a same-day adjustment
+    before you start.</p>
+
+  <p>
+    <a href="./">Open the pet grooming bid calculator →</a><br>
+    <a href="./how-much-to-charge.html">How much should I charge for dog grooming? →</a>
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not veterinary, animal-health, animal-welfare, business, tax, or financial advice, and it does not replace a qualified professional. It does not assess whether an animal is fit, healthy, or safe to be groomed — that judgment belongs to you and, where warranted, a veterinarian. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+      <li><a href="../pressure-washing-bid-calculator/" data-pf-to="pressure-washing-bid-calculator">Pressure Washing Bid Calculator</a></li>
+      <li><a href="../radon-mitigation-bid-calculator/" data-pf-to="radon-mitigation-bid-calculator">Radon Mitigation Bid Calculator</a></li>
+      <li><a href="../solar-panel-cleaning-quote-planner/" data-pf-to="solar-panel-cleaning-quote-planner">How much to charge to clean solar panels, free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pet-grooming-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pet-grooming-bid-calculator"></script>
+</body>
+</html>

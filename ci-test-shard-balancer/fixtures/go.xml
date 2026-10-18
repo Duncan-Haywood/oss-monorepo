@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="7" failures="0" errors="0" time="21.0">
+	<testsuite tests="5" failures="0" errors="0" id="0" name="github.com/acme/app/billing" time="15.0">
+		<testcase classname="github.com/acme/app/billing" name="TestInvoice" time="9.00"></testcase>
+		<testcase classname="github.com/acme/app/billing" name="TestInvoice/small" time="3.00"></testcase>
+		<testcase classname="github.com/acme/app/billing" name="TestInvoice/large" time="6.00"></testcase>
+		<testcase classname="github.com/acme/app/billing" name="TestRefund" time="4.00"></testcase>
+		<testcase classname="github.com/acme/app/billing" name="TestTaxTable" time="2.00"></testcase>
+	</testsuite>
+	<testsuite tests="2" failures="0" errors="0" id="1" name="github.com/acme/app/store" time="6.0">
+		<testcase classname="github.com/acme/app/store" name="TestSave" time="5.00"></testcase>
+		<testcase classname="github.com/acme/app/store" name="TestLoad" time="1.00"></testcase>
+	</testsuite>
+</testsuites>

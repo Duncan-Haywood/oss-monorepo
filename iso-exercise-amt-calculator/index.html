@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ISO Exercise AMT Calculator — How Many Stock Options Can You Exercise Before AMT?</title>
+  <meta name="description" content="Free ISO and AMT calculator. Enter your income and options to find how many incentive stock options you can exercise this year before the alternative minimum…">
+  <meta property="og:title" content="ISO Exercise AMT Calculator — free, private, in your browser">
+  <meta property="og:description" content="Find your AMT crossover: the number of ISOs you can exercise before AMT, and what more costs.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ISO Exercise AMT Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Finds how many incentive stock options you can exercise this year before the alternative minimum tax starts, and shows the AMT and cash needed at larger exercise sizes. Runs in your browser.", "featureList": "ISO AMT crossover, 2026 AMT exemption and phase-out, cash needed to exercise, AMT credit note, itemizer add-backs, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many ISOs can I exercise without paying AMT?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the rest of your income. This tool computes your alternative minimum tax income with and without the option spread, and finds the largest spread that leaves your AMT at zero, then converts that into a number of options at your strike and current 409A value."}}, {"@type": "Question", "name": "Why do ISOs trigger the alternative minimum tax?", "acceptedAnswer": {"@type": "Answer", "text": "Exercising incentive stock options creates no regular income tax, but the gap between the fair market value and your strike price (the spread) is an adjustment for the alternative minimum tax. If the AMT calculation comes out above your regular tax, you pay the difference in the year you exercise, even though you have sold nothing."}}, {"@type": "Question", "name": "Is there withholding when I exercise ISOs?", "acceptedAnswer": {"@type": "Answer", "text": "No. ISO exercises are not wages, so nothing is withheld. Any AMT is paid with estimated tax payments or when you file. The tool shows the cash you need at each exercise size: the exercise cost plus the AMT."}}, {"@type": "Question", "name": "What is the AMT credit?", "acceptedAnswer": {"@type": "Answer", "text": "AMT paid because of ISO spread is a timing difference. It carries forward as a minimum tax credit that reduces regular tax in later years, but only to the extent your regular tax exceeds your AMT. It can take years to use and is lost value if you never have that room, so treat it as a maximum, not a refund."}}, {"@type": "Question", "name": "What if I exercise and sell in the same year?", "acceptedAnswer": {"@type": "Answer", "text": "That is a disqualifying disposition. The spread is taxed as ordinary wages rather than as an AMT adjustment, so there is no AMT on those shares, but the ordinary-income treatment and possible withholding apply. To keep ISO treatment, hold shares one year after exercise and two years after the grant date."}}, {"@type": "Question", "name": "Where do I find the fair market value?", "acceptedAnswer": {"@type": "Answer", "text": "For a private company it is the latest 409A valuation, which your equity administrator can give you. For a public company it is the market price on the day of exercise. The AMT spread uses the value on the day you exercise, so the number can move between planning and doing."}}, {"@type": "Question", "name": "What does this tool leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Nonqualified options, the net investment income tax, credits, other AMT adjustments and preferences, state AMT, income other than the wages you enter, the interaction with restricted stock, the $100,000 limit on ISO treatment, and years other than 2026. The AMT parameters should be checked against IRS Form 6251 instructions."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"ISO Exercise AMT Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ISO Exercise AMT Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">ISO Exercise AMT Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">ISO EXERCISE AMT CALCULATOR · 2026 TAX YEAR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many stock options can you exercise before AMT?</h1>
+    <p>Exercising <strong>incentive stock options</strong> creates no regular tax, but the spread counts for the <strong>alternative minimum tax</strong>. Enter your income and options to find your <strong>AMT crossover</strong>, the number you can exercise for no AMT, and the <strong>AMT and cash</strong> needed if you exercise more.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your year</h2>
+    <div class="grid">
+      <div><label for="status">Filing status</label><select id="status"><option value="">Choose</option><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></div>
+      <div><label for="wages">2026 wages and other ordinary income</label><input type="text" id="wages" inputmode="decimal" placeholder="210000" autocomplete="off"></div>
+      <div><label for="pretax">Pre-tax deductions (401(k), HSA)</label><input type="text" id="pretax" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="itemized">Itemized deductions, if you itemize</label><input type="text" id="itemized" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="salt">of which state and local taxes</label><input type="text" id="salt" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="amtCredit">Prior-year AMT credit carryforward</label><input type="text" id="amtCredit" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your options</h2>
+    <div class="grid">
+      <div><label for="strike">Strike price per share</label><input type="text" id="strike" inputmode="decimal" placeholder="2.50" autocomplete="off"></div>
+      <div><label for="fmv">Current fair market value per share (409A or market)</label><input type="text" id="fmv" inputmode="decimal" placeholder="14.00" autocomplete="off"></div>
+      <div><label for="options">Vested ISOs you could exercise</label><input type="text" id="options" inputmode="decimal" placeholder="20000" autocomplete="off"></div>
+      <div><label for="salePrice">Price you hope to sell at (optional)</label><input type="text" id="salePrice" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+    </div>
+    <button type="button" id="analyze">Find my AMT crossover</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the boxes above, then click Find my AMT crossover.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Exercise sizes compared</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="size-table"><thead><tr><th class="n">Options</th><th class="n">Exercise cost</th><th class="n">Spread</th><th class="n">AMT owed</th><th class="n">Cash needed</th><th class="n">Marginal AMT rate</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Tax year 2026. Regular taxable income is wages less pre-tax deductions and the larger of the standard deduction (single $16,100, married filing jointly $32,200, head of household $24,150) or your itemized deductions, taxed at the 2026 brackets. Alternative minimum taxable income starts from wages less pre-tax deductions, disallows the standard deduction and any state and local taxes, and adds the ISO spread. The AMT exemption is $90,100 single and head of household, $140,200 married filing jointly, reduced by 50 cents per dollar of AMT income over $500,000 ($1,000,000 married). The tentative minimum tax is 26% up to $244,500 of AMT income after the exemption and 28% above. AMT is the amount by which it exceeds regular tax. The crossover is found by searching for the largest spread that leaves AMT at zero.</p>
+    <p><strong>Not modelled:</strong> nonqualified options, net investment income tax, other AMT adjustments, state AMT, other income, credits, the $100,000 ISO limit, other years. <strong>Unverified:</strong> checked by hand calculation and unit tests, not against Form 6251. Check the 2026 parameters against the IRS's own instructions before relying on them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many ISOs can I exercise without paying AMT?</h3>
+    <p>It depends on the rest of your income. This tool computes your alternative minimum tax income with and without the option spread, and finds the largest spread that leaves your AMT at zero, then converts that into a number of options at your strike and current 409A value.</p>
+    <h3>Why do ISOs trigger the alternative minimum tax?</h3>
+    <p>Exercising incentive stock options creates no regular income tax, but the gap between the fair market value and your strike price (the spread) is an adjustment for the alternative minimum tax. If the AMT calculation comes out above your regular tax, you pay the difference in the year you exercise, even though you have sold nothing.</p>
+    <h3>Is there withholding when I exercise ISOs?</h3>
+    <p>No. ISO exercises are not wages, so nothing is withheld. Any AMT is paid with estimated tax payments or when you file. The tool shows the cash you need at each exercise size: the exercise cost plus the AMT.</p>
+    <h3>What is the AMT credit?</h3>
+    <p>AMT paid because of ISO spread is a timing difference. It carries forward as a minimum tax credit that reduces regular tax in later years, but only to the extent your regular tax exceeds your AMT. It can take years to use and is lost value if you never have that room, so treat it as a maximum, not a refund.</p>
+    <h3>What if I exercise and sell in the same year?</h3>
+    <p>That is a disqualifying disposition. The spread is taxed as ordinary wages rather than as an AMT adjustment, so there is no AMT on those shares, but the ordinary-income treatment and possible withholding apply. To keep ISO treatment, hold shares one year after exercise and two years after the grant date.</p>
+    <h3>Where do I find the fair market value?</h3>
+    <p>For a private company it is the latest 409A valuation, which your equity administrator can give you. For a public company it is the market price on the day of exercise. The AMT spread uses the value on the day you exercise, so the number can move between planning and doing.</p>
+    <h3>What does this tool leave out?</h3>
+    <p>Nonqualified options, the net investment income tax, credits, other AMT adjustments and preferences, state AMT, income other than the wages you enter, the interaction with restricted stock, the $100,000 limit on ISO treatment, and years other than 2026. The AMT parameters should be checked against IRS Form 6251 instructions.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. Results are illustrative estimates that depend on the values you enter, on the stock's value on the day you exercise, and on tax rules that change. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before exercising options, which cannot be undone and may cost more than the shares are worth.</p>
+    <p><strong>Independent.</strong> Not affiliated with the Internal Revenue Service, any employer, or any equity plan administrator.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your income and option details are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>amt_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also holding RSUs? The <a href="../rsu-withholding-gap-calculator/">RSU withholding gap calculator</a> shows the tax a vest leaves unwithheld.</p>
+    <p>Weighing an offer with options? The <a href="../startup-option-value-calculator/">startup option value calculator</a> values the grant after dilution and preferences.</p>
+    <p>Exercising early into unvested stock? The <a href="../section-83b-election-calculator/">83(b) election calculator</a> compares tax at grant with tax at each vest.</p>
+    <p>Buy through an ESPP? The <a href="../espp-tax-calculator/">ESPP tax calculator</a> compares selling now with holding.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => "$" + money(n);
+    const FIELDS = ["status", "wages", "pretax", "itemized", "salt", "amtCredit", "strike", "fmv", "options", "salePrice"];
+    let last = null;
+
+    function read() { const o = {}; for (const f of FIELDS) o[f] = $("#" + f).value; return o; }
+    function fill(x) { for (const f of FIELDS) $("#" + f).value = x[f] ?? ""; }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const all = a.rows.find((r) => r.isAll);
+      const tiles = [[esc(a.crossoverOptions.toLocaleString("en-US")), "options you can exercise with no AMT"], [usd(a.crossoverOptions * a.strike), "exercise cost for those"], [usd(all.amt), "AMT if you exercise all " + a.granted.toLocaleString("en-US")], [usd(all.cash), "cash needed to exercise all"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${v}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.rows.map((r) => `<tr class="${r.isCrossover ? "best" : ""}"><td class="n">${r.options.toLocaleString("en-US")}${r.isCrossover ? " (crossover)" : ""}</td><td class="n">${usd(r.cost)}</td><td class="n">${usd(r.spread)}</td><td class="n">${usd(r.amt)}</td><td class="n">${usd(r.cash)}</td><td class="n">${r.marginal === null ? "" : (r.marginal * 100).toFixed(1) + "%"}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("amt_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented employee, not a real person."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the boxes above, then click Find my AMT crossover."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "iso-amt-crossover.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../saas-renewal-planner/" data-pf-to="saas-renewal-planner">Which SaaS renewals should you negotiate first, and by when?</a></li>
+      <li><a href="../saas-seat-true-up/" data-pf-to="saas-seat-true-up">SaaS seat true-up calculator</a></li>
+      <li><a href="../safe-dilution-calculator/" data-pf-to="safe-dilution-calculator">SAFE Dilution Calculator — free, private, no signup</a></li>
+      <li><a href="../sales-commission-plan-comparison-calculator/" data-pf-to="sales-commission-plan-comparison-calculator">Sales Commission Plan Comparison Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=iso-exercise-amt-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/?pfEmbed=1&quot; title=&quot;ISO Exercise AMT Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="iso-exercise-amt-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/" data-pf-embed-title="ISO Exercise AMT Calculator — free, private, in your browser" data-pf-embed-slug="iso-exercise-amt-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="iso-exercise-amt-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="iso-exercise-amt-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

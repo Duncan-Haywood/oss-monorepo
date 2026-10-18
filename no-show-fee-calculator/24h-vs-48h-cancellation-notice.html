@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>24 hour vs 48 hour cancellation policy | Waitlist fill vs empty chairs</title>
+  <meta name="description" content="A 48-hour cancellation rule only pays if you can refill more of those openings than you can with 24 hours.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/24h-vs-48h-cancellation-notice.html">
+  <meta property="og:title" content="24 hour vs 48 hour cancellation policy">
+  <meta property="og:description" content="The notice window is a waitlist question, not a legal nicety. See how much empty-slot cash a longer rule recovers.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is a 48-hour cancellation policy better than 24 hours?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only if you actually refill more cancelled slots with the extra day. A longer notice window that does not change your waitlist fill rate is just a longer argument with the client. Compare your own fill rates on the same booking volume."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a no-show fee replace a waitlist?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. A collected fee compensates for holding the slot. It does not put another client in the chair. The empty-slot cash and the fee are separate numbers."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; background: #f4f6fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0b5fff; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; background: #fff; }
+    th, td { padding: 9px 8px; text-align: right; border-bottom: 1px solid #d7dce6; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #555; }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/24h-vs-48h-cancellation-notice.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="24 hour vs 48 hour cancellation policy — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../no-show-fee-calculator/">No-Show &amp; Cancellation Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">24 hour vs 48 hour cancellation policy</span></span></nav>
+  <p><a href="./">← No-show fee calculator</a></p>
+  <h1>24 hours vs 48 hours: the notice window is a waitlist question</h1>
+  <p>
+    Trainers, salons, and tutors search this because a client who wants a
+    shorter cancellation window will argue that 24 hours is “industry
+    standard.” Booking software exposes both toggles. None of them tell you
+    how much of the empty-chair hole a longer rule actually closes.
+  </p>
+  <p>
+    <strong>The fee is not the refill.</strong> Charging 100% of the session
+    price still leaves the hour unsold unless someone from the waitlist
+    takes it. A same-day cancel is almost never refillable. A 48-hour
+    cancel often is — if you keep a list and actually call it.
+  </p>
+  <p>
+    On a typical $75 session, 20 bookings a week, and an 8% late-cancel
+    rate, those openings are $6,240 of chair time a year. If you refill
+    10% same-day, 40% with 24 hours, and 65% with 48 hours:
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th>Notice</th><th>Assumed fill</th><th>Cash recovered</th><th>Still empty</th><th>Extra vs same-day</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Same day (4 hours)</td><td>10%</td><td>$624</td><td>$5,616</td><td>$0</td></tr>
+      <tr><td>24 hours</td><td>40%</td><td>$2,496</td><td>$3,744</td><td>$1,872</td></tr>
+      <tr><td>48 hours</td><td>65%</td><td>$4,056</td><td>$2,184</td><td>$3,432</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    The extra $3,432 is not a promise. It is what happens <em>if</em> you
+    can actually hit 65% fill with two days of notice. If your waitlist is
+    empty at every window, a 48-hour rule recovers nothing extra.
+  </p>
+  <p>
+    Open the <a href="./">no-show fee calculator</a>, enter your price,
+    weekly bookings, no-show rate, and the fill rates you have actually
+    seen. It shows the empty-slot cash recovered at 4 hours, 24 hours, and
+    48 hours next to the fee-level table. Nothing is uploaded.
+  </p>
+  <p>
+    This page is arithmetic, not legal or business advice. It does not tell
+    you which policy to publish. Confirm what your payment processor and
+    local rules allow before you send a number to clients.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is a 48-hour cancellation policy better than 24 hours?</h3>
+  <p>Only if you actually refill more cancelled slots with the extra day. A longer notice window that does not change your waitlist fill rate is just a longer argument with the client. Compare your own fill rates on the same booking volume.</p>
+  <h3>Does a no-show fee replace a waitlist?</h3>
+  <p>No. A collected fee compensates for holding the slot. It does not put another client in the chair. The empty-slot cash and the fee are separate numbers.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, or financial advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../quote-margin-check/" data-pf-to="quote-margin-check">Quote Margin Check — free effective hourly rate calculator</a></li>
+      <li><a href="../recompete-radar/" data-pf-to="recompete-radar">Which federal contracts in my niche expire next?</a></li>
+      <li><a href="../retainage-cashflow-calculator/" data-pf-to="retainage-cashflow-calculator">Construction Retainage Calculator</a></li>
+      <li><a href="../revenue-target-lead-planner/" data-pf-to="revenue-target-lead-planner">Revenue Target Lead Planner — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=no-show-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="no-show-fee-calculator"></script>
+</body>
+</html>

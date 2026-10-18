@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. checking a redirect chain by hand — Redirect Chain Checker</title>
+<meta name="description" content="Running curl -sI -L or reading DevTools' Network panel shows you a redirect chain. It does not name a loop, compare the chain length against a recommendation…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/vs-checking-a-chain-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking a redirect chain by hand">
+<meta property="og:description" content="curl or DevTools shows you the hops. It does not tell you whether one of them loops, whether the chain is longer than recommended…">
+<meta property="og:url" content="./vs-checking-a-chain-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't running curl -sI -L or checking DevTools by hand enough to see a redirect chain?","acceptedAnswer":{"@type":"Answer","text":"It shows you the hops, which is the raw material this tool also needs -- but curl -L follows the chain silently by default and prints only the final response unless you add -v or drop -L and re-run it once per hop, and DevTools' Network panel requires you to read the Status and Location value of every row yourself. Neither tool tells you whether any of what you're looking at is actually a problem; that reading is left to you, and it has to be redone by eye on every URL you check."}},{"@type":"Question","name":"What does checking by hand miss that this tool catches automatically?","acceptedAnswer":{"@type":"Answer","text":"Five specific patterns this tool names explicitly: a redirect loop (an earlier URL in the chain reappears later in it -- easy to miss by eye once a chain is more than two or three hops), a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade buried in the middle of an otherwise-fine chain, a same-path scheme or www normalization that used a temporary 302/303/307 instead of a permanent 301/308, and a chain that ends in a 4xx/5xx error or is still redirecting when the data runs out. Curl and DevTools both show you the status codes; neither one tells you which combination of them is wrong."}},{"@type":"Question","name":"Why is manually eyeballing chain length or a loop error-prone?","acceptedAnswer":{"@type":"Answer","text":"A loop only shows up as a URL that was already visited reappearing later in the list -- trivial to spot in a three-hop chain, and easy to miss once you're scrolling through eight or ten DevTools rows across an old migration nobody has cleaned up. Chain length has the same problem in reverse: there is no visual cue in curl's or DevTools' output for \"this is one hop more than recommended,\" so the judgment call is silent and easy to skip entirely."}},{"@type":"Question","name":"Can I wire this into CI so nobody has to check by hand again?","acceptedAnswer":{"@type":"Answer","text":"Yes -- that's the difference a script has over a habit. node check.mjs <url> makes the same real HTTP requests curl would, from your own machine, and exits non-zero the moment a danger-severity finding is produced, a hop's request fails, or the chain runs out of hops while still redirecting. Add it as an ordinary step in your own CI and a new loop or downgrade fails the build instead of waiting for someone to notice it in a manual curl trace."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. checking a redirect chain by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../redirect-chain-check/">Redirect Chain Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. checking a redirect chain by hand</span></span></nav>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. checking a redirect chain by hand</h1>
+<p class="lede">The usual way to look at a redirect chain is <code>curl -sI -L</code> against the URL, or opening DevTools' Network panel and reading the Status and Name columns row by row. Both show you the hops. Neither one tells you whether any of what you're looking at is actually wrong -- a loop, a chain that's grown too long, a downgrade back to HTTP, or a permanent move that used a temporary status code. That reading is still yours, by eye, on every URL, every time.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Checking by hand</strong> costs nothing and needs no tool beyond what's already on your machine or in your browser. <code>curl -sI -L</code> (or <code>curl -sI</code> run once per hop, without <code>-L</code>, to see each Location header) and DevTools' Network panel both surface the real chain. For a one-off look at a URL you already suspect is fine, that's often enough.</p>
+<p><strong>This checker</strong> takes the same kind of hop data -- pasted from DevTools, or fetched for you by the CLI -- and runs it against five named checks instead of leaving the reading to you: a redirect loop, a chain longer than recommended, an HTTPS-to-HTTP downgrade, a temporary status code used for what looks like a permanent move, and a chain that dead-ends in an error. It states which pattern was found and why it matters, and the CLI exits non-zero so it can fail a build instead of waiting for someone to notice.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I just want to see the raw hops for one URL, right now.</td><td>Either one. <code>curl -sI -L</code> or DevTools is the faster path for a single ad-hoc look.</td></tr>
+<tr><td>Does this chain loop back on itself?</td><td>This checker. A loop is easy to miss by eye once a chain runs past two or three hops.</td></tr>
+<tr><td>Is this chain longer than the single hop search engines recommend?</td><td>This checker. Neither curl nor DevTools flags "one hop too many" -- there's no visual cue for it in either tool's output.</td></tr>
+<tr><td>Does any hop quietly drop from HTTPS back to HTTP?</td><td>This checker names the exact hop. In a long DevTools list it's one row among many, easy to scroll past.</td></tr>
+<tr><td>Did a same-path scheme/www move use 302/303/307 instead of 301/308?</td><td>This checker. Telling a temporary code apart from a permanent one, and knowing that distinction matters for ranking-signal consolidation, is a judgment call by-hand checking leaves entirely to you.</td></tr>
+<tr><td>I want this checked automatically on every build, with nothing sent to a third party.</td><td>This checker's CLI -- <code>node check.mjs &lt;url&gt;</code> runs from your own machine and exits non-zero on a finding, wireable into any CI as an ordinary step.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't running curl -sI -L or checking DevTools by hand enough to see a redirect chain?</h3>
+<p>It shows you the hops, which is the raw material this tool also needs -- but curl -L follows the chain silently by default and prints only the final response unless you add -v or drop -L and re-run it once per hop, and DevTools' Network panel requires you to read the Status and Location value of every row yourself. Neither tool tells you whether any of what you're looking at is actually a problem; that reading is left to you, and it has to be redone by eye on every URL you check.</p>
+<h3>What does checking by hand miss that this tool catches automatically?</h3>
+<p>Five specific patterns this tool names explicitly: a redirect loop (an earlier URL in the chain reappears later in it -- easy to miss by eye once a chain is more than two or three hops), a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade buried in the middle of an otherwise-fine chain, a same-path scheme or www normalization that used a temporary 302/303/307 instead of a permanent 301/308, and a chain that ends in a 4xx/5xx error or is still redirecting when the data runs out. Curl and DevTools both show you the status codes; neither one tells you which combination of them is wrong.</p>
+<h3>Why is manually eyeballing chain length or a loop error-prone?</h3>
+<p>A loop only shows up as a URL that was already visited reappearing later in the list -- trivial to spot in a three-hop chain, and easy to miss once you're scrolling through eight or ten DevTools rows across an old migration nobody has cleaned up. Chain length has the same problem in reverse: there is no visual cue in curl's or DevTools' output for "this is one hop more than recommended," so the judgment call is silent and easy to skip entirely.</p>
+<h3>Can I wire this into CI so nobody has to check by hand again?</h3>
+<p>Yes -- that's the difference a script has over a habit. <code>node check.mjs &lt;url&gt;</code> makes the same real HTTP requests curl would, from your own machine, and exits non-zero the moment a danger-severity finding is produced, a hop's request fails, or the chain runs out of hops while still redirecting. Add it as an ordinary step in your own CI and a new loop or downgrade fails the build instead of waiting for someone to notice it in a manual curl trace.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not SEO, legal, or marketing advice, and they do not replace testing your own migration's real behavior. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Checking a redirect chain by hand" describes curl and browser DevTools, tools every developer already has, not any company's product or service.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to parses pasted text entirely client-side; the CLI's requests go straight from your machine to the URL and Location headers it names. Nothing is proxied through this site.</p>
+<p class="support">Free and open source. If this caught a redirect loop before your visitors did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=redirect-chain-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="redirect-chain-check"></script>
+</body>
+</html>

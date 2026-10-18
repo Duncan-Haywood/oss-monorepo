@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is Etsy Ads worth it? | ACOS vs leftover profit</title>
+  <meta name="description" content="A 12% Etsy Ads ACOS on a $35 order costs $4.20. See when an advertised sale still leaves a profit — and when it only cannibalizes an organic buyer.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/is-etsy-ads-worth-it.html">
+  <meta property="og:title" content="Is Etsy Ads worth it?">
+  <meta property="og:description" content="Compare an organic Etsy sale with the same order after on-site Etsy Ads ACOS. Offsite Ads are a different fee.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Etsy Ads worth it?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, and a 12% ACOS — the organic sale keeps $21.23. The advertised sale keeps $17.03 after a $4.20 Ads cost. An extra advertised order still pays until ACOS reaches about 60.64%. A $5.00 monthly budget at 12% ACOS buys about 1.19 advertised orders and keeps $20.27 if they are incremental."}},{"@type":"Question","name":"Are Etsy Ads the same as Offsite Ads?","acceptedAnswer":{"@type":"Answer","text":"No. On-site Etsy Ads is a click you buy; ACOS is spend divided by attributed sales. Offsite Ads is a percentage Etsy takes when it sends the buyer from Google or social. Enter both. Raising Offsite Ads to 15% on the same 12% ACOS drops organic keep to $15.98, advertised keep to $11.78, and the ACOS ceiling to about 45.64%."}},{"@type":"Question","name":"What if the Ads click would have bought anyway?","acceptedAnswer":{"@type":"Answer","text":"That is a cannibalized sale. On the 12% example Ads cost you $4.20 versus the organic $21.23. Take the click when it is extra demand and the advertised path still leaves a profit. A 70% ACOS on the same order costs $24.50 and loses $3.27 even if the click is extra demand."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #245c45; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #ded5c8; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/is-etsy-ads-worth-it.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is Etsy Ads worth it? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is Etsy Ads worth it?</span></span></nav>
+  <p><a href="./">← Etsy profit calculator</a></p>
+  <h1>Is Etsy Ads worth it?</h1>
+  <p>
+    Sellers search for “is Etsy Ads worth it” because a 12% ACOS looks cheap
+    next to a $30 sale. ACOS is spend divided by attributed sales — $4.20
+    on a $35 order. That cash leaves whether or not the buyer would have
+    found you anyway. Offsite Ads is a different fee: a percentage Etsy
+    takes when it sends the buyer.
+  </p>
+  <p>
+    Open the <a href="./#etsy-ads">Etsy profit calculator</a>, keep your shop
+    fees, and type the ACOS from Ads Manager. Monthly spend is the same
+    figure as the Plus table. The table below uses the calculator defaults:
+    $30 item, $5.00 shipping charged, 6.5% transaction, 3% + $0.25 payment,
+    $6.00 postage, $4.00 materials, 12% ACOS, $5.00 monthly Ads spend.
+  </p>
+  <h2>A 12% ACOS still leaves $17.03 on an extra order</h2>
+  <p>
+    The organic sale keeps $21.23. The advertised sale keeps $17.03 after
+    a $4.20 Ads cost — $4.20 less (−$4.20). An extra advertised order still
+    pays until ACOS reaches about 60.64%. A $5.00 monthly budget at this
+    ACOS buys about 1.19 advertised orders and keeps $20.27 if they are
+    incremental.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Path</th><th>Ads on this order</th><th>Fees</th><th>Kept</th></tr></thead>
+    <tbody>
+      <tr><td>Organic sale</td><td>$0.00</td><td>$3.78</td><td>$21.23</td></tr>
+      <tr><td>Advertised sale</td><td>$4.20</td><td>$3.78</td><td>$17.03</td></tr>
+    </tbody>
+  </table></div>
+  <h2>A 70% ACOS loses money even as extra demand</h2>
+  <p>
+    Raise ACOS to 70% on the same order and Ads cost $24.50. The
+    advertised sale keeps $-3.27 (−$3.27) even if the click is extra
+    demand you would not have sold otherwise. The ceiling stays 60.64% —
+    that is leftover profit divided by order revenue, not a fee Etsy
+    publishes.
+  </p>
+  <h2>Offsite Ads lower the ACOS you can still carry</h2>
+  <p>
+    Turn on 15% Offsite Ads and keep the 12% ACOS. Organic keep falls to
+    $15.98. Advertised keep falls to $11.78 after the same $4.20 click.
+    The ACOS ceiling drops to about 45.64%. Offsite Ads and Etsy Ads
+    stack; they are not substitutes.
+  </p>
+  <h2>If they would have bought anyway</h2>
+  <p>
+    That is a cannibalized sale. On the 12% example Ads cost you $4.20
+    versus the organic $21.23. Take the click when it is extra demand and
+    the advertised path still leaves a profit.
+  </p>
+  <p>
+    Rates change. This page does not publish Etsy’s live Ads CPC or Offsite
+    Ads schedule. Enter the ACOS and fees from your last statement and
+    Ads Manager.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is Etsy Ads worth it?</h3>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, and a 12% ACOS — the organic sale keeps $21.23. The advertised sale keeps $17.03 after a $4.20 Ads cost. An extra advertised order still pays until ACOS reaches about 60.64%. A $5.00 monthly budget at 12% ACOS buys about 1.19 advertised orders and keeps $20.27 if they are incremental.</p>
+  <h3>Are Etsy Ads the same as Offsite Ads?</h3>
+  <p>No. On-site Etsy Ads is a click you buy; ACOS is spend divided by attributed sales. Offsite Ads is a percentage Etsy takes when it sends the buyer from Google or social. Enter both. Raising Offsite Ads to 15% on the same 12% ACOS drops organic keep to $15.98, advertised keep to $11.78, and the ACOS ceiling to about 45.64%.</p>
+  <h3>What if the Ads click would have bought anyway?</h3>
+  <p>That is a cannibalized sale. On the 12% example Ads cost you $4.20 versus the organic $21.23. Take the click when it is extra demand and the advertised path still leaves a profit. A 70% ACOS on the same order costs $24.50 and loses $3.27 even if the click is extra demand.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the calculator does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+</body>
+</html>

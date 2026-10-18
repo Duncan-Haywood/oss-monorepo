@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why $2 per square foot loses money on interior painting</title>
+  <meta name="description" content="Interior painting bids priced per floor square foot miss trim, doors, second coats, and prep. See the arithmetic a typical 1,200 sq ft house produces.">
+  <meta property="og:title" content="Why $2 per square foot loses money on interior painting">
+  <meta property="og:description" content="Floor area is not paintable area. Trim and doors take a large share of the day and almost none of the floor plan.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/interior-painting-price-per-square-foot.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do interior painters lose money bidding per square foot?","acceptedAnswer":{"@type":"Answer","text":"Price per floor square foot cannot see trim, doors, coats, prep, or ceiling height. Those surfaces take labor hours that never appear in the floor plan, so a $2/sq ft bid on a typical 3-bedroom house can sit below the job's own cost."}},{"@type":"Question","name":"How should an interior painting job be estimated?","acceptedAnswer":{"@type":"Answer","text":"Estimate each surface from a production rate (how much of that surface one painter covers per hour), add extra coats at a fraction of first-coat time, then add prep, paint, payroll burden, overhead, and the margin you intend to keep."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f4efe6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 48px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; }
+    a { color: #8a4b12; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #2a2118; color: #f7f1e6; text-decoration: none; border-radius: 8px; font-weight: 650; }
+    footer { margin-top: 36px; font-size: .85rem; color: #5c5348; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/interior-painting-price-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why $2 per square foot loses money on interior painting — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../painting-bid-calculator/">Painting Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why $2 per square foot loses money on interior painting</span></span></nav>
+  <p><a href="./index.html">← Painting bid calculator</a></p>
+  <h1>Why a $2 per square foot interior painting bid loses money</h1>
+  <p>Homeowners and discount competitors quote interior painting as a price per floor square foot. That number is easy to say and usually wrong. Floor area is not paintable area, and the surfaces that take the day — trim, doors, second coats, prep — barely show up on the floor plan.</p>
+  <p>The free <a href="./index.html">painting bid calculator</a> prices the job from production rates instead. Below is the same arithmetic on a typical 1,200 sq ft, 8-foot-ceiling, 3-bedroom interior, using the calculator's starting inputs so you can open the tool and change them.</p>
+  <a class="cta" href="./index.html">Open the bid calculator</a>
+
+  <h2>What a $2/sq ft bid actually is</h2>
+  <p>On 1,200 floor square feet, $2/sq ft is a $2,400 job. That sounds like a day's work plus paint. It is not. The same house has roughly 2,400 sq ft of walls, 1,200 sq ft of ceilings, 320 linear feet of trim, eight doors, and ten windows. Those are the hours.</p>
+
+  <h2>Where the hours go</h2>
+  <p>Using starting production rates — 200 sq ft of wall per hour on the first coat, 175 on ceilings, 50 linear feet of trim, 1.25 doors, 2.5 windows — and a 0.65 extra-coat factor:</p>
+  <ul>
+    <li>Walls, two coats: about 20 hours</li>
+    <li>Ceilings, two coats: about 11 hours</li>
+    <li>Trim, two coats: about 11 hours</li>
+    <li>Doors, two coats: about 11 hours</li>
+    <li>Windows, one coat: 4 hours</li>
+    <li>Prep and setup: 8 hours</li>
+  </ul>
+  <p>That is about 64 labor hours. Trim and doors together rival the wall time, and they contribute almost nothing to the floor-square-foot figure the homeowner is arguing from.</p>
+
+  <h2>Then add paint and burden</h2>
+  <p>At a $25 wage and 25% payroll burden, those hours are already about $2,000 in loaded labor before paint. Paint at 350 sq ft per gallon, two coats, 10% waste, and $45/gallon is another several hundred dollars. Overhead and a 25% target margin sit on top of that. The walk-away price — total job cost, before any profit — is above $2,400 on these inputs. A $2/sq ft bid is then a losing bid, not a competitive one.</p>
+
+  <h2>What to do instead</h2>
+  <p>Estimate surfaces, not floor plans. Time a few of your own jobs and replace the starting rates. Enter a price already on the table and see whether it clears your walk-away number. The calculator does that arithmetic in the browser and does not upload the job.</p>
+  <a class="cta" href="./index.html">Price your next interior with the calculator</a>
+
+  <h2>Common questions</h2>
+  <h3>Why do interior painters lose money bidding per square foot?</h3>
+  <p>Price per floor square foot cannot see trim, doors, coats, prep, or ceiling height. Those surfaces take labor hours that never appear in the floor plan, so a $2/sq ft bid on a typical 3-bedroom house can sit below the job's own cost.</p>
+  <h3>How should an interior painting job be estimated?</h3>
+  <p>Estimate each surface from a production rate (how much of that surface one painter covers per hour), add extra coats at a fraction of first-coat time, then add prep, paint, payroll burden, overhead, and the margin you intend to keep.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is not legal, tax, financial, or business advice, and it does not tell anyone what to charge. The figures are arithmetic on the calculator's published starting inputs. Verify every number against your own payroll and material costs before relying on it or submitting a bid.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../screened-porch-bid-calculator/" data-pf-to="screened-porch-bid-calculator">Screened Porch Bid Calculator</a></li>
+      <li><a href="../stair-lift-bid-calculator/" data-pf-to="stair-lift-bid-calculator">Stair Lift Bid Calculator</a></li>
+      <li><a href="../sunroom-bid-calculator/" data-pf-to="sunroom-bid-calculator">Sunroom Bid Calculator</a></li>
+      <li><a href="../tile-layout-optimizer/" data-pf-to="tile-layout-optimizer">Tile Layout Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=painting-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="painting-bid-calculator"></script>
+</body>
+</html>

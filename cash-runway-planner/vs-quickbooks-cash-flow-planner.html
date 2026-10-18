@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner</title>
+  <meta name="description" content="How this free, no-account weekly cash forecast differs from the Cash Flow Planner built into QuickBooks Online, and when to use each one.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cash-runway-planner/vs-quickbooks-cash-flow-planner.html">
+  <meta property="og:title" content="Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner">
+  <meta property="og:description" content="QuickBooks' planner is a feature for existing QBO subscribers with bank feeds connected. This one is a free page: no account, no bank connection…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or QuickBooks Online's Cash Flow Planner?","acceptedAnswer":{"@type":"Answer","text":"It depends on what you already have. QuickBooks Online's Cash Flow Planner is a feature inside a paid QuickBooks Online (or Intuit Enterprise Suite) subscription: setting it up means connecting your bank and credit-card accounts so it can read your transaction history, and it is only available if you are already a QuickBooks Online customer. This calculator is a free standalone page: no account, no subscription, and no bank connection. You type your starting cash, weekly income, weekly costs, and any one-off payments directly, and the forecast runs in your browser. If your books already live in QuickBooks Online and your accounts are connected, its planner can lean on that transaction history. If you are not a QuickBooks customer, or just want a fast answer before committing numbers to any accounting software, this page answers the same question with five fields and no signup."}},{"@type":"Question","name":"Can QuickBooks' Cash Flow Planner handle a one-off payment like a tax bill?","acceptedAnswer":{"@type":"Answer","text":"Yes, and so can this calculator — both let you add a dated one-time item separate from your recurring income and costs. QuickBooks' planner calls this an \"event\": you name it, give it an amount, mark it money in or money out, and pick the date. This calculator's one-off rows work the same way, up to eight of them. The difference is what happens after you enter one: this calculator also names which specific one-off payment to move (or which invoice to collect early) to close a projected shortfall, and separately flags when the gap is not a timing problem at all — when weekly costs simply exceed weekly income — so moving a payment would only postpone the same shortfall rather than fix it."}},{"@type":"Question","name":"What forecast range does each tool cover?","acceptedAnswer":{"@type":"Answer","text":"QuickBooks Online's Cash Flow Planner supports a forecast range from 3 months out to 24 months, per Intuit's own help documentation. This calculator forecasts up to 52 weeks (about 12 months), with every week shown against its actual calendar date. Neither is strictly longer than the other across their full range — pick QuickBooks' planner for a multi-year view once you are on the platform, or this page for a shorter, week-by-week runway check with no setup."}},{"@type":"Question","name":"Is this page affiliated with Intuit or QuickBooks?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Intuit Inc. QuickBooks, QuickBooks Online, and Cash Flow Planner are trademarks of Intuit Inc., named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; }
+    body { font: 16px/1.55 system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #18212b; background: #fbfbfa; }
+    a { color: #0d5a4c; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); letter-spacing: -0.02em; line-height: 1.15; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.93rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dfe4e2; vertical-align: top; }
+    th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #52606d; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #125b50; color: #f7faf9; text-decoration: none; font-weight: 650; }
+    .note { font-size: 0.85rem; color: #52606d; }
+    footer { margin-top: 2rem; font-size: 0.85rem; color: #52606d; }
+    footer p { margin: 0.5em 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cash-runway-planner/vs-quickbooks-cash-flow-planner.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cash-runway-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cash-runway-planner/">Cash Runway Planner</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner</span></span></nav>
+  <p><a href="./">&larr; Cash Runway Planner</a></p>
+  <h1>Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner</h1>
+  <p>
+    QuickBooks Online includes a
+    <a href="https://quickbooks.intuit.com/learn-support/en-us/help-article/budget-forecast-reports/use-cash-flow-planner-quickbooks-online/L2l59mIqe_US_en_US" rel="nofollow noopener">Cash Flow Planner</a>
+    for people already running their books on the platform. Per Intuit's own
+    help documentation, setting it up means connecting your bank and
+    credit-card accounts so it can pull your transaction history, and it
+    forecasts a 3-to-24-month range from that data plus any items you add by
+    hand. It is a feature of a paid QuickBooks Online (or Intuit Enterprise
+    Suite) subscription &mdash; it is not a standalone or free tool, and it
+    is not available unless you are already a QuickBooks Online customer.
+  </p>
+  <p>
+    This calculator asks a narrower question with none of that setup:
+    <strong>given the cash you have right now and what is coming in and
+    out, when&mdash;if ever&mdash;does the balance go negative, and what
+    single payment would fix it?</strong> No bank connection, no
+    bookkeeping platform, no account. Five numbers and up to eight dated
+    one-off rows, entirely in your browser.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>My books already live in QuickBooks Online with bank feeds connected &mdash; what does my cash balance look like 3&ndash;24 months out?</td>
+        <td>QuickBooks Online's Cash Flow Planner.</td>
+      </tr>
+      <tr>
+        <td>I don't use QuickBooks (or don't want to connect my bank) &mdash; when does my cash go negative over the next 12 months?</td>
+        <td>This calculator's weekly forecast &mdash; no account, no bank connection.</td>
+      </tr>
+      <tr>
+        <td>There's a projected shortfall &mdash; which specific payment should I move or collect early to close it?</td>
+        <td>This calculator's <a href="./#output">shortfall plan</a>, which names the payment and says whether it fully closes the gap.</td>
+      </tr>
+      <tr>
+        <td>Is the shortfall a timing problem, or do weekly costs just exceed weekly income?</td>
+        <td>This calculator names it as <strong>structural</strong> when moving one payment would only postpone the same shortfall.</td>
+      </tr>
+      <tr>
+        <td>I need a one-time item like a tax bill or an insurance renewal on a specific date.</td>
+        <td>Both tools support this &mdash; QuickBooks calls it an "event"; this calculator calls it a one-off row.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Run your own forecast</a>
+  <p>
+    This tool needs no QuickBooks account, no bank connection, and no
+    signup: it is a static page, the arithmetic runs in your browser, and
+    your numbers stay on your device &mdash; nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or QuickBooks Online's Cash Flow Planner?</h3>
+  <p>It depends on what you already have. QuickBooks Online's Cash Flow Planner is a feature inside a paid QuickBooks Online (or Intuit Enterprise Suite) subscription: setting it up means connecting your bank and credit-card accounts so it can read your transaction history, and it is only available if you are already a QuickBooks Online customer. This calculator is a free standalone page: no account, no subscription, and no bank connection. You type your starting cash, weekly income, weekly costs, and any one-off payments directly, and the forecast runs in your browser. If your books already live in QuickBooks Online and your accounts are connected, its planner can lean on that transaction history. If you are not a QuickBooks customer, or just want a fast answer before committing numbers to any accounting software, this page answers the same question with five fields and no signup.</p>
+  <h3>Can QuickBooks' Cash Flow Planner handle a one-off payment like a tax bill?</h3>
+  <p>Yes, and so can this calculator &mdash; both let you add a dated one-time item separate from your recurring income and costs. QuickBooks' planner calls this an "event": you name it, give it an amount, mark it money in or money out, and pick the date. This calculator's one-off rows work the same way, up to eight of them. The difference is what happens after you enter one: this calculator also names which specific one-off payment to move (or which invoice to collect early) to close a projected shortfall, and separately flags when the gap is not a timing problem at all &mdash; when weekly costs simply exceed weekly income &mdash; so moving a payment would only postpone the same shortfall rather than fix it.</p>
+  <h3>What forecast range does each tool cover?</h3>
+  <p>QuickBooks Online's Cash Flow Planner supports a forecast range from 3 months out to 24 months, per Intuit's own help documentation. This calculator forecasts up to 52 weeks (about 12 months), with every week shown against its actual calendar date. Neither is strictly longer than the other across their full range &mdash; pick QuickBooks' planner for a multi-year view once you are on the platform, or this page for a shorter, week-by-week runway check with no setup.</p>
+  <h3>Is this page affiliated with Intuit or QuickBooks?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Intuit Inc. QuickBooks, QuickBooks Online, and Cash Flow Planner are trademarks of Intuit Inc., named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./when-will-i-run-out-of-cash.html">When will my business run out of cash?</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, or legal advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Your data stays in this browser.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sepa-pain002-status-reader/" data-pf-to="sepa-pain002-status-reader">SEPA pain.002 Status Reader — free, private, in your browser</a></li>
+      <li><a href="../sepa-payment-file-validator/" data-pf-to="sepa-payment-file-validator">SEPA Payment File Validator — free, private, in your browser</a></li>
+      <li><a href="../service-hourly-yield-analyzer/" data-pf-to="service-hourly-yield-analyzer">Service Hourly Yield Analyzer — free, private, in your browser</a></li>
+      <li><a href="../sg-freelancer-tax-set-aside-calculator/" data-pf-to="sg-freelancer-tax-set-aside-calculator">Singapore Freelancer Tax Set-Aside Calculator. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cash-runway-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cash-runway-planner"></script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Churn Radar — Free Self-Hosted Churn Prediction for SaaS</title>
+  <meta name="description" content="A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel…">
+  <meta property="og:title" content="Churn Radar — see who is about to cancel before they do">
+  <meta property="og:description" content="Logistic-regression churn prediction trained on your own events, validated out-of-time, with reasons per account and an alert webhook.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/churn-radar/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Churn Radar", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source churn prediction for small SaaS: learns from your own product-usage events and cancellations which accounts are drifting away, validates itself out-of-time, and alerts you. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use ChurnZero, Gainsight, Vitally or Totango?", "acceptedAnswer": {"@type": "Answer", "text": "Those are customer-success platforms: health dashboards, playbooks, CRM sync, and prices that start in the hundreds of dollars a month. Churn Radar does one narrow thing for a small team: learn from your own cancellations which usage patterns come before them, and tell you which active accounts look like that now. It is one dependency-free Node process with a JSON file for state, and your events never leave your server."}}, {"@type": "Question", "name": "How does the prediction work, and how accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "Each week of each account's history becomes one row: recent activity, the change from the week before, days since the last event, active days, features used and account age. Rows are labelled by whether the account cancelled within 30 days. A logistic regression is fitted to that, validated out-of-time (trained on the past, scored on weeks after a cutoff) and the AUC and the share of churners found in the top 10% are shown. Accuracy depends entirely on your data; the page says so when there is too little to validate, and it never invents a number."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly 20 churned and 20 retained account-weeks to train at all, and several times that to validate. Below that you get a plainly labelled rule-based index (silence and falling activity), not a probability. A product with a few dozen customers will usually be in that regime, and the honest answer is that a person looking at the list is as good as a model."}}, {"@type": "Question", "name": "What do I do with the list?", "acceptedAnswer": {"@type": "Answer", "text": "Send the alert webhook to something that acts: a personal email to the founder, a Slack message, a save sequence in Drip Keeper, or an offer in Cancel Flow. The model ranks accounts; it does not know why they are quiet, and a quiet account on a quarterly workflow is not at risk."}}, {"@type": "Question", "name": "Is it safe to put real customer data in?", "acceptedAnswer": {"@type": "Answer", "text": "Send only account ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your customers live."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 130px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #1f45c4; border: 1px solid #1f45c4; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+    .stat { display: inline-block; margin: 6px 22px 6px 0; } .stat b { display: block; font-size: 1.5rem; color: #14307a; }
+    .warn { background: #fff6e0; border: 1px solid #e8cf8a; border-radius: 8px; padding: 9px 12px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Churn Radar — see who is about to cancel before they do","item":"https://duncan-haywood.github.io/monorepo-projects/churn-radar/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/churn-radar/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/churn-radar/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Churn Radar — see who is about to cancel before they do — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Churn Radar — see who is about to cancel before they do</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main>
+  <h1>See who is about to cancel before they do.</h1>
+  <p>Churn Radar is an open-source churn predictor for small SaaS teams. Your app sends product-usage events; it learns from your own past cancellations which patterns come before one, scores every active account, and tells you which ones look like the accounts you lost, with the reason. It checks itself on weeks it has not trained on and shows you the result, including when the answer is "not enough data". First, try it on an export. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Score your accounts</h2>
+    <div class="cols">
+      <div><label for="events">Events, one per line: account, date, optional feature name</label>
+<textarea id="events" spellcheck="false" placeholder="acme, 2026-09-01, login&#10;acme, 2026-09-02, export&#10;globex, 2026-09-01, login"></textarea></div>
+      <div><label for="churn">Accounts that cancelled: account, cancel date</label>
+<textarea id="churn" spellcheck="false" placeholder="initech, 2026-08-20"></textarea></div>
+    </div>
+    <label for="asof">Score as of (blank means the latest event date)</label>
+    <input id="asof" type="date">
+    <button id="run" type="button">Score my accounts</button>
+    <button id="demo" type="button" class="alt">Try 400 synthetic accounts</button>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the radar yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/churn-radar
+API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mjs
+
+curl -X POST localhost:8080/v1/events -H "authorization: Bearer $API_KEY" \
+  -d '{"id":"evt_81","account":"acme","type":"export_report"}'
+curl localhost:8080/v1/at-risk -H "authorization: Bearer $API_KEY"</pre>
+    <p class="note">Point a Stripe <code>customer.subscription.deleted</code> webhook at <code>/stripe/webhook</code> (set <code>STRIPE_WEBHOOK_SECRET</code>) and cancellations are recorded for you; or call <code>POST /v1/outcomes</code>. Set <code>ALERT_WEBHOOK_URL</code> to get a signed alert the first time an account crosses the line. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use ChurnZero, Gainsight, Vitally or Totango?</h3>
+    <p>Those are customer-success platforms: health dashboards, playbooks, CRM sync, and prices that start in the hundreds of dollars a month. Churn Radar does one narrow thing for a small team: learn from your own cancellations which usage patterns come before them, and tell you which active accounts look like that now. It is one dependency-free Node process with a JSON file for state, and your events never leave your server.</p>
+    <h3>How does the prediction work, and how accurate is it?</h3>
+    <p>Each week of each account's history becomes one row: recent activity, the change from the week before, days since the last event, active days, features used and account age. Rows are labelled by whether the account cancelled within 30 days. A logistic regression is fitted to that, validated out-of-time (trained on the past, scored on weeks after a cutoff) and the AUC and the share of churners found in the top 10% are shown. Accuracy depends entirely on your data; the page says so when there is too little to validate, and it never invents a number.</p>
+    <h3>How much data do I need?</h3>
+    <p>Roughly 20 churned and 20 retained account-weeks to train at all, and several times that to validate. Below that you get a plainly labelled rule-based index (silence and falling activity), not a probability. A product with a few dozen customers will usually be in that regime, and the honest answer is that a person looking at the list is as good as a model.</p>
+    <h3>What do I do with the list?</h3>
+    <p>Send the alert webhook to something that acts: a personal email to the founder, a Slack message, a save sequence in Drip Keeper, or an offer in Cancel Flow. The model ranks accounts; it does not know why they are quiet, and a quiet account on a quarterly workflow is not at risk.</p>
+    <h3>Is it safe to put real customer data in?</h3>
+    <p>Send only account ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your customers live.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../cancel-flow/">Cancel Flow</a> saves the customer who clicks cancel, <a href="../drip-keeper/">Drip Keeper</a> sends the save and onboarding email, <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn <a href="../meter-keeper/">Meter Keeper</a> meters usage and <a href="../pql-radar/">PQL Radar</a> finds the free signups about to pay.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Scores are statistical estimates from the data you provide, can be wrong, and are not legal, tax, or financial advice; do not use them to make decisions about people beyond whom to contact. You are the operator of your radar: you are responsible for the accuracy of what you send it, for how you contact customers, and for backups. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { train, score, summarize, parseCsv, syntheticAccounts, FEATURES } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    function show(accounts, now, label) {
+      const out = $("out"); out.replaceChildren();
+      const trained = train(accounts, now), rows = score(accounts, trained, now), sum = summarize(rows, trained);
+      if (label) out.append(el("p", label, "note"));
+      if (trained.note) out.append(el("p", trained.note, "warn"));
+      const v = trained.validation, stats = el("div", "");
+      const stat = (b, s) => { const d = el("span", "", "stat"); d.append(el("b", b), document.createTextNode(s)); stats.append(d); };
+      stat(String(sum.active), "active accounts scored"); stat(String(sum.atRisk), trained.mode === "model" ? `at ${pct(sum.threshold)} risk or more` : "flagged by the rule-based index");
+      if (v) { stat(v.auc == null ? "n/a" : v.auc.toFixed(2), "out-of-time AUC (0.5 is a coin flip)"); stat(pct(v.topDecileCapture), `of churners in the top 10% (a coin flip finds 10%; base rate ${pct(v.baseRate)})`); }
+      out.append(stats);
+      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Account</th><th scope='col' class='n'>Risk</th><th scope='col'>Why</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      for (const r of rows.slice(0, 25)) { const tr = document.createElement("tr"); tr.append(el("th", r.id), el("td", r.calibrated ? pct(r.risk) : `${Math.round(r.risk * 100)}/100`, "n"), el("td", r.reasons.join("; ") || "-")); tr.firstChild.scope = "row"; tb.append(tr); }
+      t.append(tb); out.append(t);
+      if (rows.length > 25) out.append(el("p", `Top 25 of ${rows.length} shown.`, "note"));
+      if (trained.model) { const w = FEATURES.map((f, j) => `${f.label}: ${trained.model.w[j] >= 0 ? "+" : ""}${trained.model.w[j].toFixed(2)}`).join("  |  "); out.append(el("p", "What it learned (standardised weights; positive raises risk): " + w, "note")); }
+      record("score");
+    }
+    $("run").addEventListener("click", () => {
+      $("err").textContent = "";
+      const { accounts, errors } = parseCsv($("events").value, $("churn").value);
+      if (errors.length) { $("err").textContent = errors.join(" "); return; }
+      const all = Object.values(accounts).flatMap((a) => a.events.map((e) => e[0]));
+      if (!all.length) { $("err").textContent = "Paste some events first: account, date, optional feature name."; return; }
+      const now = $("asof").value ? Date.parse($("asof").value) : Math.max(...all);
+      show(accounts, now, `Scored as of ${new Date(now).toISOString().slice(0, 10)}.`);
+    });
+    $("demo").addEventListener("click", () => { $("err").textContent = ""; const now = Date.UTC(2026, 9, 15); show(syntheticAccounts(now), now, "Synthetic accounts generated in your browser to show the output; they are not real customers and the accuracy figures describe this made-up data, not yours."); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to github.com and x, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../survey-keeper/" data-pf-to="survey-keeper">Survey Keeper — an NPS survey that says why the score is what it is</a></li>
+      <li><a href="../testimonial-keeper/" data-pf-to="testimonial-keeper">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a></li>
+      <li><a href="../trial-converter/" data-pf-to="trial-converter">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a></li>
+      <li><a href="../visit-keeper/" data-pf-to="visit-keeper">visit-keeper — web analytics you own, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=churn-radar">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/churn-radar/?pfEmbed=1&quot; title=&quot;Churn Radar — see who is about to cancel before they do — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="churn-radar"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/churn-radar/" data-pf-embed-title="Churn Radar — see who is about to cancel before they do" data-pf-embed-slug="churn-radar"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="churn-radar" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="churn-radar" data-pf-link-amount=""></script>
+</body>
+</html>

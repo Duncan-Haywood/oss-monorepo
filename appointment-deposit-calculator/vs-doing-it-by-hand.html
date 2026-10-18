@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. doing it by hand or in a spreadsheet | Appointment Deposit Calculator</title>
+  <meta name="description" content="Deposit and balance are one line of arithmetic anyone can do by hand. The step that is easy to get wrong is whether requiring a deposit actually leaves you…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/vs-doing-it-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. doing it by hand or in a spreadsheet | Appointment Deposit Calculator">
+  <meta property="og:description" content="The deposit and balance are easy arithmetic. Whether the deposit actually pays for itself once booking and no-show rates shift is the part a spreadsheet…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/vs-doing-it-by-hand.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just work out the deposit and balance by hand?","acceptedAnswer":{"@type":"Answer","text":"Yes — deposit is service price times deposit percentage, and balance is whatever is left. That part is one line of arithmetic and a spreadsheet does it exactly as well as this calculator does. Where a hand calculation or a quick spreadsheet formula stops short is the harder question underneath it: given your own no-show rates and how a deposit changes how many people actually book, does requiring one leave you with more money at the end of the year, or less. That comparison has more moving parts than deposit-times-percentage, and it is the part this calculator exists for."}},{"@type":"Question","name":"What does a spreadsheet not check that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Whether the deposit pays for itself. A spreadsheet will happily multiply your weekly bookings by the deposit and call the result \"revenue secured\" — but that figure is money you would have billed anyway, collected earlier, not new income, and reading it as a gain is the mistake this calculator's own FAQ warns against. The real trade has a cost side too: some prospective customers do not book at all once a deposit is required. A spreadsheet built from scratch has no built-in prompt to model that cost against the benefit of fewer no-shows; this calculator puts both sides of the trade next to each other and shows the break-even booking rate — the share of today's bookings you would need to keep for the policy to be worth it at all."}},{"@type":"Question","name":"Is the break-even booking rate something I could work out myself?","acceptedAnswer":{"@type":"Answer","text":"With the right formula, yes — it is the booking rate at which yearly revenue with the deposit equals yearly revenue without one, given both no-show rates and the deposit amount. Setting that formula up correctly, and re-deriving it correctly every time a price or a no-show estimate changes, is exactly the kind of one-time-easy, easy-to-get-subtly-wrong-later math this calculator exists to remove. A copied cell reference or a forgotten weighting is not obvious in the output the way a typo in a deposit percentage is."}},{"@type":"Question","name":"Does a spreadsheet draft the policy wording too?","acceptedAnswer":{"@type":"Answer","text":"Not unless you write it yourself. Once the numbers are decided, the policy still has to say, in plain language, what the deposit is, what the balance is, and what happens if the customer cancels with or without notice — and it has to do that in a way clients actually read. This calculator turns your inputs straight into a policy paragraph you can paste into whichever booking system you already use; a spreadsheet, however good its formulas, still leaves that paragraph for you to draft separately."}},{"@type":"Question","name":"Is this calculator affiliated with any spreadsheet software?","acceptedAnswer":{"@type":"Answer","text":"There is nothing to be affiliated with. This page compares against doing the arithmetic by hand or building your own spreadsheet — a generic method, not any specific company or product — so it names no spreadsheet application, booking platform, or vendor at all."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing it by hand or in a spreadsheet | Appointment Deposit Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appointment-deposit-calculator/">Appointment Deposit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing it by hand or in a spreadsheet | Appointment Deposit Calculator</span></span></nav>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">&larr; Appointment deposit calculator</a></p>
+    <header>
+      <h1>This calculator vs. doing it by hand or in a spreadsheet</h1>
+      <p class="intro">Deposit and balance are one line of arithmetic&mdash;price times percentage, and whatever's left. Anyone can do that by hand or in a spreadsheet. The part that's easy to get wrong, or to skip entirely, is whether requiring a deposit actually leaves you with more money once you account for the customers a deposit turns away and the no-shows it prevents. That's the step this calculator was built for.</p>
+    </header>
+    <section class="card">
+      <h2>What each approach actually does</h2>
+      <p>
+        <strong>By hand or in a spreadsheet</strong>, you can compute the
+        deposit amount, the balance due, and even a rough sense of how much
+        cash a year of deposits secures. All of that is straightforward
+        multiplication and subtraction, and a correctly built spreadsheet
+        gets it exactly right. What a spreadsheet does not give you, unless
+        you build it in yourself, is a prompt to check whether the deposit
+        is actually worth charging &mdash; because &ldquo;cash secured&rdquo;
+        on its own looks like a gain even though it is mostly revenue you
+        would have billed anyway, just collected earlier.
+      </p>
+      <p>
+        <strong>This calculator</strong> takes the same inputs &mdash;
+        service price, deposit percentage, bookings per week, an expected
+        booking rate once a deposit is required, and no-show rates with and
+        without one &mdash; and adds the comparison a spreadsheet does not
+        set up on its own: yearly revenue with the deposit against yearly
+        revenue without it, the difference, and the break-even booking rate
+        at which the policy stops paying for itself. It then turns the same
+        inputs into a policy paragraph you can paste into whichever booking
+        system you already use.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table class="usage-table">
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>What is the deposit amount and the balance due?</td><td>Either &mdash; price &times; percentage, and the remainder. A spreadsheet gets this exactly right too.</td></tr>
+          <tr><td>How much cash does a year of deposits secure?</td><td>Either can multiply it out, but see the next row before reading that figure as profit.</td></tr>
+          <tr><td>Does requiring a deposit actually leave me with more money once fewer people book and fewer no-show?</td><td>This calculator's &ldquo;Does the deposit pay for itself?&rdquo; panel &mdash; a spreadsheet has to be built to ask this, and most aren't.</td></tr>
+          <tr><td>What booking rate would I need to keep for the deposit to break even?</td><td>This calculator solves for it directly. By hand, it's a formula you'd have to set up and re-check every time an input changes.</td></tr>
+          <tr><td>I want a policy paragraph to actually publish.</td><td>This calculator drafts one from your numbers. A spreadsheet doesn't write prose.</td></tr>
+          <tr><td>My situation has a wrinkle this calculator doesn't model (a partial refund tier, a sliding deposit scale).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+          <tr><td>Is anything I enter uploaded anywhere?</td><td>No, either way &mdash; a local spreadsheet and this calculator both keep your numbers on your own device.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+    </section>
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Can't I just work out the deposit and balance by hand?</h3>
+      <p>Yes &mdash; deposit is service price times deposit percentage, and balance is whatever is left. That part is one line of arithmetic and a spreadsheet does it exactly as well as this calculator does. Where a hand calculation or a quick spreadsheet formula stops short is the harder question underneath it: given your own no-show rates and how a deposit changes how many people actually book, does requiring one leave you with more money at the end of the year, or less. That comparison has more moving parts than deposit-times-percentage, and it is the part this calculator exists for.</p>
+      <h3>What does a spreadsheet not check that this calculator does?</h3>
+      <p>Whether the deposit pays for itself. A spreadsheet will happily multiply your weekly bookings by the deposit and call the result "revenue secured" — but that figure is money you would have billed anyway, collected earlier, not new income, and reading it as a gain is the mistake this calculator's own FAQ warns against. The real trade has a cost side too: some prospective customers do not book at all once a deposit is required. A spreadsheet built from scratch has no built-in prompt to model that cost against the benefit of fewer no-shows; this calculator puts both sides of the trade next to each other and shows the break-even booking rate — the share of today's bookings you would need to keep for the policy to be worth it at all.</p>
+      <h3>Is the break-even booking rate something I could work out myself?</h3>
+      <p>With the right formula, yes &mdash; it is the booking rate at which yearly revenue with the deposit equals yearly revenue without one, given both no-show rates and the deposit amount. Setting that formula up correctly, and re-deriving it correctly every time a price or a no-show estimate changes, is exactly the kind of one-time-easy, easy-to-get-subtly-wrong-later math this calculator exists to remove. A copied cell reference or a forgotten weighting is not obvious in the output the way a typo in a deposit percentage is.</p>
+      <h3>Does a spreadsheet draft the policy wording too?</h3>
+      <p>Not unless you write it yourself. Once the numbers are decided, the policy still has to say, in plain language, what the deposit is, what the balance is, and what happens if the customer cancels with or without notice &mdash; and it has to do that in a way clients actually read. This calculator turns your inputs straight into a policy paragraph you can paste into whichever booking system you already use; a spreadsheet, however good its formulas, still leaves that paragraph for you to draft separately.</p>
+      <h3>Is this calculator affiliated with any spreadsheet software?</h3>
+      <p>There is nothing to be affiliated with. This page compares against doing the arithmetic by hand or building your own spreadsheet &mdash; a generic method, not any specific company or product &mdash; so it names no spreadsheet application, booking platform, or vendor at all.</p>
+      <p class="note">
+        Open the <a href="./">appointment deposit calculator</a> to run your own numbers, or see <a href="what-percentage-deposit-should-i-charge.html">the worked table at five common percentages</a> first.
+      </p>
+    </section>
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against any spreadsheet software &mdash; it is a static page describing the arithmetic both approaches share. We count only anonymous local feature events, never people, prices, or policy text, with an opt-out on the calculator page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+      <li><a href="../equipment-lease-buyout-calculator/" data-pf-to="equipment-lease-buyout-calculator">Equipment lease buyout calculator</a></li>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-deposit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appointment-deposit-calculator"></script>
+</body></html>

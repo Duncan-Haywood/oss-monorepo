@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MLS Listing Photo Preflight vs. BoxBrownie</title>
+<meta name="description" content="BoxBrownie is a paid real estate photo editing, virtual staging, and floor-plan service: you send photos, an editor works on them…" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/vs-boxbrownie.html">
+<meta property="og:type" content="article" />
+<meta property="og:title" content="MLS Listing Photo Preflight vs. BoxBrownie" />
+<meta property="og:description" content="Two different jobs: BoxBrownie is a paid editing and virtual-staging service that makes listing photos look better." />
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/vs-boxbrownie.html" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or a service like BoxBrownie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most agents end up using both, for different reasons. BoxBrownie is a paid online service, described on its own site, that edits real estate photos, builds virtual staging and floor plans, and returns finished images through a human-in-the-loop editing pipeline you upload to and pay per photo. It makes a set of photos look better. This checker does not touch how a photo looks: it reads each file's header and filename in your browser to catch the mechanical reasons a delivery gets kicked back — too small, too large, wrong format, an odd crop, a branded filename, or a staged photo with no paired original — before you pay anyone to edit it or upload it anywhere. Running this first means you send a clean, correctly-shaped folder to an editing service, and you catch a branding or pairing problem for free instead of paying for a re-edit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with BoxBrownie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. This site is not affiliated with, endorsed by, or sponsored by BoxBrownie. BoxBrownie is named here only to describe what this checker is and is not."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; }
+  .eyebrow { margin: 0 0 1rem; }
+  a { color: var(--accent); }
+  .cta {
+    display: inline-block; margin-top: 0.5rem; padding: 0.55rem 0.95rem; border-radius: 6px;
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .note { color: var(--muted); font-size: 0.9rem; }
+  code { background: var(--panel); padding: 0.05rem 0.3rem; border-radius: 3px; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MLS Listing Photo Preflight vs. BoxBrownie — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../real-estate-agent-photo-app/">MLS Listing Photo Preflight — free listing photo checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">MLS Listing Photo Preflight vs. BoxBrownie</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; MLS listing photo preflight &mdash; free checker</a></p>
+  <h1>MLS Listing Photo Preflight vs. BoxBrownie</h1>
+  <p class="lede">Different jobs: BoxBrownie is a paid service that edits, stages, and enhances listing photos. This is a free, offline check for whether a delivery folder will get mechanically rejected before any of that editing happens.</p>
+
+  <section>
+    <h2>What each one is for</h2>
+    <p>
+      <strong>BoxBrownie</strong> is a well-known online real estate photo
+      editing service, described on its own site as offering photo
+      enhancement, virtual staging, floor plans, and related property-marketing
+      image services: a photographer or agent uploads source images, an editor
+      works on them, and finished images come back, ordered and paid for per
+      photo or per package. It is the kind of service a listing team reaches
+      for when the photos are correctly captured but need retouching, sky
+      replacement, decluttering, or virtual furniture added before they go
+      live. BoxBrownie's own current pricing and turnaround times are not
+      restated here, since this page cannot confirm today's numbers &mdash;
+      only its well-documented category and service shape are described.
+    </p>
+    <p>
+      This checker does none of that. It has no editor, no upload step, and no
+      per-photo charge. It reads each file's header and filename &mdash; never
+      the decoded image &mdash; to answer a narrower, earlier question: will
+      this delivery folder clear the mechanical floor a listing system
+      actually enforces? Resolution, byte size, format, crop shape, a
+      brokerage-branded filename, and a staged photo missing its unaltered
+      original are all things it flags before you pay anyone to touch the
+      images or upload them anywhere.
+    </p>
+    <div class="table-scroll">
+    <div class="pf-table-scroll"><table>
+      <caption class="note" style="text-align:left;caption-side:bottom;padding-top:0.4rem">What each one answers.</caption>
+      <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Will this folder get bounced for being too small, too large, the wrong format, an odd crop, a branded filename, or an unpaired staged shot?</td>
+          <td>This checker &mdash; free, runs in your browser, nothing uploaded, done before you send anything anywhere.</td>
+        </tr>
+        <tr>
+          <td>My photos are correctly shaped but the sky is blown out, the room is cluttered, or I want virtual staging or a floor plan drawn up.</td>
+          <td>BoxBrownie or a comparable paid editing service &mdash; that is real editing work this checker never attempts.</td>
+        </tr>
+        <tr>
+          <td>Which files, specifically, need a re-export or a rename before I deliver or upload anywhere?</td>
+          <td>This checker &mdash; a per-file findings table plus a downloadable evidence record naming exactly what to fix.</td>
+        </tr>
+        <tr>
+          <td>Do I need an account, a per-photo charge, or to send images to a third party to find out?</td>
+          <td>BoxBrownie: yes, that is the service. This checker: no &mdash; nothing is uploaded and nothing is billed.</td>
+        </tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>
+      The two are complementary rather than competing: running this checker
+      first means the folder you eventually send to BoxBrownie (or shoot
+      yourself) is already free of the mechanical problems &mdash; wrong
+      format, an oversized file, a stray branded filename &mdash; that would
+      otherwise cost a re-edit or a rejected upload after the paid work is
+      already done. This page makes no live comparison against BoxBrownie and
+      sends it no traffic or data; it is a static page describing a publicly
+      documented service category.
+    </p>
+    <p class="note">It needs no account and no sign-in: it is a static page, the checks run in your browser, and once it has loaded it keeps working with the connection off.</p>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Should I use this checker or a service like BoxBrownie?</h3>
+    <p>Most agents end up using both, for different reasons. BoxBrownie is a paid online service, described on its own site, that edits real estate photos, builds virtual staging and floor plans, and returns finished images through a human-in-the-loop editing pipeline you upload to and pay per photo. It makes a set of photos look better. This checker does not touch how a photo looks: it reads each file's header and filename in your browser to catch the mechanical reasons a delivery gets kicked back &mdash; too small, too large, wrong format, an odd crop, a branded filename, or a staged photo with no paired original &mdash; before you pay anyone to edit it or upload it anywhere. Running this first means you send a clean, correctly-shaped folder to an editing service, and you catch a branding or pairing problem for free instead of paying for a re-edit.</p>
+    <h3>Is this page affiliated with BoxBrownie?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by BoxBrownie. BoxBrownie is named here only to describe what this checker is and is not.</p>
+    <p>
+      <a href="./">Open the free listing photo preflight</a> to check a delivery
+      folder yourself, or read
+      <a href="./why-was-my-listing-photo-rejected.html">why listing photos usually get rejected</a>.
+    </p>
+  </section>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not legal,
+      compliance, or professional advice, and it does not replace your MLS
+      board's current photo standards or a qualified professional.
+      <strong>You are responsible for reviewing and verifying its output before
+      relying on it</strong>, and for meeting any obligation it helps you
+      prepare for. To the maximum extent permitted by law, the authors accept
+      no liability for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+    <p>
+      Everything runs in your browser. Your photos are never uploaded, and
+      this page makes no live comparison against BoxBrownie &mdash; it is a
+      static page describing a publicly documented service category. MIT
+      licensed &mdash; see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a>
+      if this saved you a re-upload &mdash; entirely optional, the tool stays
+      free either way.
+    </p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../gbp-bulk-location-check/" data-pf-to="gbp-bulk-location-check">GBP Bulk Location Check — free, private, in your browser</a></li>
+      <li><a href="../google-ads-editor-csv-check/" data-pf-to="google-ads-editor-csv-check">Google Ads Editor CSV Check — free, private, in your browser</a></li>
+      <li><a href="../google-contacts-csv-check/" data-pf-to="google-contacts-csv-check">Google Contacts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../gpsr-product-safety-checker/" data-pf-to="gpsr-product-safety-checker">GPSR checker: do you need an EU responsible person to sell consumer goods in the EU? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=real-estate-agent-photo-app">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="real-estate-agent-photo-app"></script>
+</body>
+</html>

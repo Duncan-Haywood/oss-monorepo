@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How much does a failed print actually cost you?</title>
+  <meta name="description" content="A failed print still burns filament, electricity, and printer hours before it gets scrapped -- and the successful reprint has to earn all of that back.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/how-much-does-a-failed-print-cost-you.html">
+  <meta property="og:title" content="How much does a failed print actually cost you?">
+  <meta property="og:description" content="The scrapped print is thrown away, but its filament, electricity, and printer hours are not -- they get folded into the cost of the one that sells.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does a failed print actually cost you?","acceptedAnswer":{"@type":"Answer","text":"Not the cost of the failed print itself -- that filament and time is already gone the moment the part is scrapped. What it costs you is a buffer added to the price of the print that succeeds, because on average it takes more than one attempt to land one sellable part. On an otherwise identical print, moving the failure rate from 5% to 25% raises that buffer from about $0.07 to about $0.43 per successful part, and raises the price you would need to charge (to hold the same margin) by about $0.64."}},{"@type":"Question","name":"Why does a failure rate change the price of the print that succeeds?","acceptedAnswer":{"@type":"Answer","text":"Because a failed attempt still spent filament, electricity, and printer wear before it was scrapped, and that spend has to be recovered from somewhere -- there is no failed-print customer to bill it to. If 1 in 4 attempts fails, landing one sellable part takes on average 1 / (1 - 0.25) = 1.33 attempts, so the material, electricity, and machine-wear cost of a single attempt gets multiplied by 1.33 before it is charged to the part that actually sells. Post-processing time and packaging are not inflated the same way, because those only ever touch the part that succeeded."}},{"@type":"Question","name":"Does a higher failure rate cost you money even if nothing else about the print changes?","acceptedAnswer":{"@type":"Answer","text":"Yes, and it is easy to miss because the failed part itself is thrown away and forgotten, while its cost quietly moves onto the next attempt's price. Two prints that are identical in every other input -- same filament weight, same print time, same printer, same labor and packaging -- price differently once their failure rates differ, because the failure-rate multiplier is applied to material, electricity, and depreciation before anything else is added."}},{"@type":"Question","name":"How much would cutting your failure rate from 25% to 5% save you?","acceptedAnswer":{"@type":"Answer","text":"On the worked example on this page (45g filament at $22/kg, a 3-hour print, a $250 printer amortized over 3000 hours), the failure buffer alone drops from about $0.43 to about $0.07 per successful part -- roughly $0.36 saved on every part you sell, before even touching labor or packaging. Across a run of 50 parts a month that is about $18, entirely from bed adhesion, supports, and calibration rather than from filament or fees."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #151a24; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0e2a5c; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/how-much-does-a-failed-print-cost-you.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does a failed print actually cost you? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3d-print-price-calculator/">3D Print Price Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does a failed print actually cost you?</span></span></nav>
+  <p><a href="./">← 3D print price calculator</a></p>
+  <h1>How much does a failed print actually cost you?</h1>
+  <p>
+    A spaghetti print at hour six of an eight-hour job still burned filament,
+    electricity, and printer hours before it was scrapped. The failed part
+    itself is thrown away and forgotten -- but its cost is not. It moves onto
+    the price of the print that actually sells, because on average it takes
+    more than one attempt to land one sellable part.
+  </p>
+  <p>
+    Below is the same print, priced twice, with nothing changed except the
+    failure rate: 45g of filament at $22/kg, a 3-hour print on a $250 printer
+    amortized over 3000 hours, 10 minutes of post-processing at $20/hr, $0.75
+    packaging, an 8.5% marketplace fee, and a 35% target margin.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Failure rate</th><th scope="col">5%</th><th scope="col">25%</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Attempts needed per sellable part</td><td>1.05</td><td>1.33</td></tr>
+      <tr><td>Failure buffer added to the part's cost</td><td>$0.07</td><td>$0.43</td></tr>
+      <tr><td>Total cost per sellable part</td><td>$5.45</td><td>$5.81</td></tr>
+      <tr><td>Break-even price</td><td>$5.96</td><td>$6.35</td></tr>
+      <tr><td>Suggested price (35% margin after fee)</td><td>$9.64</td><td>$10.29</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    Same filament weight, same print time, same printer, same labor and
+    packaging -- the only input that moved is the failure rate, and it alone
+    is worth <strong>$0.64</strong> on the price you would need to charge to
+    hold the same margin. That $0.64 is invisible in a per-print filament
+    receipt, because the receipt is for the print that sold, not for the one
+    that got scrapped an hour earlier.
+  </p>
+  <h2>Where the failure rate actually lives</h2>
+  <p>
+    It is applied only to the costs that a failed attempt still spends before
+    it is scrapped: material, electricity, and the printer's own amortized
+    wear. Post-processing time and packaging are <em>not</em> inflated by the
+    failure rate, because a failed attempt is scrapped before it ever reaches
+    the finishing bench -- only the successful part gets sanded, assembled,
+    and boxed.
+  </p>
+  <h2>Common questions</h2>
+  <h3>How much does a failed print actually cost you?</h3>
+  <p>Not the cost of the failed print itself -- that filament and time is already gone the moment the part is scrapped. What it costs you is a buffer added to the price of the print that succeeds, because on average it takes more than one attempt to land one sellable part. On an otherwise identical print, moving the failure rate from 5% to 25% raises that buffer from about $0.07 to about $0.43 per successful part, and raises the price you would need to charge (to hold the same margin) by about $0.64.</p>
+  <h3>Why does a failure rate change the price of the print that succeeds?</h3>
+  <p>Because a failed attempt still spent filament, electricity, and printer wear before it was scrapped, and that spend has to be recovered from somewhere -- there is no failed-print customer to bill it to. If 1 in 4 attempts fails, landing one sellable part takes on average 1 / (1 - 0.25) = 1.33 attempts, so the material, electricity, and machine-wear cost of a single attempt gets multiplied by 1.33 before it is charged to the part that actually sells. Post-processing time and packaging are not inflated the same way, because those only ever touch the part that succeeded.</p>
+  <h3>Does a higher failure rate cost you money even if nothing else about the print changes?</h3>
+  <p>Yes, and it is easy to miss because the failed part itself is thrown away and forgotten, while its cost quietly moves onto the next attempt's price. Two prints that are identical in every other input -- same filament weight, same print time, same printer, same labor and packaging -- price differently once their failure rates differ, because the failure-rate multiplier is applied to material, electricity, and depreciation before anything else is added.</p>
+  <h3>How much would cutting your failure rate from 25% to 5% save you?</h3>
+  <p>On the worked example on this page (45g filament at $22/kg, a 3-hour print, a $250 printer amortized over 3000 hours), the failure buffer alone drops from about $0.43 to about $0.07 per successful part -- roughly $0.36 saved on every part you sell, before even touching labor or packaging. Across a run of 50 parts a month that is about $18, entirely from bed adhesion, supports, and calibration rather than from filament or fees.</p>
+  <a class="cta" href="./">Price your own print</a>
+  <p class="note">
+    This calculator needs no account and no upload: it is a static page, the
+    arithmetic runs in your browser, and the figures you type stay on this
+    device.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a print, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bandcamp-sales-report-analyzer/" data-pf-to="bandcamp-sales-report-analyzer">Bandcamp Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3d-print-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3d-print-price-calculator"></script>
+</body>
+</html>

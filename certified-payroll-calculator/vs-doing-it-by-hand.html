@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing it by hand — Certified Payroll Calculator</title>
+<meta name="description" content="Certified payroll overtime math by hand usually goes wrong the same way: applying the overtime premium to the base rate only and paying cash-in-lieu-of-fringe…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/vs-doing-it-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing it by hand">
+<meta property="og:description" content="A hand or spreadsheet calculation of certified payroll overtime has one common failure point: cash-in-lieu-of-fringe paid at straight time on overtime hours…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the most common mistake when calculating certified payroll overtime by hand?","acceptedAnswer":{"@type":"Answer","text":"Applying the overtime premium to the base cash rate only, and paying any fringe paid directly to the worker in cash at straight time even during overtime hours. Under 29 CFR 5.32 and 29 CFR 778.7, cash-in-lieu-of-fringe is part of the overtime \"regular rate\" and must itself get the time-and-a-half premium. A bona fide plan contribution is excluded and never gets the premium — the two figures are easy to swap by hand."}},{"@type":"Question","name":"Why do payroll systems and spreadsheets get this wrong by default?","acceptedAnswer":{"@type":"Answer","text":"Most general-purpose payroll software and hand-built spreadsheets compute overtime as 1.5x the base hourly rate, because that is correct for a plain hourly job with no fringe. Certified payroll on a Davis-Bacon or prevailing-wage job adds a second required figure, the fringe rate, and the rule for which part of it counts toward the regular rate is specific to government-contract wage law — not something a general payroll setup applies unless it was built for this."}},{"@type":"Question","name":"Is a spreadsheet formula good enough once it's built correctly?","acceptedAnswer":{"@type":"Answer","text":"Only until the mix changes. A formula built for one classification with a fixed split between bona fide and cash-in-lieu fringe silently gives the wrong overtime rate the week a worker's cash-fringe portion changes, or the week someone copies last week's blended rate forward instead of recomputing it from this week's actual pay."}},{"@type":"Question","name":"Does this calculator check whether my contract is covered by Davis-Bacon?","acceptedAnswer":{"@type":"Answer","text":"No. Whether a contract is covered, which wage determination applies, and a worker's approved apprentice rate all come from the contracting officer's wage determination and the registered apprenticeship agreement. Both a hand calculation and this calculator take those figures as inputs already looked up; neither one guesses them."}},{"@type":"Question","name":"Does this generate or submit my WH-347 certified payroll report?","acceptedAnswer":{"@type":"Answer","text":"No, and neither does a spreadsheet on its own. This calculator checks the underlying arithmetic — required vs. actual compensation, the correctly computed overtime rate, and the apprentice ratio — for one classification, one week, so you can carry the right numbers into a certified payroll report. It does not know your project name, contract number, or DOL's exact form layout, and it does not submit or sign anything."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/vs-doing-it-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing it by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../certified-payroll-calculator/">Certified Payroll Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing it by hand</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing it by hand</h1>
+<p class="lede">Certified payroll overtime is arithmetic anyone can do with a calculator or a spreadsheet. The problem is one non-obvious rule: cash paid directly to a worker in lieu of fringe counts toward the overtime "regular rate" and must itself carry the time-and-a-half premium, while a bona fide plan contribution never does — and a hand calculation built for ordinary hourly overtime has no reason to know the difference exists.</p>
+
+<section class="card">
+<h2>Where a hand calculation usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Finding the overtime rate</td><td>1.5x the base cash rate only, the way ordinary hourly overtime works, with fringe added separately at a flat rate on every hour.</td><td>1.5x the base cash rate <em>plus</em> any cash-in-lieu-of-fringe, since 29 CFR 5.32 / 778.7 puts the cash-fringe portion in the regular rate.</td></tr>
+<tr><td>Bona fide plan contributions</td><td>Sometimes folded into the same overtime multiplier as cash pay, which overpays the plan contribution unnecessarily.</td><td>Excluded from the overtime premium entirely and paid at the same flat rate every hour, exactly as the regulation allows.</td></tr>
+<tr><td>Checking the wage-determination minimum</td><td>Compared against base rate alone, missing that fringe counts toward the required total too.</td><td>Compares required base + fringe against actual base + bona fide fringe + cash fringe, and reports any shortfall per hour.</td></tr>
+<tr><td>Apprentice-to-journeyman ratio</td><td>Tracked separately, if at all, and easy to miss when a crew's mix shifts mid-week.</td><td>Reports how many apprentice hours exceed the approved ratio from the counts you enter.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the most common mistake when calculating certified payroll overtime by hand?</h3>
+<p>Applying the overtime premium to the base cash rate only, and paying any fringe paid directly to the worker in cash at straight time even during overtime hours. Under 29 CFR 5.32 and 29 CFR 778.7, cash-in-lieu-of-fringe is part of the overtime "regular rate" and must itself get the time-and-a-half premium. A bona fide plan contribution is excluded and never gets the premium — the two figures are easy to swap by hand.</p>
+<h3>Why do payroll systems and spreadsheets get this wrong by default?</h3>
+<p>Most general-purpose payroll software and hand-built spreadsheets compute overtime as 1.5x the base hourly rate, because that is correct for a plain hourly job with no fringe. Certified payroll on a Davis-Bacon or prevailing-wage job adds a second required figure, the fringe rate, and the rule for which part of it counts toward the regular rate is specific to government-contract wage law — not something a general payroll setup applies unless it was built for this.</p>
+<h3>Is a spreadsheet formula good enough once it's built correctly?</h3>
+<p>Only until the mix changes. A formula built for one classification with a fixed split between bona fide and cash-in-lieu fringe silently gives the wrong overtime rate the week a worker's cash-fringe portion changes, or the week someone copies last week's blended rate forward instead of recomputing it from this week's actual pay.</p>
+<h3>Does this calculator check whether my contract is covered by Davis-Bacon?</h3>
+<p>No. Whether a contract is covered, which wage determination applies, and a worker's approved apprentice rate all come from the contracting officer's wage determination and the registered apprenticeship agreement. Both a hand calculation and this calculator take those figures as inputs already looked up; neither one guesses them.</p>
+<h3>Does this generate or submit my WH-347 certified payroll report?</h3>
+<p>No, and neither does a spreadsheet on its own. This calculator checks the underlying arithmetic — required vs. actual compensation, the correctly computed overtime rate, and the apprentice ratio — for one classification, one week, so you can carry the right numbers into a certified payroll report. It does not know your project name, contract number, or DOL's exact form layout, and it does not submit or sign anything.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply 29 CFR 5.32 and 29 CFR 778.7 to numbers you supply. It is not legal, tax, payroll, or compliance advice, and it does not replace a qualified professional. It does not determine whether a contract is covered by Davis-Bacon, which wage determination applies, or a worker's approved apprentice rate or ratio. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any certified payroll or wage obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../startup-exit-waterfall-calculator/" data-pf-to="startup-exit-waterfall-calculator">Startup Exit Waterfall Calculator — free, private, in your browser</a></li>
+      <li><a href="../startup-option-value-calculator/" data-pf-to="startup-option-value-calculator">Startup Stock Option Value Calculator — free, private, in your browser</a></li>
+      <li><a href="../state-residency-day-counter/" data-pf-to="state-residency-day-counter">State Residency Day Counter — free, private, in your browser</a></li>
+      <li><a href="../stripe-churn-cohort-analyzer/" data-pf-to="stripe-churn-cohort-analyzer">Stripe Churn and Cohort Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=certified-payroll-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="certified-payroll-calculator"></script>
+</body>
+</html>

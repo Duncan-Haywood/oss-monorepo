@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. tracking it in a spreadsheet | Amazon FBA vs FBM Calculator</title>
+  <meta name="description" content="An Amazon seller comparing FBA against FBM, a coupon, Subscribe &amp; Save, a supplier MOQ, and a dozen other same-SKU decisions usually builds a spreadsheet for…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This calculator vs. tracking it in a spreadsheet">
+  <meta property="og:description" content="Every formula this calculator runs -- FBA vs FBM, a coupon, Subscribe &amp; Save, a supplier MOQ, prep, inbound placement, Individual vs Professional, AWD…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every comparison this calculator runs -- FBA versus FBM, a coupon against list price, Subscribe & Save against list, a supplier MOQ against your usual order, Amazon prep against you-prep, inbound placement against split freight, Individual against Professional, Low-Price FBA against a real raise, aged inventory against a removal, AWD against send-all-to-FBA, Remote Fulfillment against skipping Canada, and Seller Fulfilled Prime against FBA -- is ordinary arithmetic you can put in a spreadsheet. Getting there means pulling your category's referral rate, your size tier's fulfillment fee, the season's storage rate, and the placement, prep, and account-fee schedules from separate parts of Seller Central or Amazon's help pages, then typing each into the right cell."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep all twenty of those comparisons wired to the same listing so changing one number -- the sale price, the cost of goods, the return rate -- updates every comparison built on it at once. A sheet built for the FBA-vs-FBM decision rarely already has a tab for a coupon, a MOQ, or a Remote Fulfillment surcharge on the same SKU, so each new decision usually means a new tab copied from an old one, with its own chance of a stale formula or a rate that was never updated after the last one changed. This calculator also produces a shareable link that carries the whole listing after the # in the URL, and named scenarios kept in your own browser, neither of which a spreadsheet file does without emailing it around."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a shape this calculator's inputs cannot represent -- a bundle of several ASINs in one shipment, a private-label deal with a rebate structure, or a fee schedule from a program this tool does not model. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one listing moving through the fulfillment, pricing, and inbound decisions most FBA sellers actually face."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, named sourcing scenarios stay in your own browser's storage, and the optional usage counter records only which features were used and the day -- never your prices, costs, or ASIN."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; overflow-wrap: anywhere; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4f8a; margin: 0 0 6px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: .3rem 0; max-width: 26ch; letter-spacing: -.04em; }
+    .lede { font-size: 1.05rem; max-width: 64ch; color: #445064; }
+    section { background: #f8fafc; border: 1px solid #c9d3e2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1.2rem 0; }
+    h2 { margin-top: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d3e2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #445064; }
+    .note { font-size: .88rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. tracking it in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. tracking it in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Amazon FBA vs FBM calculator</a></p>
+<header>
+<h1>This calculator vs. tracking it in a spreadsheet</h1>
+<p class="lede">
+  An FBA seller working more than one same-SKU decision -- FBA or FBM, a
+  coupon, Subscribe &amp; Save, a supplier MOQ, prep, inbound placement,
+  Individual or Professional -- usually ends up with a spreadsheet: a row
+  for the category referral rate, one for the size-tier fulfillment fee,
+  a tab for the coupon math copied from the FBA-vs-FBM tab and edited by
+  hand. This page is about what changes when those twenty comparisons stay
+  wired to one listing instead of living in twenty cells someone has to
+  remember to update together.
+</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet</strong> can reproduce every formula this
+  calculator runs. FBA versus FBM is a referral rate, a fulfillment fee,
+  and a storage line against a shipping label. A coupon is the referral
+  rate applied to a lower price, minus a redemption fee. A supplier MOQ is
+  a lower unit cost against a longer warehouse stay. None of that needs
+  anything a spreadsheet cannot do. Building it means pulling each rate
+  from a different part of Seller Central or Amazon's help pages -- the
+  category referral table, the size-tier fulfillment schedule, the
+  placement-fee band, the current storage rate for the season -- typing
+  each into the right cell, and adding a new tab the next time the
+  listing needs a decision the sheet does not already have a row for.
+</p>
+<p>
+  <strong>This calculator</strong> keeps all twenty of those comparisons
+  on one listing, already wired to the same sale price, cost of goods,
+  and size tier, so changing the sale price updates the FBA-vs-FBM
+  profit, the coupon lift needed, the MOQ break-even, and the rest at
+  once instead of in whichever tabs got remembered. A shareable link
+  carries the whole scenario in the URL, and named sourcing scenarios
+  stay in your own browser so you can switch between two suppliers or two
+  price points without retyping eighty fields.
+</p>
+<p>
+  The gap is not that the arithmetic differs. On this calculator's own
+  shipped listing -- a $29.99 large-standard item, $8 cost of goods, 80
+  units a month, and the illustrative defaults -- FBA nets
+  <strong>$10.99</strong> and FBM nets <strong>$11.64</strong>: a
+  <strong>$0.65</strong> gap that a spreadsheet reproduces correctly only
+  if someone remembered to point its FBM tab at the same sale price and
+  cost-of-goods cells as its FBA tab, and re-checks that link every time
+  either number changes.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Does FBA or FBM leave more on this exact listing?</td><td>Either approach can compute it -- this calculator keeps it wired to the same inputs as the other nineteen decisions below.</td></tr>
+<tr><td>My situation has a wrinkle this tool doesn't model (a multi-ASIN bundle, a rebate deal).</td><td>A spreadsheet you build yourself -- it can represent any rule you can describe.</td></tr>
+<tr><td>Does a coupon, S&amp;S enrollment, or a supplier MOQ still pay on the same SKU I just priced?</td><td>This calculator's linked follow-on pages -- see <a href="./#faq-heading">what this checks</a>.</td></tr>
+<tr><td>I changed the sale price -- did every other comparison update?</td><td>This calculator, automatically. A spreadsheet only if every tab's formula actually points back at that one cell.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No, for either approach -- a spreadsheet file stays wherever you saved it, and this calculator runs entirely in your browser.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A spreadsheet is not a worse tool so much as a shortcut whose upkeep
+  cost is easy to underweight until a tab goes stale after a rate
+  changes. This calculator does not remove that flexibility -- your own
+  sheet can still model anything this one's fixed fields cannot -- it
+  just keeps the twenty decisions most FBA sellers actually repeat wired
+  to one listing instead of twenty cells.
+</p>
+<p class="note">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can a spreadsheet do this math instead?</h3>
+<p>Yes. Every comparison this calculator runs -- FBA versus FBM, a coupon against list price, Subscribe &amp; Save against list, a supplier MOQ against your usual order, Amazon prep against you-prep, inbound placement against split freight, Individual against Professional, Low-Price FBA against a real raise, aged inventory against a removal, AWD against send-all-to-FBA, Remote Fulfillment against skipping Canada, and Seller Fulfilled Prime against FBA -- is ordinary arithmetic you can put in a spreadsheet. Getting there means pulling your category's referral rate, your size tier's fulfillment fee, the season's storage rate, and the placement, prep, and account-fee schedules from separate parts of Seller Central or Amazon's help pages, then typing each into the right cell.</p>
+<h3>What does a spreadsheet not do that this calculator does?</h3>
+<p>Keep all twenty of those comparisons wired to the same listing so changing one number -- the sale price, the cost of goods, the return rate -- updates every comparison built on it at once. A sheet built for the FBA-vs-FBM decision rarely already has a tab for a coupon, a MOQ, or a Remote Fulfillment surcharge on the same SKU, so each new decision usually means a new tab copied from an old one, with its own chance of a stale formula or a rate that was never updated after the last one changed. This calculator also produces a shareable link that carries the whole listing after the # in the URL, and named scenarios kept in your own browser, neither of which a spreadsheet file does without emailing it around.</p>
+<h3>Is a spreadsheet ever the better choice?</h3>
+<p>Yes, when your situation has a shape this calculator's inputs cannot represent -- a bundle of several ASINs in one shipment, a private-label deal with a rebate structure, or a fee schedule from a program this tool does not model. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one listing moving through the fulfillment, pricing, and inbound decisions most FBA sellers actually face.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, named sourcing scenarios stay in your own browser's storage, and the optional usage counter records only which features were used and the day -- never your prices, costs, or ASIN.</p>
+<p class="note">This page names no specific product -- it compares against the generic method of tracking these decisions in a spreadsheet, not a competing calculator or service. Open <a href="./">the Amazon FBA vs FBM calculator</a>, or see <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a> for a worked example.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This is not tax, financial, or business advice, and it does not recommend a fulfillment method, a price, or a sourcing decision. Verify every rate against your own current Amazon fee preview before relying on it.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> Everything runs client-side; nothing you enter is uploaded anywhere. This page names no company and compares against a generic tracking method, not a product.</p>
+<p class="support">Free and open source. If it saved you time, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kdp-royalty-to-journal/" data-pf-to="kdp-royalty-to-journal">KDP royalty report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-fba-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amazon-fba-calculator"></script>
+</body>
+</html>

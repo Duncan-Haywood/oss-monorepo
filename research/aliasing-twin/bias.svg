@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Bias of the speed estimate against true speed near the unambiguous velocity">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Bias of a wrapped return (V=10, s=1); the twin claims zero</text>
+<rect x="64" y="40" width="560" height="284" fill="none" stroke="#999"/>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#eee"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">-21.6</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#eee"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">-17</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#eee"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">-12.3</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#eee"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">-7.68</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#eee"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">-3.04</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#eee"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="414.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">11</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">14</text>
+<text x="344.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="12">true speed mu</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">bias</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,59.6 204.0,65.2 274.0,98.4 344.0,182.0 414.0,265.6 624.0,304.4"/>
+<circle cx="64.0" cy="59.6" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="65.2" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="98.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="182.0" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="265.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="304.4" r="3" fill="#1f6fb2"/>
+<rect x="434" y="48" width="12" height="10" fill="#1f6fb2"/><text x="452" y="57" font-family="sans-serif" font-size="11">exact bias</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,59.6 204.0,65.2 274.0,98.5 344.0,181.9 414.0,265.8 624.0,304.4"/>
+<circle cx="64.0" cy="59.6" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="65.2" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="98.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="181.9" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="265.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="304.4" r="3" fill="#c0392b"/>
+<rect x="434" y="63" width="12" height="10" fill="#c0392b"/><text x="452" y="72" font-family="sans-serif" font-size="11">Monte Carlo bias</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,59.6 204.0,59.6 274.0,59.6 344.0,59.6 414.0,59.6 624.0,59.6"/>
+<circle cx="64.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="274.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="414.0" cy="59.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="59.6" r="3" fill="#2e8b57"/>
+<rect x="434" y="78" width="12" height="10" fill="#2e8b57"/><text x="452" y="87" font-family="sans-serif" font-size="11">twin claim (0)</text>
+</svg>

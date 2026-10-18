@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Are Thumbtack Leads Worth It? Cost Per Job and Break-Even Close Rate</title>
+  <meta name="description" content="How to work out what a paid home-service lead costs per job won, the close rate you need to break even, and why your quoting time matters, with a worked month.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/are-thumbtack-leads-worth-it.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are Thumbtack leads worth the money?", "acceptedAnswer": {"@type": "Answer", "text": "On the default numbers, yes: 30 leads cost $1,350.00 after credits and a 20 percent close rate earns $2,880.00 across six jobs. The month nets $1,130.00 once your $400.00 of quoting time is counted, so the margin is thinner than lead fees alone suggest."}}, {"@type": "Question", "name": "What is a good close rate on paid leads?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal number, and the calculator does not claim one. Count your own jobs won divided by paid leads over several months, then compare it with the break-even rate the tool computes, 12.2 percent on the worked numbers."}}, {"@type": "Question", "name": "How much should I pay for a lead?", "acceptedAnswer": {"@type": "Answer", "text": "At a 20 percent close rate, $480.00 earned per job and 20 minutes of quoting, a lead stops paying above about $91.00. Below that the lead is profitable at your current close rate; above it, you need a better close rate or a cheaper lead."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/are-thumbtack-leads-worth-it.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Are Thumbtack Leads Worth It? Cost Per Job and Break-Even Close Rate">
+<meta property="og:description" content="How to work out what a paid home-service lead costs per job won, the close rate you need to break even, and why your quoting time matters, with a worked month.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Are Thumbtack Leads Worth It? Cost Per Job and Break-Even Close Rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../thumbtack-lead-roi-calculator/">Are your Thumbtack leads paying for themselves?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Are Thumbtack Leads Worth It? Cost Per Job and Break-Even Close Rate</span></span></nav>
+  <p class="note"><a href="./">Thumbtack Lead ROI Calculator</a> · guide</p>
+  <h1>Are Thumbtack leads worth it, and how to tell if a lead pays</h1>
+  <p>Short answer: <strong>a paid lead pays when your close rate times what a job earns you beats the lead price plus the time you spend quoting it.</strong> The <a href="./">calculator</a> does that sum for your own numbers.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not financial or business advice. Lead prices, credits and rules are the platform's and change; check your own account. No warranty.</p>
+
+  <h2>A worked month</h2>
+  <p>You answer 30 paid leads at $50 each, with 10 percent credited back for bad leads. Each takes 20 minutes to quote at $40 an hour of your time. 20 percent become jobs worth $1,200.00, and job costs take 60 percent of that.</p>
+  <ul>
+    <li>Lead charges are <strong>$1,350.00</strong> after credits; quoting time is <strong>$400.00</strong>.</li>
+    <li>Cost per lead is <strong>$58.33</strong>, cost per job won <strong>$291.67</strong>, and 6 jobs earn $480.00 each after job costs.</li>
+    <li>The month nets <strong>$1,130.00</strong>. You break even at a <strong>12.2%</strong> close rate; counting lead charges alone, <strong>9.4%</strong>.</li>
+    <li>At that close rate a lead stops paying above about <strong>$91.00</strong>.</li>
+  </ul>
+
+  <h2>Where the money actually leaks</h2>
+  <p>Halve the close rate and the same month loses money. The levers that matter are close rate, the minutes behind each quote, and whether you answer leads you are unlikely to win. Try an 8 percent close rate, 40 minutes a lead and $60 an hour in the <a href="./">calculator</a>: the same lead spend now loses money. Only your own history says which side you are on.</p>
+
+  <h2>How to measure your close rate</h2>
+  <ul>
+    <li>Count paid leads and jobs won over three or more months. Jobs divided by leads is the number to type in.</li>
+    <li>Use the median job you actually win, and your real job costs.</li>
+    <li>If customers come back, raise the repeat multiplier, but only to what has really happened to you.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>Are Thumbtack leads worth the money?</h3>
+  <p>On the default numbers, yes: 30 leads cost $1,350.00 after credits and a 20 percent close rate earns $2,880.00 across six jobs. The month nets $1,130.00 once your $400.00 of quoting time is counted, so the margin is thinner than lead fees alone suggest.</p>
+<h3>What is a good close rate on paid leads?</h3>
+  <p>There is no universal number, and the calculator does not claim one. Count your own jobs won divided by paid leads over several months, then compare it with the break-even rate the tool computes, 12.2 percent on the worked numbers.</p>
+<h3>How much should I pay for a lead?</h3>
+  <p>At a 20 percent close rate, $480.00 earned per job and 20 minutes of quoting, a lead stops paying above about $91.00. Below that the lead is profitable at your current close rate; above it, you need a better close rate or a cheaper lead.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not financial, tax, legal or business advice. Not affiliated with, endorsed by or sponsored by Thumbtack or any other platform. You are responsible for verifying anything before relying on it.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=thumbtack-lead-roi-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="thumbtack-lead-roi-calculator"></script>
+</body>
+</html>

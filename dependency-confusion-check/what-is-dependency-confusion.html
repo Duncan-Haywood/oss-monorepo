@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is dependency confusion?</title>
+  <meta name="description" content="A public package published under your internal package's name can be installed instead of the real one, through pip --extra-index-url or an unscoped npm name.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/what-is-dependency-confusion.html">
+  <meta property="og:title" content="What is dependency confusion?">
+  <meta property="og:description" content="pip and npm can both be tricked into installing a public package instead of your internal one of the same name.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is dependency confusion?","acceptedAnswer":{"@type":"Answer","text":"Dependency confusion is a supply-chain attack where a package manager installs a public package instead of an organization's internal one of the same name, because the resolver was told about both places the name might live and had no rule saying the internal one always wins."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/what-is-dependency-confusion.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is dependency confusion? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dependency-confusion-check/">Could a public package be substituted for your internal one?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is dependency confusion?</span></span></nav>
+  <p><a href="./">← Dependency Confusion Check</a></p>
+  <h1>What is dependency confusion?</h1>
+  <p>Dependency confusion is a supply-chain attack where a package manager installs a <em>public</em> package instead of an organization's <em>internal</em> one of the same name, because the resolver was told about both places the name might live and had no rule saying the internal one always wins.</p>
+  <h2>A real incident</h2>
+  <p>In 2021, researcher Alex Birsan demonstrated this against more than 35 companies — Apple, Microsoft, PayPal, Netflix, Uber, and Tesla among them — by publishing decoy packages under their internal package names on the public npm and PyPI registries. Internal build systems, configured to check the public registry alongside (or instead of) a private one, installed the decoys and executed Birsan's code with real credentials. Some paid out six-figure bug-bounty totals for the finding.</p>
+  <h2>The pip mechanism</h2>
+  <p>pip's own documentation names the risk directly: <code>--extra-index-url</code> tells pip to consider a second index in addition to the primary one, and "the additional repository can specify a version of a package which will be installed instead of the one from index-url." pip compares versions across every configured index and installs whichever reports the higher number for a given name — so a public package published under your internal package's name, at a higher version, wins.</p>
+  <pre><code>pip install -r requirements.txt --extra-index-url https://pkgs.internal.example.com/simple/</code></pre>
+  <p>If <code>acme-internal-utils</code> only exists on the internal index today, publishing <code>acme-internal-utils</code> version <code>999.0.0</code> on the public PyPI is enough to have pip install the attacker's version everywhere this command runs.</p>
+  <h2>The npm mechanism</h2>
+  <p>npm resolves an unscoped dependency name (no <code>@org/</code> prefix) against whatever registry is configured for that project — typically set globally in <code>.npmrc</code> with a bare <code>registry=</code> line. That configuration is local to each machine and each CI runner. A developer's laptop with the internal <code>.npmrc</code> resolves an internal package correctly; a CI runner, a new hire's fresh laptop, or an automated dependency-update bot without that file falls back to the public npm registry for the exact same unscoped name — and if nobody has claimed it there, an attacker can.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li><strong>pip:</strong> use <code>--index-url</code> with a single trusted index that proxies or mirrors the public packages you need, instead of <code>--extra-index-url</code> alongside the public index. Most private-index servers (Artifactory, Nexus, a private PyPI mirror) support this. Where that is not possible, pin exact versions with <code>--require-hashes</code> so an unexpected package cannot silently substitute.</li>
+    <li><strong>npm:</strong> publish internal packages under an npm org scope (<code>@your-org/package-name</code>) — a scope is bound to your npm org and nobody outside it can publish under it, which removes the ambiguity entirely. Where an unscoped internal name already exists, claim it on the public registry as an empty placeholder so nobody else can.</li>
+  </ul>
+  <h2>Check your own configuration</h2>
+  <p><a href="./">Paste your requirements.txt, pip.conf, package.json, and .npmrc into Dependency Confusion Check</a> to find every <code>--extra-index-url</code> use and unscoped npm name at once, or run the CLI in your own checkout:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if either pattern is present — wire it into your own CI to block a newly-added one before it merges. Already running a supply-chain platform like Socket? See <a href="./vs-socket.html">how this checker differs from Socket</a> — different layers, and worth running both.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean you are not exposed to dependency confusion — only that these two documented patterns were not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../object-storage-pricing-calculator/" data-pf-to="object-storage-pricing-calculator">What will object storage cost for your GB stored and GB served, and who is cheapest?</a></li>
+      <li><a href="../obsidian-plugin-review-check/" data-pf-to="obsidian-plugin-review-check">Obsidian Plugin Review Checker</a></li>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dependency-confusion-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dependency-confusion-check"></script>
+</body>
+</html>

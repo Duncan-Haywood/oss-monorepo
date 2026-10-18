@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does infrequent access still beat standard after restore?</title>
+  <meta name="description" content="Compare keeping an S3-compatible bucket on the standard class against infrequent or archive storage after retrieve fees. See the restore-GB ceiling.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/does-infrequent-access-still-beat-standard.html">
+  <meta property="og:title" content="Does infrequent access still beat standard after restore?">
+  <meta property="og:description" content="Cheaper storage looks like a win until you read the objects back. Compare standard vs infrequent / archive on the rates you were quoted.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Infrequent access vs standard after restore",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Standard vs infrequent monthly bill, retrieve-fee line, restore-GB ceiling, annualized gap, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does S3 infrequent access still save money after restore fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not always. The infrequent class bills less to store a gigabyte and more to read it back. On the default 500 GB stored and 150 GB retrieved — $0.023 standard, $0.0125 infrequent, $0.04 per retrieved GB — standard is $11.50. Infrequent is $6.25 storage plus $6.00 retrieve, $12.25. Standard is $0.75 cheaper. Infrequent matches standard at 131.3 GB retrieved. Paste your quoted rates; this page does not fetch provider prices."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much can I restore each month before infrequent access costs more than standard?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The restore-GB ceiling is the monthly retrieve volume where both classes bill the same. Above that volume, standard is cheaper on these rates. The page solves that volume from the rates you enter. It does not recommend changing a storage class."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/does-infrequent-access-still-beat-standard.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does infrequent access still beat standard after restore? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloud-egress-calculator/">Cloud Egress Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does infrequent access still beat standard after restore?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Cloud egress cost calculator</a></p>
+  <h1>Does infrequent access still beat standard after restore?</h1>
+  <p>
+    Teams search for “S3 infrequent access restore cost” because a
+    cheaper storage gigabyte looks like a win. The read still leaves a
+    bill. Every stored gigabyte pays the <strong>class storage rate</strong>.
+    Every gigabyte you get back pays a <strong>retrieve fee</strong> the
+    standard class often bills at $0. Provider A-vs-B and CDN-vs-origin
+    are different pages. This one is only the storage class on one store.
+  </p>
+  <p>
+    On the default 500 GB stored and 150 GB read back — $0.023 standard,
+    $0.0125 infrequent, $0.04 per retrieved GB — standard class is
+    $11.50. Infrequent is $6.25 of storage plus $6.00 of retrieve,
+    $12.25. Standard is $0.75 cheaper. Infrequent matches standard at
+    131.3 GB retrieved. At 100 GB retrieved infrequent is $10.25, $1.25
+    cheaper. Paste the rates on your current price sheet. This page does
+    not fetch provider prices.
+  </p>
+  <form id="classForm" class="fields">
+    <label>Stored data (GB) <input id="storageGb" type="number" min="0" step="any" value="500" inputmode="decimal"></label>
+    <label>Retrieved data (GB/month) <input id="retrieveGb" type="number" min="0" step="any" value="150" inputmode="decimal"></label>
+    <label>Standard storage $/GB-month <input id="standardStorageRate" type="number" min="0" step="any" value="0.023" inputmode="decimal"></label>
+    <label>Infrequent storage $/GB-month <input id="infrequentStorageRate" type="number" min="0" step="any" value="0.0125" inputmode="decimal"></label>
+    <label>Standard retrieve $/GB <input id="standardRetrieveRate" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+    <label>Infrequent retrieve $/GB <input id="infrequentRetrieveRate" type="number" min="0" step="any" value="0.04" inputmode="decimal"></label>
+    <label>Retrieve requests (million/month) <input id="retrieveRequestsMillion" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+    <label>Infrequent retrieve request $/million <input id="infrequentRetrieveRequestRate" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Class</th>
+        <th scope="col">Storage</th>
+        <th scope="col">Retrieve</th>
+        <th scope="col">Request fees</th>
+        <th scope="col">Monthly total</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Complementary to the
+    <a href="./">two-provider monthly comparison</a>
+    (which object store),
+    <a href="does-a-cdn-cut-s3-egress.html">CDN vs origin</a>
+    (cache hits versus pulling the same bytes), and
+    <a href="does-a-replica-beat-cross-region-pull.html">replica vs cross-region pull</a>
+    (a second copy versus pulling again). This page is only the
+    storage class. The calculator is arithmetic, not advice. It does not
+    claim a restore will stay at the volume you typed, and it does not
+    model minimum storage duration.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Does S3 infrequent access still save money after restore fees?</h3>
+  <p>Not always. The infrequent class bills less to store a gigabyte and more to read it back. On the default 500 GB stored and 150 GB retrieved — $0.023 standard, $0.0125 infrequent, $0.04 per retrieved GB — standard is $11.50. Infrequent is $6.25 storage plus $6.00 retrieve, $12.25. Standard is $0.75 cheaper. Infrequent matches standard at 131.3 GB retrieved. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>How much can I restore each month before infrequent access costs more than standard?</h3>
+  <p>The restore-GB ceiling is the monthly retrieve volume where both classes bill the same. Above that volume, standard is cheaper on these rates. The page solves that volume from the rates you enter. It does not recommend changing a storage class.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareStorageClass, storageClassNote } from "./calc.mjs";
+    import { countUsage } from "./usage.mjs";
+
+    const ids = [
+      "storageGb", "retrieveGb", "standardStorageRate", "infrequentStorageRate",
+      "standardRetrieveRate", "infrequentRetrieveRate",
+      "retrieveRequestsMillion", "infrequentRetrieveRequestRate",
+    ];
+
+    function money(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+    }
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareStorageClass(raw);
+        document.getElementById("summary").textContent = storageClassNote(result);
+        document.getElementById("verdict").textContent = result.cheaper === "tie"
+          ? "These classes bill the same this month"
+          : result.cheaper === "standard"
+            ? `Standard class is ${money(result.savings)} cheaper this month (${money(result.annualSavings)} per year)`
+            : `Infrequent / archive class is ${money(result.savings)} cheaper this month (${money(result.annualSavings)} per year)`;
+        const rows = [result.standard, result.infrequent];
+        document.getElementById("compare").innerHTML = rows.map((row) => {
+          const winner = result.cheaper !== "tie" && result.cheaper === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${money(row.storage)}</td><td>${money(row.retrieve)}</td><td>${money(row.requests)}</td><td>${money(row.total)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        countUsage("storage_class_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-egress-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloud-egress-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cloud-egress-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="cloud-egress-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

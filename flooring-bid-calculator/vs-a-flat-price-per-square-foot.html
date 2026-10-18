@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per square foot | Flooring Bid Calculator</title>
+<meta name="description" content="Flooring installers are shopped by a flat price per square foot. That rate cannot see the job -- material, waste, tear-out…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per square foot">
+<meta property="og:description" content="Two 300-square-foot jobs, priced from this calculator's own shipped inputs: one is empty-room LVP with no tear-out…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per square foot get a flooring bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because finished square footage only measures how much floor is visible when the job is done, not what it takes to get there. 300 square feet of empty-room straight-lay LVP with no tear-out takes about 3.8 crew-hours. 300 square feet of porcelain tile over an existing ceramic tear-out, with 13 stair treads, 6 transitions, two rooms of furniture to move, leveling, and baseboard, takes about 32.6 crew-hours -- the same footage, roughly nine times the labor, because material, waste, tear-out, and extras do not scale with square footage."}},{"@type":"Question","name":"What does a flat per-square-foot rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Material and install rate (porcelain tile installs at a fraction of straight-lay LVP's rate), waste percent, tear-out (an existing ceramic tile floor can take far more labor to remove than the new floor takes to lay), stair treads, transitions, furniture moves, floor leveling, and baseboard. A flat rate has no line for any of them -- it is one number learned on one job and reused for the next square footage that calls in."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs: 300 square feet of empty-room straight-lay LVP with no tear-out takes 3.8 crew-hours and prices at $1,721.07 -- $5.74 per square foot. 300 square feet of porcelain tile over an existing ceramic tear-out, with 13 stair treads, 6 transitions, two furniture-move rooms, 80 square feet of leveling, and 140 linear feet of baseboard, takes 32.6 crew-hours, costs $3,311.73 to run before a dollar of profit, and this calculator prices it at $4,415.64 -- $14.72 per square foot. Quoting the tile-and-extras job at the empty-room job's learned rate of $5.74 per square foot gives $1,721.07 for the same 300 square feet, which is $1,590.67 below the harder job's own break-even cost -- before counting the $2,694.58 it falls short of this calculator's price at a 25% target margin."}},{"@type":"Question","name":"Is a flat price per square foot ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- the same material, the same tear-out, no stairs or leveling -- a per-square-foot number can land close. The risk is quoting a harder material, an existing floor that has to come out, stairs, transitions, furniture moves, or leveling the same way sight unseen, because the rate does not know any of that until the crew is on site, and by then the per-square-foot number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's material pricing. It takes a room list with material, waste percent, and tear-out, plus stair treads, transitions, furniture moves, leveling, baseboard, your own wage, payroll burden, dump fee, travel, overhead, and target margin, and turns that into crew hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1d2530;background:#eef2f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #d3dce6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a2a4a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dce6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../flooring-bid-calculator/">Flooring Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Flooring Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per square foot</h1>
+<p class="lede">Flooring installers are shopped by a flat price per square foot. That rate cannot see the job &mdash; material, waste, tear-out, stairs, and leveling do not scale with finished square footage, and two jobs of the same size can take nearly nine times apart in labor.</p>
+</header>
+<section>
+<h2>What a flat price per square foot is</h2>
+<p>
+A price per square foot is the fastest number to quote over the phone:
+measure the rooms, multiply by a rate, read back a total. It is also the
+unit homeowners already compare between competing bids, and the unit most
+generic online flooring calculators hand back.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given
+material, a given tear-out, no stairs &mdash; and then reused for the next
+square footage that calls in, whether or not that next job shares any of
+those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter a
+room list with material, waste percent, and tear-out per room, plus stair
+treads, transitions, furniture moves, floor leveling, and baseboard, and
+your own wage, payroll burden, material costs, dump fee, travel, overhead,
+and target margin. It prices the material after waste, the tear-out, and
+every extra as their own hours and cost lines &mdash; for this job, not a
+rate carried over from the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-square-foot rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for straight-lay LVP and porcelain tile, even though tile can install at a fraction of LVP's rate and cost several times as much per square foot.</td>
+<td>Prices each room's own material, waste percent, and install rate, so a tile room costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for tear-out at all &mdash; an empty room and a room with an existing tile floor to demo get the same rate.</td>
+<td>Prices tear-out hours and disposal separately per room, from a tear-out type you pick.</td>
+</tr>
+<tr>
+<td>Has no line for stair treads, transitions, furniture moves, leveling, or baseboard.</td>
+<td>Prices each of those as its own hours and material, on top of the room square footage.</td>
+</tr>
+<tr>
+<td>Bills waste inside the same blended per-square-foot number, if at all.</td>
+<td>Applies each room's own waste percent to purchased material and underlayment, and shows the dollars that waste costs.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per installed square foot and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same footage, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $2.40 material and
+$0.35 underlayment per purchased square foot, $28 hourly wage, 30% burden,
+$85 dump fee, $40 travel, 12% overhead, 25% target margin:
+</p>
+<p>
+<strong>300 square feet</strong> of empty-room, new-construction
+<strong>straight-lay LVP</strong>, with no tear-out and no extras, takes
+<strong>3.8 crew-hours</strong> and prices at <strong>$1,721.07</strong>
+for the job &mdash; <strong>$5.74</strong> per square foot.
+</p>
+<p>
+The same <strong>300 square feet</strong> of <strong>porcelain tile</strong>
+over an <strong>existing ceramic tile tear-out</strong> &mdash; with
+<strong>13 stair treads</strong>, <strong>6 transitions</strong>,
+<strong>two rooms of furniture</strong> to move, <strong>80 square feet of
+leveling</strong>, and <strong>140 linear feet of baseboard</strong> &mdash;
+takes <strong>32.6 crew-hours</strong>, costs <strong>$3,311.73</strong> to
+run before a dollar of profit, and this calculator prices it at
+<strong>$4,415.64</strong> &mdash; <strong>$14.72</strong> per square foot.
+Quoting the harder job at the empty-room job's learned rate of $5.74 per
+square foot gives <strong>$1,721.07</strong> for the same 300 square feet,
+which is <strong>$1,590.67 below the harder job's own break-even cost</strong>
+&mdash; before counting the <strong>$2,694.58</strong> it falls short of
+this calculator's own price at a 25% target margin. Identical square
+footage, roughly nine times the labor, and a rate learned on the empty room
+loses money the moment the crew opens the tile.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per square foot get a flooring bid wrong?</h3>
+<p>Because finished square footage only measures how much floor is visible when the job is done, not what it takes to get there. 300 square feet of empty-room straight-lay LVP with no tear-out takes about 3.8 crew-hours. 300 square feet of porcelain tile over an existing ceramic tear-out, with 13 stair treads, 6 transitions, two rooms of furniture to move, leveling, and baseboard, takes about 32.6 crew-hours -- the same footage, roughly nine times the labor, because material, waste, tear-out, and extras do not scale with square footage.</p>
+<h3>What does a flat per-square-foot rate usually miss entirely?</h3>
+<p>Material and install rate (porcelain tile installs at a fraction of straight-lay LVP's rate), waste percent, tear-out (an existing ceramic tile floor can take far more labor to remove than the new floor takes to lay), stair treads, transitions, furniture moves, floor leveling, and baseboard. A flat rate has no line for any of them -- it is one number learned on one job and reused for the next square footage that calls in.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs: 300 square feet of empty-room straight-lay LVP with no tear-out takes 3.8 crew-hours and prices at $1,721.07 -- $5.74 per square foot. 300 square feet of porcelain tile over an existing ceramic tear-out, with 13 stair treads, 6 transitions, two furniture-move rooms, 80 square feet of leveling, and 140 linear feet of baseboard, takes 32.6 crew-hours, costs $3,311.73 to run before a dollar of profit, and this calculator prices it at $4,415.64 -- $14.72 per square foot. Quoting the tile-and-extras job at the empty-room job's learned rate of $5.74 per square foot gives $1,721.07 for the same 300 square feet, which is $1,590.67 below the harder job's own break-even cost -- before counting the $2,694.58 it falls short of this calculator's price at a 25% target margin.</p>
+<h3>Is a flat price per square foot ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar jobs -- the same material, the same tear-out, no stairs or leveling -- a per-square-foot number can land close. The risk is quoting a harder material, an existing floor that has to come out, stairs, transitions, furniture moves, or leveling the same way sight unseen, because the rate does not know any of that until the crew is on site, and by then the per-square-foot number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's material pricing. It takes a room list with material, waste percent, and tear-out, plus stair treads, transitions, furniture moves, leveling, baseboard, your own wage, payroll burden, dump fee, travel, overhead, and target margin, and turns that into crew hours and a price for this job -- the arithmetic a flat per-square-foot rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Flooring Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge.html">how much to charge for flooring installation</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and a walk-through, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../popcorn-ceiling-bid-calculator/" data-pf-to="popcorn-ceiling-bid-calculator">Popcorn Ceiling Bid Calculator</a></li>
+      <li><a href="../screened-porch-bid-calculator/" data-pf-to="screened-porch-bid-calculator">Screened Porch Bid Calculator</a></li>
+      <li><a href="../stair-lift-bid-calculator/" data-pf-to="stair-lift-bid-calculator">Stair Lift Bid Calculator</a></li>
+      <li><a href="../sunroom-bid-calculator/" data-pf-to="sunroom-bid-calculator">Sunroom Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=flooring-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="flooring-bid-calculator"></script>
+</body></html>

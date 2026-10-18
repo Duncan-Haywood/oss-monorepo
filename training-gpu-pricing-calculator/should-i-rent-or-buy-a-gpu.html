@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Should I Rent or Buy a GPU?</title>
+  <meta name="description" content="When owning an RTX 4090, A100 or H100 beats renting from RunPod, Lambda, AWS or Vast.ai, why idle time breaks hourly price comparisons…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/should-i-rent-or-buy-a-gpu.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When is it cheaper to buy a GPU than to rent one?", "acceptedAnswer": {"@type": "Answer", "text": "When your busy hours a month stay above a breakeven that is usually well under half of a month for consumer cards. Divide the card and host cost, less resale value, by the months you will keep it, then divide by what each busy hour saves against the cheapest rental after electricity. A 24 GB RTX 4090 against a roughly $0.69 an hour rental breaks even at around 70 busy hours a month with the calculator's defaults; an H100 needs far more because rental prices are lower relative to the card. Below breakeven rent; above it, own."}}, {"@type": "Question", "name": "Why is the cheap hourly rate often not the cheap bill?", "acceptedAnswer": {"@type": "Answer", "text": "Instances bill while they are up, not while the GPU is busy. If you launch a pod, run for an hour, and leave it up for two, you paid for two. Enter your real utilisation: at 50% every hourly rate effectively doubles, and a per-second serverless provider with a higher rate can win. Interruptible marketplace capacity adds re-run hours when work is reclaimed."}}, {"@type": "Question", "name": "What should I check before moving a workload?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the GPU you need is offered where you can get capacity, how fast an instance starts and whether your data and checkpoints sit on persistent storage that is billed even when the GPU is off, and whether egress or minimum commitments apply. Run the calculator with your own hours, utilisation and storage, then confirm against each provider's pricing page."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/should-i-rent-or-buy-a-gpu.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Should I Rent or Buy a GPU?">
+<meta property="og:description" content="When owning an RTX 4090, A100 or H100 beats renting from RunPod, Lambda, AWS or Vast.ai, why idle time breaks hourly price comparisons…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I Rent or Buy a GPU? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../training-gpu-pricing-calculator/">What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I Rent or Buy a GPU?</span></span></nav>
+  <p><a href="./">← GPU Training Pricing Calculator</a></p>
+  <h1>Should I rent or buy a GPU?</h1>
+  <p>Put your GPU, busy hours a month and utilisation into the <a href="./">calculator</a> to price RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal side by side and see the buy-versus-rent breakeven. These are the questions to settle before you trust the answer.</p>
+  <h2>When is it cheaper to buy a GPU than to rent one?</h2>
+  <p>When your busy hours a month stay above a breakeven that is usually well under half of a month for consumer cards. Divide the card and host cost, less resale value, by the months you will keep it, then divide by what each busy hour saves against the cheapest rental after electricity. A 24 GB RTX 4090 against a roughly $0.69 an hour rental breaks even at around 70 busy hours a month with the calculator's defaults; an H100 needs far more because rental prices are lower relative to the card. Below breakeven rent; above it, own.</p>
+  <h2>Why is the cheap hourly rate often not the cheap bill?</h2>
+  <p>Instances bill while they are up, not while the GPU is busy. If you launch a pod, run for an hour, and leave it up for two, you paid for two. Enter your real utilisation: at 50% every hourly rate effectively doubles, and a per-second serverless provider with a higher rate can win. Interruptible marketplace capacity adds re-run hours when work is reclaimed.</p>
+  <h2>What should I check before moving a workload?</h2>
+  <p>Whether the GPU you need is offered where you can get capacity, how fast an instance starts and whether your data and checkpoints sit on persistent storage that is billed even when the GPU is off, and whether egress or minimum commitments apply. Run the calculator with your own hours, utilisation and storage, then confirm against each provider's pricing page.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../json-ld-rich-result-validator/" data-pf-to="json-ld-rich-result-validator">JSON-LD Rich Result Validator — free, private, in your browser</a></li>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=training-gpu-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="training-gpu-pricing-calculator"></script>
+</body>
+</html>

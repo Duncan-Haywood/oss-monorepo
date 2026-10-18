@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. guessing which pays more | Booth Rent vs Commission Calculator</title>
+<meta name="description" content="The chair-side napkin math -- roughly half the ticket to the salon, or a flat rent check -- skips card fees, backbar, the smaller retail split…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/vs-guessing-which-pays-more.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. guessing which pays more">
+<meta property="og:description" content="Eyeballing the commission split against the rent check skips card fees, backbar, the retail split, and the extra unpaid hours booth rent adds.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/vs-guessing-which-pays-more.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just compare the split to the rent in my head?","acceptedAnswer":{"@type":"Answer","text":"Because the two numbers a chair-side napkin check compares -- roughly half the ticket to the salon, or a flat rent check -- are not what either path actually pays. The napkin commission guess applies the service split to the whole book, including retail, which is usually commissioned at a lower rate. The napkin booth guess treats rent as the only cost, leaving out card processing, backbar product, the wholesale cost of retail sold, and other weekly expenses. Neither guess counts the unpaid hours -- laundry, booking, backbar prep -- that booth rent usually adds and a commission chair usually does not."}},{"@type":"Question","name":"How much difference does it actually make?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped example -- an $85 average ticket, 14 clients a week, $80 a week in retail, a 50% service commission with a 10% retail commission, and a $275 weekly booth rent with its card fees, backbar, and other costs -- the napkin guess is booth $995 a week (gross minus rent) against commission $635 a week (half of everything), a $360 gap favoring booth. The real numbers, once card fees, backbar, retail cost, and the smaller retail commission are counted, are booth $779.17 against commission $603, a $176.17 gap -- less than half of what the napkin math showed."}},{"@type":"Question","name":"What does the napkin math miss on the hourly number?","acceptedAnswer":{"@type":"Answer","text":"The hours. On the shipped example, booth rent's extra take-home comes with 5 more unpaid hours a week than commission -- 24.5 hours against 19.5 -- for laundry, booking, and backbar prep a salon used to absorb. Once take-home is divided by hours actually worked, commission pays $30.92 an hour and booth pays $31.80: a $0.88-an-hour edge, not the $360-a-week gap the napkin guess implies. A stylist deciding on the dollar figure alone and one deciding on the hourly figure can reach different answers from the same book."}},{"@type":"Question","name":"Is this the same as asking another stylist what they're on?","acceptedAnswer":{"@type":"Answer","text":"No. Another stylist's split or rent was set against their own ticket average, client count, retail sales, and costs -- borrowing their number and applying it to a different book is a second kind of guess, not a measurement of this one. This calculator takes one stylist's own numbers -- their ticket, their clients, their rent offer, their costs -- and computes both paths from that book, rather than from what someone else's chair happens to pay."}},{"@type":"Question","name":"What if I don't know my exact card fee or backbar cost yet?","acceptedAnswer":{"@type":"Answer","text":"A rough estimate from a recent statement or product order is still far better than skipping straight to the napkin split, because card fees, backbar, and retail cost are exactly the costs the napkin guess leaves at zero. Starting from an estimate and refining it later is still a computed number checked against this book, rather than a round split recalled from habit."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#241b16;background:#f4efe8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a3d1b;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#5c5148}section{background:#fffdf8;border:1px solid #d9cfc3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #eadfd0;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #eadfd3;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5148}.fine,.note{font-size:.88rem;color:#5c5148}footer{color:#5c5148;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. guessing which pays more — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../booth-rent-vs-commission/">Booth Rent vs Commission Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. guessing which pays more</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Booth Rent vs Commission Calculator</a></p>
+<header>
+<h1>This calculator vs. guessing which pays more</h1>
+<p class="lede">Most stylists weigh a booth-rent offer the way it's pitched to them: roughly half the ticket to the salon, or a flat rent check. This page is about what changes when card fees, backbar, the retail split, and the unpaid hours each path adds are counted instead of eyeballed.</p>
+</header>
+<section>
+<h2>What each approach is</h2>
+<p>
+  <strong>Guessing at the chair</strong> means comparing two round numbers in
+  your head: "the salon keeps about half" against "the rent is $275 a week" --
+  without separating retail from service, without counting card fees or
+  backbar product against the booth side, and without weighing either path's
+  unpaid hours. It costs nothing and takes no time, which is exactly why it's
+  the default most stylists run before ever opening a calculator.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same book -- average ticket,
+  clients per week, retail sales, and either a commission split or a
+  booth-rent lease with its own card fees, backbar, retail cost, and other
+  weekly cost -- and computes weekly, monthly, and annual take-home under
+  each path, the take-home per hour once unpaid laundry and booking time is
+  counted, the break-even client count, and the maximum rent that still
+  matches the current split. Nothing is guessed; every figure comes from the
+  numbers entered.
+</p>
+<p>
+  The gap is not rounding error. On this calculator's own shipped example --
+  an $85 average ticket, 14 clients a week, $80 a week in retail, a 50%
+  service commission with a 10% retail commission, and a $275 weekly booth
+  rent -- the napkin guess puts booth take-home at <strong>$995</strong> a
+  week (gross minus rent alone) against commission's <strong>$635</strong> (half
+  of everything, retail included), a $360 gap favoring booth. Run through
+  this calculator, booth's real take-home is <strong>$779.17</strong> once
+  $36.83 in card fees, $119 in backbar, $40 in retail cost, and $20 in other
+  weekly cost are counted, and commission's real take-home is
+  <strong>$603</strong> once retail is split at its own 10% rather than the
+  50% service rate. The real gap is <strong>$176.17</strong> a week --
+  <strong>$183.83</strong> narrower than the napkin math showed.
+</p>
+<p>
+  Per hour, the picture changes again. Booth rent's extra take-home comes
+  with 5 more unpaid hours a week than commission on this example -- 24.5
+  hours against 19.5, once laundry, booking, and backbar prep are counted.
+  Divide take-home by hours actually worked and commission pays
+  <strong>$30.92</strong> an hour, booth pays <strong>$31.80</strong> -- an
+  <strong>$0.88-an-hour</strong> edge, not the $360-a-week gap the napkin
+  guess implies.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want an answer in ten seconds and I'm not touching my card-fee or backbar numbers right now.</td><td>The chair-side napkin guess &mdash; free, but built from habit, not this book's own costs.</td></tr>
+<tr><td>What does my own book actually pay under each path, with card fees, backbar, and retail split counted?</td><td>This calculator &mdash; free, instant, private, no account, no upload.</td></tr>
+<tr><td>Is the weekly dollar gap the whole story?</td><td>No &mdash; check the per-hour figure too. On the shipped example it cuts a $360 napkin gap to $0.88 an hour.</td></tr>
+<tr><td>How many clients do I need before booth rent pays off?</td><td>This calculator's own <a href="how-many-clients-does-booth-rent-need.html">break-even walkthrough</a>.</td></tr>
+<tr><td>Do I need an account, a spreadsheet, or a bookkeeper to use it?</td><td>No, for either approach &mdash; the napkin guess needs nothing and neither does this calculator.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  The napkin guess isn't a bad habit so much as a shortcut with a real cost
+  that stays invisible until the rent check or the tax bill makes it
+  obvious. This calculator doesn't remove the shortcut's convenience -- it's
+  still one page, still free, still nothing to sign into -- it just replaces
+  the two recalled numbers with the ones computed from your own book.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. This page names no company and compares against a napkin-math habit, not a product.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just compare the split to the rent in my head?</h3>
+<p>Because the two numbers a chair-side napkin check compares -- roughly half the ticket to the salon, or a flat rent check -- are not what either path actually pays. The napkin commission guess applies the service split to the whole book, including retail, which is usually commissioned at a lower rate. The napkin booth guess treats rent as the only cost, leaving out card processing, backbar product, the wholesale cost of retail sold, and other weekly expenses. Neither guess counts the unpaid hours -- laundry, booking, backbar prep -- that booth rent usually adds and a commission chair usually does not.</p>
+<h3>How much difference does it actually make?</h3>
+<p>On this calculator's own shipped example -- an $85 average ticket, 14 clients a week, $80 a week in retail, a 50% service commission with a 10% retail commission, and a $275 weekly booth rent with its card fees, backbar, and other costs -- the napkin guess is booth $995 a week (gross minus rent) against commission $635 a week (half of everything), a $360 gap favoring booth. The real numbers, once card fees, backbar, retail cost, and the smaller retail commission are counted, are booth $779.17 against commission $603, a $176.17 gap -- less than half of what the napkin math showed.</p>
+<h3>What does the napkin math miss on the hourly number?</h3>
+<p>The hours. On the shipped example, booth rent's extra take-home comes with 5 more unpaid hours a week than commission -- 24.5 hours against 19.5 -- for laundry, booking, and backbar prep a salon used to absorb. Once take-home is divided by hours actually worked, commission pays $30.92 an hour and booth pays $31.80: a $0.88-an-hour edge, not the $360-a-week gap the napkin guess implies. A stylist deciding on the dollar figure alone and one deciding on the hourly figure can reach different answers from the same book.</p>
+<h3>Is this the same as asking another stylist what they're on?</h3>
+<p>No. Another stylist's split or rent was set against their own ticket average, client count, retail sales, and costs -- borrowing their number and applying it to a different book is a second kind of guess, not a measurement of this one. This calculator takes one stylist's own numbers -- their ticket, their clients, their rent offer, their costs -- and computes both paths from that book, rather than from what someone else's chair happens to pay.</p>
+<h3>What if I don't know my exact card fee or backbar cost yet?</h3>
+<p>A rough estimate from a recent statement or product order is still far better than skipping straight to the napkin split, because card fees, backbar, and retail cost are exactly the costs the napkin guess leaves at zero. Starting from an estimate and refining it later is still a computed number checked against this book, rather than a round split recalled from habit.</p>
+<p class="note">
+  Open the <a href="index.html">Booth Rent vs Commission Calculator</a> to run your own book.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, employment, or career advice, and it does not tell you which deal to take. Outputs are arithmetic on the numbers you enter. Verify every figure against your own book, lease, and a qualified professional before relying on it or changing jobs. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your ticket, book, rent, or take-home.</p>
+<p class="support">Free and open source. If it saves you from a bad lease, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../photo-addon-pricing-calculator/" data-pf-to="photo-addon-pricing-calculator">Photo Package Add-On Pricing Calculator</a></li>
+      <li><a href="../photo-booth-event-quote/" data-pf-to="photo-booth-event-quote">Photo Booth Event Quote Calculator</a></li>
+      <li><a href="../pickleball-facility-pro-forma/" data-pf-to="pickleball-facility-pro-forma">Pickleball Facility Pro Forma — free, private, in your browser</a></li>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=booth-rent-vs-commission">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="booth-rent-vs-commission"></script>
+</body></html>

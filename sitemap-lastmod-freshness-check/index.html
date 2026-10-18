@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sitemap lastmod Freshness Check — Is Your Sitemap Faking Freshness?</title>
+  <meta name="description" content="Free tool: paste a sitemap.xml and check its &lt;lastmod&gt; dates for the freshness-faking anti-pattern Google's own sitemap documentation warns about --…">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sitemap lastmod Freshness Check">
+  <meta property="og:description" content="Checks whether a sitemap's &lt;lastmod&gt; dates are well-formed, plausible, and (via the CLI) confirmed by each page's own HTTP Last-Modified header -- the exact…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sitemap lastmod Freshness Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a sitemap.xml's <lastmod> dates for invalid or malformed W3C-Datetime format, a future-dated lastmod, duplicate <loc> entries with conflicting lastmod values, and a suspiciously uniform lastmod date across nearly every URL (the freshness-faking anti-pattern). The zero-dependency CLI also fetches each URL's live HTTP Last-Modified response header to check whether it confirms the sitemap's claim.","featureList":["Validates every <lastmod> against the sitemap protocol's required W3C Datetime format","Flags a <lastmod> dated in the future, which is never legitimate","Flags duplicate <loc> entries with conflicting <lastmod> values","Flags a suspiciously uniform <lastmod> date shared by nearly every URL -- the freshness-faking pattern Google's own documentation warns about","CLI cross-checks each URL's live HTTP Last-Modified response header against the sitemap's claim","Zero-dependency CLI fetches real sitemaps and pages over HTTP for CI use; the browser page works from pasted XML with no upload"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is sitemap \"freshness faking\"?","acceptedAnswer":{"@type":"Answer","text":"It's when a sitemap generator stamps every URL's <lastmod> with the current date on every build or deploy, regardless of whether the page actually changed — rather than only updating the date for pages with a real, significant content change. Google's own sitemap documentation says <lastmod> should reflect a genuine change, and that it may stop trusting a site's <lastmod> values if they consistently don't hold up, which defeats the entire point of having the field: helping a crawler prioritize what actually changed."}},{"@type":"Question","name":"Why is a future-dated lastmod always wrong?","acceptedAnswer":{"@type":"Answer","text":"A page cannot have been last modified in the future — that's not a judgment call, it's a fact about time. A future <lastmod> is either a clock or timezone bug in whatever generated the sitemap (a server set to the wrong timezone can push a same-day timestamp past midnight UTC), or a placeholder value that was never replaced with the real date."}},{"@type":"Question","name":"Why can't the browser check the live pages too?","acceptedAnswer":{"@type":"Answer","text":"A page's fetch() to a different origin either fails outright (in the default cors mode, if the target doesn't send an Access-Control-Allow-Origin header naming this tool's origin) or succeeds as an opaque response (in no-cors mode) whose headers — including Last-Modified — cannot be read by JavaScript at all, by design. Either way, this page cannot reliably read a cross-origin page's own response headers unless that page's server opts in, which ordinary third-party sites have no reason to do. The zero-dependency CLI has no such restriction because it isn't a browser tab."}},{"@type":"Question","name":"Is this a full technical-SEO audit?","acceptedAnswer":{"@type":"Answer","text":"No. It checks specific, mechanically verifiable properties of a sitemap's <lastmod> values — format validity, plausibility, internal consistency, and (via the CLI) agreement with each page's own HTTP headers. It is not a crawl of your whole site, not a ranking guarantee, and not a determination that your sitemap is otherwise correct."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="url"], input[type="number"], textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 8px; }
+    input[type="url"] { font: 14px system-ui, sans-serif; }
+    textarea { min-height: 200px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    .pill.unchecked { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .row { border-bottom: 1px solid #e6eaf0; padding: 10px 0; }
+    .status-note { font-size: .83rem; color: #55606f; margin: 4px 0 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Sitemap lastmod Freshness Check","item":"https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sitemap lastmod Freshness Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Sitemap lastmod Freshness Check</span></span></nav>
+  <header>
+    <p class="note">SITEMAP LASTMOD FRESHNESS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your sitemap's &lt;lastmod&gt; telling the truth?</h1>
+    <p>
+      Paste a <code>sitemap.xml</code> and check every <code>&lt;lastmod&gt;</code> date for the
+      misconfigurations that quietly break the signal: an <strong>invalid or malformed</strong> date
+      (the sitemap protocol requires a full W3C Datetime), a <strong>future-dated</strong> lastmod
+      (impossible on its face), <strong>duplicate URLs</strong> with conflicting dates, and a
+      <strong>suspiciously uniform</strong> date shared by nearly every URL — the "freshness-faking"
+      pattern Google's own sitemap documentation warns can make it stop trusting the field entirely.
+    </p>
+    <p class="note">Nothing is uploaded. The XML you paste is parsed in this browser and never leaves your device — see "Why can't the browser check the live pages too?" below for what the CLI adds.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a sitemap</h2>
+    <label for="sitemap-xml">sitemap.xml contents (view-source, or a saved .xml file's contents)</label>
+    <textarea id="sitemap-xml" spellcheck="false" placeholder="Paste the full contents of your sitemap.xml here..."></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Entries found</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table id="entries-table" hidden>
+        <thead><tr><th>loc</th><th>lastmod</th><th>Format</th><th>Live check</th></tr></thead>
+        <tbody id="entries-rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="no-entries-note" hidden>No <code>&lt;url&gt;</code> or <code>&lt;sitemap&gt;</code> entries found — is this a sitemap XML document?</p>
+
+    <div id="findings-section" hidden>
+      <h3>Findings</h3>
+      <div id="findings"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>The CLI fetches the sitemap and every URL's live headers over real HTTP — no cross-origin restriction, because it isn't a browser, and it only reads response headers, never the page body:</p>
+    <pre class="cmd" tabindex="0">node check.mjs https://example.com/sitemap.xml --json
+node check.mjs https://example.com/sitemap.xml --max-urls 200
+node check.mjs https://example.com/sitemap.xml --uniform-threshold 0.8 --uniform-min-count 10</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/sitemap-lastmod-freshness-check" rel="noopener">check.mjs, fetch-url.mjs, and engine.mjs from the repo</a> — plain Node 18+, nothing to install. It only ever talks to the sitemap URL and the &lt;loc&gt; URLs that sitemap names — nothing goes through this site. Exit code 1 when a danger-severity finding is produced, the sitemap can't be fetched, or a URL's live headers can't be fetched (unverified is not the same as confirmed-clean).</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Check</th><th>What it flags</th><th>Severity</th><th>Needs the CLI?</th></tr></thead>
+        <tbody>
+          <tr><td>Invalid format</td><td>&lt;lastmod&gt; isn't a valid W3C Datetime, or names a calendar date/time that doesn't exist (e.g. Feb 30)</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Future-dated</td><td>&lt;lastmod&gt; is after today — never legitimate</td><td>Danger</td><td>No</td></tr>
+          <tr><td>Duplicate / conflicting</td><td>The same &lt;loc&gt; listed twice — once harmlessly (same date) and once dangerously (different dates)</td><td>Notice / Danger</td><td>No</td></tr>
+          <tr><td>Uniform pattern</td><td>A large share of URLs all claim the exact same date — the freshness-faking anti-pattern</td><td>Notice</td><td>No</td></tr>
+          <tr><td>Server mismatch</td><td>The live page's own HTTP <code>Last-Modified</code> header doesn't confirm a change as recent as the sitemap claims</td><td>Notice</td><td>Yes</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">More: <a href="why-sitemap-lastmod-matters.html">why lastmod freshness matters, and the most common ways it breaks</a>. See also: <a href="vs-xml-sitemaps-validator.html">how this differs from XML-Sitemaps.com's free Sitemap Validator</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is sitemap "freshness faking"?</h3>
+    <p>It's when a sitemap generator stamps every URL's &lt;lastmod&gt; with the current date on every build or deploy, regardless of whether the page actually changed — rather than only updating the date for pages with a real, significant content change. Google's own sitemap documentation says &lt;lastmod&gt; should reflect a genuine change, and that it may stop trusting a site's &lt;lastmod&gt; values if they consistently don't hold up, which defeats the entire point of having the field: helping a crawler prioritize what actually changed.</p>
+    <h3>Why is a future-dated lastmod always wrong?</h3>
+    <p>A page cannot have been last modified in the future — that's not a judgment call, it's a fact about time. A future &lt;lastmod&gt; is either a clock or timezone bug in whatever generated the sitemap (a server set to the wrong timezone can push a same-day timestamp past midnight UTC), or a placeholder value that was never replaced with the real date.</p>
+    <h3>Why can't the browser check the live pages too?</h3>
+    <p>A page's <code>fetch()</code> to a different origin either fails outright (in the default <strong>cors</strong> mode, if the target doesn't send an <code>Access-Control-Allow-Origin</code> header naming this tool's origin) or succeeds as an <strong>opaque</strong> response (in <strong>no-cors</strong> mode) whose headers — including <code>Last-Modified</code> — cannot be read by JavaScript at all, by design. Either way, this page cannot reliably read a cross-origin page's own response headers unless that page's server opts in, which ordinary third-party sites have no reason to do. The zero-dependency CLI has no such restriction because it isn't a browser tab.</p>
+    <h3>Is this a full technical-SEO audit?</h3>
+    <p>No. It checks specific, mechanically verifiable properties of a sitemap's &lt;lastmod&gt; values — format validity, plausibility, internal consistency, and (via the CLI) agreement with each page's own HTTP headers. It is not a crawl of your whole site, not a ranking guarantee, and not a determination that your sitemap is otherwise correct.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether the sitemap you provided satisfies specific, mechanically checkable rules about its &lt;lastmod&gt; values — nothing more. It is not a ranking guarantee and not a full technical-SEO audit. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a pass over the same sitemap: <a href="../canonical-tag-check/">Canonical Tag Checker</a> checks which URL a page's own <code>rel=canonical</code> link names as authoritative. <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> checks whether your <code>robots.txt</code> actually allows the crawlers you think it does. <a href="../structured-data-drift-check/">Structured Data Drift Check</a> checks whether a page's JSON-LD still says what its visible text says. And before any of those matter, <a href="../subpath-robots-check/">Subpath Robots Check</a> answers whether your sitemap is ever read at all — a site published under a URL subpath cannot govern its own <code>robots.txt</code>, so the <code>Sitemap:</code> line in it is never seen.</p>
+    <p class="support">Free and open source. If this caught a faked freshness signal before Google did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildReport } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      xml: $('#sitemap-xml'), status: $('#status'),
+      reportCard: $('#report-card'),
+      entriesTable: $('#entries-table'), entriesRows: $('#entries-rows'), noEntriesNote: $('#no-entries-note'),
+      findingsSection: $('#findings-section'), findings: $('#findings'),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    function render() {
+      const report = buildReport({ xml: els.xml.value });
+
+      if (report.parseError) {
+        els.entriesTable.hidden = true;
+        els.noEntriesNote.hidden = false;
+        els.noEntriesNote.textContent = report.parseError;
+        els.findingsSection.hidden = true;
+        els.reportCard.hidden = false;
+        return;
+      }
+
+      els.entriesTable.hidden = report.entries.length === 0;
+      els.noEntriesNote.hidden = report.entries.length !== 0;
+      els.entriesRows.innerHTML = report.entries.map((e) => {
+        const fmt = !e.validation.present
+          ? '<span class="note">none</span>'
+          : e.validation.valid ? '<span class="ok">valid</span>' : '<span class="error">invalid</span>';
+        return `
+        <tr>
+          <td><code>${escapeHtml(e.loc)}</code></td>
+          <td><code>${escapeHtml(e.lastmodRaw ?? '')}</code></td>
+          <td>${fmt}</td>
+          <td><span class="pill unchecked">not checked (browser mode)</span></td>
+        </tr>`;
+      }).join('');
+
+      els.findingsSection.hidden = false;
+      els.findings.innerHTML = report.findings.length === 0
+        ? `<p class="${report.incomplete ? '' : 'ok'}">${report.incomplete ? 'No misconfiguration found in what could be checked from the sitemap text alone -- the live server-header cross-check needs the CLI, see below.' : 'None of the checked freshness issues were found.'}</p>`
+        : report.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+
+      els.reportCard.hidden = false;
+    }
+
+    $('#check').addEventListener('click', () => {
+      if (!els.xml.value.trim()) {
+        els.status.innerHTML = '<span class="error">Paste a sitemap.xml first (or load the worked example).</span>';
+        return;
+      }
+      els.status.textContent = '';
+      render();
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    });
+
+    // Built from string pieces so no closing/opening tag text appears
+    // contiguous anywhere in this file's own raw source -- the same
+    // precaution structured-data-drift-check/index.html and
+    // hreflang-reciprocity-check/index.html take and explain at length: this
+    // portfolio's own site build locates a page's real closing tags by
+    // literal text search to splice in shared navigation, and a fake one
+    // sitting inside this JS string ahead of the real one has corrupted a
+    // published page before.
+    const XML_DECL = '<' + '?xml version="1.0" encoding="UTF-8"?' + '>';
+    const URLSET_OPEN = '<' + 'urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    const URLSET_CLOSE = '<' + '/urlset>';
+
+    const EXAMPLE = `${XML_DECL}
+${URLSET_OPEN}
+  <url><loc>https://example.com/</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://example.com/about</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://example.com/pricing</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://example.com/blog/old-post</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://example.com/blog/another-post</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://example.com/contact</loc><lastmod>2099-01-01</lastmod></url>
+  <url><loc>https://example.com/careers</loc><lastmod>2026-13-40</lastmod></url>
+  <url><loc>https://example.com/faq</loc><lastmod>2026-01-10</lastmod></url>
+  <url><loc>https://example.com/faq</loc><lastmod>2026-03-22</lastmod></url>
+${URLSET_CLOSE}`;
+
+    $('#load-example').addEventListener('click', () => {
+      els.xml.value = EXAMPLE;
+      render();
+      els.status.textContent = 'Worked example: six URLs all claiming the exact same date (uniform pattern), a future-dated lastmod (2099), an invalid calendar date (month 13, day 40), and a duplicate loc with conflicting dates.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+
+    $('#clear').addEventListener('click', () => {
+      els.xml.value = '';
+      els.reportCard.hidden = true;
+      els.status.textContent = 'Paste a sitemap.xml and click Check.';
+    });
+
+    $('#usageOptOut').addEventListener('change', () => {});
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sitemap-lastmod-freshness-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/?pfEmbed=1&quot; title=&quot;Sitemap lastmod Freshness Check — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sitemap-lastmod-freshness-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/" data-pf-embed-title="Sitemap lastmod Freshness Check" data-pf-embed-slug="sitemap-lastmod-freshness-check"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SBOM Diff Check vs. cyclonedx-cli diff</title>
+  <meta name="description" content="cyclonedx-cli's diff command is CycloneDX-only and needs an install plus a --component-versions flag to list added/removed/changed packages.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/vs-cyclonedx-cli-diff.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SBOM Diff Check vs. cyclonedx-cli diff">
+  <meta property="og:description" content="The official CycloneDX CLI's diff command only reads CycloneDX documents and needs --component-versions to report added, removed, or changed packages by name.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/vs-cyclonedx-cli-diff.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this page or cyclonedx-cli's diff command?","acceptedAnswer":{"@type":"Answer","text":"Depends what you are diffing and where. cyclonedx-cli is the official CycloneDX project's command-line tool (Apache-2.0, maintained under OWASP CycloneDX), installed via Homebrew, a Docker image, or a downloaded release binary, and its diff subcommand compares two CycloneDX documents in JSON, XML, or protobuf. If both of your SBOMs are already CycloneDX and you want the comparison wired into a pipeline that already runs the CLI for other CycloneDX operations (convert, merge, validate), use cyclonedx-cli. If one of your two files is SPDX -- or you just want a quick answer with nothing to install -- this page reads CycloneDX or SPDX directly, including one of each, entirely in your browser."}},{"@type":"Question","name":"Does cyclonedx-cli's diff command read SPDX SBOMs?","acceptedAnswer":{"@type":"Answer","text":"Not directly. Per its own documented options, diff accepts --from-format and --to-format values of autodetect, json, protobuf, or xml -- there is no spdxjson option there, unlike cyclonedx-cli's separate convert command, which does read SPDX JSON. Comparing an SPDX build against a CycloneDX build with cyclonedx-cli means converting the SPDX file to CycloneDX first as an extra step. This page compares CycloneDX and SPDX directly, in any combination, with no conversion."}},{"@type":"Question","name":"Do I need to install anything to run cyclonedx-cli's diff command?","acceptedAnswer":{"@type":"Answer","text":"Yes. cyclonedx-cli is a standalone binary you get via brew install cyclonedx/cyclonedx/cyclonedx-cli, a Docker image (cyclonedx/cyclonedx-cli), or a release download for your platform -- there is no browser version. That is a reasonable cost for a tool meant to live in CI. This page needs nothing installed: paste both files and read the result in the same tab, or use the matching zero-dependency Python CLI linked from the tool page if you want the same logic in your own pipeline."}},{"@type":"Question","name":"Does cyclonedx-cli diff list added, removed, and changed packages by default?","acceptedAnswer":{"@type":"Answer","text":"Only with a flag. Per its documented options, the base diff output compares the two documents; getting a components-level report of what was added, removed, or modified needs the --component-versions flag on the same invocation. Skip it and you get a lower-level document diff instead of the added/removed/changed list most people are actually asking for. This page always shows that list -- there is no equivalent flag to remember."}},{"@type":"Question","name":"Is this page affiliated with CycloneDX, OWASP, or the cyclonedx-cli maintainers?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by CycloneDX, the OWASP Foundation, or the cyclonedx-cli maintainers. CycloneDX and cyclonedx-cli are named here only to describe what this checker is and is not, using facts drawn from the cyclonedx-cli project's own public documentation and source repository at github.com/CycloneDX/cyclonedx-cli."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SBOM Diff Check vs. cyclonedx-cli diff — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sbom-diff-check/">What changed between two SBOMs?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SBOM Diff Check vs. cyclonedx-cli diff</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; SBOM Diff Check</a></p>
+    <h1>SBOM Diff Check vs. cyclonedx-cli diff</h1>
+    <p class="lede"><code>cyclonedx-cli</code> is the official CycloneDX project's command-line tool, and its
+      <code>diff</code> subcommand compares two CycloneDX documents. It is a real, maintained tool for a real slice
+      of this job -- and it only reads CycloneDX, needs an install, and needs one extra flag before it lists which
+      packages actually changed. This page reads CycloneDX or SPDX, mixed formats included, with nothing to
+      install and nothing to remember.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>cyclonedx-cli</strong> (<code>github.com/CycloneDX/cyclonedx-cli</code>) is an Apache-2.0 licensed
+        binary maintained under OWASP CycloneDX, installed with <code>brew install
+        cyclonedx/cyclonedx/cyclonedx-cli</code>, the <code>cyclonedx/cyclonedx-cli</code> Docker image, or a
+        release download for your platform. Its <code>diff</code> subcommand, per its own documented options,
+        takes <code>&lt;from-file&gt; &lt;to-file&gt;</code> with <code>--from-format</code>/<code>--to-format</code>
+        of <code>autodetect</code>, <code>json</code>, <code>protobuf</code>, or <code>xml</code> -- CycloneDX's own
+        formats, not SPDX -- and needs the <code>--component-versions</code> flag to report which component
+        versions were added, removed, or modified; without it you get a different, lower-level document diff. It
+        also carries convert, merge, and validate subcommands this page has no equivalent of, because those are
+        CycloneDX document operations rather than a before/after package comparison.
+      </p>
+      <p>
+        <strong>This tool</strong> reads only each component's name and version, from CycloneDX or SPDX JSON --
+        including one of each, no conversion step -- and always reports the added, removed, and version-changed
+        packages, in your browser, with nothing to install and no flag to get right.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Both my SBOMs are CycloneDX, and this needs to run inside a pipeline that already calls <code>cyclonedx-cli</code> for other operations.</td><td><code>cyclonedx-cli diff --component-versions</code> -- one more subcommand on a binary you already have installed.</td></tr>
+          <tr><td>One of my two files is SPDX, or came from a tool that emits SPDX by default.</td><td>This page -- <code>cyclonedx-cli diff</code> does not accept SPDX input; you would need to convert first.</td></tr>
+          <tr><td>I want a quick answer with nothing to install, from a shared link or a support ticket.</td><td>This page -- paste both files, get the list, nothing to set up.</td></tr>
+          <tr><td>I want CycloneDX-native operations beyond diffing -- convert, merge, validate a document against the spec.</td><td><code>cyclonedx-cli</code> -- this page does exactly one thing and has no equivalent for the rest.</td></tr>
+          <tr><td>Is anything I paste or pass uploaded anywhere?</td><td>Neither tool uploads anything on its own -- this page reads both files in your browser and makes no network call of its own; <code>cyclonedx-cli</code> runs locally as a CLI.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary rather than competing: a CycloneDX-only pipeline that already shells out to <code>cyclonedx-cli</code> loses nothing by keeping it for the diff step too. This page exists for the case it does not cover well -- SPDX input, or no CLI install at all.</p>
+      <p><a class="cta" href="./">Run the free SBOM diff</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this page or cyclonedx-cli's diff command?</h3>
+      <p>Depends what you are diffing and where. <code>cyclonedx-cli</code> is the official CycloneDX project's command-line tool (Apache-2.0, maintained under OWASP CycloneDX), installed via Homebrew, a Docker image, or a downloaded release binary, and its <code>diff</code> subcommand compares two CycloneDX documents in JSON, XML, or protobuf. If both of your SBOMs are already CycloneDX and you want the comparison wired into a pipeline that already runs the CLI for other CycloneDX operations (convert, merge, validate), use <code>cyclonedx-cli</code>. If one of your two files is SPDX -- or you just want a quick answer with nothing to install -- this page reads CycloneDX or SPDX directly, including one of each, entirely in your browser.</p>
+      <h3>Does cyclonedx-cli's diff command read SPDX SBOMs?</h3>
+      <p>Not directly. Per its own documented options, <code>diff</code> accepts <code>--from-format</code> and <code>--to-format</code> values of <code>autodetect</code>, <code>json</code>, <code>protobuf</code>, or <code>xml</code> -- there is no <code>spdxjson</code> option there, unlike <code>cyclonedx-cli</code>'s separate <code>convert</code> command, which does read SPDX JSON. Comparing an SPDX build against a CycloneDX build with <code>cyclonedx-cli</code> means converting the SPDX file to CycloneDX first as an extra step. This page compares CycloneDX and SPDX directly, in any combination, with no conversion.</p>
+      <h3>Do I need to install anything to run cyclonedx-cli's diff command?</h3>
+      <p>Yes. <code>cyclonedx-cli</code> is a standalone binary you get via <code>brew install cyclonedx/cyclonedx/cyclonedx-cli</code>, a Docker image (<code>cyclonedx/cyclonedx-cli</code>), or a release download for your platform -- there is no browser version. That is a reasonable cost for a tool meant to live in CI. This page needs nothing installed: paste both files and read the result in the same tab, or use the matching zero-dependency Python CLI linked from the tool page if you want the same logic in your own pipeline.</p>
+      <h3>Does cyclonedx-cli diff list added, removed, and changed packages by default?</h3>
+      <p>Only with a flag. Per its documented options, the base <code>diff</code> output compares the two documents; getting a components-level report of what was added, removed, or modified needs the <code>--component-versions</code> flag on the same invocation. Skip it and you get a lower-level document diff instead of the added/removed/changed list most people are actually asking for. This page always shows that list -- there is no equivalent flag to remember.</p>
+      <h3>Is this page affiliated with CycloneDX, OWASP, or the cyclonedx-cli maintainers?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by CycloneDX, the OWASP Foundation, or the cyclonedx-cli maintainers. CycloneDX and cyclonedx-cli are named here only to describe what this checker is and is not, using facts drawn from the cyclonedx-cli project's own public documentation and source repository at github.com/CycloneDX/cyclonedx-cli.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Nothing leaves your browser. Both SBOMs you paste are read locally and never uploaded, and this page makes no live comparison against cyclonedx-cli -- it is a static page describing category facts sourced from the cyclonedx-cli project's own public documentation, not a live run of that CLI. We count only anonymous local feature events, never people or SBOM content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../env-example-drift-check/" data-pf-to="env-example-drift-check">Does your .env.example still match what the code actually reads?</a></li>
+      <li><a href="../error-tracking-pricing-calculator/" data-pf-to="error-tracking-pricing-calculator">What will error tracking cost at your event volume, and who is cheapest?</a></li>
+      <li><a href="../feature-flag-pricing-calculator/" data-pf-to="feature-flag-pricing-calculator">What will feature flags cost at your requests-per-month volume, and who is cheapest?</a></li>
+      <li><a href="../firebase-rules-check/" data-pf-to="firebase-rules-check">Firebase Security Rules Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sbom-diff-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sbom-diff-check"></script>
+</body>
+</html>

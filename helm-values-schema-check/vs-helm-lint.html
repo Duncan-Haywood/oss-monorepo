@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. helm lint | Helm Values Schema Check</title>
+<meta name="description" content="helm lint applies a chart's values.schema.json if one exists, but most schemas leave additionalProperties unset…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/vs-helm-lint.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. helm lint">
+<meta property="og:description" content="helm lint enforces additionalProperties: false when a schema sets it -- most don't. This checker flags an undeclared values.yaml field either way…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or helm lint?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Use both — they overlap but are not the same check. helm lint validates chart structure and templates, and applies values.schema.json if the chart has one and Helm is installed. This checker validates only values.yaml against values.schema.json, with no Helm install required, and — the specific gap — flags a field values.yaml sets that the schema never mentions even when additionalProperties is not set to false, which is the common case and the one a typo actually produces. helm lint stays the tool of record for template rendering, chart metadata, and anything this checker does not claim to cover." }
+    },
+    {
+      "@type": "Question",
+      "name": "Doesn't helm lint already apply values.schema.json?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, if the chart has one — Helm has supported values.schema.json validation since 3.5. What it enforces depends on the schema's own additionalProperties setting: with additionalProperties: false, an undeclared field is rejected exactly the way this checker's \"high severity\" finding reports it. Without that setting — the JSON Schema default, and what most real charts actually ship — an undeclared field is not a schema violation, so helm lint says nothing about it. This checker flags it anyway, as an informational finding, because in practice it is very often a typo rather than an intentional omission." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would I use this instead of just running helm lint?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two reasons. First, no Helm install: this is one dependency-free JavaScript file plus a browser page, useful in a script or CI job that should not depend on the Helm binary being present. Second, the undeclared-field gap above — if your chart's schema does not set additionalProperties: false (most don't), helm lint will not tell you about a typo'd values.yaml key, and this checker will. It does not replace helm lint's template rendering and chart-metadata checks; it is narrower and catches one specific thing more of the time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with the Helm project or the CNCF?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by the Helm project, the CNCF, or the Helm maintainers. Helm is named here only to describe what this checker is and is not, and to compare against helm lint's own values.schema.json support, described on Helm's own documentation site." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; overflow-wrap: anywhere; }
+  h2 { color: #17324a; margin-top: 30px; }
+  code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #d5dbe3; padding: 0.5rem 0.7rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  a { color: #17604a; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/vs-helm-lint.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. helm lint — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../helm-values-schema-check/">Does your values.yaml actually match its own schema?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. helm lint</span></span></nav>
+<p><a href="./">&larr; Back to Helm Values Schema Check</a></p>
+
+<h1>This checker vs. <code>helm lint</code></h1>
+
+<div class="card">
+<p>
+  <strong><code>helm lint</code></strong> is Helm's own built-in validator. It checks chart structure,
+  required metadata, template syntax, and -- since Helm 3.5 -- a chart's <code>values.yaml</code>
+  against its <code>values.schema.json</code>, if the chart ships one. It needs the Helm binary
+  installed and, for full coverage, a chart directory it can actually render.
+</p>
+<p>
+  This checker validates only one relationship -- <code>values.yaml</code> against
+  <code>values.schema.json</code> -- with no Helm install required, and closes one specific gap:
+  most real schemas leave <code>additionalProperties</code> unset, so a field <code>values.yaml</code>
+  sets that the schema never mentions is not a schema violation and <code>helm lint</code> says
+  nothing about it. This checker flags it anyway, as informational, because that is very often exactly
+  what a typo looks like.
+</p>
+</div>
+
+<h2>Which one answers your question</h2>
+<div class="card">
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Check chart structure, required metadata (<code>Chart.yaml</code>), and template syntax.</td>
+      <td><code>helm lint</code> -- this checker does not read templates at all.</td>
+    </tr>
+    <tr>
+      <td>Render templates and check the actual output against a live or simulated cluster.</td>
+      <td><code>helm template</code> / <code>helm install --dry-run</code> -- this checker never renders anything.</td>
+    </tr>
+    <tr>
+      <td>Enforce a schema that already sets <code>additionalProperties: false</code>.</td>
+      <td>Either -- both reject an undeclared field the same way once the schema forbids it.</td>
+    </tr>
+    <tr>
+      <td>Catch a typo'd <code>values.yaml</code> key when the schema does <em>not</em> set <code>additionalProperties: false</code> (most charts).</td>
+      <td>This checker -- <code>helm lint</code> is silent here by design, since JSON Schema treats an undeclared field as allowed unless told otherwise.</td>
+    </tr>
+    <tr>
+      <td>Validate <code>values.yaml</code> against a schema with no Helm binary installed at all -- a script, a pre-commit hook, a CI job that should not depend on it.</td>
+      <td>This checker -- <code>node cli.mjs check values.yaml values.schema.json</code>, nothing to install.</td>
+    </tr>
+    <tr>
+      <td>Get a pass/fail on the values/schema relationship alone, separate from template or chart-metadata errors muddying the result.</td>
+      <td>This checker -- it only ever reports on <code>values.yaml</code> vs. <code>values.schema.json</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+
+<div class="card">
+<p>
+  These compose rather than compete. Keep <code>helm lint</code> (and <code>helm template</code>) as
+  the tool of record for chart structure and rendering -- this checker does not touch either. Add this
+  checker where you specifically want the undeclared-field case caught without depending on a
+  schema author having remembered <code>additionalProperties: false</code>, or where the Helm binary
+  is not available at all (a lightweight CI job, a pre-commit hook, a script bundled with a values-file
+  generator).
+</p>
+</div>
+
+<h2>Common questions</h2>
+<div class="card">
+<h3>Should I use this checker or helm lint?</h3>
+<p>Use both — they overlap but are not the same check. <code>helm lint</code> validates chart structure and templates, and applies <code>values.schema.json</code> if the chart has one and Helm is installed. This checker validates only <code>values.yaml</code> against <code>values.schema.json</code>, with no Helm install required, and — the specific gap — flags a field <code>values.yaml</code> sets that the schema never mentions even when <code>additionalProperties</code> is not set to <code>false</code>, which is the common case and the one a typo actually produces. <code>helm lint</code> stays the tool of record for template rendering, chart metadata, and anything this checker does not claim to cover.</p>
+<h3>Doesn't helm lint already apply values.schema.json?</h3>
+<p>Yes, if the chart has one — Helm has supported <code>values.schema.json</code> validation since 3.5. What it enforces depends on the schema's own <code>additionalProperties</code> setting: with <code>additionalProperties: false</code>, an undeclared field is rejected exactly the way this checker's "high severity" finding reports it. Without that setting — the JSON Schema default, and what most real charts actually ship — an undeclared field is not a schema violation, so <code>helm lint</code> says nothing about it. This checker flags it anyway, as an informational finding, because in practice it is very often a typo rather than an intentional omission.</p>
+<h3>Why would I use this instead of just running helm lint?</h3>
+<p>Two reasons. First, no Helm install: this is one dependency-free JavaScript file plus a browser page, useful in a script or CI job that should not depend on the Helm binary being present. Second, the undeclared-field gap above — if your chart's schema does not set <code>additionalProperties: false</code> (most don't), <code>helm lint</code> will not tell you about a typo'd <code>values.yaml</code> key, and this checker will. It does not replace <code>helm lint</code>'s template rendering and chart-metadata checks; it is narrower and catches one specific thing more of the time.</p>
+<h3>Is this page affiliated with the Helm project or the CNCF?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by the Helm project, the CNCF, or the Helm maintainers. Helm is named here only to describe what this checker is and is not, and to compare against <code>helm lint</code>'s own <code>values.schema.json</code> support, described on Helm's own documentation site.</p>
+</div>
+
+<p><strong>Only point either tool at a chart you own or are authorised to test.</strong> That rule is unchanged by which one you pick.</p>
+
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. It checks the JSON Schema subset it supports against the values you supplied -- it cannot prove your chart renders correctly, only report the mismatches it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+  <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=helm-values-schema-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="helm-values-schema-check"></script>
+</body>
+</html>

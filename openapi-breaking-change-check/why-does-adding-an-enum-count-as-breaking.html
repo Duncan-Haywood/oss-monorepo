@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why does adding an enum count as a breaking change? | OpenAPI Breaking Change Check</title>
+<meta name="description" content="You added an enum to a parameter that used to accept any string, and the checker flagged it breaking -- even though it feels like an addition.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/why-does-adding-an-enum-count-as-breaking.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why does adding an enum count as a breaking change?">
+<meta property="og:description" content="Restricting a parameter to a fixed enum feels like an addition, but it narrows what the API accepts -- and every value outside the new list is a value a client…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/why-does-adding-an-enum-count-as-breaking.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is restricting a parameter to an enum breaking, when I only added a list of values?","acceptedAnswer":{"@type":"Answer","text":"Because before the enum existed, the parameter accepted any value of its declared type — any string, any integer. Restricting it to a fixed list narrows that acceptance: every value outside the new list is a value an existing client could have been sending, and validly, that the API now rejects. The list is new, but what the API accepts got smaller, which is what the checker is classifying."}},{"@type":"Question","name":"So is adding a value to an existing enum also breaking?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the case most people expect: adding a value to a parameter that already had an enum is reported non-breaking. A client sending one of the old values keeps working exactly as before — the set of accepted values only grew. The breaking case is the opposite direction: a value that used to be accepted disappearing from the list, or the list appearing where there was none before."}},{"@type":"Question","name":"What is the one rule behind every verdict this checker gives?","acceptedAnswer":{"@type":"Answer","text":"Does this change shrink what the API will accept from a client that has not changed, or take away something a client could already rely on? If yes, it is breaking. If the change only adds an option, widens what is accepted, or removes a restriction, it is non-breaking. A new optional parameter, a new endpoint, and an enum constraint lifted entirely are all widening moves, so all three come back non-breaking even though two of them are literally additions to the spec."}},{"@type":"Question","name":"Does removing the enum constraint entirely count as breaking?","acceptedAnswer":{"@type":"Answer","text":"No — that direction is reported non-breaking. A parameter that used to accept only a fixed list and now accepts any value of its type still accepts everything an existing client was already sending, plus more. Nothing that worked before stops working, which is why the checker treats lifting a restriction as widening rather than narrowing."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 32ch; color: #17324a; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17324a10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #17324a; }
+  ol, ul { padding-left: 1.3rem; }
+  li { margin: .4rem 0; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why does adding an enum count as a breaking change? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../openapi-breaking-change-check/">Did this API version break existing clients?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why does adding an enum count as a breaking change?</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; OpenAPI Breaking Change Check</a></p>
+<header>
+<h1>Why does adding an enum count as a breaking change?</h1>
+<p class="lede">A parameter that used to take any string now only accepts three of them, and the checker calls that breaking &mdash; even though all you did was add a list of values. That reading is correct, and the same one rule explains it, and every other verdict this tool gives.</p>
+</header>
+
+<section>
+<h2>An "addition" that narrows is still a narrowing</h2>
+<p>
+  Before the enum existed, the parameter accepted any value of its declared
+  type: any string, any integer. Restricting it to <code>["standard",
+  "express", "overnight"]</code> does not add to what the API accepts &mdash;
+  it shrinks it. Every value outside that list, including ones a real client
+  could have been sending and getting a valid response for, is now rejected.
+  The list itself is new; what changed for an existing client is that the API
+  got pickier. That is what <code>openapi_diff.py</code> and this page are
+  classifying as <code>enum-added</code>, and it is reported breaking for the
+  same reason a newly-required parameter is: something that used to work can
+  now fail.
+</p>
+<p class="fine">
+  This is a shallow, structural read of the parameter's own schema, not a
+  request-by-request replay against real traffic &mdash; see
+  <a href="vs-manually-reading-the-spec-diff.html">how this compares to
+  reading the spec diff by hand</a> for what that trade gives up.
+</p>
+</section>
+
+<section>
+<h2>The one rule behind every verdict</h2>
+<p>
+  Every change this checker reports, breaking or not, answers the same
+  question: does this shrink what the API accepts from a client that has not
+  changed, or take away something a client could already rely on? A "yes"
+  is breaking. Everything that only adds an option, widens what is accepted,
+  or lifts a restriction is non-breaking &mdash; even when the diff itself
+  reads as an addition.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Change</th><th scope="col">Verdict</th><th scope="col">Why</th></tr></thead>
+<tbody>
+<tr><td>Enum added to a previously unrestricted parameter</td><td>Breaking</td><td>Narrows what the parameter accepts</td></tr>
+<tr><td>Value added to an existing enum</td><td>Non-breaking</td><td>Every previously-valid value still works</td></tr>
+<tr><td>Value removed from an existing enum</td><td>Breaking</td><td>A value a client could send is now rejected</td></tr>
+<tr><td>Enum constraint removed entirely</td><td>Non-breaking</td><td>Everything that worked before still works, plus more</td></tr>
+<tr><td>New required parameter</td><td>Breaking</td><td>A request that omitted it used to succeed</td></tr>
+<tr><td>New optional parameter</td><td>Non-breaking</td><td>Omitting it still works exactly as before</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">
+  Read this way, the checker has no special case for enums at all &mdash; it
+  is the same narrowing-vs-widening test applied to a parameter's value set
+  instead of its required flag or type.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Why is restricting a parameter to an enum breaking, when I only added a list of values?</h3>
+<p>Because before the enum existed, the parameter accepted any value of its declared type &mdash; any string, any integer. Restricting it to a fixed list narrows that acceptance: every value outside the new list is a value an existing client could have been sending, and validly, that the API now rejects. The list is new, but what the API accepts got smaller, which is what the checker is classifying.</p>
+<h3>So is adding a value to an existing enum also breaking?</h3>
+<p>No, and this is the case most people expect: adding a value to a parameter that already had an enum is reported non-breaking. A client sending one of the old values keeps working exactly as before &mdash; the set of accepted values only grew. The breaking case is the opposite direction: a value that used to be accepted disappearing from the list, or the list appearing where there was none before.</p>
+<h3>What is the one rule behind every verdict this checker gives?</h3>
+<p>Does this change shrink what the API will accept from a client that has not changed, or take away something a client could already rely on? If yes, it is breaking. If the change only adds an option, widens what is accepted, or removes a restriction, it is non-breaking. A new optional parameter, a new endpoint, and an enum constraint lifted entirely are all widening moves, so all three come back non-breaking even though two of them are literally additions to the spec.</p>
+<h3>Does removing the enum constraint entirely count as breaking?</h3>
+<p>No &mdash; that direction is reported non-breaking. A parameter that used to accept only a fixed list and now accepts any value of its type still accepts everything an existing client was already sending, plus more. Nothing that worked before stops working, which is why the checker treats lifting a restriction as widening rather than narrowing.</p>
+<p class="note">Want the tool itself, or how it compares to oasdiff's much deeper change catalogue? See <a href="./">OpenAPI Breaking Change Check</a>, or <a href="vs-oasdiff.html">how this compares to oasdiff</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a full compatibility audit and does not replace a qualified reviewer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="openapi_diff.py" rel="noopener">openapi_diff.py from the repo</a> and run it yourself.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>optional support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=openapi-breaking-change-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="openapi-breaking-change-check"></script>
+</body></html>

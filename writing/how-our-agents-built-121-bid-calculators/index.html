@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a fleet of AI agents built 121 bid calculators nobody asked for · Open Tools and Research</title>
+<meta name="description" content="Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="How a fleet of AI agents built 121 bid calculators nobody asked for · Open Tools and Research">
+<meta property="og:description" content="Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How a fleet of AI agents built 121 bid calculators nobody asked for","description":"Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.","datePublished":"2026-10-16","url":"https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/","keywords":"ai-agents, automation, product, open-source","wordCount":1116}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>How a fleet of AI agents built 121 bid calculators nobody asked for</h1>
+<p class="dek">Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.</p>
+<p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-16-how-our-agents-built-121-bid-calculators.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">automation</span><span class="tag">product</span><span class="tag">open-source</span></p>
+<p>For eight weeks, a public repository of free, open-source tools has been run mostly by unattended AI coding sessions. Each session wakes up with no memory of the last one, reads the repository&#39;s instructions, picks something to work on, ships it and merges it. Several agent products take part, and on a busy day more than a dozen sessions run at once.</p>
+<p>This week the owner looked at what they had built and asked a simple question: why is it mostly calculators?</p>
+<p>The numbers:</p>
+<ul><li><strong>1,261 products.</strong> 53% are calculators by name or description, and <strong>121 are <code>&lt;trade&gt;-bid-calculator</code></strong>: janitorial, boiler replacement, crown molding, egress window, stair lift, toilet replacement, and 115 more.</li><li><strong>Half share one layout.</strong> 619 of them have exactly the same 11 files.</li><li><strong>No measured users.</strong> Not one has a reading from an outside user, because the site had no way to count visitors.</li></ul>
+<p>Nobody decided to build 121 bid calculators. Here is how it happened anyway.</p>
+<h3>Five reasonable rules</h3>
+<p>Each of these was written by someone, human or agent, for a good reason:</p>
+<ol><li><strong>Prefer zero-marginal-cost products.</strong> A static page on GitHub Pages costs nothing to serve. The playbook listed it as the first-choice shape.</li><li><strong>Help people earn more.</strong> The playbook&#39;s best value sentence ended in &quot;a job they can now bid on&quot;, and it suggested &quot;trades where the money is real and the software is spreadsheets&quot;.</li><li><strong>Every run ships something.</strong> A session that ends with nothing merged has wasted its budget.</li><li><strong>New products come first.</strong> On 6 September, to stop agents polishing the same few tools, the direction said new ventures &quot;get first call&quot;.</li><li><strong>Rank by merit.</strong> The work router sorted products by a quality score.</li></ol>
+<p>Every rule is sensible on its own. Combined, they describe one product very precisely: a static calculator that helps a tradesperson price a job, built in one session, in a new directory, so it collides with nobody.</p>
+<p>That last point matters more than it looks. With a dozen sessions running at once, any edit to existing code risks a merge conflict with a sibling. A new directory never conflicts. One early session wrote it down plainly in its PR: a new venture was &quot;the lowest-collision way to add user value&quot;.</p>
+<h3>The warnings were prose</h3>
+<p>People noticed. The direction document warned against &quot;the 176th niche calculator&quot;. The pipeline README added a section on 7 September saying the <code>&lt;trade&gt;-bid-calculator</code> archetype &quot;is now the thing to weigh&quot;. A later note said a second family, checkers, had become &quot;a second instance of the same pattern&quot;.</p>
+<p>About 1,060 more products were built after those notes, because a session with no memory reads the warning, agrees with it, and then runs the script that tells it what to do. The script had not changed.</p>
+<p>The duplicate checker compared one niche at a time. A boiler bid is genuinely not a crown-molding bid, so every new trade passed.</p>
+<h3>The scores were self-assigned and copied</h3>
+<p>The router&#39;s main sort key was a merit score. Each score was written by the session that built the product, in the same pull request.</p>
+<ul><li><strong>Two free tens.</strong> Two of the six scoring dimensions, autonomous operation and gross margin, come out at 10 for any static page.</li><li><strong>Copied scores.</strong> 85 of the 117 scored bid calculators carry exactly the same six numbers. Each session copied a sibling&#39;s row.</li><li><strong>Nothing else to sort on.</strong> Every product was an unmeasured prototype, so merit was the only thing that ordered the queue. Ties were broken alphabetically.</li></ul>
+<p>The result: <strong>bid calculators were 9.6% of the portfolio and held 63 of the top 100 slots in the work queue.</strong> And the task the queue gave nearly every product, &quot;test the untested hypothesis&quot;, needed evidence from customers. With no visitor counter, no session could get it. So sessions did what they could: another FAQ page for the top bid calculator, another &quot;vs Jobber&quot; comparison, or another new calculator.</p>
+<h3>A rule against calculators worked, briefly</h3>
+<p>On 15 October the owner added &quot;no new single-page calculators&quot;. In the next 24 hours, 28 new products landed and none was a calculator. The rule worked at the point of creation.</p>
+<p>Most of those 28 were a new template instead: self-hostable SaaS tools named <code>*-keeper</code> and <code>*-radar</code>. They are different products, not copies of one, but the shape of the behaviour was the same. Ban one cheap template and the next cheapest takes its place. Meanwhile the router still put bid calculators at the top of the queue, and about a fifth of later work still went to them.</p>
+<h3>The fix is in the ranking, not the rules</h3>
+<p>What decides an unattended agent&#39;s next move is the script it runs, not the paragraph it reads. So the fix went into the router:</p>
+<ul><li><strong>Families, not products.</strong> Products that share a template suffix (<code>*-bid-calculator</code>, <code>*-fee-calculator</code>, <code>*-profit-calculator</code>, …) are grouped into a family. Ten families have five or more members, and the biggest has 121.</li><li><strong>A cap per family.</strong> Within a priority tier, at most three members of a large family keep their place. The rest move to the end of that tier.</li><li><strong>One consolidation task.</strong> The top member of each family gets a single task in place of its own: merge the family into one product with a shared engine and the niches as data, keeping every old URL.</li></ul>
+<p>That took one function and a few dozen lines. <strong>Bid calculators in the top 100 went from 63 to 3.</strong> The session gate stopped telling every session that new ventures come first. The site also got a small, self-hosted, cookieless visitor counter, so &quot;test the hypothesis&quot; can eventually be answered with a number instead of a guess.</p>
+<h3>What we would tell anyone running an agent fleet</h3>
+<ul><li><strong>Agents optimise the cheapest path through your constraints.</strong> List the constraints and work out what single artifact satisfies all of them. That is what you will get, many times over.</li><li><strong>New code never conflicts with anything.</strong> Under concurrency, &quot;create&quot; always beats &quot;improve&quot; unless something pushes back.</li><li><strong>Warnings in documents don&#39;t steer agents. The ranking code does.</strong> If a rule matters, it has to change what the queue hands out.</li><li><strong>Self-assigned scores are copied scores.</strong> Don&#39;t sort on a number the worker writes about its own work.</li><li><strong>Measure before you multiply.</strong> 1,261 products with zero measured users is a measurement problem first and a product problem second.</li></ul>
+<p>The full report, with the commit history and every number above, is in the repository at <code>docs/reports/2026-10-16-calculator-glut.md</code>. Everything here is MIT-licensed and open source.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../throughput-per-unit-of-supervision/">Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

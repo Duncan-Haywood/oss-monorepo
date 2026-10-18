@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prop Firm Challenge Calculator vs. a trading spreadsheet</title>
+<meta name="description" content="A trading spreadsheet can count the trades a profit target needs. It rarely plays the order of wins and losses against a trailing drawdown…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/vs-a-trading-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Prop Firm Challenge Calculator vs. a trading spreadsheet">
+<meta property="og:description" content="A spreadsheet counts trades to the target. This simulator plays thousands of win and loss orderings against the challenge rules and reports the pass…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/vs-a-trading-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just model a prop firm challenge in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Yes. A spreadsheet is good at the deterministic part: how many winning trades reach the target and how many losses hit the drawdown. What it handles badly is the order of wins and losses, because the same win rate passes or fails depending on the sequence. A simulation plays thousands of sequences against the daily loss limit, the drawdown floor and the clock together, and reports the share that pass."}},{"@type":"Question","name":"What does a trading spreadsheet usually leave out of a challenge?","acceptedAnswer":{"@type":"Answer","text":"The interaction between rules. A trailing drawdown that rises with your high, a daily loss limit that resets each day, a minimum number of trading days and a time limit all depend on the path your balance takes. Averages cannot show a path, so a sheet built on average win and average loss tends to say the strategy passes whenever its expectancy is positive."}},{"@type":"Question","name":"Does the calculator replace backtesting my strategy?","acceptedAnswer":{"@type":"Answer","text":"No. It takes a win rate and a reward-to-risk ratio you supply, from a backtest or a journal, and shows what the challenge rules do to them. If those inputs are optimistic the output is optimistic. It is a simulation of assumed inputs, not a forecast, and trading carries a risk of loss."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f1e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:30ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#4b5650}section{background:#fffdf8;border:1px solid #d8d0c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dcc9;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4dcc9;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4b5650}.fine,.note{font-size:.88rem;color:#4b5650}footer{color:#4b5650;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Prop Firm Challenge Calculator vs. a trading spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../prop-firm-challenge-calculator/">Prop Firm Challenge Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Prop Firm Challenge Calculator vs. a trading spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Prop Firm Challenge Calculator</a></p>
+<header>
+<h1>Prop Firm Challenge Calculator vs. a trading spreadsheet</h1>
+<p class="lede">A spreadsheet can tell you how many winning trades a profit target needs. It rarely plays the order of wins and losses against a trailing drawdown, a daily loss limit and a time limit at once &mdash; which is what this free, private simulator does with your own win rate and risk.</p>
+</header>
+<section>
+<h2>Where a spreadsheet stops being enough</h2>
+<p>Most challenge entrants already keep a sheet: win rate, average win, average loss, a column that multiplies them. It answers whether the strategy makes money on average. A challenge is not an average; it is a path with walls on both sides and a deadline, and the same win rate passes or fails depending on the sequence.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you are trying to see</th><th scope="col">A spreadsheet you build yourself</th><th scope="col">This simulator</th></tr></thead>
+<tbody>
+<tr><td>Trades needed to hit the target.</td><td>One division, if you assume every trade wins its average.</td><td>Counts them under your win rate, so the target is reached on a distribution of days, not a single day.</td></tr>
+<tr><td>The order of wins and losses.</td><td>Averages hide it, so a losing streak at the start looks the same as one at the end.</td><td>Plays thousands of orderings and reports how many end at the target, at a loss limit or at the clock.</td></tr>
+<tr><td>A trailing drawdown that follows your high.</td><td>Needs a running-maximum column per scenario, rebuilt for each setting.</td><td>Applies a static or trailing floor, with or without the stop at the starting balance.</td></tr>
+<tr><td>A daily loss limit that resets each day.</td><td>Needs a day boundary and a within-day running total.</td><td>Checks it after every trade, and says when the limit alone ends most failed attempts.</td></tr>
+<tr><td>What a fee is worth.</td><td>Fee times attempts, if you already know the pass rate.</td><td>Divides the fee by the simulated pass rate and nets it against simulated funded payouts.</td></tr>
+<tr><td>The risk per trade that works best.</td><td>One scenario per column, retyped for each.</td><td>Sweeps six risk settings under your rules and shows where the pass rate peaks.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>A spreadsheet with a random-number column and a few thousand rows can do the same job. This is the version with the rules already written, nothing to rebuild for the next firm, and your numbers kept in your browser.</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the simulation runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you enter is uploaded. It is a simulation of assumed inputs, not a forecast.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just model a prop firm challenge in a spreadsheet?</h3>
+<p>Yes. A spreadsheet is good at the deterministic part: how many winning trades reach the target and how many losses hit the drawdown. What it handles badly is the order of wins and losses, because the same win rate passes or fails depending on the sequence. A simulation plays thousands of sequences against the daily loss limit, the drawdown floor and the clock together, and reports the share that pass.</p>
+<h3>What does a trading spreadsheet usually leave out of a challenge?</h3>
+<p>The interaction between rules. A trailing drawdown that rises with your high, a daily loss limit that resets each day, a minimum number of trading days and a time limit all depend on the path your balance takes. Averages cannot show a path, so a sheet built on average win and average loss tends to say the strategy passes whenever its expectancy is positive.</p>
+<h3>Does the calculator replace backtesting my strategy?</h3>
+<p>No. It takes a win rate and a reward-to-risk ratio you supply, from a backtest or a journal, and shows what the challenge rules do to them. If those inputs are optimistic the output is optimistic. It is a simulation of assumed inputs, not a forecast, and trading carries a risk of loss.</p>
+<p class="note">Ready to run your numbers? Open the <a href="./">Prop Firm Challenge Calculator</a>.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. Trading carries a risk of loss. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page names no specific product or company and makes no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../invoice-maker/" data-pf-to="invoice-maker">Invoice Maker — free invoice generator, no signup</a></li>
+      <li><a href="../mileage-deduction-calculator/" data-pf-to="mileage-deduction-calculator">Mileage Deduction Calculator — free, 2026</a></li>
+      <li><a href="../mobile-home-park-valuation-calculator/" data-pf-to="mobile-home-park-valuation-calculator">What is a mobile home park worth, and what is a lot rent increase worth? Free calculator</a></li>
+      <li><a href="../mortgage-extra-payment-vs-invest-calculator/" data-pf-to="mortgage-extra-payment-vs-invest-calculator">Pay extra on your mortgage or invest? Free break-even calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=prop-firm-challenge-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="prop-firm-challenge-calculator"></script>
+</body></html>

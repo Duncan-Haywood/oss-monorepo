@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why X-Frame-Options: ALLOW-FROM doesn't protect you anymore</title>
+<meta name="description" content="How clickjacking works, why CSP frame-ancestors doesn't fall back to default-src, why current browsers ignore X-Frame-Options: ALLOW-FROM entirely…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/clickjacking-and-csp-frame-ancestors.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether a page can be clickjacked via a missing or ignored frame header",
+  "step": [
+    { "@type": "HowToStep", "name": "Fetch the page and read its response headers", "text": "Send an ordinary GET request to the page and read back the Content-Security-Policy and X-Frame-Options response headers -- no login or special access needed, this is public response data." },
+    { "@type": "HowToStep", "name": "Check for a CSP frame-ancestors directive first", "text": "frame-ancestors is a CSP directive that lists which origins may embed the page in a frame. It does not inherit from default-src -- if the directive is not explicitly present, CSP gives the page no frame protection at all, even if default-src 'self' is set." },
+    { "@type": "HowToStep", "name": "If there's no frame-ancestors, check X-Frame-Options -- and its exact value", "text": "DENY or SAMEORIGIN still work in every current browser. ALLOW-FROM does not: every major browser engine dropped support for it once CSP2's frame-ancestors shipped, so a page relying on ALLOW-FROM looks protected in a raw header dump and is not protected in a real browser today." },
+    { "@type": "HowToStep", "name": "Automate it", "text": "A free tool that reads both headers, applies the CSP fallback rules correctly, and reports which of the three states (protected, ALLOW-FROM ignored, or unprotected) applies is at ../security-headers-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/clickjacking-and-csp-frame-ancestors.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why X-Frame-Options: ALLOW-FROM doesn't protect you anymore">
+<meta property="og:description" content="How clickjacking works, why CSP frame-ancestors doesn't fall back to default-src, why current browsers ignore X-Frame-Options: ALLOW-FROM entirely…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why X-Frame-Options: ALLOW-FROM doesn't protect you anymore — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-headers-check/">Security Headers Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why X-Frame-Options: ALLOW-FROM doesn't protect you anymore</span></span></nav>
+<h1>Why <code>X-Frame-Options: ALLOW-FROM</code> doesn't protect you anymore</h1>
+
+<p>
+  Clickjacking works by loading your page inside an invisible or disguised
+  <code>&lt;iframe&gt;</code> on an attacker's site, then tricking a visitor into clicking
+  something that is really a button on your page underneath -- a "log in with Google" prompt, a
+  "confirm transfer" button, a cookie-consent toggle. The defence is telling the browser which
+  sites, if any, are allowed to frame your page at all, and two different headers can say so.
+</p>
+
+<h2><code>frame-ancestors</code> does not fall back to <code>default-src</code></h2>
+<p>
+  Most Content-Security-Policy directives that control where a resource can load from --
+  <code>script-src</code>, <code>img-src</code>, <code>connect-src</code>, and others -- fall back
+  to <code>default-src</code> when they aren't explicitly set. <code>frame-ancestors</code> is a
+  navigation directive, not a fetch directive, and the CSP specification does not give it that
+  fallback. A policy of <code>default-src 'self'</code> alone gives the page <strong>no</strong>
+  clickjacking protection from CSP -- the directive has to be spelled out on its own.
+</p>
+
+<h2>Three states, and only one header combination tells you which</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>What's present</th><th>Actually protected in current browsers?</th></tr></thead>
+<tbody>
+<tr><td>CSP <code>frame-ancestors</code> set (to anything but <code>*</code>)</td><td>Yes -- takes precedence over X-Frame-Options everywhere</td></tr>
+<tr><td>No <code>frame-ancestors</code>, but <code>X-Frame-Options: DENY</code> or <code>SAMEORIGIN</code></td><td>Yes</td></tr>
+<tr><td>No <code>frame-ancestors</code>, only <code>X-Frame-Options: ALLOW-FROM https://example.com</code></td><td><strong>No</strong> -- every current major browser engine ignores the ALLOW-FROM value entirely</td></tr>
+<tr><td>Neither header present</td><td>No</td></tr>
+</tbody>
+</table></div>
+<p>
+  The third row is the one worth checking for by name: it is the only case where a header is
+  present, looks correct, and still leaves the page completely unprotected -- a raw
+  <code>curl -I</code> dump reads it as "has X-Frame-Options" with no way to tell that a browser
+  will not honour it.
+</p>
+
+<h2>Check your own site automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> sends one real request, applies these CSP
+  fallback and ALLOW-FROM rules, and reports which of the three states above your response is in --
+  plus whether your CSP's effective <code>script-src</code> allows <code>'unsafe-inline'</code> with
+  no nonce or hash to override it, or a wildcard host source, and whether the response has
+  <code>Strict-Transport-Security</code> at all. The request comes from a Node CLI you run yourself
+  against a system you own or are authorised to test; the browser page only renders a report you
+  paste in.
+</p>
+<p>
+  This is evidence from that one response, not a full security assessment -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-headers-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-headers-check"></script>
+</body>
+</html>

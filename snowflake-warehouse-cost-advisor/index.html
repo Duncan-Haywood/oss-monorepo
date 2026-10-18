@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Snowflake Warehouse Cost Advisor — AUTO_SUSPEND, Idle Warehouses and Sizing</title>
+  <meta name="description" content="Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for…">
+  <meta property="og:title" content="Why is your Snowflake bill so high?">
+  <meta property="og:description" content="Paste a warehouse list, see credits in dollars and ready-to-paste ALTER WAREHOUSE commands. No Snowflake access, no account, no upload.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Snowflake Warehouse Cost Advisor", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste Snowflake warehouses and see credit cost, AUTO_SUSPEND idle tails, idle and never-suspending warehouses and the ALTER WAREHOUSE command. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my Snowflake account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the rows you paste and never contacts Snowflake. It cannot see your contract, so every dollar figure is the credits you pasted times a credit price you can edit."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Credits per warehouse: SUM(CREDITS_USED) grouped by WAREHOUSE_NAME over 30 days from SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY. Size and AUTO_SUSPEND: SHOW WAREHOUSES. Queries and average runtime: ACCOUNT_USAGE.QUERY_HISTORY. Resumes: RESUME events in WAREHOUSE_EVENTS_HISTORY."}}, {"@type": "Question", "name": "What AUTO_SUSPEND should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Snowflake bills a 60-second minimum each time a warehouse resumes, so 60 seconds is the practical floor. Anything longer pays for idle time after each burst; the default of 600 seconds on a warehouse that wakes hundreds of times a month is a common silent cost. A shorter setting means a colder cache and a short resume wait."}}, {"@type": "Question", "name": "Will a smaller warehouse be cheaper?", "acceptedAnswer": {"@type": "Answer", "text": "Credits per hour halve with each size down, but a long or memory-hungry query can run more than twice as long and cost the same or more. Short queries that do not speed up on a bigger size are the safe candidates. The advisor reports this only as an upper bound and never counts it in the saving."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Why is your Snowflake bill so high?","item":"https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why is your Snowflake bill so high? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why is your Snowflake bill so high?</span></span></nav>
+  <header>
+    <p class="note">SNOWFLAKE WAREHOUSE COST ADVISOR · RUNS IN YOUR BROWSER</p>
+    <h1>Why is your Snowflake bill so high?</h1>
+    <p>Paste one row per warehouse — size, credits used, AUTO_SUSPEND, resumes — and see <strong>what each warehouse costs</strong>, <strong>the idle tail an AUTO_SUSPEND of 600 seconds is billing</strong>, <strong>idle warehouses</strong>, <strong>warehouses that never suspend</strong> and the <strong>ready-to-paste <code>ALTER WAREHOUSE</code> command</strong>.</p>
+    <p class="note">Nothing is uploaded and Snowflake is never contacted. The text box is analysed in this browser and never leaves your device. The AUTO_SUSPEND saving is modelled from resumes and idle tails, which is an estimate.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your warehouses</h2>
+    <label for="metrics-input">Rows of warehouse, size, credits this month, AUTO_SUSPEND seconds (or never), queries, avg query seconds, resumes (last three optional)</label>
+    <textarea id="metrics-input" spellcheck="false" placeholder="BI_DASHBOARDS,L,1400,600,52000,3,520"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Modelled monthly cost per warehouse</h3>
+    <div class="pf-table-scroll"><table id="cost-table" hidden>
+      <thead><tr><th>Warehouse</th><th>Per month</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table></div>
+    <h3>Findings</h3>
+    <div class="pf-table-scroll"><table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table></div>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze warehouses.csv
+cat warehouses.csv | node cli.mjs analyze -
+node cli.mjs analyze warehouses.csv --suspend 120 --fail-on warn   # exit 1 on any waste
+node cli.mjs analyze warehouses.csv --json --prices my-prices.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="snowflake-warehouse-auto-suspend-and-sizing.html">Snowflake warehouse cost: AUTO_SUSPEND, idle warehouses and sizing</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">Prices are illustrative and dated; edit them with <code>--prices</code> in the CLI. Storage, serverless features, cloud-services credits and multi-cluster warehouses are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my Snowflake account?</h3>
+    <p>No. It reads the rows you paste and never contacts Snowflake. It cannot see your contract, so every dollar figure is the credits you pasted times a credit price you can edit.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>Credits per warehouse: SUM(CREDITS_USED) grouped by WAREHOUSE_NAME over 30 days from SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY. Size and AUTO_SUSPEND: SHOW WAREHOUSES. Queries and average runtime: ACCOUNT_USAGE.QUERY_HISTORY. Resumes: RESUME events in WAREHOUSE_EVENTS_HISTORY.</p>
+    <h3>What AUTO_SUSPEND should I use?</h3>
+    <p>Snowflake bills a 60-second minimum each time a warehouse resumes, so 60 seconds is the practical floor. Anything longer pays for idle time after each burst; the default of 600 seconds on a warehouse that wakes hundreds of times a month is a common silent cost. A shorter setting means a colder cache and a short resume wait.</p>
+    <h3>Will a smaller warehouse be cheaper?</h3>
+    <p>Credits per hour halve with each size down, but a long or memory-hungry query can run more than twice as long and cost the same or more. Short queries that do not speed up on a bigger size are the safe candidates. The advisor reports this only as an upper bound and never counts it in the saving.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It prices warehouse rows you paste at a credit price you can edit; it is not a measurement and not a guarantee of what Snowflake will charge. Shortening AUTO_SUSPEND or resizing changes performance: test on one warehouse first. Snowflake is a trademark of its owner and is used only to describe what the tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../databricks-cluster-cost-advisor/">Databricks Cluster Cost Advisor</a> does the same for Databricks, <a href="../bigquery-query-cost-advisor/">BigQuery Query Cost Advisor</a> for BigQuery, <a href="../cloudwatch-logs-cost-advisor/">CloudWatch Logs Cost Advisor</a>, <a href="../s3-storage-class-advisor/">S3 Storage Class Advisor</a> and <a href="../ebs-volume-cost-advisor/">EBS Volume Cost Advisor</a> for AWS, and <a href="../vector-db-cost-calculator/">Vector DB Cost Calculator</a> prices vector databases.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseWarehouses, analyze, summarize, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#metrics-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), costT: $("#cost-table"), costR: $("#cost-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some warehouse rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const report = analyze(parseWarehouses(text), {});
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.costT.hidden = !report.count;
+      const rowsData = report.count ? report.warehouses.map((w) => [`${w.name} (${w.size}) — ${w.credits} credits${w.saving > 0 ? ` · saves $${w.saving.toFixed(2)}` : ""}`, w.current]) : [];
+      els.costR.innerHTML = rowsData.map(([l, c]) => `<tr><td>${escapeHtml(l)}</td><td>$${c.toFixed(2)}</td></tr>`).join("");
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Numbers as supplied; a shorter AUTO_SUSPEND or smaller size changes performance, so test first.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `warehouse,size,credits_month,auto_suspend_seconds,queries_month,avg_query_seconds,resumes_month
+BI_DASHBOARDS,L,1400,600,52000,3,520
+ETL_NIGHTLY,XL,880,60,420,540,30
+ADHOC_ANALYSTS,M,310,900,6800,12,120
+OLD_REPORTING,S,1460,never,0,0,0`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../skill-manifest-check/" data-pf-to="skill-manifest-check">Skill Manifest Check</a></li>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=snowflake-warehouse-cost-advisor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/?pfEmbed=1&quot; title=&quot;Why is your Snowflake bill so high? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="snowflake-warehouse-cost-advisor"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/" data-pf-embed-title="Why is your Snowflake bill so high?" data-pf-embed-slug="snowflake-warehouse-cost-advisor"></script>
+</body>
+</html>

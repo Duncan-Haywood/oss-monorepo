@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopify Inventory CSV Check — Catch Bad Stock Counts Before You Import</title>
+  <meta name="description" content="Free Shopify inventory import CSV checker: finds missing or misspelled On hand (new) columns, quantities that are text, fractions or have thousands commas…">
+  <meta property="og:title" content="Shopify Inventory CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what makes a Shopify inventory import update nothing or set the wrong stock, with the line number, before you import. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shopify Inventory CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Shopify inventory import CSV for a missing On hand (new) column, non-numeric, fractional, negative and thousands-separated quantities, tenfold jumps, duplicate variant and location rows, malformed handles, inconsistent location names and Excel-damaged SKUs, and applies formatting-only safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Shopify inventory CSV validator, Shopify stock import error finder, On hand (new) column check, duplicate variant and location finder, quantity typo finder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my Shopify inventory import update nothing or set the wrong stock?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a quantity column that is not named exactly On hand (new) (a header like Quantity or Stock is ignored), blank cells in that column (blank means no change), quantities written as text such as 12 pcs, fractions, or numbers with a thousands comma that split into two cells, an extra zero that makes a tenfold jump, two rows for the same variant and location so one quietly wins, a handle retyped with capitals or spaces so it matches no product, a location spelled differently from the one in Shopify, and an Excel save that turned long SKUs into scientific notation. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Does a clean CSV mean the stock counts are right?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tool checks formatting only. The import sets stock to the figures in the file, so a count taken hours ago can overwrite sales and receipts since the export. Export fresh just before editing and import a few rows first. A clean result is not a promise that Shopify will accept the file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Shopify Inventory CSV Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shopify Inventory CSV Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Shopify Inventory CSV Check — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">SHOPIFY INVENTORY CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my Shopify inventory import update nothing or set the wrong stock?</h1>
+    <p>Paste or drop your <strong>Shopify inventory CSV</strong> and get every problem <strong>with its line number</strong> before you import: a missing or misspelled <strong><code>On hand (new)</code></strong> column, quantities that are <strong>text, fractions or have a thousands comma</strong>, <strong>tenfold typos</strong>, <strong>two rows for the same variant and location</strong>, handles retyped so they match no product, <strong>locations spelled two ways</strong>, and SKUs Excel turned into <code>4.01E+12</code>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Shopify Inc. Column names and rules are read from memory of Shopify's public help pages on updating inventory quantities by CSV; no Shopify store or import was available when this was built.</p>
+    <p class="note"><strong>About the counts.</strong> The import sets stock to the figures in the file. Sales and receipts since you exported are not netted off, so export fresh just before you edit, and try a handful of rows first. This tool checks formatting; it never decides what a quantity should be.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your inventory CSV</h2>
+    <p class="note">The inventory export from Shopify admin (Products → Inventory → Export), edited in a spreadsheet. Product data stays on your device.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Handle,Title,Option1 Name,Option1 Value,SKU,Location,On hand (current),On hand (new)"></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Rows with findings</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Product</th><th class="n" scope="col">Findings</th></tr></thead><tbody id="flagged"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Matching.</strong> Each row needs a <strong>Handle</strong> (lowercase letters, digits and hyphens) and a <strong>Location</strong>. Two rows with the same handle, option values and location give the importer two quantities for one stock record.</li>
+      <li><strong>The quantity column.</strong> The importer applies <strong>On hand (new)</strong> (older exports: <strong>Available (new)</strong>). A near miss such as <code>Quantity</code>, <code>Qty</code> or <code>Stock</code> is flagged because it can be ignored. A blank cell means no change.</li>
+      <li><strong>Quantities</strong> are whole numbers. Text, fractions, a thousands comma and spreadsheet errors are errors; a negative figure or a jump of ten times or more is a warning, because only you know whether it is real.</li>
+      <li><strong>Locations</strong> spelled with different capitals or spaces in one file are flagged; use the spelling Shopify shows.</li>
+      <li><strong>Excel damage.</strong> A SKU such as <code>4.01E+12</code> means Excel read it as a number and the digits are gone. Format the column as Text before editing.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, the spelling of known headers, stray spaces around a handle, SKU, location or quantity, and a trailing <code>.0</code> on a whole-number quantity. It never changes a quantity's value, never resolves a duplicate and never touches a title or a column Shopify marks not editable.</li>
+      <li><strong>Not checked:</strong> that Shopify will accept the file today, that a handle exists in your store, that a location exists, stock movement since the export, and anything Shopify changes in its importer. Import a few rows first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my Shopify inventory import update nothing or set the wrong stock?</h3>
+    <p>The usual causes are a quantity column that is not named exactly On hand (new) (a header like Quantity or Stock is ignored), blank cells in that column (blank means no change), quantities written as text such as 12 pcs, fractions, or numbers with a thousands comma that split into two cells, an extra zero that makes a tenfold jump, two rows for the same variant and location so one quietly wins, a handle retyped with capitals or spaces so it matches no product, a location spelled differently from the one in Shopify, and an Excel save that turned long SKUs into scientific notation. This tool tests each of them and names the line.</p>
+    <h3>Does a clean CSV mean the stock counts are right?</h3>
+    <p>No. The tool checks formatting only. The import sets stock to the figures in the file, so a count taken hours ago can overwrite sales and receipts since the export. Export fresh just before editing and import a few rows first. A clean result is not a promise that Shopify will accept the file.</p>
+    <h3>Why did my SKUs turn into 4.01E+12?</h3>
+    <p>Excel treats a long run of digits as a number and shows it in scientific notation; once saved the original digits are lost. The tool flags it but cannot restore them. Re-export from Shopify with the column formatted as Text.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, the spelling of known headers, stray spaces and a trailing .0 on a whole number. Every change is listed with its line. It never changes a quantity's value.</p>
+    <h3>Is it safe to put my product data into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Shopify's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that Shopify will accept the file or that your stock counts are correct.</p>
+    <p><strong>Not affiliated with Shopify.</strong> This tool is independent and is not sponsored, endorsed or connected to Shopify Inc. Shopify is a trademark of its owner, used here only to say which file format the tool reads. The column list and rules are read from memory of public sources and may be out of date or miss a variant; check them against Shopify's current import documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> covers the product import, the <a href="../shopify-customer-csv-check/">Shopify customer CSV check</a> prepares a store's customers, the <a href="../shopify-inventory-reorder-planner/">Shopify inventory reorder planner</a> works out what to order, and the <a href="../shopify-fee-calculator/">Shopify fee calculator</a> shows what each sale keeps.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns · ${s.withNewQty} with a new quantity, ${s.unchanged} unchanged`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#flagged").innerHTML = s.flagged.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.email)}</td><td class="n">${g.issues}</td></tr>`).join("") || `<tr><td colspan="3">No rows flagged.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. No quantity value is changed.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up products and locations."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: made-up products after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("shopify-inventory-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("shopify-inventory-csv-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-inventory-csv-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/?pfEmbed=1&quot; title=&quot;Shopify Inventory CSV Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="shopify-inventory-csv-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/" data-pf-embed-title="Shopify Inventory CSV Check — free, private, in your browser" data-pf-embed-slug="shopify-inventory-csv-check"></script>
+</body>
+</html>

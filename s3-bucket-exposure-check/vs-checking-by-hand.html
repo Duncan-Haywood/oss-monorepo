@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S3 Bucket Exposure Checker vs. Checking By Hand</title>
+<meta name="description" content="Typing bucket.s3.amazonaws.com into a browser tab catches an obvious public listing. It misses a public-write ACL…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/vs-checking-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does typing the bucket URL into a browser tab actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Typing https://bucket-name.s3.amazonaws.com/ into a browser tab is a fast, real check for the single obvious case: an AccessDenied XML error means listing is blocked, and a ListBucketResult means it is not. That's genuinely useful and free -- but it only checks listing, and only from whichever region endpoint your browser's DNS happens to resolve first." }
+      },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick manual look easily misses: (1) It only checks listing, not the ACL -- a bucket can block anonymous listing while its ACL still grants AllUsers read or write access to individual objects by direct URL. (2) A grant to AuthenticatedUsers looks, at a glance, like it might mean 'my own team' -- this tool names it explicitly as 'any AWS account holder' so it is never mistaken for a scoped grant. (3) A bucket outside us-east-1 commonly needs a region-specific endpoint; a browser hitting the wrong one can get a confusing redirect or error that looks like 'blocked' when it isn't actually confirmed either way." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for a recurring audit, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A manual check is a point-in-time look at one bucket. A new bucket created from a script, a Block Public Access setting toggled off for a one-time migration and never reverted, or an ACL widened by a later object upload can reintroduce this exposure at any point. The CLI here returns a real exit code, so it can be wired into a nightly audit or a deploy pipeline, catching a regression the day it happens rather than the next time someone thinks to check by hand." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/vs-checking-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="S3 Bucket Exposure Checker vs. Checking By Hand">
+<meta property="og:description" content="Typing bucket.s3.amazonaws.com into a browser tab catches an obvious public listing. It misses a public-write ACL…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="S3 Bucket Exposure Checker vs. Checking By Hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s3-bucket-exposure-check/">S3 Bucket Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">S3 Bucket Exposure Checker vs. Checking By Hand</span></span></nav>
+<p><a href="index.html">← Back to the S3 Bucket Exposure Checker</a></p>
+<h1>S3 Bucket Exposure Checker vs. checking by hand</h1>
+<p>
+  Typing <code>https://bucket-name.s3.amazonaws.com/</code> into a browser tab is a real, fast way
+  to spot the single obvious case: a plainly readable <code>ListBucketResult</code>. It is also the
+  method most developers already reach for first, and it genuinely works for that case.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Check</th><th>Typing the URL by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious public listing</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>ACL-based public read/write, with listing blocked</td><td>Not checked -- a browser tab only sees the listing endpoint</td><td>A separate GetBucketAcl request checks read and write grants independently</td></tr>
+    <tr><td>Distinguishing AllUsers from AuthenticatedUsers</td><td>Easy to read "AuthenticatedUsers" as "my own users"</td><td>Named explicitly as "any AWS account holder", flagged as its own finding</td></tr>
+    <tr><td>A bucket outside us-east-1</td><td>Can hit the wrong regional endpoint and see a confusing error</td><td>Retries once against the region S3 itself reports in the response header</td></tr>
+    <tr><td>Repeatable in a nightly audit or CI</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+  </tbody>
+</table></div>
+
+<h2>When to still just look</h2>
+<p>
+  If you only need a one-off sanity check on a bucket name you already have open in a browser
+  tab, looking is fine — it's free and you're already there, and it does catch the most common
+  case (a plainly listable bucket). The gap this tool closes is coverage: the ACL check most
+  people skip because it needs a second URL, the AuthenticatedUsers distinction most people don't
+  know to look for, and an exit code a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does typing the bucket URL into a browser tab actually show you?</h3>
+<p>Typing https://bucket-name.s3.amazonaws.com/ into a browser tab is a fast, real check for the single obvious case: an AccessDenied XML error means listing is blocked, and a ListBucketResult means it is not. That's genuinely useful and free -- but it only checks listing, and only from whichever region endpoint your browser's DNS happens to resolve first.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a quick manual look easily misses: (1) It only checks listing, not the ACL -- a bucket can block anonymous listing while its ACL still grants AllUsers read or write access to individual objects by direct URL. (2) A grant to AuthenticatedUsers looks, at a glance, like it might mean 'my own team' -- this tool names it explicitly as 'any AWS account holder' so it is never mistaken for a scoped grant. (3) A bucket outside us-east-1 commonly needs a region-specific endpoint; a browser hitting the wrong one can get a confusing redirect or error that looks like 'blocked' when it isn't actually confirmed either way.</p>
+<h3>Why does this matter for a recurring audit, not just a one-time check?</h3>
+<p>A manual check is a point-in-time look at one bucket. A new bucket created from a script, a Block Public Access setting toggled off for a one-time migration and never reverted, or an ACL widened by a later object upload can reintroduce this exposure at any point. The CLI here returns a real exit code, so it can be wired into a nightly audit or a deploy pipeline, catching a regression the day it happens rather than the next time someone thinks to check by hand.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any bucket you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../codeowners-shadow-check/" data-pf-to="codeowners-shadow-check">CODEOWNERS Shadow Checker</a></li>
+      <li><a href="../cookie-security-check/" data-pf-to="cookie-security-check">Cookie Security Checker</a></li>
+      <li><a href="../cors-misconfig-check/" data-pf-to="cors-misconfig-check">CORS Misconfiguration Checker</a></li>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s3-bucket-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s3-bucket-exposure-check"></script>
+</body>
+</html>

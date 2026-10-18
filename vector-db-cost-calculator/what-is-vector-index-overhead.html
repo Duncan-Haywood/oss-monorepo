@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is Vector Index Overhead? | Vector Database Cost Calculator</title>
+<meta name="description" content="Why a vector index takes up more space than vectorCount x dimension x 4 bytes, what typically causes the extra space (graph structure…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/what-is-vector-index-overhead.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What is vector index overhead?">
+<meta property="og:description" content="Raw vector bytes are one number. What a deployed index actually occupies is usually more. Here is why, and how to pick a multiplier.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is vector index overhead?","acceptedAnswer":{"@type":"Answer","text":"The difference between the raw size of your embeddings (vectorCount times dimension times 4 bytes for float32, plus any per-vector metadata) and what a deployed, queryable index actually occupies on disk or in memory. The gap exists because a vector database does not just store your vectors -- it builds a data structure on top of them so that a similarity search does not have to compare against every vector one by one."}},{"@type":"Question","name":"What typically causes vector index overhead?","acceptedAnswer":{"@type":"Answer","text":"Three common contributors, though the exact mix and magnitude is engine- and configuration-specific: a graph or tree structure (HNSW is the most common) that stores links between nearby vectors so a search can skip most of the dataset; bookkeeping for quantization schemes that compress vectors for search but may keep extra data for accuracy; and replication, where a provider keeps more than one copy of the index for availability, which multiplies storage directly."}},{"@type":"Question","name":"How do I pick a multiplier instead of guessing?","acceptedAnswer":{"@type":"Answer","text":"The reliable way is to measure it: deploy a small or representative subset of your data on your chosen provider, look at the storage the provider reports for that index, and divide by the raw byte size the calculator computes for that same subset. That ratio is your multiplier for that provider and configuration -- use it, rather than a number from any other source, because overhead depends on your specific index type, dimension, and tuning."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:820px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/what-is-vector-index-overhead.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is vector index overhead? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vector-db-cost-calculator/">Vector Database Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is vector index overhead?</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vector Database Cost Calculator</a></p>
+<header>
+<h1>What is vector index overhead?</h1>
+<p class="lede">Raw vector bytes are one number: vector count &times; dimension &times; 4 bytes for float32, plus any metadata you store alongside each vector. What a deployed, queryable index actually occupies is usually more &mdash; here is why, and how to pick a number instead of guessing.</p>
+</header>
+<section>
+<h2>Why a deployed index is bigger than the raw vectors</h2>
+<p>
+  A vector database does not just store your embeddings &mdash; it builds a
+  data structure on top of them so that a similarity search does not have to
+  compare your query against every stored vector one by one. That structure
+  costs space. Three common contributors, though the exact mix and magnitude
+  is engine- and configuration-specific:
+</p>
+<ul>
+  <li><strong>Graph or tree structure.</strong> HNSW (Hierarchical Navigable Small World) is the most common approach in production vector databases today: it stores links between nearby vectors across multiple layers so a search can skip most of the dataset instead of scanning it. Those links are extra data on top of the vectors themselves, and denser graphs (more links per node, more layers) trade more storage for faster or more accurate search.</li>
+  <li><strong>Quantization bookkeeping.</strong> Some engines compress vectors for storage and search (product quantization, scalar quantization, binary quantization) to save space, but may keep additional metadata or a higher-precision copy to preserve search accuracy &mdash; which can partly offset the savings depending on configuration.</li>
+  <li><strong>Replication.</strong> A managed provider commonly keeps more than one copy of an index for availability. Two full replicas is roughly double the storage of one, independent of anything about the index structure itself.</li>
+</ul>
+<p>
+  None of these are fixed percentages &mdash; they depend on the specific
+  engine, its index type, your chosen build parameters (graph connectivity,
+  quantization mode, replica count), and your dimensionality. That is why the
+  <a href="./">Vector Database Cost Calculator</a> asks for an overhead
+  multiplier you set, rather than asserting a single number that would be
+  wrong for most configurations and stale the moment any vendor changed its
+  defaults.
+</p>
+</section>
+<section>
+<h2>How to pick a multiplier instead of guessing</h2>
+<p>
+  The reliable way is to measure it, not look it up: deploy a small or
+  representative subset of your data on your chosen provider, read the
+  storage figure the provider reports for that index, and divide it by the
+  raw byte size for that same subset (vector count &times; dimension &times;
+  4, plus metadata). That ratio is your multiplier for that specific provider,
+  index type, and configuration &mdash; more reliable than a number taken
+  from documentation written for a different tuning, or from a different
+  engine entirely. Start at 1.0 (no overhead modeled, raw vectors only) if you
+  have no measurement yet, and revise it once you do.
+</p>
+<p class="fine">This page states general, widely documented facts about how vector search indexes work. It is not a claim about any specific vendor's current implementation, defaults, or pricing.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is vector index overhead?</h3>
+<p>The difference between the raw size of your embeddings (vectorCount times dimension times 4 bytes for float32, plus any per-vector metadata) and what a deployed, queryable index actually occupies on disk or in memory. The gap exists because a vector database does not just store your vectors -- it builds a data structure on top of them so that a similarity search does not have to compare against every vector one by one.</p>
+<h3>What typically causes vector index overhead?</h3>
+<p>Three common contributors, though the exact mix and magnitude is engine- and configuration-specific: a graph or tree structure (HNSW is the most common) that stores links between nearby vectors so a search can skip most of the dataset; bookkeeping for quantization schemes that compress vectors for search but may keep extra data for accuracy; and replication, where a provider keeps more than one copy of the index for availability, which multiplies storage directly.</p>
+<h3>How do I pick a multiplier instead of guessing?</h3>
+<p>The reliable way is to measure it: deploy a small or representative subset of your data on your chosen provider, look at the storage the provider reports for that index, and divide by the raw byte size the calculator computes for that same subset. That ratio is your multiplier for that provider and configuration -- use it, rather than a number from any other source, because overhead depends on your specific index type, dimension, and tuning.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice specific to your deployment, and it does not replace your chosen provider's own documentation or your own measurement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Use the <a href="./">Vector Database Cost Calculator</a> to turn your own numbers into a storage estimate. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../fuel-surcharge-schedule-calculator/" data-pf-to="fuel-surcharge-schedule-calculator">Fuel Surcharge Calculator — free, private</a></li>
+      <li><a href="../hos-trip-planner/" data-pf-to="hos-trip-planner">HOS Trip Planner — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vector-db-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vector-db-cost-calculator"></script>
+</body></html>

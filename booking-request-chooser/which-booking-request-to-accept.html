@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Which Booking Request Should You Accept? The Gap-Night Math</title>
+  <meta name="description" content="How to choose between overlapping rental booking requests: price minus turnover, plus what the leftover nights can still earn…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/which-booking-request-to-accept.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I accept the highest-paying booking request?", "acceptedAnswer": {"@type": "Answer", "text": "Not automatically. Compare what the calendar earns with and without it: its price, minus the cost of turning the place over, plus whatever the nights left on either side of it can still earn. If it leaves a gap shorter than your minimum stay, those nights are dead and the stay has to beat the alternative by more than their value."}}, {"@type": "Question", "name": "How do I fill a one- or two-night gap between bookings?", "acceptedAnswer": {"@type": "Answer", "text": "Lower your minimum stay for just those dates, offer a discounted gap-night price, or send the guest a counter-offer that extends their stay a night earlier or later so it closes the gap."}}, {"@type": "Question", "name": "Is it worth declining a request to keep a longer stay possible?", "acceptedAnswer": {"@type": "Answer", "text": "Only when the longer stays are realistic. Estimate what a leftover night is worth as your usual nightly price times how often leftover nights actually fill, and let the numbers decide."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/which-booking-request-to-accept.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Which Booking Request Should You Accept? The Gap-Night Math">
+<meta property="og:description" content="How to choose between overlapping rental booking requests: price minus turnover, plus what the leftover nights can still earn…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which Booking Request Should You Accept? The Gap-Night Math — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../booking-request-chooser/">Which booking requests should you accept?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which Booking Request Should You Accept? The Gap-Night Math</span></span></nav>
+  <p class="note"><a href="./">Booking Request Chooser</a> · guide</p>
+  <h1>Which booking request should you accept? The gap-night math</h1>
+  <p>Short answer: <strong>accept the set of requests that leaves the calendar worth the most, not the single request that pays the most</strong>. A stay is worth its price, less what it costs to turn the place over, plus whatever the nights it leaves behind can still earn. Nights trapped in a gap shorter than your minimum stay earn nothing.</p>
+
+  <h2>A worked example</h2>
+  <p>You have a 7-night hole between two confirmed bookings (5 to 12 July), a 3-night minimum, $60 turnover and leftover nights worth about $50.</p>
+  <ul>
+    <li>Request A, 7 to 10 July, $480. It pays the most per night, but leaves 2 nights before and 2 after. Both gaps are under 3 nights, so 4 nights are dead. Worth $480 - $60 = $420.</li>
+    <li>Requests B (5 to 9 July, $440) and C (9 to 12 July, $345) fit end to end. Worth $785 - $120 = $665.</li>
+  </ul>
+  <p>Accepting the first request that arrived, or the one with the highest price, costs $245 here. The <a href="./">Booking Request Chooser</a> finds that answer on any calendar, exactly, and lists the reason for each decline.</p>
+
+  <h2>How the plan is found</h2>
+  <ol>
+    <li>Confirmed bookings are fixed. Any request overlapping one is out.</li>
+    <li>Between each pair of confirmed bookings, the tool considers every chain of non-overlapping requests (a stay may end the day another begins) with dynamic programming, scoring price minus turnover plus the empty-night value of every leftover gap at least as long as your minimum stay.</li>
+    <li>It compares that with accepting in arrival order and highest price first, and tries stays one or two nights longer or shorter at the guest's own nightly rate as counter-offers.</li>
+  </ol>
+
+  <h2>Pick the empty-night value honestly</h2>
+  <p>That number is your estimate: your usual nightly price times how often a leftover night actually fills. Set it to zero and the tool only compares prices less turnover. The page also tells you whether the plan changes when leftover nights are worth nothing, half or double what you entered.</p>
+
+  <h2>Questions</h2>
+  <h3>Should I accept the highest-paying booking request?</h3>
+  <p>Not automatically. Compare what the calendar earns with and without it: its price, minus the cost of turning the place over, plus whatever the nights left on either side of it can still earn. If it leaves a gap shorter than your minimum stay, those nights are dead and the stay has to beat the alternative by more than their value.</p>
+  <h3>How do I fill a one- or two-night gap between bookings?</h3>
+  <p>Lower your minimum stay for just those dates, offer a discounted gap-night price, or send the guest a counter-offer that extends their stay a night earlier or later so it closes the gap.</p>
+  <h3>Is it worth declining a request to keep a longer stay possible?</h3>
+  <p>Only when the longer stays are realistic. Estimate what a leftover night is worth as your usual nightly price times how often leftover nights actually fill, and let the numbers decide.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for complying with the rules of any booking platform you use. The worked example is illustrative arithmetic, not a forecast of what will book.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../no-tax-on-tips-overtime-calculator/" data-pf-to="no-tax-on-tips-overtime-calculator">No Tax on Tips &amp; Overtime Calculator — free 2026 deduction estimator</a></li>
+      <li><a href="../nsa-idr-offer-calculator/" data-pf-to="nsa-idr-offer-calculator">No Surprises Act IDR Offer Calculator — free, private, in your browser</a></li>
+      <li><a href="../nz-gst-registration-checker/" data-pf-to="nz-gst-registration-checker">New Zealand GST registration checker: do you have to register? Free, private</a></li>
+      <li><a href="../nz-sole-trader-tax-set-aside-calculator/" data-pf-to="nz-sole-trader-tax-set-aside-calculator">New Zealand Self-Employed Tax Set-Aside Calculator. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=booking-request-chooser">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="booking-request-chooser"></script>
+</body>
+</html>

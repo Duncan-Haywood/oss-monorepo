@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>This calculator vs. Bonsai | Quote Margin Check</title>
+<meta name="description" content="Bonsai is all-in-one client-management software sold as an ongoing subscription: proposals, contracts and e-signatures, time tracking, invoicing…" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/vs-bonsai.html">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="This calculator vs. Bonsai" />
+<meta property="og:description" content="Two different shapes: Bonsai runs your whole freelance business — proposals, contracts, time tracking, invoicing — as an ongoing subscription account." />
+<meta property="og:url" content="./vs-bonsai.html" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Bonsai?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a freelancer running a full client roster will likely end up touching both eventually. Bonsai is client-management software, sold under an ongoing subscription account: it builds and sends proposals and contracts with e-signatures, tracks time across projects, generates and chases invoices, tracks expenses, and estimates quarterly taxes, all synced across every client you run. Setting it up means an account and configuring your proposal, contract, and invoice templates, not a one-off calculation. Bonsai's own site is not reachable from this session to confirm today's specific plan names, feature tiers, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This calculator does none of that. It takes one proposed quote — price, delivery hours, admin and revision time, overhead, and subcontractor cost — and works out the effective hourly rate you are really being paid, the price that hits your target rate, and what a client's requested discount or a mid-project cancellation actually costs you, instantly in the browser, with no account and nothing uploaded. A freelancer running proposals, contracts, and invoicing across a full client roster day to day is better served by Bonsai or a comparable client-management platform; a freelancer checking whether one quote in front of them actually pays what they think it does is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Bonsai?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Bonsai (HelloBonsai). Bonsai is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root{color-scheme:light dark;--bg:#ffffff;--fg:#1a1a1a;--muted:#5a5a5a;--border:#d8d8d8;--accent:#2b6cb0;--panel:#f7f7f8}
+  @media (prefers-color-scheme: dark){:root{--bg:#14161a;--fg:#eaeaea;--muted:#a3a3a3;--border:#33363c;--panel:#1d2026;--accent:#6ea8ff}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  main{max-width:800px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  a{color:var(--accent);overflow-wrap:anywhere}
+  .eyebrow{font-weight:700;font-size:.9rem}
+  h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.1;margin:.4rem 0;letter-spacing:-.02em}
+  .lede{font-size:1.05rem;max-width:64ch;color:var(--muted)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  h2{font-size:1.15rem;margin-top:0}
+  h3{font-size:1rem;margin-bottom:.3rem}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .fine,.note{font-size:.88rem;color:var(--muted)}
+  footer{border-top:1px solid var(--border);margin-top:2rem;padding-top:1.5rem;font-size:.86rem;color:var(--muted)}
+  footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Bonsai — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../quote-margin-check/">Quote Margin Check — free effective hourly rate calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Bonsai</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Quote Margin Check</a></p>
+<header>
+<h1>This calculator vs. Bonsai</h1>
+<p class="lede">Two different shapes: Bonsai runs your whole freelance business &mdash; proposals, contracts, time tracking, invoicing &mdash; as an ongoing subscription account. This page is a free, private worksheet for one question &mdash; what does this quote actually pay per hour, once every task is counted &mdash; before you send it.</p>
+</header>
+
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Bonsai</strong> is client-management software, sold under an
+  ongoing subscription account to freelancers and small agencies running a
+  full client roster. It builds and sends proposals and contracts with
+  e-signatures, tracks billable and non-billable time across every project,
+  generates and chases invoices, tracks expenses, and estimates quarterly
+  taxes in supported regions, all synced across every client you run.
+  Setting it up means creating an account and configuring your proposal,
+  contract, and invoice templates &mdash; not a one-off calculation.
+  Bonsai's own site is not reachable from this session to confirm today's
+  specific plan names, feature tiers, or pricing, so only its
+  well-documented category and identity are stated here: nothing about it
+  is invented, and no dollar figure for it appears on this page.
+</p>
+<p>
+  This calculator does none of that. It does not send proposals, collect
+  e-signatures, track time across a roster, or chase invoices. It takes
+  one proposed quote &mdash; price, delivery hours, admin and revision
+  time, overhead, and subcontractor cost &mdash; and works out the
+  effective hourly rate you are really being paid once every hidden task
+  is counted, the price that hits your target rate, what a requested
+  discount or a scope change actually costs, and what a mid-project
+  cancellation is worth compared with finishing. It runs free in any
+  browser, keeps no account, and nothing you type is uploaded.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a full client roster and need proposals, e-signed contracts, time tracking, and invoicing handled for me.</td><td>Bonsai, or a comparable client-management platform.</td></tr>
+<tr><td>I have one quote in front of me and want to know my real effective hourly rate before I send it.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>A client is asking for a discount, or costs went up before the project starts &mdash; what does that do to my rate?</td><td>This calculator's discount, cost-rise, and change-order tables.</td></tr>
+<tr><td>I need e-signatures, a client CRM, and automatic tax estimates across my whole business.</td><td>Bonsai, or a comparable platform &mdash; this calculator has no proposal, signature, or tax feature at all.</td></tr>
+<tr><td>How do I calculate my effective hourly rate on a fixed-price quote?</td><td>This calculator's <a href="effective-hourly-rate.html">worked walkthrough</a>.</td></tr>
+<tr><td>Do I need an account or a template setup to use the tool?</td><td>This calculator: no. Bonsai and comparable client-management platforms are sold through an ongoing account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most freelancers get different value from each: Bonsai (or a comparable
+  client-management platform) for running proposals, contracts, and
+  invoicing across a full roster day to day under an ongoing account, and
+  a private calculator like this one for an instant, no-login check on one
+  quote's effective hourly rate before it is sent. This page's own figures
+  are an arithmetic comparison built from what you typed in, not a
+  contract, an invoice, or a guarantee of profit.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Bonsai?</h3>
+<p>They do different jobs, and a freelancer running a full client roster will likely end up touching both eventually. Bonsai is client-management software, sold under an ongoing subscription account: it builds and sends proposals and contracts with e-signatures, tracks time across projects, generates and chases invoices, tracks expenses, and estimates quarterly taxes, all synced across every client you run. Setting it up means an account and configuring your proposal, contract, and invoice templates, not a one-off calculation. Bonsai's own site is not reachable from this session to confirm today's specific plan names, feature tiers, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This calculator does none of that. It takes one proposed quote &mdash; price, delivery hours, admin and revision time, overhead, and subcontractor cost &mdash; and works out the effective hourly rate you are really being paid, the price that hits your target rate, and what a client's requested discount or a mid-project cancellation actually costs you, instantly in the browser, with no account and nothing uploaded. A freelancer running proposals, contracts, and invoicing across a full client roster day to day is better served by Bonsai or a comparable client-management platform; a freelancer checking whether one quote in front of them actually pays what they think it does is in the right place here.</p>
+<h3>Is this page affiliated with Bonsai?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Bonsai (HelloBonsai). Bonsai is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">Open the <a href="./">Quote Margin Check calculator</a> to price your own quote, or read <a href="effective-hourly-rate.html">how to calculate your effective hourly rate</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against Bonsai &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+      <li><a href="../cow-calf-breakeven-calculator/" data-pf-to="cow-calf-breakeven-calculator">What calf price do you need to break even on a cow?</a></li>
+      <li><a href="../crew-dispatch-optimizer/" data-pf-to="crew-dispatch-optimizer">Crew Dispatch Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=quote-margin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="quote-margin-check"></script>
+</body>
+</html>

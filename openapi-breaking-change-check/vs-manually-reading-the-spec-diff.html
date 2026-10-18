@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenAPI Breaking Change Check vs. manually reading the spec diff — OpenAPI Breaking Change Check</title>
+<meta name="description" content="A raw diff of two OpenAPI spec files is buried in reordered keys and reworded descriptions. See why a classified…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. manually reading the spec diff">
+<meta property="og:description" content="A text diff of two OpenAPI documents shows every reordered key and reworded description alongside the one parameter that quietly became required.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a plain diff of two OpenAPI files actually show me?","acceptedAnswer":{"@type":"Answer","text":"Every difference between the two documents, with equal visual weight: a reordered object key, a reworded description, a new example value, and a parameter that just became required all look the same in a text diff. On a spec with dozens of operations, the one change that would actually break a client is easy to scroll past."}},{"@type":"Question","name":"Is reading the raw diff ever the right call instead?","acceptedAnswer":{"@type":"Answer","text":"Yes, when you need to review everything that changed, not just what would break a client — a new example, an updated description, a reordered tag list, or a change deep inside a request or response body's JSON Schema that this tool's shallow structural comparison does not look at. A full-document diff or an OpenAPI-aware structural diff tool with schema-level coverage is the right choice for that review."}},{"@type":"Question","name":"Can I just ask a teammate who wrote the change whether anything breaks?","acceptedAnswer":{"@type":"Answer","text":"You can, and for a small change that is often faster. The risk is the same as any manual review: the author already believes the change is safe, which is exactly the blind spot a mechanical, exhaustive comparison exists to catch, and it costs nothing to run alongside a human review rather than instead of one."}},{"@type":"Question","name":"Does either approach tell me if the change is actually safe to ship?","acceptedAnswer":{"@type":"Answer","text":"No. Neither a raw diff nor this tool's structural comparison understands your clients' actual behavior — a client that never sends the removed parameter is unaffected by its removal, and this tool has no way to know that. Both only tell you what the contract itself declares differently; deciding whether that is safe to ship is a judgment call the two documents alone cannot make for you."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #17324a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. manually reading the spec diff — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../openapi-breaking-change-check/">Did this API version break existing clients?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. manually reading the spec diff</span></span></nav>
+<p class="note"><a href="./">&larr; back to the tool</a></p>
+<h1>This tool vs. manually reading the spec diff</h1>
+<p class="lede">The obvious first move when reviewing a new API version is <code>diff old-spec.json new-spec.json</code>, or scanning a pull request that touches the OpenAPI file. Both work, and both bury the one change that would actually break a client under everything else that changed for reasons nobody needs to review twice.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Reading the raw diff</strong> is correct and complete for reviewing every difference between two JSON documents: reordered keys, reworded descriptions, new examples, tag changes, all of it. Its limit here is one of attention, not correctness — a real spec has dozens of operations and hundreds of lines, and a parameter that silently became required reads exactly like the harmless reorder three lines above it.</p>
+<p><strong>This tool</strong> reads only the parts of the contract that can break a client — operations, parameters, and request-body requiredness — and sorts every difference into breaking or non-breaking before you look at a single line. It says nothing about a reworded description or a reordered tag list, because neither can break anything.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Did a required parameter get added, or an optional one become required?</td><td>This tool's breaking list, immediately.</td></tr>
+<tr><td>Was any endpoint removed?</td><td>This tool's breaking list.</td></tr>
+<tr><td>Did a description or example change?</td><td>Neither tool flags this as breaking — read the raw diff if you need to review wording changes.</td></tr>
+<tr><td>Did a field deep inside a request body's JSON Schema change?</td><td>Neither tool catches this today — this tool's structural comparison stops at a request body's own required flag; a full schema-aware diff tool would be needed for schema-level coverage.</td></tr>
+<tr><td>Is anything I paste uploaded anywhere?</td><td>No, for this tool — everything runs in your browser. Pasting a spec into an online diff tool may log or cache it; check its own policy first if your spec is not public.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does a plain diff of two OpenAPI files actually show me?</h3>
+<p>Every difference between the two documents, with equal visual weight: a reordered object key, a reworded description, a new example value, and a parameter that just became required all look the same in a text diff. On a spec with dozens of operations, the one change that would actually break a client is easy to scroll past.</p>
+<h3>Is reading the raw diff ever the right call instead?</h3>
+<p>Yes, when you need to review everything that changed, not just what would break a client — a new example, an updated description, a reordered tag list, or a change deep inside a request or response body's JSON Schema that this tool's shallow structural comparison does not look at. A full-document diff or an OpenAPI-aware structural diff tool with schema-level coverage is the right choice for that review.</p>
+<h3>Can I just ask a teammate who wrote the change whether anything breaks?</h3>
+<p>You can, and for a small change that is often faster. The risk is the same as any manual review: the author already believes the change is safe, which is exactly the blind spot a mechanical, exhaustive comparison exists to catch, and it costs nothing to run alongside a human review rather than instead of one.</p>
+<h3>Does either approach tell me if the change is actually safe to ship?</h3>
+<p>No. Neither a raw diff nor this tool's structural comparison understands your clients' actual behavior — a client that never sends the removed parameter is unaffected by its removal, and this tool has no way to know that. Both only tell you what the contract itself declares differently; deciding whether that is safe to ship is a judgment call the two documents alone cannot make for you.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked tool apply a structural comparison to files you supply. They are provided free and as-is, without warranty of any kind, express or implied, and they are not a full compatibility audit. <strong>You are responsible for verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Manually reading the spec diff" describes a method, not any one company's product.</p>
+<p><strong>Nothing leaves your browser.</strong> The tool this page links to runs entirely client-side; nothing you paste is uploaded anywhere.</p>
+<p><a href="./">Back to the tool</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=openapi-breaking-change-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="openapi-breaking-change-check"></script>
+</body>
+</html>

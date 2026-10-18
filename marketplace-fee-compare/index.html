@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketplace Fee Comparison — Which Channel Nets Most</title>
+  <meta name="description" content="Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/">
+  <meta property="og:title" content="Which marketplace nets the most on this item?">
+  <meta property="og:description" content="Type one item once. See net profit after fees on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Facebook Marketplace, and your own store…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Marketplace Fee Comparison",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Side-by-side net profit across ten selling channels, category referral rates for Amazon and Walmart, subscription fees spread over your own order volume, per-channel break-even price, editable fee rates, copyable comparison, own-store demand caveat, private share link, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Which marketplace has the lowest fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the category and the price. Etsy's combined transaction and payment fee is about 9.5%, eBay's final value fee about 13.6%, and TikTok Shop's US referral about 6% — but Amazon and Walmart charge by category, from 8% on electronics to 20% on jewelry. On a $40 jewelry item Amazon takes about $8 and Etsy about $3.80; on a $40 electronics item Amazon takes about $3.20 and Etsy still takes $3.80. That is why this page asks for the category before ranking anything."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do marketplaces charge fees on the shipping the buyer pays?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, on all of the marketplaces compared here. The percentage is charged on the whole order — item price plus whatever shipping the buyer was charged. Folding postage into the item price and calling it free shipping does not avoid the fee, because the fee follows the total the buyer pays either way."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is selling on my own store really more profitable?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On fees alone, almost always — an own-store checkout pays payment processing of roughly 2.9% plus 30 cents and no referral fee at all. But a marketplace fee buys buyers. Your own store sends you none, so that higher net profit only exists for a sale you brought yourself, and the advertising or audience-building that brings it is a real cost this comparison does not include."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is Faire not in the comparison?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Faire is wholesale. The buyer is a shop paying roughly half your retail price, and the economics turn on order size and reorder rate rather than on one retail order. Ranking it beside ten retail channels would produce a number that looks comparable and is not."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is Whatnot not in the comparison?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Whatnot is a livestream auction. Commission sits on the hammer and payment processing sits on the checkout total — the item plus buyer-paid shipping and tax — with published category caps a flat retail referral rate cannot express. Ranking it beside ten fixed-fee retail channels would produce a number that looks comparable and is not. The Whatnot seller payout calculator prices that split on its own terms."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is Reverb not in the comparison?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything, so seating it in a general-purpose ranking would read as a recommendation to list any item there — which is true for none of the other rows' inventory. Its fee shape (a marketplace percentage plus payment processing) is genuinely close to eBay's, and the Reverb fee calculator compares the two directly on the same guitar or pedal, along with offer-versus-list, shipping, and return handling."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the comparison handle Poshmark's $15 cliff?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Poshmark keeps a flat $2.95 on any sale under $15.00 and 20% of the sale price from $15.00 up, so its fee is a cliff rather than one percentage: a $14.99 item pays $2.95 and a $15.00 item pays $3.00, while a $5 item pays 59%. This comparison prices that schedule directly, takes the commission on the sale price alone, and leaves postage out of both sides because the Poshmark buyer buys the prepaid label. The Poshmark fee calculator goes further with offer and bundle arithmetic around the $15 line."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I share this comparison with someone else?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. \"Copy share link\" puts the item, category, and any rate overrides you typed into the page's URL after a #, and copies that URL to your clipboard. A browser never sends the part of a URL after a # to a server, so the item price and costs still never leave your device, just this one link instead of your typed retype. Opening the link loads the same comparison; nothing about it is stored anywhere but in the URL itself."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fbfbfa; --fg: #1a1a19; --muted: #5c5c58; --card: #fff;
+      --border: #e2e2dd; --accent: #1c5d3a; --good: #17603b; --bad: #a3251b;
+      --warn-bg: #fdf4e3; --warn-fg: #6b4708;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17181a; --fg: #ececeb; --muted: #a3a39e; --card: #202124;
+        --border: #34353a; --accent: #6fcf97; --good: #6fcf97; --bad: #ef8c82;
+        --warn-bg: #2c2517; --warn-fg: #e7c98a;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+    h1 { font-size: 1.8rem; line-height: 1.2; margin: 0 0 .5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 .6rem; }
+    p.lede { color: var(--muted); max-width: 44rem; font-size: 1.05rem; }
+    section { background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+    .fields { display: grid; gap: .85rem 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+    .hint { display: block; font-weight: 400; color: var(--muted); font-size: .82rem; }
+    input, select, button { font: inherit; width: 100%; padding: .5rem .6rem;
+      border: 1px solid var(--border); border-radius: 7px;
+      background: var(--bg); color: var(--fg); }
+    button { background: var(--accent); color: var(--bg); font-weight: 700;
+      border: 0; cursor: pointer; width: auto; padding: .6rem 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    .scroll { overflow-x: auto; }
+    th, td { text-align: right; padding: .55rem .5rem; border-bottom: 1px solid var(--border);
+      white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 11rem; }
+    thead th { font-size: .82rem; color: var(--muted); }
+    tbody tr.best { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    tbody tr.best td:first-child::after { content: " — best"; color: var(--accent); font-weight: 700; }
+    .profit-good { color: var(--good); font-weight: 700; }
+    .profit-bad { color: var(--bad); font-weight: 700; }
+    .verdict { font-size: 1.05rem; margin: 0 0 .4rem; }
+    .caveat { background: var(--warn-bg); color: var(--warn-fg);
+      padding: .7rem .85rem; border-radius: 8px; font-size: .9rem; margin-top: .8rem; }
+    .errors { color: var(--bad); font-weight: 700; white-space: pre-line; }
+    .fine { font-size: .87rem; color: var(--muted); }
+    details { margin-top: .9rem; }
+    summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+    .row-note { font-size: .85rem; color: var(--muted); }
+    a { color: var(--accent); }
+    .hidden { display: none; }
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-top: .9rem; }
+    .handoff { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: .8rem; }
+    .handoff h3 { font-size: 1rem; margin: 0 0 .3rem; }
+    .handoff p { margin: 0 0 .5rem; }
+    .handoff ul { list-style: none; margin: 0; padding: 0;
+                  display: flex; flex-direction: column; gap: .45rem; }
+    .handoff li { line-height: 1.35; }
+    /* The winner is the link most people want, so it is the one that reads as a
+       button. The rest stay ordinary links rather than competing with it. */
+    .handoff .best-link { font-weight: 600; }
+    .handoff .rank { color: var(--muted); font-size: .87rem; }
+    @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Which marketplace nets the most on this item?","item":"https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which marketplace nets the most on this item? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which marketplace nets the most on this item?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<div class="wrap">
+  <header>
+    <h1>Which marketplace nets the most on this item?</h1>
+    <p class="lede">
+      Type one item once and see what it leaves you on ten selling channels side
+      by side, after each one's fees. Free, no signup, and nothing you type
+      leaves your browser.
+    </p>
+  </header>
+
+  <main>
+    <section>
+      <h2>The item</h2>
+      <div class="fields">
+        <div>
+          <label for="price">Item price
+            <span class="hint">What the buyer pays for the item</span></label>
+          <input id="price" type="number" min="0" step="0.01" value="40" inputmode="decimal">
+        </div>
+        <div>
+          <label for="shippingCharged">Shipping charged to buyer
+            <span class="hint">0 if you offer free shipping</span></label>
+          <input id="shippingCharged" type="number" min="0" step="0.01" value="0" inputmode="decimal">
+        </div>
+        <div>
+          <label for="itemCost">What the item cost you
+            <span class="hint">Purchase price or materials</span></label>
+          <input id="itemCost" type="number" min="0" step="0.01" value="12" inputmode="decimal">
+        </div>
+        <div>
+          <label for="shippingCost">Shipping you pay
+            <span class="hint">The label, not what you charged</span></label>
+          <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal">
+        </div>
+        <div>
+          <label for="otherCost">Packaging and other
+            <span class="hint">Box, filler, insert, per order</span></label>
+          <input id="otherCost" type="number" min="0" step="0.01" value="1" inputmode="decimal">
+        </div>
+        <div>
+          <label for="categoryId">Category
+            <span class="hint">Sets the Amazon and Walmart referral rate</span></label>
+          <select id="categoryId"></select>
+        </div>
+        <div>
+          <label for="monthlyOrders">Orders per month
+            <span class="hint">Spreads subscription fees over your volume</span></label>
+          <input id="monthlyOrders" type="number" min="1" step="1" value="50" inputmode="numeric">
+        </div>
+      </div>
+      <p id="errors" class="errors" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="resultSection" aria-live="polite">
+      <h2>What each channel leaves you</h2>
+      <p id="verdict" class="verdict"></p>
+      <div class="scroll">
+        <div class="pf-table-scroll"><table>
+          <thead>
+            <tr>
+              <th scope="col">Channel</th>
+              <th scope="col">Fee rate</th>
+              <th scope="col">Channel fees</th>
+              <th scope="col">Net profit</th>
+              <th scope="col">Margin</th>
+              <th scope="col">Break-even price</th>
+              <th scope="col"><span id="parityHead">Price to match the best channel</span></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </div>
+      <p id="demandCaveat" class="caveat hidden"></p>
+
+      <!-- The ranking is a starting point, not the answer: every rate in the
+           table above is a flat headline, and each channel's own calculator
+           models the parts a flat rate cannot. These links carry the item
+           already typed above into that calculator, so following one costs no
+           retyping. Built per render rather than written into the markup so the
+           numbers in each link are the numbers on screen. The bare,
+           crawler-visible links to the same tools stay in "What each channel's
+           number leaves out" below. -->
+      <section id="handoffSection" class="handoff hidden">
+        <h3>Continue with these numbers</h3>
+        <p class="fine">
+          Each channel's own calculator opens with the item above already filled
+          in. Nothing is uploaded — the figures travel inside this browser only.
+        </p>
+        <ul id="handoffs"></ul>
+      </section>
+
+      <div class="actions">
+        <button id="copy" type="button">Copy this comparison</button>
+        <button id="copyShare" type="button">Copy share link</button>
+        <span id="copyStatus" class="fine" role="status" aria-live="polite"></span>
+      </div>
+
+      <details>
+        <summary>Adjust the fee rates</summary>
+        <p class="fine">
+          These are editable defaults taken from this site's per-channel
+          calculators, not a live fee schedule. If your statement says something
+          different — a negotiated rate, a category this table does not carry, a
+          promotional rate — put your number in and the ranking follows it.
+          Leave a box blank to go back to the default.
+        </p>
+        <div id="overrides" class="fields"></div>
+      </details>
+
+      <details>
+        <summary>What each channel's number leaves out</summary>
+        <ul id="notCovered" class="fine"></ul>
+        <p class="fine" id="excluded"></p>
+      </details>
+    </section>
+
+    <section>
+      <h2>How to read this</h2>
+      <p class="fine">
+        Every percentage here is charged on the <strong>whole order</strong> —
+        the item price plus any shipping the buyer paid. Folding postage into
+        the price to advertise free shipping does not avoid the fee.
+      </p>
+      <p class="fine">
+        Marketplace fees are taken out of your proceeds, not paid up front, so
+        they are not counted as cash you invested. That keeps margin comparable
+        across channels that charge very differently.
+      </p>
+      <p class="fine">
+        Subscriptions are spread over the orders-per-month figure you entered
+        rather than ignored. That is what stops a $39.99 Amazon plan from
+        looking free at two orders a month.
+      </p>
+      <p class="fine">
+        <strong>A marketplace fee buys buyers.</strong> Your own store charges no
+        referral fee and will almost always top this table on arithmetic — but it
+        sends you nobody. Read that row as "what I keep on a sale I brought
+        myself", and put the cost of bringing it against the difference.
+      </p>
+      <p class="fine seo-link"><a href="./which-marketplace-has-the-lowest-fees.html">Which marketplace has the lowest fees? A worked comparison</a> walks one item through six of the channels above step by step, including why the cheapest fee rate is not always the highest payout.</p>
+      <p class="fine seo-link"><a href="./should-i-move-off-marketplaces-to-my-own-store.html">Should I move off marketplaces to my own store?</a> works the same item at five and sixty orders a month, and shows why your own store's lowest fee rate does not net the most until volume covers its subscription.</p>
+      <p class="fine seo-link">Already selling and wondering whether you want connected analytics instead? <a href="./vs-sellerboard.html">This tool vs. Sellerboard</a> sets a free pre-listing comparison against a paid, account-connected profit report, and says plainly what this page cannot tell you.</p>
+      <p class="fine seo-link">Wondering why not just open each marketplace's own calculator? <a href="./vs-checking-each-marketplace-separately.html">This tool vs. checking each marketplace separately</a> walks through what goes wrong reconciling six tabs by hand, and what each channel's own calculator still does better.</p>
+      <p class="fine seo-link">Need returns and shelf time in the ranking too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> (it opens with the item above) ranks one item across eBay, Etsy, Amazon, Reverb, your own store, and a local sale after expected returns and what one listing is worth per month of shelf.</p>
+    </section>
+
+    <section>
+      <h2>Use it safely</h2>
+      <p class="fine">
+        Everything runs in your browser. Your prices, costs, and volumes are
+        never uploaded. We count only anonymous feature events in local storage
+        (comparisons run, comparisons copied, and share links copied) — never
+        people, content, IPs, or cookies. Counting honors Do Not Track and
+        Global Privacy Control. Turn it off with the checkbox below. A share
+        link encodes only the item, category, and rate fields in the page's
+        URL fragment (after the <code>#</code>); a browser never sends that
+        part of a URL to a server, so it is not sent to us either.
+      </p>
+      <label class="fine" style="font-weight:400">
+        <input id="usageOptOut" type="checkbox" style="width:auto"> Do not count anonymous local usage events
+      </label>
+      <p class="fine">
+        <strong>Fee rates change.</strong> The defaults here were current when
+        this page was written and are inputs, not a fee schedule. Confirm
+        against your own statement before pricing a catalogue against them.
+      </p>
+      <p class="fine">
+        <strong>No warranty.</strong> This tool is provided free and as-is,
+        without warranty of any kind, express or implied. It is not tax,
+        financial, or business advice, and it does not replace a qualified
+        professional. <strong>You are responsible for reviewing and verifying
+        its output before relying on it</strong>, and for meeting any obligation
+        it helps you prepare for. To the maximum extent permitted by law, the
+        authors accept no liability for any loss or damage arising from its use.
+      </p>
+      <p class="fine">
+        <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+        experimental, and may be slow, broken, moved, or taken offline without
+        notice. We do not promise uptime, backups of anything you type, or that
+        a URL will keep working. Do not use this as a system of record.
+      </p>
+      <p class="fine support">
+        Free and open source. If it helped you pick the right channel for an
+        item, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+        &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a>
+        is entirely optional and never changes what the tool does.
+      </p>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import {
+    CATEGORY_PRESETS,
+    CHANNELS,
+    EXCLUDED_CHANNELS,
+    compareChannels,
+    compareSummary,
+    comparisonText,
+    loadItem,
+  } from "./calc.mjs";
+  import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+  import { decodeShare, encodeShare } from "./share.mjs";
+  import { handoffsForRows, handoffUrl, excludedHandoffUrl, whereToSellUrl } from "./handoff.mjs";
+
+  const FIELD_IDS = [
+    "price", "shippingCharged", "itemCost", "shippingCost",
+    "otherCost", "monthlyOrders", "categoryId",
+  ];
+
+  const el = (id) => document.getElementById(id);
+  const money = (value) => {
+    const sign = value < 0 ? "-" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const escapeHtml = (value) =>
+    String(value).replace(/[&<>"']/g, (ch) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+
+  function count(event) {
+    recordUsage(localStorage, el("usageOptOut").checked, event);
+  }
+
+  // Built from the model rather than written into the markup, so a channel
+  // added to calc.mjs cannot end up with a category dropdown, an override box,
+  // or a caveat that silently does not exist.
+  const categorySelect = el("categoryId");
+  categorySelect.innerHTML = Object.entries(CATEGORY_PRESETS)
+    .map(([id, preset]) => `<option value="${escapeHtml(id)}">${escapeHtml(preset.label)}</option>`)
+    .join("");
+
+  el("overrides").innerHTML = CHANNELS.map((channel) => `
+    <div>
+      <label for="rate-${escapeHtml(channel.id)}">${escapeHtml(channel.label)}
+        <span class="hint">${escapeHtml(channel.rateLabel)}, %</span></label>
+      <input id="rate-${escapeHtml(channel.id)}" type="number" min="0" max="99.9" step="0.01"
+             placeholder="default" inputmode="decimal">
+    </div>`).join("");
+
+  // The two pointer lists, rebuilt on every render for the same reason the
+  // "continue with these numbers" list is.
+  //
+  // Both used to render once at load with a bare `../<slug>/`, which put three
+  // routes out of this page in two different states: the ranked handoff list
+  // carried the seller's item, while the "not included here" caveats and the
+  // excluded-channel pointers — pointing at the *same* calculators — dropped
+  // it. A reader who took the caveat link, which is the one attached to the
+  // reason they most likely want the deep tool, retyped everything.
+  //
+  // Rendering once was the cause, not an accident of it: a link built before
+  // the first paint can only hold the page's defaults, so carrying the item
+  // requires rebuilding when the item changes.
+  function paintPointers(item) {
+    el("whereToSellLink").setAttribute("href", whereToSellUrl(item));
+    el("notCovered").innerHTML = CHANNELS.map((channel) => {
+      // The `??` is defensive only — `handoff.test.mjs` asserts all ten ranked
+      // channels have an entry — but the fallback is still built from the
+      // model, so a channel whose mapping is mid-write keeps a working link
+      // rather than emitting the string "null" as its target.
+      //
+      // Never spell a sample href attribute out inside a comment in this
+      // script. `front-door-tools.mjs` scans script bodies for href and src
+      // attributes and judges every match that carries no interpolation as a
+      // real path the page will hand the browser — and it does not strip
+      // comments first, because it reads the body with one regex rather than
+      // as a parsed program. So an illustration becomes a dead link, the
+      // eligibility fixpoint drops this venture, and then it drops everything
+      // that linked here. Measured while writing this: one such comment took
+      // `where-to-sell-calculator` and `whatnot-seller-payout` off the apex
+      // alongside this page, and the build error named only the collateral.
+      const href = handoffUrl(channel.id, item) ?? `../${channel.deepTool}/`;
+      return `
+      <li><strong>${escapeHtml(channel.label)}</strong> — not included here:
+        ${escapeHtml(channel.notCovered)}
+        <a href="${escapeHtml(href)}"
+           data-pointer="${escapeHtml(channel.deepTool)}">Open the ${escapeHtml(channel.deepToolLabel)}</a>.</li>`;
+    }).join("");
+
+    el("excluded").innerHTML = EXCLUDED_CHANNELS.map((channel) => {
+      const href = excludedHandoffUrl(channel.deepTool, item) ?? `../${channel.deepTool}/`;
+      return `<strong>${escapeHtml(channel.label)}</strong> is not in the table. ${escapeHtml(channel.why)}
+       <a href="${escapeHtml(href)}"
+          data-pointer="${escapeHtml(channel.deepTool)}">Open the ${escapeHtml(channel.deepToolLabel)}</a>.`;
+    }).join(" ");
+  }
+
+  function readItem() {
+    return Object.fromEntries(FIELD_IDS.map((id) => [id, el(id).value]));
+  }
+
+  function readOverrides() {
+    return Object.fromEntries(CHANNELS.map((channel) => [channel.id, el(`rate-${channel.id}`).value]));
+  }
+
+  // A shared link only ever fills in fields it carries and leaves every other
+  // field at the page's own default, so an old link missing a field this page
+  // has since added degrades to "use the default" rather than to a blank or a
+  // thrown error.
+  function applyShare(shared) {
+    if (!shared) return;
+    for (const [id, value] of Object.entries(shared.item)) {
+      if (el(id)) el(id).value = value;
+    }
+    for (const [id, value] of Object.entries(shared.overrides)) {
+      if (el(`rate-${id}`)) el(`rate-${id}`).value = value;
+    }
+  }
+
+  let lastRun = null;
+
+  function paint() {
+    let item;
+    let rows;
+    try {
+      item = loadItem(readItem());
+      rows = compareChannels(item, readOverrides());
+    } catch (error) {
+      el("errors").textContent = error.message;
+      el("resultSection").classList.add("hidden");
+      lastRun = null;
+      return;
+    }
+    el("errors").textContent = "";
+    el("resultSection").classList.remove("hidden");
+    lastRun = { item, rows };
+
+    el("verdict").textContent = compareSummary(rows);
+    el("parityHead").textContent = rows[0].parityAnchorLabel
+      ? `Price to net what ${rows[0].parityAnchorLabel} does`
+      : "Price to match the best channel";
+    el("rows").innerHTML = rows.map((row, index) => {
+      const subscription = row.monthlyFee > 0
+        ? `<span class="row-note"><br>includes ${money(row.subscriptionPerOrder)} of ${money(row.monthlyFee)}/mo${row.monthlyFeeNote ? ` (${escapeHtml(row.monthlyFeeNote)})` : ""}</span>`
+        : "";
+      return `<tr class="${index === 0 ? "best" : ""}">
+        <th scope="row">${escapeHtml(row.label)}${row.demandIncluded ? "" : '<span class="row-note"><br>you bring the buyer</span>'}</th>
+        <td>${row.percentRate}%<span class="row-note"><br>${escapeHtml(row.rateLabel)}</span></td>
+        <td>${money(row.channelFees)}${subscription}</td>
+        <td class="${row.profit >= 0 ? "profit-good" : "profit-bad"}">${money(row.profit)}</td>
+        <td>${row.margin.toFixed(1)}%</td>
+        <td>${money(row.breakEvenPrice)}</td>
+        <td>${row.parityPrice === undefined ? "—" : money(row.parityPrice)}${row.parityPrice !== undefined && Math.abs(row.parityPrice - item.price) >= 0.005 ? `<span class="row-note"><br>${row.parityPrice > item.price ? "+" : "-"}${money(Math.abs(row.parityPrice - item.price))} vs your price</span>` : ""}</td>
+      </tr>`;
+    }).join("");
+
+    // Shown against the winner specifically, not as a footnote: an own-store
+    // row that tops the table on fees alone is the single most misleading
+    // thing this page can print if the caveat is somewhere else.
+    const caveat = el("demandCaveat");
+    if (!rows[0].demandIncluded) {
+      caveat.textContent =
+        `${rows[0].label} tops this table because it charges no referral fee — but it also sends you no buyers. ` +
+        `The next channel that does is ${rows.find((row) => row.demandIncluded)?.label ?? "none here"}, ` +
+        `at ${money(rows.find((row) => row.demandIncluded)?.profit ?? 0)}. The difference is your advertising budget.`;
+      caveat.classList.remove("hidden");
+    } else {
+      caveat.classList.add("hidden");
+    }
+
+    paintHandoffs(rows, item);
+    paintPointers(item);
+  }
+
+  // "Continue with these numbers", rebuilt on every render.
+  //
+  // Ordered by the ranking rather than by the handoff table, so the channel
+  // that just won the comparison is the first link the reader meets. The rate
+  // is repeated on each line because the reader is being asked to leave this
+  // table, and the number they are acting on should still be visible when they
+  // decide which link to take.
+  function paintHandoffs(rows, item) {
+    const links = handoffsForRows(rows, item);
+    const section = el("handoffSection");
+    if (links.length === 0) {
+      section.classList.add("hidden");
+      el("handoffs").replaceChildren();
+      return;
+    }
+    section.classList.remove("hidden");
+    el("handoffs").innerHTML = links.map((link, index) => {
+      const rank = index === 0
+        ? '<span class="rank">best on fees here</span>'
+        : `<span class="rank">#${index + 1} here</span>`;
+      return `<li>
+        <a class="${index === 0 ? "best-link" : ""}" href="${escapeHtml(link.href)}"
+           data-handoff="${escapeHtml(link.channel)}">${escapeHtml(link.channelLabel)}:
+          open the ${escapeHtml(link.label)}</a> ${rank}
+      </li>`;
+    }).join("");
+  }
+
+  // A shared link is applied before the first paint, so the first thing a
+  // recipient sees is the comparison that was shared with them, not the
+  // page's own default item flashing and then being replaced.
+  applyShare(decodeShare(location.hash));
+
+  // The first render happens without counting it: a visit that bounces off the
+  // prefilled example must not log a comparison nobody asked for. Counting is
+  // attached to input below, and settles rather than firing per keystroke.
+  paint();
+
+  let settleTimer = null;
+  function onInput() {
+    paint();
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      if (lastRun) count("comparison_run");
+    }, 800);
+  }
+
+  for (const id of FIELD_IDS) {
+    el(id).addEventListener(id === "categoryId" ? "change" : "input", onInput);
+  }
+  for (const channel of CHANNELS) {
+    el(`rate-${channel.id}`).addEventListener("input", onInput);
+  }
+
+  // Whether anyone actually follows the handoff is the one thing worth
+  // measuring about it: the ranking on this page is cheap to read and the deep
+  // calculators are where the work is, so a comparison that never leads into
+  // one is a funnel that stops here. Delegated because the links are rebuilt on
+  // every render.
+  //
+  // Which channel was followed is deliberately NOT recorded. This counter has
+  // never held a category, a price or a cost, and one seller's chosen
+  // marketplace is closer to those than to a page view. "Was it followed at
+  // all" is the question, and it is answerable without narrowing anyone.
+  el("handoffs").addEventListener("click", (event) => {
+    if (event.target.closest("a[data-handoff]")) count("handoff_followed");
+  });
+
+  // The pointer lists get their own counter rather than adding to
+  // `handoff_followed`. Both answer "did the reader leave into a deep tool",
+  // but they answer it about different invitations — one offered because a
+  // channel won, one offered because this page admits it cannot price
+  // something — and folding them together would make the existing series
+  // discontinuous at this change while hiding which invitation actually works.
+  //
+  // Which tool was opened is not recorded, for the reason the handoff counter
+  // gives: the question is whether the route is used at all, and that is
+  // answerable without narrowing anyone.
+  for (const id of ["notCovered", "excluded"]) {
+    el(id).addEventListener("click", (event) => {
+      if (event.target.closest("a[data-pointer]")) count("pointer_followed");
+    });
+  }
+
+  el("copy").addEventListener("click", async () => {
+    if (!lastRun) {
+      el("copyStatus").textContent = "Fix the inputs above first.";
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(comparisonText(lastRun.item, lastRun.rows));
+      el("copyStatus").textContent = "Copied.";
+      count("comparison_copied");
+    } catch {
+      el("copyStatus").textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+
+  el("copyShare").addEventListener("click", async () => {
+    const hash = encodeShare(readItem(), readOverrides());
+    const url = `${location.origin}${location.pathname}#${hash}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      history.replaceState(null, "", `#${hash}`);
+      el("copyStatus").textContent = "Share link copied.";
+      count("share_link_copied");
+    } catch {
+      el("copyStatus").textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
+</script>
+  <h2>Common questions</h2>
+  <h3>Which marketplace has the lowest fees?</h3>
+  <p>It depends on the category and the price. Etsy's combined transaction and payment fee is about 9.5%, eBay's final value fee about 13.6%, and TikTok Shop's US referral about 6% — but Amazon and Walmart charge by category, from 8% on electronics to 20% on jewelry. On a $40 jewelry item Amazon takes about $8 and Etsy about $3.80; on a $40 electronics item Amazon takes about $3.20 and Etsy still takes $3.80. That is why this page asks for the category before ranking anything.</p>
+  <h3>Do marketplaces charge fees on the shipping the buyer pays?</h3>
+  <p>Yes, on all of the marketplaces compared here. The percentage is charged on the whole order — item price plus whatever shipping the buyer was charged. Folding postage into the item price and calling it free shipping does not avoid the fee, because the fee follows the total the buyer pays either way.</p>
+  <h3>Is selling on my own store really more profitable?</h3>
+  <p>On fees alone, almost always — an own-store checkout pays payment processing of roughly 2.9% plus 30 cents and no referral fee at all. But a marketplace fee buys buyers. Your own store sends you none, so that higher net profit only exists for a sale you brought yourself, and the advertising or audience-building that brings it is a real cost this comparison does not include.</p>
+  <h3>Why is Faire not in the comparison?</h3>
+  <p>Faire is wholesale. The buyer is a shop paying roughly half your retail price, and the economics turn on order size and reorder rate rather than on one retail order. Ranking it beside ten retail channels would produce a number that looks comparable and is not.</p>
+  <h3>Why is Whatnot not in the comparison?</h3>
+  <p>Whatnot is a livestream auction. Commission sits on the hammer and payment processing sits on the checkout total — the item plus buyer-paid shipping and tax — with published category caps a flat retail referral rate cannot express. Ranking it beside ten fixed-fee retail channels would produce a number that looks comparable and is not. The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices that split on its own terms.</p>
+  <h3>Why is Reverb not in the comparison?</h3>
+  <p>Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything, so seating it in a general-purpose ranking would read as a recommendation to list any item there &mdash; which is true for none of the other rows' inventory. Its fee shape (a marketplace percentage plus payment processing) is genuinely close to eBay's, and the <a href="../reverb-fee-calculator/">Reverb fee calculator</a> compares the two directly on the same guitar or pedal, along with offer-versus-list, shipping, and return handling.</p>
+  <h3>How does the comparison handle Poshmark's $15 cliff?</h3>
+  <p>Poshmark keeps a flat $2.95 on any sale under $15.00 and 20% of the sale price from $15.00 up, so its fee is a cliff rather than one percentage: a $14.99 item pays $2.95 and a $15.00 item pays $3.00, while a $5 item pays 59%. This comparison prices that schedule directly, takes the commission on the sale price alone, and leaves postage out of both sides because the Poshmark buyer buys the prepaid label. The <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> goes further with offer and bundle arithmetic around the $15 line.</p>
+  <h3>Can I share this comparison with someone else?</h3>
+  <p>Yes. "Copy share link" puts the item, category, and any rate overrides you typed into the page's URL after a #, and copies that URL to your clipboard. A browser never sends the part of a URL after a # to a server, so the item price and costs still never leave your device, just this one link instead of your typed retype. Opening the link loads the same comparison; nothing about it is stored anywhere but in the URL itself.</p>
+
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=marketplace-fee-compare">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/?pfEmbed=1&quot; title=&quot;Which marketplace nets the most on this item? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="marketplace-fee-compare"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/" data-pf-embed-title="Which marketplace nets the most on this item?" data-pf-embed-slug="marketplace-fee-compare"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="marketplace-fee-compare" data-pf-jobs-amount=""></script>
+</body>
+</html>

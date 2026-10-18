@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="6" failures="0" time="40.5">
+  <testsuite name="Cart" errors="0" failures="0" skipped="0" timestamp="2026-10-03T09:00:00" time="14.2" tests="3" file="src/cart/cart.test.ts">
+    <testcase classname="Cart adds items" name="Cart adds items" time="4.1" file="src/cart/cart.test.ts"></testcase>
+    <testcase classname="Cart removes items" name="Cart removes items" time="3.1" file="src/cart/cart.test.ts"></testcase>
+    <testcase classname="Cart totals" name="Cart totals" time="7.0" file="src/cart/cart.test.ts"></testcase>
+  </testsuite>
+  <testsuite name="Search" errors="0" failures="0" skipped="0" timestamp="2026-10-03T09:00:00" time="22.0" tests="2" file="src/search/search.test.ts">
+    <testcase classname="Search ranks" name="Search ranks" time="20.0" file="src/search/search.test.ts"></testcase>
+    <testcase classname="Search empty" name="Search empty" time="2.0" file="src/search/search.test.ts"></testcase>
+  </testsuite>
+  <testsuite name="Util" errors="0" failures="0" skipped="0" timestamp="2026-10-03T09:00:00" time="4.3" tests="1" file="src/util/util.test.ts">
+    <testcase classname="Util formats" name="Util formats" time="4.3" file="src/util/util.test.ts"></testcase>
+  </testsuite>
+</testsuites>

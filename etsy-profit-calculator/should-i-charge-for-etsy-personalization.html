@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I charge for Etsy personalization? | Upcharge vs extra time</title>
+  <meta name="description" content="An $8 Etsy personalization looks like easy cash until fees sit on the higher ticket and extra time plus materials eat the rest.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/should-i-charge-for-etsy-personalization.html">
+  <meta property="og:title" content="Should I charge for Etsy personalization?">
+  <meta property="og:description" content="Compare selling an Etsy listing as written with taking a custom request after extra time, materials, and marketplace fees.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge for Etsy personalization?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, an $8.00 personalization, $1.50 extra materials, and $6.00 extra time — selling as listed keeps $21.23. Taking the custom request keeps $20.97, which is $0.26 less. Extra fees on the higher ticket are $0.76. The upcharge has to reach about $8.29 before the upgrade beats the standard sale."}},{"@type":"Question","name":"Does Etsy take fees on a personalization add-on?","acceptedAnswer":{"@type":"Answer","text":"Transaction, payment-processing, and Offsite Ads percentages sit on item plus shipping, so they rise with the upcharge. The listing fee and the payment fixed fee do not change. Enter the rates from your last payout; this page does not claim Etsy's live schedule."}},{"@type":"Question","name":"What if the buyer would not have bought the standard listing?","acceptedAnswer":{"@type":"Answer","text":"That is extra demand. On the same defaults the personalized order still leaves $20.97 versus $0.00 if you decline. Take the request when that path is still a profit, even if the upgrade loses against a standard sale you would have made anyway."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #245c45; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #ded5c8; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/should-i-charge-for-etsy-personalization.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I charge for Etsy personalization? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I charge for Etsy personalization?</span></span></nav>
+  <p><a href="./">← Etsy profit calculator</a></p>
+  <h1>Should I charge for Etsy personalization?</h1>
+  <p>
+    Sellers search for “should I charge for Etsy personalization” because an
+    $8.00 name, color, or size add-on looks like free margin. Transaction and
+    payment fees sit on the higher ticket. Extra thread, ink, or a gift box
+    is cash out. Twenty minutes at $18/hour is $6.00 you will not get back.
+  </p>
+  <p>
+    Open the <a href="./#personalization">Etsy profit calculator</a>, keep your
+    shop fees, and enter the upcharge and extras for the request in front of
+    you. The table below uses the calculator defaults: $30 item, $5.00
+    shipping charged, 6.5% transaction, 3% + $0.25 payment, $6.00 postage,
+    $4.00 materials, $8.00 personalization, $1.50 extra materials, $6.00
+    extra time.
+  </p>
+  <h2>The $8 add-on loses against the standard sale</h2>
+  <p>
+    Selling as listed keeps $21.23. Taking the custom request keeps $20.97.
+    Personalization keeps $0.26 less (−$0.26). Extra fees on the higher
+    ticket are $0.76. Extra cash out is $7.50. Across 12 custom orders that
+    is −$3.12. The upcharge has to reach about $8.29 before the upgrade
+    beats the standard sale.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Path</th><th>Item price</th><th>Fees</th><th>Extra cash out</th><th>Kept</th></tr></thead>
+    <tbody>
+      <tr><td>Sell as listed</td><td>$30.00</td><td>$3.78</td><td>$0.00</td><td>$21.23</td></tr>
+      <tr><td>Take the personalization</td><td>$38.00</td><td>$4.54</td><td>$7.50</td><td>$20.97</td></tr>
+    </tbody>
+  </table></div>
+  <h2>Ignore time and the same $8 keeps more</h2>
+  <p>
+    If you treat extra time as $0.00 and still spend $1.50 on materials, the
+    same $8.00 personalization keeps $26.97 — $5.74 more than the $21.23
+    standard sale (+$5.74). The break-even upcharge falls to about $1.66.
+    That is why a shop that “doesn’t count time” thinks every custom request
+    is free money.
+  </p>
+  <h2>Charge $12 and the upgrade wins</h2>
+  <p>
+    A $12.00 upcharge on the same extras keeps $24.59 — $3.36 more than
+    selling as listed (+$3.36), or $40.32 across 12 custom orders. Raise
+    Offsite Ads to 15% on the original $8.00 add-on and extra fees become
+    $1.96, the upgrade loses $1.46 (−$1.46), and the break-even upcharge
+    rises to about $9.93.
+  </p>
+  <h2>If they would not have bought the standard listing</h2>
+  <p>
+    That is extra demand. On the default $8.00 request the personalized
+    order still leaves $20.97 versus $0.00. Take it when that path is still
+    a profit, even if the upgrade loses against a standard sale you would
+    have made anyway.
+  </p>
+  <p>
+    Rates change. This page does not publish Etsy’s live fee schedule. Enter
+    the numbers from your last payout and the request in front of you. The
+    calculator is arithmetic, not advice, and it does not claim a
+    personalization will raise your conversion or search rank.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I charge for Etsy personalization?</h3>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, an $8.00 personalization, $1.50 extra materials, and $6.00 extra time — selling as listed keeps $21.23. Taking the custom request keeps $20.97, which is $0.26 less. Extra fees on the higher ticket are $0.76. The upcharge has to reach about $8.29 before the upgrade beats the standard sale.</p>
+  <h3>Does Etsy take fees on a personalization add-on?</h3>
+  <p>Transaction, payment-processing, and Offsite Ads percentages sit on item plus shipping, so they rise with the upcharge. The listing fee and the payment fixed fee do not change. Enter the rates from your last payout; this page does not claim Etsy's live schedule.</p>
+  <h3>What if the buyer would not have bought the standard listing?</h3>
+  <p>That is extra demand. On the same defaults the personalized order still leaves $20.97 versus $0.00 if you decline. Take the request when that path is still a profit, even if the upgrade loses against a standard sale you would have made anyway.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+requests: 40M
+duration-ms: 180
+memory-gib: 0.5
+vcpu: 0.25
+concurrency: 10
+peak-ratio: 4

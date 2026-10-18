@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This checker vs. Healthchecks.io | Backup Verification Evidence</title>
+  <meta name="description" content="Healthchecks.io watches whether your backup job ran and reported success on time. This is a free, local…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/vs-healthchecks.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This checker vs. Healthchecks.io">
+  <meta property="og:description" content="Cron monitoring proves the job ran and exited 0. This proves the artifact it wrote is usable. A truncated backup exits 0 and pings green…">
+  <meta property="og:url" content="./vs-healthchecks.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Healthchecks.io?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and a team that cares about backups usually ends up wanting both. Healthchecks.io is a cron-job monitoring service: your scheduled job sends an HTTP ping when it starts, succeeds, or fails, and if an expected ping does not arrive within its grace period the service alerts you through email, chat, or an on-call integration. It is the dead-man's-switch layer — it catches the job that never ran, the machine that never came back, and the script that exited non-zero. This checker never watches a schedule and sends no alerts. It looks at what a run left on disk: whether the exit code and the artifact stat agree with what you expected, whether the archive reads back intact if you asked it to, and whether tonight's file is quietly smaller than the nights before it. The blind spot each covers for the other is concrete: a backup that fills the disk and writes a truncated file still exits 0, so it still pings, so the monitor still shows green. That run is exactly what this checker reports as suspicious rather than verified."}},{"@type":"Question","name":"Does this checker replace cron monitoring?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. It has no scheduler, no notification channel, no hosted component, and no way to notice that a job failed to run at all — if nothing executes, this tool has nothing to look at and will not tell you anything is wrong. That absence is precisely what a dead-man's-switch service like Healthchecks.io exists to catch. Run one for the schedule, and this for the artifact the schedule produced."}},{"@type":"Question","name":"Can I run this from the same cron job that pings my monitor?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is the intended shape. Both subcommands exit non-zero unless the result is clean: verify exits 0 only when every artifact read back intact, 1 when one is provably corrupt, and 2 when nothing is corrupt but something could not be checked at all; check exits non-zero when the newest run record is anything other than verified. So you can chain either one before your ping — run the backup, run backup-evidence over the artifact it wrote, and only signal success to your monitor if the evidence check also passed. Your existing monitor then stops meaning \"the script finished\" and starts meaning \"the script finished and left a plausible archive\" — without changing anything about how the monitor itself is configured."}},{"@type":"Question","name":"Is this page affiliated with Healthchecks.io?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Healthchecks.io or its authors. Healthchecks.io is named here only to describe what this checker is and is not, and no claim is made about its current pricing, plans, or feature set beyond the well-documented category it belongs to: cron-job and scheduled-task monitoring by HTTP ping."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17212b; background: #f4f1ea; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0b5f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 14px; color: #123b36; max-width: 24ch; }
+    p, li { line-height: 1.5; }
+    .eyebrow { font-weight: 700; letter-spacing: .04em; font-size: .85rem; }
+    .lede { font-size: 1.05rem; max-width: 66ch; color: #3c4a47; }
+    .note, footer { font-size: .86rem; color: #52605d; }
+    .card { background: #fff; border: 1px solid #d8d3c9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123b3610; margin: 18px 0; }
+    h2 { margin-top: 0; color: #123b36; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 14px 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6e2da; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #52605d; }
+    pre { white-space: pre-wrap; background: #f4f1ea; padding: 12px; border-radius: 8px; font-size: .8rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d8d3c9; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Healthchecks.io — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../backup-verification-evidence/">Backup night-over-night trend</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Healthchecks.io</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Backup Verification Evidence</a></p>
+  <header>
+    <h1>This checker vs. Healthchecks.io</h1>
+    <p class="lede">Two different questions about the same backup. Healthchecks.io asks <em>did the job run and report success on time?</em> This asks <em>is the file it left behind actually usable?</em> A truncated archive answers yes to the first and no to the second, which is the whole reason this page exists.</p>
+  </header>
+
+  <section class="card">
+    <h2>What each tool is for</h2>
+    <p>
+      <strong>Healthchecks.io</strong> is a cron-job and scheduled-task
+      monitoring service, also available as open-source software you can host
+      yourself. The pattern is a dead man's switch: your job sends an HTTP
+      ping to a unique URL when it starts, succeeds, or fails, and if an
+      expected ping does not arrive inside its grace period the service raises
+      an alert through whichever channels you have configured. It is very good
+      at the failure modes that make a job produce <em>nothing</em> — the box
+      that never came back, the cron entry someone commented out, the script
+      that died on a non-zero exit. Its current plans, limits and prices are
+      not reachable from this page and none are invented here; only its
+      well-documented category is described.
+    </p>
+    <p>
+      This checker does none of that. It has no scheduler, no hosted
+      component, no account and no notification channel, and it will never
+      tell you that a job failed to start — if nothing ran, there is nothing
+      here to look at. What it does instead is read the evidence a run left
+      behind: whether the exit code and the artifact stat agree with what you
+      said to expect, whether the archive <em>reads back</em> when you ask for
+      an integrity check, and whether tonight's file is meaningfully smaller
+      than the nights before it. It reports one of four states —
+      <code>verified</code>, <code>suspicious</code>, <code>failed</code>, or
+      <code>inconclusive</code> — and never folds an ambiguous run into
+      "looks fine."
+    </p>
+
+    <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Did last night's backup job run at all?</td><td>Healthchecks.io, or comparable cron monitoring — this checker cannot see a job that never executed.</td></tr>
+          <tr><td>Did the job exit non-zero, or stop pinging?</td><td>Healthchecks.io, or comparable cron monitoring.</td></tr>
+          <tr><td>The job exited 0 — did it actually write a usable archive?</td><td>This checker, free and local.</td></tr>
+          <tr><td>Is tonight's archive quietly smaller than the last few nights?</td><td>This checker's <a href="./shrinking.html">night-over-night trend view</a>.</td></tr>
+          <tr><td>Does the archive read back intact, not just exist?</td><td>This checker's <code>verify</code>, which reads the artifact rather than trusting its stat.</td></tr>
+          <tr><td>I need someone paged at 3am when the switch trips.</td><td>Healthchecks.io, or comparable cron monitoring — this checker sends nothing.</td></tr>
+          <tr><td>I need a dated, portable record for a client SLA or an insurance questionnaire.</td><td>This checker's JSON handoff.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The gap, concretely</h2>
+    <p>
+      The reason these two are complements rather than substitutes is a
+      failure mode that is common and quiet. A destination fills up, or a pipe
+      breaks halfway, or a <code>tar</code> writes a partial file — and the
+      script still reaches its last line and still exits <code>0</code>. It
+      therefore still sends its success ping, and the monitoring dashboard is
+      still green. Nothing in the schedule layer is in a position to notice,
+      because from its point of view the job did what it said it would.
+    </p>
+    <p>
+      That run is what this checker reports as <code>suspicious</code>: the
+      exit code says success, but the artifact stat disagrees with what you
+      expected, or the file is a fraction of the size it has been every other
+      night. The trend view exists for the slower version of the same problem,
+      where an archive shrinks a little each week and no single night looks
+      wrong on its own.
+    </p>
+    <p class="note">
+      None of this is a restore test. A file that stats correctly and reads
+      back without error can still be missing the data you actually need. Only
+      a real test restore tells you that, and this tool says so rather than
+      implying otherwise.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Using both together</h2>
+    <p>
+      The two layers compose without either one having to know about the
+      other. Run the backup, run the evidence check over what it produced, and
+      only ping your monitor if both succeeded. <code>verify</code> exits
+      <code>0</code> when every artifact read back intact, <code>1</code> when
+      any is provably corrupt, and <code>2</code> when nothing is corrupt but
+      something could not be checked — so an <code>&amp;&amp;</code> is enough,
+      and an archive that could not be read is treated as a reason not to
+      report success rather than as a pass:
+    </p>
+<pre>#!/bin/sh
+set -e
+restic backup /srv --tag nightly
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+    --max-age-hours 26 /backups/nightly.tar.gz \
+  &amp;&amp; curl -fsS --retry 3 "$PING_URL"</pre>
+    <p>
+      Your existing monitor is unchanged, but its green now means something
+      stronger than it did: not merely "the script finished", but "the script
+      finished and left an archive that is the size it should be." A truncated
+      backup no longer pings at all, so the dead man's switch trips — which is
+      the alerting you already have, finally pointed at the right event.
+    </p>
+    <p class="note">
+      Open the <a href="./">verification checker</a> to run this against
+      backups you already have, or the
+      <a href="./shrinking.html">trend view</a> to compare consecutive nights
+      in your browser.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+
+    <h3>Should I use this checker or Healthchecks.io?</h3>
+    <p>They answer different questions, and a team that cares about backups usually ends up wanting both. Healthchecks.io is a cron-job monitoring service: your scheduled job sends an HTTP ping when it starts, succeeds, or fails, and if an expected ping does not arrive within its grace period the service alerts you through email, chat, or an on-call integration. It is the dead-man's-switch layer — it catches the job that never ran, the machine that never came back, and the script that exited non-zero. This checker never watches a schedule and sends no alerts. It looks at what a run left on disk: whether the exit code and the artifact stat agree with what you expected, whether the archive reads back intact if you asked it to, and whether tonight's file is quietly smaller than the nights before it. The blind spot each covers for the other is concrete: a backup that fills the disk and writes a truncated file still exits 0, so it still pings, so the monitor still shows green. That run is exactly what this checker reports as suspicious rather than verified.</p>
+
+    <h3>Does this checker replace cron monitoring?</h3>
+    <p>No, and it is not trying to. It has no scheduler, no notification channel, no hosted component, and no way to notice that a job failed to run at all — if nothing executes, this tool has nothing to look at and will not tell you anything is wrong. That absence is precisely what a dead-man's-switch service like Healthchecks.io exists to catch. Run one for the schedule, and this for the artifact the schedule produced.</p>
+
+    <h3>Can I run this from the same cron job that pings my monitor?</h3>
+    <p>Yes, and that is the intended shape. Both subcommands exit non-zero unless the result is clean: <code>verify</code> exits 0 only when every artifact read back intact, 1 when one is provably corrupt, and 2 when nothing is corrupt but something could not be checked at all; <code>check</code> exits non-zero when the newest run record is anything other than verified. So you can chain either one before your ping — run the backup, run backup-evidence over the artifact it wrote, and only signal success to your monitor if the evidence check also passed. Your existing monitor then stops meaning "the script finished" and starts meaning "the script finished and left a plausible archive" — without changing anything about how the monitor itself is configured.</p>
+
+    <h3>Is this page affiliated with Healthchecks.io?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by Healthchecks.io or its authors. Healthchecks.io is named here only to describe what this checker is and is not, and no claim is made about its current pricing, plans, or feature set beyond the well-documented category it belongs to: cron-job and scheduled-task monitoring by HTTP ping.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, tax, or backup-strategy advice, and it does not replace a qualified professional or a test restore. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including reliance on a verified night or a missing trend alert.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every check runs locally, and this page pulls no live data from Healthchecks.io — it is a static page describing publicly documented categories.</p>
+    <p class="support">Free and open source. If it caught a missed backup night before it mattered, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../retirement-plan-startup-credit-calculator/" data-pf-to="retirement-plan-startup-credit-calculator">Retirement plan startup credit calculator. Free, private</a></li>
+      <li><a href="../revolut-business-statement-to-journal/" data-pf-to="revolut-business-statement-to-journal">Revolut statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+      <li><a href="../salary-range-posting-check/" data-pf-to="salary-range-posting-check">Does your job posting state a pay range?</a></li>
+      <li><a href="../sales-call-notes-desk/" data-pf-to="sales-call-notes-desk">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=backup-verification-evidence">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="backup-verification-evidence"></script>
+</body>
+</html>

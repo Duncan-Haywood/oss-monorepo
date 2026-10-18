@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to pin a Docker base image to a digest</title>
+  <meta name="description" content="A tag like node:18 can be repointed at a different image by its publisher at any time. Here is how to find the content digest a base image tag currently…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/how-to-pin-a-docker-base-image-to-a-digest.html">
+  <meta property="og:title" content="How to pin a Docker base image to a digest">
+  <meta property="og:description" content="docker buildx imagetools inspect finds the digest a tag points to right now. Pin :18 to @sha256:<that digest> and it can never be silently repointed.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How to pin a Docker base image to a digest","acceptedAnswer":{"@type":"Answer","text":"Short answer: the Digest: line from docker buildx imagetools inspect is the value to use — replace the tag with @<that digest>, keeping the original tag as a trailing comment so a human reading the Dockerfile still knows which version it is."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/how-to-pin-a-docker-base-image-to-a-digest.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to pin a Docker base image to a digest — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../docker-base-image-pin-check/">Are your Dockerfile base images pinned to a digest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to pin a Docker base image to a digest</span></span></nav>
+  <p><a href="./">&larr; Docker Base Image Pin Check</a></p>
+  <h1>How to pin a Docker base image to a digest</h1>
+  <p>Short answer: the <code>Digest:</code> line from <code>docker buildx imagetools inspect</code> is the value to use — replace the tag with <code>@&lt;that digest&gt;</code>, keeping the original tag as a trailing comment so a human reading the Dockerfile still knows which version it is.</p>
+  <p>Most Dockerfiles start like this:</p>
+  <pre><code>FROM node:18</code></pre>
+  <p><code>18</code> is a tag, and a tag is just a name someone attached to an image build — the publisher can push a new build to that same tag at any time. Pinning to a content digest instead means the reference cannot be silently changed: a digest addresses one exact set of bytes.</p>
+  <h2>1. Find the digest a tag currently resolves to</h2>
+  <p>Use <code>docker buildx imagetools inspect</code> against the image and tag. This queries the registry's manifest directly — the same request a <code>docker pull</code> would make to decide what to fetch — without pulling the full image:</p>
+  <pre><code>docker buildx imagetools inspect node:18</code></pre>
+  <p>That prints output including a line like:</p>
+  <pre><code>Name:      docker.io/library/node:18
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:7e2895622100fa27781b8d926d4c7d719f26061ba1e78facbf3f6352a6407965</code></pre>
+  <p>The <code>Digest:</code> line is the value to use. (No <code>buildx</code> available? <code>docker manifest inspect --verbose node:18</code> or the third-party <code>crane digest node:18</code> answer the same question.)</p>
+  <h2>2. Replace the tag with the digest</h2>
+  <p>Keep the original tag as a trailing comment, so a human reading the Dockerfile still knows which version it is without decoding the hash:</p>
+  <pre><code>FROM node@sha256:7e2895622100fa27781b8d926d4c7d719f26061ba1e78facbf3f6352a6407965 # 18</code></pre>
+  <p>That line now resolves to exactly one set of bytes, forever. Upgrading later is a deliberate, reviewable diff: look up the digest for a newer tag and replace both the hash and the comment.</p>
+  <h2>3. Do this for every FROM line, in every Dockerfile</h2>
+  <p>A multi-stage build can have several <code>FROM</code> lines, and a single unpinned reference is enough to be the weak link — including the final stage that actually ships. <a href="./">Paste your Dockerfile into Docker Base Image Pin Check</a> to find every mutable reference at once, each with its own ready-to-run <code>imagetools inspect</code> command, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any base image is still referenced by a tag instead of a digest — wire it into your own CI to block a newly-added unpinned base image before it merges.</p>
+  <h2>Why a version-looking tag is not enough</h2>
+  <p><code>node:18</code> is a moving target for the entire support lifetime of Node 18: the maintainers push new patch and security builds to that same tag routinely, which is the point of the tag — you want those updates when you rebuild deliberately. The risk this addresses is the same update landing <em>silently</em>, on someone else's <code>docker build</code>, with nothing in your own commit history to say the base image changed. A digest reference removes that ambiguity: the same digest always means the same bytes, so a change of base image is a change you make on purpose, in a diff you can review.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Confirm any digest yourself before pinning to it, and verify before relying on the output. This is not a security audit or a compliance attestation, and it does not tell you whether the code inside that image is itself safe to run — only which content digest a tag currently resolves to.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../prometheus-cardinality-cost/" data-pf-to="prometheus-cardinality-cost">Which labels are inflating your Prometheus metrics bill?</a></li>
+      <li><a href="../pwa-installability-check/" data-pf-to="pwa-installability-check">PWA Installability Checker</a></li>
+      <li><a href="../pypi-provenance-check/" data-pf-to="pypi-provenance-check">Which of your PyPI dependencies lack a provenance attestation?</a></li>
+      <li><a href="../rds-instance-cost-advisor/" data-pf-to="rds-instance-cost-advisor">Why is your RDS bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=docker-base-image-pin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="docker-base-image-pin-check"></script>
+</body>
+</html>

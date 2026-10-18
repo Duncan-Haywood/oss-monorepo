@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This cut list optimizer vs. optiCutter and CutList Optimizer</title>
+<meta name="description" content="optiCutter and CutList Optimizer are hosted cutting-optimization services with free tiers and paid plans.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This cut list optimizer vs. optiCutter and CutList Optimizer">
+<meta property="og:description" content="Three panel optimizers, one difference that matters: where the cutting runs, whether there is a plan tier above you…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this cut list optimizer or optiCutter or CutList Optimizer?","acceptedAnswer":{"@type":"Answer","text":"All three nest rectangular parts onto sheet stock and account for saw kerf and grain direction, so for a one-off panel layout any of them will give you a workable cutting diagram. The difference is the shape of the product. optiCutter and CutList Optimizer are hosted services: the optimization runs on their servers, and each publishes a free tier alongside paid plans, so a large enough job or a heavy enough week can put you above the free line. This calculator is a static page — the nesting runs in your own browser, there is no account, no plan above you, and no size at which it asks for money. It also does something neither of them is built around: you can type in the offcuts already on your rack, and it will place parts on those before it counts a new sheet as bought. If you want saved project libraries, material catalogues, an API, or a vendor with a support desk, a hosted service is the right shape and this page is not trying to talk you out of one."}},{"@type":"Question","name":"Does this cut list optimizer have a free-tier limit?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account, no sign-in, no per-day calculation count and no paid tier, because there is no server doing the work — the layout is computed by JavaScript on the page you have already loaded. The practical ceiling is your own device: a cut list of a few hundred parts lays out in well under a second on a phone. Nothing you type is uploaded, and once the page has loaded it keeps working with the connection off."}},{"@type":"Question","name":"Is this page affiliated with optiCutter or CutList Optimizer?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by optiCutter or CutList Optimizer, and the names are used here only to describe what this tool is and is not. Their plans and limits are theirs to change, so this page deliberately quotes no price and no tier limit for either — check their own pages for current terms."}}]}</script>
+<style>
+:root{font-family:ui-sans-serif,system-ui,sans-serif;color:#20241d;background:#f1eee6}
+body{max-width:900px;margin:auto;padding:34px 18px}
+a{color:#af4d29;overflow-wrap:anywhere}
+.eyebrow{color:#af4d29;font-weight:800;letter-spacing:.12em;font-size:.75rem;margin:0}
+header{margin:1rem 0}
+h1{font:800 clamp(1.9rem,5.4vw,3.1rem)/1.02 Georgia,serif;letter-spacing:-.03em;margin:.3rem 0;max-width:22ch}
+.lede{font-size:1.05rem;max-width:64ch;color:#4a4f44;line-height:1.55}
+section{background:#fffdf8;border:1px solid #d6d0c3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dece;margin:1rem 0}
+h2{margin-top:0;font-family:Georgia,serif}
+h3{font-family:Georgia,serif}
+p{line-height:1.55}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d6d0c3;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5b52}
+ul{line-height:1.55}
+.fine,.note{font-size:.88rem;color:#5c5b52}
+footer{color:#5c5b52;font-size:.8rem}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This cut list optimizer vs. optiCutter and CutList Optimizer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cut-list-optimizer/">Cut List Optimizer — compare sheet sizes and board lengths before you buy</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This cut list optimizer vs. optiCutter and CutList Optimizer</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Cut List Optimizer</a></p>
+<header>
+<h1>This cut list optimizer vs. optiCutter and CutList Optimizer</h1>
+<p class="lede">All three nest parts onto sheets and respect kerf and grain. The differences worth knowing are where the cutting runs, whether there is a plan tier above you, and whether the offcuts already on your rack count.</p>
+</header>
+
+<section>
+<h2>What each tool is</h2>
+<p>
+  <strong><a href="https://www.opticutter.com/" rel="nofollow noopener">optiCutter</a></strong>
+  and
+  <strong><a href="https://cutlistoptimizer.com/" rel="nofollow noopener">CutList Optimizer</a></strong>
+  are hosted cutting-optimization services. You enter stock and parts in a
+  web app, their servers compute the nesting, and you get cutting diagrams
+  back. Both publish a free tier alongside paid plans, and both are
+  established tools with real users — a woodworker or sign shop that wants
+  saved project libraries, material catalogues, an API, or a vendor with a
+  support desk is better served by one of them than by this page, and that
+  is a genuine reason to pay for software.
+</p>
+<p>
+  This calculator is a single static page. The nesting runs in your own
+  browser, in JavaScript, on the page you have already loaded. There is no
+  account, no sign-in, no per-day calculation count, and no tier above you
+  that a big enough job pushes you into — not as a promotion, but because
+  there is no server doing the work and therefore nothing to meter. Nothing
+  you type is uploaded, and once the page has loaded it keeps cutting with
+  the connection off, which matters more in a shop with bad Wi-Fi than it
+  sounds on a spec sheet.
+</p>
+<p class="note">
+  <strong>No prices or tier limits are quoted for either service on this
+  page, on purpose.</strong> Their plans and limits are theirs to change,
+  the third-party round-ups that publish figures for them disagree with
+  each other, and neither vendor's own site is reachable from the
+  environment this page was written in. Rather than repeat a number we
+  could not check, we link to their pages: read the current terms there.
+</p>
+</section>
+
+<section>
+<h2>Which one answers your question</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+<tbody>
+<tr>
+  <td>Lay out a one-off cabinet or sign job on sheet goods, with kerf and grain direction handled.</td>
+  <td>Any of the three. This one if you would rather not create an account for a single job.</td>
+</tr>
+<tr>
+  <td>Use the offcuts already stacked against the shop wall before buying a new sheet.</td>
+  <td><strong>This calculator</strong> — type them into the on-hand box and they are placed first, and the plan tells you how many new sheets that avoided.</td>
+</tr>
+<tr>
+  <td>Decide whether to buy 4×8 or 5×5 stock for <em>this</em> cut list, on cash rather than on offcut area.</td>
+  <td>This calculator's <a href="compare-4x8-vs-5x5.html">4×8 vs 5×5 sheet comparison</a>.</td>
+</tr>
+<tr>
+  <td>Rank 8 ft, 10 ft, 12 ft and 16 ft boards for a linear cut list before a lumber run.</td>
+  <td>This calculator — the board-length comparison is on the same page as the linear plan.</td>
+</tr>
+<tr>
+  <td>Keep a library of saved projects, a material catalogue with costs, or edge-banding calculations.</td>
+  <td>A hosted service. This page keeps one working draft in your own browser and has no catalogue and no edge-banding model.</td>
+</tr>
+<tr>
+  <td>Call an optimizer from your own software.</td>
+  <td>A hosted service with an API. This tool has none.</td>
+</tr>
+<tr>
+  <td>Run a big list without wondering whether it counts against a plan.</td>
+  <td><strong>This calculator</strong> — there is no plan to count against.</td>
+</tr>
+<tr>
+  <td>Work in a shop with no reliable connection.</td>
+  <td><strong>This calculator</strong> — it keeps working after the page has loaded.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most shops are well served by both shapes: a hosted service when the job
+  is a recurring product line with a material catalogue behind it, and a
+  page like this one when you are standing at the rack with a list and want
+  a plan before you cut.
+</p>
+</section>
+
+<section>
+<h2>What this tool actually does</h2>
+<p>Verifiable from the page itself rather than from a feature grid:</p>
+<ul>
+  <li><strong>Sheet nesting</strong> with saw kerf and edge trim taken out of usable area, and a drawn layout per sheet.</li>
+  <li><strong>Grain lock</strong> per part, so a face-grain piece is not quietly rotated to make the nesting look better.</li>
+  <li><strong>On-hand offcuts</strong> placed before any new sheet is counted as bought, with the sheets avoided reported.</li>
+  <li><strong>Sheet-size comparison</strong> — the same cut list costed across 4×8, 5×5 and 4×4 at your prices, because the cheaper sheet is not always the cheaper buy.</li>
+  <li><strong>Board-length comparison</strong> for linear cuts, ranking common stock lengths on the same list.</li>
+  <li><strong>A printable job ticket</strong> and a copy-to-clipboard plan for both the sheet and linear modes.</li>
+  <li><strong>A draft kept in your own browser</strong>, so a reload does not lose the list you typed.</li>
+</ul>
+<p class="fine">
+  And what it does not do, stated plainly: no accounts, no saved project
+  library beyond that single draft, no material or price catalogue, no
+  edge-banding model, no API, and no support desk. Those are the things a
+  paid service is for.
+</p>
+<p class="note">
+  Open the <a href="./">Cut List Optimizer</a> to put your own list through it.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this cut list optimizer or optiCutter or CutList Optimizer?</h3>
+<p>All three nest rectangular parts onto sheet stock and account for saw kerf and grain direction, so for a one-off panel layout any of them will give you a workable cutting diagram. The difference is the shape of the product. optiCutter and CutList Optimizer are hosted services: the optimization runs on their servers, and each publishes a free tier alongside paid plans, so a large enough job or a heavy enough week can put you above the free line. This calculator is a static page — the nesting runs in your own browser, there is no account, no plan above you, and no size at which it asks for money. It also does something neither of them is built around: you can type in the offcuts already on your rack, and it will place parts on those before it counts a new sheet as bought. If you want saved project libraries, material catalogues, an API, or a vendor with a support desk, a hosted service is the right shape and this page is not trying to talk you out of one.</p>
+<h3>Does this cut list optimizer have a free-tier limit?</h3>
+<p>No. There is no account, no sign-in, no per-day calculation count and no paid tier, because there is no server doing the work — the layout is computed by JavaScript on the page you have already loaded. The practical ceiling is your own device: a cut list of a few hundred parts lays out in well under a second on a phone. Nothing you type is uploaded, and once the page has loaded it keeps working with the connection off.</p>
+<h3>Is this page affiliated with optiCutter or CutList Optimizer?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by optiCutter or CutList Optimizer, and the names are used here only to describe what this tool is and is not. Their plans and limits are theirs to change, so this page deliberately quotes no price and no tier limit for either — check their own pages for current terms.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the calculator does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../drywall-bid-calculator/" data-pf-to="drywall-bid-calculator">Drywall Bid Calculator</a></li>
+      <li><a href="../fireplace-insert-bid-calculator/" data-pf-to="fireplace-insert-bid-calculator">Fireplace Insert Bid Calculator</a></li>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+      <li><a href="../hardwood-refinishing-bid-calculator/" data-pf-to="hardwood-refinishing-bid-calculator">Hardwood Refinishing Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cut-list-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cut-list-optimizer"></script>
+</body></html>

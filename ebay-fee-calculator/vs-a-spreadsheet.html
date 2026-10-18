@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet | eBay Fee &amp; Profit Calculator</title>
+  <meta name="description" content="A seller's own eBay profit spreadsheet usually applies one flat fee percentage and stops. It rarely stacks Promoted Listings and international fees on top…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet">
+  <meta property="og:description" content="A flat fee-percentage spreadsheet cell can't see Promoted Listings and international fees stacking on the same order, or price what a typed return rate costs.">
+  <meta property="og:type" content="article">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #3569cb; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+    .note { font-size: .85rem; color: #4a5666; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet work out eBay profit?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the simple case: revenue times one fee percentage, minus cost of goods and shipping. Most sellers already have a cell like that. It stops being right the moment Promoted Listings or an international sale add their own percentage on top of the final value fee, or a return comes back and eats the outbound label and packaging while only partially refunding fees — none of which fits a single fee-rate cell without rebuilding the formula."}},{"@type":"Question","name":"Where does a hand-built eBay profit sheet usually go wrong?","acceptedAnswer":{"@type":"Answer","text":"Two places, on the calculator's own defaults. First, treating 13.6% as the whole fee: adding an 8% Promoted Listings rate and a 1.65% international rate on the same $40 item plus $6 shipping order lowers completed-sale profit from $21.34 to $16.91 — a $4.44 gap one flat-rate cell never shows. Second, never pricing returns: a 10% expected return rate on the base case lowers profit from $21.34 completed to $18.11 expected, because a return still eats the outbound shipping, packaging, and any unrefunded portion of the fees already paid, and a spreadsheet that only tracks completed sales has no row for that."}},{"@type":"Question","name":"What does a spreadsheet not check for you?","acceptedAnswer":{"@type":"Answer","text":"Whether Promoted Listings and international fees are stacking on top of the final value fee rather than replacing it; what a typed return rate actually costs once the outbound label, packaging, and unrefunded fees are counted; the exact price that hits a target margin or profit dollar amount, solved backward rather than guessed and rechecked; and return on the cash actually invested, which is smaller than the invoice total because fees are deducted from proceeds rather than paid up front."}},{"@type":"Question","name":"Does either one know what eBay will actually charge?","acceptedAnswer":{"@type":"Answer","text":"No. Both this calculator and a spreadsheet apply the fee rates you type in. Neither reproduces eBay's live, category-specific rate card — verify current rates against eBay's own Fee Calculator in Seller Center or a recent invoice before relying on either."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you type is uploaded."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebay-fee-calculator/">eBay Fee &amp; Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+  <p><a href="./">&larr; eBay fee &amp; profit calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A seller who tracks eBay profit more than a few times usually ends up
+    with a spreadsheet: a price cell, a cost cell, and one fee-percentage
+    cell subtracted from the total. That formula is right for the simple
+    case and silently wrong the moment a sale is more than the simple
+    case &mdash; which, on eBay, is often. This page names no specific
+    product; it compares against the generic method of tracking fees and
+    profit in a spreadsheet or by hand.
+  </p>
+  <p>
+    <strong>A spreadsheet</strong> can multiply an order total by one fee
+    rate and subtract cost of goods in a single formula, and many sellers
+    already have one. What it does not do on its own is stack Promoted
+    Listings and international fees on top of the final value fee when a
+    sale carries either, or price what a typed return rate costs once the
+    outbound label, packaging, and any unrefunded fees are counted &mdash;
+    so a "13.6% fee" cell quietly understates the real fee bill on any
+    promoted or international sale, and a completed-sale profit column
+    quietly overstates what a batch of orders actually nets once some
+    come back.
+  </p>
+  <p>
+    <strong>This calculator</strong> takes the final value rate, the
+    Promoted Listings rate, and the international fee rate as separate
+    inputs and stacks them the way eBay actually charges them, on the
+    full order total including shipping charged. It also takes an
+    expected return rate, return shipping cost, and the share of fees
+    eBay refunds on a return, and reports both completed-sale profit and
+    return-adjusted expected profit side by side &mdash; plus the exact
+    price that hits a target margin, a target profit dollar amount, or a
+    target ROI, solved backward rather than guessed and rechecked by
+    hand.
+  </p>
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>What does this order net at one flat fee rate, no returns?</td><td>Either one &mdash; that is the simple case both get right.</td></tr>
+      <tr><td>What does it net once Promoted Listings and an international rate stack on top?</td><td>This calculator &mdash; on the $40 item / $6 shipping default, adding an 8% Promoted rate and a 1.65% international rate lowers completed profit from $21.34 to $16.91, a $4.44 gap a single fee-rate cell does not show.</td></tr>
+      <tr><td>What does a typed return rate actually cost?</td><td>This calculator's return-adjusted expected profit &mdash; at 10% returns on the base case, profit drops from $21.34 completed to $18.11 expected, because a return still eats the outbound label, packaging, and any unrefunded fees.</td></tr>
+      <tr><td>What price hits a target margin, profit dollar, or ROI?</td><td>This calculator solves backward for it automatically; a spreadsheet needs its own goal-seek or a manually rebuilt formula.</td></tr>
+      <tr><td>Is a batch of several units still solved correctly?</td><td>This calculator spreads the one per-order fixed fee across the batch while keeping per-unit costs multiplied &mdash; a copied-down spreadsheet row often double-counts or drops the per-order fee.</td></tr>
+      <tr><td>I already have a working profit sheet and don't want to change tools.</td><td>Keep it &mdash; this calculator is a free second check, not a replacement for a system you maintain.</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2>What this page is not</h2>
+  <p>
+    This calculator is not a bookkeeping system and does not track
+    listings or orders over time; a spreadsheet or a seller platform
+    still does that job better. What it replaces is the one-off
+    arithmetic of stacking eBay's fee types correctly and pricing a
+    return rate on a single order &mdash; the part of a profit sheet most
+    likely to be approximated as "revenue times one fee percentage"
+    because modeling Promoted Listings, international fees, and returns
+    correctly, every time terms change, is tedious enough that most
+    sheets skip it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet work out eBay profit?</h3>
+  <p>Yes, for the simple case: revenue times one fee percentage, minus cost of goods and shipping. Most sellers already have a cell like that. It stops being right the moment Promoted Listings or an international sale add their own percentage on top of the final value fee, or a return comes back and eats the outbound label and packaging while only partially refunding fees &mdash; none of which fits a single fee-rate cell without rebuilding the formula.</p>
+  <h3>Where does a hand-built eBay profit sheet usually go wrong?</h3>
+  <p>Two places, on the calculator's own defaults. First, treating 13.6% as the whole fee: adding an 8% Promoted Listings rate and a 1.65% international rate on the same $40 item plus $6 shipping order lowers completed-sale profit from $21.34 to $16.91 &mdash; a $4.44 gap one flat-rate cell never shows. Second, never pricing returns: a 10% expected return rate on the base case lowers profit from $21.34 completed to $18.11 expected, because a return still eats the outbound shipping, packaging, and any unrefunded portion of the fees already paid, and a spreadsheet that only tracks completed sales has no row for that.</p>
+  <h3>What does a spreadsheet not check for you?</h3>
+  <p>Whether Promoted Listings and international fees are stacking on top of the final value fee rather than replacing it; what a typed return rate actually costs once the outbound label, packaging, and unrefunded fees are counted; the exact price that hits a target margin or profit dollar amount, solved backward rather than guessed and rechecked; and return on the cash actually invested, which is smaller than the invoice total because fees are deducted from proceeds rather than paid up front.</p>
+  <h3>Does either one know what eBay will actually charge?</h3>
+  <p>No. Both this calculator and a spreadsheet apply the fee rates you type in. Neither reproduces eBay's live, category-specific rate card &mdash; verify current rates against eBay's own Fee Calculator in Seller Center or a recent invoice before relying on either.</p>
+  <h3>Is anything I enter uploaded anywhere?</h3>
+  <p>No. The calculator this page links to runs entirely in your browser; nothing you type is uploaded.</p>
+  <p class="note">
+    Open the <a href="./">eBay fee &amp; profit calculator</a> to run the comparison on your own numbers, or see <a href="do-ebay-returns-wipe-the-profit.html">how far a return rate can go</a> before it wipes a thin listing's profit.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. Verify the output, and every fee rate, before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no comparison against any named product &mdash; it describes the generic method of tracking fees and profit in a spreadsheet.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebay-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebay-fee-calculator"></script>
+</body>
+</html>

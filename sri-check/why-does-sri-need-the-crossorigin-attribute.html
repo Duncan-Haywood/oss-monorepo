@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why an integrity attribute needs a crossorigin attribute too</title>
+<meta name="description" content="An integrity= hash on a cross-origin script or stylesheet does nothing in most browsers unless the tag also carries a crossorigin attribute -- why that is…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sri-check/why-does-sri-need-the-crossorigin-attribute.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether an integrity attribute is actually being enforced",
+  "step": [
+    { "@type": "HowToStep", "name": "Find every cross-origin script/link tag on the page", "text": "Look for script tags with a src attribute, and link tags with rel=\"stylesheet\" plus an href attribute, whose URL points at a different origin than the page itself -- a CDN, a font host, a third-party widget." },
+    { "@type": "HowToStep", "name": "Check for both integrity and crossorigin together", "text": "An integrity attribute needs a crossorigin attribute (crossorigin=\"anonymous\" is the common choice) on the same tag. Per the Fetch spec, a cross-origin request has to opt into CORS mode before the browser is allowed to read enough about the response to check a hash against it." },
+    { "@type": "HowToStep", "name": "Understand what happens with one but not the other", "text": "integrity with no crossorigin: most browsers silently skip the check rather than enforcing it -- the tag looks protected in the page source and is not. crossorigin with no integrity: the request opts into CORS but nothing is verified -- there is simply no protection configured." },
+    { "@type": "HowToStep", "name": "Check a whole page automatically", "text": "A free CLI + browser tool that fetches a page, finds every cross-origin script/stylesheet tag, and reports which ones are missing integrity, missing crossorigin, or declare a hash that no longer matches what the CDN serves is at ../sri-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sri-check/why-does-sri-need-the-crossorigin-attribute.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why an integrity attribute needs a crossorigin attribute too">
+<meta property="og:description" content="An integrity= hash on a cross-origin script or stylesheet does nothing in most browsers unless the tag also carries a crossorigin attribute -- why that is…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sri-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why an integrity attribute needs a crossorigin attribute too — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sri-check/">Subresource Integrity (SRI) Checker &amp; Hash Generator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why an integrity attribute needs a crossorigin attribute too</span></span></nav>
+<h1>Why an integrity attribute needs a crossorigin attribute too</h1>
+
+<p>
+  Subresource Integrity lets a page declare the exact hash a cross-origin script or stylesheet
+  must have before a browser will run or apply it. It is easy to add the <code>integrity</code>
+  attribute and stop there, assuming the tag is now protected. In most browsers, it isn't -- not
+  without a second attribute most guides mention only in passing.
+</p>
+
+<h2>Why the browser needs permission to check at all</h2>
+<p>
+  Reading enough about a cross-origin response to verify a hash against it is itself a CORS-gated
+  operation, under the same Fetch spec that governs <code>Access-Control-Allow-Origin</code>.
+  A plain <code>&lt;script src="https://cdn.example.com/lib.js"&gt;</code> tag does not opt into
+  CORS mode by default -- it is what the spec calls a "no-cors" request. Adding
+  <code>crossorigin="anonymous"</code> (or <code>"use-credentials"</code>, for the rare case that
+  needs cookies sent) is what opts the request into CORS mode, which is the mode integrity
+  checking requires.
+</p>
+
+<h2>The two ways to get this half right and still be unprotected</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Tag has</th><th>What actually happens</th></tr></thead>
+<tbody>
+<tr><td><code>integrity</code>, no <code>crossorigin</code></td><td>Most browsers silently skip the integrity check rather than enforcing it. The page source looks protected; a visitor's browser is not checking anything.</td></tr>
+<tr><td><code>crossorigin</code>, no <code>integrity</code></td><td>The request opts into CORS mode, but there is no hash to check it against -- no protection is configured at all, just a slightly different network request.</td></tr>
+<tr><td>Both, correctly</td><td>The browser fetches the resource in CORS mode, hashes what it receives, and refuses to run or apply it if the hash does not match one of the declared values.</td></tr>
+</tbody>
+</table></div>
+
+<h2>Check a whole page automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> fetches a page you name and every
+  cross-origin script/stylesheet tag it loads, and reports exactly which tags are missing
+  <code>integrity</code>, missing <code>crossorigin</code>, or declare a hash that no longer
+  matches what the CDN currently serves -- plus a standalone hash generator for fixing what it
+  finds. The page-fetching half runs as a Node CLI, since reading another site's full HTML from
+  browser JavaScript is itself restricted by CORS; the hash generator has no such limit, because
+  it only hashes content you paste in.
+</p>
+<p>
+  This is evidence about one specific protection, not a full security assessment -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sri-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sri-check"></script>
+</body>
+</html>

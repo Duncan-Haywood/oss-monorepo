@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why AGENTS.md and CLAUDE.md Files Rot</title>
+  <meta name="description" content="Why AI-coding-agent instruction files (AGENTS.md, CLAUDE.md, .cursorrules, copilot-instructions.md) fall out of sync with the repo they describe…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/why-ai-agent-instruction-files-rot.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't this just a markdown link checker?","acceptedAnswer":{"@type":"Answer","text":"A general markdown link checker (lychee, markdown-link-check) verifies that a link resolves to a file or URL that exists, which overlaps with this tool's file-reference check. It does not check npm-script references against package.json, and it does not know about the interpreter-mismatch shell footgun this tool looks for -- both specific to the failure modes an AI-coding-agent instruction file actually causes when it goes stale."}},{"@type":"Question","name":"Why only markdown links and inline code spans, not all prose?","acceptedAnswer":{"@type":"Answer","text":"Because that is how instruction files actually cite a path when they mean it literally -- both this repo's own AGENTS.md and CLAUDE.md follow exactly that convention throughout. Scanning ordinary prose for anything path-shaped would flag version numbers, package names, and ordinary sentences far more often than it would catch a real broken reference."}},{"@type":"Question","name":"Can it resolve a shorthand reference that relies on nearby prose for its directory?","acceptedAnswer":{"@type":"Answer","text":"No, and this is a named limitation rather than a hidden one. A sentence that names a full path once and then refers back to it later with just the filename (\"the same validate.py as above\") will report the later, shorter reference as not found even though the earlier, fuller path exists. The fix in the instructions file is usually to repeat the full path, which also makes the file easier for a human skimmer to follow."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/why-ai-agent-instruction-files-rot.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why AGENTS.md and CLAUDE.md Files Rot">
+<meta property="og:description" content="Why AI-coding-agent instruction files (AGENTS.md, CLAUDE.md, .cursorrules, copilot-instructions.md) fall out of sync with the repo they describe…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why AGENTS.md and CLAUDE.md Files Rot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../agent-instructions-drift-check/">Does your AI coding agent's instruction file still match your repo?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why AGENTS.md and CLAUDE.md Files Rot</span></span></nav>
+  <p><a href="./">← Back to Agent Instructions Drift Check</a></p>
+  <h1>Why AGENTS.md and CLAUDE.md files rot</h1>
+
+  <p>AGENTS.md, CLAUDE.md, <code>.cursorrules</code>, and
+  <code>.github/copilot-instructions.md</code> exist to tell an AI coding
+  agent (or a new human contributor) how a repo actually works: which files
+  to read first, which command runs the tests, which script builds the
+  project. That only stays true while every path, script name, and command
+  it names still matches what the repo actually has — and nothing about how
+  most repos are built keeps that true on its own.</p>
+
+  <h2>Why it happens: prose, edited on a different schedule than the code it describes</h2>
+  <p>A refactor renames <code>scripts/check.py</code> to
+  <code>scripts/validate.py</code>, or a <code>package.json</code> script
+  gets renamed from <code>lint</code> to <code>lint:fix</code>. The change
+  works, the tests pass, and the PR merges. Updating every instruction file
+  that named the old path or the old script is a manual step no build or
+  type check enforces — the same class of drift as an <code>.env.example</code>
+  falling out of sync with the code that reads it, just with a different
+  reader on the other end.</p>
+
+  <h2>Why it costs more with an agent reading the file than with a human</h2>
+  <p>A human contributor who hits a broken command in a README usually
+  recognizes the failure for what it is and works around it. An agent
+  following the same instruction can spend an entire turn, or several,
+  treating a wrong command's output as a real signal about the code — the
+  sharpest version of this is the interpreter-mismatch footgun this tool
+  names directly: a bare <code>pytest</code> or <code>mypy</code> that
+  resolves to an isolated interpreter missing the repo's own dependencies
+  reports a plausible-looking "module not found," which reads exactly like a
+  real regression until someone notices which Python actually ran.</p>
+
+  <h2>What this tool checks, and what it deliberately doesn't</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Check</th><th>Source</th><th>Out of scope for v0</th></tr></thead>
+    <tbody>
+      <tr><td>Broken file reference</td><td>Markdown link targets and inline <code>`code spans`</code> that look like a path</td><td>Bare prose ("the config lives in src"), and fenced code blocks (too noisy — command flags and globs look path-shaped too)</td></tr>
+      <tr><td>Undefined npm script</td><td><code>npm run &lt;name&gt;</code>, <code>npm test</code>, <code>npm start</code></td><td>Makefile targets, Python <code>tox</code>/<code>nox</code> sessions, and any script invoked without the literal <code>npm run</code> form</td></tr>
+      <tr><td>Interpreter-mismatch footgun</td><td>Bare <code>pytest</code> / <code>mypy</code> inside a fenced code block with no <code>python3 -m</code> prefix on the same line</td><td>Any other tool with the same shim problem; only the two most commonly documented ones ship in v0</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Wiring it into CI as a gate</h2>
+  <p>Run it on every pull request that touches your instruction file or the
+  paths it names:</p>
+  <pre>- name: Check AGENTS.md for drift
+  run: node ventures/agent-instructions-drift-check/cli.mjs check AGENTS.md --root .</pre>
+  <p>The command exits non-zero if any file reference is broken, any named
+  npm script is undefined, or a known footgun is present — so the same pull
+  request that renames a file or a script is the one that has to update the
+  instruction file that named it.</p>
+
+  <h2>Common questions</h2>
+  <h3>Isn't this just a markdown link checker?</h3>
+  <p>A general markdown link checker (lychee, markdown-link-check) verifies that a link resolves to a file or URL that exists, which overlaps with this tool's file-reference check. It does not check npm-script references against package.json, and it does not know about the interpreter-mismatch shell footgun this tool looks for -- both specific to the failure modes an AI-coding-agent instruction file actually causes when it goes stale.</p>
+  <h3>Why only markdown links and inline code spans, not all prose?</h3>
+  <p>Because that is how instruction files actually cite a path when they mean it literally -- both this repo's own AGENTS.md and CLAUDE.md follow exactly that convention throughout. Scanning ordinary prose for anything path-shaped would flag version numbers, package names, and ordinary sentences far more often than it would catch a real broken reference.</p>
+  <h3>Can it resolve a shorthand reference that relies on nearby prose for its directory?</h3>
+  <p>No, and this is a named limitation rather than a hidden one. A sentence that names a full path once and then refers back to it later with just the filename ("the same <code>validate.py</code> as above") will report the later, shorter reference as not found even though the earlier, fuller path exists. The fix in the instructions file is usually to repeat the full path, which also makes the file easier for a human skimmer to follow.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report whether a referenced path, script, or known shell pattern matches what it was told about your repo — nothing more. It is not legal, security, or engineering advice, and a clean result is not a guarantee that your instructions are correct or complete. Verify by reading the actual files before relying on it.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=agent-instructions-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="agent-instructions-drift-check"></script>
+</body>
+</html>

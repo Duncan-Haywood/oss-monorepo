@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per pier | Foundation Repair Bid Calculator</title>
+<meta name="description" content="Foundation-repair contractors are shopped by a flat price per pier. That rate cannot see the job: interior access, extra shaft depth, an engineering stamp…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/foundation-repair-bid-calculator/vs-a-flat-price-per-pier.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per pier">
+<meta property="og:description" content="An 8-pier brochure house with exterior access is not the same job as a 6-pier interior house with an engineering stamp and four carbon-fiber straps.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per pier get a foundation-repair bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because pier count only measures how many piers, not what each one costs to install. An 8-pier job with exterior access, 12 ft average depth, and no engineering takes about 29.9 crew-hours. A 6-pier job with interior brackets, 14 ft average depth, an engineering stamp, and four carbon-fiber straps takes about 50.9 crew-hours -- fewer piers, far more labor, because access, extra depth, engineering, and wall straps do not scale with pier count."}},{"@type":"Question","name":"What does a flat per-pier rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Interior access, extra shaft depth past what a published price includes, an engineering stamp, carbon-fiber straps, and a plumbing reroute under the slab. A flat rate has no line for the difference between an exterior bracket in open dirt and an interior bracket under a finished floor, no line for depth beyond the included footage, no line for the stamp and coordination an interior or structural job usually needs, and no line for wall straps or a plumbing reroute at all."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs: an 8-pier exterior job at 12 ft average depth, no interior access, no engineering, takes 29.9 crew-hours and prices at $9,488.87 -- $1,186.11 per pier. A 6-pier interior job at 14 ft average depth, with an engineering stamp, four carbon-fiber straps, and a plumbing reroute, takes 50.9 crew-hours, costs $10,657.82 to run before a dollar of profit, and this calculator prices it at $14,802.53 -- $2,467.09 per pier. Quoting the interior job at the exterior job's learned rate of $1,186.11 per pier gives $7,116.66 for six piers, which is $3,541.17 below the interior job's own break-even cost -- before counting the $7,685.87 it falls short of this calculator's price at a 28% target margin."}},{"@type":"Question","name":"Is a flat price per pier ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- the same access, a similar average depth, and no engineering stamp or wall straps -- a per-pier number can land close. The risk is quoting an interior job, extra shaft depth, an engineering stamp, or wall straps the same way sight unseen, because the rate does not know the access, the depth, the stamp, or the straps until the crew is under the house, and by then the per-pier number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's pier, bracket, or strap pricing. It takes pier count, average depth, interior versus exterior access, engineering, carbon-fiber straps, steel I-beams, grade beam, slab jacking, and plumbing reroute, plus your own wage, payroll burden, travel, overhead, and target margin, and turns that into crew-hours and a price for this job -- the arithmetic a flat per-pier rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2118; background: #efe6d8; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #7a4a1f; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c4c3e; }
+  section { background: #f7f0e4; border: 1px solid #ddccb2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a21180d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddccb2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4c3e; }
+  .fine, .note { font-size: .88rem; color: #5c4c3e; }
+  footer { color: #5c4c3e; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/foundation-repair-bid-calculator/vs-a-flat-price-per-pier.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/foundation-repair-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per pier — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../foundation-repair-bid-calculator/">Foundation Repair Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per pier</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Foundation Repair Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per pier</h1>
+<p class="lede">Foundation-repair contractors are shopped by a flat price per pier. That rate cannot see the job &mdash; interior access, extra shaft depth, an engineering stamp, and carbon-fiber straps do not scale with pier count, and a 6-pier job can take more crew-hours than an 8-pier job of the same method.</p>
+</header>
+<section>
+<h2>What a flat price per pier is</h2>
+<p>
+A price per pier is the fastest number to quote over the phone: count the
+piers, multiply by a rate, read back a total. It is also the unit
+homeowners already compare between competing bids, and the unit a lot of
+estimator sheets carry forward from job to job.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given access,
+depth, and scope &mdash; and then reused for the next pier count that
+calls in, whether or not that next job shares any of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter pier
+method and count, average installed depth, depth included in the pier
+price, interior versus exterior access, poor lot access, an engineering
+stamp, carbon-fiber straps, steel I-beams, grade beam, slab jacking, and a
+plumbing reroute, plus your own wage, payroll burden, travel, overhead, and
+target margin. It prices piers, extra depth, interior brackets, access,
+wall straps, and engineering as their own hours and cost lines &mdash; for
+this job, not a rate carried over from the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-pier rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for an exterior bracket in open dirt and an interior bracket under a finished floor, even though interior access is its own labor.</td>
+<td>Prices interior-access hours separately per pier, so an interior job costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for depth past what a published price includes &mdash; a 12 ft pier and an 18 ft pier of the same method get the same rate.</td>
+<td>Prices extra shaft depth past the included footage as its own hours and material, per pier.</td>
+</tr>
+<tr>
+<td>Has no line for an engineering stamp or coordinating one, even though an interior or structural job usually needs it.</td>
+<td>Prices the engineering stamp fee and the hours to coordinate it as their own line.</td>
+</tr>
+<tr>
+<td>Has no line for carbon-fiber straps, steel I-beams, a grade beam, slab jacking, or a plumbing reroute at all.</td>
+<td>Prices each of those as its own hours and material, on top of the pier count.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per pier and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same method, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $42 hourly wage,
+34% burden, $420 per pier and bracket, $18 per extra foot of shaft, $95 per
+interior bracket, $185 per carbon-fiber strap, an $850 engineering fee, a
+$650 plumbing allowance, $285 travel and equipment, 16% overhead, 28%
+target margin:
+</p>
+<p>
+An <strong>8-pier</strong> helical job with <strong>exterior access</strong>,
+<strong>12 ft</strong> average depth, no engineering stamp, and no straps
+takes <strong>29.9 crew-hours</strong> and prices at
+<strong>$9,488.87</strong> for the job &mdash; <strong>$1,186.11</strong>
+per pier.
+</p>
+<p>
+A <strong>6-pier</strong> helical job with <strong>interior access</strong>,
+<strong>14 ft</strong> average depth, an <strong>engineering stamp</strong>,
+<strong>four carbon-fiber straps</strong>, and a
+<strong>plumbing reroute</strong> &mdash; fewer piers, harder job &mdash;
+takes <strong>50.9 crew-hours</strong>, costs <strong>$10,657.82</strong>
+to run before a dollar of profit, and this calculator prices it at
+<strong>$14,802.53</strong> &mdash; <strong>$2,467.09</strong> per pier.
+Quoting the interior job at the exterior job's learned rate of $1,186.11
+per pier gives <strong>$7,116.66</strong> for six piers, which is
+<strong>$3,541.17 below the interior job's own break-even cost</strong>
+&mdash; before counting the <strong>$7,685.87</strong> it falls short of
+this calculator's own price at a 28% target margin. Fewer piers, more
+crew-hours, and a rate learned on the easier job loses money the moment
+the crew is under the house.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per pier get a foundation-repair bid wrong?</h3>
+<p>Because pier count only measures how many piers, not what each one costs to install. An 8-pier job with exterior access, 12 ft average depth, and no engineering takes about 29.9 crew-hours. A 6-pier job with interior brackets, 14 ft average depth, an engineering stamp, and four carbon-fiber straps takes about 50.9 crew-hours -- fewer piers, far more labor, because access, extra depth, engineering, and wall straps do not scale with pier count.</p>
+<h3>What does a flat per-pier rate usually miss entirely?</h3>
+<p>Interior access, extra shaft depth past what a published price includes, an engineering stamp, carbon-fiber straps, and a plumbing reroute under the slab. A flat rate has no line for the difference between an exterior bracket in open dirt and an interior bracket under a finished floor, no line for depth beyond the included footage, no line for the stamp and coordination an interior or structural job usually needs, and no line for wall straps or a plumbing reroute at all.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs: an 8-pier exterior job at 12 ft average depth, no interior access, no engineering, takes 29.9 crew-hours and prices at $9,488.87 -- $1,186.11 per pier. A 6-pier interior job at 14 ft average depth, with an engineering stamp, four carbon-fiber straps, and a plumbing reroute, takes 50.9 crew-hours, costs $10,657.82 to run before a dollar of profit, and this calculator prices it at $14,802.53 -- $2,467.09 per pier. Quoting the interior job at the exterior job's learned rate of $1,186.11 per pier gives $7,116.66 for six piers, which is $3,541.17 below the interior job's own break-even cost -- before counting the $7,685.87 it falls short of this calculator's price at a 28% target margin.</p>
+<h3>Is a flat price per pier ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar jobs -- the same access, a similar average depth, and no engineering stamp or wall straps -- a per-pier number can land close. The risk is quoting an interior job, extra shaft depth, an engineering stamp, or wall straps the same way sight unseen, because the rate does not know the access, the depth, the stamp, or the straps until the crew is under the house, and by then the per-pier number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's pier, bracket, or strap pricing. It takes pier count, average depth, interior versus exterior access, engineering, carbon-fiber straps, steel I-beams, grade beam, slab jacking, and plumbing reroute, plus your own wage, payroll burden, travel, overhead, and target margin, and turns that into crew-hours and a price for this job -- the arithmetic a flat per-pier rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Foundation Repair Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-for-foundation-repair.html">how much to charge for foundation repair</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or structural advice, and it does not tell you what to charge or whether a foundation is structurally sound. Verify every figure against your own payroll, insurance, and material costs, and against a licensed structural engineer, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../parking-lot-striping-bid-calculator/" data-pf-to="parking-lot-striping-bid-calculator">Parking Lot Striping Bid Calculator</a></li>
+      <li><a href="../paver-patio-bid-calculator/" data-pf-to="paver-patio-bid-calculator">Paver Patio Bid Calculator</a></li>
+      <li><a href="../pole-barn-bid-calculator/" data-pf-to="pole-barn-bid-calculator">Pole Barn Bid Calculator</a></li>
+      <li><a href="../retaining-wall-bid-calculator/" data-pf-to="retaining-wall-bid-calculator">Retaining Wall Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=foundation-repair-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="foundation-repair-bid-calculator"></script>
+</body></html>

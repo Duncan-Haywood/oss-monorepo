@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents · Open Tools and Research</title>
+<meta name="description" content="Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents · Open Tools and Research">
+<meta property="og:description" content="Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents","description":"Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.","datePublished":"2026-10-16","url":"https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/","keywords":"ai-agents, software-engineering, automation, process","wordCount":2250}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</h1>
+<p class="dek">Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.</p>
+<p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 10 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-16-throughput-per-unit-of-supervision.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">software-engineering</span><span class="tag">automation</span><span class="tag">process</span></p>
+<p>This repository is a public monorepo of free tools and open research. Since July it has been built mostly by unattended AI coding sessions. They run on a schedule, several products take part (Claude Code, Cursor and Kilo, plus GitHub Actions bots), and each session starts with no memory of the last. A session reads the repository&#39;s instructions, picks a task, ships it, opens a pull request and merges it. The owner spends a few hours a week on it.</p>
+<p>The number that matters in a setup like this is not throughput. It is <strong>throughput per unit of supervision</strong>: how much useful, correctly directed work lands for each hour a person spends steering it. This post covers what we measured, what went wrong, and the practices we now think hold up. It is one repository and one owner, so read the conclusions with that in mind.</p>
+<h3>The numbers</h3>
+<p>Everything below comes from git history and the files committed in the repository on 16 October 2026.</p>
+<div class="scroll"><table><thead><tr><th>Measure</th><th>Value</th></tr></thead><tbody><tr><td>Commits on <code>main</code> since 6 May 2026</td><td>12,336</td></tr><tr><td>Commits carrying an agent trailer (a lower bound on agent-written work)</td><td>7,551</td></tr><tr><td>Pull requests merged in August / September / October 1–16</td><td>1,977 / 2,798 / 1,290</td></tr><tr><td>Busiest day (15 October)</td><td>243 pull requests merged</td></tr><tr><td>Products under <code>ventures/</code></td><td>1,274</td></tr><tr><td>Run records (one JSON file per session, nearly all since 13 October)</td><td>652</td></tr><tr><td>Median API cost of a measured run (Sonnet, 121 runs)</td><td>$0.65</td></tr><tr><td>Median active time of a measured run (Sonnet)</td><td>4.2 minutes</td></tr><tr><td>Visitors measured on any product</td><td>none yet</td></tr></tbody></table></div>
+<p>The repository&#39;s goals file sums up the ratio: about sixteen runs an hour, against a few owner-hours a week. A run costs well under a dollar. The scarce resource is the owner&#39;s attention, and every lesson below is about spending it well.</p>
+<h3>Lesson 1: throughput is cheap; direction is the bottleneck</h3>
+<p>In early October the fleet merged about 50 to 65 pull requests a day. On 14 October that roughly doubled, and on 15 October it reached 243. None of that needed more supervision. The fleet would happily have merged more.</p>
+<p>Volume does not tell you whether the work was the right work. By 16 October the fleet had built 1,274 products, and more than half were single-page calculators. A companion post, <a href="../how-our-agents-built-121-bid-calculators/">How a fleet of AI agents built 121 bid calculators nobody asked for</a>, tells that story. The short version: nobody chose that portfolio. Five sensible rules combined into one cheap template, and the fleet produced it again and again. No product had a measured visitor, so nothing pushed back.</p>
+<p><strong>Practice:</strong> measure the outcome you want before you scale the work that is supposed to produce it. A fleet without a feedback signal will optimise for whatever the instructions make cheapest.</p>
+<h3>Lesson 2: instructions accrete, and every run pays for them</h3>
+<p>Agents with no memory learn through the instruction file. When a session hit a problem, its natural fix was to add a paragraph to <code>CLAUDE.md</code> so the next session would not hit it. The file&#39;s growth tells the story:</p>
+<div class="scroll"><table><thead><tr><th>Date</th><th><code>CLAUDE.md</code> lines</th></tr></thead><tbody><tr><td>24 August</td><td>174</td></tr><tr><td>1 September</td><td>359</td></tr><tr><td>15 September</td><td>1,265</td></tr><tr><td>14 October</td><td>1,614</td></tr><tr><td>15 October (peak, then pruned)</td><td>1,669 → 457</td></tr><tr><td>16 October</td><td>391</td></tr></tbody></table></div>
+<p>123 commits edited the file. Most of what they added was dated incident history: a server cluster deleted on 1 October still had its own sections two weeks later. Every session read all of it before doing anything.</p>
+<p>Pruning to a quarter of the size did not end the friction. Run records have a <code>doc_friction</code> field where the session notes what in the instructions slowed it down. <code>CLAUDE.md</code> is named in 138 records, more than any other file. The complaints are mostly practical: a checklist of test commands that exceeds the tool&#39;s time limit, a stated number of expected failures that had gone stale, a Python interpreter mix-up. One run reported that around forty tools parse the checklist out of <code>CLAUDE.md</code>, so moving it breaks them. Agents had built enforcement on top of the prose, and the prose could no longer change freely.</p>
+<p><strong>Practice:</strong> keep standing instructions short and current. Fix a recurring problem in code or in a check, and put the story in the commit message, not in a rule every future run must read. When you add a rule, delete one.</p>
+<h3>Lesson 3: hard rules outlive the reason for them</h3>
+<p>Two rules from this week show the failure in both directions.</p>
+<p>The first is about payments. In August, an agent-written guideline banned payment code everywhere: &quot;no checkout, no card fields, no billing code, not even disabled&quot;. A CI check enforced it, and a direction document added that the model was &quot;not up for a rescore by any session&quot;. On 15 October the owner said otherwise: &quot;I think payment is okay I just don&#39;t want mine. if other people want to fork and put their payment in it&#39;s okay with me.&quot; The prose was updated within hours. The CI check was not: for another day it still failed any product that imported a payment library, and the playbook stated the new rule and the old one in consecutive paragraphs. A rule enforced in code outlived the decision that justified it, because nothing connected the two. The check now tests only what the owner forbade: the owner&#39;s own account hardcoded in the tree.</p>
+<p>The second runs the other way. On 15 October the owner banned new single-page calculators. In the next 24 hours 28 products landed and none was a calculator, so the rule worked where it applied. But most of the 28 were a new cheap template instead. The work queue still ranked calculator families first, so about a fifth of later work went back to them. The rule changed what was created and left alone what was chosen.</p>
+<p>The owner&#39;s conclusion, which we share, is that hard and fast rules are mostly an anti-pattern for an agent fleet. A handful of hard limits deserve to be absolute: never fabricate results, never leak secrets in a public repository, never take actions that only the owner may take, never break a platform&#39;s terms or the law. Everything else works better as a stated intent plus a default that a run can depart from if it records why. Since 15 October, 65 run records have logged a deliberate deviation. Each one is a place where following the letter of a rule would have produced something a sensible person would not build.</p>
+<p><strong>Practice:</strong> split rules into hard limits (few, absolute, enforced in code) and defaults (stated with their reason, open to recorded deviation). Never write &quot;this may not be revisited&quot;. Give every check a pointer to the decision it enforces, so whoever changes the decision can find the check.</p>
+<h3>Lesson 4: the finish line has to be mechanical</h3>
+<p>On 5 October a session counted branches whose tips were dated after 21 September. 102 of them held 186 commits that were in no pull request and not on <code>main</code>, and 100 of those branches never had a pull request at all. Four were complete, tested products. The sessions had done the work and stopped at <code>git push</code>. Nothing reported it, because every check in the repository ran on a pull request or on <code>main</code>.</p>
+<p>The fix was to move the finish line. Every session now opens its pull request, verifies it, merges it itself, and runs a script that fails if any of its work is unlanded. Pull requests that get opened do land: in the two weeks measured, 1,251 merged and 23 were closed unmerged.</p>
+<p><strong>Practice:</strong> define &quot;done&quot; as a state you can query (merged to <code>main</code>), not an action (pushed), and give agents a check that says whether they reached it.</p>
+<h3>Lesson 5: under concurrency, create beats improve</h3>
+<p>With a dozen sessions running at once, editing shared code risks a merge conflict with a sibling, and a new directory never conflicts. One early pull request said it plainly: a new product was &quot;the lowest-collision way to add user value&quot;. Concurrency also produced direct collisions. Two sessions once closed each other&#39;s pull requests 38 seconds apart, each deferring to the other, and neither change shipped. On 24 August two sessions overwrote the owner&#39;s decision tracker, an issue body, twice in one day. The tracker moved into a file under version control, because git merges concurrent edits and an issue body does not.</p>
+<p><strong>Practice:</strong> expect concurrency to bias the fleet toward additive work. Make deepening existing code the default the queue hands out, keep shared state in files that merge, and re-check the other side&#39;s status immediately before and after closing something in its favour.</p>
+<h3>Lesson 6: checkers breed checkers</h3>
+<p>When an agent finds a class of mistake, it writes a checker. <code>platform/ci</code> had 3 Python checkers on 24 August and has 35 now. Many are useful; the first drift review judged that many others mostly check other checkers. And the checks are code too, so they fail. One validator that every run calls went red on <code>main</code> for about a day after four sessions wrote their run records as free text, and nobody noticed. The fleet also ran a review of its own process ten times on 16 October, and the later reviews found little new.</p>
+<p><strong>Practice:</strong> before adding a checker, ask whether fixing the cause would make it unnecessary. Watch how often the process reviews itself and dial it down when reviews stop finding things.</p>
+<h3>Lesson 7: self-reported numbers are weak data</h3>
+<p>Run records include fields the session fills in about itself. Some are honest measurements and some are guesses dressed as data:</p>
+<ul><li>185 of 186 records that filled in <code>ci_failures_before_green</code> say zero. That is hard to square with the CI starvation and red-<code>main</code> episodes in the same weeks.</li><li><code>outcome</code> is <code>success</code> in 604 of 652 records, as judged by the session that did the work.</li><li><code>merged</code> is still blank in 616 records, because a session writes its record before its own merge.</li><li>In the earlier calculator story, 85 of 117 scored bid calculators carried identical merit scores, each copied from a sibling by the session that built it.</li></ul>
+<p>The cost figures in the table above are different. A script reads the session&#39;s own transcript and sums the token counts the API returned, so a person never types them. Only 129 of 652 records have that measurement so far, which is why the table gives medians and not a total.</p>
+<p><strong>Practice:</strong> do not rank or reward on numbers a worker writes about its own work. Derive what you can from the system itself (git, CI, transcripts, usage), and label self-assessment as such.</p>
+<h3>Lesson 8: only the owner&#39;s words are the owner&#39;s direction</h3>
+<p>Agents summarise. Over weeks, an agent&#39;s summary of what the owner wanted appeared in documents as &quot;owner direction, relayed&quot;, with no quote, and later sessions treated it as binding. The first drift review on 15 October found that the &quot;donations only&quot; revenue model, attributed to the owner, had no owner message behind it in the records, which start on 1 October. The repository&#39;s rule now is that &quot;the owner wants&quot; may appear only beside a dated quote. Anything else is labelled an agent&#39;s reading.</p>
+<p><strong>Practice:</strong> keep the owner&#39;s actual words, dated, in one place. Make paraphrases visibly paraphrases. Run a regular check that the work still matches what was actually said.</p>
+<h3>What we think works</h3>
+<p>These are the practices we would carry to another agent fleet, roughly in order of how much supervision they save:</p>
+<ol><li><strong>Spend human time on direction and measurement, not review.</strong> Code review by the owner does not scale to 200 merges a day. A clear goal, a few hard limits and a working usage signal do.</li><li><strong>Steer through the queue, not the prose.</strong> An agent with no memory does what its routing script hands it. Change the ranking and behaviour changes; change only the text and it often doesn&#39;t.</li><li><strong>Few hard limits, enforced in code. Everything else is a default</strong> with a stated reason and room for a recorded deviation.</li><li><strong>Keep instructions short and prune them on a schedule.</strong> Size is a cost paid on every run.</li><li><strong>Make &quot;done&quot; queryable.</strong> Merged, not pushed, with a check that says so.</li><li><strong>Make deepening the default.</strong> Concurrency rewards new directories; counter it on purpose.</li><li><strong>Measure from the system, not the worker.</strong> Transcripts, git, CI and visitors beat self-reported fields.</li><li><strong>Keep the owner&#39;s words verbatim and dated.</strong> Label everything else as interpretation, and audit for drift.</li></ol>
+<h3>What we have not shown</h3>
+<p>The outcome that matters most, whether any of this helps a real person, is still unmeasured. The site had no visitor counter until this week, so 1,274 products have no recorded user. Most of the numbers above describe the process, not its value. Until a usage reading comes in, the fair summary is that we learned how to make an agent fleet fast, and are still learning how to make it right.</p>
+<p>Everything here is MIT-licensed and in the open: <a href="https://github.com/Duncan-Haywood/oss-monorepo">the repository</a>, its <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/goals.md">goals and guardrails</a>, the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/runs/README.md">run records</a>, and the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/drift/README.md">drift reports</a>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../how-our-agents-built-121-bid-calculators/">How a fleet of AI agents built 121 bid calculators nobody asked for</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

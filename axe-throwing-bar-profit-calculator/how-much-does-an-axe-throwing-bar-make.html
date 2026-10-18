@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does an axe throwing bar make: a worked example</title>
+  <meta name="description" content="How to work out what an axe throwing bar earns: thrower slots, fill, ticket price, private events, leagues, staff and rent, with a worked 32-thrower example…">
+  <meta property="og:title" content="How much does an axe throwing bar make: a worked example">
+  <meta property="og:description" content="How to work out what an axe throwing bar earns: thrower slots, fill, ticket price, private events, leagues, staff and rent, with a worked 32-thrower example…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/how-much-does-an-axe-throwing-bar-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What fill rate does an axe throwing bar need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, staff and ticket price, so the calculator solves it: it scales attendance up or down until monthly profit is exactly zero and reports that as a percentage of all thrower slots. Private events and leagues pay for part of the fixed costs before a single walk-in buys a ticket, so the break-even fill is lower than most owners guess."}},{"@type":"Question","name":"How much of an axe throwing bar's income comes from private events?","acceptedAnswer":{"@type":"Answer","text":"Often a fifth to a third of revenue, and the most reliable part because corporate and group bookings are made in advance. The calculator counts private events as a flat package price minus the food, host and supplies each one costs, and warns when they are over a third of revenue, because event income is capped by your event lanes and weekend hours."}},{"@type":"Question","name":"What ticket price do I need to reach my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the ticket that makes margin equal your target and shows it, next to the ticket that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random bars."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/how-much-does-an-axe-throwing-bar-make.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does an axe throwing bar make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../axe-throwing-bar-profit-calculator/">Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does an axe throwing bar make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← Axe Throwing Bar Profit Calculator</a></p>
+    <h1>How much does an axe throwing bar make?</h1>
+    <p>A bar with 32 throwers a session and five sessions a day, six days a week, can sell 4,160 thrower slots a month. At a realistic 28.0% filled, with private events and a league night, it keeps about 17 cents of every dollar, and the build takes over two years to come back.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A bar with 32 throwers per session, 5 sessions a day, 6 days a week has <strong>4160</strong> thrower slots a month. At a 28% average fill that is <strong>1165</strong> visits. Tickets are $27, so tickets bring in <strong>$31449.60</strong>, and $10 of food and drink per visit adds <strong>$11648.00</strong>.</p>
+    <p>24 private events at $520 bring in <strong>$12480.00</strong> and 48 league players at $40 add <strong>$1920.00</strong>.</p>
+    <p>Five coaches and bar staff on duty cost <strong>$20384.00</strong> a month at $16 an hour plus 12% payroll cost. With rent, utilities, insurance and other costs, fixed costs are <strong>$37184.00</strong>.</p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Per month</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$57497.60</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$47495.30</strong></td></tr>
+<tr><td>Profit</td><td><strong>$10002.30</strong></td></tr>
+<tr><td>Margin</td><td>17.4%</td></tr>
+<tr><td>Profit per visit</td><td>$8.59</td></tr>
+    </tbody></table></div>
+    <p>Lanes, targets, axes and the fit-out cost <strong>$280,000</strong>, so payback is <strong>28.0</strong> months, 2.3 years. Profit would reach zero at 20.5% fill.</p>
+  </section>
+  <section class="card">
+    <h2>The ticket a 20% margin needs</h2>
+    <p>The bar earns 17.4%, short of 20%. With everything else unchanged, the lowest ticket that reaches 20% is <strong>$28.74</strong>, $1.74 more than the $27 entered.</p>
+    <h2 style="margin-top:20px">Hitting a 24-month payback</h2>
+    <p>At 28.0 months the bar is past a 24-month payback target. The lowest ticket that reaches 24 months is <strong>$28.52</strong>, $1.52 more than now. Payback is measured before any loan payment, so borrowing does not flatter it; a loan still comes out of monthly profit.</p>
+    <h2 style="margin-top:20px">If attendance comes in under plan</h2>
+    <p>Rent, staff and insurance do not shrink when the lanes are quiet. With 10% fewer visits, monthly profit falls from $10,002 to $6,277 and payback stretches to 44.6 months. With 20% fewer, profit is $2,552 a month and payback runs past nine years.</p>
+    <h2 style="margin-top:20px">A higher ticket with fewer throwers</h2>
+    <p>Charging $32 and filling 22% of slots makes <strong>$6321.54</strong> a month against <strong>$10002.30</strong>, and pays back in <strong>44.3</strong> months against 28.0. Raising price does not rescue the bar if it costs more visits than the extra dollars bring in; the second scenario in the calculator tests exactly that.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What fill rate does an axe throwing bar need to break even?</h3>
+    <p>It depends on rent, staff and ticket price, so the calculator solves it: it scales attendance up or down until monthly profit is exactly zero and reports that as a percentage of all thrower slots. Private events and leagues pay for part of the fixed costs before a single walk-in buys a ticket, so the break-even fill is lower than most owners guess.</p>
+    <h3>How much of an axe throwing bar's income comes from private events?</h3>
+    <p>Often a fifth to a third of revenue, and the most reliable part because corporate and group bookings are made in advance. The calculator counts private events as a flat package price minus the food, host and supplies each one costs, and warns when they are over a third of revenue, because event income is capped by your event lanes and weekend hours.</p>
+    <h3>What ticket price do I need to reach my target margin?</h3>
+    <p>The calculator solves for the ticket that makes margin equal your target and shows it, next to the ticket that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random bars.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, lending or financial advice. Not affiliated with any axe throwing bar chain, franchise or equipment maker. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-turnover-scheduler/" data-pf-to="str-turnover-scheduler">Airbnb turnover cleaning schedule and crew size — free, private</a></li>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=axe-throwing-bar-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="axe-throwing-bar-profit-calculator"></script>
+</body>
+</html>

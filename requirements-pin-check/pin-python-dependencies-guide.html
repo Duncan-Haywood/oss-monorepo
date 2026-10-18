@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Pin and Hash Python Dependencies: requirements.txt, pip-tools and uv</title>
+  <meta name="description" content="A practical guide to reproducible Python installs: exact pins, hashes, a single index, pip-compile --generate-hashes…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/pin-python-dependencies-guide.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to pin and hash Python dependencies","about":"Reproducible and tamper-resistant requirements.txt files","author":{"@type":"Organization","name":"Requirements Pin Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/pin-python-dependencies-guide.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Pin and Hash Python Dependencies: requirements.txt, pip-tools and uv">
+<meta property="og:description" content="A practical guide to reproducible Python installs: exact pins, hashes, a single index, pip-compile --generate-hashes…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Pin and Hash Python Dependencies: requirements.txt, pip-tools and uv — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../requirements-pin-check/">Is your requirements.txt actually reproducible?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Pin and Hash Python Dependencies: requirements.txt, pip-tools and uv</span></span></nav>
+  <p><a href="./">← Requirements Pin Check</a></p>
+  <h1>How to pin and hash Python dependencies</h1>
+  <p>A <code>requirements.txt</code> that says <code>flask&gt;=2.0</code> is a promise to install whatever is newest on the day someone runs <code>pip install</code>. That is fine for a notebook and a risk for anything you deploy. Three changes make an install repeatable and much harder to tamper with.</p>
+
+  <h2>The categories this tool uses</h2>
+  <ul>
+    <li><strong>index-override</strong> — a second package index (<code>--extra-index-url</code>) that lets a same-named public package outrank yours.</li>
+    <li><strong>insecure-source</strong> — a plain-http index or URL, or <code>--trusted-host</code>, which removes TLS protection.</li>
+    <li><strong>vcs-unpinned</strong> — a git dependency following a branch or tag instead of a full commit hash.</li>
+    <li><strong>url-dependency</strong> — a direct URL with no <code>#sha256=</code> hash.</li>
+    <li><strong>no-version</strong> — a bare package name with no constraint at all.</li>
+    <li><strong>range-version</strong> — a <code>&gt;=</code>, <code>~=</code>, <code>&lt;</code> or wildcard range that lets the resolved version drift.</li>
+    <li><strong>no-hashes</strong> — an exact pin with no <code>--hash</code> (only reported with the require-hashes option).</li>
+    <li><strong>editable</strong> — an <code>-e</code> install that cannot be reproduced from a registry.</li>
+    <li><strong>duplicate</strong> — the same package listed twice, which pip resolves by applying both constraints.</li>
+  </ul>
+
+  <h2>Checklist</h2>
+  <ol>
+    <li>Keep loose intent in <code>requirements.in</code> (<code>flask&gt;=2.0</code>) and generate the locked file: <code>pip-compile --generate-hashes requirements.in</code> or <code>uv pip compile --generate-hashes requirements.in -o requirements.txt</code>.</li>
+    <li>Install with <code>pip install --require-hashes -r requirements.txt</code> so any file that does not match its hash fails the build.</li>
+    <li>Use one index. If you need a private index, put it behind a proxy that serves both, rather than adding <code>--extra-index-url</code>.</li>
+    <li>Pin git dependencies to a full 40-character commit, not a branch or tag.</li>
+    <li>Add <code>node requirements-check.mjs --fail-on medium</code> to CI so a loose line cannot be committed silently.</li>
+  </ol>
+
+  <h2>What this does not tell you</h2>
+  <p>It scans the text of the file. It does not run pip's resolver, read transitive dependencies, or check pinned versions against a vulnerability database, so a fully pinned file can still contain a vulnerable release. It is a heuristic and is not security advice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=requirements-pin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="requirements-pin-check"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker vs. Screaming Frog SEO Spider — One URL vs. a Whole-Site Crawl</title>
+<meta name="description" content="How the free Canonical Tag Checker compares to Screaming Frog SEO Spider: a zero-install, one-URL CI gate for canonical-tag evidence next to a downloadable…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/vs-screaming-frog.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this a replacement for Screaming Frog SEO Spider?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Screaming Frog SEO Spider crawls an entire site and reports on dozens of SEO signals at once -- titles, meta descriptions, status codes, redirect chains, hreflang, structured data, and canonicals among them. This checker does one thing for one URL at a time: fetch it, read its canonical tag(s), and follow the canonical to check it actually resolves. It is a narrow, free, scriptable gate, not a crawler." }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use this instead of a full crawl?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When you want a fast, no-install answer for one URL -- checking a single page before or after a deploy, or wiring a canonical-tag regression gate into your own CI against a staging URL -- without installing desktop software or running a crawl of the whole site." }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use Screaming Frog instead?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When you need the whole picture: every URL on a site, cross-referenced against sitemaps, internal links, and dozens of other SEO signals at once, with a desktop UI for exploring the results. That is a fundamentally different job from checking one URL's canonical evidence, and Screaming Frog is a well-established, purpose-built tool for it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do the two tools check the same things?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Canonical tags are one of many checks a full Screaming Frog crawl covers. This tool covers only that one signal, in more focused depth for a single URL: it also follows the canonical to its own destination and reports whether that destination actually resolves, redirects, or is itself marked noindex -- evidence a same-page-only canonical audit would not surface." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+  .trademark { font-size: 0.85rem; opacity: 0.8; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/vs-screaming-frog.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Canonical Tag Checker vs. Screaming Frog SEO Spider — One URL vs. a Whole-Site Crawl">
+<meta property="og:description" content="How the free Canonical Tag Checker compares to Screaming Frog SEO Spider: a zero-install, one-URL CI gate for canonical-tag evidence next to a downloadable…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Canonical Tag Checker vs. Screaming Frog SEO Spider — One URL vs. a Whole-Site Crawl — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../canonical-tag-check/">Canonical Tag Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Canonical Tag Checker vs. Screaming Frog SEO Spider — One URL vs. a Whole-Site Crawl</span></span></nav>
+<h1>Canonical Tag Checker vs. Screaming Frog SEO Spider</h1>
+
+<p>These solve different problems and are not in competition with each other. This checker
+answers one narrow question fast, for free, with no install: <em>does this one URL's canonical
+tag actually check out?</em> Screaming Frog SEO Spider answers a much bigger question: <em>what
+does every URL on this site look like, across dozens of SEO signals at once?</em></p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th></th><th>Canonical Tag Checker</th><th>Screaming Frog SEO Spider</th></tr></thead>
+  <tbody>
+    <tr><td>Scope</td><td>One URL per run</td><td>An entire site, crawled</td></tr>
+    <tr><td>What it checks</td><td>Canonical-tag evidence only: conflicting tags, cross-domain, protocol mismatch, and whether the canonical target itself resolves, redirects, or is noindexed</td><td>Dozens of SEO signals: status codes, redirects, titles, meta descriptions, hreflang, structured data, canonicals, and more</td></tr>
+    <tr><td>Install</td><td>None -- a browser page, or a zero-dependency Node CLI</td><td>A downloadable desktop application</td></tr>
+    <tr><td>Where it fits</td><td>A CI gate against one URL, or a quick check before/after a deploy</td><td>A periodic full-site technical SEO audit</td></tr>
+    <tr><td>Cost</td><td>Free</td><td>See <a href="https://www.screamingfrog.co.uk/seo-spider/" rel="nofollow noopener">screamingfrog.co.uk</a> for current licensing</td></tr>
+  </tbody>
+</table></div>
+
+<h2>Common questions</h2>
+<h3>Is this a replacement for Screaming Frog SEO Spider?</h3>
+<p>No. Screaming Frog SEO Spider crawls an entire site and reports on dozens of SEO signals at once -- titles, meta descriptions, status codes, redirect chains, hreflang, structured data, and canonicals among them. This checker does one thing for one URL at a time: fetch it, read its canonical tag(s), and follow the canonical to check it actually resolves. It is a narrow, free, scriptable gate, not a crawler.</p>
+<h3>When should I use this instead of a full crawl?</h3>
+<p>When you want a fast, no-install answer for one URL -- checking a single page before or after a deploy, or wiring a canonical-tag regression gate into your own CI against a staging URL -- without installing desktop software or running a crawl of the whole site.</p>
+<h3>When should I use Screaming Frog instead?</h3>
+<p>When you need the whole picture: every URL on a site, cross-referenced against sitemaps, internal links, and dozens of other SEO signals at once, with a desktop UI for exploring the results. That is a fundamentally different job from checking one URL's canonical evidence, and Screaming Frog is a well-established, purpose-built tool for it.</p>
+<h3>Do the two tools check the same things?</h3>
+<p>Canonical tags are one of many checks a full Screaming Frog crawl covers. This tool covers only that one signal, in more focused depth for a single URL: it also follows the canonical to its own destination and reports whether that destination actually resolves, redirects, or is itself marked noindex -- evidence a same-page-only canonical audit would not surface.</p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a></p>
+
+<footer>
+  <p class="trademark">Screaming Frog and Screaming Frog SEO Spider are trademarks of Screaming Frog
+  Ltd. This page and this tool are not affiliated with, endorsed by, or sponsored by Screaming Frog
+  Ltd.; the name is used only to identify the referenced product and remains the
+  trademark of its owner.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../supabase-bill-estimator/" data-pf-to="supabase-bill-estimator">What will your Supabase bill be, and what cuts it most?</a></li>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=canonical-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="canonical-tag-check"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Which Public Tenders Are Worth Bidding On?</title>
+  <meta name="description" content="A tender portal returns hundreds of notices and most are not yours. Filter an export by trade, minimum value…">
+  <meta property="og:title" content="Which Public Tenders Are Worth Bidding On?">
+  <meta property="og:description" content="Portals spell the same trade three different ways. Filter on your terms, your floor value, and the deadline you can still meet.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tender-radar/which-tenders-are-worth-bidding-on.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I find public tenders worth bidding on?","acceptedAnswer":{"@type":"Answer","text":"Export the notices from the portal you already have access to, then filter them on three things before reading any of them: whether the trade matches what you do, whether the contract value clears the floor below which the bid effort is not worth it, and whether the deadline leaves enough runway to assemble a compliant submission. What survives all three is a shortlist worth an afternoon; the rest is a portal's default view, which is not a pipeline."}},{"@type":"Question","name":"Why does one trade need several search terms?","acceptedAnswer":{"@type":"Answer","text":"Public buyers write their own titles and pick their own categories, so the same work appears as 'roofing', 'roof repair', and 'reroof' across three notices from three authorities. A single-word filter silently drops the other two. Filtering on a comma-separated list of the words your trade is actually called catches all of them in one pass — but it is a plain substring match, not a synonym dictionary, so a spelling you did not list is still missed."}},{"@type":"Question","name":"Does this tool fetch tenders from portals for me?","acceptedAnswer":{"@type":"Answer","text":"No. It filters a CSV you export yourself, entirely in your browser, and nothing is uploaded. It does not connect to portals, submit bids, or judge whether you are eligible. Verify every listing, requirement, deadline, and declaration against the original source before acting on it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #20252b; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.06; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #b4482f; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #20252b; color: #f7f3ec; text-decoration: none; font-weight: 650; }
+    code { background: #ece6da; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d9d2c5; padding-top: 16px; font-size: .85rem; color: #646e76; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tender-radar/which-tenders-are-worth-bidding-on.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tender-radar/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which Public Tenders Are Worth Bidding On? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tender-radar/">Tender Radar | Public tender shortlist tool</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which Public Tenders Are Worth Bidding On?</span></span></nav>
+  <p><a href="./">← Tender Radar</a></p>
+  <h1>Which public tenders are worth bidding on?</h1>
+  <p>A tender portal's default view is not a pipeline. It is every notice the authority published this week, sorted by the date it went up, in categories the buyer chose rather than the ones you work in. Reading it end to end is an afternoon, and most of that afternoon is spent on contracts in the wrong trade, below the value where bidding pays, or closing on Thursday.</p>
+  <p>Three filters remove almost all of it.</p>
+  <p><a class="cta" href="./">Open the free tender shortlist tool</a></p>
+
+  <h2>Filter one: your trade, spelled every way buyers spell it</h2>
+  <p>This is the filter that quietly loses work. Public buyers write their own titles and pick their own category labels, so the same job is <code>roofing</code> at one authority, <code>roof repair</code> at the next, and <code>reroof</code> at the third. A one-word search finds a third of your market and tells you the market is thin.</p>
+  <p>The fix is to filter on a comma-separated list of the words your trade actually goes by — <code>roofing, roof repair, reroof</code> — and match a row if any of them appears in its category <em>or</em> its title. It stays a plain substring match rather than a synonym dictionary, so a spelling you did not think of is still missed. Adding one when you notice it costs nothing.</p>
+
+  <h2>Filter two: a floor value</h2>
+  <p>Every bid costs roughly the same to assemble whether the contract is $12,000 or $120,000: the same bonds, the same insurance evidence, the same declarations, the same day of estimating. Below some value that effort cannot be recovered even by winning. Set that floor explicitly and let the filter enforce it, rather than deciding case by case at the end of a long list when the marginal notice always looks tempting.</p>
+
+  <h2>Filter three: deadline runway</h2>
+  <p>Sort what is left by deadline and read from the top. A contract you would win, closing in three days, with a bond you do not yet have, is not an opportunity — and it is much easier to see that when the shortlist is ordered by the clock rather than by publication date.</p>
+
+  <h2>Worked example</h2>
+  <p>A roofing contractor filters an export on <code>roofing, roof repair, reroof</code> with a minimum value of 20,000. A school roof replacement and a clinic reroof survive. A $12,000 painting hall — which the portal had filed under a category the contractor's single-word search would also have matched — drops out on value. Two listings to read properly, in deadline order, instead of ninety.</p>
+
+  <h2>What it does not do</h2>
+  <p>The tool filters a CSV you export yourself (<code>title, buyer, deadline, category, value, url</code>), entirely in your browser. Nothing is uploaded. It does not connect to portals, monitor them, submit bids, or offer eligibility advice — verify every listing, requirement, deadline, and declaration at the original source before acting. Once you have a shortlist, the <a href="../tender-bid-readiness/">bid readiness checker</a> covers the paperwork go/no-go on each one.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I find public tenders worth bidding on?</h3>
+  <p>Export the notices from the portal you already have access to, then filter them on three things before reading any of them: whether the trade matches what you do, whether the contract value clears the floor below which the bid effort is not worth it, and whether the deadline leaves enough runway to assemble a compliant submission. What survives all three is a shortlist worth an afternoon; the rest is a portal's default view, which is not a pipeline.</p>
+  <h3>Why does one trade need several search terms?</h3>
+  <p>Public buyers write their own titles and pick their own categories, so the same work appears as 'roofing', 'roof repair', and 'reroof' across three notices from three authorities. A single-word filter silently drops the other two. Filtering on a comma-separated list of the words your trade is actually called catches all of them in one pass — but it is a plain substring match, not a synonym dictionary, so a spelling you did not list is still missed.</p>
+  <h3>Does this tool fetch tenders from portals for me?</h3>
+  <p>No. It filters a CSV you export yourself, entirely in your browser, and nothing is uploaded. It does not connect to portals, submit bids, or judge whether you are eligible. Verify every listing, requirement, deadline, and declaration against the original source before acting on it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, procurement, tax, or financial advice, and it does not tell you whether to bid or whether you are eligible. Filtering is a plain text match over data you supply and can both miss listings and keep irrelevant ones. Verify every listing, requirement, deadline, and declaration against the original source and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p><a href="./">Use the tool</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../hunting-lease-income-calculator/" data-pf-to="hunting-lease-income-calculator">Hunting Lease Income Calculator — free, private</a></li>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+      <li><a href="../invoice-aging-late-payer-analyzer/" data-pf-to="invoice-aging-late-payer-analyzer">Invoice Aging &amp; Late Payer Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../job-margin-variance/" data-pf-to="job-margin-variance">Job Cost Variance Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tender-radar">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tender-radar"></script>
+</body>
+</html>

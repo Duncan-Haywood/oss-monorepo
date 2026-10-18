@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why a Subpath Site Cannot Govern Its robots.txt — Subpath Robots Check</title>
+  <meta name="description" content="robots.txt is scoped to an origin, not to a path prefix. A site at user.github.io/repo/ therefore publishes a robots.txt nothing requests…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/why-a-subpath-site-cannot-govern-its-robots-txt.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where exactly does a crawler look for robots.txt?","acceptedAnswer":{"@type":"Answer","text":"At the origin root, and nowhere else. RFC 9309 §2.3 fixes the location as scheme://host:port/robots.txt. The file is scoped to the origin, so one file governs every path on that host, and no per-directory file is ever consulted."}},{"@type":"Question","name":"What does this actually cost?","acceptedAnswer":{"@type":"Answer","text":"Sitemap auto-discovery, which is the mechanism that enumerates pages. A crawler finds a sitemap by reading the Sitemap: line out of the governing robots.txt. A sitemap advertised only from a subpath is therefore never fetched, and the URLs listed in it are never discovered that way."}},{"@type":"Question","name":"What does it not cost?","acceptedAnswer":{"@type":"Answer","text":"Crawling by following links, which is entirely unaffected. Any page linked from a page the crawler already knows is still reached and can still be indexed."}},{"@type":"Question","name":"Is a custom domain really the only complete fix?","acceptedAnswer":{"@type":"Answer","text":"It is the only one that restores auto-discovery itself, because it moves the site to an origin root where its own robots.txt governs. The alternatives are real and worth doing, but they are per-search-engine pushes rather than a repair to the discovery mechanism:"}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.12; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 8px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/why-a-subpath-site-cannot-govern-its-robots-txt.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why a Subpath Site Cannot Govern Its robots.txt — Subpath Robots Check">
+<meta property="og:description" content="robots.txt is scoped to an origin, not to a path prefix. A site at user.github.io/repo/ therefore publishes a robots.txt nothing requests…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why a Subpath Site Cannot Govern Its robots.txt — Subpath Robots Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../subpath-robots-check/">Your GitHub Pages sitemap is probably never read</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why a Subpath Site Cannot Govern Its robots.txt — Subpath Robots Check</span></span></nav>
+  <header>
+    <p class="note"><a href="./">← Subpath Robots Check</a></p>
+    <h1>Why a subpath site cannot govern its robots.txt</h1>
+    <p>Everything below follows from one sentence in the standard, and the consequence is worth more attention than the rule, because it is invisible from inside the site it affects.</p>
+  </header>
+
+  <section class="card">
+    <h2>Where exactly does a crawler look for robots.txt?</h2>
+    <p>At the origin root, and nowhere else. <a href="https://www.rfc-editor.org/rfc/rfc9309.html" rel="noopener">RFC 9309</a> §2.3 fixes the location as <code>scheme://host:port/robots.txt</code>. The file is scoped to the <em>origin</em>, so one file governs every path on that host, and no per-directory file is ever consulted.</p>
+    <p>That is a deliberate design choice, not an oversight. A crawler would otherwise have to fetch and merge a file for every directory it descends into, and the rules could contradict each other at different depths.</p>
+    <p>The practical result is that a site published under a path prefix inherits a policy file it did not write and cannot edit:</p>
+    <pre>https://acme.github.io/widget/       <- your site
+https://acme.github.io/robots.txt    <- the file that governs it
+https://acme.github.io/widget/robots.txt  <- fetched by nothing</pre>
+  </section>
+
+  <section class="card">
+    <h2>What does this actually cost?</h2>
+    <p>Sitemap auto-discovery, which is the mechanism that <em>enumerates</em> pages. A crawler finds a sitemap by reading the <code>Sitemap:</code> line out of the governing robots.txt. A sitemap advertised only from a subpath is therefore never fetched, and the URLs listed in it are never discovered that way.</p>
+    <p>There is a second cost that runs the other direction, and people notice it even less: a <code>Disallow:</code> written in a subpath robots.txt is equally inert. A draft section you thought you had excluded from search is not excluded from anything.</p>
+  </section>
+
+  <section class="card">
+    <h2>What does it not cost?</h2>
+    <p>Crawling by following links, which is entirely unaffected. Any page linked from a page the crawler already knows is still reached and can still be indexed.</p>
+    <p>That is precisely why this failure is hard to spot. Some pages do get indexed. Nothing returns an error. Every tool that checks the origin root finds a perfectly healthy <code>robots.txt</code> — it just belongs to someone else. The gap only shows up as a slow, unexplained shortfall between how many pages you published and how many were ever found.</p>
+  </section>
+
+  <section class="card">
+    <h2>A measured instance</h2>
+    <p>The portfolio that publishes this tool has the same defect, on the same day this page was written, and says so in its own repository rather than quietly. Its catalogue of several hundred free tools is served from a GitHub Pages project subpath; the <code>Sitemap:</code> line it publishes is at an address no crawler requests; and its own deployment check reports the condition as <code>subpath-robots</code> every time it runs.</p>
+    <p>That is the honest version of a case study: not a claim that the tool found a customer's problem, but a statement that the problem is real, current, and cost the people writing this the same thing it may be costing you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Is a custom domain really the only complete fix?</h2>
+    <p>It is the only one that restores auto-discovery <em>itself</em>, because it moves the site to an origin root where its own robots.txt governs. The alternatives are real and worth doing, but they are per-search-engine pushes rather than a repair to the discovery mechanism:</p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Option</th><th>What it fixes</th><th>What it does not</th></tr></thead>
+        <tbody>
+          <tr><td>Custom domain</td><td>Everything here. Your robots.txt governs, auto-discovery works, your <code>Disallow:</code> rules apply.</td><td>Costs a domain registration and a DNS record.</td></tr>
+          <tr><td>Direct sitemap submission</td><td>Enumeration, for the search engines you submit to.</td><td>Needs a verified account per engine; covers only those engines.</td></tr>
+          <tr><td>IndexNow</td><td>Fast notification of new and changed URLs, no account needed.</td><td>Google does not consume it. Bing, Yandex and Seznam do.</td></tr>
+          <tr><td>A complete internal link graph</td><td>Discovery, via the route that still works.</td><td>Slower than a sitemap, and needs at least one inbound link from an already-crawled page.</td></tr>
+          <tr><td><code>meta name="robots"</code></td><td>Exclusion, reliably and per page.</td><td>Nothing about discovery. It is the answer to the other half of the problem.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this tool cannot tell you</h2>
+    <p>Stated plainly, because a checker that implies more than it measures is worse than none:</p>
+    <ul>
+      <li><strong>Whether any search engine has actually indexed your pages.</strong> It reasons about mechanism, never about a search engine's decisions.</li>
+      <li><strong>How a specific crawler behaves in practice.</strong> Compliance with RFC 9309 is voluntary, and implementations differ in the details.</li>
+      <li><strong>Whether your content ranks.</strong> Discovery is a precondition for ranking, not a cause of it.</li>
+      <li><strong>What a robots.txt you have not pasted contains.</strong> The browser page makes no network calls at all; the CLI fetches only with <code>--fetch</code>, and only the origin-root file.</li>
+      <li><strong>Whether a non-compliant crawler honours anything at all.</strong> Some ignore robots.txt entirely, which is outside what any checker can observe.</li>
+      <li><strong>Anything about hosts it has no specific knowledge of.</strong> GitHub Pages and GitLab Pages are named because their ownership model is documented; every other host is reported as a generic subpath without inventing an owner for it.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p><a href="./">← Back to the checker</a></p>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. This is not a security audit, a compliance attestation, or a guarantee about your site's search visibility, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p class="support">Free and open source under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+      <li><a href="../canonical-tag-check/" data-pf-to="canonical-tag-check">Canonical Tag Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=subpath-robots-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="subpath-robots-check"></script>
+</body>
+</html>

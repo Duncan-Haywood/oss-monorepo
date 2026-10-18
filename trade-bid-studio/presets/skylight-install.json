@@ -1,0 +1,39 @@
+{
+  "slug": "skylight-install-bid-calculator",
+  "name": "Skylight installation",
+  "group": "Exterior & roofing",
+  "summary": "Skylights priced per unit by type, replace vs new cut-in, roof covering, shafts, stories and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Tubular skylight, replace existing, asphalt roof",
+      "unit": "unit",
+      "qty": 1,
+      "hoursPerUnit": 4.6,
+      "materialPerUnit": 465,
+      "source": "Install 2.5 h (suggestedTypeKit('tubular')) + cut 0.4 + pull 0.8 + framing 0.3 (suggestedScopeKit('replace-existing')) + roof 0.6 (suggestedRoofKit('asphalt')); unit $380 + flashing $85 (calc.mjs)"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 8 (index.html); 0.035 h/mile and $2.80/mile (suggestedExtraKit)"
+    },
+    {
+      "label": "Trip and site time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.4,
+      "materialPerUnit": 75,
+      "source": "hoursTrip 1.4 + siteHours 1.0 (suggestedExtraKit); travel & equipment $75 (index.html)"
+    }
+  ],
+  "specialistModels": "Tubular vs fixed vs venting unit kits, replace vs new cut-in, tile/metal and low-slope flashing, drywall shafts, stories above first, and a type-by-type price comparison."
+}

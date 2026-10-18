@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SPF PermError: How to Fix &ldquo;Too Many DNS Lookups&rdquo; (the 10-Lookup Limit)</title>
+  <meta name="description" content="Why an SPF record with more than 10 DNS lookups fails for every message you send, exactly which mechanisms count toward the RFC 7208 limit, how to count yours…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/email-auth-check/how-to-fix-spf-too-many-dns-lookups.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does an SPF PermError from too many DNS lookups actually break?","acceptedAnswer":{"@type":"Answer","text":"SPF evaluation stops and returns PermError for every message from the domain, not just some of them. Receivers treat PermError as \"this domain's SPF cannot be evaluated\", so the SPF half of DMARC alignment fails. If DKIM is signing and aligned, DMARC can still pass on DKIM alone — which is why a domain over the limit often keeps delivering and the bug goes unnoticed for months."}},{"@type":"Question","name":"Which SPF mechanisms count toward the 10-lookup limit?","acceptedAnswer":{"@type":"Answer","text":"RFC 7208 section 4.6.4 counts the include, a, mx, ptr and exists mechanisms, plus the redirect modifier. Each one costs exactly one lookup toward the budget. The ip4, ip6 and all mechanisms cost nothing because they need no DNS query, and the exp modifier is only fetched when a message fails, so it is outside the budget too."}},{"@type":"Question","name":"Is the limit 10 lookups or 11?","acceptedAnswer":{"@type":"Answer","text":"The budget is 10 lookups beyond the initial TXT query that fetches the record itself, so fetching your own SPF record does not spend from the 10. The count is also cumulative across the whole chain: a lookup inside a record you include: spends from the same budget as one in your own record."}},{"@type":"Question","name":"Does SPF flattening fix it permanently?","acceptedAnswer":{"@type":"Answer","text":"No. Flattening replaces an include: with the ip4/ip6 ranges it resolves to today, which does remove lookups — but it also freezes your sending provider's IP list at the moment you flattened it. When that provider adds or moves a range, your record still authorizes the old one and your mail starts failing SPF with no error anywhere to explain it. Flattening trades a visible failure now for a silent one later unless something re-flattens it on a schedule."}},{"@type":"Question","name":"Should I use the ptr mechanism in SPF?","acceptedAnswer":{"@type":"Answer","text":"No. RFC 7208 section 5.5 says ptr SHOULD NOT be published, and that receivers may ignore it entirely. It costs a lookup from your budget, it is slow, and its result is not dependable. If a record you inherited contains ptr, removing it is almost always both safe and a free lookup back."}},{"@type":"Question","name":"Why does my SPF record pass in one checker and fail in another?","acceptedAnswer":{"@type":"Answer","text":"Most commonly because the other checker counted only the mechanisms in your own record rather than walking into each include: and counting what is inside it. The limit applies to the whole recursive chain, so a record with four include: terms can be well over 10 while looking like four. A checker that reports a per-record count rather than a chain total will disagree with what a receiver computes."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    h3 { color: #17324a; margin-top: 20px; font-size: 1.05rem; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { color: #55606f; text-transform: uppercase; font-size: .75rem; letter-spacing: .04em; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 14px; overflow-x: auto; font-size: .88rem; line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    .note { background: #fff; border: 1px solid #d5dbe3; border-left: 4px solid #17324a; border-radius: 6px; padding: 12px 14px; margin: 16px 0; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 12px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/email-auth-check/how-to-fix-spf-too-many-dns-lookups.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="SPF PermError: How to Fix “Too Many DNS Lookups” (the 10-Lookup Limit)">
+<meta property="og:description" content="Why an SPF record with more than 10 DNS lookups fails for every message you send, exactly which mechanisms count toward the RFC 7208 limit, how to count yours…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/email-auth-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SPF PermError: How to Fix “Too Many DNS Lookups” (the 10-Lookup Limit) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../email-auth-check/">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SPF PermError: How to Fix “Too Many DNS Lookups” (the 10-Lookup Limit)</span></span></nav>
+  <a class="back" href="./">&larr; Back to Email Authentication Checker</a>
+  <h1>SPF PermError: fixing &ldquo;too many DNS lookups&rdquo;</h1>
+
+  <p>An SPF record is allowed <strong>10 DNS lookups</strong>. Go over, and
+  <a href="https://www.rfc-editor.org/rfc/rfc7208#section-4.6.4" rel="noopener">RFC 7208 &sect;4.6.4</a>
+  says the receiver must return <code>PermError</code> &mdash; for
+  <em>every</em> message you send, permanently, until the record is shortened. Nothing warns you.
+  There is no bounce that says &ldquo;your SPF record is too long&rdquo;.</p>
+
+  <p>This is the most common real-world SPF bug, and it has a boring cause: you add one
+  <code>include:</code> for your mail host, another for your invoicing tool, another for your
+  helpdesk, another for the newsletter &mdash; and one day the total quietly crosses 10.</p>
+
+  <h2>What actually breaks (and why you might not notice)</h2>
+
+  <p>SPF evaluation stops at the limit and returns <code>PermError</code>. Receivers read that as
+  &ldquo;this domain&rsquo;s SPF cannot be evaluated&rdquo;, so the SPF half of DMARC alignment
+  fails. If your DKIM signature is present and aligned, <strong>DMARC can still pass on DKIM
+  alone</strong> &mdash; which is exactly why a domain over the limit often keeps delivering and
+  the bug survives for months. You lose the redundancy silently, and find out on the day DKIM
+  breaks or a receiver weighs SPF on its own.</p>
+
+  <h2>Which mechanisms cost a lookup</h2>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Term</th><th>Costs a lookup?</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>include:</code></td><td>Yes &mdash; 1</td><td>Plus everything inside the record it pulls in</td></tr>
+      <tr><td><code>redirect=</code></td><td>Yes &mdash; 1</td><td>Plus everything inside the record it points at</td></tr>
+      <tr><td><code>a</code> / <code>a:</code></td><td>Yes &mdash; 1</td><td>One per mechanism</td></tr>
+      <tr><td><code>mx</code> / <code>mx:</code></td><td>Yes &mdash; 1</td><td>Capped separately at 10 MX records returned</td></tr>
+      <tr><td><code>exists:</code></td><td>Yes &mdash; 1</td><td>One per mechanism</td></tr>
+      <tr><td><code>ptr</code></td><td>Yes &mdash; 1</td><td>&sect;5.5 says do not publish it &mdash; see below</td></tr>
+      <tr><td><code>ip4:</code> / <code>ip6:</code></td><td>No</td><td>Address literals; no DNS query needed</td></tr>
+      <tr><td><code>all</code></td><td>No</td><td>Matches without a query</td></tr>
+      <tr><td><code>exp=</code></td><td>No</td><td>Fetched only when a message fails, outside the budget</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <p><strong>The budget is cumulative across the whole chain.</strong> A lookup inside a record
+    you <code>include:</code> spends from the same 10 as one in your own record. This is what makes
+    the bug hard to see by eye: a record with four <code>include:</code> terms looks like four
+    lookups and can easily be eighteen.</p>
+    <p>The 10 are <em>beyond</em> the initial TXT query that fetches your record, so reading your
+    own SPF does not spend from the budget.</p>
+  </div>
+
+  <h2>Count yours</h2>
+
+  <p>The <a href="./">Email Authentication Checker</a> walks every <code>include:</code> and
+  <code>redirect=</code> recursively and reports the chain total against the limit, naming the exact
+  record each lookup came from. In the browser, or from a terminal:</p>
+
+  <pre><code>npx --yes github:Duncan-Haywood/monorepo-projects#main \
+  --package-lock=false ventures/email-auth-check/cli.mjs example.com</code></pre>
+
+  <p>Or clone the repository and run <code>node ventures/email-auth-check/cli.mjs example.com</code>.
+  Both query public DNS-over-HTTPS directly from wherever you run them; nothing is sent to us.</p>
+
+  <h2>Six ways back under the limit</h2>
+
+  <h3>1. Delete includes for tools you no longer send from</h3>
+  <p>The cheapest fix and usually the largest. Every SaaS trial that once asked you to add an
+  <code>include:</code> is still costing you a lookup. Go through the list and ask, per entry,
+  &ldquo;does mail still leave from this?&rdquo;</p>
+
+  <h3>2. Replace <code>a</code> and <code>mx</code> with the addresses they resolve to</h3>
+  <p>If your mail server has a stable, static IP, <code>ip4:203.0.113.10</code> does the same job as
+  <code>mx</code> for zero lookups. This is safe precisely where flattening an ESP is not: it is
+  <em>your</em> address, and you control when it changes.</p>
+
+  <h3>3. Remove <code>ptr</code></h3>
+  <p>RFC 7208 &sect;5.5 says <code>ptr</code> <strong>SHOULD NOT</strong> be published and that
+  receivers may ignore it. It spends a lookup, it is slow, and its answer is not dependable.
+  Deleting it is nearly always free.</p>
+
+  <h3>4. Move bulk mail to a subdomain</h3>
+  <p>Send newsletters from <code>news.example.com</code> and transactional mail from
+  <code>mail.example.com</code>. Each subdomain gets <strong>its own</strong> 10-lookup budget and
+  its own SPF record, so the ESP includes move off the parent domain entirely. This is the fix that
+  keeps working as you add tools, rather than buying you two or three more.</p>
+
+  <h3>5. Consolidate overlapping vendors</h3>
+  <p>Two tools that both send &ldquo;your receipt&rdquo; email are two includes. Sometimes the
+  honest fix is fewer tools.</p>
+
+  <h3>6. Flatten &mdash; knowing what it costs</h3>
+  <p>Flattening replaces an <code>include:</code> with the <code>ip4:</code>/<code>ip6:</code> ranges
+  it resolves to today. It genuinely removes lookups. It also <strong>freezes your provider&rsquo;s
+  IP list at the moment you flattened it</strong>: when they add or move a range, your record still
+  authorizes the old one, and mail starts failing SPF with no error anywhere to explain it. That is
+  strictly worse than the problem you started with, because <code>PermError</code> is at least
+  visible.</p>
+  <p>Flatten only if something re-flattens on a schedule and alerts you when the upstream record
+  changes. If that is not in place, prefer fix 4.</p>
+
+  <h2>A worked example</h2>
+
+  <pre><code>v=spf1 include:_spf.google.com include:sendgrid.net include:servers.mcsv.net mx a ~all</code></pre>
+
+  <p>Four visible lookup terms plus <code>mx</code> and <code>a</code> &mdash; six, by eye. Walk into
+  them and <code>_spf.google.com</code> alone contributes several through its own nested includes.
+  Chains shaped like this routinely total 12&ndash;18. The fix here is usually (4): give the
+  marketing tool its own subdomain, leaving the parent record with the mail host and a couple of
+  <code>ip4:</code> literals.</p>
+
+  <h2>After you change the record</h2>
+
+  <ul>
+    <li>Wait for the old record&rsquo;s TTL to expire before judging the result.</li>
+    <li>Re-run the check and confirm the chain total, not just your own record&rsquo;s term count.</li>
+    <li>Publish exactly <strong>one</strong> SPF TXT record. Two is its own <code>PermError</code>,
+    independent of the lookup count.</li>
+    <li>If you moved sending to a subdomain, give that subdomain its own SPF record &mdash; it does
+    not inherit the parent&rsquo;s.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+
+  <h3>What does an SPF PermError from too many DNS lookups actually break?</h3>
+  <p>SPF evaluation stops and returns PermError for every message from the domain, not just some of
+  them. Receivers treat PermError as "this domain's SPF cannot be evaluated", so the SPF half of
+  DMARC alignment fails. If DKIM is signing and aligned, DMARC can still pass on DKIM alone &mdash;
+  which is why a domain over the limit often keeps delivering and the bug goes unnoticed for
+  months.</p>
+
+  <h3>Which SPF mechanisms count toward the 10-lookup limit?</h3>
+  <p>RFC 7208 section 4.6.4 counts the include, a, mx, ptr and exists mechanisms, plus the redirect
+  modifier. Each one costs exactly one lookup toward the budget. The ip4, ip6 and all mechanisms
+  cost nothing because they need no DNS query, and the exp modifier is only fetched when a message
+  fails, so it is outside the budget too.</p>
+
+  <h3>Is the limit 10 lookups or 11?</h3>
+  <p>The budget is 10 lookups beyond the initial TXT query that fetches the record itself, so
+  fetching your own SPF record does not spend from the 10. The count is also cumulative across the
+  whole chain: a lookup inside a record you include: spends from the same budget as one in your own
+  record.</p>
+
+  <h3>Does SPF flattening fix it permanently?</h3>
+  <p>No. Flattening replaces an include: with the ip4/ip6 ranges it resolves to today, which does
+  remove lookups &mdash; but it also freezes your sending provider's IP list at the moment you
+  flattened it. When that provider adds or moves a range, your record still authorizes the old one
+  and your mail starts failing SPF with no error anywhere to explain it. Flattening trades a visible
+  failure now for a silent one later unless something re-flattens it on a schedule.</p>
+
+  <h3>Should I use the ptr mechanism in SPF?</h3>
+  <p>No. RFC 7208 section 5.5 says ptr SHOULD NOT be published, and that receivers may ignore it
+  entirely. It costs a lookup from your budget, it is slow, and its result is not dependable. If a
+  record you inherited contains ptr, removing it is almost always both safe and a free lookup
+  back.</p>
+
+  <h3>Why does my SPF record pass in one checker and fail in another?</h3>
+  <p>Most commonly because the other checker counted only the mechanisms in your own record rather
+  than walking into each include: and counting what is inside it. The limit applies to the whole
+  recursive chain, so a record with four include: terms can be well over 10 while looking like four.
+  A checker that reports a per-record count rather than a chain total will disagree with what a
+  receiver computes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+    kind, express or implied. It is not email deliverability, security, or DNS configuration advice,
+    and it does not replace a qualified professional. <strong>You are responsible for reviewing and
+    verifying anything here before relying on it</strong>, and for the consequences of any DNS change
+    you make. RFC behaviour is summarized, not reproduced &mdash; read
+    <a href="https://www.rfc-editor.org/rfc/rfc7208" rel="noopener">RFC 7208</a> itself for anything
+    load-bearing, and confirm provider-specific guidance with that provider.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Google, SendGrid, Mailchimp, or any other
+    named provider. Product and company names are the trademarks of their respective owners and are
+    used here only to identify the service being described.</p>
+    <p><a href="./">&larr; Back to the tool</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support on GitHub Sponsors</a> (optional)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../uptime-monitoring-pricing-calculator/" data-pf-to="uptime-monitoring-pricing-calculator">What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</a></li>
+      <li><a href="../vercel-bill-estimator/" data-pf-to="vercel-bill-estimator">What will your Vercel bill be, and what cuts it most?</a></li>
+      <li><a href="../video-hosting-pricing-calculator/" data-pf-to="video-hosting-pricing-calculator">What will video hosting cost for your minutes stored and watched, and who is cheapest?</a></li>
+      <li><a href="../vscode-extension-drift-check/" data-pf-to="vscode-extension-drift-check">Did an extension you already trust just change what it does?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=email-auth-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="email-auth-check"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate per lineal foot | Basement Waterproofing Bid Calculator</title>
+<meta name="description" content="A flat 'dollars per lineal foot of perimeter' waterproofing quote cannot see window wells, a new sump pit, crack injection, a backup pump…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat rate per lineal foot | Basement Waterproofing Bid Calculator">
+<meta property="og:description" content="An 80 lf finished basement with an existing sump and a 55 lf seepage house with four window wells, a new pit, a battery backup…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate per lineal foot get a waterproofing quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because perimeter footage is not the cost driver. Window wells, a new sump pit versus an existing one, floor and wall crack injection, a battery or water-powered backup pump, and a freeze-proof discharge run all cost real crew hours and material that do not scale with lineal feet of perimeter. A shorter perimeter with more of that scope can cost more than a longer, simpler one."}},{"@type":"Question","name":"What does a flat rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Window wells, sump and backup-pump work, crack injection, and discharge. A job with four window wells, a new pit, a battery backup, and 60 feet of freeze-protected discharge needs real labor and material for each of those, and a per-lineal-foot number has no line for any of them."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"In the worked example on this page, applying an 80 lf brochure job's own flat rate per lineal foot to a 55 lf seepage house undercharges that job by roughly 81% — using this calculator's own verified defaults, not a cherry-picked case."}},{"@type":"Question","name":"Is a flat rate per lineal foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs — similar wall height, an existing sump, no wells or crack injection, similar discharge — a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know how much of that scope a given basement needs until it is actually measured."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competitors charge. It takes the wage, material, and overhead numbers you enter and turns them into a price for the perimeter, wells, cracks, sump, backup, and discharge you describe — the arithmetic a flat rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1e2a33;background:#eef1f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1d5c73}.eyebrow{font-weight:700;letter-spacing:.04em;color:#1d5c73;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#1e2a33}.lede{font-size:1.05rem;max-width:64ch;color:#4c5a61}section{background:#fff;border:1px solid #cfd8db;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1e2a3312;margin:1rem 0}h2{margin-top:0;color:#1e2a33}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #cfd8db;padding:.55rem .5rem;text-align:left;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4c5a61}.fine{font-size:.88rem;color:#4c5a61}footer{color:#4c5a61;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/basement-waterproofing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate per lineal foot | Basement Waterproofing Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../basement-waterproofing-bid-calculator/">Basement Waterproofing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate per lineal foot | Basement Waterproofing Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Basement Waterproofing Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate per lineal foot</h1>
+<p class="lede">"$150 a lineal foot" is not a price for a waterproofing job &mdash; it is a price for one specific basement's wells, sump, cracks, backup, and discharge, quietly applied to every job that calls in.</p>
+</header>
+<section>
+<h2>What a flat rate per lineal foot is</h2>
+<p>
+A flat rate per lineal foot of perimeter is the fastest way to quote: multiply
+the wall length by a number and read off a price. Customers shop it because
+it is easy to compare between bids, and it is the number a homeowner holding
+a competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was set for one basement &mdash; one wall height, an
+existing sump, no window wells, no crack injection, no backup pump, a short
+discharge run &mdash; and then reused for every job afterward, whether or not
+the next basement looks anything like the one the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+waterproofing system, perimeter and wall height, window wells, floor and
+wall crack injection, whether the sump is new or existing, the pump and
+backup pump, discharge run and whether it needs freeze protection, crew
+wage, material costs, and target margin. It prices wells, cracks, the pit,
+the backup, and discharge separately from wall and floor membrane, and
+returns a price above your target margin &mdash; for this basement, not a
+generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate per lineal foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/lf whether the basement has zero window wells and an existing sump or four wells and a brand-new pit.</td>
+<td>Prices window wells, and a new sump pit versus an existing one, as their own labor and material lines, so a well-heavy job never prices off the same number as a well-free one.</td>
+</tr>
+<tr>
+<td>Prices "the perimeter" as one lineal-foot figure, with no separate line for floor or wall crack injection.</td>
+<td>Charges crack injection by count and length, so a job with 12 lf of floor cracks and two wall-crack injections costs more than one with none.</td>
+</tr>
+<tr>
+<td>Has no line for a backup pump or a freeze-proof discharge run, regardless of how far north the basement is or how the homeowner wants to be protected.</td>
+<td>Prices the pump, backup pump, and discharge &mdash; including a freeze-proof kit &mdash; directly, so a job needing a battery backup and 60 feet of freeze-protected discharge costs more than one needing neither.</td>
+</tr>
+<tr>
+<td>An 80 lf finished basement with an existing sump and a 55 lf seepage house with four wells, a new pit, a battery backup, and freeze-proof discharge get quoted off the same $/lf number &mdash; and the shorter, harder job would be quoted for less.</td>
+<td>The brochure job and the seepage house price on their own wells, cracks, sump, backup, and discharge &mdash; not on perimeter alone &mdash; so the shorter, harder job prices higher, correctly.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the price and the price per lineal foot, so a shopped price can be scored against real cost before the contractor commits to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<section>
+<h2>Two basements, the same wells-blind rate</h2>
+<p>
+Using this calculator's own verified defaults for its interior-drain system, wage,
+material, and overhead inputs:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">Flat per-lineal-foot quote</th><th scope="col">Scope-driven price</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>80 lf finished basement, existing sump, no wells, no cracks (the brochure job)</td><td>$151.97/lf &times; 80 lf = $12,157.31</td><td>$12,157.31 (this is where the $151.97/lf rate comes from)</td><td>&mdash;</td></tr>
+<tr><td>55 lf seepage house: 4 window wells, new pit, battery backup, 60 lf freeze-proof discharge, 2 wall cracks, 12 lf floor cracks</td><td>$151.97/lf &times; 55 lf = $8,358.15</td><td>$15,147.73</td><td>The flat rate undercharges by about $6,790 &mdash; about 81% too low.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Both rows use the same $151.97/lf rate, taken from the 80 lf brochure job itself &mdash; the most favorable possible flat rate for the comparison, not an inflated one. The seepage house has 25 fewer lineal feet of perimeter and still costs about 25% more to do correctly, because wells, the new pit, the backup pump, freeze-proof discharge, and crack injection do not scale with lineal feet. Run your own job's numbers in the calculator to see which side of the gap it falls on.</p>
+</section>
+<p>
+A flat rate is not wrong because it is simple &mdash; it is wrong when it is
+applied outside the one basement it was built for, and nothing about a
+per-lineal-foot number tells you when that has happened. This calculator
+does not replace judgment about your market; it replaces the arithmetic a
+flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate per lineal foot get a waterproofing quote wrong?</h3>
+<p>Because perimeter footage is not the cost driver. Window wells, a new sump pit versus an existing one, floor and wall crack injection, a battery or water-powered backup pump, and a freeze-proof discharge run all cost real crew hours and material that do not scale with lineal feet of perimeter. A shorter perimeter with more of that scope can cost more than a longer, simpler one.</p>
+<h3>What does a flat rate usually leave out entirely?</h3>
+<p>Window wells, sump and backup-pump work, crack injection, and discharge. A job with four window wells, a new pit, a battery backup, and 60 feet of freeze-protected discharge needs real labor and material for each of those, and a per-lineal-foot number has no line for any of them.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>In the worked example on this page, applying an 80 lf brochure job's own flat rate per lineal foot to a 55 lf seepage house undercharges that job by roughly 81% &mdash; using this calculator's own verified defaults, not a cherry-picked case.</p>
+<h3>Is a flat rate per lineal foot ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs &mdash; similar wall height, an existing sump, no wells or crack injection, similar discharge &mdash; a flat rate can land close. The risk is applying it outside that band without noticing, because the rate does not know how much of that scope a given basement needs until it is actually measured.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competitors charge. It takes the wage, material, and overhead numbers you enter and turns them into a price for the perimeter, wells, cracks, sump, backup, and discharge you describe &mdash; the arithmetic a flat rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat rate per lineal foot is a bad-faith practice &mdash; it is a common, honest shortcut that works until the basement stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+</section>
+<p><a href="./">Open the Basement Waterproofing Bid Calculator</a> and price your own job.</p>
+<footer>
+<p><strong>No warranty.</strong> This free page is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a job may be built. Verify every figure against your own costs and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mobile-detailing-bid-calculator/" data-pf-to="mobile-detailing-bid-calculator">Mobile Detailing Bid Calculator</a></li>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=basement-waterproofing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="basement-waterproofing-bid-calculator"></script>
+</body>
+</html>

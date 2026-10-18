@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. quoting from the vehicle's bare surface area | Vehicle Wrap Bid Calculator</title>
+<meta name="description" content="A wrap-coverage chart gives you the vehicle's bare surface area, but vinyl is bought and consumed by the linear foot off a roll.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/vs-quoting-from-bare-vehicle-surface-area.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. quoting from the vehicle's bare surface area | Vehicle Wrap Bid Calculator">
+<meta property="og:description" content="A 450 sq ft box truck panel and a 220 sq ft compound-curve SUV both lose real material margin when quoted from bare surface area -- $176.40 and $258.72 a job…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/vs-quoting-from-bare-vehicle-surface-area.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does quoting material from the vehicle's bare surface area get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because vinyl is bought and consumed by the linear foot off a roll, not by the vehicle's measured surface area, and cutting around mirrors, handles, pillars, and compound curves wastes a real share of every roll that a bare-area number never counts. This calculator's own numbers for a 450 sq ft flat-panel box truck at a 10% waste factor and a 220 sq ft compound-curve SUV at a 30% waste factor come out to 495.0 sq ft and 286.0 sq ft of vinyl actually consumed — the smaller vehicle needs more than half as much material again, relative to its own bare area, as the bigger one."}},{"@type":"Question","name":"Does a smaller vehicle always mean a smaller loss from ignoring waste?","acceptedAnswer":{"@type":"Answer","text":"No — loss scales with the waste rate, not the vehicle's size. This calculator's own numbers show the 220 sq ft SUV losing $1.18 of material margin per square foot of vehicle surface to a bare-area quote, three times the 450 sq ft box truck's $0.39 per square foot, because curves, mirrors, and handles waste more roll per vehicle-square-foot than a flat panel does."}},{"@type":"Question","name":"What does a bare-surface-area quote actually lose per job?","acceptedAnswer":{"@type":"Answer","text":"This calculator reports it directly as a dollar figure rather than leaving it to be discovered on the material invoice: $176.40 on the box truck job and $258.72 on the SUV job, in both cases the gap between pricing from the vehicle's bare area and pricing from what the roll actually has to supply."}},{"@type":"Question","name":"What does solving margin as a share of price get right that a flat markup misses?","acceptedAnswer":{"@type":"Answer","text":"A flat markup, and most rough estimates built the same way, price backward from a percentage added to cost — cost times 1.35 for a \"35% margin\" — which is a markup on cost, not a share of price. This calculator solves for the price that hits the target margin exactly. On the SUV job, a 35% markup on its $2,367.12 cost prices at $3,195.61 and actually clears only 25.9% margin; this calculator's $3,641.72 clears the full 35% the target asked for."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local vinyl suppliers, labor rates, or what a competitor's coverage chart charges. It takes the vehicle's surface area, waste factor, install complexity, and labor and overhead rates, and turns them into a walk-away price for the job you describe — the arithmetic a bare-area quote skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#161c22;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0f3a5c}.eyebrow{font-weight:700;letter-spacing:.04em;color:#175a8c;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#0f3a5c}.lede{font-size:1.05rem;max-width:64ch;color:#3a4a58}section{background:#fff;border:1px solid #cfd9e3;border-radius:12px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #0d243c08;margin:1rem 0}h2{margin-top:0;color:#0f3a5c}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #cfd9e3;padding:.5rem .45rem;text-align:left;vertical-align:top}.fine,.note{font-size:.88rem;color:#3a4a58}footer{color:#3a4a58;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. quoting from the vehicle's bare surface area | Vehicle Wrap Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vehicle-wrap-bid-calculator/">Vehicle Wrap Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. quoting from the vehicle's bare surface area | Vehicle Wrap Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vehicle Wrap Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. quoting from the vehicle's bare surface area</h1>
+<p class="lede">A wrap-coverage chart or a tape measure gives you the vehicle's bare surface area &mdash; the number most quotes are built from. Vinyl is not bought that way: it comes off a 60-inch roll by the linear foot, and cutting around mirrors, handles, pillars, and compound curves wastes a real share of every roll that a bare-area number never counts.</p>
+</header>
+<section>
+<h2>What quoting from bare surface area is</h2>
+<p>
+Pricing material as surface area &times; cost per square foot is the fastest
+way to quote: read the vehicle's coverage off a chart or a tape measure, and
+multiply by a per-foot vinyl rate. Shops do this because coverage charts
+publish bare surface area, not roll consumption, and a single multiplication
+is the easiest number to build a quote from on the spot.
+</p>
+<p>
+That number was never the material bill. A roll of vinyl gets cut around
+mirrors, door handles, pillars, and whatever compound curves the body has,
+and every one of those cuts wastes material that never touches the vehicle.
+A bare-area quote prices the vehicle, not the roll, and quietly loses the
+waste share on every job.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+vehicle's surface area, a material waste factor, vinyl and laminate cost,
+install rate and complexity, and your loaded labor and overhead. It turns
+that into the vinyl actually consumed off the roll, a walk-away price for
+this vehicle, and the dollar loss a bare-area quote would have taken on the
+same job.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What quoting from bare surface area does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Prices material at the vehicle's measured surface area, so a 450 sq ft flat-panel box truck and a 220 sq ft compound-curve SUV both get quoted straight off their tape-measure number.</td>
+<td>Prices material from what the roll actually consumes: 495.0 sq ft of vinyl for the box truck at a 10% waste factor, and 286.0 sq ft for the SUV at a 30% waste factor &mdash; even though the SUV's own bare area is under half the truck's.</td>
+</tr>
+<tr>
+<td>Treats waste as the same everywhere, so a flat panel side and a door full of mirrors, handles, and curves get charged the same rate per square foot of vehicle.</td>
+<td>Applies the waste factor you set for each vehicle's actual shape &mdash; 10% for the flat-panel truck versus 30% for the compound-curve SUV &mdash; because a box truck side and a sedan door do not waste vinyl at the same rate.</td>
+</tr>
+<tr>
+<td>Has no line for what a higher-than-expected material bill costs once the job is already quoted at the bare-area number.</td>
+<td>Reports the waste-blind loss per job directly: $176.40 on the box truck, $258.72 on the SUV &mdash; a real loss taken on every job priced the naive way, discovered before the quote goes out instead of on the supplier invoice.</td>
+</tr>
+<tr>
+<td>Reads a smaller vehicle as a smaller, lower-risk quote, because bare surface area is the only number it has.</td>
+<td>Shows loss scaling with shape, not size: the 220 sq ft SUV loses $1.18 of material margin per square foot of vehicle surface, three times the 450 sq ft box truck's $0.39 per square foot, because curves waste more roll per vehicle-square-foot than flat panels do.</td>
+</tr>
+<tr>
+<td>Sets a "target margin" by marking cost up a flat percentage &mdash; cost &times; 1.35 for a "35% margin" &mdash; which is a markup on cost, not a share of price.</td>
+<td>Solves for the price that makes margin exactly the stated share of that price. On the SUV job, a 35% markup on its $2,367.12 cost prices at $3,195.61 and actually clears only 25.9% margin; this calculator's $3,641.72 clears the full 35% the target asked for.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Quoting from bare surface area is not wrong because it is simple &mdash; it
+is wrong when the vehicle's shape wastes more roll than the last one did,
+and nothing about a coverage-chart number tells you when that has happened.
+This calculator does not replace judgment about your market; it replaces
+the arithmetic a bare-area quote skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does quoting material from the vehicle's bare surface area get the price wrong?</h3>
+<p>Because vinyl is bought and consumed by the linear foot off a roll, not by the vehicle's measured surface area, and cutting around mirrors, handles, pillars, and compound curves wastes a real share of every roll that a bare-area number never counts. This calculator's own numbers for a 450 sq ft flat-panel box truck at a 10% waste factor and a 220 sq ft compound-curve SUV at a 30% waste factor come out to 495.0 sq ft and 286.0 sq ft of vinyl actually consumed — the smaller vehicle needs more than half as much material again, relative to its own bare area, as the bigger one.</p>
+<h3>Does a smaller vehicle always mean a smaller loss from ignoring waste?</h3>
+<p>No — loss scales with the waste rate, not the vehicle's size. This calculator's own numbers show the 220 sq ft SUV losing $1.18 of material margin per square foot of vehicle surface to a bare-area quote, three times the 450 sq ft box truck's $0.39 per square foot, because curves, mirrors, and handles waste more roll per vehicle-square-foot than a flat panel does.</p>
+<h3>What does a bare-surface-area quote actually lose per job?</h3>
+<p>This calculator reports it directly as a dollar figure rather than leaving it to be discovered on the material invoice: $176.40 on the box truck job and $258.72 on the SUV job, in both cases the gap between pricing from the vehicle's bare area and pricing from what the roll actually has to supply.</p>
+<h3>What does solving margin as a share of price get right that a flat markup misses?</h3>
+<p>A flat markup, and most rough estimates built the same way, price backward from a percentage added to cost — cost times 1.35 for a "35% margin" — which is a markup on cost, not a share of price. This calculator solves for the price that hits the target margin exactly. On the SUV job, a 35% markup on its $2,367.12 cost prices at $3,195.61 and actually clears only 25.9% margin; this calculator's $3,641.72 clears the full 35% the target asked for.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local vinyl suppliers, labor rates, or what a competitor's coverage chart charges. It takes the vehicle's surface area, waste factor, install complexity, and labor and overhead rates, and turns them into a walk-away price for the job you describe — the arithmetic a bare-area quote skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting from bare surface area is a bad-faith practice &mdash; it is a common, honest shortcut that works until the next vehicle's shape stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Vehicle Wrap Bid Calculator</a> to price your own job, or see <a href="how-much-to-charge-for-a-vehicle-wrap.html">the guide to what a wrap should cost</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your job details are never uploaded, and this page makes no live comparison against any other product &mdash; it is a static page describing this calculator's own arithmetic.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../attic-insulation-bid-calculator/" data-pf-to="attic-insulation-bid-calculator">Attic Insulation Bid Calculator</a></li>
+      <li><a href="../auto-glass-bid-calculator/" data-pf-to="auto-glass-bid-calculator">Auto Glass Bid Calculator</a></li>
+      <li><a href="../basement-waterproofing-bid-calculator/" data-pf-to="basement-waterproofing-bid-calculator">Basement Waterproofing Bid Calculator</a></li>
+      <li><a href="../biohazard-cleanup-bid-calculator/" data-pf-to="biohazard-cleanup-bid-calculator">Biohazard Cleanup Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vehicle-wrap-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vehicle-wrap-bid-calculator"></script>
+</body></html>

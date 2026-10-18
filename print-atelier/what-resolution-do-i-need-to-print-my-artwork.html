@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What Resolution Do I Need To Print My Artwork?</title>
+<meta name="description" content="How many pixels a print master needs at 5x7 through 24x36, why implied DPI is just pixels divided by inches, and how to check a file before you pay for a proof." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/print-atelier/what-resolution-do-i-need-to-print-my-artwork.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='2' fill='%231f5c35'/%3E%3Crect x='9' y='9' width='14' height='14' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E" />
+<meta property="og:title" content="What Resolution Do I Need To Print My Artwork?" />
+<meta property="og:description" content="The same file can be print-ready at 8x10 and far too small at 24x36. Here is the arithmetic, size by size." />
+<meta property="og:type" content="article" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resolution do I need to print my artwork?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends entirely on how big the print is, because resolution for print is a ratio rather than a property of the file. Implied DPI is your pixel dimensions divided by the physical print size in inches, so a 2400 by 3000 pixel file is 300 DPI at 8x10 and 100 DPI at 24x30. There is no such thing as a file that is high resolution in the abstract. Decide the largest size you intend to sell, divide the pixels by the inches, and check that the number clears the floor your printer works to."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many pixels do I need for a 16x20 print?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Multiply each dimension in inches by the DPI you are targeting. At 150 DPI a 16x20 needs 2400 by 3000 pixels, at 240 DPI it needs 3840 by 4800, and at 300 DPI it needs 4800 by 6000. The same arithmetic gives you any other size: an 11x14 at 300 DPI is 3300 by 4200 pixels, and a 24x36 at 300 DPI is 7200 by 10800, which is about 78 megapixels and beyond a single frame from most cameras."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is 150 DPI good enough for a print?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is a floor rather than a target. The preflight tool on this site checks 150 DPI at the named print size because below that the loss of detail is visible at any normal viewing distance, and because a file that fails a conservative floor certainly fails a strict one. Many labs prefer 240 or 300 DPI for work viewed close up, and some accept less than 150 for large pieces meant to be seen from across a room. Ask the printer you actually intend to use, and treat 150 as the point below which the answer is definitely no."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I just upscale the file to reach the DPI I need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Resampling raises the pixel count and does not recover detail that was never captured, so it changes the number a preflight check reports without changing what the print will look like. Modern upscalers can make an enlargement look acceptable, especially on textured or painterly work, but they are inventing plausible detail rather than restoring real detail. If the master is genuinely short of pixels, the honest options are to print smaller, rescan or rephotograph the original at a higher resolution, or accept the enlargement knowingly after seeing a proof."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the DPI setting saved in the file matter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not for whether the file is big enough. The DPI field stored in a JPEG or TIFF header is only a suggested print size; it carries no pixels with it, and changing it from 72 to 300 in an image editor without resampling leaves the file identical. What matters is the pixel dimensions and the inches you are printing them across. That is why the checker on this site reads the actual decoded width and height rather than trusting the metadata."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my file pass at one size and fail at another?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the pixel count is fixed and the inches are not. Spreading the same pixels over a larger sheet lowers the implied DPI in direct proportion, so a master that comfortably clears a floor at 8x10 can be less than half of it at 16x20 and a quarter of it at 24x30. This is the most common surprise for an artist listing one file at several sizes, and it is why it is worth checking against the largest size you plan to offer rather than the smallest."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5f66; --border: #d9dce1;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; margin-top: 1.5rem; }
+  a { color: var(--accent); }
+  .cta {
+    display: inline-block; margin-top: 0.5rem; padding: 0.55rem 0.95rem; border-radius: 6px;
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  code { background: var(--panel); padding: 0.05rem 0.3rem; border-radius: 3px; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/print-atelier/what-resolution-do-i-need-to-print-my-artwork.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/print-atelier/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Resolution Do I Need To Print My Artwork? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../print-atelier/">Print File Preflight — free DPI and print-size checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Resolution Do I Need To Print My Artwork?</span></span></nav>
+<main>
+  <p><a href="./">&larr; Print file preflight &mdash; free DPI and print-size checker</a></p>
+  <h1>What resolution do I need to print my artwork?</h1>
+  <p class="lede">There is no answer that is a single number, and that is the whole difficulty. Print resolution is a ratio between the pixels you have and the inches you are spreading them across &mdash; so the same file is comfortably print-ready at one size and obviously short at another.</p>
+  <p><a class="cta" href="./">Check your own file &mdash; free, nothing is uploaded</a></p>
+
+  <h2>The one piece of arithmetic</h2>
+  <p><strong>Implied DPI = pixels &divide; inches.</strong> A master that is 2400 &times; 3000 pixels is 300 DPI printed at 8&times;10, 150 DPI at 16&times;20, and 100 DPI at 24&times;30. Nothing about the file changed; only the sheet did.</p>
+  <p>Turn that around and you get the number you actually want when you are preparing a master: <strong>pixels needed = inches &times; target DPI</strong>. Decide the biggest size you intend to sell, pick the DPI your printer works to, and multiply.</p>
+
+  <h2>Pixels needed, size by size</h2>
+  <p>These are the seven sizes the checker on this site knows, at three common targets. 150 DPI is the floor it enforces; 240 and 300 are what many labs prefer for work viewed close up.</p>
+  <div class="table-scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Print size</th><th>150 DPI (floor)</th><th>240 DPI</th><th>300 DPI</th></tr></thead>
+      <tbody>
+        <tr><td>5&times;7 in</td><td>750 &times; 1050 px</td><td>1200 &times; 1680 px</td><td>1500 &times; 2100 px</td></tr>
+        <tr><td>8&times;10 in</td><td>1200 &times; 1500 px</td><td>1920 &times; 2400 px</td><td>2400 &times; 3000 px</td></tr>
+        <tr><td>11&times;14 in</td><td>1650 &times; 2100 px</td><td>2640 &times; 3360 px</td><td>3300 &times; 4200 px</td></tr>
+        <tr><td>12&times;16 in</td><td>1800 &times; 2400 px</td><td>2880 &times; 3840 px</td><td>3600 &times; 4800 px</td></tr>
+        <tr><td>16&times;20 in</td><td>2400 &times; 3000 px</td><td>3840 &times; 4800 px</td><td>4800 &times; 6000 px</td></tr>
+        <tr><td>18&times;24 in</td><td>2700 &times; 3600 px</td><td>4320 &times; 5760 px</td><td>5400 &times; 7200 px</td></tr>
+        <tr><td>24&times;36 in</td><td>3600 &times; 5400 px</td><td>5760 &times; 8640 px</td><td>7200 &times; 10800 px</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p class="lede">Worth noticing at the bottom of that table: a 24&times;36 at 300 DPI is about 78 megapixels. Very few single camera frames reach it, which is why large-format work is routinely printed nearer the floor than the ideal, and why a floor is a more useful test than an aspiration.</p>
+
+  <h2>What the number does not tell you</h2>
+  <p>Clearing a DPI floor means the file has enough pixels. It does not mean the print will be good.</p>
+  <ul>
+    <li><strong>A web export can pass on pixels and still be wrong.</strong> A file resized and recompressed for a screen has already thrown away detail; the remaining pixels are soft even though there are enough of them. That is why the checker flags filenames containing <code>web</code>, <code>thumbnail</code>, <code>lowres</code>, <code>instagram</code> or <code>facebook</code> separately from the DPI test.</li>
+    <li><strong>The stored DPI field is not the resolution.</strong> The number saved in a JPEG or TIFF header is a suggested print size and carries no pixels with it. Changing it from 72 to 300 without resampling leaves the file byte-for-byte as capable as it was.</li>
+    <li><strong>Aspect ratio decides what gets cropped.</strong> A 4:3 capture printed at 11&times;14 loses something from an edge. Deciding what, rather than letting the lab decide, is part of preparing a master.</li>
+    <li><strong>Colour, paper and profile are a different problem entirely.</strong> No pixel count predicts how a particular ink and paper will render your blacks. That is what a proof is for.</li>
+  </ul>
+
+  <h2>If the file is too small</h2>
+  <p>Upscaling raises the pixel count without recovering detail that was never captured, so it changes what a preflight check reports without changing what the print looks like. Current upscalers can make an enlargement acceptable, particularly on textured or painterly work, but they are inventing plausible detail rather than restoring real detail. The honest options are to print smaller, to rescan or rephotograph the original at higher resolution, or to go ahead knowingly &mdash; after a proof, not instead of one.</p>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Check a file before you pay for a proof</h2>
+    <p>Drop in up to five candidate masters, pick the size you are printing, and see the implied DPI for each, which ones clear the floor, and which one is the best of what you have. It runs entirely in your browser &mdash; your artwork is never uploaded, and there is no account.</p>
+    <p><a class="cta" href="./">Open the free print file preflight</a></p>
+  </div>
+
+  <h2>Common questions</h2>
+  <h3>What resolution do I need to print my artwork?</h3>
+  <p>It depends entirely on how big the print is, because resolution for print is a ratio rather than a property of the file. Implied DPI is your pixel dimensions divided by the physical print size in inches, so a 2400 by 3000 pixel file is 300 DPI at 8x10 and 100 DPI at 24x30. There is no such thing as a file that is high resolution in the abstract. Decide the largest size you intend to sell, divide the pixels by the inches, and check that the number clears the floor your printer works to.</p>
+  <h3>How many pixels do I need for a 16x20 print?</h3>
+  <p>Multiply each dimension in inches by the DPI you are targeting. At 150 DPI a 16x20 needs 2400 by 3000 pixels, at 240 DPI it needs 3840 by 4800, and at 300 DPI it needs 4800 by 6000. The same arithmetic gives you any other size: an 11x14 at 300 DPI is 3300 by 4200 pixels, and a 24x36 at 300 DPI is 7200 by 10800, which is about 78 megapixels and beyond a single frame from most cameras.</p>
+  <h3>Is 150 DPI good enough for a print?</h3>
+  <p>It is a floor rather than a target. The preflight tool on this site checks 150 DPI at the named print size because below that the loss of detail is visible at any normal viewing distance, and because a file that fails a conservative floor certainly fails a strict one. Many labs prefer 240 or 300 DPI for work viewed close up, and some accept less than 150 for large pieces meant to be seen from across a room. Ask the printer you actually intend to use, and treat 150 as the point below which the answer is definitely no.</p>
+  <h3>Can I just upscale the file to reach the DPI I need?</h3>
+  <p>Resampling raises the pixel count and does not recover detail that was never captured, so it changes the number a preflight check reports without changing what the print will look like. Modern upscalers can make an enlargement look acceptable, especially on textured or painterly work, but they are inventing plausible detail rather than restoring real detail. If the master is genuinely short of pixels, the honest options are to print smaller, rescan or rephotograph the original at a higher resolution, or accept the enlargement knowingly after seeing a proof.</p>
+  <h3>Does the DPI setting saved in the file matter?</h3>
+  <p>Not for whether the file is big enough. The DPI field stored in a JPEG or TIFF header is only a suggested print size; it carries no pixels with it, and changing it from 72 to 300 in an image editor without resampling leaves the file identical. What matters is the pixel dimensions and the inches you are printing them across. That is why the checker on this site reads the actual decoded width and height rather than trusting the metadata.</p>
+  <h3>Why does my file pass at one size and fail at another?</h3>
+  <p>Because the pixel count is fixed and the inches are not. Spreading the same pixels over a larger sheet lowers the implied DPI in direct proportion, so a master that comfortably clears a floor at 8x10 can be less than half of it at 16x20 and a quarter of it at 24x30. This is the most common surprise for an artist listing one file at several sizes, and it is why it is worth checking against the largest size you plan to offer rather than the smallest.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This page and the tool it describes are
+      provided free and as-is, without warranty of any kind, express or
+      implied. Nothing here is printing, production, colour-management, or
+      professional advice, and it does not replace a qualified printer or
+      colour manager. <strong>You are responsible for reviewing and verifying
+      any output before relying on it</strong>, and for meeting any obligation
+      it helps you prepare for. To the maximum extent permitted by law, the
+      authors accept no liability for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+    <p>
+      MIT licensed &mdash; see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a>
+      if this saved you a wasted proof &mdash; entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bank-statement-pdf-to-csv/" data-pf-to="bank-statement-pdf-to-csv">Bank statement PDF to CSV, checked against the statement's own balances. Free, private</a></li>
+      <li><a href="../boi-reporting-exemption-checker/" data-pf-to="boi-reporting-exemption-checker">BOI Reporting Exemption Checker — free, 2026</a></li>
+      <li><a href="../brevo-contacts-csv-check/" data-pf-to="brevo-contacts-csv-check">Brevo Contacts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../buymeacoffee-payout-to-journal/" data-pf-to="buymeacoffee-payout-to-journal">Buy Me a Coffee transactions to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=print-atelier">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="print-atelier"></script>
+</body>
+</html>

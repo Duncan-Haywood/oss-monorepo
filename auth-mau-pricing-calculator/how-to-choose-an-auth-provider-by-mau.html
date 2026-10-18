@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an Auth Provider by Monthly Active Users</title>
+  <meta name="description" content="Why hosted authentication bills jump at certain user counts, what a monthly active user means at each vendor…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/how-to-choose-an-auth-provider-by-mau.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When does authentication become expensive?", "acceptedAnswer": {"@type": "Answer", "text": "Most hosted providers are free below a user count and then charge per monthly active user. The jump is in the pricing model, not the user count itself: a provider that is free to 50,000 users can cost nothing where another charges hundreds of dollars a month."}}, {"@type": "Question", "name": "What counts as a monthly active user?", "acceptedAnswer": {"@type": "Answer", "text": "Vendors define it differently: a user who signs in, a user who refreshes a token, or any user with an active session in the month. Read each definition before comparing, because the same app can have a different MAU count under each."}}, {"@type": "Question", "name": "What usually costs more than the per-user line?", "acceptedAnswer": {"@type": "Answer", "text": "Enterprise SSO and SAML connections, SMS multi-factor codes, B2B organization features, custom domains and support plans. A cheap per-user rate can still produce an expensive invoice once one enterprise customer asks for SAML."}}, {"@type": "Question", "name": "Should I pick the cheapest provider at my user count today?", "acceptedAnswer": {"@type": "Answer", "text": "Not on price alone. Compare the 12-month spend under your growth rate, check how hard it is to migrate users out later, and confirm the free plan includes the features you need in production."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/how-to-choose-an-auth-provider-by-mau.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose an Auth Provider by Monthly Active Users">
+<meta property="og:description" content="Why hosted authentication bills jump at certain user counts, what a monthly active user means at each vendor…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose an Auth Provider by Monthly Active Users — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../auth-mau-pricing-calculator/">What will authentication cost at your user count, and who is cheapest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose an Auth Provider by Monthly Active Users</span></span></nav>
+  <p><a href="./">← Auth MAU Pricing Calculator</a></p>
+  <h1>How to choose an auth provider by monthly active users</h1>
+  <p>Put your user count and growth rate into the <a href="./">calculator</a> to price Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>When does authentication become expensive?</h2>
+  <p>Most hosted providers are free below a user count and then charge per monthly active user. The jump is in the pricing model, not the user count itself: a provider that is free to 50,000 users can cost nothing where another charges hundreds of dollars a month.</p>
+  <h2>What counts as a monthly active user?</h2>
+  <p>Vendors define it differently: a user who signs in, a user who refreshes a token, or any user with an active session in the month. Read each definition before comparing, because the same app can have a different MAU count under each.</p>
+  <h2>What usually costs more than the per-user line?</h2>
+  <p>Enterprise SSO and SAML connections, SMS multi-factor codes, B2B organization features, custom domains and support plans. A cheap per-user rate can still produce an expensive invoice once one enterprise customer asks for SAML.</p>
+  <h2>Should I pick the cheapest provider at my user count today?</h2>
+  <p>Not on price alone. Compare the 12-month spend under your growth rate, check how hard it is to migrate users out later, and confirm the free plan includes the features you need in production.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../incident-postmortem-timeline/" data-pf-to="incident-postmortem-timeline">Turn incident notes into a postmortem draft</a></li>
+      <li><a href="../ios-privacy-manifest-check/" data-pf-to="ios-privacy-manifest-check">iOS Privacy Manifest Checker</a></li>
+      <li><a href="../json-ld-rich-result-validator/" data-pf-to="json-ld-rich-result-validator">JSON-LD Rich Result Validator — free, private, in your browser</a></li>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=auth-mau-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="auth-mau-pricing-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Backup File Exposure Checker vs. Checking By Hand</title>
+<meta name="description" content="Typing yoursite.com/backup.zip into a browser tab catches an obvious exposure. It misses a soft-404 page that looks plausible…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/vs-checking-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does typing the URL into a browser tab actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Typing yoursite.com/backup.zip into a browser tab is a fast, real check for the single obvious case: the browser either offers to download a file or shows a 404. If it downloads, you don't need a tool to tell you it's exposed -- though you may not notice whether the downloaded file is actually a real archive or just some other binary-looking response until you open it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick manual look easily misses: (1) a server that returns its normal 200 page (a single-page app's fallback route, a themed 404) for literally any path -- a download prompt or a page that loads without obviously erroring can be misread either way without checking the actual bytes. (2) Checking only the one filename you thought to try, not the seven other common ones (backup.tar.gz, backup.sql, backup.sql.gz, db.sql, database.sql, dump.sql, site.zip) a backup script or a careless one-off save could have used. (3) Opening a downloaded file to confirm it's real, and to see what's inside, risks reading actual row data by hand -- this tool confirms a match from the file's header or structural shape alone and deliberately never shows row-data content." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A manual check is a point-in-time look. A new backup script, a forgotten one-off save, or a server configuration change can reintroduce this exposure at any point after the last time someone happened to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/vs-checking-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Backup File Exposure Checker vs. Checking By Hand">
+<meta property="og:description" content="Typing yoursite.com/backup.zip into a browser tab catches an obvious exposure. It misses a soft-404 page that looks plausible…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Backup File Exposure Checker vs. Checking By Hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../backup-file-exposure-check/">Backup File Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Backup File Exposure Checker vs. Checking By Hand</span></span></nav>
+<p><a href="index.html">← Back to the Backup File Exposure Checker</a></p>
+<h1>Backup File Exposure Checker vs. checking by hand</h1>
+<p>
+  Typing <code>yoursite.com/backup.zip</code> into a browser tab is a real, fast way to spot the
+  single obvious case: the browser either offers to download a file or shows a 404. It is also the
+  method most developers already reach for first, and it genuinely works for that case.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Check</th><th>Typing the URL by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious downloadable archive or dump</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>A server that returns 200 with a generic page for any path (soft-404)</td><td>Can look plausible enough to misread either way</td><td>Verified against a real archive's magic bytes or a real SQL dump's line shape before calling anything exposed</td></tr>
+    <tr><td>Checking all eight common backup filenames, not just one</td><td>Manual, easy to stop after trying the one you thought of</td><td>Checks backup.zip, backup.tar.gz, backup.sql, backup.sql.gz, db.sql, database.sql, dump.sql, and site.zip every run</td></tr>
+    <tr><td>Confirming a match without reading row data by hand</td><td>Opening the file to check risks reading real row content</td><td>Confirms from the header/structural shape alone; row-data statements are counted, never quoted</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+  </tbody>
+</table></div>
+
+<h2>When to still just look</h2>
+<p>
+  If you only need a one-off sanity check on a URL you're already typing into the address bar,
+  looking is fine — it's free and you're already there. The gap this tool closes is coverage and
+  confidence: all eight relevant filenames, not just the one you thought to try, each verified
+  against real structural evidence rather than eyeballed, every time a deploy happens, with an exit
+  code a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does typing the URL into a browser tab actually show you?</h3>
+<p>Typing yoursite.com/backup.zip into a browser tab is a fast, real check for the single obvious case: the browser either offers to download a file or shows a 404. If it downloads, you don't need a tool to tell you it's exposed -- though you may not notice whether the downloaded file is actually a real archive or just some other binary-looking response until you open it.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a quick manual look easily misses: (1) a server that returns its normal 200 page (a single-page app's fallback route, a themed 404) for literally any path -- a download prompt or a page that loads without obviously erroring can be misread either way without checking the actual bytes. (2) Checking only the one filename you thought to try, not the seven other common ones (backup.tar.gz, backup.sql, backup.sql.gz, db.sql, database.sql, dump.sql, site.zip) a backup script or a careless one-off save could have used. (3) Opening a downloaded file to confirm it's real, and to see what's inside, risks reading actual row data by hand -- this tool confirms a match from the file's header or structural shape alone and deliberately never shows row-data content.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A manual check is a point-in-time look. A new backup script, a forgotten one-off save, or a server configuration change can reintroduce this exposure at any point after the last time someone happened to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any site you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../liability-audit/" data-pf-to="liability-audit">What in your app could cost you a fine, a chargeback or a surprise bill?</a></li>
+      <li><a href="../license-compat-check/" data-pf-to="license-compat-check">Can you ship these dependencies under your license?</a></li>
+      <li><a href="../license-drift-check/" data-pf-to="license-drift-check">Did a dependency's license just change under you?</a></li>
+      <li><a href="../llm-api-pricing-calculator/" data-pf-to="llm-api-pricing-calculator">LLM API Pricing Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=backup-file-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="backup-file-exposure-check"></script>
+</body>
+</html>

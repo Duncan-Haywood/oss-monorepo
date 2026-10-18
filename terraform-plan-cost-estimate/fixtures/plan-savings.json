@@ -1,0 +1,9 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    { "address": "aws_instance.big", "mode": "managed", "type": "aws_instance", "name": "big",
+      "change": { "actions": ["update"], "before": { "instance_type": "m5.2xlarge" }, "after": { "instance_type": "m5.large" }, "after_unknown": {} } },
+    { "address": "aws_nat_gateway.old", "mode": "managed", "type": "aws_nat_gateway", "name": "old",
+      "change": { "actions": ["delete"], "before": {}, "after": null } }
+  ]
+}

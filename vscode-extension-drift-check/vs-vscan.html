@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. VSCan | VS Code Extension Drift Check</title>
+<meta name="description" content="VSCan is a free one-shot static scanner: paste an extension's name and it analyzes that extension's code, permissions…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/vs-vscan.html">
+<meta property="og:title" content="This tool vs. VSCan">
+<meta property="og:description" content="VSCan scans one named extension, once, for malicious code before you install it. This tool diffs your already-installed extensions against an earlier snapshot…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does VSCan already catch an extension that changes after I've installed it?","acceptedAnswer":{"@type":"Answer","text":"Not in the way this tool does. VSCan's own site describes a one-shot static analysis: you give it an extension's identifier and it downloads and inspects that extension's code, permissions, dependencies, and declared network activity once, before you install it, to flag malware, spyware, exploitable vulnerabilities, supply-chain risk, and excessive permissions. That is a pre-install check on a single named extension. This tool does the opposite and narrower thing: it never scans an extension's code at all, and instead diffs two point-in-time snapshots of your own already-installed extension list, by publisher and version, to name exactly which ones changed their declared activation surface, or were later pulled from the Marketplace, after you already trusted and installed them."}},{"@type":"Question","name":"Should I use this tool or VSCan?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions and a developer can reasonably use both. VSCan answers \"is this specific extension safe to install\", with a deep, free, one-time code scan of that extension's bundle before it runs on your machine. This tool answers \"did anything about my already-installed extensions change since I last checked, or did one of them get pulled from the Marketplace after the fact\" — the exact gap that let the GlassWorm and Nx Console campaigns keep running on machines that had already installed a trusted-looking extension. Screen a new extension with VSCan before installing it, then use this tool afterwards to catch a silent change to what you already trust."}},{"@type":"Question","name":"Is this page affiliated with VSCan?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by VSCan. It is named here only to describe what this tool is and is not, based on VSCan's own publicly documented product."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 1000px; margin: auto; padding: 28px; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.55; }
+  a { color: #4c1d95; overflow-wrap: anywhere; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  .tableWrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/vs-vscan.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. VSCan — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vscode-extension-drift-check/">Did an extension you already trust just change what it does?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. VSCan</span></span></nav>
+  <p class="note"><a href="./">&larr; VS Code Extension Drift Check</a></p>
+  <h1>This tool vs. VSCan</h1>
+  <p class="note">Different moments entirely: VSCan scans a named extension's code once, before you install it, to flag malware and excessive permissions. This tool diffs your already-installed extensions against an earlier snapshot to flag exactly what changed about them <em>after</em> you already trusted and installed them, or whether one you have was later pulled from the Marketplace.</p>
+
+  <section class="card">
+    <h2>What each tool is for</h2>
+    <p>
+      <strong>VSCan</strong> is a free, no-login static scanner. Its own site
+      describes pasting in an extension's name or identifier and running a
+      deep analysis of that extension's code, permissions, dependencies, and
+      declared network activity, entirely before you install it &mdash;
+      checking for malware and spyware, exploitable vulnerabilities,
+      supply-chain risk inherited from dependencies, permission abuse, and
+      privacy concerns. VSCan's own documentation is explicit that a scan is
+      a starting point for review, not a guarantee, and that it can flag
+      code it does not fully understand the intent of.
+    </p>
+    <p>
+      This tool does none of what VSCan does: it never downloads or inspects
+      an extension's code, and it has no idea whether any single extension is
+      malicious. It only compares two point-in-time snapshots of what
+      you already have installed &mdash; by publisher, name, and version
+      &mdash; to name exactly which ones changed their declared activation
+      surface (a new startup trigger, a new dependency, a changed entry
+      point) since an earlier snapshot, or a CLI-only live check of whether an
+      installed extension's identifier still resolves on the VS Code
+      Marketplace at all. That second question is exactly what let the
+      GlassWorm and Nx Console incidents keep running on machines that had
+      already installed a trusted-looking extension before it turned
+      malicious or was pulled.
+    </p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I'm about to install a new extension and want to know if its code looks malicious first.</td><td>VSCan &mdash; that is exactly the pre-install job it is built for.</td></tr>
+          <tr><td>I want to know whether any of the extensions I already have installed changed their activation surface since I last checked.</td><td>This tool &mdash; paste an older and a newer snapshot, get the diff.</td></tr>
+          <tr><td>I want to know whether an extension I've had installed for months was quietly pulled from the Marketplace.</td><td>This tool's CLI <code>check</code> command &mdash; VSCan scans code, not Marketplace listing status over time.</td></tr>
+          <tr><td>I want a deep static analysis of one named extension's permissions, dependencies, and network calls.</td><td>VSCan &mdash; this tool never reads an extension's code at all, only its declared manifest fields across two snapshots.</td></tr>
+          <tr><td>I want a one-time diff of exactly what changed between two lists of installed extensions, with no code scan involved.</td><td>This tool &mdash; that is the whole job, and the only one it does.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p>
+      A developer can reasonably use both, at different moments: VSCan before
+      installing anything new, and this tool afterwards, on a schedule or in
+      CI, to catch a silent change to what you already trust. This page does
+      not evaluate VSCan's scan accuracy and makes no claim about it either
+      way &mdash; it only describes VSCan's documented product shape and
+      states what this tool does differently. A clean result from either one
+      is not a security guarantee.
+    </p>
+    <p class="note">This tool needs no account and no sign-in: the browser page and the CLI's <code>snapshot</code>/<code>diff</code> commands make no network calls at all, and the CLI's separate <code>check</code> command talks to the network only from your own machine, only when you run it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does VSCan already catch an extension that changes after I've installed it?</h3>
+    <p>Not in the way this tool does. VSCan's own site describes a one-shot static analysis: you give it an extension's identifier and it downloads and inspects that extension's code, permissions, dependencies, and declared network activity once, before you install it, to flag malware, spyware, exploitable vulnerabilities, supply-chain risk, and excessive permissions. That is a pre-install check on a single named extension. This tool does the opposite and narrower thing: it never scans an extension's code at all, and instead diffs two point-in-time snapshots of your own already-installed extension list, by publisher and version, to name exactly which ones changed their declared activation surface, or were later pulled from the Marketplace, after you already trusted and installed them.</p>
+    <h3>Should I use this tool or VSCan?</h3>
+    <p>They answer different questions and a developer can reasonably use both. VSCan answers "is this specific extension safe to install", with a deep, free, one-time code scan of that extension's bundle before it runs on your machine. This tool answers "did anything about my already-installed extensions change since I last checked, or did one of them get pulled from the Marketplace after the fact" — the exact gap that let the GlassWorm and Nx Console campaigns keep running on machines that had already installed a trusted-looking extension. Screen a new extension with VSCan before installing it, then use this tool afterwards to catch a silent change to what you already trust.</p>
+    <h3>Is this page affiliated with VSCan?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by VSCan. It is named here only to describe what this tool is and is not, based on VSCan's own publicly documented product.</p>
+    <p class="note">Open <a href="./">VS Code Extension Drift Check</a> to diff your own extensions, or read <a href="./why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html">why VS Code doesn't warn you when an extension is delisted</a> for the full mechanism and how to wire the CLI into CI.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a structural difference between two snapshots of an extension's declared manifest fields, and whether an id currently resolves on the VS Code Marketplace &mdash; it is not a malware scanner, not a security audit, and not a guarantee that an unflagged extension is safe or a flagged one is dangerous. It does not replace reading the extension's source yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded, and the browser page and the CLI's <code>snapshot</code>/<code>diff</code> commands make no network calls of their own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against VSCan &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>
+    <p>Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to marketplace.visualstudio.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vscode-extension-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vscode-extension-drift-check"></script>
+</body>
+</html>

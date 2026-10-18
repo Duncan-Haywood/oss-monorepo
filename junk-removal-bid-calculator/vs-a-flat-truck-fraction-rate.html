@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat truck-fraction rate | Junk Removal Bid Calculator</title>
+<meta name="description" content="A flat 'half truck' or 'full truck' rate cannot see what is actually in the truck. This free, private browser calculator prices what a flat truck-fraction rate…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/vs-a-flat-truck-fraction-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat truck-fraction rate">
+<meta property="og:description" content="A half truck of couches and a half truck of concrete take up the same space in the driveway. A flat truck-fraction rate prices them off the same number…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat truck-fraction rate get a junk-removal quote wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver at the scale house is weight, not the fraction of the truck the pile fills. A half truck of concrete or dirt weighs many times what a half truck of couches and boxes weighs, and the landfill bills the difference in tons, not in truck fractions. A flat half-truck or full-truck rate charges both loads the same."}},{"@type":"Question","name":"What does a flat truck-fraction rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The material itself. A truck-fraction rate has no line for concrete, dirt, drywall, or roofing shingles weighing far more per cubic yard than mixed household junk or furniture, and no line for the appliance, mattress, and tire fees many landfills charge on top of the regular ticket."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked example: an 11 cubic yard load of mixed household junk, furniture, and two appliances prices at $424.71, or $38.61 per cubic yard. Applying that same $38.61 rate to an 11 cubic yard load that is a concrete tear-out instead quotes $424.71 -- $1,569.21 below that job's own $1,993.93 break-even cost, before a dollar of profit or the crew's time is covered. The flat rate does not just cut the margin on the concrete job; it prices it as a heavy loss."}},{"@type":"Question","name":"Is a flat truck-fraction rate ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- household junk and furniture, no unusually dense material -- a truck-fraction rate can land close, because that is the material the rate was probably built on. The risk is applying it to a load with concrete, dirt, drywall, or shingles mixed in without separating that material out first, because the rate does not know what filled the truck and neither does the estimator until the load is already on the scale."}},{"@type":"Question","name":"Does this calculator know what the dump charges or what labor costs in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local landfill's rates or your local labor market. It takes the material and volume of each pile, your dump fee per ton, minimum ticket, and surcharge, plus your own labor, travel, and target margin, and turns that into a price for this job -- the arithmetic a flat truck-fraction rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a221c; background: #f3eee6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #9a4a16; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5147; }
+  section { background: #fff; border: 1px solid #d9cfc2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a24100d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9cfc2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5147; }
+  .fine, .note { font-size: .88rem; color: #5c5147; }
+  footer { color: #5c5147; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/vs-a-flat-truck-fraction-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat truck-fraction rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../junk-removal-bid-calculator/">Junk Removal Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat truck-fraction rate</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Junk Removal Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat truck-fraction rate</h1>
+<p class="lede">"$400 for a half truck" is not a price for a load &mdash; it is a price for whatever the rate happened to be built on, quietly applied to every pile that fills the same fraction of the truck.</p>
+</header>
+<section>
+<h2>What a flat truck-fraction rate is</h2>
+<p>
+A flat truck-fraction rate is the fastest way to quote a cleanout over the
+phone: ask how much of the truck it fills, quote a number for a quarter,
+half, or full truck, and skip the walkthrough. Customers shop it because it
+is easy to compare between haulers, and it is the number a customer holding
+a competitor's quote will ask you to match.
+</p>
+<p>
+The number behind it was set for one kind of load &mdash; usually mixed
+household junk and furniture &mdash; and then reused for every pile
+afterward, whether or not the next pile has concrete, dirt, drywall, or
+shingles mixed into it.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+material pile separately (mixed household junk, furniture, construction
+debris, drywall, yard waste, dirt, concrete, roofing shingles, or per-item
+appliances, mattresses, and tires), your dump fee per ton, minimum ticket,
+and surcharge, plus your own labor, stairs, travel, and target margin. It
+prices the estimated tonnage and dump ticket by material, then adds loaded
+labor and dump runs, and returns the bid price, the price per cubic yard,
+and the walk-away price below which the job loses money at the scale
+&mdash; for this pile, not a generic truck fraction.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat truck-fraction rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a half truck of couches and a half truck of concrete &mdash; even though concrete alone runs roughly 4,000 lb per cubic yard against about 200 for mixed household junk.</td>
+<td>Prices each material's estimated tonnage separately, so a load with dense material in it costs more than the same volume of light junk.</td>
+</tr>
+<tr>
+<td>Has no line for appliances, mattresses, or tires, regardless of how many special-fee items are in the pile.</td>
+<td>Prices appliance, mattress, and tire fees per item, on top of their own weight.</td>
+</tr>
+<tr>
+<td>Estimates the truck fraction by eye, with no separate check against the landfill's own minimum ticket or surcharge.</td>
+<td>Prices the dump ticket as the greater of the per-ton rate and the minimum, plus your surcharge percent, so a light load still covers the ticket floor.</td>
+</tr>
+<tr>
+<td>Has no line for stairs, a long carry, or a second dump run once the truck fills, regardless of how many the job needs.</td>
+<td>Prices stairs and long-carry minutes as loaded labor and adds clock time for every dump run the volume requires.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat truck-fraction rate would have quoted the same load, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two loads, the same truck fraction</h2>
+<p>
+Using this calculator's own shipped starting example:
+</p>
+<p>
+An 11 cubic yard load of mixed household junk, furniture, and two appliances
+prices at <strong>$424.71</strong> &mdash; <strong>$38.61</strong> per cubic
+yard, on a job that costs $318.53 to run.
+</p>
+<p>
+Load the same 11 cubic yards with a concrete tear-out instead, and the job
+costs <strong>$1,993.93</strong> to run before a dollar of profit &mdash;
+almost entirely the dump ticket, which alone comes to $1,573.00 once 22 tons
+of concrete are billed at the per-ton rate. Applying the mixed-junk load's
+own $38.61-per-cubic-yard rate to this load quotes it at
+<strong>$424.71</strong>, the identical number, because both loads fill the
+same half of the truck.
+</p>
+<p>
+That flat rate prices the concrete job <strong>$1,569.21 below its own
+break-even cost</strong> &mdash; before counting the $2,233.86 it falls
+short of this calculator's own bid price at a 25% target margin. Same truck
+fraction, same flat rate, one load that pays and one that loses money the
+moment the scale ticket prints.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat truck-fraction rate get a junk-removal quote wrong?</h3>
+<p>Because the cost driver at the scale house is weight, not the fraction of the truck the pile fills. A half truck of concrete or dirt weighs many times what a half truck of couches and boxes weighs, and the landfill bills the difference in tons, not in truck fractions. A flat half-truck or full-truck rate charges both loads the same.</p>
+<h3>What does a flat truck-fraction rate usually leave out entirely?</h3>
+<p>The material itself. A truck-fraction rate has no line for concrete, dirt, drywall, or roofing shingles weighing far more per cubic yard than mixed household junk or furniture, and no line for the appliance, mattress, and tire fees many landfills charge on top of the regular ticket.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own worked example: an 11 cubic yard load of mixed household junk, furniture, and two appliances prices at $424.71, or $38.61 per cubic yard. Applying that same $38.61 rate to an 11 cubic yard load that is a concrete tear-out instead quotes $424.71 -- $1,569.21 below that job's own $1,993.93 break-even cost, before a dollar of profit or the crew's time is covered. The flat rate does not just cut the margin on the concrete job; it prices it as a heavy loss.</p>
+<h3>Is a flat truck-fraction rate ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- household junk and furniture, no unusually dense material -- a truck-fraction rate can land close, because that is the material the rate was probably built on. The risk is applying it to a load with concrete, dirt, drywall, or shingles mixed in without separating that material out first, because the rate does not know what filled the truck and neither does the estimator until the load is already on the scale.</p>
+<h3>Does this calculator know what the dump charges or what labor costs in my market?</h3>
+<p>No. It has no data on your local landfill's rates or your local labor market. It takes the material and volume of each pile, your dump fee per ton, minimum ticket, and surcharge, plus your own labor, travel, and target margin, and turns that into a price for this job -- the arithmetic a flat truck-fraction rate skips, not a market survey.</p>
+<p class="note">
+  Open the <a href="./">Junk Removal Bid Calculator</a> to price your own load, or read
+  <a href="how-to-price-junk-removal.html">how to price a junk removal job</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own dump tickets, payroll, insurance, and fuel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it keeps you off a losing half-truck special, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-detailing-bid-calculator/" data-pf-to="mobile-detailing-bid-calculator">Mobile Detailing Bid Calculator</a></li>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pest-control-bid-calculator/" data-pf-to="pest-control-bid-calculator">Pest Control Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=junk-removal-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="junk-removal-bid-calculator"></script>
+</body></html>

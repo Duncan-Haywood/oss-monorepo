@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mushroom Fruiting Room Planner</title>
+  <meta name="description" content="Free planner for small mushroom farms: profit per block and per fruiting-room slot-week, how many flushes to run, how many blocks the room can carry…">
+  <meta property="og:title" content="Mushroom farm planner: flushes, room capacity, cash and break-even — free, private">
+  <meta property="og:description" content="Enter your block cost, yields, price and contamination. See profit per block, the best number of flushes, how many blocks to start a week…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mushroom Fruiting Room Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many flushes should I take from each mushroom block?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on whether fruiting-room space is the limit. If the room has spare slots, keep harvesting while each extra flush still earns more than its harvest labor. If slots are the limit, the right count is the one with the highest profit per slot-week, which is usually fewer flushes because the later ones are small but still occupy the space. The page shows both."}}, {"@type": "Question", "name": "How many blocks can my fruiting room carry?", "acceptedAnswer": {"@type": "Answer", "text": "Slots divided by the slot-weeks each surviving block uses: weeks to first flush, plus the gaps between further flushes, plus turnaround, all times the share that survive incubation. The page gives the largest whole number of blocks you can start per week and warns when your plan needs more."}}, {"@type": "Question", "name": "How much cash do I need before the first sale?", "acceptedAnswer": {"@type": "Answer", "text": "Blocks are paid for at the start, but nothing sells until incubation and the first flush are done. The page simulates week by week and prints the lowest cumulative cash point, the week it happens and the week cash turns positive again."}}, {"@type": "Question", "name": "What contamination rate can I afford?", "acceptedAnswer": {"@type": "Answer", "text": "The page solves for the contamination rate at which a started block earns exactly zero, given your yields and price, and shows a table of weekly profit across contamination and price so you can see the cliff."}}, {"@type": "Question", "name": "Does it store my numbers or contact anyone?", "acceptedAnswer": {"@type": "Answer", "text": "No. It runs in this browser tab, saves nothing and sends nothing. You can download the week-by-week plan as a CSV."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b16; background: #f6f2ec; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b3f1d; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a2b12; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a2b12; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5b5147; }
+    .card { background: #fff; border: 1px solid #e0d6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a2b1210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c9bba9; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b3f1d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe5d8; color: #4a2b12; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee5d8; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #5b5147; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #eee5d8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #eee5d8; color: #4a2b12; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2f2923; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d6c8; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Mushroom farm planner: flushes, room capacity, cash and break-even — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mushroom farm planner: flushes, room capacity, cash and break-even — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mushroom farm planner: flushes, room capacity, cash and break-even — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">MUSHROOM FRUITING ROOM PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What a block earns, how many flushes to run, how many blocks the room can carry, and the cash you need first.</h1>
+    <p>Enter your block cost, yields per flush, price and contamination. The page works out <strong>profit per block and per fruiting-room slot-week</strong>, the <strong>best number of flushes</strong>, the <strong>most blocks you can start a week</strong>, the <strong>lowest cash point before sales begin</strong>, and the <strong>contamination rate and price that break even</strong>.</p>
+    <p class="note">Your numbers are used in this browser tab and never leave your device. It does arithmetic on what you enter; it does not tell you how to grow, sterilise or sell mushrooms.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Blocks and growing</h2>
+    <div class="grid">
+      <div><label for="blockCost">Cost per inoculated block ($)</label><input id="blockCost" inputmode="decimal" value="3.20"></div>
+      <div><label for="handlingMin">Handling minutes per block</label><input id="handlingMin" inputmode="decimal" value="10"></div>
+      <div><label for="incubationWeeks">Incubation weeks (0 if you buy fruiting-ready blocks)</label><input id="incubationWeeks" inputmode="numeric" value="2"></div>
+      <div><label for="contaminationPct">Blocks lost to contamination (%)</label><input id="contaminationPct" inputmode="decimal" value="8"></div>
+      <div><label for="flushYields">Fresh lb per block, flush by flush</label><input id="flushYields" value="1.4, 0.8, 0.4, 0.2"></div>
+      <div><label for="firstFlushWeeks">Weeks in the room to first harvest</label><input id="firstFlushWeeks" inputmode="numeric" value="2"></div>
+      <div><label for="flushGapWeeks">Weeks between flushes</label><input id="flushGapWeeks" inputmode="numeric" value="2"></div>
+      <div><label for="turnaroundWeeks">Turnaround weeks to clear and refill a slot</label><input id="turnaroundWeeks" inputmode="numeric" value="1"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Selling, room and costs</h2>
+    <div class="grid">
+      <div><label for="pricePerLb">Price per lb ($)</label><input id="pricePerLb" inputmode="decimal" value="9"></div>
+      <div><label for="sellThroughPct">Share of harvest you sell (%)</label><input id="sellThroughPct" inputmode="decimal" value="95"></div>
+      <div><label for="packCostPerLb">Packaging and delivery per lb ($)</label><input id="packCostPerLb" inputmode="decimal" value="0.40"></div>
+      <div><label for="harvestMinPerLb">Harvest and pack minutes per lb</label><input id="harvestMinPerLb" inputmode="decimal" value="3"></div>
+      <div><label for="wage">Value of an hour of labor ($)</label><input id="wage" inputmode="decimal" value="18"></div>
+      <div><label for="slots">Fruiting-room slots (blocks at once)</label><input id="slots" inputmode="numeric" value="200"></div>
+      <div><label for="startsPerWeek">Blocks you start per week</label><input id="startsPerWeek" inputmode="numeric" value="40"></div>
+      <div><label for="weeklyFixed">Weekly fixed cost: rent, power, water, loans ($)</label><input id="weeklyFixed" inputmode="decimal" value="150"></div>
+      <div><label for="weeks">Weeks to simulate</label><input id="weeks" inputmode="numeric" value="26"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Plan the room</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="reset">Reset</button>
+    </p>
+    <p class="note" id="form-status">Change any number, then click Plan the room.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Profit per block by number of flushes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Flushes</th><th scope="col" class="n">Fresh lb</th><th scope="col" class="n">Profit per block started</th><th scope="col" class="n">Slot-weeks</th><th scope="col" class="n">Profit per slot-week</th><th scope="col" class="n">Added by last flush</th></tr></thead><tbody id="flush-rows"></tbody></table></div></div>
+    <h3>Weekly profit at your starts: contamination against price</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead id="sens-head"></thead><tbody id="sens-rows"></tbody></table></div></div>
+    <h3>Week by week</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col" class="n">Week</th><th scope="col" class="n">Slots used</th><th scope="col" class="n">Harvest lb</th><th scope="col" class="n">Income</th><th scope="col" class="n">Spend</th><th scope="col" class="n">Cash</th></tr></thead><tbody id="week-rows"></tbody></table></div></div>
+    <p><button type="button" id="dl-csv">Download week-by-week plan (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Per block:</strong> a started block survives incubation with the share you keep after contamination. Each survivor yields the flush weights you enter, sold at price less packaging, minus harvest labor. The block cost and handling are paid for every block started, survivors or not.</li>
+      <li><strong>Slots:</strong> a surviving block holds a fruiting slot for the weeks to first harvest, plus the gap for each later flush, plus turnaround. Starts per week are limited to slots divided by those weeks times survivors.</li>
+      <li><strong>Which flush count:</strong> when your starts fit the room it runs the count with the highest profit per block; when they would overfill it, the count with the highest profit per slot-week.</li>
+      <li><strong>Cash:</strong> blocks and fixed costs are paid the week they happen; income arrives in the week of each harvest. Real customers pay later than that, so treat the low point as a minimum.</li>
+      <li><strong>Not decided:</strong> species, substrate, temperature, humidity, sterilisation, food-safety and licensing rules, which vary by place, demand and price for your volume, spent-block disposal, equipment, taxes and any cost you do not enter. Yields and prices come from you and your own records.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many flushes should I take from each mushroom block?</h3>
+    <p>It depends on whether fruiting-room space is the limit. If the room has spare slots, keep harvesting while each extra flush still earns more than its harvest labor. If slots are the limit, the right count is the one with the highest profit per slot-week, which is usually fewer flushes because the later ones are small but still occupy the space. The page shows both.</p>
+    <h3>How many blocks can my fruiting room carry?</h3>
+    <p>Slots divided by the slot-weeks each surviving block uses: weeks to first flush, plus the gaps between further flushes, plus turnaround, all times the share that survive incubation. The page gives the largest whole number of blocks you can start per week and warns when your plan needs more.</p>
+    <h3>How much cash do I need before the first sale?</h3>
+    <p>Blocks are paid for at the start, but nothing sells until incubation and the first flush are done. The page simulates week by week and prints the lowest cumulative cash point, the week it happens and the week cash turns positive again.</p>
+    <h3>What contamination rate can I afford?</h3>
+    <p>The page solves for the contamination rate at which a started block earns exactly zero, given your yields and price, and shows a table of weekly profit across contamination and price so you can see the cliff.</p>
+    <h3>Does it store my numbers or contact anyone?</h3>
+    <p>No. It runs in this browser tab, saves nothing and sends nothing. You can download the week-by-week plan as a CSV.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, agronomic, food-safety or financial advice, and it does not replace your growing experience, your local health department's rules, or your own judgment. Check every figure against your own records before you buy blocks or build a room.</p>
+    <p><strong>Not affiliated.</strong> This tool is independent; it is not sponsored, endorsed or connected to any spawn supplier, grower association or software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>plan_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../microgreens-tray-planner/">microgreens tray planner</a> does the same weekly-slot thinking for trays, the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a> and the <a href="../csa-share-pricing-calculator/">CSA share pricing calculator</a> cover the selling side, and the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> prices what you make from the harvest.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, DEFAULTS, weeksCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const KEYS = Object.keys(DEFAULTS);
+    let last = null;
+
+    function read() { const o = {}; for (const k of KEYS) { const el = document.getElementById(k); if (el) o[k] = el.value; } return o; }
+    function write(o) { for (const k of KEYS) { const el = document.getElementById(k); if (el) el.value = o[k]; } }
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run() {
+      const r = analyze(read());
+      last = r;
+      if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${money(s.profitPerBlock)} per block started</strong> with ${s.flushes} flush${s.flushes === 1 ? "" : "es"} · <strong>${money(s.weeklyProfit)} a week</strong> after fixed costs · room carries up to <strong>${s.maxStarts} starts a week</strong> (you use about ${Math.ceil(s.peakSlots)} of ${s.slots} slots) · break-even contamination ${s.breakEvenContam.toFixed(0)}%, break-even price ${s.breakEvenPrice === null ? "n/a" : "$" + s.breakEvenPrice.toFixed(2)}/lb · first sale week ${s.firstSale ?? "n/a"} · lowest cash ${money(s.lowCash)} in week ${s.lowWeek || "n/a"}`;
+      const pill = (l) => (l === "high" ? "high" : l === "medium" ? "medium" : "info");
+      const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${pill(w.level)}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>Starts fit the room and each block earns more than it costs.</p></div>`;
+      $("#flush-rows").innerHTML = r.table.map((t) => `<tr><td class="n">${t.flushes}${t.flushes === s.flushes ? " ✓" : ""}</td><td class="n">${t.yieldLb.toFixed(2)}</td><td class="n">${money(t.profit)}</td><td class="n">${t.slotWeeks}</td><td class="n">${t.profitPerSlotWeek.toFixed(2)}</td><td class="n">${money(t.marginalPerAdded)}</td></tr>`).join("");
+      $("#sens-head").innerHTML = `<tr><th scope="col">Contamination</th>${r.sens[0].cells.map((c) => `<th scope="col" class="n">$${c.price.toFixed(2)}/lb</th>`).join("")}</tr>`;
+      $("#sens-rows").innerHTML = r.sens.map((row) => `<tr><td>${row.contamination}%</td>${row.cells.map((c) => `<td class="n">${money(c.weekly)}</td>`).join("")}</tr>`).join("");
+      $("#week-rows").innerHTML = r.weeks.map((w) => `<tr><td class="n">${w.week}</td><td class="n">${Math.round(w.occupied)}</td><td class="n">${w.harvestLb.toFixed(0)}</td><td class="n">${money(w.income)}</td><td class="n">${money(w.spend)}</td><td class="n">${money(w.cash)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Plan updated.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calc").addEventListener("click", () => { run(); record("plan_built"); });
+    $("#load-ok").addEventListener("click", () => { write(DEFAULTS); run(); record("example_loaded"); status.textContent = "Worked example: a made-up oyster-style room with 200 slots, 40 blocks started a week and 8% contamination. Try raising contamination or dropping the price."; });
+    $("#reset").addEventListener("click", () => { write(DEFAULTS); report.hidden = true; last = null; status.textContent = "Change any number, then click Plan the room."; });
+    $("#dl-csv").addEventListener("click", () => { if (last && last.summary) { record("plan_downloaded"); download("mushroom-room-plan.csv", weeksCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+      <li><a href="../401k-plan-fee-calculator/" data-pf-to="401k-plan-fee-calculator">401(k) Plan Fee Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mushroom-fruiting-room-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/?pfEmbed=1&quot; title=&quot;Mushroom farm planner: flushes, room capacity, cash and break-even — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="mushroom-fruiting-room-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/mushroom-fruiting-room-planner/" data-pf-embed-title="Mushroom farm planner: flushes, room capacity, cash and break-even — free, private" data-pf-embed-slug="mushroom-fruiting-room-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="mushroom-fruiting-room-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="mushroom-fruiting-room-planner" data-pf-link-amount=""></script>
+</body>
+</html>

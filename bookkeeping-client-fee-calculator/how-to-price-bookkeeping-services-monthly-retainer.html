@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Bookkeeping Services as a Monthly Retainer</title>
+  <meta name="description" content="How to work out a monthly bookkeeping retainer: count the work each client brings, time it by how clean the books are, add software…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bookkeeping-client-fee-calculator/how-to-price-bookkeeping-services-monthly-retainer.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a monthly bookkeeping retainer?", "acceptedAnswer": {"@type": "Answer", "text": "Count the work the client brings each month (transactions, accounts to reconcile, payroll runs, AR and AP items, sales-tax filings), turn it into your own minutes, multiply the hours by your target hourly rate, add software, and add a buffer. On the worked example that is 9.67 hours, a $765.00 minimum and a $918.00 quote."}}, {"@type": "Question", "name": "How should I charge for bookkeeping cleanup?", "acceptedAnswer": {"@type": "Answer", "text": "As a one-time fee, separate from the retainer: the monthly workload for each catch-up month, times a slow-down multiplier because old books are slower, times your rate and buffer. On the worked example three months is 36.25 hours and $3,262.50."}}, {"@type": "Question", "name": "How do I know if an existing client is underpaying me?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the fee, less software, by the hours you really spend. On the worked roster five of seven clients are below $75.00 an hour and raising them to target adds $1,240.00 a month."}}, {"@type": "Question", "name": "What if a competitor quotes less?", "acceptedAnswer": {"@type": "Answer", "text": "Work out what you would earn at their price. At $600.00 against the $765.00 minimum the worked example earns $57.93 an hour; the walk-away price is $583.75, so it is below the minimum but above the floor."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bookkeeping-client-fee-calculator/how-to-price-bookkeeping-services-monthly-retainer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Price Bookkeeping Services as a Monthly Retainer">
+<meta property="og:description" content="How to work out a monthly bookkeeping retainer: count the work each client brings, time it by how clean the books are, add software…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bookkeeping-client-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Price Bookkeeping Services as a Monthly Retainer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../bookkeeping-client-fee-calculator/">What should you charge a new bookkeeping client each month?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Price Bookkeeping Services as a Monthly Retainer</span></span></nav>
+  <p class="note"><a href="./">Bookkeeping Client Fee Calculator</a> · guide</p>
+  <h1>How to price bookkeeping services as a monthly retainer</h1>
+  <p>Short answer: <strong>charge at least your target hourly rate times the hours the client really takes, plus software, and quote above that with a buffer</strong>. The hours come from counting the work, not from a feeling about the client. The <a href="./">calculator</a> does it for a prospect and for your whole roster.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> The volumes, minutes and rates are illustrative, not market rates, not a fee survey and not advice. Replace them with your own timed numbers.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li>Count a typical month: transactions, accounts to reconcile, payroll runs, invoices and bills, sales-tax filings.</li>
+    <li>Give each a minutes-per-unit figure from your own time tracking. Transactions are the one that moves most with the state of the books, so use a clean, an average and a messy figure.</li>
+    <li>Add a fixed block for the monthly review and client questions.</li>
+    <li>Hours x your target hourly rate plus software is the <strong>minimum fee</strong>. Add a buffer percent for the quote.</li>
+    <li>The <strong>walk-away price</strong> is hours x a floor rate (a share of your target) plus software. Below it, decline or re-scope.</li>
+    <li>Catch-up months are a <strong>one-time cleanup fee</strong>: monthly workload x a slow-down multiplier x rate x buffer, with no software charge.</li>
+  </ol>
+
+  <h2>A worked prospect</h2>
+  <p>300 transactions a month, 3 accounts, 1 payroll run, 40 AR and AP items, 1 sales-tax filing, average books. Defaults: 1 minute a transaction, 20 minutes to reconcile an account, 25 per payroll run, 3 per AR or AP item, 45 per filing, a 30-minute review, $40 of software, a $75 target, a 20 percent buffer and a 75 percent floor.</p>
+  <ul>
+    <li>Minutes: 300 + 60 + 25 + 120 + 45 + 30 = 580, or <strong>9.67 hours</strong>.</li>
+    <li>Minimum fee: 9.67 x $75.00 + $40.00 = <strong>$765.00</strong>. Quote with the buffer: <strong>$918.00</strong>.</li>
+    <li>Walk-away price: 9.67 x $56.25 + $40.00 = <strong>$583.75</strong>.</li>
+    <li>If the books were clean the minimum would be $577.50; if messy, $1,140.00. The same client is two different prices depending on what you find.</li>
+    <li>Three months of cleanup: 3 x 580 x 1.25 minutes is 36.25 hours, quoted at <strong>$3,262.50</strong>.</li>
+    <li>A competitor quotes $600.00: after software you would earn <strong>$57.93</strong> an hour. That is below your minimum and above your floor, so a judgment call, not an automatic yes.</li>
+  </ul>
+
+  <h2>A worked roster</h2>
+  <p>Seven existing clients, paying $3,195.00 a month in total for 52.5 hours. Blended, after software, that is $56.95 an hour against a $75.00 target.</p>
+  <ul>
+    <li>Five of seven are below target, and raising them to it adds <strong>$1,240.00</strong> a month, which lifts the blended rate to $80.57 an hour.</li>
+    <li>The lowest is a boutique paying $275.00 for 7 hours, <strong>$35.71</strong> an hour, which needs <strong>$275.00</strong> more (100 percent) to reach $550.00.</li>
+    <li>One client pays $20.00 below target; that is a small raise that is easy to ask for. Start there, then the largest gaps.</li>
+  </ul>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Minutes you have actually timed, per task. Defaults are placeholders.</li>
+    <li>Hours you really spend on each existing client, including email and calls, not the hours you billed or budgeted.</li>
+    <li>Your target hourly rate, which only you can set.</li>
+  </ol>
+  <p>Your engagement letter, scope and any professional or licensing rules where you work come first. This is arithmetic, not a view on what a client should accept.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I price a monthly bookkeeping retainer?</h3>
+  <p>Count the work the client brings each month (transactions, accounts to reconcile, payroll runs, AR and AP items, sales-tax filings), turn it into your own minutes, multiply the hours by your target hourly rate, add software, and add a buffer. On the worked example that is 9.67 hours, a $765.00 minimum and a $918.00 quote.</p>
+  <h3>How should I charge for bookkeeping cleanup?</h3>
+  <p>As a one-time fee, separate from the retainer: the monthly workload for each catch-up month, times a slow-down multiplier because old books are slower, times your rate and buffer. On the worked example three months is 36.25 hours and $3,262.50.</p>
+  <h3>How do I know if an existing client is underpaying me?</h3>
+  <p>Divide the fee, less software, by the hours you really spend. On the worked roster five of seven clients are below $75.00 an hour and raising them to target adds $1,240.00 a month.</p>
+  <h3>What if a competitor quotes less?</h3>
+  <p>Work out what you would earn at their price. At $600.00 against the $765.00 minimum the worked example earns $57.93 an hour; the walk-away price is $583.75, so it is below the minimum but above the floor.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, accounting or legal advice, and it is not a market rate or fee survey. You are responsible for verifying its output, for the numbers you enter, for your engagement terms and for any professional rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../nsa-idr-offer-calculator/" data-pf-to="nsa-idr-offer-calculator">No Surprises Act IDR Offer Calculator — free, private, in your browser</a></li>
+      <li><a href="../nz-gst-registration-checker/" data-pf-to="nz-gst-registration-checker">New Zealand GST registration checker: do you have to register? Free, private</a></li>
+      <li><a href="../nz-sole-trader-tax-set-aside-calculator/" data-pf-to="nz-sole-trader-tax-set-aside-calculator">New Zealand Self-Employed Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../online-business-valuation-calculator/" data-pf-to="online-business-valuation-calculator">Online Business Valuation Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bookkeeping-client-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="bookkeeping-client-fee-calculator"></script>
+</body>
+</html>

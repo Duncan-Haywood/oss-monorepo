@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions secrets: inherit Check vs. zizmor</title>
+  <meta name="description" content="zizmor's secrets-inherit audit already flags secrets: inherit on any reusable-workflow call, local or external.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/vs-zizmor.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GitHub Actions secrets: inherit Check vs. zizmor">
+  <meta property="og:description" content="zizmor's secrets-inherit audit flags the pattern; it does not check whether a fork can reach it. This tool adds that reachability check, free in your browser.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/vs-zizmor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does zizmor already catch secrets: inherit?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the pattern itself. zizmor is an open-source, MIT-licensed static analysis CLI (installed with pip install zizmor or cargo install zizmor) whose secrets-inherit audit, per its own documentation, detects excessive secret inheritance between a calling workflow and a reusable (called) workflow -- any job whose uses: calls a reusable workflow with secrets: inherit, local (./.github/workflows/file.yml) or external (owner/repo/.github/workflows/file.yml@ref) alike, on the reasoning that secrets: inherit violates the principle of least authority and makes it impossible to tell which exact secrets a reusable workflow ran with. This checker's secrets-inherit-external-workflow finding is the external-repository slice of that same pattern."}},{"@type":"Question","name":"What does zizmor's secrets-inherit audit not check?","acceptedAnswer":{"@type":"Answer","text":"Per its published documentation and source, zizmor's secrets-inherit audit does not check whether the job carrying secrets: inherit is reachable from a pull_request_target or workflow_run trigger -- it flags the inheritance itself, regardless of which trigger runs the job or whether a fork can raise it. This checker's second finding, secrets-inherit-untrusted-trigger, is exactly that reachability check: secrets: inherit on a job whose workflow is triggered by pull_request_target or workflow_run, where a stranger's fork controls the event."}},{"@type":"Question","name":"So is this checker just a narrower copy of zizmor?","acceptedAnswer":{"@type":"Answer","text":"For one of its two findings, yes -- secrets-inherit-external-workflow covers ground zizmor's secrets-inherit audit already covers, and covers more broadly (zizmor also flags a local reusable-workflow call, which this tool does not, since a local call carries no different-repository risk). This tool's reason to exist is the other finding: secrets-inherit-untrusted-trigger, the pull_request_target/workflow_run reachability check that is outside the stated scope of zizmor's audit. If you already run zizmor, this tool adds that one check; it does not replace zizmor."}},{"@type":"Question","name":"Why use a narrower tool instead of just running zizmor?","acceptedAnswer":{"@type":"Answer","text":"Two reasons, and only one is about coverage. First, zizmor is a CLI you install and point at files or a repository; this tool is a page you paste one file into, with nothing to install, which is faster for a single workflow you already have open. Second, and the one that matters: the untrusted-trigger finding is not in zizmor's secrets-inherit audit at all, so a clean zizmor scan can still carry a fork-reachable secrets: inherit call that only this tool's second finding names."}},{"@type":"Question","name":"Does this tool need a GitHub token the way zizmor sometimes does?","acceptedAnswer":{"@type":"Answer","text":"No, never. zizmor documents an optional online mode -- set GH_TOKEN, GITHUB_TOKEN, or ZIZMOR_GITHUB_TOKEN -- for audits that benefit from GitHub API access. This tool has no online mode to opt into: nothing here talks to a server under any configuration, so there is no token to supply."}},{"@type":"Question","name":"Is this page affiliated with zizmor or its maintainers?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source at github.com/zizmorcore/zizmor and docs.zizmor.sh."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #9a3412; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GitHub Actions secrets: inherit Check vs. zizmor — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-secrets-inherit-check/">Does secrets: inherit hand your secrets to the wrong workflow?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">GitHub Actions secrets: inherit Check vs. zizmor</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; GitHub Actions secrets: inherit Check</a></p>
+    <h1>GitHub Actions secrets: inherit Check vs. zizmor</h1>
+    <p class="lede">zizmor's <code>secrets-inherit</code> audit already flags <code>secrets: inherit</code> on a
+      reusable-workflow call, local or external. This tool's matching finding covers the same external-workflow
+      ground. What it adds is the one question that audit does not ask: is the job reachable from a stranger's
+      fork in the first place?</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>zizmor</strong> (<code>github.com/zizmorcore/zizmor</code>) is an open-source, MIT-licensed static
+        analysis tool for GitHub Actions, installed with <code>pip install zizmor</code> or
+        <code>cargo install zizmor</code> and run against workflow files or a whole repository. Its
+        <code>secrets-inherit</code> audit, per its own documentation, detects excessive secret inheritance
+        between a calling workflow and a reusable (called) workflow: any job whose <code>uses:</code> calls a
+        reusable workflow with <code>secrets: inherit</code>, whether that workflow is local
+        (<code>./.github/workflows/file.yml</code>) or external
+        (<code>owner/repo/.github/workflows/file.yml@ref</code>), on the reasoning that <code>secrets: inherit</code>
+        violates the principle of least authority and makes it impossible to tell which exact secrets a reusable
+        workflow actually ran with.
+      </p>
+      <p>
+        <strong>This checker</strong> makes the narrower <code>secrets-inherit-external-workflow</code> finding on
+        the same external-repository pattern zizmor already covers -- and covers less of it, since it does not
+        flag a local reusable-workflow call the way zizmor does. What it adds is
+        <code>secrets-inherit-untrusted-trigger</code>: <code>secrets: inherit</code> on a job whose workflow is
+        triggered by <code>pull_request_target</code> or <code>workflow_run</code>, where a fork's pull request
+        controls the event and the job still runs with the base repository's context. Per zizmor's published
+        documentation and source, its <code>secrets-inherit</code> audit does not check which trigger a job runs
+        on or whether a fork can reach it -- it flags the inheritance on its own, regardless of reachability.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want to know whether any job in my repo hands a reusable workflow every secret with <code>secrets: inherit</code>, local or external.</td><td>zizmor's <code>secrets-inherit</code> audit -- it covers both, this tool only the external half.</td></tr>
+          <tr><td>I want to know whether a <code>pull_request_target</code> or <code>workflow_run</code> job -- one a fork can trigger -- is the one holding <code>secrets: inherit</code>.</td><td>This checker -- zizmor's audit does not check the trigger or fork-reachability at all.</td></tr>
+          <tr><td>I want one maintained scanner covering dozens of GitHub Actions security patterns beyond secret inheritance -- permissions, injection, cache poisoning, impostor commits, and more.</td><td>zizmor -- that breadth is its whole job; this tool checks only the two <code>secrets: inherit</code> patterns above.</td></tr>
+          <tr><td>I don't want to install a CLI (pip or cargo) just to check one file.</td><td>This checker -- it is a page, not a package. It only makes sense as a substitute for the external-workflow finding, though; for the trigger-reachability finding there is nothing else to substitute for.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">Run zizmor for full coverage of the inheritance pattern, including local reusable workflows. This tool is worth a separate pass specifically for the trigger question -- a repository can pass zizmor's <code>secrets-inherit</code> audit today and still have a <code>pull_request_target</code> or <code>workflow_run</code> job handing a fork-reachable run every secret it can see, and nothing in that audit's stated scope would flag it.</p>
+      <p><a class="cta" href="./">Run the free secrets: inherit check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Does zizmor already catch secrets: inherit?</h3>
+      <p>Yes, for the pattern itself. zizmor is an open-source, MIT-licensed static analysis CLI (installed with <code>pip install zizmor</code> or <code>cargo install zizmor</code>) whose <code>secrets-inherit</code> audit, per its own documentation, detects excessive secret inheritance between a calling workflow and a reusable (called) workflow -- any job whose <code>uses:</code> calls a reusable workflow with <code>secrets: inherit</code>, local (<code>./.github/workflows/file.yml</code>) or external (<code>owner/repo/.github/workflows/file.yml@ref</code>) alike, on the reasoning that <code>secrets: inherit</code> violates the principle of least authority and makes it impossible to tell which exact secrets a reusable workflow ran with. This checker's <code>secrets-inherit-external-workflow</code> finding is the external-repository slice of that same pattern.</p>
+      <h3>What does zizmor's secrets-inherit audit not check?</h3>
+      <p>Per its published documentation and source, zizmor's <code>secrets-inherit</code> audit does not check whether the job carrying <code>secrets: inherit</code> is reachable from a <code>pull_request_target</code> or <code>workflow_run</code> trigger -- it flags the inheritance itself, regardless of which trigger runs the job or whether a fork can raise it. This checker's second finding, <code>secrets-inherit-untrusted-trigger</code>, is exactly that reachability check: <code>secrets: inherit</code> on a job whose workflow is triggered by <code>pull_request_target</code> or <code>workflow_run</code>, where a stranger's fork controls the event.</p>
+      <h3>So is this checker just a narrower copy of zizmor?</h3>
+      <p>For one of its two findings, yes -- <code>secrets-inherit-external-workflow</code> covers ground zizmor's <code>secrets-inherit</code> audit already covers, and covers more broadly (zizmor also flags a local reusable-workflow call, which this tool does not, since a local call carries no different-repository risk). This tool's reason to exist is the other finding: <code>secrets-inherit-untrusted-trigger</code>, the <code>pull_request_target</code>/<code>workflow_run</code> reachability check that is outside the stated scope of zizmor's audit. If you already run zizmor, this tool adds that one check; it does not replace zizmor.</p>
+      <h3>Why use a narrower tool instead of just running zizmor?</h3>
+      <p>Two reasons, and only one is about coverage. First, zizmor is a CLI you install and point at files or a repository; this tool is a page you paste one file into, with nothing to install, which is faster for a single workflow you already have open. Second, and the one that matters: the untrusted-trigger finding is not in zizmor's <code>secrets-inherit</code> audit at all, so a clean zizmor scan can still carry a fork-reachable <code>secrets: inherit</code> call that only this tool's second finding names.</p>
+      <h3>Does this tool need a GitHub token the way zizmor sometimes does?</h3>
+      <p>No, never. zizmor documents an optional online mode -- set <code>GH_TOKEN</code>, <code>GITHUB_TOKEN</code>, or <code>ZIZMOR_GITHUB_TOKEN</code> -- for audits that benefit from GitHub API access. This tool has no online mode to opt into: nothing here talks to a server under any configuration, so there is no token to supply.</p>
+      <h3>Is this page affiliated with zizmor or its maintainers?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source at github.com/zizmorcore/zizmor and docs.zizmor.sh.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against secret exposure, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against zizmor -- it is a static page describing category facts sourced from zizmor's own public documentation and source, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-secrets-inherit-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-secrets-inherit-check"></script>
+</body>
+</html>

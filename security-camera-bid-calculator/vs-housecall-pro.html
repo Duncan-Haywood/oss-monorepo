@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. Housecall Pro | Security Camera Bid Calculator</title>
+<meta name="description" content="Housecall Pro is an account-based field service management platform for running a home service business: quoting, scheduling, invoicing and payments…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/vs-housecall-pro.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Housecall Pro">
+<meta property="og:description" content="Two different shapes: Housecall Pro is an account-based platform for running a home service company's whole operation.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Housecall Pro?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a security camera installer of any size will likely end up touching both. Housecall Pro is a field service management platform used across home service trades to run client management and online quoting, scheduling and dispatch, invoicing and online payments, and a client hub, tied to one account used on an ongoing basis across every job the company runs. This calculator does one narrower thing: starting from camera count and construction type, resolution and codec, frame rate and motion-only share, retention days wanted and the drives you actually plan to buy, switch PoE budget and camera draw, and run length, plus your loaded installer wage, burden, overhead, and target margin, it turns that into the storage the retention needs versus what the drives will actually hold, the PoE headroom against an 80% planning ceiling, any run past the 328 ft Ethernet limit, the installed price, price per camera, and the walk-away floor, before any of it touches a business-management system. It runs free in any browser, keeps no account, and uploads nothing you type. A security installer already scheduling crews, invoicing customers and taking payments across many jobs is better served by Housecall Pro or a comparable field service platform; an installer who wants an instant, private answer to what one camera job should cost, and whether the storage and PoE numbers on the quote actually hold up, before opening a business system, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Housecall Pro?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Housecall Pro. Housecall Pro is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1c5f7a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/vs-housecall-pro.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Housecall Pro — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-camera-bid-calculator/">Security Camera Installation Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Housecall Pro</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Security Camera Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. Housecall Pro</h1>
+<p class="lede">Two different shapes: Housecall Pro is an account-based platform for running a home service company's whole operation, including scheduling the crew and invoicing the customer once a job is priced. This page is a free, private worksheet for one question &mdash; what should this one camera install cost, and do the storage, PoE, and cable-run numbers on the quote actually hold up &mdash; before you send it.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Housecall Pro</strong> is a field service management platform used
+  by home service businesses &mdash; lawn care, cleaning, HVAC, plumbing,
+  security and other trades that dispatch technicians among them &mdash; to
+  run client management and online quoting, scheduling and crew dispatch,
+  invoicing and online payments, and a client-facing hub, tied to one
+  account used on an ongoing basis across every job the company runs.
+  Housecall Pro's own site is not reachable from this session to confirm
+  today's specific feature list, plan names, or pricing, so only its
+  well-documented identity and category are stated here: nothing about it
+  is invented, and no dollar figure for it appears on this page. Public
+  descriptions of that kind of field service software describe scheduling,
+  invoicing and collecting payment for a job once its scope and price
+  already exist; none describe resolving camera count, retention, PoE
+  budget, and run length into a correct price before you quote it &mdash;
+  which is the one thing this calculator does.
+</p>
+<p>
+  This calculator does none of what Housecall Pro does. It does not manage
+  a client list, dispatch a crew across a season, or collect a payment. It
+  takes one camera job's count and construction type (accessible attic,
+  drop ceiling, masonry, or a lift job), resolution, codec, frame rate and
+  the motion-only share of the day, the retention days you are quoting and
+  the drives you actually plan to buy, the PoE switch's rated budget and
+  each camera's draw, run length, and your loaded installer wage, payroll
+  burden, overhead, and target margin, and turns that into the storage the
+  quoted retention needs versus the days the fitted drives will actually
+  hold, the PoE headroom against an 80% planning ceiling, any run past the
+  328&nbsp;ft Ethernet limit, the installed price, the price per camera,
+  the walk-away floor, and a printable customer proposal for that one job.
+  It runs free in any browser, keeps no account, and uploads nothing you
+  type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need to manage clients, schedule crews, and invoice and collect payment for camera installs and other jobs across my whole business.</td><td>Housecall Pro, or a comparable field service platform &mdash; running that ongoing operation is not something this calculator does.</td></tr>
+<tr><td>What should I charge for this camera install, given the drops, cable, construction type, and my own wage and margin?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>Will the drives I'm about to buy actually hold the retention days I'm quoting?</td><td>This calculator's storage output &mdash; the retention the quote needs versus the days the drives deliver, shown separately on purpose.</td></tr>
+<tr><td>Is the PoE switch about to be overloaded once heaters and a spare port are counted?</td><td>This calculator's PoE budget check, flagged at an 80% planning ceiling.</td></tr>
+<tr><td>Is any run past the point where a mid-span switch, extender, or fibre is needed?</td><td>This calculator's run-length check.</td></tr>
+<tr><td>I already have jobs priced and need to schedule, invoice and collect payment across many customers, over a season.</td><td>Housecall Pro &mdash; built as an ongoing, account-based platform for exactly that job.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. Housecall Pro's tools are used through a paid account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most security installers get different value from each: Housecall Pro
+  (or a comparable field service platform) for managing clients,
+  scheduling crews and collecting payment across an ongoing business as
+  an account, and a private calculator like this one for an instant,
+  no-login answer to what one camera job should cost, and whether its
+  storage, PoE, and cable-run numbers hold up, before a business system is
+  involved. This page's own figures are a pricing model, not a project
+  record, a scheduled job, or a signed contract.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Housecall Pro?</h3>
+<p>They do different jobs, and a security camera installer of any size will likely end up touching both. Housecall Pro is a field service management platform used across home service trades to run client management and online quoting, scheduling and dispatch, invoicing and online payments, and a client hub, tied to one account used on an ongoing basis across every job the company runs. This calculator does one narrower thing: starting from camera count and construction type, resolution and codec, frame rate and motion-only share, retention days wanted and the drives you actually plan to buy, switch PoE budget and camera draw, and run length, plus your loaded installer wage, burden, overhead, and target margin, it turns that into the storage the retention needs versus what the drives will actually hold, the PoE headroom against an 80% planning ceiling, any run past the 328 ft Ethernet limit, the installed price, price per camera, and the walk-away floor, before any of it touches a business-management system. It runs free in any browser, keeps no account, and uploads nothing you type. A security installer already scheduling crews, invoicing customers and taking payments across many jobs is better served by Housecall Pro or a comparable field service platform; an installer who wants an instant, private answer to what one camera job should cost, and whether the storage and PoE numbers on the quote actually hold up, before opening a business system, is in the right place here.</p>
+<h3>Is this page affiliated with Housecall Pro?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Housecall Pro. Housecall Pro is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Security Camera Bid Calculator</a> to price your own job, or read the <a href="how-much-to-charge.html">pricing walkthrough</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not electrical, engineering, code, security, privacy, legal, tax, or contracting advice, and it does not replace a licensed installer, a manufacturer's specification, or the authority having jurisdiction. Verify every figure against your own equipment, payroll, and site conditions before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against Housecall Pro &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sewer-line-replace-bid-calculator/" data-pf-to="sewer-line-replace-bid-calculator">Sewer Line Replacement Bid Calculator</a></li>
+      <li><a href="../solar-pv-bid-calculator/" data-pf-to="solar-pv-bid-calculator">Solar PV Install Bid Calculator</a></li>
+      <li><a href="../standby-generator-bid-calculator/" data-pf-to="standby-generator-bid-calculator">Standby Generator Installation Bid Calculator</a></li>
+      <li><a href="../standby-generator-install-price-calculator/" data-pf-to="standby-generator-install-price-calculator">Standby Generator Install Price Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-camera-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-camera-bid-calculator"></script>
+</body></html>

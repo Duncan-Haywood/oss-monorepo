@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-dotenv-linter.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-grepping-the-codebase-by-hand.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html</loc></url>
+</urlset>

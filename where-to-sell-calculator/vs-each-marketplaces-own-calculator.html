@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. each marketplace's own fee calculator | Where to Sell Calculator</title>
+  <meta name="description" content="Every marketplace publishes a fee calculator for its own fees. None of them can tell you where to list…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/vs-each-marketplaces-own-calculator.html">
+  <meta property="og:title" content="This tool vs. each marketplace's own fee calculator">
+  <meta property="og:description" content="A marketplace's own calculator answers 'what will this cost me here?'. It cannot answer 'is here the right place to list it?">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just use each marketplace's own fee calculator?","acceptedAnswer":{"@type":"Answer","text":"Because each one is scoped to a single marketplace, and the question you are actually asking spans several. A marketplace calculator answers \"what will selling this here cost me\" accurately and from its own published schedule. It cannot answer \"should I sell it here\", because it has no figure for what any other channel would have paid, and no reason to produce one. To turn three correct single-channel answers into a ranking you have to reconcile them yourself, and that reconciliation — not the fee arithmetic — is where the mistakes happen."}},{"@type":"Question","name":"What goes wrong when I compare marketplace calculators by hand?","acceptedAnswer":{"@type":"Answer","text":"Four things, and each one is easy to miss. The fee bases differ: one marketplace's commission already includes payment processing while another bills processing separately, so the headline percentages are not the same kind of number and cannot be subtracted from each other. Fixed monthly costs are not per-sale costs, so a subscription only makes sense spread over the orders you actually expect that month. Returns are not symmetrical — channels differ in how often items come back, who pays the return postage, how much of the fee is refunded, and whether the item can be sold again. And a listing occupies shelf time: a channel that pays more per sale but takes twice as long to sell it can be the worse place to put finite cash."}},{"@type":"Question","name":"Is this page more accurate than the marketplace's own calculator?","acceptedAnswer":{"@type":"Answer","text":"No, and on its own fees a marketplace's calculator should be treated as the authority. It is maintained by the company that sets the fees, it reflects the current published schedule, it knows category-specific rates, and it can account for whatever your own account is actually charged — a store subscription tier, a promotion, a category exception. This page's rates are editable defaults that were current when it was written, and they are inputs rather than a fee schedule. What this page adds is not precision on one channel; it is one consistent comparison across all of them."}},{"@type":"Question","name":"So should I use both?","acceptedAnswer":{"@type":"Answer","text":"That is the honest recommendation. Use this page first, while the item is unlisted, to see which one or two channels are worth the effort at all and to catch the cases where the ranking is not what you assumed. Then check the winning channel's own calculator, with your own account's rates, before you price the listing. The two are sequential rather than competing: a ranking across channels, then a confirmation on the one you picked."}},{"@type":"Question","name":"Is this page affiliated with eBay, Etsy, Amazon, or any other marketplace?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by any marketplace named on it. Those names are used only to say which channels the comparison covers and to describe the publicly documented shape of each one's fees. No marketplace's calculator is reproduced, quoted, or evaluated here."}}]}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fbfbfa; --fg: #1a1a19; --muted: #5c5c58; --card: #fff;
+      --border: #e2e2dd; --accent: #4b32a8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17181a; --fg: #ececeb; --muted: #a3a39e; --card: #202124;
+        --border: #34353a; --accent: #b19cf2;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+    h1 { font-size: 1.8rem; line-height: 1.2; margin: 0 0 .5rem; max-width: 26ch; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 .6rem; }
+    h3 { font-size: 1rem; margin: 1.4rem 0 .4rem; }
+    p.lede { color: var(--muted); max-width: 44rem; font-size: 1.05rem; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    section { background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .93rem; }
+    th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border);
+      vertical-align: top; }
+    thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .fine { font-size: .87rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/vs-each-marketplaces-own-calculator.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. each marketplace's own fee calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../where-to-sell-calculator/">Where to Sell Calculator — compare marketplace fees on one item</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. each marketplace's own fee calculator</span></span></nav>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Where to Sell Calculator</a></p>
+  <h1>This tool vs. each marketplace&rsquo;s own fee calculator</h1>
+  <p class="lede">Every marketplace publishes a calculator for its own fees, and on its own fees each one is the authority. None of them can tell you <em>where</em> to list, because none of them has a figure for what the other channels would have paid. That comparison is the job of this page &mdash; free, in your browser, before the item is listed anywhere.</p>
+
+  <section>
+    <h2>What each one is for</h2>
+    <p>
+      A marketplace&rsquo;s own calculator answers one question completely:
+      <em>what will selling this item here cost me?</em> It is maintained by
+      the company that sets the fees, it reflects the schedule currently
+      published, and it usually knows the category-specific rates and the
+      account-level details &mdash; a store subscription tier, a promotion
+      &mdash; that a third party cannot see. On its own channel it should be
+      treated as the authority, and this page does not compete with it.
+    </p>
+    <p>
+      What it cannot do is rank. It has no figure for what a different channel
+      would have paid, and no reason to produce one. So a seller holding one
+      unlisted item opens three calculators, writes three numbers down, and
+      compares them &mdash; and that reconciliation step, not the fee
+      arithmetic inside any of the three, is where the answer goes wrong.
+    </p>
+
+    <div class="scroll">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">What you want to know</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I have decided to list on this one marketplace. Exactly what will its fees be on my account, in my category?</td><td>That marketplace&rsquo;s own calculator &mdash; it is the authority on its own schedule, and this page is not.</td></tr>
+          <tr><td>I am holding one item and have not listed it anywhere. Which channel leaves me the most?</td><td>This tool &mdash; type the item once and every channel is ranked side by side on the same fee base.</td></tr>
+          <tr><td>Channel A pays more per sale but Channel B sells in half the time. Which should get the listing?</td><td>This tool &mdash; it ranks on profit per day of wait and on what a listing is worth per month of shelf, not only on profit per sale.</td></tr>
+          <tr><td>Is a channel with a flat monthly plan worth it at the volume I actually do?</td><td>This tool &mdash; it spreads a monthly cost over the orders you expect, so the plan stops looking like a per-sale fee.</td></tr>
+          <tr><td>Do returns change the ranking?</td><td>This tool &mdash; it models per-channel return rate, who pays return postage, how much fee comes back, and how often the item is resellable.</td></tr>
+          <tr><td>What price would this channel need to match the best one?</td><td>This tool &mdash; it prints the matching price and the break-even price per channel.</td></tr>
+          <tr><td>Do I need an account, a subscription, or a sign-in?</td><td>This tool: none of the three. It is a static page and the arithmetic runs in your browser.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Four things that go wrong when you reconcile them by hand</h2>
+    <p>
+      These are the reasons a page like this exists at all. Each one is a
+      difference between channels that a single-channel calculator has no
+      occasion to mention, because within its own channel it is a constant.
+    </p>
+
+    <h3>1. The headline percentages are not the same kind of number</h3>
+    <p>
+      Marketplaces bundle their fees differently. On some, the selling
+      commission already covers payment processing, so the single percentage
+      you see is the whole story. On others, processing is billed separately as
+      its own percentage plus a fixed amount per order, and a third charge
+      applies per listing whether or not the item ever sells. Subtracting one
+      headline rate from another therefore compares two quantities that do not
+      contain the same things, and the gap it reports is not the gap in what
+      you keep. This page puts every channel through one model &mdash;
+      commission, processing, per-listing and monthly costs as separate inputs
+      &mdash; so what is compared at the end is net, not headline.
+    </p>
+
+    <h3>2. A monthly plan is not a per-sale fee</h3>
+    <p>
+      A flat monthly subscription does not change with the sale, so it cannot
+      be expressed as a percentage of one order without knowing how many orders
+      the month will hold. At one sale a month it is the largest cost on the
+      item; at fifty it rounds to nothing. A per-item calculator has no volume
+      to spread it over and either omits it or attributes the whole month to
+      the one item on screen. This page asks for expected monthly volume and
+      amortises the plan across it, which is the only way that cost is
+      comparable to a percentage on a rival channel.
+    </p>
+
+    <h3>3. Returns are not symmetrical between channels</h3>
+    <p>
+      Channels differ in how often items come back, who ends up paying the
+      return postage, how much of the original fee is refunded to the seller,
+      and how often a returned item can be sold again rather than written down.
+      Those four together decide what you <em>expect to keep</em>, which can
+      rank channels differently from what you are paid on a sale that sticks.
+      A single-channel calculator has no cross-channel comparison to make, so
+      it reports the clean sale. This page reports both, and the ranking after
+      returns is the one it leads with.
+    </p>
+
+    <h3>4. A listing occupies shelf time, and shelf time is finite</h3>
+    <p>
+      The channel that pays most per sale is not always the channel to list on.
+      If it takes twice as long to sell, the same cash and the same item are
+      tied up twice as long, and a slower channel may also renew the listing
+      &mdash; and charge for it again &mdash; before the item moves. For a
+      seller with finite stock and finite cash the question is closer to return
+      per month of shelf than profit per sale. No marketplace&rsquo;s own
+      calculator models this, because the alternative use of the shelf is
+      always another marketplace. This page ranks on it explicitly, and says so
+      when the two rankings disagree.
+    </p>
+    <p class="fine">
+      The sell-through and days-to-sell figures it starts with are illustrative
+      defaults, not measurements of how fast any marketplace sells. Replace
+      them with your own sold-listing history before trusting the shelf-time
+      ranking &mdash; that is the input it is most sensitive to.
+    </p>
+  </section>
+
+  <section>
+    <h2>What the marketplaces&rsquo; own calculators do better</h2>
+    <p>
+      The honest half of the comparison. On the question they are built for,
+      they beat this page, and a seller who uses only this one is missing
+      things:
+    </p>
+    <ul>
+      <li><strong>They are the current schedule; this page is not.</strong> The rates here are editable defaults that were accurate when the page was written, and they are inputs rather than a published fee schedule. Marketplaces change fees. The marketplace&rsquo;s own calculator changes with them on the day.</li>
+      <li><strong>They know your category.</strong> Referral and final-value rates commonly vary by category, and some categories carry exceptions and caps. This page uses one rate per channel &mdash; the one you type.</li>
+      <li><strong>They know your account.</strong> A store subscription tier, a promotional period, a seller-level discount, a regional difference: all of that is visible to the marketplace and invisible here.</li>
+      <li><strong>They can see your real orders.</strong> Some are wired into your actual listings and settlement reports. This page has no account, no connection, and no order history &mdash; every figure in it is one you supplied.</li>
+    </ul>
+    <p>
+      So the sequence that gets the most out of both is: rank the channels here
+      while the item is still unlisted, then confirm on the winning
+      channel&rsquo;s own calculator with your own account&rsquo;s rates before
+      you set the price. This page makes no claim about any marketplace
+      calculator&rsquo;s accuracy or current terms, and does not evaluate one
+      &mdash; it describes only the shape of what each kind of tool is for.
+    </p>
+    <p class="fine">No account and no sign-in: this is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded.</p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Why not just use each marketplace's own fee calculator?</h3>
+    <p>Because each one is scoped to a single marketplace, and the question you are actually asking spans several. A marketplace calculator answers "what will selling this here cost me" accurately and from its own published schedule. It cannot answer "should I sell it here", because it has no figure for what any other channel would have paid, and no reason to produce one. To turn three correct single-channel answers into a ranking you have to reconcile them yourself, and that reconciliation &mdash; not the fee arithmetic &mdash; is where the mistakes happen.</p>
+    <h3>What goes wrong when I compare marketplace calculators by hand?</h3>
+    <p>Four things, and each one is easy to miss. The fee bases differ: one marketplace's commission already includes payment processing while another bills processing separately, so the headline percentages are not the same kind of number and cannot be subtracted from each other. Fixed monthly costs are not per-sale costs, so a subscription only makes sense spread over the orders you actually expect that month. Returns are not symmetrical &mdash; channels differ in how often items come back, who pays the return postage, how much of the fee is refunded, and whether the item can be sold again. And a listing occupies shelf time: a channel that pays more per sale but takes twice as long to sell it can be the worse place to put finite cash.</p>
+    <h3>Is this page more accurate than the marketplace's own calculator?</h3>
+    <p>No, and on its own fees a marketplace's calculator should be treated as the authority. It is maintained by the company that sets the fees, it reflects the current published schedule, it knows category-specific rates, and it can account for whatever your own account is actually charged &mdash; a store subscription tier, a promotion, a category exception. This page's rates are editable defaults that were current when it was written, and they are inputs rather than a fee schedule. What this page adds is not precision on one channel; it is one consistent comparison across all of them.</p>
+    <h3>So should I use both?</h3>
+    <p>That is the honest recommendation. Use this page first, while the item is unlisted, to see which one or two channels are worth the effort at all and to catch the cases where the ranking is not what you assumed. Then check the winning channel's own calculator, with your own account's rates, before you price the listing. The two are sequential rather than competing: a ranking across channels, then a confirmation on the one you picked.</p>
+    <h3>Is this page affiliated with eBay, Etsy, Amazon, or any other marketplace?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by any marketplace named on it. Those names are used only to say which channels the comparison covers and to describe the publicly documented shape of each one's fees. No marketplace's calculator is reproduced, quoted, or evaluated here.</p>
+    <p class="fine">Open the <a href="./">where to sell calculator</a> to rank your own item, read <a href="./does-it-actually-sell-there.html">a worked example of margin vs. turnover</a> for the case where the two rankings disagree, or see <a href="./returns-change-the-ranking.html">how returns can flip the answer</a>.</p>
+  </section>
+
+  <section>
+    <h2>Use it safely</h2>
+    <p class="fine">
+      <strong>Fee rates change.</strong> The defaults in the comparison tool were
+      current when it was written and are inputs, not a fee schedule. Confirm
+      against your own statement, or the marketplace&rsquo;s own calculator,
+      before pricing a catalogue against them.
+    </p>
+    <p class="fine">
+      <strong>No warranty.</strong> This tool is provided free and as-is, without
+      warranty of any kind, express or implied. It is not tax, financial, or
+      business advice, and it does not replace a qualified professional.
+      <strong>You are responsible for reviewing and verifying its output before
+      relying on it</strong>, and for meeting any obligation it helps you prepare
+      for. To the maximum extent permitted by law, the authors accept no
+      liability for any loss or damage arising from its use.
+    </p>
+    <p class="fine">
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice. We do not promise uptime, backups of anything you type, or that a
+      URL will keep working. Do not use this as a system of record.
+    </p>
+    <p class="fine">
+      Local-only privacy: nothing you type is uploaded. This page is static and
+      makes no live comparison against any marketplace calculator &mdash; it
+      describes publicly documented fee shapes. <a href="LICENSE">License</a>
+    </p>
+    <p class="fine">
+      Free and open source. If it helped you pick the right channel for an item,
+      the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+      &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a>
+      is entirely optional and never changes what the tool does.
+    </p>
+  </section>
+</div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+      <li><a href="../clearance-markdown-planner/" data-pf-to="clearance-markdown-planner">Clearance Markdown Planner — free, private, in your browser</a></li>
+      <li><a href="../commercial-lease-abstract-reader/" data-pf-to="commercial-lease-abstract-reader">Commercial lease abstract in seconds — dates, rent schedule, red flags. Free, private</a></li>
+      <li><a href="../course-launch-revenue-calculator/" data-pf-to="course-launch-revenue-calculator">Course Launch Revenue Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=where-to-sell-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="where-to-sell-calculator"></script>
+</body>
+</html>

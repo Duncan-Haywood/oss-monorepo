@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Helm Values Schema Check — Find a values.yaml Typo Helm Won't</title>
+  <meta name="description" content="Paste a Helm chart's values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare…">
+  <meta property="og:title" content="Does your values.yaml actually match its own schema?">
+  <meta property="og:description" content="Check a Helm chart's values.yaml against values.schema.json without installing Helm -- catches the undeclared-field typo helm lint misses when…">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Helm Values Schema Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Validates a Helm chart's values.yaml against its own values.schema.json (JSON Schema) without running Helm. Flags fields values.yaml sets that the schema does not declare, schema-required fields missing from values.yaml, and type/enum/min/max mismatches. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't helm lint already catch this?","acceptedAnswer":{"@type":"Answer","text":"Only partly. helm lint applies values.schema.json if the chart ships one, but most schemas leave additionalProperties unset (JSON Schema's permissive default), so an undeclared field — the exact shape a typo like imgae instead of image takes — passes lint silently. This tool flags that case too, as informational rather than a hard failure, because it is very often exactly the mistake it looks like."}},{"@type":"Question","name":"Do I need Helm installed to use this?","acceptedAnswer":{"@type":"Answer","text":"No. It reads plain YAML and JSON text with its own parser — no Helm binary, no chart dependency resolution, no cluster, no network call, in the browser or the CLI."}},{"@type":"Question","name":"Is my values.yaml uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}},{"@type":"Question","name":"What JSON Schema features does it understand?","acceptedAnswer":{"@type":"Answer","text":"type, properties, required, additionalProperties, enum, minimum, maximum, and items for arrays — the subset that covers the overwhelming majority of real Helm values.schema.json files. It does not evaluate $ref, oneOf/anyOf/allOf, or regex patterns; a schema using those is read but those specific rules are not checked."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.high { background: #fde8e8; color: #7f1d1d; }
+    .pill.medium { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Does your values.yaml actually match its own schema?","item":"https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does your values.yaml actually match its own schema? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does your values.yaml actually match its own schema?</span></span></nav>
+  <header>
+    <p class="note">HELM VALUES SCHEMA CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your values.yaml actually match its own schema?</h1>
+    <p>Paste a Helm chart's <code>values.yaml</code> and its <code>values.schema.json</code> and get a deterministic report: every field <code>values.yaml</code> sets that the schema never declares -- the exact shape a typo like <code>imgae:</code> instead of <code>image:</code> takes, and <code>helm lint</code> misses unless the schema forbids extra fields outright -- plus every real schema violation (missing required field, wrong type, bad enum value, out-of-range number).</p>
+    <p class="note">Nothing is uploaded. Files you load are read in this browser and never leave your device. No Helm binary, no cluster, no network call.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your files</h2>
+    <div class="grid">
+      <div>
+        <label for="values-file">values.yaml, from a file (read locally, never uploaded)</label>
+        <input type="file" id="values-file" accept=".yaml,.yml,.txt">
+        <label for="values-input">…or paste values.yaml directly</label>
+        <textarea id="values-input" spellcheck="false" placeholder="image:&#10;  repository: nginx&#10;  tag: &quot;1.25&quot;&#10;replicaCount: 3"></textarea>
+      </div>
+      <div>
+        <label for="schema-file">values.schema.json, from a file (read locally, never uploaded)</label>
+        <input type="file" id="schema-file" accept=".json,.txt">
+        <label for="schema-input">…or paste values.schema.json directly</label>
+        <textarea id="schema-input" spellcheck="false" placeholder="{&#10;  &quot;type&quot;: &quot;object&quot;,&#10;  &quot;properties&quot;: { ... }&#10;}"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Check values against schema</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (typo included)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What Helm would silently accept, and what it would reject</h2>
+    <p id="summary"></p>
+    <div id="findings-block" hidden>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Field</th><th>Severity</th><th>Finding</th></tr></thead>
+        <tbody id="finding-rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same checker, zero dependencies, two files — run it against a chart repo before every release, no Helm install required:</p>
+    <pre class="cmd">node cli.mjs check chart/values.yaml chart/values.schema.json               # exit 1 on any real schema violation
+node cli.mjs check chart/values.yaml chart/values.schema.json --strict      # also fail on undeclared fields
+node cli.mjs check chart/values.yaml chart/values.schema.json --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install. It reads only the local files you name: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checks — and what it cannot</h2>
+    <p>It understands the JSON Schema subset that covers the overwhelming majority of real charts: <code>type</code>, <code>properties</code>, <code>required</code>, <code>additionalProperties</code>, <code>enum</code>, <code>minimum</code>/<code>maximum</code>, and <code>items</code> for arrays. See <a href="why-helm-silently-accepts-a-typo-in-values-yaml.html">why this class of typo happens</a> for how Helm's template engine actually behaves on an undefined key.</p>
+    <p class="note">Already have Helm installed? See <a href="vs-helm-lint.html">how this differs from <code>helm lint</code></a> — short version: same schema, but this also flags the undeclared-field case most schemas leave unguarded. A schema that matches values.yaml perfectly still says nothing about whether the chart's templates render correctly — this checks the data against its own contract, not the rendered manifests. Once you have rendered the chart, see <a href="../k8s-deprecated-api-check/">Kubernetes Deprecated API Check</a> for whether the output uses an apiVersion your target cluster will reject outright.</p>
+    <p class="note">Prefer to just read the two files side by side? See <a href="vs-checking-it-by-eye.html">what a manual read catches, and what gets hard as the schema grows nested fields</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Doesn't helm lint already catch this?</h3>
+    <p>Only partly. <code>helm lint</code> applies <code>values.schema.json</code> if the chart ships one, but most schemas leave <code>additionalProperties</code> unset (JSON Schema's permissive default), so an undeclared field — the exact shape a typo like <code>imgae</code> instead of <code>image</code> takes — passes lint silently. This tool flags that case too, as informational rather than a hard failure, because it is very often exactly the mistake it looks like.</p>
+    <h3>Do I need Helm installed to use this?</h3>
+    <p>No. It reads plain YAML and JSON text with its own parser — no Helm binary, no chart dependency resolution, no cluster, no network call, in the browser or the CLI.</p>
+    <h3>Is my values.yaml uploaded anywhere?</h3>
+    <p>No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+    <h3>What JSON Schema features does it understand?</h3>
+    <p><code>type</code>, <code>properties</code>, <code>required</code>, <code>additionalProperties</code>, <code>enum</code>, <code>minimum</code>, <code>maximum</code>, and <code>items</code> for arrays — the subset that covers the overwhelming majority of real Helm <code>values.schema.json</code> files. It does not evaluate <code>$ref</code>, <code>oneOf</code>/<code>anyOf</code>/<code>allOf</code>, or regex patterns; a schema using those is read but those specific rules are not checked.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or compliance advice, and it does not replace testing an actual <code>helm install --dry-run</code> against a real cluster. It checks the JSON Schema subset it supports against the values you supplied — it cannot prove your chart renders correctly, only report the mismatches it found. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Files you load are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkValues, SEVERITY } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      valuesFile: $("#values-file"), values: $("#values-input"),
+      schemaFile: $("#schema-file"), schema: $("#schema-input"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      findingsBlock: $("#findings-block"), findingRows: $("#finding-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderReport() {
+      let result;
+      try {
+        result = checkValues(els.values.value, els.schema.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const high = result.findings.filter((f) => f.severity === SEVERITY.HIGH).length;
+      const other = result.findings.length - high;
+      els.summary.innerHTML = result.findings.length
+        ? `<span class="bad">${result.fieldsChecked} field(s) checked: ${result.findings.length} finding(s) — ${high} would fail \`helm install --dry-run --validate\`${other ? `, ${other} informational (likely typos)` : ""}.</span>`
+        : `<span class="ok">${result.fieldsChecked} field(s) checked: values.yaml fully matches the schema.</span>`;
+
+      els.findingsBlock.hidden = result.findings.length === 0;
+      els.findingRows.innerHTML = result.findings.map((f) => {
+        const pillClass = f.severity === SEVERITY.HIGH ? "high" : "medium";
+        const pillText = f.severity === SEVERITY.HIGH ? "would fail" : "informational";
+        return `<tr>
+          <td><code>${escapeHtml(f.path)}</code></td>
+          <td><span class="pill ${pillClass}">${pillText}</span></td>
+          <td>${escapeHtml(f.title)}<div class="note">${escapeHtml(f.detail)}</div></td>
+        </tr>`;
+      }).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    function wireFileInput(inputEl, textareaEl, eventName) {
+      inputEl.addEventListener("change", () => {
+        const file = inputEl.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          textareaEl.value = String(reader.result || "");
+          record(eventName);
+        };
+        reader.readAsText(file);
+      });
+    }
+    wireFileInput(els.valuesFile, els.values, "file_loaded");
+    wireFileInput(els.schemaFile, els.schema, "file_loaded");
+
+    const EXAMPLE_VALUES = `image:
+  repositry: nginx
+  tag: "1.25"
+  pullPolicy: IfNotPresent
+replicaCount: 3
+service:
+  type: ClusterIP
+  port: 80
+`;
+    const EXAMPLE_SCHEMA = JSON.stringify({
+      type: "object",
+      properties: {
+        image: {
+          type: "object",
+          properties: {
+            repository: { type: "string" },
+            tag: { type: "string" },
+            pullPolicy: { type: "string", enum: ["Always", "IfNotPresent", "Never"] },
+          },
+          required: ["repository"],
+        },
+        replicaCount: { type: "integer", minimum: 1 },
+        service: {
+          type: "object",
+          properties: { type: { type: "string", enum: ["ClusterIP", "NodePort", "LoadBalancer"] }, port: { type: "integer" } },
+          additionalProperties: false,
+        },
+      },
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.values.value = EXAMPLE_VALUES;
+      els.schema.value = EXAMPLE_SCHEMA;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.values.value = "";
+      els.schema.value = "";
+      els.valuesFile.value = "";
+      els.schemaFile.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made -- counting really is off
+    // (the module remembers it), but a button reading "turn counting off"
+    // after that click tells the visitor it did not take.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=helm-values-schema-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/?pfEmbed=1&quot; title=&quot;Does your values.yaml actually match its own schema? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="helm-values-schema-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/" data-pf-embed-title="Does your values.yaml actually match its own schema?" data-pf-embed-slug="helm-values-schema-check"></script>
+</body>
+</html>

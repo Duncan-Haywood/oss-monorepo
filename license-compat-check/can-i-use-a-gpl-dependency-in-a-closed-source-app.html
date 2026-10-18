@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Can I Use a GPL Dependency in a Closed-Source App?</title>
+  <meta name="description" content="What GPL, LGPL, AGPL, MPL and SSPL dependencies mean for a closed-source product, a hosted SaaS and an open-source project, with the common fixes…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/license-compat-check/can-i-use-a-gpl-dependency-in-a-closed-source-app.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I use a GPL library in a closed-source app?", "acceptedAnswer": {"@type": "Answer", "text": "If you distribute the app, no: GPL requires the combined work to be released under the GPL. If you only run it on your own servers, the distribution trigger is not met, and a separate program you call over a socket or a pipe is generally treated as a separate work."}}, {"@type": "Question", "name": "Is LGPL safe for a proprietary app?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes if you link dynamically and let users replace the library, ship the license text, and offer the library's source. Static linking means you must let users relink with a modified version."}}, {"@type": "Question", "name": "What does AGPL change for a web service?", "acceptedAnswer": {"@type": "Answer", "text": "Its network clause says that if you modify the software and let users interact with it over a network, you must offer them the corresponding source. Running it unmodified is generally fine."}}, {"@type": "Question", "name": "Is Apache-2.0 compatible with GPL?", "acceptedAnswer": {"@type": "Answer", "text": "With GPL-3.0 and GPL-2.0-or-later, yes. The FSF treats Apache-2.0 as incompatible with GPL-2.0-only because of its patent terms."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/license-compat-check/can-i-use-a-gpl-dependency-in-a-closed-source-app.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Can I Use a GPL Dependency in a Closed-Source App?">
+<meta property="og:description" content="What GPL, LGPL, AGPL, MPL and SSPL dependencies mean for a closed-source product, a hosted SaaS and an open-source project, with the common fixes…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/license-compat-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Can I Use a GPL Dependency in a Closed-Source App? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../license-compat-check/">Can you ship these dependencies under your license?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Can I Use a GPL Dependency in a Closed-Source App?</span></span></nav>
+  <p><a href="./">← Back to License Compatibility Check</a></p>
+  <h1>Can I use a GPL dependency in a closed-source app?</h1>
+  <p>It depends on how you ship, not only on what you depend on. The same library can be fine in a hosted service, a problem in a downloadable app, and impossible in an MIT-licensed library. This page is the short version; the tool checks a whole dependency tree against your situation.</p>
+
+  <h2>The three situations</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Dependency</th><th>Closed-source, distributed</th><th>Hosted SaaS</th><th>Open source (MIT/Apache)</th></tr></thead>
+    <tbody>
+      <tr><td>MIT, BSD, ISC, Apache-2.0</td><td>Fine, keep notices</td><td>Fine</td><td>Fine</td></tr>
+      <tr><td>LGPL</td><td>Fine if dynamically linked and replaceable</td><td>Fine</td><td>Review: downstream users inherit LGPL duties</td></tr>
+      <tr><td>MPL-2.0, EPL, CDDL</td><td>Fine, changes to those files stay open</td><td>Fine</td><td>Fine, those files keep their license</td></tr>
+      <tr><td>GPL</td><td>Conflict: whole work must be GPL</td><td>Usually fine, no distribution</td><td>Conflict</td></tr>
+      <tr><td>AGPL</td><td>Conflict</td><td>Review: network clause if modified</td><td>Conflict</td></tr>
+      <tr><td>SSPL, BUSL, Elastic, RSAL</td><td>Review or conflict: not open source</td><td>Review or conflict: service and competition limits</td><td>Conflict</td></tr>
+      <tr><td>No license</td><td>No right to use or ship it</td><td>Same</td><td>Same</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Ways out of a conflict</h2>
+  <ul>
+    <li>Replace the dependency with a permissively licensed one.</li>
+    <li>Run it as a separate program and talk to it over a pipe, socket or HTTP, which is generally treated as arm's length.</li>
+    <li>Buy a commercial license from the copyright holder, which many dual-licensed projects sell.</li>
+    <li>Use a community fork under an OSI license, such as OpenSearch for Elasticsearch or Valkey for Redis.</li>
+    <li>Relicense your own project, if it is yours to relicense.</li>
+  </ul>
+
+  <h2>Check the whole tree</h2>
+  <pre>node cli.mjs scan --out deps.json
+node cli.mjs check deps.json --project proprietary-distributed</pre>
+  <p>Or paste the list into <a href="./">the tool</a>. For Python use <code>pip-licenses --format=json</code>; its output is read as-is. Run <a href="../license-drift-check/">License Drift Check</a> as well to catch a license that changes between releases.</p>
+
+  <h2>Common questions</h2>
+  <h3>Can I use a GPL library in a closed-source app?</h3>
+  <p>If you distribute the app, no: GPL requires the combined work to be released under the GPL. If you only run it on your own servers, the distribution trigger is not met, and a separate program you call over a socket or a pipe is generally treated as a separate work.</p>
+  <h3>Is LGPL safe for a proprietary app?</h3>
+  <p>Usually yes if you link dynamically and let users replace the library, ship the license text, and offer the library's source. Static linking means you must let users relink with a modified version.</p>
+  <h3>What does AGPL change for a web service?</h3>
+  <p>Its network clause says that if you modify the software and let users interact with it over a network, you must offer them the corresponding source. Running it unmodified is generally fine.</p>
+  <h3>Is Apache-2.0 compatible with GPL?</h3>
+  <p>With GPL-3.0 and GPL-2.0-or-later, yes. The FSF treats Apache-2.0 as incompatible with GPL-2.0-only because of its patent terms.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents apply a rules table of widely published license-compatibility positions to the license strings you supply. Nothing here is legal advice, and a verdict is a skim aid, not a legal opinion about your specific use. Verify with counsel before relying on it. <a href="./">Back to the tool</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../neon-bill-estimator/" data-pf-to="neon-bill-estimator">What will your Neon bill be, and what cuts it most?</a></li>
+      <li><a href="../node-version-drift-check/" data-pf-to="node-version-drift-check">Do your package.json, .nvmrc, Dockerfile and CI agree on Node.js?</a></li>
+      <li><a href="../npm-audit-triage/" data-pf-to="npm-audit-triage">Which npm audit findings actually matter?</a></li>
+      <li><a href="../npm-lifecycle-script-check/" data-pf-to="npm-lifecycle-script-check">Did a dependency just start running code at install time?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=license-compat-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="license-compat-check"></script>
+</body>
+</html>

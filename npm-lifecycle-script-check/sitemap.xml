@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/vs-socket.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc></url>
+</urlset>

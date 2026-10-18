@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This calculator vs. Amazon's KDP royalty calculator | KDP Royalty Calculator</title>
+  <meta name="description" content="Amazon's KDP royalty calculator prices one format on one marketplace from a KDP account. This free page compares exclusive versus wide on numbers you type…">
+  <meta property="og:title" content="This calculator vs. Amazon's KDP royalty calculator | KDP Royalty Calculator">
+  <meta property="og:description" content="Amazon's official tool answers print cost and royalty for a list price you already picked. This page answers the KU-versus-wide window that tool does not.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/vs-amazon-kdp-royalty-calculator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Amazon's KDP royalty calculator?","acceptedAnswer":{"@type":"Answer","text":"Both, for different jobs. Amazon's KDP royalty calculator, published inside a KDP account, computes printing cost and royalty for a list price, page count, ink, and marketplace you already chose. It is the right place to check what KDP would pay on that one format. It does not compare Kindle Unlimited page reads to a paid sale, and it does not put a 90-day exclusive window next to the same book sold wide. This page does not try to replace KDP's live print preview — paste that figure into the override box — and instead answers the follow-on decision the official calculator leaves open."}},{"@type":"Question","name":"Does Amazon's calculator require an account?","acceptedAnswer":{"@type":"Answer","text":"Yes. Amazon documents the royalty calculator as part of Kindle Direct Publishing, used from a signed-in KDP account on a title you are publishing or have published. This page is a static file. It needs no Amazon account and never talks to Amazon."}},{"@type":"Question","name":"Is this page affiliated with Amazon?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Amazon.com, Inc. or Kindle Direct Publishing. Amazon, Kindle, Kindle Direct Publishing, KDP, Kindle Unlimited, and KENP are trademarks of Amazon.com, Inc. or its affiliates, named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fffef8; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d2c4; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c554d; }
+    .note { font-size: .85rem; color: #5c554d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/vs-amazon-kdp-royalty-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Amazon's KDP royalty calculator | KDP Royalty Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../kdp-royalty-calculator/">KDP royalty calculator: KU vs going wide</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Amazon's KDP royalty calculator | KDP Royalty Calculator</span></span></nav>
+  <p><a href="./">&larr; KDP royalty calculator</a></p>
+  <h1>This calculator vs. Amazon's KDP royalty calculator</h1>
+  <p>
+    Kindle Direct Publishing publishes a
+    <a href="https://kdp.amazon.com/en_US/help/topic/G201834340" rel="nofollow noopener">royalty help page</a>
+    and, inside a signed-in KDP account, a royalty calculator that prices
+    printing cost and royalty for a list price, page count, ink, and
+    marketplace. That is the right place to check what KDP would pay on one
+    format you have already chosen.
+  </p>
+  <p>
+    Between that official preview and the decision still open — enroll this
+    title in KDP Select for a 90-day exclusive window, or keep it wide —
+    sits arithmetic the official tool does not do: how many Kindle Unlimited
+    page reads match one paid sale, and whether this month's KU window
+    still beats the other-store and Ingram volume you would keep by staying
+    wide. This calculator does not try to reproduce KDP's live print
+    cost. Paste the preview figure into the override box.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What will KDP pay on this list price, page count, ink, and marketplace?</td>
+        <td>Amazon's own KDP royalty calculator, inside a KDP account.</td>
+      </tr>
+      <tr>
+        <td>What print cost does this exact trim and paper actually have?</td>
+        <td>KDP's print preview on that title. Paste it into this page's override box.</td>
+      </tr>
+      <tr>
+        <td>How many KU page reads equal one paid sale?</td>
+        <td>This calculator's <a href="./#result">90-day readout</a> — walked on <a href="should-i-enroll-this-book-in-kindle-unlimited.html">Should I enroll this book in Kindle Unlimited?</a>.</td>
+      </tr>
+      <tr>
+        <td>Does this 90-day exclusive window beat staying wide?</td>
+        <td>This calculator's exclusive-versus-wide totals, on numbers you type.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Amazon's KDP royalty calculator?</h3>
+  <p>
+    Both, for different jobs. Amazon's KDP royalty calculator, published
+    inside a KDP account, computes printing cost and royalty for a list price,
+    page count, ink, and marketplace you already chose. It is the right place
+    to check what KDP would pay on that one format. It does not compare Kindle
+    Unlimited page reads to a paid sale, and it does not put a 90-day exclusive
+    window next to the same book sold wide. This page does not try to replace
+    KDP's live print preview — paste that figure into the override box —
+    and instead answers the follow-on decision the official calculator leaves open.
+  </p>
+  <h3>Does Amazon's calculator require an account?</h3>
+  <p>
+    Yes. Amazon documents the royalty calculator as part of Kindle Direct
+    Publishing, used from a signed-in KDP account on a title you are publishing
+    or have published. This page is a static file. It needs no Amazon account
+    and never talks to Amazon.
+  </p>
+  <h3>Is this page affiliated with Amazon?</h3>
+  <p>
+    No. This site is not affiliated with, endorsed by, or sponsored by
+    Amazon.com, Inc. or Kindle Direct Publishing. Amazon, Kindle, Kindle Direct
+    Publishing, KDP, Kindle Unlimited, and KENP are trademarks of Amazon.com,
+    Inc. or its affiliates, named here only to describe what this calculator is for.
+  </p>
+  <p class="note">
+    Open the <a href="./">KDP royalty calculator</a> to run the comparison on your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Verify every rate against Amazon's own KDP royalty help and your current royalty reports before relying on it.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Amazon.com, Inc. or Kindle Direct Publishing. Amazon, Kindle, Kindle Direct Publishing, KDP, Kindle Unlimited, and KENP are trademarks of their owners, named here only to describe what this tool is and is not.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kdp-royalty-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="kdp-royalty-calculator"></script>
+</body>
+</html>

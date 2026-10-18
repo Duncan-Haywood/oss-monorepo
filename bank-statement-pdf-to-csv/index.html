@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bank Statement PDF to CSV Converter, Balance-Checked and Private</title>
+  <meta name="description" content="Free bank and credit card statement PDF to CSV converter that proves the result: opening balance plus the transactions must equal the closing balance.">
+  <meta property="og:title" content="Bank statement PDF to CSV, checked against the statement's own balances. Free, private">
+  <meta property="og:description" content="Convert a text-based bank or card statement PDF to CSV and see whether it adds up. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bank Statement PDF to CSV Converter", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a text-based bank or credit card statement PDF in the browser, extracts the transactions and proves them against the statement's opening and closing balances, then writes CSV for Xero, QuickBooks Online or a spreadsheet. The file is never uploaded.", "featureList": "bank statement PDF to CSV, credit card statement PDF to CSV, balance check, Xero statement CSV, QuickBooks Online CSV, no upload, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I convert a bank statement PDF to CSV?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the PDF (or paste the text copied from it) and press Read and check. The page reads the PDF's text layer in your browser, finds each dated line and its amount, and checks that the opening balance plus the transactions equals the closing balance. Then download the CSV in the layout your accounting software wants."}}, {"@type": "Question", "name": "Is it safe to put a bank statement into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts it contains no network calls. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser."}}, {"@type": "Question", "name": "Why does my PDF say it has no text?", "acceptedAnswer": {"@type": "Answer", "text": "A scan or a photo of a paper statement is an image, and this tool does not do OCR. Download the statement as a PDF from your bank's website instead; those have a text layer. A password-protected PDF also cannot be read: open it, enter the password, and print it to a new PDF."}}, {"@type": "Question", "name": "How do I know the converted rows are right?", "acceptedAnswer": {"@type": "Answer", "text": "The statement is proved against itself. The opening balance plus every row must equal the closing balance, to the cent, and where the statement prints a running balance each row is checked against it. If something does not add up, the page tells you by how much and what is likely wrong, such as a missing row of exactly that amount or a flipped sign."}}, {"@type": "Question", "name": "Does it work for credit card statements?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose Credit card as the account type: a bare amount is a charge, a minus sign or CR is a payment or refund, and the CSV shows charges as negative amounts so it imports like a bank feed. The previous balance and new balance are checked the same way."}}, {"@type": "Question", "name": "Which accounting software can use the CSV?", "acceptedAnswer": {"@type": "Answer", "text": "There are layouts for Xero's statement import (*Date, *Amount, Payee, Description, Reference), QuickBooks Online's three-column and four-column imports, and a generic Date, Description, Amount, Balance file that spreadsheets and most other tools accept. For an OFX or QBO file, run the CSV through the bank CSV to QBO converter."}}, {"@type": "Question", "name": "What does this not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not do OCR, read password-protected PDFs, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more."}}, {"@type": "Question", "name": "What happens to dates with no year?", "acceptedAnswer": {"@type": "Answer", "text": "Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Bank statement PDF to CSV, checked against the statement's own balances. Free, private","item":"https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bank statement PDF to CSV, checked against the statement's own balances. Free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Bank statement PDF to CSV, checked against the statement's own balances. Free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">BANK STATEMENT PDF TO CSV · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Convert a bank or card statement PDF to CSV, and see whether it adds up</h1>
+    <p>Choose a <strong>text-based statement PDF</strong> (or paste the text). Every dated line is read into a row, then the result is <strong>proved against the statement</strong>: opening balance plus the transactions must equal the closing balance, and each row is checked against the running balance the bank printed. If it is off, you are told <strong>by how much and where</strong>, instead of finding out when the books do not reconcile. Download CSV for <strong>Xero</strong>, <strong>QuickBooks Online</strong> or a spreadsheet.</p>
+    <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. No OCR, so scanned paper statements cannot be read. Independent of every bank and accounting vendor. The reader was tested on generated statements and on the synthetic examples below, not on a library of real bank PDFs, so every bank's layout is a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your statement</h2>
+    <p class="note">A PDF downloaded from your bank's website or app (it has selectable text). Or copy the table out of any PDF viewer and paste it below.</p>
+    <label for="file">Choose a statement PDF</label>
+    <input type="file" id="file" accept=".pdf,application/pdf,.txt,text/plain">
+    <label for="paste">…or paste the statement text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Beginning balance   $4,210.55&#10;01/02   ACH CREDIT STRIPE PAYOUT   1,420.00   5,630.55&#10;..."></textarea>
+    <div class="grid">
+      <div><label for="kind">Account type</label><select id="kind"><option value="bank">Bank account (money in is positive)</option><option value="card">Credit card (charges are positive on the statement)</option></select></div>
+      <div><label for="date-order">Dates like 03/04/2026 are</label><select id="date-order"><option value="auto">Detect (warn if unclear)</option><option value="mdy">Month/day (US)</option><option value="dmy">Day/month (UK, EU)</option></select></div>
+      <div><label for="year">Year for dates printed without one</label><input id="year" inputmode="numeric" placeholder="from the statement period" maxlength="4"></div>
+    </div>
+    <p>
+      <button type="button" id="run">Read and check</button>
+      <button type="button" class="secondary" id="load-bank">Load a bank example</button>
+      <button type="button" class="secondary" id="load-card">Load a credit card example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with a lost row</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a PDF or paste the text, then click Read and check.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Balance check</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><tbody id="balance"></tbody></table></div></div>
+    <h3>Transactions</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Date</th><th scope="col">Description</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Balance</th><th scope="col">Sign from</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>Download</h3>
+    <div class="grid">
+      <div><label for="layout">CSV layout</label><select id="layout"><option value="generic">Date, Description, Amount, Balance</option><option value="split">Date, Description, Debit, Credit, Balance</option><option value="xero">Xero statement import</option><option value="qbo3">QuickBooks Online, 3 columns</option><option value="qbo4">QuickBooks Online, 4 columns</option></select></div>
+      <div><label for="out-date">Dates in the CSV</label><select id="out-date"><option value="auto">Layout default</option><option value="iso">YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select></div>
+      <div><label for="decimal">Decimal mark</label><select id="decimal"><option value=".">Point (1234.56)</option><option value=",">Comma (1234,56)</option></select></div>
+    </div>
+    <p><button type="button" id="dl-csv">Download CSV</button> <button type="button" class="secondary" id="dl-findings">Download findings as CSV</button></p>
+    <p class="note">Need an OFX or QBO file instead? Download the generic CSV and use the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Reading the PDF:</strong> the text layer is read directly (FlateDecode streams, compressed object streams, ToUnicode character maps) and grouped into lines by position. Nothing is rendered and nothing is recognised from pictures.</li>
+      <li><strong>Rows:</strong> a transaction starts with a date (or a transaction date and a posting date), has a description, and ends with one to three amounts. A line below with no date and no amount is added to the description above it.</li>
+      <li><strong>Money in or out:</strong> from the running balance when the statement prints one (the sign that makes the balance add up wins), otherwise from the Debit/Credit or Withdrawals/Deposits column the amount sits under, otherwise from a minus sign, brackets or CR/DR. An amount with none of these is shown as money in and called a guess.</li>
+      <li><strong>Balance check:</strong> opening + all rows = closing, in whole cents with no floating point. A gap is reported with its amount, a missing-row, wrong-side or flipped-sign hint, and the line where the running balance first breaks.</li>
+      <li><strong>Also checked:</strong> the statement's own "total deposits" and "total withdrawals" lines, dates that are not real days, a missing year, and identical rows.</li>
+      <li><strong>Not checked:</strong> that the file matches your bank's online record or your books, scanned or image-only statements, password-protected PDFs, statements whose text has no character map, several accounts or currencies in one PDF, and bank-specific layouts nobody has tried. The import layouts for Xero and QuickBooks are written from memory of their public import help and were not tested against a live import.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I convert a bank statement PDF to CSV?</h3>
+    <p>Choose the PDF (or paste the text copied from it) and press Read and check. The page reads the PDF's text layer in your browser, finds each dated line and its amount, and checks that the opening balance plus the transactions equals the closing balance. Then download the CSV in the layout your accounting software wants.</p>
+    <h3>Is it safe to put a bank statement into a web page?</h3>
+    <p>The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts it contains no network calls. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser.</p>
+    <h3>Why does my PDF say it has no text?</h3>
+    <p>A scan or a photo of a paper statement is an image, and this tool does not do OCR. Download the statement as a PDF from your bank's website instead; those have a text layer. A password-protected PDF also cannot be read: open it, enter the password, and print it to a new PDF.</p>
+    <h3>How do I know the converted rows are right?</h3>
+    <p>The statement is proved against itself. The opening balance plus every row must equal the closing balance, to the cent, and where the statement prints a running balance each row is checked against it. If something does not add up, the page tells you by how much and what is likely wrong, such as a missing row of exactly that amount or a flipped sign.</p>
+    <h3>Does it work for credit card statements?</h3>
+    <p>Yes. Choose Credit card as the account type: a bare amount is a charge, a minus sign or CR is a payment or refund, and the CSV shows charges as negative amounts so it imports like a bank feed. The previous balance and new balance are checked the same way.</p>
+    <h3>Which accounting software can use the CSV?</h3>
+    <p>There are layouts for Xero's statement import (*Date, *Amount, Payee, Description, Reference), QuickBooks Online's three-column and four-column imports, and a generic Date, Description, Amount, Balance file that spreadsheets and most other tools accept. For an OFX or QBO file, run the CSV through the bank CSV to QBO converter.</p>
+    <h3>What does this not do?</h3>
+    <p>It does not do OCR, read password-protected PDFs, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more.</p>
+    <h3>What happens to dates with no year?</h3>
+    <p>Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your bank's own statement. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including comparing the rows and totals against your bank's statement before you book or reconcile anything, and a clean balance check is not a promise that every row was read correctly or that your software will import the file.</p>
+    <p><strong>Not affiliated with any bank or software vendor.</strong> Xero, QuickBooks, Intuit and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any bank, Xero, Intuit or Adobe. The import layouts are read from memory of public help pages and may not match every version.</p>
+    <p><strong>Financial data.</strong> Bank statements contain account numbers, balances and the names of the people and companies you deal with. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open bank data in a browser tool is a question for your own security policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>statement_read</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> turns the CSV into a QuickBooks or Quicken file, the <a href="../xero-bank-statement-csv-check/">Xero statement CSV check</a> checks a CSV before Xero imports it, the <a href="../camt053-to-ofx-converter/">camt.053 and MT940 to OFX converter</a> does the same job for European bank files, the <a href="../ofx-file-check/">OFX file check</a> and <a href="../qif-file-check/">QIF file check</a> check files you already have, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> checks QuickBooks list imports, and the <a href="../subscription-audit-from-statement/">subscription audit</a> finds recurring charges in a statement.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseStatementText, parseStatementPdf, toCsv, findingsCsv, money, sampleStatement, sampleBroken, sampleCard } from "./calc.mjs";
+    import { inflate } from "./inflate-browser.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function opts() {
+      const y = Number($("#year").value);
+      return { kind: $("#kind").value, dateOrder: $("#date-order").value, year: y >= 1990 && y <= 2100 ? y : null };
+    }
+
+    function show(r) {
+      last = r;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      const proof = r.reconcile.ok === true ? "balances agree" : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
+      $("#report-stats").innerHTML = `<strong>${r.transactions.length} transaction${r.transactions.length === 1 ? "" : "s"}</strong> · ${proof} · ${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const b = r.reconcile;
+      const cell = (label, v, cls = "") => `<tr><th scope="row">${label}</th><td class="n ${cls}">${v === null || v === undefined ? "not found" : money(v)}</td></tr>`;
+      $("#balance").innerHTML = cell("Opening balance", b.opening) + cell("Sum of the transactions", r.transactions.length ? b.sum : null) + cell("Opening + transactions", b.expected) + cell("Closing balance on the statement", b.closing) + (b.diff === null || b.diff === undefined ? "" : cell("Difference", b.diff, b.diff ? "short" : ""));
+      $("#rows").innerHTML = r.transactions.map((t) => `<tr><td>${t.line}</td><td>${esc(t.dateText)}</td><td>${esc(t.description)}</td><td class="n ${t.source === "guess" ? "short" : ""}">${money(t.amount)}</td><td class="n">${t.balance === null ? "—" : money(t.balance)}</td><td>${t.source}</td></tr>`).join("") || `<tr><td colspan="6">No transactions.</td></tr>`;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s); read the first one.` : `${r.transactions.length} transactions read.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#run").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      status.textContent = "Reading…";
+      try {
+        if (f && /\.pdf$|application\/pdf/i.test(f.name + f.type)) show(await parseStatementPdf(new Uint8Array(await f.arrayBuffer()), inflate, opts()));
+        else {
+          const text = f ? await f.text() : $("#paste").value;
+          if (!text.trim()) { status.textContent = "Choose a PDF or paste the text first."; return; }
+          show(parseStatementText(text, opts()));
+        }
+        record("statement_read");
+      } catch (e) {
+        status.textContent = "That file could not be read: " + (e && e.message ? e.message : e);
+      }
+    });
+    const example = (id, make, kind, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = ""; $("#kind").value = kind;
+      show(parseStatementText($("#paste").value, opts())); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-bank", sampleStatement, "bank", "Worked example: a synthetic bank statement for a made-up business; it adds up.");
+    example("#load-card", sampleCard, "card", "Worked example: a synthetic credit card statement across a year end; it adds up.");
+    example("#load-broken", sampleBroken, "bank", "Worked example: the bank statement after one row was lost in a copy; the check names the amount and the line.");
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a PDF or paste the text, then click Read and check."; });
+    $("#dl-csv").addEventListener("click", () => {
+      if (!last) return;
+      record("csv_downloaded");
+      const d = $("#out-date").value;
+      download("statement.csv", toCsv(last, { layout: $("#layout").value, dateFormat: d === "auto" ? undefined : d, decimal: $("#decimal").value }), "text/csv");
+    });
+    $("#dl-findings").addEventListener("click", () => { if (last) download("statement-findings.csv", findingsCsv(last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../time-tracker/" data-pf-to="time-tracker">Time Tracker — free billable hours timer, no signup</a></li>
+      <li><a href="../upwork-earnings-to-journal/" data-pf-to="upwork-earnings-to-journal">Upwork earnings to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../vcard-contacts-check/" data-pf-to="vcard-contacts-check">vCard Contacts Check — free, private, in your browser</a></li>
+      <li><a href="../vendor-change-evidence/" data-pf-to="vendor-change-evidence">Vendor Change Evidence</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bank-statement-pdf-to-csv">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/?pfEmbed=1&quot; title=&quot;Bank statement PDF to CSV, checked against the statement's own balances. Free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="bank-statement-pdf-to-csv"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/" data-pf-embed-title="Bank statement PDF to CSV, checked against the statement's own balances. Free, private" data-pf-embed-slug="bank-statement-pdf-to-csv"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="bank-statement-pdf-to-csv" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="bank-statement-pdf-to-csv" data-pf-link-amount=""></script>
+</body>
+</html>

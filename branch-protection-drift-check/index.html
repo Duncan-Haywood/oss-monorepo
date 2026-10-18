@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?</title>
+  <meta name="description" content="Paste a repo's actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted…">
+  <meta property="og:title" content="Has your branch protection drifted from policy?">
+  <meta property="og:description" content="A protection rule disabled for one hotfix and never re-enabled is invisible until someone force-pushes over history or merges without review.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Branch Protection Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares a repository's actual GitHub branch protection settings against a declared policy, flagging every rule that has drifted weaker than intended: review requirements, admin enforcement, force-push and deletion rules, conversation resolution, linear history, signed commits, and required status checks. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does branch protection drift from what was intended?","acceptedAnswer":{"@type":"Answer","text":"Someone disables a rule for one urgent hotfix — turns off required reviews, or enables force pushes to fix a bad merge — and the settings page gives no reminder to turn it back on. Nothing breaks visibly until the next force push overwrites history, or the next merge lands with no review, on a rule everyone still believed was enforced."}},{"@type":"Question","name":"Does this tool read my branch protection settings for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. Fetch your own settings with gh api repos/:owner/:repo/branches/:branch/protection, paste the JSON in, write your declared policy in the second box, and the comparison happens entirely in this page."}},{"@type":"Question","name":"What if my policy doesn't mention a rule?","acceptedAnswer":{"@type":"Answer","text":"It is reported as \"not policed\", never silently treated as a pass or a fail. A policy that only cares about force pushes says nothing about signed commits, and this tool will not invent an opinion your policy never stated."}},{"@type":"Question","name":"What if the actual settings are stricter than the policy requires?","acceptedAnswer":{"@type":"Answer","text":"That is reported as \"stronger than policy\", not drift. Drift specifically means weaker than declared — more required reviewers than the policy demands, or an extra required status check, is never flagged as a problem."}},{"@type":"Question","name":"Does a clean result mean my branch protection is fully correct?","acceptedAnswer":{"@type":"Answer","text":"No. It checks only the rules your own policy declares, against the specific fields GitHub's branch-protection API exposes. It is not a security audit, a compliance attestation, or a review of whether the policy itself is any good."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.drift { background: #fde8e8; color: #9a3412; }
+    .pill.meets-policy { background: #dcefe4; color: #14532d; }
+    .pill.stronger-than-policy { background: #dbeafe; color: #1e3a8a; }
+    .pill.not-policed { background: #f0f1f3; color: #55606f; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Has your branch protection drifted from policy?","item":"https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Has your branch protection drifted from policy? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Has your branch protection drifted from policy?</span></span></nav>
+  <header>
+    <p class="note">BRANCH PROTECTION DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your branch protection still match your own policy?</h1>
+    <p>Someone disables a rule for one urgent hotfix — required reviews, admin enforcement, the force-push block — and nothing reminds anyone to turn it back on. It stays invisible until the rule is actually needed: a merge lands with no review, or a force push overwrites history nobody meant to lose. Paste your repo's actual settings and your declared policy below to find every rule that has quietly drifted weaker.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — not even to read your branch protection settings for you.</p>
+  </header>
+
+  <section class="card">
+    <div class="grid2">
+      <div>
+        <h2>1. Actual settings</h2>
+        <p class="note">Run <code>gh api repos/:owner/:repo/branches/:branch/protection</code> and paste the JSON output here.</p>
+        <textarea id="actual" spellcheck="false" placeholder='{"required_pull_request_reviews": {"required_approving_review_count": 2}, "enforce_admins": {"enabled": true}, ...}'></textarea>
+      </div>
+      <div>
+        <h2>2. Declared policy</h2>
+        <p class="note">JSON, or plain <code>key: value</code> lines — see the field list below the results.</p>
+        <textarea id="policy" spellcheck="false" placeholder="required_approving_review_count: 2
+require_code_owner_reviews: true
+enforce_admins: true
+allow_force_pushes: false
+allow_deletions: false
+required_status_check_contexts: build, lint"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste your actual settings and declared policy above, then click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Rule</th><th>Status</th><th>Actual</th><th>Policy</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="unpoliced"></p>
+  </section>
+
+  <section class="card">
+    <h2>Declared policy field reference</h2>
+    <p class="note">Every field is optional — a field you leave out is reported <span class="pill not-policed">not policed</span>, never assumed. Booleans: <code>required_pull_request_reviews</code> is entered as a plain <code>required_approving_review_count</code> number; the rest (<code>require_code_owner_reviews</code>, <code>require_last_push_approval</code>, <code>enforce_admins</code>, <code>allow_force_pushes</code>, <code>allow_deletions</code>, <code>required_conversation_resolution</code>, <code>required_linear_history</code>, <code>required_signatures</code>, <code>strict_status_checks</code>) are <code>true</code>/<code>false</code>. <code>required_status_check_contexts</code> is a comma-separated list (or a JSON array) of check names that must all be present — extra actual checks beyond the list are fine.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>gh api repos/:owner/:repo/branches/:branch/protection > actual.json
+node cli.mjs --actual actual.json --policy policy.txt
+node cli.mjs --actual actual.json --policy policy.txt --format json
+node cli.mjs --actual actual.json --policy policy.txt --fail-on-drift   # exit 2 if anything drifted</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node.js only, nothing to install, no network calls. Run it in CI right after a branch-protection or policy change to catch drift before it is needed.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How does branch protection drift from what was intended?</h3>
+    <p>Someone disables a rule for one urgent hotfix — turns off required reviews, or enables force pushes to fix a bad merge — and the settings page gives no reminder to turn it back on. Nothing breaks visibly until the next force push overwrites history, or the next merge lands with no review, on a rule everyone still believed was enforced.</p>
+    <h3>Does this tool read my branch protection settings for me?</h3>
+    <p>No. It makes no network calls at all. Fetch your own settings with <code>gh api repos/:owner/:repo/branches/:branch/protection</code>, paste the JSON in, write your declared policy in the second box, and the comparison happens entirely in this page.</p>
+    <h3>What if my policy doesn't mention a rule?</h3>
+    <p>It is reported as "not policed", never silently treated as a pass or a fail. A policy that only cares about force pushes says nothing about signed commits, and this tool will not invent an opinion your policy never stated.</p>
+    <h3>What if the actual settings are stricter than the policy requires?</h3>
+    <p>That is reported as "stronger than policy", not drift. Drift specifically means weaker than declared — more required reviewers than the policy demands, or an extra required status check, is never flagged as a problem.</p>
+    <h3>Does a clean result mean my branch protection is fully correct?</h3>
+    <p>No. It checks only the rules your own policy declares, against the specific fields GitHub's branch-protection API exposes. It is not a security audit, a compliance attestation, or a review of whether the policy itself is any good.</p>
+    <p>More: <a href="why-branch-protection-drifts.html">why branch protection drifts silently, and how to stop finding out the hard way</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your repository's configuration, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming in GitHub's own UI before changing branch protection settings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A weakened branch-protection rule is one specific way a repository's own safeguards silently stop working. <a href="../required-checks-drift-check/">Required Checks Drift Check</a> flags a required status check name nothing can ever satisfy again, and <a href="../codeowners-shadow-check/">CODEOWNERS Shadow Check</a> flags a review-requirement rule a later pattern silently overrides — two more slices of a setup that looks correct until you check.</p>
+    <p class="support">Free and open source. If this caught a rule that had quietly drifted, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, hasDrift, isUnprotected, summaryLine, parsePolicyText, parseActualText, DRIFT, NOT_POLICED } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      actual: $("#actual"), policy: $("#policy"), status: $("#status"),
+      reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"), unpoliced: $("#unpoliced"),
+    };
+
+    const EXAMPLE_ACTUAL = JSON.stringify({
+      required_pull_request_reviews: { required_approving_review_count: 1, require_code_owner_reviews: false },
+      enforce_admins: { enabled: false },
+      allow_force_pushes: { enabled: false },
+      allow_deletions: { enabled: false },
+      required_status_checks: { strict: true, contexts: ["build"] },
+    }, null, 2);
+    const EXAMPLE_POLICY = `required_approving_review_count: 2
+require_code_owner_reviews: true
+enforce_admins: true
+allow_force_pushes: false
+required_status_check_contexts: build, lint`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fmt(value) {
+      if (value === null || value === undefined) return "—";
+      if (Array.isArray(value)) return value.length ? value.join(", ") : "(none)";
+      return String(value);
+    }
+
+    function renderRows(results) {
+      els.rows.innerHTML = results
+        .filter((r) => r.status !== NOT_POLICED)
+        .map((r) => {
+          const actualText = r.kind === "set" ? fmt(r.actual) : fmt(r.actual);
+          const policyText = r.kind === "set" ? fmt(r.declared) : fmt(r.declared);
+          const extra = r.kind === "set" && r.status === DRIFT ? ` <span class="note">(missing: ${escapeHtml(r.missing.join(", "))})</span>` : "";
+          return `<tr>
+            <td>${escapeHtml(r.label)}</td>
+            <td><span class="pill ${r.status}">${r.status.replace(/-/g, " ")}</span></td>
+            <td><code>${escapeHtml(actualText)}</code>${extra}</td>
+            <td><code>${escapeHtml(policyText)}</code></td>
+          </tr>`;
+        })
+        .join("");
+      const unpoliced = results.filter((r) => r.status === NOT_POLICED).map((r) => r.label);
+      els.unpoliced.textContent = unpoliced.length ? `Not policed (your policy is silent on): ${unpoliced.join(", ")}` : "";
+    }
+
+    function runCheck(actualText, policyText) {
+      let actual, policy;
+      try {
+        actual = parseActualText(actualText);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">Could not parse actual settings: ${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      try {
+        policy = parsePolicyText(policyText);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">Could not parse declared policy: ${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const results = compare(actual, policy);
+      els.verdict.className = `verdict ${hasDrift(results) || isUnprotected(actual) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(results, actual);
+      renderRows(results);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => runCheck(els.actual.value, els.policy.value));
+
+    $("#load-example").addEventListener("click", () => {
+      els.actual.value = EXAMPLE_ACTUAL;
+      els.policy.value = EXAMPLE_POLICY;
+      runCheck(EXAMPLE_ACTUAL, EXAMPLE_POLICY);
+      record("example_loaded");
+      els.status.textContent = 'Worked example: only 1 of 2 required reviewers, code-owner review off, and admin enforcement off all drifted from policy; the "lint" required check named in policy is missing from actual entirely.';
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.actual.value = "";
+      els.policy.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste your actual settings and declared policy above, then click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rds-instance-rightsizer/" data-pf-to="rds-instance-rightsizer">Is your RDS instance too big?</a></li>
+      <li><a href="../redirect-chain-check/" data-pf-to="redirect-chain-check">Redirect Chain Checker</a></li>
+      <li><a href="../referrer-permissions-policy-check/" data-pf-to="referrer-permissions-policy-check">Referrer-Policy &amp; Permissions-Policy Checker</a></li>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=branch-protection-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/?pfEmbed=1&quot; title=&quot;Has your branch protection drifted from policy? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="branch-protection-drift-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/" data-pf-embed-title="Has your branch protection drifted from policy?" data-pf-embed-slug="branch-protection-drift-check"></script>
+</body>
+</html>

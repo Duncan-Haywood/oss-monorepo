@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>License Drift Check vs. manually re-checking each dependency's license</title>
+  <meta name="description" content="A lockfile diff shows which packages bumped version, not which one changed license -- so re-checking by hand means opening every bumped package's registry page…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/license-drift-check/vs-manually-rechecking-licenses.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="License Drift Check vs. manually re-checking each dependency's license">
+  <meta property="og:description" content="Two packages bump version in the same update. Eyeballing the diff, both look like routine bumps. One of them also changed license -- and nothing in a version…">
+  <meta property="og:url" content="./vs-manually-rechecking-licenses.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does manually re-checking dependency licenses get wrong?","acceptedAnswer":{"@type":"Answer","text":"A lockfile diff or a Dependabot/Renovate PR shows which packages bumped version — it does not show which one's license field changed, because a license is metadata, not a code diff line. Checking by hand means opening every bumped package's own registry or GitHub page, one at a time, and reading its license yourself. At two or three dependencies that is realistic. At the dozens a routine npm update or pip install -U touches, a person reads the ones that look risky — a major version bump, an unfamiliar name — and skips the ones that look routine, which is exactly where a relicense hides: nothing about a version number says whether the license changed with it."}},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A baseline snapshot has three packages: left-pad 1.3.0 (MIT), infra-tool 1.9.0 (MPL-2.0), and stable-lib 2.1.0 (Apache-2.0). After an update, left-pad is untouched, stable-lib bumps to 2.2.0 still under Apache-2.0, and infra-tool bumps to 2.0.0 — now under BUSL-1.1. The lockfile diff shows two version bumps, both looking like ordinary releases; nothing distinguishes the one that also changed license from the one that did not. Pasted into this tool, the two snapshots resolve to one finding: infra-tool changed license from MPL-2.0 (copyleft) to BUSL-1.1 (source-available); stable-lib is reported unchanged. This is the exact shape of HashiCorp's real 2023 Terraform relicense, MPL-2.0 to BUSL-1.1, which also arrived inside a routine version bump."}},{"@type":"Question","name":"Is this tool just automating something obvious?","acceptedAnswer":{"@type":"Answer","text":"Reading one package's license field is obvious once you already know to open that specific package's page. What manual re-checking gets wrong is coverage: deciding, for every single package a lockfile diff touched, to actually go open its page and read the license string, not just skim the version number and the changelog for anything alarming. A dependency tree with dozens of packages updating in one PR makes that full sweep exactly the kind of bookkeeping a person under time pressure to merge skips — which is why the four relicensing events this tool's README documents all reached existing users through a routine bump nobody re-checked."}},{"@type":"Question","name":"Does this replace reading the new license text?","acceptedAnswer":{"@type":"Answer","text":"No. It replaces the step of noticing that a package's license string changed at all. Once it names infra-tool as changed from MPL-2.0 to BUSL-1.1, you still need to read what BUSL-1.1 actually permits for your use — this tool's family label (permissive, copyleft, source-available) is a keyword-based skim aid, not a legal opinion, exactly as the tool's own front page and footer already say."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #e7ebf0; padding: .1em .3em; border-radius: 4px; font-size: .9em; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/license-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="License Drift Check vs. manually re-checking each dependency's license — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../license-drift-check/">Did a dependency's license just change under you?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">License Drift Check vs. manually re-checking each dependency's license</span></span></nav>
+  <p><a href="./">&larr; License Drift Check</a></p>
+  <h1>License Drift Check vs. manually re-checking each dependency's license</h1>
+  <p>
+    <strong>Manually re-checking</strong> is the default method, because it
+    needs no tool: after a dependency update, open each package that shows
+    a version bump in the lockfile diff and read its license field
+    yourself. It works when the diff touches one or two packages you
+    already recognize. It stops working at the scale a routine
+    <code>npm update</code> or <code>pip install -U</code> actually
+    produces, because a version bump carries no signal about whether the
+    license moved with it &mdash; a patch release and a relicense look
+    identical in a diff that only shows version numbers.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Package</th><th scope="col">Baseline</th><th scope="col">Current</th><th scope="col">Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>left-pad</code></td><td>1.3.0, MIT</td><td>not touched this update</td><td>stable</td></tr>
+      <tr><td><code>stable-lib</code></td><td>2.1.0, Apache-2.0</td><td>2.2.0, Apache-2.0</td><td>version bump only</td></tr>
+      <tr><td><code>infra-tool</code></td><td>1.9.0, <strong>MPL-2.0</strong></td><td>2.0.0, <strong>BUSL-1.1</strong></td><td><strong>license changed</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    Eyeballing the lockfile diff, <code>stable-lib</code> and
+    <code>infra-tool</code> both look like the same kind of event: a
+    routine minor-to-major version bump. Nothing in either diff line says
+    which one also changed its declared license. Pasted into this tool,
+    the two snapshots resolve to one finding: <code>infra-tool</code>
+    changed from MPL-2.0 (copyleft) to BUSL-1.1 (source-available);
+    <code>stable-lib</code> is reported unchanged. This is the exact shape
+    of HashiCorp's real 2023 Terraform relicense &mdash; MPL-2.0 to
+    BUSL-1.1 &mdash; which also arrived inside a version bump nobody
+    flagged in time. Merging on "the diff looked like an ordinary release"
+    is exactly the mechanism that carried it, and the other three events
+    this tool's README documents, into projects that never chose to accept
+    the new terms.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have last month's dependency list and today's &mdash; did any package's license change between them?</td>
+        <td>License Drift Check &mdash; paste both, get the exact list of changed, added, and removed packages in one click, no signup.</td>
+      </tr>
+      <tr>
+        <td>My lockfile diff shows a dozen packages bumped &mdash; which ones do I need to open and re-read the license for?</td>
+        <td>License Drift Check &mdash; it names exactly the ones whose license field changed; manual re-checking means opening all twelve to find out.</td>
+      </tr>
+      <tr>
+        <td>A package's version number jumped from 1.x to 2.0 &mdash; does that mean the license changed too?</td>
+        <td>Neither method can tell from the version number alone; a major bump and a relicense are independent facts. This tool reads the license field itself rather than inferring anything from semver.</td>
+      </tr>
+      <tr>
+        <td>I want to be sure a specific package I already accepted a license change for doesn't keep flagging every run.</td>
+        <td>License Drift Check &mdash; the CLI and the browser page both accept an ignore list; a manual check has no equivalent memory across updates.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither method is wrong about the small case: one dependency updated,
+    one page to open, a person can read that correctly every time. The gap
+    opens exactly where a real dependency tree already makes manual
+    re-checking hardest &mdash; a lockfile diff with a dozen or more
+    version bumps in it, most of them genuinely routine, and no signal in
+    the diff itself pointing at the one that is not. That is precisely
+    when "the bumps all looked ordinary" and "every one of their licenses
+    is still what it was last time" stop being the same sentence, and it
+    is the gap this tool exists to close.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What does manually re-checking dependency licenses get wrong?</h3>
+  <p>A lockfile diff or a Dependabot/Renovate PR shows which packages bumped version &mdash; it does not show which one's license field changed, because a license is metadata, not a code diff line. Checking by hand means opening every bumped package's own registry or GitHub page, one at a time, and reading its license yourself. At two or three dependencies that is realistic. At the dozens a routine <code>npm update</code> or <code>pip install -U</code> touches, a person reads the ones that look risky &mdash; a major version bump, an unfamiliar name &mdash; and skips the ones that look routine, which is exactly where a relicense hides: nothing about a version number says whether the license changed with it.</p>
+  <h3>Can you give a concrete example?</h3>
+  <p>A baseline snapshot has three packages: <code>left-pad</code> 1.3.0 (MIT), <code>infra-tool</code> 1.9.0 (MPL-2.0), and <code>stable-lib</code> 2.1.0 (Apache-2.0). After an update, <code>left-pad</code> is untouched, <code>stable-lib</code> bumps to 2.2.0 still under Apache-2.0, and <code>infra-tool</code> bumps to 2.0.0 &mdash; now under BUSL-1.1. The lockfile diff shows two version bumps, both looking like ordinary releases; nothing distinguishes the one that also changed license from the one that did not. Pasted into this tool, the two snapshots resolve to one finding: <code>infra-tool</code> changed license from MPL-2.0 (copyleft) to BUSL-1.1 (source-available); <code>stable-lib</code> is reported unchanged. This is the exact shape of HashiCorp's real 2023 Terraform relicense, MPL-2.0 to BUSL-1.1, which also arrived inside a routine version bump.</p>
+  <h3>Is this tool just automating something obvious?</h3>
+  <p>Reading one package's license field is obvious once you already know to open that specific package's page. What manual re-checking gets wrong is coverage: deciding, for every single package a lockfile diff touched, to actually go open its page and read the license string, not just skim the version number and the changelog for anything alarming. A dependency tree with dozens of packages updating in one PR makes that full sweep exactly the kind of bookkeeping a person under time pressure to merge skips &mdash; which is why the four relicensing events this tool's README documents all reached existing users through a routine bump nobody re-checked.</p>
+  <h3>Does this replace reading the new license text?</h3>
+  <p>No. It replaces the step of noticing that a package's license string changed at all. Once it names <code>infra-tool</code> as changed from MPL-2.0 to BUSL-1.1, you still need to read what BUSL-1.1 actually permits for your use &mdash; this tool's family label (permissive, copyleft, source-available) is a keyword-based skim aid, not a legal opinion, exactly as the tool's own front page and footer already say.</p>
+  <p class="note">
+    More: <a href="how-a-dependency-license-change-reaches-your-lockfile.html">how a dependency's license change reaches your lockfile</a> &middot; <a href="vs-fossa.html">License Drift Check vs. FOSSA</a>, for continuous scanning and policy enforcement rather than a one-off snapshot diff.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a factual difference between two snapshots, not a legal opinion about whether a license change matters to your use. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a relicensing before it caught you, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../node-version-drift-check/" data-pf-to="node-version-drift-check">Do your package.json, .nvmrc, Dockerfile and CI agree on Node.js?</a></li>
+      <li><a href="../npm-audit-triage/" data-pf-to="npm-audit-triage">Which npm audit findings actually matter?</a></li>
+      <li><a href="../npm-lifecycle-script-check/" data-pf-to="npm-lifecycle-script-check">Did a dependency just start running code at install time?</a></li>
+      <li><a href="../npm-lockfile-duplicates-check/" data-pf-to="npm-lockfile-duplicates-check">Why is node_modules installing the same package five times?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=license-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="license-drift-check"></script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YouTube Chapters Checker — Fix Timestamps, Convert Markers</title>
+  <meta name="description" content="Free YouTube chapters checker: finds why chapters do not show (no 0:00 start, fewer than three, under 10 seconds, out of order), fixes the list…">
+  <meta property="og:title" content="YouTube Chapters Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why your video chapters are not showing, with line numbers, and copy a corrected list. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "YouTube Chapters Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that checks a YouTube chapter list against the 0:00 start, three-chapter and 10-second rules, repairs ordering and format, and converts marker exports to chapters, chapters.json, FFmetadata and WebVTT."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why won't my YouTube chapters show up?", "acceptedAnswer": {"@type": "Answer", "text": "YouTube builds chapters only when the description's list starts at 0:00, has at least three timestamps in ascending order, and every chapter is at least 10 seconds long. This tool checks each of those and names the line that breaks the rule. It cannot see your video, so after saving, look for the chapter markers on the progress bar."}}, {"@type": "Question", "name": "How do I turn Premiere Pro or DaVinci Resolve markers into YouTube chapters?", "acceptedAnswer": {"@type": "Answer", "text": "Export the markers as a CSV or text list, paste it here, and set the frame rate to match your sequence. HH:MM:SS:FF timecodes are converted to seconds; Audacity label tracks (seconds, tab, label) are read as well. The result is a description-ready list."}}, {"@type": "Question", "name": "What if I cut the start of the video after writing the chapters?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the number of seconds you removed in the shift box. Every time is moved earlier by that amount before the checks, and a chapter that would fall before 0:00 is reported and left out of the cleaned list."}}, {"@type": "Question", "name": "Does it write the chapters for me from the video?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does not watch or transcribe the video, so it cannot invent chapter titles. It checks and converts a list you already have."}}, {"@type": "Question", "name": "What are the other formats for?", "acceptedAnswer": {"@type": "Answer", "text": "chapters.json is the Podcasting 2.0 chapters file podcast apps read, FFmetadata lets ffmpeg write chapters into an MP4, and WebVTT is a chapters track for an HTML video. The last two need the video length."}}, {"@type": "Question", "name": "Is my text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page works in your browser and a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"YouTube Chapters Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="YouTube Chapters Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">YouTube Chapters Check — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">YOUTUBE CHAPTERS CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why aren't my YouTube chapters showing up?</h1>
+    <p>Paste your chapter list and get every problem <strong>with its line number</strong>: <strong>no 0:00 start</strong>, <strong>fewer than three timestamps</strong>, <strong>chapters under 10 seconds</strong>, <strong>times out of order</strong>, impossible times like 11:75, blank titles. Then copy a corrected list, or <strong>convert Premiere, DaVinci or Audacity markers</strong> to a description block, a podcast <code>chapters.json</code>, ffmpeg chapters or WebVTT.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. This checks your list against YouTube's published chapter rules, not against your video. Independent of every platform named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your chapter list</h2>
+    <p class="note">A description snippet, a marker export (Premiere CSV, Audacity labels) or any "time title" list.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".txt,.csv,.tsv,.edl,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="0:00 Intro&#10;0:48 Why chapters help&#10;3:15 Setting up&#10;..."></textarea>
+    <div class="grid">
+      <div><label for="duration">Video length (optional)</label><input id="duration" placeholder="e.g. 18:45 or 1:02:10" inputmode="text"></div>
+      <div><label for="offset">Shift every time earlier by (seconds)</label><input id="offset" type="number" min="0" step="1" value="0" inputmode="numeric"></div>
+      <div><label for="fps">Frame rate for HH:MM:SS:FF times</label><select id="fps"><option>23.976</option><option>24</option><option>25</option><option selected>30</option><option>29.97</option><option>50</option><option>60</option></select></div>
+      <div><label for="intro">Add a 0:00 chapter titled (optional)</label><input id="intro" placeholder="Intro"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check chapters</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the list, then click Check chapters.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Cleaned chapter list</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="format">Format</label>
+      <select id="format"><option value="description">YouTube description</option><option value="json">Podcast chapters.json</option><option value="ffmeta">FFmpeg metadata (needs video length)</option><option value="vtt">WebVTT chapters (needs video length)</option></select>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-fixed">Download</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>YouTube's chapter rules:</strong> the list starts at 0:00, has at least three timestamps in ascending order, and every chapter lasts at least 10 seconds.</li>
+      <li><strong>Times:</strong> M:SS, H:MM:SS, fractions, and HH:MM:SS:FF frame timecodes; minutes and seconds stop at 59.</li>
+      <li><strong>Titles:</strong> one per chapter; very long titles are warned about.</li>
+      <li><strong>Fixed automatically:</strong> times put in order, one time format throughout, exact repeats dropped, an optional 0:00 chapter added, an optional shift for a cut intro.</li>
+      <li><strong>Never guessed:</strong> which title to keep when two chapters share a time, how to merge a chapter that is too short, what to call the opening seconds unless you type a title.</li>
+      <li><strong>Not checked:</strong> that the video actually matches the times, that YouTube will display the chapters, automatic chapters, or title quality. Read from memory of YouTube's help page on chapters; confirm against the current page.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why won't my YouTube chapters show up?</h3>
+    <p>YouTube builds chapters only when the description's list starts at 0:00, has at least three timestamps in ascending order, and every chapter is at least 10 seconds long. This tool checks each of those and names the line that breaks the rule. It cannot see your video, so after saving, look for the chapter markers on the progress bar.</p>
+    <h3>How do I turn Premiere Pro or DaVinci Resolve markers into YouTube chapters?</h3>
+    <p>Export the markers as a CSV or text list, paste it here, and set the frame rate to match your sequence. HH:MM:SS:FF timecodes are converted to seconds; Audacity label tracks (seconds, tab, label) are read as well. The result is a description-ready list.</p>
+    <h3>What if I cut the start of the video after writing the chapters?</h3>
+    <p>Enter the number of seconds you removed in the shift box. Every time is moved earlier by that amount before the checks, and a chapter that would fall before 0:00 is reported and left out of the cleaned list.</p>
+    <h3>Does it write the chapters for me from the video?</h3>
+    <p>No. It does not watch or transcribe the video, so it cannot invent chapter titles. It checks and converts a list you already have.</p>
+    <h3>What are the other formats for?</h3>
+    <p>chapters.json is the Podcasting 2.0 chapters file podcast apps read, FFmetadata lets ffmpeg write chapters into an MP4, and WebVTT is a chapters track for an HTML video. The last two need the video length.</p>
+    <h3>Is my text uploaded anywhere?</h3>
+    <p>No. The page works in your browser and a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace YouTube's own handling of chapters. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking that the chapters appear on the video after you save it, and a clean result is not a promise that YouTube will show chapters.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to YouTube, Google, Adobe, Apple, Audacity or any other company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../podcast-feed-check/">podcast feed check</a> checks the RSS feed a chapters.json file goes with, the <a href="../caption-quality-check/">caption quality check</a> covers subtitle files, and the <a href="../youtube-revenue-rpm-analyzer/">YouTube revenue RPM analyzer</a> reads your earnings export.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, parseTimestamp, toDescription, toChaptersJson, toFfmetadata, toWebVtt, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, cleaned = null, lastOpts = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    function options() {
+      const d = $("#duration").value.trim();
+      const dur = d ? (/^\d+$/.test(d) ? Number(d) : parseTimestamp(d)) : null;
+      return {
+        duration: dur && dur > 0 ? dur : null,
+        offset: Math.max(0, Number($("#offset").value) || 0),
+        fps: Number($("#fps").value) || 30,
+        introTitle: $("#intro").value,
+      };
+    }
+    function renderOutput() {
+      if (!cleaned) return;
+      const f = $("#format").value, o = lastOpts, ch = cleaned.chapters;
+      const out = f === "json" ? toChaptersJson(ch) : f === "ffmeta" ? toFfmetadata(ch, o.duration) : f === "vtt" ? toWebVtt(ch, o.duration) : toDescription(ch, o.duration >= 3600 ? true : undefined);
+      $("#fixed-out").value = out == null ? "Enter the video length above, then check again." : out;
+      cleaned.out = out;
+    }
+
+    function run(text) {
+      const o = options();
+      lastOpts = o;
+      const r = validate(text, o);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.chapters} chapter${s.chapters === 1 ? "" : "s"} found · ${s.prose} other line${s.prose === 1 ? "" : "s"} ignored`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No problems found.</p>";
+      cleaned = repair(text, o);
+      $("#fix-box").hidden = false;
+      $("#fix-note").textContent = cleaned.changes.length ? `${cleaned.changes.length} change${cleaned.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left as it was and named above.` : "Nothing to change.";
+      $("#fix-list").innerHTML = cleaned.changes.map((c) => `<li>${esc(c)}</li>`).join("");
+      renderOutput();
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.chapters} chapter(s).` : `No errors in ${s.chapters} chapter(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up five-chapter video."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: no 0:00 start, an out-of-order time, an impossible 11:75, a blank title and a chapter under 10 seconds."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#duration", "#intro"]) $(id).value = ""; $("#offset").value = "0"; report.hidden = true; lastResult = null; cleaned = null; status.textContent = "Choose a file or paste the list, then click Check chapters."; });
+    $("#format").addEventListener("change", renderOutput);
+    $("#download-fixed").addEventListener("click", () => {
+      if (!cleaned || cleaned.out == null) return;
+      record("fixes_applied");
+      const f = $("#format").value;
+      download(f === "json" ? "chapters.json" : f === "ffmeta" ? "chapters.ffmetadata" : f === "vtt" ? "chapters.vtt" : "chapters.txt", cleaned.out, f === "json" ? "application/json" : "text/plain");
+    });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#fixed-out").value); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("chapters-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../brevo-contacts-csv-check/" data-pf-to="brevo-contacts-csv-check">Brevo Contacts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../buymeacoffee-payout-to-journal/" data-pf-to="buymeacoffee-payout-to-journal">Buy Me a Coffee transactions to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../call-recording-consent-check/" data-pf-to="call-recording-consent-check">Do you need consent to record this call?</a></li>
+      <li><a href="../camt053-statement-check/" data-pf-to="camt053-statement-check">camt.053 Statement Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=youtube-chapters-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/?pfEmbed=1&quot; title=&quot;YouTube Chapters Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="youtube-chapters-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/" data-pf-embed-title="YouTube Chapters Check — free, private, in your browser" data-pf-embed-slug="youtube-chapters-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="youtube-chapters-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="youtube-chapters-check" data-pf-link-amount=""></script>
+</body>
+</html>

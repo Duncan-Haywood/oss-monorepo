@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Appointment No-Show Analyzer — No-Show Rate and Revenue Lost From Your Booking Export</title>
+  <meta name="description" content="Free tool for salons, barbers, clinics, tutors and trainers: drop in your booking export and see your no-show and late-cancel rate, the revenue lost…">
+  <meta property="og:title" content="Appointment No-Show Analyzer — free, private, in your browser">
+  <meta property="og:description" content="No-show rate, late cancels and revenue lost from a booking export, by weekday, hour, service and lead time…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Appointment No-Show Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads an appointment or booking export and reports the no-show rate, late-cancellation rate and revenue lost overall and by weekday, hour, service and lead time, lists repeat no-show clients, and estimates what a deposit or no-show fee would recover from your own assumptions. Runs entirely in your browser; the file is never uploaded.", "featureList": "No-show rate, late-cancellation rate, revenue lost, by weekday, by hour of day, by service, by lead time, repeat offenders, deposit and no-show fee what-if, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find my no-show rate from a Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export?", "acceptedAnswer": {"@type": "Answer", "text": "Export your appointments or bookings list as a CSV with the client, service, start date and time, status and price, drop it here and click Analyze. The tool counts the bookings that ended as attended, no-show or client cancellation, and divides. Bookings you cancelled yourself and bookings still in the future are left out of every rate."}}, {"@type": "Question", "name": "What counts as a no-show and what counts as a late cancellation?", "acceptedAnswer": {"@type": "Answer", "text": "A no-show is a booking whose status reads as a no-show, missed or did not attend. A late cancellation is a client cancellation made less than the notice window you type (24 hours by default) before the start time, which needs a cancelled-at date in the file. Cancellations with no cancelled-at date are counted as cancellations of unknown notice, never as late."}}, {"@type": "Question", "name": "How is the revenue lost worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Price times no-shows, using the price in the file. Late-cancellation revenue is shown separately as at risk, because a late-cancelled slot is sometimes rebooked. A booking with no price uses the average for its service in the same file, and a service with no prices uses the default price you type, which is a placeholder and not a measurement."}}, {"@type": "Question", "name": "Which weekdays, hours, services and lead times are missed most?", "acceptedAnswer": {"@type": "Answer", "text": "The tables break the rate down by weekday, by starting hour, by service and by lead time (booked under 2 days ahead, 2 to 14 days, over 14 days, which needs a booked-on column). Groups with fewer than 5 bookings are marked as a small sample and are not called the worst, because one missed slot in three bookings is not a pattern."}}, {"@type": "Question", "name": "Who are my repeat no-show clients?", "acceptedAnswer": {"@type": "Answer", "text": "Any client with two or more no-shows in the file, with the number of missed appointments and the dollars lost, largest first. Clients are matched by email when the file has one, otherwise by name. The names stay in your browser and are never uploaded."}}, {"@type": "Question", "name": "What would a deposit or no-show fee recover?", "acceptedAnswer": {"@type": "Answer", "text": "It is an estimate from two numbers you type: the fee or deposit as a percentage of the service price, and the share of no-shows and late cancellations you assume it would prevent. A prevented one is treated as a kept visit at the same price, and each remaining one is assumed to pay the fee. Both figures are your assumptions, not a forecast, and clients lost to the fee are not modelled. The no-show fee calculator and the appointment deposit calculator work through the policy itself."}}, {"@type": "Question", "name": "Is my client list uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors."}}, {"@type": "Question", "name": "Which file formats and column names does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Comma, semicolon, tab or pipe separated text, including UTF-8 with a byte order mark and UTF-16, with quoted fields. Dates can be ISO, month/day/year or day/month/year, with or without a 12-hour or 24-hour time, or in separate date and time columns. Status words such as No Show, Missed, Did not attend, Cancelled or Canceled, Completed, Attended and Checked out are matched by alias. No real Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export was available when this was written, so the aliases are unverified; a file that is not read says which rows were skipped and why."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .few { color: #6a7580; font-style: italic; }
+    .bar { display: inline-block; height: 8px; background: #c4553a; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Appointment No-Show Analyzer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Appointment No-Show Analyzer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Appointment No-Show Analyzer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">APPOINTMENT NO-SHOW ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many appointments do you lose to no-shows, and who and when?</h1>
+    <p>Drop in the <strong>booking export</strong> from your scheduling app and get your <strong>no-show rate</strong>, your <strong>late-cancellation rate</strong> and the <strong>revenue lost</strong>, broken down by <strong>weekday, hour of day, service and lead time</strong>, with a list of <strong>repeat no-show clients</strong> and an estimate of what a <strong>deposit or no-show fee</strong> could recover. Want to design the policy itself? Try the <a href="../no-show-fee-calculator/">no-show fee calculator</a> or the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Square, Acuity, Calendly, Vagaro, Fresha and Booksy: not affiliated with or endorsed by any of them. Figures are estimates from your file and your assumptions.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your booking export and your assumptions</h2>
+    <p class="note">Needs a <strong>status</strong> column and a <strong>start date</strong> column (with the time, or a separate time column). <strong>Client</strong>, <strong>service</strong>, <strong>price</strong>, <strong>booked-on</strong> and <strong>cancelled-at</strong> columns are used when present. <strong>Column names and status words are matched by alias and are unverified against real Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy exports</strong>: if a file is not read, the page says which rows were skipped and why. Duplicate rows are dropped; bookings you cancelled yourself and bookings still open are left out of every rate.</p>
+    <label for="file">Booking export CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Client,Service,Start Time,Status,Price"></textarea>
+    <div class="grid">
+      <div><label for="notice">Late-cancel notice window, hours</label><input type="number" id="notice" value="24" min="0" max="1440" step="1" inputmode="numeric"></div>
+      <div><label for="price">Default price per booking, placeholder for rows with no price</label><input type="number" id="price" value="60" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="minns">Repeat offender means this many no-shows</label><input type="number" id="minns" value="2" min="1" max="50" step="1" inputmode="numeric"></div>
+      <div><label for="dateorder">Dates like 03/04/2026 are</label><select id="dateorder"><option value="auto">Detect from the file</option><option value="mdy">Month first (03/04 = March 4)</option><option value="dmy">Day first (03/04 = 3 April)</option></select></div>
+    </div>
+    <h3>Deposit or no-show fee what-if (your assumptions)</h3>
+    <div class="grid">
+      <div><label for="fee">Deposit or no-show fee, % of the price</label><input type="number" id="fee" value="25" min="0" max="100" step="1" inputmode="numeric"></div>
+      <div><label for="prevent">No-shows and late cancels it prevents, % (your assumption)</label><input type="number" id="prevent" value="30" min="0" max="100" step="1" inputmode="numeric"></div>
+      <div><label for="collect">Fee actually collected on the rest, %</label><input type="number" id="collect" value="100" min="0" max="100" step="1" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze bookings</button>
+      <button type="button" class="secondary" id="load-example">Load sample data</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the export file or paste it, then click Analyze bookings.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>What a deposit or no-show fee might recover</h3>
+    <p class="stats" id="what-if"></p>
+    <h3>By weekday</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Weekday</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">No-shows</th><th class="n" scope="col">No-show rate</th><th class="n" scope="col">Late cancels</th><th class="n" scope="col">Lost revenue</th></tr></thead><tbody id="by-weekday"></tbody></table></div></div>
+    <h3>By hour of day</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Starts at</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">No-shows</th><th class="n" scope="col">No-show rate</th><th class="n" scope="col">Late cancels</th><th class="n" scope="col">Lost revenue</th></tr></thead><tbody id="by-hour"></tbody></table></div></div>
+    <h3>By service</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Service</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">No-shows</th><th class="n" scope="col">No-show rate</th><th class="n" scope="col">Late cancels</th><th class="n" scope="col">Lost revenue</th></tr></thead><tbody id="by-service"></tbody></table></div></div>
+    <h3>By lead time</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Booked ahead</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">No-shows</th><th class="n" scope="col">No-show rate</th><th class="n" scope="col">Late cancels</th><th class="n" scope="col">Lost revenue</th></tr></thead><tbody id="by-lead"></tbody></table></div></div>
+    <h3>Repeat no-show clients</h3>
+    <p class="note">These names come from your file and stay on this device.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Client</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">No-shows</th><th class="n" scope="col">Late cancels</th><th class="n" scope="col">Lost revenue</th></tr></thead><tbody id="offenders"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download tables as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Counted bookings:</strong> attended, no-show and client-cancelled bookings. Bookings you cancelled yourself and bookings still open (booked, confirmed, pending) are left out of every rate and counted separately.</li>
+      <li><strong>No-show rate</strong> is no-shows over counted bookings. <strong>Late-cancel rate</strong> is client cancellations made less than your notice window before the start, over counted bookings; it needs a cancelled-at date, and cancellations without one are counted as cancellations of unknown notice, never as late.</li>
+      <li><strong>Revenue lost:</strong> price of each no-show, added up. Late-cancel revenue is shown apart as at risk, because some late-cancelled slots are rebooked. A row with no price uses its service's average from the same file; a service with no prices uses the default price you type, which is a placeholder, not a measurement.</li>
+      <li><strong>Breakdowns:</strong> by weekday and hour of the start time as written in the file (time zones are not converted), by service, and by lead time from the booked-on date (under 2 days, 2 to 14 days, over 14 days). A group under 5 bookings is marked as a small sample and never named as the worst.</li>
+      <li><strong>Deposit or fee what-if:</strong> the share you assume is prevented counts as kept visits at the same price; the rest are assumed to pay your fee percentage on the share you say is collected. All three numbers are your assumptions, not a forecast.</li>
+      <li><strong>Reconciles.</strong> Weekday rows and service rows each add up to the counted bookings at the top; hour-of-day and lead-time rows add up over the bookings that carry a start time or a booked-on date.</li>
+      <li><strong>Not modelled:</strong> clients who leave because of a fee, refunds and processing fees, rebooked slots, overbooking, reminders, waitlists, staff time and wages, how your local rules limit fees or deposits, and anything not in the file.</li>
+      <li><strong>Unverified:</strong> column names and status words are matched by alias and no real Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find my no-show rate from a Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export?</h3>
+    <p>Export your appointments or bookings list as a CSV with the client, service, start date and time, status and price, drop it here and click Analyze. The tool counts the bookings that ended as attended, no-show or client cancellation, and divides. Bookings you cancelled yourself and bookings still in the future are left out of every rate.</p>
+    <h3>What counts as a no-show and what counts as a late cancellation?</h3>
+    <p>A no-show is a booking whose status reads as a no-show, missed or did not attend. A late cancellation is a client cancellation made less than the notice window you type (24 hours by default) before the start time, which needs a cancelled-at date in the file. Cancellations with no cancelled-at date are counted as cancellations of unknown notice, never as late.</p>
+    <h3>How is the revenue lost worked out?</h3>
+    <p>Price times no-shows, using the price in the file. Late-cancellation revenue is shown separately as at risk, because a late-cancelled slot is sometimes rebooked. A booking with no price uses the average for its service in the same file, and a service with no prices uses the default price you type, which is a placeholder and not a measurement.</p>
+    <h3>Which weekdays, hours, services and lead times are missed most?</h3>
+    <p>The tables break the rate down by weekday, by starting hour, by service and by lead time (booked under 2 days ahead, 2 to 14 days, over 14 days, which needs a booked-on column). Groups with fewer than 5 bookings are marked as a small sample and are not called the worst, because one missed slot in three bookings is not a pattern.</p>
+    <h3>Who are my repeat no-show clients?</h3>
+    <p>Any client with two or more no-shows in the file, with the number of missed appointments and the dollars lost, largest first. Clients are matched by email when the file has one, otherwise by name. The names stay in your browser and are never uploaded.</p>
+    <h3>What would a deposit or no-show fee recover?</h3>
+    <p>It is an estimate from two numbers you type: the fee or deposit as a percentage of the service price, and the share of no-shows and late cancellations you assume it would prevent. A prevented one is treated as a kept visit at the same price, and each remaining one is assumed to pay the fee. Both figures are your assumptions, not a forecast, and clients lost to the fee are not modelled. The no-show fee calculator and the appointment deposit calculator work through the policy itself.</p>
+    <h3>Is my client list uploaded?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors.</p>
+    <h3>Which file formats and column names does it read?</h3>
+    <p>Comma, semicolon, tab or pipe separated text, including UTF-8 with a byte order mark and UTF-16, with quoted fields. Dates can be ISO, month/day/year or day/month/year, with or without a 12-hour or 24-hour time, or in separate date and time columns. Status words such as No Show, Missed, Did not attend, Cancelled or Canceled, Completed, Attended and Checked out are matched by alias. No real Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export was available when this was written, so the aliases are unverified; a file that is not read says which rows were skipped and why.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> or before changing a booking policy, charging a fee, or refusing a client.</p>
+    <p><strong>Not affiliated with Square, Acuity, Calendly, Vagaro, Fresha or Booksy.</strong> Square, Acuity Scheduling, Calendly, Vagaro, Fresha, Booksy and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Export layouts change; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file, including client names, is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Setting the policy? See the <a href="../no-show-fee-calculator/">no-show fee calculator</a> and the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>.</p>
+    <p>Know your no-show rate and want to use it? The <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> finds how many extra appointments to book, with the risk of an over-full day.</p>
+    <p>Which services earn the most for the chair time they take? The <a href="../service-hourly-yield-analyzer/">service hourly yield analyzer</a> reads the same kind of export and shows revenue per booked hour.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Clients who did show but have stopped rebooking? The <a href="../client-rebooking-predictor/">client rebooking predictor</a> ranks who is overdue against their own rhythm.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const rate = (x) => (x === null ? "–" : x.toFixed(1) + "%");
+
+    function tableRows(list, max) {
+      if (!list.length) return null;
+      const top = Math.max(...list.map((r) => r.noShowRate || 0), 1);
+      return list.slice(0, max || list.length).map((r) => `<tr class="${r.lowSample ? "few" : ""}"><th scope="row">${esc(r.label)}${r.lowSample ? " (few bookings)" : ""}</th><td class="n">${r.bookings}</td><td class="n">${r.noShows}</td><td class="n">${rate(r.noShowRate)}<span class="bar" style="width:${Math.round(((r.noShowRate || 0) / top) * 60)}px"></span></td><td class="n">${r.lateCancels}</td><td class="n">${usd(r.lostRevenue)}</td></tr>`).join("");
+    }
+    const fill = (id, list, none, max) => { $(id).innerHTML = tableRows(list, max) || `<tr><td colspan="6" class="note">${none}</td></tr>`; };
+
+    function run(text) {
+      const d = detectDelimiter(text);
+      const n = normalizeBookings(parseCsv(text, d), { decimalComma: d === ";", dateOrder: $("#dateorder").value });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const a = analyze(n.records, { noticeHours: num("#notice", 24), defaultPrice: num("#price", 0), minNoShows: num("#minns", 2), feePct: num("#fee", 0), preventPct: num("#prevent", 0), collectPct: num("#collect", 100) });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      const s = a.summary, w = a.whatIf;
+      $("#big").innerHTML = [[rate(s.noShowRate), `no-show rate (${s.noShows} of ${s.bookings})`], [rate(s.lateCancelRate), `late-cancel rate (${s.lateCancels}, under ${s.noticeHours} h notice)`], [usd(s.lostRevenue), "lost to no-shows"], [usd(s.lateCancelRevenue), "late-cancel revenue at risk"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `${s.firstDay} to ${s.lastDay} (${s.spanDays} days). ${s.bookings} bookings counted: ${s.completed} attended, ${s.noShows} no-show, ${s.cancelled} cancelled by the client (${s.earlyCancels} with enough notice, ${s.lateCancels} late, ${s.cancelledUnknown} of unknown notice). Left out: ${s.providerCancelled} cancelled by the business, ${s.open} still open, ${n.duplicates} duplicate row(s). Prices: ${s.priceSources.file} from the file, ${s.priceSources["service average"]} from the service average, ${s.priceSources.placeholder} from the ${usd(s.defaultPrice)} placeholder.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#what-if").innerHTML = `Your assumptions: a ${w.feePct}% deposit or no-show fee prevents ${w.preventPct}% of no-shows and late cancels, and is collected on ${w.collectPct}% of the rest. On ${usd(w.noShowLost + w.lateCancelLost)} of lost and at-risk revenue that is <strong>${usd(w.recoveredVisits)}</strong> of kept visits plus <strong>${usd(w.feesCollected)}</strong> of fees, about <strong>${usd(w.total)}</strong> over this period` + (w.perYear !== null ? ` (roughly ${usd(w.perYear)} a year)` : " (the file covers under four weeks, so no yearly figure is given)") + `. These are your assumptions, not a forecast: nothing here knows how your clients would react to a fee.`;
+      fill("#by-weekday", a.byWeekday, "No dates.");
+      fill("#by-hour", a.byHour, "The file has no appointment times, so there is no hour-of-day breakdown.");
+      fill("#by-service", a.byService, "No services.", 25);
+      fill("#by-lead", a.byLead, "The file has no booked-on column, so there is no lead-time breakdown.");
+      $("#offenders").innerHTML = a.offenders.length ? a.offenders.slice(0, 50).map((o) => `<tr><th scope="row">${esc(o.client)}</th><td class="n">${o.bookings}</td><td class="n">${o.noShows}</td><td class="n">${o.lateCancels}</td><td class="n">${usd(o.lostRevenue)}</td></tr>`).join("") : `<tr><td colspan="5" class="note">No client has ${a.minNoShows} or more no-shows in this file.</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") + ".");
+      if (n.ambiguousDates) notes.push("Every date in the file could be read month-first or day-first; month-first was assumed. Change the date setting if that is wrong.");
+      notes.push("Columns read: " + Object.entries(n.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = `Read ${n.records.length} booking row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the export file or paste it first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const text = sampleCsv();
+      $("#paste").value = text; $("#file").value = "";
+      if (run(text)) { record("example_loaded"); status.textContent = "Sample data: an invented salon, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the export file or paste it, then click Analyze bookings."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "no-show-report.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fishing-crew-share-settlement-calculator/" data-pf-to="fishing-crew-share-settlement-calculator">Fishing crew share settlement: who gets what from the trip</a></li>
+      <li><a href="../freelance-contract-checker/" data-pf-to="freelance-contract-checker">Check a freelance contract before you sign it — free, private</a></li>
+      <li><a href="../freelance-project-picker/" data-pf-to="freelance-project-picker">Which freelance projects should you take?</a></li>
+      <li><a href="../freelance-proposal-maker/" data-pf-to="freelance-proposal-maker">Freelance Proposal Maker — free proposal generator, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-no-show-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/?pfEmbed=1&quot; title=&quot;Appointment No-Show Analyzer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="appointment-no-show-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/" data-pf-embed-title="Appointment No-Show Analyzer — free, private, in your browser" data-pf-embed-slug="appointment-no-show-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="appointment-no-show-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="appointment-no-show-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

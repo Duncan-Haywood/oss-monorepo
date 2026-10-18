@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a tent rental job really make: a worked example</title>
+  <meta name="description" content="How to work out what a party tent rental job really earns: crew hours, truck, supplies, damage, card fees, tent wear and yearly overhead…">
+  <meta property="og:title" content="How much does a tent rental job really make: a worked example">
+  <meta property="og:description" content="How to work out what a party tent rental job really earns: crew hours, truck, supplies, damage, card fees, tent wear and yearly overhead…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tent-rental-job-profit-calculator/how-much-does-a-tent-rental-job-really-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a tent rental so it makes money?","acceptedAnswer":{"@type":"Answer","text":"Add up the crew hours the job really takes (loading, driving, setup, takedown and cleaning for every person), multiply by the loaded hourly cost, then add fuel and truck wear, supplies, a damage reserve, card fees, the tent's wear per rental and a share of your yearly storage, insurance and truck payment. Divide the costs that do not scale with price by one minus your card-fee percentage and your target margin to get the lowest total quote."}},{"@type":"Question","name":"How many times does a party tent have to be rented to pay for itself?","acceptedAnswer":{"@type":"Answer","text":"Take what one rental earns above its direct costs (everything except the tent's own depreciation) and divide the tent's price by that. The calculator shows the rentals and the years at the rate you expect to rent it, and warns if the answer is more than the rentals you expect in the tent's life."}},{"@type":"Question","name":"Why does my quote look profitable but the job loses money?","acceptedAnswer":{"@type":"Answer","text":"Most of the cost is crew time that never appears on the quote: the warehouse load and clean, the drive and the takedown after the event. A three-person crew on a five-hour job is fifteen paid crew hours, so labor is often more than half of the job's cost."}},{"@type":"Question","name":"Which job should I take when my crew can only do so many?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per job and profit per crew hour. When crew hours are the limit, the job with the higher profit per crew hour fills the calendar better even if another job makes more by itself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tent-rental-job-profit-calculator/how-much-does-a-tent-rental-job-really-make.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tent-rental-job-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does a tent rental job really make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tent-rental-job-profit-calculator/">Tent Rental Job Profit Calculator — true profit, margin and lowest quote per job</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does a tent rental job really make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← Tent Rental Job Profit Calculator</a></p>
+    <h1>How much does a tent rental job really make?</h1>
+    <p>A $650 tent plus a $75 delivery fee looks like a $725 job. After the crew, the truck and the tent's own wear it keeps about a quarter of that.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A crew of 3 delivers a 20x40 frame tent. Each person spends 3 hours on site (setup and takedown), 1 hour driving and 1 hour loading and cleaning: <strong>15 crew hours</strong>. At $20 an hour plus 12% payroll cost, labor is <strong>$336.00</strong>. The truck drives 40 miles at 11 mpg and $3.70 a gallon, so fuel is <strong>$13.45</strong>, plus $14.00 of wear. Supplies are $18, the damage reserve is $25 and card fees are 3% of the quote, <strong>$21.75</strong>.</p>
+    <p>The tent cost $5,200 and should survive 150 rentals, which is <strong>$34.67</strong> a rental. Yearly storage, insurance and the truck payment are $6,000 over 90 jobs, <strong>$66.67</strong> on each job.</p>
+    <div class="pf-table-scroll"><table><thead><tr><th>Line</th><th>Per job</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$725.00</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$529.54</strong></td></tr>
+<tr><td>True profit</td><td><strong>$195.46</strong></td></tr>
+<tr><td>Margin</td><td>27.0%</td></tr>
+<tr><td>Profit per crew hour</td><td><strong>$13.03</strong></td></tr>
+<tr><td>Take-home after a 25% set-aside</td><td>$146.60</td></tr>
+    </tbody></table></div>
+    <p>At 90 jobs that is $17,592 of profit a year. The job needs about <strong>23</strong> jobs a year just to cover the overhead.</p>
+  </section>
+  <section class="card">
+    <h2>What the quote has to be</h2>
+    <p>For a 30% margin after 3% card fees, the costs that do not move with price ($507.79) are divided by 0.67, which gives a total of <strong>$757.89</strong>. At $725.00 this job is $32.89 short, which means a rental price of $682.89 with the same delivery fee.</p>
+    <h2 style="margin-top:20px">Does the tent pay for itself?</h2>
+    <p>One rental earns $230.13 above its direct costs, before the tent's own wear. The tent costs $5,200, so it needs <strong>22.6</strong> rentals, about 0.9 years at 25 rentals a year, well inside its 150-rental life.</p>
+    <h2 style="margin-top:20px">Comparing two jobs</h2>
+    <p>A smaller job brings in $430 plus $60 delivery with a crew of 2 working 4 hours each. It makes <strong>$124.31</strong> against <strong>$195.46</strong> for the first, but <strong>$15.54</strong> per crew hour against <strong>$13.03</strong>. On a busy Saturday where crew hours are the limit, the smaller job fills the calendar better.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a tent rental so it makes money?</h3>
+    <p>Add up the crew hours the job really takes (loading, driving, setup, takedown and cleaning for every person), multiply by the loaded hourly cost, then add fuel and truck wear, supplies, a damage reserve, card fees, the tent's wear per rental and a share of your yearly storage, insurance and truck payment. Divide the costs that do not scale with price by one minus your card-fee percentage and your target margin to get the lowest total quote.</p>
+    <h3>How many times does a party tent have to be rented to pay for itself?</h3>
+    <p>Take what one rental earns above its direct costs (everything except the tent's own depreciation) and divide the tent's price by that. The calculator shows the rentals and the years at the rate you expect to rent it, and warns if the answer is more than the rentals you expect in the tent's life.</p>
+    <h3>Why does my quote look profitable but the job loses money?</h3>
+    <p>Most of the cost is crew time that never appears on the quote: the warehouse load and clean, the drive and the takedown after the event. A three-person crew on a five-hour job is fifteen paid crew hours, so labor is often more than half of the job's cost.</p>
+    <h3>Which job should I take when my crew can only do so many?</h3>
+    <p>Compare profit per job and profit per crew hour. When crew hours are the limit, the job with the higher profit per crew hour fills the calendar better even if another job makes more by itself.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, insurance or financial advice. Not affiliated with any rental software vendor or tent manufacturer. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../notary-trip-quote/" data-pf-to="notary-trip-quote">Mobile Notary &amp; Loan Signing Fee Calculator</a></li>
+      <li><a href="../nua-employer-stock-calculator/" data-pf-to="nua-employer-stock-calculator">NUA or IRA rollover? Work out the tax on your employer stock — free, private</a></li>
+      <li><a href="../optical-dispensary-margin-calculator/" data-pf-to="optical-dispensary-margin-calculator">Optical dispensary margin calculator</a></li>
+      <li><a href="../padel-club-profit-calculator/" data-pf-to="padel-club-profit-calculator">Padel club calculator: what utilisation do you need to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tent-rental-job-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tent-rental-job-profit-calculator"></script>
+</body>
+</html>

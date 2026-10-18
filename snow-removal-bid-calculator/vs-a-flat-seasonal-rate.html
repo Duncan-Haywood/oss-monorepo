@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. quoting one flat seasonal rate for every driveway | Snow Removal Bid Calculator</title>
+<meta name="description" content="Setting one seasonal number from memory and quoting it to every stop is the fastest way to price a snow route.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. quoting one flat seasonal rate for every driveway">
+<meta property="og:description" content="The same $950 flat seasonal clears 19.5% margin on a two-car driveway in a 10-storm winter, goes underwater at 14 storms on that same driveway…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just quote one flat seasonal number and move on?","acceptedAnswer":{"@type":"Answer","text":"Because the number that clears a healthy margin on one stop can already be underwater on another, and the flat quote has no way to tell you which. On this calculator's own defaults (a $22/hr loaded operator plus a $45/hr truck, 30% payroll burden, $8/bag salt, 15% overhead, a 20% target margin, 10 expected snow events and 6 ice events), a $950 flat seasonal clears $185.05 profit at 19.5% margin on a two-car driveway. Quote that same $950 to a medium commercial lot instead, and it loses $1,921.96 — a -202.3% margin — because the lot's own ice-and-plow cost alone is $2,871.96 before a dollar of profit. A flat number quoted from memory cannot see that difference; it was never computed from either stop's minutes or salt."}},{"@type":"Question","name":"What happens if the winter turns out heavier than I assumed?","acceptedAnswer":{"@type":"Answer","text":"The same flat number that looked fine at the storm count you guessed can go underwater at the storm count you actually get, on the exact same driveway. Take that same two-car driveway and hold the $950 flat quote fixed: at 8 snow events the route's true cost is $663.99, so the flat quote clears $286.01 (30.1% margin); at 10 events, its planned case, cost rises to $764.95 and profit falls to $185.05 (19.5%); at 14 events — the kind of heavier winter a trigger-depth change or a bad season can produce — true cost climbs to $966.86, and the same $950 flat quote loses $16.86. Nothing about the driveway changed; only the storm count did, and a flat number set once from memory has no field for that."}},{"@type":"Question","name":"Is picking one flat number ever the right call?","acceptedAnswer":{"@type":"Answer","text":"Yes, for a route of near-identical stops in a market with a storm count you already know cold from many seasons of your own records — a flat number set that way is really just this calculator's own math, done once and reused. It stops working the moment the route mixes stop sizes (a two-car driveway next to a commercial lot), or the storm count is uncertain enough that a heavier winter is plausible. This calculator does not know your market's snowfall any better than you do; it turns whatever storm count and stop list you enter into a price, and reports the break-even storm count for any number you're already considering, instead of asking you to hold all of that in your head."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. \"Copy share link\" encodes your stops, rates, and expected winter into this page's own URL hash so a partner or the office can open the same bid — nothing is sent to a server. The optional usage counter records only which features were used, stored locally, and never your route, wages, costs, or prices."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #e8eef5; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1a5f86; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d0d8e2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d0d8e2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  tbody tr.loss td, tbody tr.loss th { color: #8a2020; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/snow-removal-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. quoting one flat seasonal rate for every driveway — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../snow-removal-bid-calculator/">Snow Removal Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. quoting one flat seasonal rate for every driveway</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Snow Removal Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. quoting one flat seasonal rate for every driveway</h1>
+<p class="lede">Setting one seasonal number from last year's memory and quoting it to every stop on the route is the fastest way to price a winter. It is also the fastest way to lose money on the one stop that doesn't look like the others, or the one winter that runs heavier than you guessed. This calculator prices each stop from its own minutes and salt, and reports the storm count any number you're already considering actually survives.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A flat seasonal rate</strong> is a number set once, usually from
+  how a typical driveway priced out last winter, and then quoted to every
+  new stop regardless of its size, sidewalk length, or salt use. It takes
+  seconds to quote and needs no math on the phone. What it cannot do is
+  tell you whether that number still clears a margin on a stop that isn't
+  a typical driveway, or on a winter that isn't a typical winter.
+</p>
+<p>
+  <strong>This calculator</strong> prices each stop from its own plow
+  minutes, sidewalk minutes, and salt bags, with ice events priced as
+  their own line rather than folded into a plow visit, against a loaded
+  operator-and-truck hourly, payroll burden, salt cost, overhead, and
+  target margin. Enter a seasonal number you're already considering and it
+  reports the profit, the margin, and the storm count that number breaks
+  even at &mdash; on that specific stop, at the storm count you actually
+  expect, not a number recalled from a different route in a different
+  winter.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What should I charge this specific stop, given its own minutes and salt?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>Does the flat number I already quote hold up on a bigger or smaller stop?</td><td>This calculator's proposed-price check, run against that stop's own sites.</td></tr>
+<tr><td>How many storms can the seasonal I'm already charging actually survive?</td><td>This calculator's break-even storm count.</td></tr>
+<tr><td>I just need a number to say out loud on the phone right now.</td><td>A flat rate &mdash; faster, and fine for a route of near-identical stops in a market you already know cold.</td></tr>
+<tr><td>How does the math behind a snow-removal seasonal actually work?</td><td>This calculator's own <a href="how-much-to-charge.html">pricing walkthrough</a>.</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>The same $950 flat quote, three stops, one storm count</h2>
+<p>Using this calculator's own shipped defaults &mdash; a $22/hr loaded operator plus a $45/hr truck, 30% payroll burden, $8/bag salt, 15% overhead, a 20% target margin, 10 expected snow events and 6 ice events &mdash; and a $950 flat seasonal quoted to three different stops:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Stop</th><th scope="col">True seasonal cost</th><th scope="col">Profit at $950 flat</th><th scope="col">Margin</th></tr></thead>
+<tbody>
+<tr><th scope="row">Two-car driveway</th><td>$764.95</td><td>$185.05</td><td>19.5%</td></tr>
+<tr><th scope="row">Sidewalks / walkways only</th><td>$725.05</td><td>$224.95</td><td>23.7%</td></tr>
+<tr class="loss"><th scope="row">Medium commercial lot (20&ndash;50 cars)</th><td>$2,871.96</td><td>&minus;$1,921.96</td><td>&minus;202.3%</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>The $950 quote clears a healthy margin on the two stops it happens to resemble, and loses <strong>$1,921.96</strong> the moment it's quoted to the commercial lot &mdash; whose own ice-and-plow cost, $2,871.96, is already three times the flat number before a dollar of profit. Nothing about the arithmetic changed between stops; only the stop's own minutes and salt did, and a number set from memory has no field for that.</p>
+</section>
+<section>
+<h2>The same driveway, three winters</h2>
+<p>Hold the stop fixed &mdash; the two-car driveway above &mdash; and the same $950 flat quote, and vary only the storm count:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Snow events</th><th scope="col">True seasonal cost</th><th scope="col">Profit at $950 flat</th><th scope="col">Margin</th></tr></thead>
+<tbody>
+<tr><th scope="row">8 (a mild winter)</th><td>$663.99</td><td>$286.01</td><td>30.1%</td></tr>
+<tr><th scope="row">10 (the planned case)</th><td>$764.95</td><td>$185.05</td><td>19.5%</td></tr>
+<tr class="loss"><th scope="row">14 (a heavy winter)</th><td>$966.86</td><td>&minus;$16.86</td><td>&minus;1.8%</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Nothing about the driveway changed between rows &mdash; only the storm count did. A flat $950 set from a mild, 8-event winter looks generous the next year at 10 events, and quietly goes underwater at 14: the exact shape the calculator's own break-even figure exists to catch before the season, not after it.</p>
+<p class="fine">All figures recomputed live from <code>calc.mjs</code>, the same arithmetic the calculator itself runs — not typed once and left to drift.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just quote one flat seasonal number and move on?</h3>
+<p>Because the number that clears a healthy margin on one stop can already be underwater on another, and the flat quote has no way to tell you which. On this calculator's own defaults (a $22/hr loaded operator plus a $45/hr truck, 30% payroll burden, $8/bag salt, 15% overhead, a 20% target margin, 10 expected snow events and 6 ice events), a $950 flat seasonal clears $185.05 profit at 19.5% margin on a two-car driveway. Quote that same $950 to a medium commercial lot instead, and it loses $1,921.96 — a -202.3% margin — because the lot's own ice-and-plow cost alone is $2,871.96 before a dollar of profit. A flat number quoted from memory cannot see that difference; it was never computed from either stop's minutes or salt.</p>
+<h3>What happens if the winter turns out heavier than I assumed?</h3>
+<p>The same flat number that looked fine at the storm count you guessed can go underwater at the storm count you actually get, on the exact same driveway. Take that same two-car driveway and hold the $950 flat quote fixed: at 8 snow events the route's true cost is $663.99, so the flat quote clears $286.01 (30.1% margin); at 10 events, its planned case, cost rises to $764.95 and profit falls to $185.05 (19.5%); at 14 events — the kind of heavier winter a trigger-depth change or a bad season can produce — true cost climbs to $966.86, and the same $950 flat quote loses $16.86. Nothing about the driveway changed; only the storm count did, and a flat number set once from memory has no field for that.</p>
+<h3>Is picking one flat number ever the right call?</h3>
+<p>Yes, for a route of near-identical stops in a market with a storm count you already know cold from many seasons of your own records — a flat number set that way is really just this calculator's own math, done once and reused. It stops working the moment the route mixes stop sizes (a two-car driveway next to a commercial lot), or the storm count is uncertain enough that a heavier winter is plausible. This calculator does not know your market's snowfall any better than you do; it turns whatever storm count and stop list you enter into a price, and reports the break-even storm count for any number you're already considering, instead of asking you to hold all of that in your head.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No. The calculator runs entirely in your browser. "Copy share link" encodes your stops, rates, and expected winter into this page's own URL hash so a partner or the office can open the same bid — nothing is sent to a server. The optional usage counter records only which features were used, stored locally, and never your route, wages, costs, or prices.</p>
+<p class="note">This page names no vendor as a competitor — it compares against the generic method of quoting one flat seasonal number from memory, not a competing calculator or service. Open the <a href="index.html">Snow Removal Bid Calculator</a> to price your own route, or see <a href="vs-aspire.html">this calculator vs. Aspire</a> for how it compares to a business-management platform instead.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a weather forecast and it does not replace a qualified professional. Verify every figure against your own payroll, insurance, fuel, and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page names no spreadsheet, app, or competing product — it compares against the generic habit of quoting one flat seasonal number from memory.</p>
+<p class="support">Free and open source. If it wins you a winter, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../forestry-mulching-bid-calculator/" data-pf-to="forestry-mulching-bid-calculator">Forestry Mulching Bid Calculator</a></li>
+      <li><a href="../holiday-light-bid-calculator/" data-pf-to="holiday-light-bid-calculator">Holiday Light Bid Calculator</a></li>
+      <li><a href="../hot-tub-bid-calculator/" data-pf-to="hot-tub-bid-calculator">Hot Tub Bid Calculator</a></li>
+      <li><a href="../irrigation-install-bid-calculator/" data-pf-to="irrigation-install-bid-calculator">Irrigation Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=snow-removal-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="snow-removal-bid-calculator"></script>
+</body></html>

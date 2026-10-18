@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Did My Job Cost More Than I Estimated?</title>
+  <meta name="description" content="Compare estimated and actual labor hours, materials, and other costs on a completed job to find the single line that moved the most before your next quote.">
+  <meta property="og:title" content="Why Did My Job Cost More Than I Estimated?">
+  <meta property="og:description" content="A $45 materials overrun and a 4-hour labor overrun are not equally worth reviewing — this tool names which one to look at first.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/why-did-my-job-cost-more-than-i-estimated.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why did my job cost more than I estimated?","acceptedAnswer":{"@type":"Answer","text":"Enter the estimated and actual figures for labor hours, materials, and other costs from the completed job. The calculator computes the variance on each line and reports total cost variance — actual materials and other costs minus estimated — in the same currency as the job, plus which single line moved the most."}},{"@type":"Question","name":"Which number should I look at first after a job — labor hours or materials cost?","acceptedAnswer":{"@type":"Answer","text":"Whichever line has the largest movement, reviewed line by line: labor-hour variance, materials variance, and other-cost variance are each measured in their own unit, and the largest single movement is flagged as the assumption most worth reviewing before the next similar quote."}},{"@type":"Question","name":"How do I use this to fix future quotes?","acceptedAnswer":{"@type":"Answer","text":"Run the comparison immediately after the job closes, while the reasons for any overrun are still fresh, then copy the review into the job folder. The next time you quote similar work, check the assumption this report flagged as the largest mover before you repeat the same estimate."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17251f; background: #f2f5ef; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #17633d; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #17633d; color: #f2fbf6; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #506050; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/why-did-my-job-cost-more-than-i-estimated.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Did My Job Cost More Than I Estimated? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../job-margin-variance/">Job Cost Variance Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Did My Job Cost More Than I Estimated?</span></span></nav>
+  <p><a href="./">← Job margin variance calculator</a></p>
+  <h1>Why did my job cost more than I estimated?</h1>
+  <p>A finished job that cost more than the quote usually has one line that moved the most — a materials price that jumped, hours that ran long, or a small "other costs" line nobody watched. Finding that line by eye across three separate comparisons is slower than the arithmetic, and it is easy to fixate on the wrong one.</p>
+  <p><a class="cta" href="./">Open the free job margin variance calculator</a></p>
+
+  <h2>What a single total variance cannot see</h2>
+  <p><strong>Labor hours and dollars are different units.</strong> A job can run 4 hours over on labor and $45 over on materials at the same time — knowing which of those two is the bigger problem for the next quote takes comparing them side by side, not just a total dollar figure.</p>
+  <p><strong>The largest movement is not always the total.</strong> Total cost variance combines materials and other costs; the single largest line can be either one of those, and it's the line worth reviewing first, not the combined total.</p>
+  <p><strong>A record fades fast.</strong> The reasons behind an overrun — a supplier price change, an access delay, extra prep — are easiest to remember and log right after the job, before the next quote repeats the same estimate.</p>
+
+  <h2>A number you can defend</h2>
+  <ol>
+    <li>Enter estimated and actual labor hours, materials cost, and other costs from the completed job.</li>
+    <li>Read the variance on each of the three lines — actual minus estimate, in that line's own unit.</li>
+    <li>Check the total cost variance (materials plus other costs) against the estimate.</li>
+    <li>Note the single largest movement the calculator flags, and copy the review into the job folder before quoting similar work again.</li>
+  </ol>
+
+  <h2>Worked example</h2>
+  <p>A job estimated at 16 labor hours, $420 in materials, and $80 in other costs actually ran 20 hours, $465 in materials, and $95 in other costs. Labor ran 4 hours over. Materials ran $45 over. Other costs ran $15 over. Total cost variance (materials plus other costs) is $60 above estimate. Comparing the three movements, materials is the largest single line to review — the $45 swing outweighs both the labor-hour overrun and the smaller other-costs line — so that's the assumption to revisit before quoting the next similar job.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why did my job cost more than I estimated?</h3>
+  <p>Enter the estimated and actual figures for labor hours, materials, and other costs from the completed job. The calculator computes the variance on each line and reports total cost variance — actual materials and other costs minus estimated — in the same currency as the job, plus which single line moved the most.</p>
+  <h3>Which number should I look at first after a job — labor hours or materials cost?</h3>
+  <p>Whichever line has the largest movement, reviewed line by line: labor-hour variance, materials variance, and other-cost variance are each measured in their own unit, and the largest single movement is flagged as the assumption most worth reviewing before the next similar quote.</p>
+  <h3>How do I use this to fix future quotes?</h3>
+  <p>Run the comparison immediately after the job closes, while the reasons for any overrun are still fresh, then copy the review into the job folder. The next time you quote similar work, check the assumption this report flagged as the largest mover before you repeat the same estimate.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="./">Use the calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hay-sale-price-calculator/" data-pf-to="hay-sale-price-calculator">Hay Sale Price Calculator — free, private</a></li>
+      <li><a href="../home-service-lead-roi-analyzer/" data-pf-to="home-service-lead-roi-analyzer">Home Service Lead ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../hunting-lease-income-calculator/" data-pf-to="hunting-lease-income-calculator">Hunting Lease Income Calculator — free, private</a></li>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=job-margin-variance">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="job-margin-variance"></script>
+</body>
+</html>

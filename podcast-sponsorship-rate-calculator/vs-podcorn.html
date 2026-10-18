@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This calculator vs. Podcorn | Podcast Sponsorship Rate Calculator</title>
+  <meta name="description" content="How this free, no-account podcast sponsorship rate calculator differs from Podcorn, the self-serve podcast sponsorship marketplace. Not affiliated with Podcorn.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/vs-podcorn.html">
+  <meta property="og:title" content="This calculator vs. Podcorn | Podcast Sponsorship Rate Calculator">
+  <meta property="og:description" content="Podcorn matches podcasters with sponsors through a marketplace and takes a commission on what it books.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Podcorn?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems. Podcorn is a marketplace: you create a show profile, brands browse and send sponsorship offers (or you pitch them), and Podcorn handles matching, contracting, and payment in exchange for a commission on the deal. This page is a free calculator: no profile, no brand discovery, no commission. You enter your average downloads per episode, niche, and read type, and it gives you a price range to quote a sponsor you already found yourself -- through your own network, a cold pitch, or a returning advertiser."}},{"@type":"Question","name":"Does Podcorn price the same way this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Not exactly the same inputs. On Podcorn, podcasters typically set their own asking price per deliverable and brands accept, counter, or pass, with the platform's own market data informing what a competitive ask looks like. This calculator has no marketplace data to draw on; it applies commonly cited CPM-per-1000-downloads benchmark ranges to your own downloads, niche, and read type instead, so the range is grounded in published market rates for your show's numbers rather than what Podcorn's brand pool happened to offer this quarter."}},{"@type":"Question","name":"Is Podcorn free?","acceptedAnswer":{"@type":"Answer","text":"Not to transact through. Podcorn does not charge podcasters to create a profile, but marketplaces like it commonly take a percentage-based commission on the value of a booked deal -- check Podcorn's current published terms for the exact rate, since fee structures change. This calculator has no listing, no deal flow, and takes no cut of anything -- it is a free static page that only computes a price range."}},{"@type":"Question","name":"Is this page affiliated with Podcorn?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Podcorn, and this page is not a review of it. Podcorn is a trademark of its owner, named here only to describe what this calculator is for. Marketplace mechanics described above are drawn from Podcorn's own public description of its service rather than measured by us, and marketplace fees, plans and requirements change -- check Podcorn's current terms on their site before relying on any detail here."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; }
+    a { color: #2a6b8e; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; color: #1f4a5d; margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d6e0e6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5a68; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #2a6b8e; color: #fff; text-decoration: none; font-weight: 700; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    footer { margin-top: 2rem; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/vs-podcorn.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Podcorn | Podcast Sponsorship Rate Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../podcast-sponsorship-rate-calculator/">Podcast Sponsorship Rate Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Podcorn | Podcast Sponsorship Rate Calculator</span></span></nav>
+  <p><a href="./">&larr; Podcast sponsorship rate calculator</a></p>
+  <h1>This calculator vs. Podcorn</h1>
+  <p>
+    <a href="https://podcorn.com/" rel="nofollow noopener">Podcorn</a>
+    is a self-serve podcast sponsorship marketplace: you create a show
+    profile, brands browse and send offers (or you pitch them directly),
+    and Podcorn handles matching, contracting, and payment for a
+    <strong>commission on the value of each deal</strong> it processes.
+  </p>
+  <p>
+    That makes Podcorn the right choice for <strong>finding brands you
+    don't already have, and running the whole matching, contracting, and
+    payment process through a marketplace</strong>. This page answers a
+    narrower question: <strong>for a sponsor you already have -- your own
+    network, a cold pitch, a returning advertiser -- what should you
+    actually charge</strong>, free, with no profile and no cut of what you
+    negotiate directly.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I don't have a sponsor yet -- where do I find one?</td>
+        <td>Podcorn's marketplace, or another advertiser network.</td>
+      </tr>
+      <tr>
+        <td>I already have a sponsor (or a lead) -- what should I quote them?</td>
+        <td>This calculator -- enter your numbers, get a price range immediately, nothing listed.</td>
+      </tr>
+      <tr>
+        <td>What's a typical range across the whole market, by show size?</td>
+        <td>Podcorn's own market data, drawn from deals on its marketplace.</td>
+      </tr>
+      <tr>
+        <td>What's a defensible range for <em>my specific</em> downloads, niche, and read type?</td>
+        <td>This calculator's own CPM-per-downloads math.</td>
+      </tr>
+      <tr>
+        <td>Can I get an answer without creating a profile or giving up a commission?</td>
+        <td>This calculator -- a static page, no sign-up, no booking, no cut.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Get a price range now</a>
+  <p>
+    This tool needs no account and lists nothing: it is a static page, the
+    arithmetic runs in your browser, and your downloads, niche, read type,
+    and every other figure stay on this device -- nothing is uploaded
+    anywhere, there is no marketplace listing, and no commission on
+    whatever you and your sponsor agree to.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Podcorn?</h3>
+  <p>They solve different problems. Podcorn is a marketplace: you create a show profile, brands browse and send sponsorship offers (or you pitch them), and Podcorn handles matching, contracting, and payment in exchange for a commission on the deal. This page is a free calculator: no profile, no brand discovery, no commission. You enter your average downloads per episode, niche, and read type, and it gives you a price range to quote a sponsor you already found yourself -- through your own network, a cold pitch, or a returning advertiser.</p>
+  <h3>Does Podcorn price the same way this calculator does?</h3>
+  <p>Not exactly the same inputs. On Podcorn, podcasters typically set their own asking price per deliverable and brands accept, counter, or pass, with the platform's own market data informing what a competitive ask looks like. This calculator has no marketplace data to draw on; it applies commonly cited CPM-per-1000-downloads benchmark ranges to your own downloads, niche, and read type instead, so the range is grounded in published market rates for your show's numbers rather than what Podcorn's brand pool happened to offer this quarter.</p>
+  <h3>Is Podcorn free?</h3>
+  <p>Not to transact through. Podcorn does not charge podcasters to create a profile, but marketplaces like it commonly take a percentage-based commission on the value of a booked deal -- check Podcorn's current published terms for the exact rate, since fee structures change. This calculator has no listing, no deal flow, and takes no cut of anything -- it is a free static page that only computes a price range.</p>
+  <h3>Is this page affiliated with Podcorn?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Podcorn, and this page is not a review of it. Podcorn is a trademark of its owner, named here only to describe what this calculator is for. Marketplace mechanics described above are drawn from Podcorn's own public description of its service rather than measured by us, and marketplace fees, plans and requirements change -- check Podcorn's current terms on their site before relying on any detail here.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+    <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+      <li><a href="../card-bonus-planner/" data-pf-to="card-bonus-planner">Card Bonus Planner — schedule sign-up bonuses around your real spending</a></li>
+      <li><a href="../cash-flow-risk-forecaster/" data-pf-to="cash-flow-risk-forecaster">Cash flow forecast with late-paying customers: the odds you run short. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=podcast-sponsorship-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="podcast-sponsorship-rate-calculator"></script>
+</body>
+</html>

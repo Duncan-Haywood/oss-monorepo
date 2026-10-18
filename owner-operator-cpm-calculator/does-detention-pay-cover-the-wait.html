@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does Detention Pay Cover the Wait? Owner Operator Math</title>
+  <meta name="description" content="A $2.00 loaded week can still lose money after deadhead. See how many detention hours at $50 cover the hole…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/does-detention-pay-cover-the-wait.html">
+  <meta property="og:title" content="Does Detention Pay Cover the Wait?">
+  <meta property="og:description" content="On the starting solo week, $2.00 after 3% factoring loses $32.96. Six hours of $50 detention after the same factor, minus a $75 lumper, flips the week to +$183.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Compare a miles-only week to the same week with detention and a lumper",
+    "description": "Score an offered loaded rate after factoring, then add detention, layover, and unreimbursed lumper as their own settlement lines.",
+    "step": [
+      { "@type": "HowToStep", "name": "Score the miles", "text": "Cost the week on total miles and compare the offer after factoring. That is the miles-only profit." },
+      { "@type": "HowToStep", "name": "Add detention and layover", "text": "Hours times the detention rate, plus any layover lump sum. Apply the same factor if those lines settle with the load." },
+      { "@type": "HowToStep", "name": "Subtract unreimbursed lumper", "text": "Cash you paid at the dock minus what the broker repaid. That is extra weekly cost, not a rate." }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    a { color: #8a5a12; }
+    .example { background: #fff; border: 1px solid #c9d2c6; border-radius: 12px; padding: 16px 18px; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5b54; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/does-detention-pay-cover-the-wait.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does Detention Pay Cover the Wait? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../owner-operator-cpm-calculator/">Owner Operator Cost Per Mile Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does Detention Pay Cover the Wait?</span></span></nav>
+  <p><a href="./">← Owner-operator cost per mile calculator</a></p>
+  <h1>Does detention pay cover the wait?</h1>
+  <p>Sitting unpaid is not the same as a cheap loaded rate. Detention is a settlement line. A lumper is cash out unless someone reimburses it. Treating both as “part of the $2.00” hides whether the wait actually paid.</p>
+  <p>On the calculator’s starting week — 1,800 loaded / 450 empty, $2.00 after 3% factoring — the miles-only settlement <strong>loses $32.96</strong>. That is the hole detention has to fill before the wait is even free.</p>
+  <div class="example">
+    <p><strong>Six hours at $50, same 3% factor, plus a $75 lumper you paid.</strong> Detention settles $291. Subtract the lumper and the accessorials add $216. The same $2.00 week <strong>keeps $183.04</strong>. The miles-only hole closes after <strong>0.68 hours</strong> at that detention rate. Past that, extra hours are profit — until the next load you missed is worth more than sitting.</p>
+  </div>
+  <p>The conversion that keeps the units honest:</p>
+  <ol>
+    <li>Score the offer on miles and the note only. That is the miles-only profit.</li>
+    <li>Add detention hours × pay, plus layover, after the same factor if they settle with the load.</li>
+    <li>Subtract lumper paid minus lumper reimbursed. That is extra weekly cost.</li>
+  </ol>
+  <p>Unpaid detention is just more unpaid time. A lumper the broker never repays is a rate cut you already accepted. <a href="./">Open the calculator</a> and replace the starting hours with the ones on your bills. Nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or dispatch advice. Verify every figure against your own settlement before you sit or drop. The authors accept no liability for loss from its use.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ucr-fee-calculator/" data-pf-to="ucr-fee-calculator">UCR Fee Calculator — free, private</a></li>
+      <li><a href="../vector-db-cost-calculator/" data-pf-to="vector-db-cost-calculator">Vector Database Cost Calculator</a></li>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=owner-operator-cpm-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="owner-operator-cpm-calculator"></script>
+</body>
+</html>

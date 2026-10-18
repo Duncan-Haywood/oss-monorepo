@@ -1,0 +1,31 @@
+{
+  "slug": "security-camera-bid-calculator",
+  "name": "Security camera installation",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "CCTV installs priced per camera drop by construction type, plus cable, recorder, drives and commissioning.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 12,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Camera drop, supply and install (attic access)",
+      "unit": "camera",
+      "qty": 8,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 220.36,
+      "source": "8 cameras, 2 h/drop for 'attic' (CONSTRUCTION_TYPES in calc.mjs, index.html defaults); camera $190 + cable ceil(8 x 120 ft x 1.15) = 1,104 ft at $0.22 = $242.88 / 8 (calculateCabling)"
+    },
+    {
+      "label": "Head end: NVR, PoE switch, 2 x 8 TB drives, other materials; commissioning",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 1552,
+      "source": "commissioningHours 4; NVR $700 + switch $350 + 16 TB at $22/TB = $352 + other materials $150 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Storage sizing and real retention days from resolution, codec and drives bought, PoE budget and 328 ft Ethernet checks, construction-type hours per drop, and a lift adder."
+}

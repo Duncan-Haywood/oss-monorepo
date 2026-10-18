@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JSON-LD Rich Result Validator — Schema Markup Checker and Generator</title>
+  <meta name="description" content="Free JSON-LD and schema markup validator. Paste a page's HTML or JSON-LD and see every missing required and recommended property for Product, Article…">
+  <meta property="og:title" content="JSON-LD Rich Result Validator — free, private, in your browser">
+  <meta property="og:description" content="Find out why your structured data is not eligible for rich results, then fix it. Validator and generator in one page.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "JSON-LD Rich Result Validator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock"}, "description": "Paste a page's HTML or JSON-LD and get every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting, FAQ, Breadcrumb, Video and Software markup. Also builds starter JSON-LD. Runs in your browser.", "featureList": "JSON-LD validator, schema markup checker, rich result eligibility check, structured data generator, FAQ schema generator, product schema generator, local business schema generator, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my structured data not showing as a rich result in Google?", "acceptedAnswer": {"@type": "Answer", "text": "Valid markup is necessary but not sufficient. Google only shows a rich result when the markup has every required property, matches what is visible on the page, and the page is indexed and judged helpful. Paste your page here to find missing required properties, wrong price formats and bad dates first, then check the page is indexed. Google decides what to show and no tool can promise a rich result."}}, {"@type": "Question", "name": "What are required and recommended properties?", "acceptedAnswer": {"@type": "Answer", "text": "Required properties must be present or the page is not eligible for that rich result. Recommended properties are not mandatory but give Google more to work with, so listings with them are more likely to be shown in full. This tool marks missing required properties as errors and missing recommended ones as warnings."}}, {"@type": "Question", "name": "Does Google still show FAQ rich results?", "acceptedAnswer": {"@type": "Answer", "text": "Since August 2023 Google shows FAQ rich results only for well-known government and health websites. FAQPage markup on other sites is still valid schema.org and can be read by other search engines and assistants, but do not expect expandable answers in Google results."}}, {"@type": "Question", "name": "What price format does Product markup need?", "acceptedAnswer": {"@type": "Answer", "text": "The price must be a plain number such as 12.50 with no currency symbol and no thousands separator, and the currency goes in priceCurrency as a three-letter ISO 4217 code such as USD. Values like $12.50 or 1,200 are the most common cause of an invalid Offer."}}, {"@type": "Question", "name": "Should I use JSON-LD, Microdata or RDFa?", "acceptedAnswer": {"@type": "Answer", "text": "Google supports all three and recommends JSON-LD because it lives in one script block, separate from your visible HTML, and is easier to keep correct. This tool reads JSON-LD."}}, {"@type": "Question", "name": "Is the HTML or JSON I paste uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Parsing and checking happen in your browser tab. Nothing is sent to a server, and there are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  
+    .pill.error { background: #f8d9d6; color: #7d1f16; }
+    .pill.warning { background: #fdf0d5; color: #7c5e10; }
+    .pill.ok { background: #d9efdc; color: #1d5a2a; }
+    pre { background: #f2f7f9; border: 1px solid #d9dfe6; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .85rem; }
+    code { font-family: ui-monospace, monospace; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"JSON-LD Rich Result Validator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JSON-LD Rich Result Validator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">JSON-LD Rich Result Validator — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">JSON-LD RICH RESULT VALIDATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why isn't your structured data eligible for rich results?</h1>
+    <p>Paste a page's HTML (or just a JSON-LD block). You get every entity found, the <strong>required properties that are missing</strong>, the <strong>recommended ones that would help</strong>, and fixes for the usual traps: prices with a $ sign, dates that are not ISO 8601, durations like “30 minutes”, an author written as a plain string. A second panel <strong>builds starter JSON-LD</strong> and checks it as you go.</p>
+    <p class="note">Checks the markup you paste against Google's published requirements for Product, Article, LocalBusiness, Organization, Recipe, Event, JobPosting, FAQPage, BreadcrumbList, SoftwareApplication, VideoObject. It does not fetch your page and cannot promise what Google will show. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check your markup</h2>
+    <label for="input">Page HTML or JSON-LD</label>
+    <textarea id="input" spellcheck="false" placeholder='&lt;script type="application/ld+json"&gt;{"@context":"https://schema.org","@type":"Product", …}&lt;/script&gt;'></textarea>
+    <button type="button" id="check">Check markup</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste markup, then click Check markup.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>2. Build starter markup</h2>
+    <label for="btype">Type</label>
+    <select id="btype">
+      <option value="FAQPage">FAQ page</option><option value="Product">Product</option><option value="LocalBusiness">Local business</option>
+      <option value="Article">Article / blog post</option><option value="Breadcrumbs">Breadcrumbs</option>
+    </select>
+    <div id="bfields" class="grid"></div>
+    <button type="button" id="build">Build JSON-LD</button>
+    <p id="build-status" role="status" class="note">Fill in what you have; the checker below the output tells you what is still missing.</p>
+    <pre id="bout" hidden></pre>
+    <button type="button" class="secondary" id="copy" hidden>Copy script tag</button>
+    <div id="bcheck"></div>
+  </section>
+
+  <section class="card">
+    <h2>What is checked</h2>
+    <p><strong>Errors</strong> are missing required properties or values Google cannot read (a price of “$12”, an Event with no location). <strong>Warnings</strong> are recommended properties and format slips. <strong>Info</strong> is context, such as Google showing FAQ rich results only for government and health sites since August 2023.</p>
+    <p><strong>Not covered:</strong> Microdata and RDFa, whether the markup matches the visible page (a Google requirement), whether the page is indexed, and rich result types not listed. Markup that passes here can still not be shown: Google decides. <strong>Unverified:</strong> rules were written from Google's public structured-data documentation and may lag changes; confirm anything important with Google's own tools.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is my structured data not showing as a rich result in Google?</h3>
+    <p>Valid markup is necessary but not sufficient. Google only shows a rich result when the markup has every required property, matches what is visible on the page, and the page is indexed and judged helpful. Paste your page here to find missing required properties, wrong price formats and bad dates first, then check the page is indexed. Google decides what to show and no tool can promise a rich result.</p>
+    <h3>What are required and recommended properties?</h3>
+    <p>Required properties must be present or the page is not eligible for that rich result. Recommended properties are not mandatory but give Google more to work with, so listings with them are more likely to be shown in full. This tool marks missing required properties as errors and missing recommended ones as warnings.</p>
+    <h3>Does Google still show FAQ rich results?</h3>
+    <p>Since August 2023 Google shows FAQ rich results only for well-known government and health websites. FAQPage markup on other sites is still valid schema.org and can be read by other search engines and assistants, but do not expect expandable answers in Google results.</p>
+    <h3>What price format does Product markup need?</h3>
+    <p>The price must be a plain number such as 12.50 with no currency symbol and no thousands separator, and the currency goes in priceCurrency as a three-letter ISO 4217 code such as USD. Values like $12.50 or 1,200 are the most common cause of an invalid Offer.</p>
+    <h3>Should I use JSON-LD, Microdata or RDFa?</h3>
+    <p>Google supports all three and recommends JSON-LD because it lives in one script block, separate from your visible HTML, and is easier to keep correct. This tool reads JSON-LD.</p>
+    <h3>Is the HTML or JSON I paste uploaded anywhere?</h3>
+    <p>No. Parsing and checking happen in your browser tab. Nothing is sent to a server, and there are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified SEO or developer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with Google, Schema.org or any search engine, and none is endorsed. Names are used only to describe what the checks are based on.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The markup you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>markup_checked</code>, <code>example_loaded</code>, <code>markup_built</code>, <code>report_downloaded</code>) are counted only in this browser's local storage, honour Do Not Track, and can be switched off:</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../structured-data-drift-check/">structured data drift check</a> tests that your JSON-LD matches the visible page text.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, build, reportCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const FIELDS = {
+      FAQPage: [["qa", "Questions and answers, one per line as Question|Answer", "textarea"]],
+      Product: [["name", "Name"], ["image", "Image URL"], ["description", "Description"], ["brand", "Brand"], ["sku", "SKU"], ["price", "Price (number only)"], ["currency", "Currency (USD)"], ["url", "Product page URL"]],
+      LocalBusiness: [["subtype", "Business type (for example Plumber)"], ["name", "Name"], ["url", "Website"], ["phone", "Telephone"], ["image", "Image URL"], ["street", "Street"], ["city", "City"], ["region", "State / region"], ["postal", "Postal code"], ["country", "Country (US)"], ["lat", "Latitude"], ["lng", "Longitude"], ["priceRange", "Price range ($$)"], ["hours", "Hours, one per line (Mo-Fr 08:00-17:00)", "textarea"], ["sameAs", "Profile URLs, one per line", "textarea"]],
+      Article: [["headline", "Headline"], ["image", "Image URL"], ["published", "Date published (2026-03-01)"], ["modified", "Date modified"], ["author", "Author name"], ["authorUrl", "Author URL"], ["publisher", "Publisher name"], ["logo", "Publisher logo URL"], ["url", "Article URL"]],
+      Breadcrumbs: [["trail", "One crumb per line as Name|URL (last may omit URL)", "textarea"]],
+    };
+    const drawFields = () => {
+      $("#bfields").innerHTML = FIELDS[$("#btype").value].map(([id, label, kind]) => `<div><label for="f-${id}">${esc(label)}</label>${kind === "textarea" ? `<textarea id="f-${id}" style="min-height:90px"></textarea>` : `<input id="f-${id}">`}</div>`).join("");
+    };
+    const render = (res, target) => {
+      const rows = [];
+      for (const p of res.problems) rows.push(`<div class="finding"><h4><span class="pill ${p.level}">${p.level}</span>${esc(p.path || "Input")}</h4><p>${esc(p.message)}</p></div>`);
+      for (const e of res.entities) {
+        const head = `${esc(e.types.join(", ") || "(no @type)")}${e.name ? " — " + esc(e.name) : ""}`;
+        const badge = e.errors ? `<span class="pill error">${e.errors} error${e.errors > 1 ? "s" : ""}</span>` : e.eligible ? `<span class="pill ok">eligible</span>` : `<span class="pill info">no rule</span>`;
+        rows.push(`<div class="finding"><h4>${badge}${head}</h4>${e.findings.map((f) => `<p><span class="pill ${f.level}">${f.level}</span>${f.path ? `<code>${esc(f.path)}</code> ` : ""}${esc(f.message)}</p>`).join("") || "<p>No issues found.</p>"}</div>`);
+      }
+      target.innerHTML = rows.join("");
+    };
+    let last = null;
+    const run = () => {
+      const res = validate($("#input").value);
+      last = res;
+      $("#report").hidden = false;
+      $("#big").innerHTML = [[res.blocks, "JSON-LD blocks"], [res.entities.length, "Entities"], [res.errors, "Errors"], [res.warnings, "Warnings"]].map(([v, l]) => `<div><strong>${v}</strong>${l}</div>`).join("");
+      render(res, $("#report-findings"));
+      $("#form-status").textContent = res.errors ? "Fix the errors first; warnings are worth a look after." : "No errors found. Warnings and info are optional improvements.";
+      record("markup_checked");
+      return true;
+    };
+    const EXAMPLE = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Trail Mug", offers: { "@type": "Offer", price: "$14.00", priceCurrency: "usd" }, aggregateRating: { ratingValue: 4.6 } }, null, 2);
+    $("#check").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => { $("#input").value = "<scr" + "ipt type=\"application/ld+json\">\n" + EXAMPLE + "\n</scr" + "ipt>"; run(); record("example_loaded"); $("#form-status").textContent = "Sample markup with deliberate mistakes — an invented product."; });
+    $("#clear-all").addEventListener("click", () => { $("#input").value = ""; $("#report").hidden = true; last = null; $("#form-status").textContent = "Paste markup, then click Check markup."; });
+    $("#btype").addEventListener("change", drawFields);
+    let builtScript = "";
+    $("#build").addEventListener("click", () => {
+      const f = {};
+      for (const [id] of FIELDS[$("#btype").value]) f[id] = $("#f-" + id).value;
+      const t = $("#btype").value;
+      const b = build(t === "Breadcrumbs" ? "Breadcrumb" + "List" : t, f);
+      builtScript = b.script;
+      $("#bout").hidden = false; $("#bout").textContent = b.script; $("#copy").hidden = false;
+      render(b.check, $("#bcheck"));
+      $("#build-status").textContent = b.check.errors ? "Built, but required properties are missing — see below." : "Built with no errors.";
+      record("markup_built");
+    });
+    $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(builtScript); $("#build-status").textContent = "Copied."; } catch { $("#build-status").textContent = "Copy failed; select the text above instead."; } });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "structured-data-report.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    drawFields();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../email-auth-check/" data-pf-to="email-auth-check">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a></li>
+      <li><a href="../env-example-drift-check/" data-pf-to="env-example-drift-check">Does your .env.example still match what the code actually reads?</a></li>
+      <li><a href="../error-tracking-pricing-calculator/" data-pf-to="error-tracking-pricing-calculator">What will error tracking cost at your event volume, and who is cheapest?</a></li>
+      <li><a href="../feature-flag-pricing-calculator/" data-pf-to="feature-flag-pricing-calculator">What will feature flags cost at your requests-per-month volume, and who is cheapest?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=json-ld-rich-result-validator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/?pfEmbed=1&quot; title=&quot;JSON-LD Rich Result Validator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="json-ld-rich-result-validator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/" data-pf-embed-title="JSON-LD Rich Result Validator — free, private, in your browser" data-pf-embed-slug="json-ld-rich-result-validator"></script>
+</body>
+</html>

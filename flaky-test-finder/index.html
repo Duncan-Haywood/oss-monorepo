@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flaky Test Finder — Which Tests Flipped Between CI Runs?</title>
+  <meta name="description" content="Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable.">
+  <meta property="og:title" content="Which of your tests are actually flaky?">
+  <meta property="og:description" content="Paste 2+ JUnit XML reports from repeated runs and get a deterministic verdict: flaky, broken, or stable — no account, no upload…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Flaky Test Finder","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Classifies tests as flaky, broken, or stable from two or more JUnit-XML test reports across repeated CI runs. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is 'flaky' decided?","acceptedAnswer":{"@type":"Answer","text":"A test that failed in at least one run and passed in at least one other run of the same nominal suite is flaky. That is a fact about the reports you gave it, not a guess or a model output — no AI, no heuristics beyond counting pass/fail occurrences per test."}},{"@type":"Question","name":"What if my rerun only re-ran the tests that failed?","acceptedAnswer":{"@type":"Answer","text":"That is the most common real shape and it is handled: a test does not have to appear in every report to be classified. If it failed in the full run and passed in the rerun-of-failures, it is still counted as flaky using exactly the occurrences it has."}},{"@type":"Question","name":"Which test frameworks does this work with?","acceptedAnswer":{"@type":"Answer","text":"Anything that emits JUnit XML: pytest (--junitxml), Jest via jest-junit, Go via go-junit-report, PHPUnit, RSpec via RSpecJUnitFormatter, and Maven/Gradle Surefire/Failsafe. Surefire's own <flakyFailure>/<flakyError> elements are also read directly."}},{"@type":"Question","name":"Is my test output uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 130px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    .run { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .run-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .run-label input { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 4px 8px; width: 220px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.tiny { padding: 5px 9px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.flaky { color: #9a3412; }
+    .verdict.broken { color: #9a3412; }
+    .row { padding: 9px 0; border-bottom: 1px solid #e6eaf0; font-size: .92rem; }
+    .row:last-child { border-bottom: 0; }
+    .row-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .row-msg { color: #55606f; font-size: .85rem; margin-top: 3px; font-family: ui-monospace, monospace; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.flaky { background: #fde8e8; color: #9a3412; }
+    .pill.broken { background: #fde8e8; color: #7f1d1d; }
+    .pill.stable { background: #dcefe4; color: #14532d; }
+    .pill.skipped-only { background: #e3e9ef; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 600; margin-top: 6px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Which of your tests are actually flaky?","item":"https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which of your tests are actually flaky? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which of your tests are actually flaky?</span></span></nav>
+  <header>
+    <p class="note">FLAKY TEST FINDER · RUNS IN YOUR BROWSER</p>
+    <h1>Which of your tests are actually flaky?</h1>
+    <p>Paste the JUnit XML report from two or more runs of the same suite — reruns you already triggered, or a job that reran on CI. This page groups every test by name and tells you which ones flipped between pass and fail (flaky), which failed every time (broken — a real bug), and which passed every time (stable).</p>
+    <p class="note">Nothing is uploaded. The XML you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Get JUnit XML from two or more runs</h2>
+    <p>Any framework that writes JUnit XML works:</p>
+    <pre class="cmd"><code>pytest --junitxml=run1.xml         # then run it again for run2.xml
+jest --reporters=jest-junit        # needs jest-junit installed
+go test ./... 2>&1 | go-junit-report > run.xml
+mvn test                           # Surefire writes target/surefire-reports/*.xml automatically</code></pre>
+    <p class="note">If your CI already reruns failed tests, that rerun report is exactly what you want here — it does not need to contain every test, only the ones it ran.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste each run's XML</h2>
+    <div id="runs"></div>
+    <p>
+      <button type="button" class="secondary tiny" id="add-run">+ Add another run</button>
+    </p>
+    <p>
+      <button type="button" id="check">Find flaky tests</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear all</button>
+    </p>
+    <p class="note" id="status">Paste at least two runs and click "Find flaky tests". One run only works for Surefire's own &lt;flakyFailure&gt; elements — everything else needs at least two.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Verdict</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="rows"></div>
+    <details id="stable-details" hidden>
+      <summary>Show stable tests too</summary>
+      <div id="stable-rows"></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py run1.xml run2.xml run3.xml   # exits 1 if any test is flaky
+python3 check.py --glob "reports/*.xml"        # or glob a directory of reports
+python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is 'flaky' decided?</h3>
+    <p>A test that failed in at least one run and passed in at least one other run of the same nominal suite is flaky. That is a fact about the reports you gave it, not a guess or a model output — no AI, no heuristics beyond counting pass/fail occurrences per test.</p>
+    <h3>What if my rerun only re-ran the tests that failed?</h3>
+    <p>That is the most common real shape and it is handled: a test does not have to appear in every report to be classified. If it failed in the full run and passed in the rerun-of-failures, it is still counted as flaky using exactly the occurrences it has.</p>
+    <h3>Which test frameworks does this work with?</h3>
+    <p>Anything that emits JUnit XML: pytest (--junitxml), Jest via jest-junit, Go via go-junit-report, PHPUnit, RSpec via RSpecJUnitFormatter, and Maven/Gradle Surefire/Failsafe. Surefire's own <code>&lt;flakyFailure&gt;</code>/<code>&lt;flakyError&gt;</code> elements are also read directly. Even a single Surefire report with retries enabled can surface flakiness this way.</p>
+    <h3>Is my test output uploaded anywhere?</h3>
+    <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
+    <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>, how this compares to <a href="vs-buildpulse.html">BuildPulse</a>, a paid, connected, always-on alternative, or <a href="vs-eyeballing-two-ci-logs-by-hand.html">why eyeballing two CI logs gets this wrong</a> once a suite reruns only its failures.</p>
+    <p>Related: if every check fails in a few seconds with an empty body, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
+    <p>Related: once the suite is stable, split it across CI shards by measured duration with the <a href="../ci-test-shard-balancer/">CI test shard balancer</a> — it reads the same JUnit XML and prints the files for each shard.</p>
+    <p>Related: if tests are stable but line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you — it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>run_added</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { classifyRuns, summarizeRuns } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      runs: $("#runs"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+      stableDetails: $("#stable-details"), stableRows: $("#stable-rows"),
+    };
+
+    let runCount = 0;
+
+    function addRun(label = "", xml = "") {
+      runCount += 1;
+      const id = runCount;
+      const wrap = document.createElement("div");
+      wrap.className = "run";
+      wrap.dataset.runId = String(id);
+      wrap.innerHTML = `
+        <div class="run-label">
+          <input type="text" placeholder="Run label (optional)" value="${escapeAttr(label)}" data-role="label">
+          <button type="button" class="secondary tiny" data-role="remove">Remove</button>
+        </div>
+        <textarea spellcheck="false" placeholder='<?xml version="1.0"?><testsuite>...</testsuite>' data-role="xml">${escapeHtml(xml)}</textarea>`;
+      wrap.querySelector('[data-role="remove"]').addEventListener("click", () => {
+        if (els.runs.children.length <= 1) return;
+        wrap.remove();
+      });
+      els.runs.appendChild(wrap);
+      return wrap;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/'/g, "&#39;");
+    }
+
+    addRun("Run 1");
+    addRun("Run 2");
+
+    $("#add-run").addEventListener("click", () => {
+      addRun(`Run ${els.runs.children.length + 1}`);
+      record("run_added");
+    });
+
+    function collectRuns() {
+      return [...els.runs.children].map((wrap) => ({
+        label: wrap.querySelector('[data-role="label"]').value.trim() || undefined,
+        xml: wrap.querySelector('[data-role="xml"]').value,
+      }));
+    }
+
+    function renderRows(container, rows) {
+      const marks = { flaky: "flaky", broken: "broken", stable: "stable", "skipped-only": "skipped only" };
+      container.innerHTML = rows.map((r) => `
+        <div class="row">
+          <div class="row-top">
+            <span><strong>${escapeHtml(r.key)}</strong></span>
+            <span><span class="pill ${r.verdict}">${marks[r.verdict] || r.verdict}</span> · ${r.passed}p/${r.failed}f/${r.skipped}s across ${r.seenInRuns}/${r.totalRuns} run(s)</span>
+          </div>
+          ${r.failureMessage ? `<div class="row-msg">${escapeHtml(r.failureMessage)}</div>` : ""}
+        </div>`).join("");
+    }
+
+    function runCheck(runs) {
+      const nonEmpty = runs.filter((r) => r.xml.trim());
+      if (!nonEmpty.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one run's JUnit XML first.</span>`;
+        return;
+      }
+      let rows;
+      try {
+        rows = classifyRuns(nonEmpty);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const summary = summarizeRuns(rows, nonEmpty.length);
+      els.verdict.className = `verdict ${summary.status}`;
+      els.verdict.textContent = summary.text;
+
+      const notStable = rows.filter((r) => r.verdict !== "stable");
+      const stable = rows.filter((r) => r.verdict === "stable");
+      renderRows(els.rows, notStable.length ? notStable : rows.slice(0, 0));
+      if (!notStable.length) {
+        els.rows.innerHTML = `<p class="note">No flaky or broken tests — every test that appeared was stable.</p>`;
+      }
+      if (stable.length) {
+        els.stableDetails.hidden = false;
+        renderRows(els.stableRows, stable);
+      } else {
+        els.stableDetails.hidden = true;
+      }
+
+      els.reportCard.hidden = false;
+      els.status.textContent = nonEmpty.length < 2
+        ? "Only one run given — flakiness detection is limited to Surefire's own retry elements. Add a second run for full coverage."
+        : "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => runCheck(collectRuns()));
+
+    const EXAMPLE = [
+      { label: "CI run — attempt 1", xml: `<?xml version="1.0"?><testsuite name="suite" tests="3">
+  <testcase classname="tests.test_login" name="test_valid_login" time="0.2"/>
+  <testcase classname="tests.test_login" name="test_session_timeout" time="1.4"><failure message="AssertionError: session did not expire">trace</failure></testcase>
+  <testcase classname="tests.test_checkout" name="test_apply_coupon" time="0.3"><failure message="AssertionError: expected 10% off, got 0%">trace</failure></testcase>
+</testsuite>` },
+      { label: "CI run — attempt 2 (reran failures only)", xml: `<?xml version="1.0"?><testsuite name="suite" tests="2">
+  <testcase classname="tests.test_login" name="test_session_timeout" time="1.5"/>
+  <testcase classname="tests.test_checkout" name="test_apply_coupon" time="0.3"><failure message="AssertionError: expected 10% off, got 0%">trace</failure></testcase>
+</testsuite>` },
+    ];
+
+    $("#load-example").addEventListener("click", () => {
+      els.runs.innerHTML = "";
+      runCount = 0;
+      for (const run of EXAMPLE) addRun(run.label, run.xml);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: test_session_timeout is flaky (failed, then passed on rerun). test_apply_coupon failed both times — broken, not flaky.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.runs.innerHTML = "";
+      runCount = 0;
+      addRun("Run 1");
+      addRun("Run 2");
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least two runs and click \"Find flaky tests\".";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=flaky-test-finder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/?pfEmbed=1&quot; title=&quot;Which of your tests are actually flaky? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="flaky-test-finder"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/" data-pf-embed-title="Which of your tests are actually flaky?" data-pf-embed-slug="flaky-test-finder"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. reading the plan JSON by eye | Terraform Plan Secret Exposure Check</title>
+<meta name="description" content="Grepping a terraform show -json plan for AKIA or BEGIN PRIVATE KEY catches the literal string. It misses a value that is only a secret because the provider…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. reading the plan JSON by eye">
+<meta property="og:description" content="A manual grep for AKIA or BEGIN PRIVATE KEY catches the literal string but has no way to check, per match…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't grep -i akia plan.json good enough?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It finds the same literal string this checker's aws-access-key-id pattern finds. What it cannot do is the next step: for every match, look up whether that exact attribute path is covered by the plan's before_sensitive or after_sensitive tree, which collapses to a bare true at whatever level everything under it is marked sensitive. A human re-deriving that by hand has to open the sensitive tree, walk it to the matching path, and check whether an ancestor already collapsed to true -- for every hit, in a plan that can have hundreds of resources. Grep has no way to do that lookup at all, so every real match reads the same as a value Terraform already redacts."}
+    },
+    {
+      "@type": "Question",
+      "name": "What does a manual read-through of the plan JSON miss?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two things this checker does that a read-through has no natural way to replicate. First, a nested block's secret-shaped field several levels deep, buried inside a resource that also has plenty of ordinary sensitive-marked fields nearby -- easy to assume the whole block is covered when only a sibling attribute actually is. Second, an output value: outputs carry a single sensitive flag for the whole value rather than a per-path tree, so a human has to remember that outputs are checked differently from resource attributes at all, not just check them the same way and get it wrong."}
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just scroll through terraform show output before merging?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The human-readable terraform plan output already redacts anything the schema marked sensitive, which is exactly the problem: a value the schema forgot to mark prints in plain sight next to a dozen values that are correctly redacted, with nothing visually distinguishing the leak from the routine. Reading top to bottom trains you to trust the formatting instead of checking it. This checker reads the structured JSON, where sensitivity is a fact you can look up per attribute rather than a formatting choice you have to notice was never applied."}
+    },
+    {
+      "@type": "Question",
+      "name": "Is anything I paste into either process uploaded?",
+      "acceptedAnswer": { "@type": "Answer", "text": "There is nothing to upload either way. Reading the JSON by eye or grepping it locally involves no third party at all, and this checker runs entirely in your browser against the file you paste or load -- or, from the CLI, reads only a file already on your own disk. Neither path sends the plan anywhere."}
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; overflow-wrap: anywhere; }
+  h2 { color: #17324a; margin-top: 30px; }
+  code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #d5dbe3; padding: 0.5rem 0.7rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  a { color: #17604a; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reading the plan JSON by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../terraform-plan-secret-exposure-check/">Did your Terraform plan just print a secret in plaintext?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reading the plan JSON by eye</span></span></nav>
+<p><a href="./">&larr; Back to Terraform Plan Secret Exposure Check</a></p>
+
+<h1>This checker vs. reading the plan JSON by eye</h1>
+
+<div class="card">
+<p>
+  The free way to look for a leaked secret in a Terraform plan is to open the structured JSON from
+  <code>terraform show -json</code> and either read through it or grep it for known shapes --
+  <code>grep -i akia plan.json</code>, a search for <code>BEGIN PRIVATE KEY</code>, that kind of
+  thing. That catches the literal string every time it is genuinely there and costs nothing to try.
+</p>
+<p>
+  <strong>This checker</strong> runs the same pattern match -- an AWS access key, a PEM private key,
+  a JSON Web Token, or a URL with an embedded username and password -- but does one more thing first:
+  for every match, it walks the plan's own <code>before_sensitive</code>/<code>after_sensitive</code>
+  tree to the exact attribute path and checks whether Terraform's provider schema already marked that
+  value sensitive, including the case where a whole subtree collapsed to a single <code>true</code>
+  higher up. A value Terraform already redacts is skipped; a value the schema missed is reported. A
+  plain grep has no way to make that distinction -- it treats every match the same.
+</p>
+</div>
+
+<h2>Which one answers your question</h2>
+<div class="card">
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Confirm a specific known string (a key you already suspect is in there) appears anywhere in the plan file.</td>
+      <td>A manual grep -- that is exactly what it is good at.</td>
+    </tr>
+    <tr>
+      <td>Know whether a matched value is a real leak or one Terraform's schema already marks sensitive and redacts everywhere else.</td>
+      <td>This checker -- it reads the sensitivity tree per attribute path before reporting anything, which a grep cannot do at all.</td>
+    </tr>
+    <tr>
+      <td>Catch a secret-shaped value nested several levels inside a resource block, next to fields that are correctly marked sensitive.</td>
+      <td>This checker -- it walks every attribute path recursively rather than relying on a reader to notice the one field that differs from its neighbors.</td>
+    </tr>
+    <tr>
+      <td>Check an output value, which carries one sensitive flag for the whole value instead of a per-path tree.</td>
+      <td>This checker -- it checks outputs with the correct, different rule automatically, instead of relying on a human to remember outputs work differently.</td>
+    </tr>
+    <tr>
+      <td>Gate a CI pipeline on this exact check with no install and no third-party upload.</td>
+      <td>This checker's CLI -- <code>node cli.mjs check plan.json</code> exits non-zero on a finding, same as a grep in a pipeline, but without the false confidence of an unfiltered match.</td>
+    </tr>
+    <tr>
+      <td>Try it for free with a tool you already have on every machine.</td>
+      <td>Manual grep -- no page load required, and it is a reasonable first pass before reaching for anything else.</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+
+<div class="card">
+<p>
+  A grep is not wrong, it is incomplete: it answers "does this string appear" and has no way to answer
+  "does it appear somewhere Terraform already told you not to worry about." Every real finding a grep
+  turns up is also a hit this checker would report -- the difference is what happens to the hits a grep
+  cannot rule out, which on a plan with dozens of correctly-redacted attributes is most of them.
+</p>
+</div>
+
+<h2>Common questions</h2>
+<div class="card">
+<h3>Isn't <code>grep -i akia plan.json</code> good enough?</h3>
+<p>It finds the same literal string this checker's <code>aws-access-key-id</code> pattern finds. What it cannot do is the next step: for every match, look up whether that exact attribute path is covered by the plan's <code>before_sensitive</code> or <code>after_sensitive</code> tree, which collapses to a bare <code>true</code> at whatever level everything under it is marked sensitive. A human re-deriving that by hand has to open the sensitive tree, walk it to the matching path, and check whether an ancestor already collapsed to <code>true</code> -- for every hit, in a plan that can have hundreds of resources. Grep has no way to do that lookup at all, so every real match reads the same as a value Terraform already redacts.</p>
+<h3>What does a manual read-through of the plan JSON miss?</h3>
+<p>Two things this checker does that a read-through has no natural way to replicate. First, a nested block's secret-shaped field several levels deep, buried inside a resource that also has plenty of ordinary sensitive-marked fields nearby -- easy to assume the whole block is covered when only a sibling attribute actually is. Second, an output value: outputs carry a single sensitive flag for the whole value rather than a per-path tree, so a human has to remember that outputs are checked differently from resource attributes at all, not just check them the same way and get it wrong.</p>
+<h3>Why not just scroll through <code>terraform show</code> output before merging?</h3>
+<p>The human-readable <code>terraform plan</code> output already redacts anything the schema marked sensitive, which is exactly the problem: a value the schema forgot to mark prints in plain sight next to a dozen values that are correctly redacted, with nothing visually distinguishing the leak from the routine. Reading top to bottom trains you to trust the formatting instead of checking it. This checker reads the structured JSON, where sensitivity is a fact you can look up per attribute rather than a formatting choice you have to notice was never applied.</p>
+<h3>Is anything I paste into either process uploaded?</h3>
+<p>There is nothing to upload either way. Reading the JSON by eye or grepping it locally involves no third party at all, and this checker runs entirely in your browser against the file you paste or load -- or, from the CLI, reads only a file already on your own disk. Neither path sends the plan anywhere.</p>
+</div>
+
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This is not security or compliance advice. It matches a fixed set of known secret shapes against unmarked attribute values in the plan you supplied -- it cannot prove the absence of a leak, only report the patterns it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+  <p><strong>This page names no specific product.</strong> "Reading the plan JSON by eye" and "grepping it" describe manual habits every Terraform user already has access to, not any company's product or service.</p>
+  <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+      <li><a href="../docker-compose-security-check/" data-pf-to="docker-compose-security-check">What is your docker-compose.yml handing to the host?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=terraform-plan-secret-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="terraform-plan-secret-exposure-check"></script>
+</body>
+</html>

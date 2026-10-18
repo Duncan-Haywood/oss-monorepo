@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No-Show Fee Calculator for Service Businesses</title>
+  <meta name="description" content="Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee…" />
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="No-Show &amp; Cancellation Fee Calculator" />
+  <meta property="og:description" content="Work out a defensible no-show fee from your own prices and get a ready-to-copy cancellation policy. Free, runs entirely in your browser." />
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="No-Show &amp; Cancellation Fee Calculator" />
+  <meta name="twitter:description" content="Work out a defensible no-show fee from your own prices and get a ready-to-copy cancellation policy." />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "No-Show & Cancellation Fee Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an overbooking comparison, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
+    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, deposit vs chasing the fee, 24-hour vs 48-hour waitlist refill, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out",
+    "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a no-show or late cancellation?","acceptedAnswer":{"@type":"Answer","text":"There's no single right number, but a common starting point is charging close to the full service price for a true no-show (the slot usually can't be rebooked) and a partial fee for a late cancellation with some notice. This calculator turns your own price, notice window, and fee percentage into a specific number."}},{"@type":"Question","name":"Is a cancellation or no-show fee legal?","acceptedAnswer":{"@type":"Answer","text":"Charging a disclosed cancellation fee is common practice across many service industries and is generally enforceable when clients agree to it in advance, but rules vary by location, payment processor, and industry — some regions treat fees for medical or dental appointments differently, for example. This is not legal advice; check the requirements for your business type and location."}},{"@type":"Question","name":"How much notice should I require?","acceptedAnswer":{"@type":"Answer","text":"24 hours is the most common default — usually enough time to fill the slot from a waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours instead. The table above compares same-day, 24-hour, and 48-hour windows using your own fill-rate assumption so you can see how much empty-slot cash a longer window actually recovers."}},{"@type":"Question","name":"Should I overbook or charge a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"They recover different money. A fee pays you when the chair stays empty and you collect. Overbooking tries to fill that chair in advance and risks a double-booked hour when everyone shows. The table above compares a fee-only book to overbooking 50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping the fee. It does not tell you which policy to publish."}},{"@type":"Question","name":"Should I take a deposit instead of charging a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"A deposit is collected when the client books, so a late cancel does not depend on a second collection attempt. A no-show fee is invoiced after the missed slot, so it only comes in at the rate you actually enforce. Compare the two on your own numbers above — this tool does not decide which is lawful or appropriate for your business."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"No-Show \u0026 Cancellation Fee Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="No-Show &amp; Cancellation Fee Calculator — Open Tools and Research">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">No-Show &amp; Cancellation Fee Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <h1>No-Show &amp; Cancellation Fee Calculator</h1>
+    <p class="tagline">
+      For personal trainers, salons, tutors, therapists, and other appointment-based
+      service businesses: put a specific, defensible number on your no-show fee and get
+      a policy you can hand to clients today.
+    </p>
+    <p class="value-sentence">
+      <strong>After using this, you can now</strong> state and defend a specific
+      no-show/late-cancellation fee — and hand clients a ready-to-use policy —
+      <strong>which used to take</strong> guessing a number or copying a boilerplate
+      template that doesn't match your prices.
+    </p>
+    <p class="tagline">
+      Already booking through scheduling software?
+      <a href="vs-acuity-scheduling.html">This calculator vs. Acuity Scheduling</a>
+      explains why the two sit next to each other: the platform carries and
+      enforces the policy, this page works out the number that goes in it.
+    </p>
+    <p class="tagline">
+      Pricing an upfront deposit instead of an after-the-fact fee? The
+      <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>
+      turns your service price into a deposit amount, balance due, and draft
+      policy — nothing uploaded.
+    </p>
+    <p class="tagline">
+      Tempted to just pick a round number?
+      <a href="vs-a-flat-no-show-fee.html">Why a flat fee guess doesn't scale with your price</a>
+      shows what a flat $25 guess costs a $200 session versus a $35 one.
+    </p>
+  </header>
+
+  <main>
+    <section aria-labelledby="calc-heading">
+      <h2 id="calc-heading">Your numbers</h2>
+      <form id="calc-form" novalidate>
+        <div class="field">
+          <label for="currency">Currency for displayed amounts</label>
+          <select id="currency" name="currency">
+            <option value="USD" selected>US dollar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="GBP">Pound sterling (GBP)</option>
+            <option value="CAD">Canadian dollar (CAD)</option>
+            <option value="AUD">Australian dollar (AUD)</option>
+          </select>
+          <p class="hint">No conversion is performed. Choose the currency your prices already use.</p>
+        </div>
+        <div class="field">
+          <label for="price">Appointment / session price</label>
+          <input type="number" id="price" name="price" min="0" step="0.01" value="75" required inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="bookingsPerWeek">Bookings per week</label>
+          <input type="number" id="bookingsPerWeek" name="bookingsPerWeek" min="0" step="0.1" value="20" required inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="noShowRatePct">No-show / late-cancel rate (% of bookings)</label>
+          <input type="number" id="noShowRatePct" name="noShowRatePct" min="0" max="100" step="0.1" value="8" required inputmode="decimal" />
+          <p class="hint">Not sure? Count last month's no-shows and late cancels, divide by total bookings, times 100.</p>
+        </div>
+        <div class="field">
+          <label for="noticeHours">Required notice window (hours)</label>
+          <input type="number" id="noticeHours" name="noticeHours" min="0" step="1" value="24" required inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="feePercent">Fee (% of the price above)</label>
+          <input type="number" id="feePercent" name="feePercent" min="0" max="100" step="1" value="100" required inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="enforcementRatePct">Assumed enforcement rate (%)</label>
+          <input type="number" id="enforcementRatePct" name="enforcementRatePct" min="0" max="100" step="1" value="70" required inputmode="numeric" />
+          <p class="hint">How often you expect to actually collect the fee once the policy is in place. This is your assumption, not a measured number — the tool shows it back to you rather than hiding it.</p>
+        </div>
+        <div class="field">
+          <label for="depositPercent">Booking deposit you could require (% of the price)</label>
+          <input type="number" id="depositPercent" name="depositPercent" min="0" max="100" step="1" value="50" required inputmode="numeric" />
+          <p class="hint">Compared against chasing the no-show fee after the fact. The deposit is treated as already collected when the slot is reserved — not as a second invoice you have to chase.</p>
+        </div>
+        <div class="field">
+          <label for="overflowCost">Cost of a double-booked chair (optional)</label>
+          <input type="number" id="overflowCost" name="overflowCost" min="0" step="0.01" placeholder="Defaults to the session price" inputmode="decimal" />
+          <p class="hint">What one overflow hour costs you: overtime, a voucher, a refund, or lost goodwill. Leave blank to price it as one full session. Used only in the overbooking table.</p>
+        </div>
+
+        <fieldset>
+          <legend>Waitlist fill if you get that notice (your assumption)</legend>
+          <p class="hint">
+            How often you actually refill a cancelled slot when the client gives you that much warning.
+            Same-day is usually near zero; 48 hours is why people ask for it.
+            Count last month's late cancels that you filled, or leave the defaults.
+            <a href="24h-vs-48h-cancellation-notice.html">Why 24 hours vs 48 hours is a cash question</a>.
+          </p>
+          <div class="field">
+            <label for="fillSameDayPct">Same-day (4 hour) fill rate (%)</label>
+            <input type="number" id="fillSameDayPct" name="fillSameDayPct" min="0" max="100" step="1" value="10" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="fillDayAheadPct">24-hour fill rate (%)</label>
+            <input type="number" id="fillDayAheadPct" name="fillDayAheadPct" min="0" max="100" step="1" value="40" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="fillTwoDayPct">48-hour fill rate (%)</label>
+            <input type="number" id="fillTwoDayPct" name="fillTwoDayPct" min="0" max="100" step="1" value="65" inputmode="numeric" />
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>For the generated policy text (optional)</legend>
+          <div class="field">
+            <label for="businessName">Business name</label>
+            <input type="text" id="businessName" name="businessName" placeholder="e.g. Riverside Personal Training" />
+          </div>
+          <div class="field">
+            <label for="serviceName">What you call the booking</label>
+            <input type="text" id="serviceName" name="serviceName" placeholder="e.g. training session, appointment, class" />
+          </div>
+          <div class="field">
+            <label for="collectionMethod">How you plan to collect the fee</label>
+            <select id="collectionMethod" name="collectionMethod">
+              <option value="payment-method" selected>Charge the payment method on file</option>
+              <option value="invoice">Send an invoice for the fee</option>
+              <option value="booking">Collect it when the booking is made</option>
+              <option value="contact">Contact the client to arrange payment</option>
+            </select>
+            <p class="hint">This only changes the draft wording. Confirm your payment processor and booking-system rules before using it.</p>
+          </div>
+        </fieldset>
+
+        <button type="submit">Calculate</button>
+        <button type="button" id="reset-draft" class="secondary">Reset saved numbers</button>
+        <p class="hint">Your numbers are saved only in this browser so you can return without retyping them. Shared links still take precedence.</p>
+      </form>
+
+      <div id="errors" role="alert" hidden></div>
+
+      <!-- Starts hidden and is revealed by app.mjs on load. Keeping the
+           default hidden means a visitor with JavaScript disabled sees the form
+           and the guidance rather than a row of $0.00 placeholders that will
+           never fill in. -->
+      <div id="results" hidden aria-live="polite">
+        <h2>Results</h2>
+        <dl class="results-grid">
+          <div>
+            <dt>Suggested fee per violation</dt>
+            <dd id="out-fee-amount">$0.00</dd>
+          </div>
+          <div>
+            <dt>No-shows / late cancels per year at your rate</dt>
+            <dd id="out-noshows-year">0</dd>
+          </div>
+          <div>
+            <dt>Revenue those slots represent per year</dt>
+            <dd id="out-annual-lost">$0.00</dd>
+          </div>
+          <div>
+            <dt>Estimated fee revenue per year if enforced</dt>
+            <dd id="out-annual-fee-revenue">$0.00</dd>
+          </div>
+          <div>
+            <dt>Missed-slot revenue recovered</dt>
+            <dd id="out-recovery-rate">0.0%</dd>
+          </div>
+          <div>
+            <dt>Slot value at risk per month</dt>
+            <dd id="out-monthly-exposure">$0.00</dd>
+          </div>
+          <div>
+            <dt>Modelled fee recovery per month</dt>
+            <dd id="out-monthly-fee-revenue">$0.00</dd>
+          </div>
+          <div>
+            <dt>Still unrecovered per month</dt>
+            <dd id="out-monthly-unrecovered">$0.00</dd>
+          </div>
+          <div>
+            <dt>Collected fees to cover all annual exposure</dt>
+            <dd id="out-break-even-collections">0</dd>
+          </div>
+          <div>
+            <dt>Modeled annual exposure still unrecovered</dt>
+            <dd id="out-remaining-exposure">$0.00</dd>
+          </div>
+        </dl>
+        <p class="note">
+          "Revenue those slots represent" is the value of the appointments themselves —
+          the fee does not replace that lost service time, it compensates for holding
+          the slot. "Estimated fee revenue" uses your assumed enforcement rate above and
+          is a model, not a promise.
+          <strong>Missed-slot revenue recovered</strong> compares that modeled
+          fee revenue with the value of the missed appointments. The break-even
+          count is the number of fully collected fees needed to cover that
+          annual exposure; it is not a target or a guarantee.
+          <strong>Modeled annual exposure still unrecovered</strong> is the same
+          comparison stated as a full-year dollar figure rather than a monthly
+          slice, clamped at zero. None of these figures predict client behavior
+          or guarantee collection.
+        </p>
+      </div>
+
+      <div id="scenario-section" hidden>
+        <h2>Compare fee levels</h2>
+        <p class="note">Same bookings, no-show rate, and assumed enforcement as above. This shows the trade-off before you publish a policy.</p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table>
+            <caption class="sr-only">Annual fee revenue by fee percentage</caption>
+            <thead><tr><th scope="col">Fee</th><th scope="col">Per violation</th><th scope="col">Estimated annual fee revenue</th></tr></thead>
+            <tbody id="scenario-body"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="collection-section" hidden>
+        <h2>Deposit or chase the fee?</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. The deposit is treated as already
+          in hand; the after-the-fact fee uses your assumed enforcement rate. This
+          answers whether requiring a deposit recovers more cash from the same missed
+          slots than sending a no-show invoice later. For the plain-English version —
+          when a deposit fits better than a fee, and when to run both — see
+          <a href="../appointment-deposit-calculator/deposit-vs-no-show-fee.html">deposit or no-show fee, which should I charge?</a>
+        </p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table>
+            <caption class="sr-only">Modeled cash recovered under deposit versus after-the-fact fee policies</caption>
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Recovered per no-show</th>
+                <th scope="col">Estimated annual recovered</th>
+                <th scope="col">Still unrecovered</th>
+              </tr>
+            </thead>
+            <tbody id="collection-body"></tbody>
+          </table></div>
+        </div>
+        <p id="collection-note" class="note"></p>
+        <h3>Draft deposit policy</h3>
+        <textarea id="deposit-policy-text" rows="10" aria-label="Draft deposit policy text" readonly></textarea>
+        <button type="button" id="copy-deposit-policy">Copy deposit policy</button>
+      </div>
+
+      <div id="notice-section" hidden>
+        <h2>Compare notice windows</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. A longer window only helps if you
+          actually refill more of those openings. The fee table above is separate —
+          collecting a fee does not put another client in the chair.
+          <a href="24h-vs-48h-cancellation-notice.html">Worked example</a>.
+        </p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table>
+            <caption class="sr-only">Annual empty-slot cash recovered by notice window and waitlist fill</caption>
+            <thead>
+              <tr>
+                <th scope="col">Notice</th>
+                <th scope="col">Assumed fill</th>
+                <th scope="col">Slots refilled / year</th>
+                <th scope="col">Cash recovered by refill</th>
+                <th scope="col">Still empty</th>
+                <th scope="col">Extra vs same-day</th>
+              </tr>
+            </thead>
+            <tbody id="notice-body"></tbody>
+          </table></div>
+        </div>
+        <p id="notice-summary" class="note"></p>
+      </div>
+
+      <div id="overbook-section" hidden>
+        <h2 id="overbook-heading">Overbook the empty chairs, or just charge the fee?</h2>
+        <p class="note">
+          Same price, volume, no-show rate, fee, and enforcement as above.
+          Extra names are a fraction of the no-shows you already expect.
+          Served chairs cannot exceed your weekly book. Overflow is the
+          mean leftover when more people show than you have chairs — a
+          busy day can still collide even when the average fits.
+          <a href="should-i-overbook-or-charge-a-no-show-fee.html">Worked example</a>.
+        </p>
+        <p id="overbook-summary" class="note"></p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table>
+            <caption class="sr-only">Annual cash kept by overbooking policy</caption>
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Extra names / week</th>
+                <th scope="col">Served / week</th>
+                <th scope="col">Overflow / week</th>
+                <th scope="col">Service / year</th>
+                <th scope="col">Fee / year</th>
+                <th scope="col">Overflow cost / year</th>
+                <th scope="col">Net kept / year</th>
+              </tr>
+            </thead>
+            <tbody id="overbook-body"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="policy-section" hidden>
+        <h2>Your draft policy</h2>
+        <textarea id="policy-text" rows="10" aria-label="Draft no-show policy text" readonly></textarea>
+        <button type="button" id="copy-policy">Copy policy text</button>
+        <button type="button" id="download-policy">Download .txt</button>
+        <button type="button" id="share-link">Copy share link</button>
+        <span id="copy-status" role="status"></span>
+        <p class="hint">The link stores your calculator values, including business and service names, in the URL. Only share it with people you trust.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Common questions</h2>
+      <h3>How much should I charge for a no-show or late cancellation?</h3>
+      <p>
+        There's no single right number, but a common starting point is charging close to
+        the full service price for a true no-show (the slot usually can't be rebooked)
+        and a partial fee for a late cancellation with some notice. This calculator turns
+        your own price, notice window, and fee percentage into a specific number.
+      </p>
+      <h3>Is a cancellation or no-show fee legal?</h3>
+      <p>
+        Charging a disclosed cancellation fee is common practice across many service
+        industries and is generally enforceable when clients agree to it in advance, but
+        rules vary by location, payment processor, and industry — some regions treat fees
+        for medical or dental appointments differently, for example. This is not legal
+        advice; check the requirements for your business type and location.
+      </p>
+      <h3>How much notice should I require?</h3>
+      <p>
+        24 hours is the most common default — usually enough time to fill the slot from a
+        waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours
+        instead. The table above compares same-day, 24-hour, and 48-hour windows using
+        your own fill-rate assumption so you can see how much empty-slot cash a longer
+        window actually recovers.
+      </p>
+      <h3>Should I overbook or charge a no-show fee?</h3>
+      <p>
+        They recover different money. A fee pays you when the chair stays empty and you
+        collect. Overbooking tries to fill that chair in advance and risks a double-booked
+        hour when everyone shows. The table above compares a fee-only book to overbooking
+        50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping
+        the fee. It does not tell you which policy to publish.
+      </p>
+      <h3>Should I take a deposit instead of charging a no-show fee?</h3>
+      <p>
+        A deposit is collected when the client books, so a late cancel does not depend
+        on a second collection attempt. A no-show fee is invoiced after the missed
+        slot, so it only comes in at the rate you actually enforce. Compare the two
+        on your own numbers above — this tool does not decide which is lawful or
+        appropriate for your business.
+      </p>
+    </section>
+
+    <section aria-labelledby="usage-heading">
+      <h2 id="usage-heading">Usage</h2>
+      <p>
+        Everything above runs in your browser. Nothing you type is ever uploaded — there
+        is no server, no account, and no analytics vendor. This calculator counts a small
+        number of anonymous events (which buttons were used, nothing about who used them)
+        and keeps the count only in this browser, so it can tell whether anyone is using
+        it at all. Your calculator numbers are also saved locally for convenience
+        and can be removed with <strong>Reset saved numbers</strong>.
+      </p>
+      <p id="usage-summary"></p>
+      <label>
+        <input type="checkbox" id="usage-opt-out" />
+        Don't count my usage in this browser
+      </label>
+      <button type="button" id="clear-usage">Clear local usage log</button>
+    </section>
+
+    <section aria-labelledby="disclaimer-heading">
+      <h2 id="disclaimer-heading">Disclaimer</h2>
+      <p>
+        <strong>No warranty.</strong> This tool is provided free and as-is, without
+        warranty of any kind, express or implied. It is not legal, tax, or financial
+        advice, and it does not replace a qualified professional. You are responsible for
+        reviewing and verifying its output before relying on it, and for meeting any
+        obligation it helps you prepare for. To the maximum extent permitted by law, the
+        authors accept no liability for any loss or damage arising from its use.
+      </p>
+      <p>
+        <strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and
+        may be slow, broken, moved, or taken offline without notice. We do not
+        promise uptime, backups of anything you type, or that a URL will keep
+        working. Do not use this as a system of record. If a tool needs to
+        survive, export your inputs and run it yourself.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Free, open source (MIT licensed), no account required.
+      <a href="LICENSE">MIT licensed</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.
+    </p>
+    <p>Not sure what your no-show rate is? The <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> reads a booking export from your scheduling app and shows the rate, the revenue lost, and your repeat no-show clients &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module" src="app.mjs"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../quote-margin-check/" data-pf-to="quote-margin-check">Quote Margin Check — free effective hourly rate calculator</a></li>
+      <li><a href="../recompete-radar/" data-pf-to="recompete-radar">Which federal contracts in my niche expire next?</a></li>
+      <li><a href="../retainage-cashflow-calculator/" data-pf-to="retainage-cashflow-calculator">Construction Retainage Calculator</a></li>
+      <li><a href="../revenue-target-lead-planner/" data-pf-to="revenue-target-lead-planner">Revenue Target Lead Planner — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=no-show-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/?pfEmbed=1&quot; title=&quot;No-Show &amp; Cancellation Fee Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="no-show-fee-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" data-pf-embed-title="No-Show &amp; Cancellation Fee Calculator" data-pf-embed-slug="no-show-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="no-show-fee-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

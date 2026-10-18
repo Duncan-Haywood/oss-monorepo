@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-vehicle price | Window Tinting Bid Calculator</title>
+<meta name="description" content="A posted '$180 sedan / $220 SUV / $250 truck' price list cannot see how many windows are actually being tinted, which film tier was picked…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-vehicle price">
+<meta property="og:description" content="A front-two-only privacy job and a full seven-window ceramic kit with old-tint removal can both roll up to a shop calling it 'one sedan.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-vehicle price get a window tint bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is pane count, film tier, and whether old tint has to be stripped first, not a vehicle size class alone. A \"front two only\" privacy job on two doors and a full seven-window kit in ceramic film with removal on every pane can both roll up to a shop calling it \"one sedan\" -- and a flat per-vehicle number cannot see which one it is looking at."}},{"@type":"Question","name":"What does a flat per-vehicle price usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Which windows are actually being tinted, the film tier the customer picked, and whether existing tint has to come off first. A posted \"$180 sedan\" price is set on one job -- a specific pane count, a specific film, no removal -- and reused for every vehicle in that size class, whatever the job in front of the installer actually needs."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shop-rate defaults ($28/hr installer rate, a 15% waste factor, $12 booth overhead, no mobile fee, a 35% target margin, a $120 minimum job fee, and a $200 flat per-vehicle rate to compare): a front-two-only dyed-film job floors at the $120.00 minimum, $80.00 below the $200.00 flat rate. This calculator's own default full seven-pane ceramic kit breaks even at $370.27, $170.27 (85%) above the flat rate. The same full kit with old tint stripped first prices at $429.14, $229.14 (115%) above the flat rate."}},{"@type":"Question","name":"Is a flat per-vehicle price ever the right way to quote a tint job?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs -- same pane count, same film tier, no removal -- a flat rate can land close. The risk is applying it outside that band without noticing: on this calculator's own numbers a light two-window dyed job and a full ceramic kit with removal both get quoted the same \"$200 sedan\" line, and the gap between them runs in opposite directions -- one overcharges the customer, the other leaves money on the table."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local labor rates or tint pricing in your area. It takes which windows are being tinted, the film tier, a cutting-waste factor, your installer rate, booth overhead, a mobile fee, and whether old tint has to be stripped first, and turns them into a price for the job you describe -- the arithmetic a flat per-vehicle price skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #161a22; background: #eef2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1c4fa0; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #48536a; }
+  section { background: #fff; border: 1px solid #c9d5e6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #10173010; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d5e6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #48536a; }
+  .fine, .note { font-size: .88rem; color: #48536a; }
+  footer { color: #48536a; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-vehicle price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../window-tinting-bid-calculator/">Window Tinting Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-vehicle price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Window Tinting Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-vehicle price</h1>
+<p class="lede">"$180 sedan / $220 SUV / $250 truck" is not a price for a tint job &mdash; it is a price for one pane count, one film tier, and no removal, quietly reused for every vehicle a shop calls that size class.</p>
+</header>
+<section>
+<h2>What a flat per-vehicle price is</h2>
+<p>
+A flat rate by vehicle size class is the fastest way to advertise: one
+number per size, easy to post on a price list and easy for a customer to
+compare between shops. It is the number a customer holding a competitor's
+price list will call and ask a shop to match, whatever their vehicle
+actually needs tinted.
+</p>
+<p>
+The number behind it was set for one job &mdash; a typical pane count in a
+typical film tier, with no old tint to strip &mdash; and then reused for
+every vehicle in that size class afterward, whether or not the next job
+looks anything like the one the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter which
+front door, rear door, and rear quarter windows are being tinted, whether
+the rear windshield is included, the film tier, a cutting-waste factor,
+whether old tint has to be stripped first, and your installer rate, booth
+overhead, mobile fee, target margin, and minimum job fee. It prices the
+glass area, the film tier, and the removal time separately from what was
+entered, then floors the result at your minimum job fee &mdash; for this
+vehicle, not a generic one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-vehicle price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same fee whether the job is a front-two-only privacy tint or a full seven-window kit, because both roll up to "one sedan."</td>
+<td>Prices film cost and install minutes from the exact panes selected, so a two-window job and a full kit come out at different numbers instead of one.</td>
+</tr>
+<tr>
+<td>Has no line for film tier, so a dyed-film job and a ceramic kit on the same vehicle get quoted the same.</td>
+<td>Prices film material cost per square foot by tier, so ceramic &mdash; which can run several times dyed film's cost &mdash; costs more than dyed on the same panes.</td>
+</tr>
+<tr>
+<td>Has no line for stripping existing tint, so a bare install and a job that has to come off first before the new film goes on get quoted the same.</td>
+<td>Counts removal minutes per pane only when requested, weighted heavier on a rear windshield's defroster grid, so a strip-and-replace job costs more than a bare install.</td>
+</tr>
+<tr>
+<td>Gives the installer an ad price to quote, not a number to check a quote against when a customer asks to match a cheaper shop's flat rate on a bigger job.</td>
+<td>Reports the walk-away price and the dollar gap against a flat per-vehicle rate, so a shopped price can be scored against real cost before the job is booked.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Three jobs, one flat per-vehicle price</h2>
+<p>
+At this calculator's own shop-rate defaults ($28/hr installer rate, a 15%
+waste factor, $12 booth overhead, no mobile fee, a 35% target margin, a $120
+minimum job fee), against a $200 flat per-vehicle rate:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">This calculator's price</th><th scope="col">The flat $200 rate</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>Front two windows only, dyed film, no removal</td><td>$120.00 (floored at the minimum job fee &mdash; the pane/film math alone comes in at $60.46)</td><td>$200.00</td><td>The flat rate overcharges this job by $80.00.</td></tr>
+<tr><td>Full seven-pane kit, ceramic film, no removal &mdash; this calculator's own default job</td><td>$370.27</td><td>$200.00</td><td>The flat rate prices $170.27 (85%) <strong>below</strong> this job's own price, before a dollar of profit.</td></tr>
+<tr><td>Full seven-pane kit, ceramic film, with old tint stripped first</td><td>$429.14</td><td>$200.00</td><td>The flat rate prices $229.14 (115%) below this job's own price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">The flat rate is a fixed $200.00, not derived from any of the three jobs. It overcharges the lightest job in the comparison and undercharges the other two, by a widening margin as film tier and removal time are added &mdash; and a flat per-vehicle number cannot tell you which side of that line a given vehicle falls on. Run your own job's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat per-vehicle price is not wrong because it is simple &mdash; it is
+wrong when it is applied without checking it against the actual pane count,
+film tier, and removal scope of the vehicle in the bay, and nothing about a
+posted price tells you when that has happened. This calculator does not
+replace judgment about your market; it replaces the arithmetic a flat rate
+skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-vehicle price get a window tint bid wrong?</h3>
+<p>Because the cost driver is pane count, film tier, and whether old tint has to be stripped first, not a vehicle size class alone. A "front two only" privacy job on two doors and a full seven-window kit in ceramic film with removal on every pane can both roll up to a shop calling it "one sedan" -- and a flat per-vehicle number cannot see which one it is looking at.</p>
+<h3>What does a flat per-vehicle price usually leave out entirely?</h3>
+<p>Which windows are actually being tinted, the film tier the customer picked, and whether existing tint has to come off first. A posted "$180 sedan" price is set on one job -- a specific pane count, a specific film, no removal -- and reused for every vehicle in that size class, whatever the job in front of the installer actually needs.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shop-rate defaults ($28/hr installer rate, a 15% waste factor, $12 booth overhead, no mobile fee, a 35% target margin, a $120 minimum job fee, and a $200 flat per-vehicle rate to compare): a front-two-only dyed-film job floors at the $120.00 minimum, $80.00 below the $200.00 flat rate. This calculator's own default full seven-pane ceramic kit breaks even at $370.27, $170.27 (85%) above the flat rate. The same full kit with old tint stripped first prices at $429.14, $229.14 (115%) above the flat rate.</p>
+<h3>Is a flat per-vehicle price ever the right way to quote a tint job?</h3>
+<p>For a narrow band of near-identical jobs -- same pane count, same film tier, no removal -- a flat rate can land close. The risk is applying it outside that band without noticing: on this calculator's own numbers a light two-window dyed job and a full ceramic kit with removal both get quoted the same "$200 sedan" line, and the gap between them runs in opposite directions -- one overcharges the customer, the other leaves money on the table.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local labor rates or tint pricing in your area. It takes which windows are being tinted, the film tier, a cutting-waste factor, your installer rate, booth overhead, a mobile fee, and whether old tint has to be stripped first, and turns them into a price for the job you describe -- the arithmetic a flat per-vehicle price skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Window Tinting Bid Calculator</a> to price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, safety, or automotive advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This is a pricing worksheet based on your own assumptions. It does not check your state's window tint darkness (VLT%) law, medical-exemption rules, reflectivity limits, or any other film-legality requirement, and it does not replace your own judgment about scope or warranty terms.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a job.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+      <li><a href="../window-cleaning-bid-calculator/" data-pf-to="window-cleaning-bid-calculator">Window Cleaning Bid Calculator</a></li>
+      <li><a href="../asbestos-abatement-bid-calculator/" data-pf-to="asbestos-abatement-bid-calculator">Asbestos Abatement Bid Calculator</a></li>
+      <li><a href="../attic-insulation-bid-calculator/" data-pf-to="attic-insulation-bid-calculator">Attic Insulation Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=window-tinting-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="window-tinting-bid-calculator"></script>
+</body></html>

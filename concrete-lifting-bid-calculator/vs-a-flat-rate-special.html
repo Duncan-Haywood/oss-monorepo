@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat "$X/sq ft" or "$X/hole" special | Concrete Lifting Bid Calculator</title>
+<meta name="description" content="A published $4.50/sq ft or $75/hole special is priced on one easy job, not on the void, the method, the access, or the extras a real lift actually needs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/concrete-lifting-bid-calculator/vs-a-flat-rate-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat &quot;$X/sq ft&quot; or &quot;$X/hole&quot; special">
+<meta property="og:description" content="An 80 sq ft sidewalk with a 1-inch void is not the same job as a 400 sq ft backyard driveway with a 4-inch void, polyurethane, a hose run, six extra holes…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/concrete-lifting-bid-calculator/vs-a-flat-rate-special.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate special get a lifting job wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a lift is priced by the void it fills, not by the slab's square footage or its hole count alone. Void cubic feet equal slab square feet times void depth in inches, divided by 12. An 80-square-foot sidewalk settled one inch has about 6.67 cubic feet of void. A 400-square-foot driveway settled four inches has about 133.33 cubic feet -- 20 times as much fill for five times the square footage. A rate learned from the sidewalk and reused on the driveway prices the void as if it barely changed, because square footage and hole count cannot tell a one-inch settle from a four-inch one."}},{"@type":"Question","name":"What else does a flat special leave out?","acceptedAnswer":{"@type":"Answer","text":"Method, access, and the extras past the coupon. Polyurethane foam costs several times as much per cubic foot as mudjacking slurry, but sets faster and needs less pump time. A backyard hose-and-pump run or an occupied interior floor adds its own access hours that a street-side truck job never has. Extra holes past the included set and joint seal or crack fill after lifting are their own labor and material lines, not something a flat per-square-foot or per-hole number has anywhere to put."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting inputs -- a $42 hourly wage, 32% payroll burden, 16% overhead, and a 30% target margin: an 80 square foot sidewalk with a 1-inch void, mudjacked, truck at the curb, walks away at $628.44 and prices at $897.77 -- $11.22 per square foot. A 400 square foot backyard driveway with a 4-inch void, polyjacked, six extra holes, and joint seal walks away at $9,493.96 and prices at $13,562.80. Quoting the driveway at the sidewalk's learned rate of $11.22 per square foot comes to $4,488.87 -- $5,005.09 below the driveway's own walk-away cost, and $9,073.93 short of what this calculator says the job should charge at a 30% target margin."}},{"@type":"Question","name":"Is a flat special ever a reasonable way to quote a lift?","acceptedAnswer":{"@type":"Answer","text":"For a job close to the one the special was set on -- a small slab, a shallow void, street-side access, no extra holes, no sealing -- a flat rate can land close, and this calculator's own sidewalk example prices near typical special rates. The risk is applying that same rate to a deeper void, foam instead of slurry, backyard or interior access, or extra holes and joint seal stacked on top, because a flat per-square-foot or per-hole number has no way to see any of those until the crew is already on site."}},{"@type":"Question","name":"Does this calculator know my local material or labor rates?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local slurry or foam supplier's price or your crew's wage. It takes the slab area, void depth, method, access path, extra holes, and joint seal you enter, plus your own hourly wage, payroll burden, travel and equipment cost, overhead, and target margin, and turns that into void cubic feet, crew hours, and a price for this lift -- the arithmetic a flat special skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2c2618; background: #ebe6dc; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a5a12; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5340; }
+  section { background: #fff; border: 1px solid #c4b89a; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2c26180d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4b89a; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5340; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #5c5340; }
+  footer { color: #5c5340; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/concrete-lifting-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat &quot;$X/sq ft&quot; or &quot;$X/hole&quot; special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../concrete-lifting-bid-calculator/">Concrete Lifting Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat &quot;$X/sq ft&quot; or &quot;$X/hole&quot; special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Concrete Lifting Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat &ldquo;$X/sq ft&rdquo; or &ldquo;$X/hole&rdquo; special</h1>
+<p class="lede">Shops get quoted a published $4.50/sq ft or $75/hole special. That rate cannot see the void &mdash; an 80 sq ft sidewalk with a one-inch void and the truck at the curb is not the same job as a 400 sq ft backyard driveway with a four-inch void, polyurethane, a hose run, six extra holes, and joint seal.</p>
+</header>
+<section>
+<h2>What a flat rate special is</h2>
+<p>
+A per-square-foot or per-hole special is the fastest number to publish or
+quote over the phone: multiply the footprint, or count the holes, and read
+back a total. It is what a homeowner finds on a postcard or a competitor's
+website and asks you to match.
+</p>
+<p>
+The rate behind it was set from one job &mdash; a given void depth, a given
+method, a given access path, no extra holes, no sealing &mdash; and then
+reused for the next slab that calls, whether or not that slab shares any of
+those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+slab area, the void depth, the method &mdash; mudjacking or polyurethane
+&mdash; the access path &mdash; street-side, backyard, or interior &mdash;
+extra holes past the included set, and whether joint seal is included, plus
+your own hourly wage, payroll burden, travel and equipment cost, overhead,
+and target margin. It turns the void into cubic feet the way pump time and
+fill material actually scale, prices method and access as their own hours,
+and returns the price, the price per square foot, the effective hourly
+rate, and the walk-away price &mdash; for this lift, not a rate carried
+over from the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a one-inch settle and a four-inch settle on a similar footprint, even though the deeper void needs 20 times the fill volume on this page's own worked examples.</td>
+<td>Computes void cubic feet as slab square feet &times; void depth &divide; 12 for every job, so a deeper void orders more pump hours and material without anyone eyeballing a markup.</td>
+</tr>
+<tr>
+<td>Has no separate line for method &mdash; a mudjacked sidewalk and a polyjacked driveway of the same size get the same rate, even though polyurethane foam runs far more per cubic foot than slurry.</td>
+<td>Starts pump hours and material cost per cubic foot from a mudjacking or polyurethane preset, editable to the shop's own suppliers.</td>
+</tr>
+<tr>
+<td>Has no line for access &mdash; a truck-at-the-curb job and a backyard hose-and-pump run, or an occupied interior floor, get the same rate.</td>
+<td>Prices street-side, backyard, or interior access as its own hours line, separate from the void.</td>
+</tr>
+<tr>
+<td>Prices extra holes and joint seal, if at all, as part of the blended rate, so a job that needs six extra holes and a full seal costs the same as one that needs neither.</td>
+<td>Prices extra holes and joint seal / crack fill as their own hours and material lines, added only when the job needs them.</td>
+</tr>
+<tr>
+<td>Gives the customer a number to compare against a competitor's coupon, not a number to check a quote against.</td>
+<td>Reports price per square foot, effective hourly rate, and the walk-away price alongside the bid price, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>A sidewalk special applied to a backyard hang</h2>
+<p>
+Using this calculator's own shipped starting inputs &mdash; $42 hourly wage,
+32% payroll burden, $95 travel and equipment, 16% overhead, 30% target
+margin, $175 mobilization, and the method's own starting pump and material
+rates:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">Void</th><th class="num" scope="col">Walk-away price</th><th class="num" scope="col">Bid price (30% margin)</th></tr>
+</thead>
+<tbody>
+<tr><td>80 sq ft sidewalk, 1&Prime; void, mudjacked, street-side (this calculator's own shipped default)</td><td class="num">6.67 cu ft</td><td class="num">$628.44</td><td class="num">$897.77</td></tr>
+<tr><td>400 sq ft backyard driveway, 4&Prime; void, polyjacked, 6 extra holes, joint seal</td><td class="num">133.33 cu ft</td><td class="num">$9,493.96</td><td class="num">$13,562.80</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+The sidewalk prices at <strong>$11.22</strong> per square foot. Apply that
+same learned rate to the backyard driveway's 400 square feet and the quote
+comes to <strong>$4,488.87</strong> &mdash; <strong class="loses">$5,005.09
+below the driveway's own walk-away cost of $9,493.96</strong>, before
+counting the <strong class="loses">$9,073.93</strong> it falls short of
+this calculator's own price at a 30% target margin. Same idea, one flat
+rate, one job it happens to price near and one job it loses money on the
+moment the void, the method, and the extras change.
+</p>
+<p class="fine">Worked from <a href="index.html">calc.mjs</a>'s own <code>calculateBid</code> against the tool's shipped default job (mudjacking, street-side, 80 sq ft, 1-inch void, no extras) and its own &ldquo;backyard, polyurethane, extras&rdquo; preset (400 sq ft, 4-inch void, 6 extra holes, joint seal) &mdash; not numbers invented for this page. Open the calculator to check either row yourself.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate special get a lifting job wrong?</h3>
+<p>Because a lift is priced by the void it fills, not by the slab's square footage or its hole count alone. Void cubic feet equal slab square feet times void depth in inches, divided by 12. An 80-square-foot sidewalk settled one inch has about 6.67 cubic feet of void. A 400-square-foot driveway settled four inches has about 133.33 cubic feet -- 20 times as much fill for five times the square footage. A rate learned from the sidewalk and reused on the driveway prices the void as if it barely changed, because square footage and hole count cannot tell a one-inch settle from a four-inch one.</p>
+<h3>What else does a flat special leave out?</h3>
+<p>Method, access, and the extras past the coupon. Polyurethane foam costs several times as much per cubic foot as mudjacking slurry, but sets faster and needs less pump time. A backyard hose-and-pump run or an occupied interior floor adds its own access hours that a street-side truck job never has. Extra holes past the included set and joint seal or crack fill after lifting are their own labor and material lines, not something a flat per-square-foot or per-hole number has anywhere to put.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting inputs -- a $42 hourly wage, 32% payroll burden, 16% overhead, and a 30% target margin: an 80 square foot sidewalk with a 1-inch void, mudjacked, truck at the curb, walks away at $628.44 and prices at $897.77 -- $11.22 per square foot. A 400 square foot backyard driveway with a 4-inch void, polyjacked, six extra holes, and joint seal walks away at $9,493.96 and prices at $13,562.80. Quoting the driveway at the sidewalk's learned rate of $11.22 per square foot comes to $4,488.87 -- $5,005.09 below the driveway's own walk-away cost, and $9,073.93 short of what this calculator says the job should charge at a 30% target margin.</p>
+<h3>Is a flat special ever a reasonable way to quote a lift?</h3>
+<p>For a job close to the one the special was set on -- a small slab, a shallow void, street-side access, no extra holes, no sealing -- a flat rate can land close, and this calculator's own sidewalk example prices near typical special rates. The risk is applying that same rate to a deeper void, foam instead of slurry, backyard or interior access, or extra holes and joint seal stacked on top, because a flat per-square-foot or per-hole number has no way to see any of those until the crew is already on site.</p>
+<h3>Does this calculator know my local material or labor rates?</h3>
+<p>No. It has no data on your local slurry or foam supplier's price or your crew's wage. It takes the slab area, void depth, method, access path, extra holes, and joint seal you enter, plus your own hourly wage, payroll burden, travel and equipment cost, overhead, and target margin, and turns that into void cubic feet, crew hours, and a price for this lift -- the arithmetic a flat special skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Concrete Lifting Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-for-concrete-lifting.html">how much to charge for concrete lifting</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a slab can be lifted safely. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../epoxy-garage-floor-bid-calculator/" data-pf-to="epoxy-garage-floor-bid-calculator">Epoxy Garage Floor Bid Calculator</a></li>
+      <li><a href="../foundation-repair-bid-calculator/" data-pf-to="foundation-repair-bid-calculator">Foundation Repair Bid Calculator</a></li>
+      <li><a href="../french-drain-bid-calculator/" data-pf-to="french-drain-bid-calculator">French Drain Bid Calculator</a></li>
+      <li><a href="../gravel-driveway-bid-calculator/" data-pf-to="gravel-driveway-bid-calculator">Gravel Driveway Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=concrete-lifting-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="concrete-lifting-bid-calculator"></script>
+</body></html>

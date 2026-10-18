@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. QuickBooks Online invoicing | Invoice Payment Terms Calculator</title>
+  <meta name="description" content="QuickBooks Online is paid bookkeeping and invoicing software you sign up for. This is a free, private, no-account browser tool for one question…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html">
+  <meta property="og:title" content="This calculator vs. QuickBooks Online invoicing">
+  <meta property="og:description" content="QuickBooks Online sends and tracks the invoice. This free page answers one question first: given your terms and your client's payment run…">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or QuickBooks Online?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs and most freelancers who invoice regularly will end up using both. QuickBooks Online, made by Intuit, is paid bookkeeping and invoicing software: it sends the invoice, tracks who owes what across every client, reconciles bank feeds, and produces the books an accountant or tax filing needs, sold as an ongoing subscription with a signup and setup step. This calculator does one narrower thing before or alongside that: starting from an invoice amount, payment terms, and how your client actually runs payments (weekdays, twice a month, once a month), it works out the due date, the date cash actually lands once that payment run is taken into account, what a 30/60/90-day delay costs at your carrying-cost assumption, whether a 2/10 Net 30 discount still beats waiting, whether factoring still beats waiting after the fee, and how much of a project stays unpaid under a given deposit or milestone schedule. It runs free in any browser, keeps no account, sends nothing you type anywhere, and does not send the invoice itself. A freelancer or small firm that already needs one system tracking every client, every invoice, and the books behind them is better served by QuickBooks Online or a comparable accounting platform; someone who wants an instant, private answer to when this invoice's cash actually arrives and whether an early-pay or factoring offer is worth it is in the right place here."}},{"@type":"Question","name":"Does QuickBooks Online already do this?","acceptedAnswer":{"@type":"Answer","text":"QuickBooks Online lets you set payment terms (Net 15, Net 30, due on receipt, or a custom term) per customer or per invoice, and it tracks which invoices are open and how many days overdue they are. What it does not do is model when your client's specific payment run actually pays that due date, price a 2/10 early-pay discount or a factoring fee against your own cost of carrying the cash, or turn a project's billing schedule into a day-by-day unpaid-exposure figure. This calculator is not a replacement for QuickBooks Online's invoice tracking; it is the arithmetic step before you set the term or decide whether an early-pay or factoring offer is worth taking."}},{"@type":"Question","name":"Is this page affiliated with QuickBooks or Intuit?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Intuit Inc. QuickBooks is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #176b53; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; max-width: 22ch; }
+    .scroller { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; min-width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #cbd8d3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5568; }
+    .fine, .note { font-size: .88rem; color: #4a5568; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #344640; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. QuickBooks Online invoicing — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../invoice-payment-terms-calculator/">Invoice Payment Terms Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. QuickBooks Online invoicing</span></span></nav>
+  <p><a href="./">&larr; Invoice payment terms calculator</a></p>
+  <h1>This calculator vs. QuickBooks Online invoicing</h1>
+  <p>
+    Two different shapes: <strong>QuickBooks Online</strong> is paid
+    bookkeeping and invoicing software you sign up for and use as an ongoing
+    system of record. This page is a free, private worksheet for one
+    question &mdash; given this invoice's terms and how your client actually
+    runs payments, when does the cash land, and does an early-pay discount
+    or factoring beat waiting.
+  </p>
+  <p>
+    <strong>QuickBooks Online</strong>, made by Intuit, sends and tracks
+    invoices, lets you set payment terms per customer or invoice, reconciles
+    bank feeds, and produces the books an accountant or tax filing needs, as
+    a paid ongoing subscription with signup and setup. QuickBooks' own
+    pricing page is not reachable from this session to confirm today's plan
+    names or figures, so no dollar amount for QuickBooks appears anywhere on
+    this page &mdash; only its well-documented identity and category
+    (invoicing and bookkeeping software sold as a subscription) are stated.
+  </p>
+  <p>
+    This calculator does not send an invoice, track a client's balance, or
+    touch your books, and it stores nothing on a server. It takes an
+    invoice amount, payment terms, and how your client's accounts-payable
+    run actually works (weekdays only, twice a month, once a month), and
+    turns that into the due date, the date cash actually lands once that
+    run is accounted for, what 30/60/90 days of delay costs at your
+    carrying-rate assumption, whether a 2/10 Net 30 discount or a factoring
+    fee still beats waiting, and how exposed a project is under a given
+    deposit or milestone schedule. It runs free in any browser, keeps no
+    account, and uploads nothing you type.
+  </p>
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>I need one system sending every invoice, tracking every client's balance, and producing the books.</td><td>QuickBooks Online, or a comparable accounting platform &mdash; that is not something this calculator does.</td></tr>
+      <tr><td>Given this invoice's terms, when does the cash actually land once my client's payment run is accounted for?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+      <tr><td>Does a 2/10 Net 30 discount still beat waiting, at the rate my own capital costs?</td><td>This calculator's <a href="should-i-offer-2-10-net-30.html">early-pay comparison</a>.</td></tr>
+      <tr><td>Does factoring this invoice still beat waiting after the fee?</td><td>This calculator's <a href="should-i-factor-this-invoice.html">factoring comparison</a>.</td></tr>
+      <tr><td>How much of a project stays unpaid on handover day under a given deposit split?</td><td>This calculator's <a href="should-i-ask-for-a-deposit.html">billing-schedule comparison</a>.</td></tr>
+      <tr><td>What payment terms did I set on this client, and which invoices are still open?</td><td>QuickBooks Online's own invoice tracking &mdash; this calculator does not store or track anything across invoices.</td></tr>
+      <tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. QuickBooks Online is used through a paid subscription account.</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2>What this page is not</h2>
+  <p>
+    This calculator is not a replacement for QuickBooks Online, or for
+    invoicing and bookkeeping software generally. It does not send an
+    invoice, does not track a client's running balance, and does not
+    produce books for an accountant or a tax filing. Most freelancers and
+    small firms that invoice regularly get different value from each:
+    QuickBooks Online (or a comparable platform) for sending invoices,
+    tracking balances, and keeping the books as an ongoing subscription,
+    and a private calculator like this one for an instant, no-login answer
+    to when a specific invoice's cash actually arrives and whether an
+    early-pay or factoring offer is worth taking before you set the term.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or QuickBooks Online?</h3>
+  <p>They do different jobs and most freelancers who invoice regularly will end up using both. QuickBooks Online, made by Intuit, is paid bookkeeping and invoicing software: it sends the invoice, tracks who owes what across every client, reconciles bank feeds, and produces the books an accountant or tax filing needs, sold as an ongoing subscription with a signup and setup step. This calculator does one narrower thing before or alongside that: starting from an invoice amount, payment terms, and how your client actually runs payments (weekdays, twice a month, once a month), it works out the due date, the date cash actually lands once that payment run is taken into account, what a 30/60/90-day delay costs at your carrying-cost assumption, whether a 2/10 Net 30 discount still beats waiting, whether factoring still beats waiting after the fee, and how much of a project stays unpaid under a given deposit or milestone schedule. It runs free in any browser, keeps no account, sends nothing you type anywhere, and does not send the invoice itself. A freelancer or small firm that already needs one system tracking every client, every invoice, and the books behind them is better served by QuickBooks Online or a comparable accounting platform; someone who wants an instant, private answer to when this invoice's cash actually arrives and whether an early-pay or factoring offer is worth it is in the right place here.</p>
+  <h3>Does QuickBooks Online already do this?</h3>
+  <p>QuickBooks Online lets you set payment terms (Net 15, Net 30, due on receipt, or a custom term) per customer or per invoice, and it tracks which invoices are open and how many days overdue they are. What it does not do is model when your client's specific payment run actually pays that due date, price a 2/10 early-pay discount or a factoring fee against your own cost of carrying the cash, or turn a project's billing schedule into a day-by-day unpaid-exposure figure. This calculator is not a replacement for QuickBooks Online's invoice tracking; it is the arithmetic step before you set the term or decide whether an early-pay or factoring offer is worth taking.</p>
+  <h3>Is this page affiliated with QuickBooks or Intuit?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Intuit Inc. QuickBooks is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+  <p class="note">
+    Open the <a href="./">invoice payment terms calculator</a> to price your own invoice.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. Verify the output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against QuickBooks Online &mdash; it is a static page describing publicly documented facts.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+      <li><a href="../s-corp-reasonable-compensation-calculator/" data-pf-to="s-corp-reasonable-compensation-calculator">S-Corp Reasonable Compensation Calculator</a></li>
+      <li><a href="../saas-annual-plan-discount-calculator/" data-pf-to="saas-annual-plan-discount-calculator">SaaS Annual Plan Discount Calculator — break-even prepay discount, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=invoice-payment-terms-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="invoice-payment-terms-calculator"></script>
+</body>
+</html>

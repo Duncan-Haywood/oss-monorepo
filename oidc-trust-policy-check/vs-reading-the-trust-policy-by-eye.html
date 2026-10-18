@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. reading the trust policy by eye | OIDC Trust Policy Check</title>
+<meta name="description" content="Reading a GitHub Actions OIDC trust policy for review catches an obvious asterisk. It does not catch a StringEquals condition where that asterisk is a literal…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. reading the trust policy by eye">
+<meta property="og:description" content="A reviewer scanning a trust policy for a wildcard has to also carry, for every statement, which IAM condition operator it uses and what that operator does with…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't scanning the trust policy for a wildcard enough?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It catches the obvious case -- a bare * with no condition operator narrowing it at all. What it does not catch is the operator-dependent reading: a sub value of repo:org/name:* under StringLike is a genuine wildcard covering every branch, tag, and pull request in that repository, while the exact same string under StringEquals is a literal character match that no real GitHub token will ever satisfy -- it fails closed rather than opening anything. A reviewer has to hold that distinction in mind for every statement in the policy; this checker applies it automatically and reports which one each statement actually is." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does a manual read of the policy tend to miss?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three shapes in particular. First, the operator-dependent wildcard above. Second, aud being mistaken for identity: every AWS/GitHub OIDC integration uses the same audience, sts.amazonaws.com, so a policy that pins aud tightly but leaves sub unconstrained reads as locked down while being assumable by any repository on GitHub -- pinning aud is necessary and is not, by itself, isolation. Third, a multi-value sub condition: IAM treats a list of values as \"any of these match,\" so four tightly scoped branches plus one repo:org/name:* entry are exactly as open as the wildcard alone, and a top-to-bottom read tends to find the four good rows first and stop looking." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does repo:org/name:* matter for pull_request specifically?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because GitHub issues that sub claim shape to workflows triggered by a pull_request event, including one opened from a fork by someone with no write access to the repository. A policy scoped to that pattern is assumable by a stranger's pull request, not just by trusted branches in the same repo -- a detail that is easy to miss when eyeballing a condition block that otherwise looks like a normal repo-and-branch restriction." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is anything I paste into either process uploaded?",
+      "acceptedAnswer": { "@type": "Answer", "text": "There is nothing to upload either way. Reading a trust policy JSON file in a review tool or an editor involves no third party by itself, and this checker's browser page only parses and classifies the JSON you paste in locally -- a trust policy names your AWS account, your role, and your repositories, so nothing about it is sent anywhere. The CLI reads a file from your own disk and makes no network request either." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reading the trust policy by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../oidc-trust-policy-check/">GitHub Actions OIDC Trust Policy Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reading the trust policy by eye</span></span></nav>
+<p><a href="index.html">&larr; OIDC Trust Policy Check</a></p>
+
+<h1>This checker vs. reading the trust policy by eye</h1>
+
+<p>
+  The free way to review a GitHub Actions OIDC trust policy is to open the JSON and read the
+  <code>Condition</code> block: does <code>sub</code> look pinned, is there an obvious
+  <code>*</code> sitting somewhere it shouldn't. That catches the case where nothing at all
+  restricts the role, and costs nothing but a few minutes of careful reading.
+</p>
+
+<p>
+  <strong>This checker</strong> runs the same read, but resolves every statement against IAM's
+  actual condition-operator semantics before judging it -- rather than treating a trailing
+  <code>*</code> as always meaning the same thing. A <code>sub</code> value under
+  <code>StringLike</code> is a real wildcard; the identical string under <code>StringEquals</code>
+  is a literal character that no real GitHub token can match, and reporting it as an exposure would
+  send the reader to fix a role that is actually failing closed. It also checks <code>aud</code>
+  against the one audience every GitHub/AWS OIDC integration actually uses, walks every value in a
+  multi-value condition rather than stopping at the first tightly-scoped one, and flags a
+  <code>repo:org/name:*</code> pattern for including <code>pull_request</code> -- a context GitHub
+  issues to fork-triggered workflows opened by strangers.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Spot-check a trust policy you just wrote for an obvious, unconditioned <code>*</code>.</td>
+      <td>Reading it by eye -- fast, and good enough to catch the plainest case.</td>
+    </tr>
+    <tr>
+      <td>Know whether a <code>sub</code> value ending in <code>*</code> is a real wildcard or a literal character that fails closed, without holding IAM's operator semantics in your head.</td>
+      <td>This checker -- it resolves each statement's actual condition operator automatically.</td>
+    </tr>
+    <tr>
+      <td>Confirm <code>aud</code> being pinned actually restricts who can assume the role.</td>
+      <td>This checker -- it names the one audience every real OIDC integration uses, so a pinned <code>aud</code> alone is never read as isolation.</td>
+    </tr>
+    <tr>
+      <td>Check every value in a multi-value <code>sub</code> condition, not just the first few tightly-scoped ones.</td>
+      <td>This checker -- it walks the whole list, since IAM treats it as "any of these match."</td>
+    </tr>
+    <tr>
+      <td>Notice that a <code>repo:org/name:*</code> pattern is assumable from a fork's pull request, not just from branches in the same repository.</td>
+      <td>This checker -- it names the <code>pull_request</code> exposure explicitly.</td>
+    </tr>
+    <tr>
+      <td>Gate a policy change in CI without a human review step every time.</td>
+      <td>This checker -- one Node command, no AWS credentials, a machine-checkable pass/fail.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  A careful read is a reasonable first pass, and it is often what catches the policy with nothing
+  at all in its <code>Condition</code> block. This checker is what you run once the policy has a
+  condition that looks right -- it resolves the operator semantics a human reviewer would otherwise
+  have to memorise, per statement, every time.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Isn't scanning the trust policy for a wildcard enough?</h3>
+<p>It catches the obvious case -- a bare * with no condition operator narrowing it at all. What it does not catch is the operator-dependent reading: a sub value of repo:org/name:* under StringLike is a genuine wildcard covering every branch, tag, and pull request in that repository, while the exact same string under StringEquals is a literal character match that no real GitHub token will ever satisfy -- it fails closed rather than opening anything. A reviewer has to hold that distinction in mind for every statement in the policy; this checker applies it automatically and reports which one each statement actually is.</p>
+
+<h3>What does a manual read of the policy tend to miss?</h3>
+<p>Three shapes in particular. First, the operator-dependent wildcard above. Second, aud being mistaken for identity: every AWS/GitHub OIDC integration uses the same audience, sts.amazonaws.com, so a policy that pins aud tightly but leaves sub unconstrained reads as locked down while being assumable by any repository on GitHub -- pinning aud is necessary and is not, by itself, isolation. Third, a multi-value sub condition: IAM treats a list of values as "any of these match," so four tightly scoped branches plus one repo:org/name:* entry are exactly as open as the wildcard alone, and a top-to-bottom read tends to find the four good rows first and stop looking.</p>
+
+<h3>Why does repo:org/name:* matter for pull_request specifically?</h3>
+<p>Because GitHub issues that sub claim shape to workflows triggered by a pull_request event, including one opened from a fork by someone with no write access to the repository. A policy scoped to that pattern is assumable by a stranger's pull request, not just by trusted branches in the same repo -- a detail that is easy to miss when eyeballing a condition block that otherwise looks like a normal repo-and-branch restriction.</p>
+
+<h3>Is anything I paste into either process uploaded?</h3>
+<p>There is nothing to upload either way. Reading a trust policy JSON file in a review tool or an editor involves no third party by itself, and this checker's browser page only parses and classifies the JSON you paste in locally -- a trust policy names your AWS account, your role, and your repositories, so nothing about it is sent anywhere. The CLI reads a file from your own disk and makes no network request either.</p>
+
+<p><a href="index.html">&larr; Back to OIDC Trust Policy Check</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker classifies documented condition
+  patterns on one trust policy. It is not a full security assessment, cannot see the permissions
+  the role grants once assumed, and cannot see a pattern it does not check for. A clean report
+  describes what these conditions say, not a guarantee that the setup is secure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to review any policy you
+  paste into it. To the maximum extent permitted by law, the authors accept no liability for any
+  loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=oidc-trust-policy-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="oidc-trust-policy-check"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. checking each platform's fee page separately | Upwork vs. Fiverr Fee Calculator</title>
+<meta name="description" content="Fiverr's fee page states a flat 20%. Upwork's fee page does not state a number at all -- it only explains a 0-15% range set per contract.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/vs-checking-each-platforms-fee-page-separately.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. checking each platform's fee page separately">
+<meta property="og:description" content="Upwork's own fee page does not compute a number for you -- it only describes a 0-15% range. Checking it by hand risks reaching for the tiered 20/10/5% formula…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/vs-checking-each-platforms-fee-page-separately.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just check Upwork's fee page and Fiverr's fee page separately?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different kinds of question. Fiverr's fee page states one number: a flat 20% seller commission, unchanged in years. Upwork's fee page does not state a number at all -- since May 1, 2025 it only explains that the freelancer service fee is set per contract, somewhere between 0% and 15%, by Upwork's own pricing system. Reading both pages still leaves you to open a second tab, retype the same job price, and do the subtraction yourself for each platform, and one of those two lookups was never going to hand you a number to subtract with in the first place."}},{"@type":"Question","name":"What mistake does checking Upwork's fee page by hand risk?","acceptedAnswer":{"@type":"Answer","text":"Reaching for the tiered 20%/10%/5% formula Upwork retired on May 1, 2025. That formula is still repeated on older blog posts, forum answers, and other calculators that have not caught up, and unlike Fiverr's flat rate it looks exactly as authoritative as the number it replaced. A freelancer who checks Upwork's fee page, does not find a single rate, and pattern-matches to the old tiers they saw somewhere else ends up computing a fee Upwork no longer charges."}},{"@type":"Question","name":"How big is that mistake in practice?","acceptedAnswer":{"@type":"Answer","text":"On a $3,000 job, assuming it is the first work billed to this client -- the same assumption the retired tiers' own boundaries used -- an established-relationship freelancer actually quoted 5% keeps $2,850, a 95% effective take-home. Applying the retired 20%-on-the-first-$500, 10%-up-to-$10,000, 5%-above formula instead computes a $350 fee and a $2,650 take-home, 88.3% effective -- $200 less than the freelancer will actually receive on this one job, from a formula that no longer applies to any Upwork contract."}},{"@type":"Question","name":"Does this calculator know my exact Upwork fee?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not guess with a formula either -- there is no public formula left to guess with. It takes the percentage Upwork already quoted you for this specific contract, shown to you at proposal time, and runs it through the same arithmetic as Fiverr's flat 20% for the same job price."}},{"@type":"Question","name":"What does this calculator do that checking both pages separately does not?","acceptedAnswer":{"@type":"Answer","text":"It takes one job price, your quoted Upwork percentage, and Fiverr's rate, and reports both take-home figures side by side in one place, with an optional withdrawal fee and tax reserve netted out of each -- no second tab, no retyping the price a second time, and no formula to reach for since it never assumes one on your behalf."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1d2530;background:#eef2f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1c5f7a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #d3dce6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a2a4a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dce6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. checking each platform's fee page separately — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. checking each platform's fee page separately</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Upwork vs. Fiverr Fee Calculator</a></p>
+<header>
+<h1>This calculator vs. checking each platform's fee page separately</h1>
+<p class="lede">Fiverr's fee page states one number. Upwork's does not state a number at all any more &mdash; and reaching for the wrong one instead of your own quoted rate understates what a job actually pays.</p>
+</header>
+<section>
+<h2>What checking each platform's fee page by hand looks like</h2>
+<p>
+Fiverr's help pages are straightforward: a flat 20% seller commission, no
+tiers, applied to every order. Upwork's fee page is not the same kind of
+page any more. Since May 1, 2025 it does not publish a number &mdash; it
+explains that the freelancer service fee is set per contract, somewhere
+between 0% and 15%, by Upwork's own pricing system, and shown to you only
+at proposal time.
+</p>
+<p>
+Checking both by hand means two tabs, the same job price typed in twice,
+and a subtraction done separately for each &mdash; and one of those two
+lookups was never going to hand you a rate to subtract with. The gap gets
+filled somehow, and the somehow is often the tiered 20%/10%/5% formula
+Upwork retired, because it is still repeated across older blog posts,
+forum answers, and calculators nobody has updated. See
+<a href="how-much-does-upwork-take.html">how much Upwork actually
+takes</a> for what changed.
+</p>
+</section>
+<section>
+<h2>What this calculator does instead</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter one
+job price, your own Upwork-quoted percentage, Fiverr's rate (defaulted to
+its current 20%), and optional withdrawal fees and a tax reserve. It runs
+the same job price through both platforms' payout math at once and
+reports which nets more, by how much.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Checking each fee page separately</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Fiverr's page gives a flat rate to subtract; Upwork's page gives a range and a policy, not a number.</td>
+<td>Takes your own quoted Upwork percentage as an input, so the arithmetic never depends on Upwork publishing one.</td>
+</tr>
+<tr>
+<td>Nothing stops a lookup from reaching for the 20%/10%/5% tiered formula Upwork retired on May 1, 2025.</td>
+<td>Never assumes a formula on your behalf &mdash; there is none left to assume.</td>
+</tr>
+<tr>
+<td>Requires typing the same job price into two separate lookups, once per platform.</td>
+<td>One job price, both platforms computed from it side by side.</td>
+</tr>
+<tr>
+<td>Neither platform's own page nets an optional withdrawal fee or a tax reserve against the other's take-home.</td>
+<td>Nets both a withdrawal fee and a self-employment tax reserve out of each platform's payout, side by side.</td>
+</tr>
+<tr>
+<td>Tells you what each platform charges, not which one nets you more for this job.</td>
+<td>Reports the gap and names whichever platform actually pays more for the same job price.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same $3,000 job, two different fee lookups</h2>
+<p>
+Say an established-relationship freelancer is quoted a 5% Upwork service
+fee for a $3,000 job &mdash; assuming it is the first work billed to this
+client, the same assumption the retired tiers' own boundaries used. Run
+through this calculator's own arithmetic, that job nets
+<strong>$2,850</strong>: a <strong>95%</strong> effective take-home.
+</p>
+<p>
+Check Upwork's fee page instead, find no single rate to apply, and reach
+for the retired 20%-on-the-first-$500, 10%-up-to-$10,000, 5%-above
+formula: that computes a $350 fee and a <strong>$2,650</strong> take-home
+&mdash; <strong>88.3%</strong> effective. The retired formula understates
+this one job by <strong>$200</strong>, from a rate structure Upwork has
+not charged since May 2025. Price several jobs a month off that number
+and the shortfall compounds every time.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just check Upwork's fee page and Fiverr's fee page separately?</h3>
+<p>Because they answer different kinds of question. Fiverr's fee page states one number: a flat 20% seller commission, unchanged in years. Upwork's fee page does not state a number at all -- since May 1, 2025 it only explains that the freelancer service fee is set per contract, somewhere between 0% and 15%, by Upwork's own pricing system. Reading both pages still leaves you to open a second tab, retype the same job price, and do the subtraction yourself for each platform, and one of those two lookups was never going to hand you a number to subtract with in the first place.</p>
+<h3>What mistake does checking Upwork's fee page by hand risk?</h3>
+<p>Reaching for the tiered 20%/10%/5% formula Upwork retired on May 1, 2025. That formula is still repeated on older blog posts, forum answers, and other calculators that have not caught up, and unlike Fiverr's flat rate it looks exactly as authoritative as the number it replaced. A freelancer who checks Upwork's fee page, does not find a single rate, and pattern-matches to the old tiers they saw somewhere else ends up computing a fee Upwork no longer charges.</p>
+<h3>How big is that mistake in practice?</h3>
+<p>On a $3,000 job, assuming it is the first work billed to this client -- the same assumption the retired tiers' own boundaries used -- an established-relationship freelancer actually quoted 5% keeps $2,850, a 95% effective take-home. Applying the retired 20%-on-the-first-$500, 10%-up-to-$10,000, 5%-above formula instead computes a $350 fee and a $2,650 take-home, 88.3% effective -- $200 less than the freelancer will actually receive on this one job, from a formula that no longer applies to any Upwork contract.</p>
+<h3>Does this calculator know my exact Upwork fee?</h3>
+<p>No, and it does not guess with a formula either -- there is no public formula left to guess with. It takes the percentage Upwork already quoted you for this specific contract, shown to you at proposal time, and runs it through the same arithmetic as Fiverr's flat 20% for the same job price.</p>
+<h3>What does this calculator do that checking both pages separately does not?</h3>
+<p>It takes one job price, your quoted Upwork percentage, and Fiverr's rate, and reports both take-home figures side by side in one place, with an optional withdrawal fee and tax reserve netted out of each -- no second tab, no retyping the price a second time, and no formula to reach for since it never assumes one on your behalf.</p>
+<p class="note">
+Open the <a href="./">Upwork vs. Fiverr Fee Calculator</a> to run your own quoted rate, or read <a href="how-much-does-upwork-take.html">how much Upwork actually takes</a> for what changed and why there is no formula left to look up.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not tax, financial, or legal advice, and it does not tell you which platform to work on. Verify every figure, and your own quoted Upwork percentage, before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against either platform's systems &mdash; it is a static page describing the calculator's own worked example.</p>
+<p>Not affiliated with, endorsed by, or sponsored by <strong>Upwork</strong> or <strong>Fiverr</strong>. Upwork is a trademark of Upwork Inc.; Fiverr is a trademark of Fiverr International Ltd. Both are named here only to describe what this calculator compares.</p>
+<p class="support">Free and open source. If it saved you a lookup, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../amazon-fba-calculator/" data-pf-to="amazon-fba-calculator">Amazon FBA vs FBM Profit Calculator</a></li>
+      <li><a href="../amazon-inventory-loader-check/" data-pf-to="amazon-inventory-loader-check">Amazon Inventory Loader Check — free, private, in your browser</a></li>
+      <li><a href="../amazon-ppc-search-term-analyzer/" data-pf-to="amazon-ppc-search-term-analyzer">Amazon PPC Search Term Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../amazon-seller-profit-analyzer/" data-pf-to="amazon-seller-profit-analyzer">Amazon Seller Profit Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-platform-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freelance-platform-fee-calculator"></script>
+</body></html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>selfrep-repairlabour — Duncan Haywood research</title>
+<meta name="description" content="Follow-up to selfrep-repair. Repairs need one of K benches; broken machines queue after buying spares. The pre-run prediction that the working fleet is about…">
+<meta property="og:title" content="selfrep-repairlabour">
+<meta property="og:description" content="Follow-up to selfrep-repair. Repairs need one of K benches; broken machines queue after buying spares. The pre-run prediction that the working fleet is about…">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
+  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
+  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
+  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
+  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
+  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:56px;font-size:14px}
+.topbar a{color:var(--muted)}
+.topbar a:hover{color:var(--text)}
+.theme-tag{display:inline-block;margin-top:40px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c,var(--accent))}
+h1{font:600 clamp(28px,5vw,40px)/1.2 var(--serif);letter-spacing:-.01em;margin:.4rem 0 1rem}
+.slug{font:13px var(--mono);color:var(--faint)}
+.lede{font-size:18px;color:var(--muted);margin:0 0 1.5rem}
+.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.stats span{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.3rem .75rem;font-size:14px;color:var(--muted)}
+h2{font:600 22px/1.3 var(--serif);margin:2.2rem 0 .6rem}
+figure{margin:1rem 0;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
+.links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
+.links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+.t-scoring{--c:var(--t-scoring)}
+.t-effort{--c:var(--t-effort)}
+.t-games{--c:var(--t-games)}
+.t-detection{--c:var(--t-detection)}
+.t-routing{--c:var(--t-routing)}
+.t-markets{--c:var(--t-markets)}
+.t-contributions{--c:var(--t-contributions)}
+.t-systems{--c:var(--t-systems)}
+.t-twins{--c:var(--t-twins)}
+.t-chip{--c:var(--t-chip)}
+.t-robofab{--c:var(--t-robofab)}
+.t-ambient{--c:var(--t-ambient)}
+.t-selfrep{--c:var(--t-selfrep)}
+.t-simdesign{--c:var(--t-simdesign)}
+.t-garment{--c:var(--t-garment)}
+.t-accel{--c:var(--t-accel)}
+.t-eda{--c:var(--t-eda)}
+.t-osrobot{--c:var(--t-osrobot)}
+.t-swe{--c:var(--t-swe)}
+.t-mimic{--c:var(--t-mimic)}
+.t-house{--c:var(--t-house)}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/research/selfrep-repairlabour/">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/research/selfrep-repairlabour/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/" aria-current="page">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="https://github.com/Duncan-Haywood/oss-monorepo">GitHub</a></div></header>
+<main class="wrap t-selfrep">
+  <span class="theme-tag">Self-replicating manufacturing</span>
+  <h1>What happens to a repairing printer shop when repairs need labour?</h1>
+  <p class="slug">research/selfrep-repairlabour</p>
+  <p class="lede">Repair labour as a limit on a repairing printer shop (stylised, assumed inputs): with few repair benches an unbounded queue of broken machines is dead stock and does worse than never repairing; capping the queue recovers most of the gain.</p>
+  <div class="stats"><span>7 tests</span></div>
+  <h2>What it found</h2>
+  <p>Follow-up to selfrep-repair. Repairs need one of K benches; broken machines queue after buying spares. The pre-run prediction that the working fleet is about min(import limit, K&middot;L/h) fails: with B = 40 and one bench the fleet is 414 against a cap of 40, because most breakdowns are never served and the queue (2915 machines) is dead stock. An unbounded queue with one bench is worse than never repairing (414 against 458); retiring a breakdown when 1&ndash;20 machines already wait gives 487&ndash;492. Stylised: assumed inputs, benches are a count with no wages, no corrected closed form.</p>
+  <h2>A figure from its own output</h2>
+  <figure><img src="queue_cap.svg" alt="Figure produced by research/selfrep-repairlabour: queue_cap" loading="lazy"><figcaption>selfrep-repairlabour/experiments/queue_cap.svg, written by the project's own experiment code.</figcaption></figure>
+
+  <h2>Paper, code and results</h2>
+  <ul class="links">
+    <li><a class=primary href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/selfrep-repairlabour#readme">README and method</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/selfrep-repairlabour/experiments">Experiments and results</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/selfrep-repairlabour/src">Code</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/selfrep-repairlabour/tests">Tests</a></li>
+  </ul>
+  <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
+</main>
+<footer><div class="wrap">© Duncan Haywood · <a href="https://github.com/Duncan-Haywood/oss-monorepo">github.com/Duncan-Haywood/oss-monorepo</a></div><div class="wrap"><p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p></div></footer>
+</body>
+</html>

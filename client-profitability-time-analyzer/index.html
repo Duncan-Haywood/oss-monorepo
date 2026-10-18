@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Profitability Time Analyzer — What Each Client Really Pays Per Hour</title>
+  <meta name="description" content="Free analyzer for freelancers, consultants and agencies: load a time export from Toggl, Clockify…">
+  <meta property="og:title" content="Client Profitability Time Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Which clients pay you well per hour and which don't? Effective rate per client, scope creep and a reprice list. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Client Profitability Time Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a time-tracker export from Toggl, Clockify, Harvest or a spreadsheet into an effective hourly rate per client against your target rate, with non-billable time, flat-fee scope creep and hour concentration. Runs entirely in your browser; the file is never uploaded.", "featureList": "Effective hourly rate per client, target rate gap, flat-fee and retainer revenue, scope creep detection, non-billable share, hour concentration, copyable summary, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find out which clients are actually profitable?", "acceptedAnswer": {"@type": "Answer", "text": "Export your time entries from Toggl, Clockify, Harvest or your own sheet with a client, a duration and, if you have them, a billable flag and an amount or rate, then drop the file here. The tool divides what each client paid by the hours you spent on them and compares that effective hourly rate with the target rate you type. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What is an effective hourly rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is total revenue from a client divided by every hour you tracked for them, billable or not. A client billed at $120 an hour who also takes ten unbilled hours of calls and revisions for every forty billed is really paying $96. Flat-fee and retainer clients only show up honestly this way."}}, {"@type": "Question", "name": "How do flat-fee and retainer clients work here?", "acceptedAnswer": {"@type": "Answer", "text": "Type one line per client, such as Harbor Dental, 6000, in the flat-fee box for the period the export covers. That revenue is added to whatever the export already attributes to the client, and divided by all their hours. If the fee did not change while their monthly hours did, the tool flags scope creep."}}, {"@type": "Question", "name": "Which columns does the file need?", "acceptedAnswer": {"@type": "Answer", "text": "A client and a duration (hours as a decimal, 1:30:00, or 1h 30m). Optional and used when present: a date, a billable yes/no column, and either an amount or an hourly rate. Column names are matched by alias; rows that cannot be read are listed with a line number and reason."}}, {"@type": "Question", "name": "Is the $-upside figure a forecast?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is the extra revenue the below-target clients would have paid at your target rate for the same hours, which assumes those clients would accept it. It shows how large the gap is, not what you will get."}}, {"@type": "Question", "name": "Is this financial or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you supply and a target rate you type. It is independent of every time-tracking product named on this page and is not affiliated with or endorsed by any of them. Whether to reprice, scope or drop a client is your decision."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Client Profitability Time Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Client Profitability Time Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Client Profitability Time Analyzer — free, private, CSV in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CLIENT PROFITABILITY TIME ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your clients actually pay you well per hour?</h1>
+    <p>Load a <strong>time export</strong> (a client, a duration, and ideally a billable flag and an amount or rate) and get each client's <strong>effective hourly rate</strong> against your target, the <strong>clients to reprice or drop</strong>, <strong>flat-fee work that is creeping</strong>, your <strong>non-billable share</strong> and how <strong>concentrated</strong> your hours are.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Toggl, Clockify, Harvest and every other time-tracking product: not affiliated with or endorsed by any of them. Results use a target rate you type, which is an assumption.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your time entries</h2>
+    <p class="note">Needs a <strong>Client</strong> and a <strong>Duration</strong> (or <strong>Hours</strong>): decimal hours, 1:30:00 or 1h 30m. Used when present: <strong>Date</strong>, <strong>Billable</strong> (yes/no), and an <strong>Amount</strong> (or <strong>Billable Rate</strong>, which is multiplied by the hours). Comma, tab and semicolon files, quoted fields, US and day-first dates and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Client,Project,Date,Duration,Billable,Amount"></textarea>
+    <label for="flat">Flat-fee or retainer revenue for the same period (optional), one “Client, amount” per line</label>
+    <textarea id="flat" spellcheck="false" placeholder="Harbor Dental, 6000"></textarea>
+    <div class="grid">
+      <div><label for="target">Your target hourly rate</label><input type="number" id="target" value="100" min="1" max="10000" step="any" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By client</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th class="" scope="col">Client</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Non-billable h</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Effective $/h</th><th class="n" scope="col">% of target</th><th class="n" scope="col">Gap to target</th><th class="n" scope="col">Hours share</th><th class="n" scope="col">Revenue share</th></tr></thead><tbody id="by-client"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download client table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Effective rate</strong> is a client's revenue divided by all their tracked hours, billable or not. Revenue is the export's amounts (or rate times hours) plus any flat fee you typed. <strong>Reconciles.</strong> Client hours add up to the total hours and client revenue to the total revenue.</li>
+      <li><strong>Non-billable</strong> entries are those the Billable column marks no; they add hours and no revenue. With no Billable column every entry is treated as billable.</li>
+      <li><strong>Gap to target</strong> is target rate times hours minus revenue, for clients below target. The sum is an upper bound, not a forecast: it assumes those clients would pay the target rate.</li>
+      <li><strong>Scope creep</strong> is flagged only for mostly flat-fee clients with at least four dated entries over enough time: hours in the later half of their entries against the earlier half.</li>
+      <li><strong>Not modelled:</strong> unpaid invoices, expenses and software costs, taxes, travel, sales and admin time not tracked, the value of a client to your reputation or pipeline, and anything not in the file. Revenue is as recorded in the export, not what was collected.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find out which clients are actually profitable?</h3>
+    <p>Export your time entries from Toggl, Clockify, Harvest or your own sheet with a client, a duration and, if you have them, a billable flag and an amount or rate, then drop the file here. The tool divides what each client paid by the hours you spent on them and compares that effective hourly rate with the target rate you type. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What is an effective hourly rate?</h3>
+    <p>It is total revenue from a client divided by every hour you tracked for them, billable or not. A client billed at $120 an hour who also takes ten unbilled hours of calls and revisions for every forty billed is really paying $96. Flat-fee and retainer clients only show up honestly this way.</p>
+    <h3>How do flat-fee and retainer clients work here?</h3>
+    <p>Type one line per client, such as Harbor Dental, 6000, in the flat-fee box for the period the export covers. That revenue is added to whatever the export already attributes to the client, and divided by all their hours. If the fee did not change while their monthly hours did, the tool flags scope creep.</p>
+    <h3>Which columns does the file need?</h3>
+    <p>A client and a duration (hours as a decimal, 1:30:00, or 1h 30m). Optional and used when present: a date, a billable yes/no column, and either an amount or an hourly rate. Column names are matched by alias; rows that cannot be read are listed with a line number and reason.</p>
+    <h3>Is the $-upside figure a forecast?</h3>
+    <p>No. It is the extra revenue the below-target clients would have paid at your target rate for the same hours, which assumes those clients would accept it. It shows how large the gap is, not what you will get.</p>
+    <h3>Is this financial or business advice?</h3>
+    <p>No. It applies arithmetic to the file you supply and a target rate you type. It is independent of every time-tracking product named on this page and is not affiliated with or endorsed by any of them. Whether to reprice, scope or drop a client is your decision.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the target rate you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any decision about pricing, scope or ending a client relationship. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any time-tracking product.</strong> Toggl, Clockify, Harvest and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Who pays late? See the <a href="../invoice-aging-late-payer-analyzer/">invoice aging and late payer analyzer</a>. Setting a retainer price? Try the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>. Bookkeeper pricing a new client or checking a roster? The <a href="../bookkeeping-client-fee-calculator/">bookkeeping client fee calculator</a> prices a retainer from the client's workload and ranks current clients by effective hourly.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, parseFlat, analyze, summaryText, sampleCsv, SAMPLE_FLAT, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const dash = (v, f) => (v === null || v === undefined ? "–" : f(v));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const dc = delim === ";";
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: dc });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const flat = parseFlat($("#flat").value, dc);
+      const t = parseFloat($("#target").value);
+      const r = analyze(n.items, { flat: flat.items, targetRate: Number.isFinite(t) ? t : 100 });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.entries} entries, ${s.clients} client(s), ${money(s.hours)} hours, $${money(s.revenue)} revenue. ` + (s.blended === null ? "" : `<strong>Blended $${money(s.blended)}/hour against your $${money(s.target)} target</strong>; ${s.belowCount} client(s) are below it.`);
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#by-client").innerHTML = r.clients.map((c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.hours.toFixed(1)}</td><td class="n">${c.nonBillableHours.toFixed(1)}</td><td class="n">${money(c.revenue)}</td><td class="n">${dash(c.effective, (v) => money(v))}</td><td class="n">${dash(c.vsTarget, pct)}</td><td class="n">${c.shortfall > 0 ? money(c.shortfall) : "–"}</td><td class="n">${s.hours > 0 ? pct(c.hours / s.hours) : "–"}</td><td class="n">${s.revenue > 0 ? pct(c.revenue / s.revenue) : "–"}</td></tr>`).join("") + `<tr><th scope="row">Total</th><td class="n">${s.hours.toFixed(1)}</td><td class="n">${s.nonBillable.toFixed(1)}</td><td class="n">${money(s.revenue)}</td><td class="n">${dash(s.blended, (v) => money(v))}</td><td class="n">${dash(s.blended, (v) => pct(v / s.target))}</td><td class="n">${money(s.upside)}</td><td class="n">100%</td><td class="n">${s.revenue > 0 ? "100%" : "–"}</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (flat.bad.length) notes.push(`${flat.bad.length} flat-fee line(s) were not read: ` + flat.bad.slice(0, 3).map((x) => `line ${x.line}`).join(", ") + ".");
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (!s.hasBillableFlag) notes.push("No Billable column found, so every entry is treated as billable.");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} time entries.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#flat").value = SAMPLE_FLAT;
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic time entries for five made-up clients of an invented studio. Not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#flat").value = ""; $("#file").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["client,hours,non_billable_hours,revenue,effective_rate,share_of_target,gap_to_target"].concat(last.clients.map((c) => [q(c.label), c.hours.toFixed(2), c.nonBillableHours.toFixed(2), c.revenue.toFixed(2), f(c.effective), f(c.vsTarget), c.shortfall.toFixed(2)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "client-profitability.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sawmill-custom-sawing-calculator/" data-pf-to="sawmill-custom-sawing-calculator">Sawmill Custom Sawing Calculator — free, private</a></li>
+      <li><a href="../security-questionnaire-matcher/" data-pf-to="security-questionnaire-matcher">Security Questionnaire Answer Matcher</a></li>
+      <li><a href="../service-van-stock-optimizer/" data-pf-to="service-van-stock-optimizer">Service Van Stock Optimizer — free, private, in your browser</a></li>
+      <li><a href="../shop-rate-calculator/" data-pf-to="shop-rate-calculator">Shop Rate Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=client-profitability-time-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/?pfEmbed=1&quot; title=&quot;Client Profitability Time Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="client-profitability-time-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/" data-pf-embed-title="Client Profitability Time Analyzer — free, private, CSV in your browser" data-pf-embed-slug="client-profitability-time-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="client-profitability-time-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="client-profitability-time-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

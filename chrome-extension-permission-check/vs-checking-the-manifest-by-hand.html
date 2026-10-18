@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chrome Extension Permission Checker vs. checking the manifest by hand</title>
+<meta name="description" content="Skimming manifest.json against your source catches an obviously unused permission. It also depends on knowing every code shape a permission can appear as…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chrome Extension Permission Checker vs. checking the manifest by hand">
+<meta property="og:description" content="A careful read of manifest.json against your source catches the obvious unused permission. This tool checks every permission's full set of code signatures the…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does checking the manifest by hand actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A developer who remembers to look can spot an obviously unused permission -- a leftover storage entry from a feature that got removed, say -- by scanning the source for chrome.storage. and not finding it. That review genuinely works for a small codebase with permissions whose API surface is a single, obvious pattern, which is most of them." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a permission like clipboardRead slip past a manual search?",
+      "acceptedAnswer": { "@type": "Answer", "text": "clipboardRead has two unrelated code shapes that both use it: the modern navigator.clipboard.readText() call, and the older document.execCommand('paste'). A developer searching the source for one pattern and not finding it will conclude the permission is unused, when the code actually uses the other pattern. This tool checks both signatures for every permission that has more than one, so which one a codebase happens to use never matters." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is telling a host pattern apart from an API permission easy to get wrong by eye?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Manifest V2 extensions commonly list host patterns like *://*.example.com/* directly inside the permissions array, alongside ordinary API permissions like storage and tabs -- there is no separate host_permissions array to signal which entries are which. A developer skimming the array for chrome.* API misuse has no visual cue that one entry is a broad site-access grant rather than an API permission, and might not think to check it against the broad-pattern list at all. This tool reads a host pattern wherever it appears -- in permissions or the newer host_permissions array -- and checks it against the same fixed broad-pattern set every time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is re-checking the whole source tree easy to skip?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A used-but-undeclared permission -- code calling a chrome.* API whose permission was never added to the manifest -- fails at runtime, independent of review, and catching it means diffing every file against the manifest again after every change. That is easy to skip on a routine feature addition, especially right before a submission deadline when a developer is focused on the one file they just edited. This tool re-scans every file it is given every time, so a permission gap introduced anywhere in the tree is caught the same way regardless of which file changed." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace deciding whether a permission is actually justified?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This tool answers whether a permission's code signature is present or absent -- it has no opinion on whether the feature that signature supports is worth the review scrutiny a broad permission invites. Chrome Web Store review ultimately judges justification, not just presence, and that judgment call is still yours." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Chrome Extension Permission Checker vs. checking the manifest by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Chrome Extension Permission Checker vs. checking the manifest by hand</span></span></nav>
+<p><a href="index.html">← Back to Chrome Extension Permission Checker</a></p>
+<h1>Chrome Extension Permission Checker vs. checking the manifest by hand</h1>
+<p>
+  Reading <code>manifest.json</code> alongside your source and searching for each declared
+  permission's API calls genuinely works, and it is the method most extension developers already
+  use before a submission. This page names no product or company being compared against:
+  "checking the manifest by hand" is a generic manual habit, not a competing tool.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Case</th><th>Checking the manifest by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>A permission with one obvious code shape, e.g. <code>chrome.storage.*</code></td><td>Correctly caught by a search for the pattern</td><td>Correctly caught the same way</td></tr>
+    <tr><td><code>clipboardRead</code>, which is either <code>navigator.clipboard.readText()</code> or <code>document.execCommand('paste')</code></td><td>Searching for one pattern and not finding it reads as "unused" even when the other is present</td><td>Checks both known signatures for every permission that has more than one</td></tr>
+    <tr><td>A host pattern listed inside <code>permissions</code> rather than a separate <code>host_permissions</code> array (Manifest V2 style)</td><td>Easy to skim past as an ordinary API permission entry</td><td>Reads a host pattern wherever it appears and checks it against the same broad-pattern set</td></tr>
+    <tr><td>A newly added <code>chrome.*</code> call whose permission was never added to the manifest</td><td>Requires diffing the whole source tree against the manifest again after every change</td><td>Re-scans every file given each run, regardless of which one changed</td></tr>
+    <tr><td>A permission with no checkable code signature (ChromeOS/enterprise-only)</td><td>No way to tell "not checked" from "confirmed unused" without reading the tool's own documentation</td><td>Reports these explicitly as not checked rather than guessing</td></tr>
+  </tbody>
+</table></div>
+
+<h2>The gap that matters most: more than one code shape per permission</h2>
+<p>
+  Not every permission has a single, unambiguous API call to search for. <code>clipboardRead</code>
+  is unlocked by either the modern <code>navigator.clipboard.readText()</code> or the older
+  <code>document.execCommand('paste')</code>, and a codebase can use either. A developer who
+  searches for only one and comes up empty will report the permission unused -- the wrong
+  conclusion if the other pattern is what the code actually uses. This tool checks every known
+  signature for a permission, not just the one a developer happened to think of first.
+</p>
+
+<h2>The gap that matters second: a host pattern hiding among API permissions</h2>
+<p>
+  Manifest V2 extensions often list broad site-access patterns directly inside the
+  <code>permissions</code> array next to ordinary API permissions like <code>storage</code> and
+  <code>tabs</code>, with nothing to visually distinguish them. A skim for suspicious
+  <code>chrome.*</code> usage has no reason to single out an entry that is not an API permission at
+  all. This tool checks every host-shaped entry it finds, in either array, against the same fixed
+  broad-pattern list every time.
+</p>
+
+<h2>When to still read the manifest yourself</h2>
+<p>
+  This tool answers whether a permission's code signature is present or absent in the source you
+  point it at -- it has no opinion on whether the feature behind that signature is worth the
+  scrutiny a broad permission invites in review, and Chrome Web Store review ultimately judges
+  justification, not just presence. Deciding whether a permission is actually needed, and writing
+  the justification review will ask for, is still a job for you.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does checking the manifest by hand actually catch?</h3>
+<p>A developer who remembers to look can spot an obviously unused permission -- a leftover storage entry from a feature that got removed, say -- by scanning the source for chrome.storage. and not finding it. That review genuinely works for a small codebase with permissions whose API surface is a single, obvious pattern, which is most of them.</p>
+<h3>Why does a permission like clipboardRead slip past a manual search?</h3>
+<p>clipboardRead has two unrelated code shapes that both use it: the modern navigator.clipboard.readText() call, and the older document.execCommand('paste'). A developer searching the source for one pattern and not finding it will conclude the permission is unused, when the code actually uses the other pattern. This tool checks both signatures for every permission that has more than one, so which one a codebase happens to use never matters.</p>
+<h3>Why is telling a host pattern apart from an API permission easy to get wrong by eye?</h3>
+<p>Manifest V2 extensions commonly list host patterns like *://*.example.com/* directly inside the permissions array, alongside ordinary API permissions like storage and tabs -- there is no separate host_permissions array to signal which entries are which. A developer skimming the array for chrome.* API misuse has no visual cue that one entry is a broad site-access grant rather than an API permission, and might not think to check it against the broad-pattern list at all. This tool reads a host pattern wherever it appears -- in permissions or the newer host_permissions array -- and checks it against the same fixed broad-pattern set every time.</p>
+<h3>Why is re-checking the whole source tree easy to skip?</h3>
+<p>A used-but-undeclared permission -- code calling a chrome.* API whose permission was never added to the manifest -- fails at runtime, independent of review, and catching it means diffing every file against the manifest again after every change. That is easy to skip on a routine feature addition, especially right before a submission deadline when a developer is focused on the one file they just edited. This tool re-scans every file it is given every time, so a permission gap introduced anywhere in the tree is caught the same way regardless of which file changed.</p>
+<h3>Does this replace deciding whether a permission is actually justified?</h3>
+<p>No. This tool answers whether a permission's code signature is present or absent -- it has no opinion on whether the feature that signature supports is worth the review scrutiny a broad permission invites. Chrome Web Store review ultimately judges justification, not just presence, and that judgment call is still yours.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This is pattern-matching against known
+  <code>chrome.*</code> API signatures in the source you point it at. A clean report describes
+  what that scan found, not a guarantee a Chrome Web Store review will pass.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It does not replace reading Chrome's own permissions documentation.
+  You are responsible for reviewing and verifying its output before relying on it. To the maximum
+  extent permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=chrome-extension-permission-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="chrome-extension-permission-check"></script>
+</body>
+</html>

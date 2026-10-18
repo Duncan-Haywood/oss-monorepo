@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Quota Capacity Planner — How Many Reps Do I Need to Hire, and by When?</title>
+  <meta name="description" content="How many quota-carrying reps must you hire, and by when, to hit next year's bookings target? Month-by-month ramped capacity, attrition, hiring lead time…">
+  <meta property="og:title" content="Sales Quota Capacity Planner"><meta property="og:description" content="Reverse-plan sales hiring from a bookings target: ramp, attrition and recruiting lead time give the latest start date for each hire cohort.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sales Quota Capacity Planner","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Ramped-rep capacity by month, expected bookings, hires needed, latest start date per hire cohort, attainment and attrition sensitivity, hire early vs hire late cost, CSV export, shareable link, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many sales reps do I need to hire to hit my bookings target?","acceptedAnswer":{"@type":"Answer","text":"Divide the target by what one fully ramped rep is expected to book (quota times your real average attainment), then correct for the three things that make that number too low: new hires take months to ramp, some reps leave before they are productive, and recruiting takes time before a rep can even start. This planner does that correction month by month: it counts existing reps by tenure, applies the ramp and attrition, and finds the fewest hires, starting as early as your hiring lead time allows, that close the gap."}},{"@type":"Question","name":"How do I work out the latest date I can start a hire?","acceptedAnswer":{"@type":"Answer","text":"Work backwards from the target. A rep who starts later contributes fewer ramped months inside the year, so each start month has a known contribution. The planner delays each needed hire as far as the target still holds, given the others, and then subtracts your hiring lead time to give the date by which the requisition must be open. Any slack you have is spent on the latest start dates; with no slack, every hire has to start at the earliest month the lead time allows."}},{"@type":"Question","name":"Why plan on average attainment instead of quota?","acceptedAnswer":{"@type":"Answer","text":"Because most teams do not average 100% of quota. If 55% of reps hit quota and the rest average 70%, the team averages about 86.5%, and capacity planned at 100% is roughly 15% short before any ramp or attrition. The planner takes the share of reps at or over quota and the average attainment of the rest and blends them. It counts reps at or over quota at 100% unless you enter a higher figure, which is deliberately conservative."}},{"@type":"Question","name":"Should I hire early or hire late?","acceptedAnswer":{"@type":"Answer","text":"Hiring early costs salary and benefits for months of partial output; hiring late saves that cost but leaves no margin if attainment slips or reps leave. The planner prices both from your fully loaded cost per rep: the extra cost of starting every hire at the earliest month, the extra bookings it buys, and the shortfall each plan shows if attainment is ten percent lower. That turns an argument into a cost per extra dollar of bookings."}},{"@type":"Question","name":"Does this model pipeline, seasonality or territories?","acceptedAnswer":{"@type":"Answer","text":"Only partly. Pipeline coverage and win rate give a ceiling on what the pipeline can support, and the planner warns when more reps would not help because there is not enough pipeline. It does not model seasonality, territory splits, product mix or quota changes mid-year: bookings are spread evenly across months and the target is a single annual number."}},{"@type":"Question","name":"Is my sales data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The planner runs entirely in your browser. Your target, quota and headcount are never sent anywhere. The share link stores your inputs in the link itself, so anyone you send it to sees those numbers, and the optional usage counter records only which features were used and the day."}}]}</script>
+  <style>
+    :root{--bg:#eef1f6;--fg:#20232a;--card:#fff;--line:#c7d0dd;--field:#a7b2c4;--accent:#1f4fbf;--warn:#9a3d00;--ok:#0f6b3a;--res:#18233c;--res-fg:#f3f6ff;--res-warn:#ffd09c;--res-ok:#a9e6c3;--res-line:#ffffff2b;font-family:system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+    @media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e6e9f0;--card:#1b202b;--line:#333c4d;--field:#4a566b;--accent:#8fb2ff;--warn:#ffb27a;--ok:#7fd9a6}}
+    body{max-width:1040px;margin:auto;padding:32px 16px;background:var(--bg);color:var(--fg)}
+    header{max-width:720px}h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
+    a{color:var(--accent)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px;align-items:start}
+    section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+    h2{font-size:1.1rem;margin-top:0}h3{font-size:1rem}
+    fieldset{border:0;padding:0;margin:0 0 16px;display:grid;gap:12px}legend{font-weight:700;margin-bottom:8px;padding:0}
+    label{display:grid;gap:4px;font-weight:650;font-size:.9rem}
+    .hint{font-weight:400;font-size:.8rem;opacity:.8}
+    input,select,textarea{font:inherit;padding:9px;border:1px solid var(--field);border-radius:7px;background:var(--card);color:var(--fg);min-width:0}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+    button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+    @media (prefers-color-scheme:dark){button{color:#0b1020}}
+    button.secondary{background:transparent;color:var(--accent)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    #result{background:var(--res);color:var(--res-fg);border-color:var(--res)}#result a{color:#bcd7ff}
+    .hero{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin:6px 0}.ok{color:var(--res-ok)}.warn{color:var(--res-warn)}
+    .err{color:var(--warn);font-weight:650}
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.88rem}
+    th,td{padding:6px 5px;border-bottom:1px solid var(--res-line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+    caption{text-align:left;font-weight:700;padding-bottom:4px}
+    dl{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;text-align:right}
+    .note{font-size:.83rem;opacity:.85;line-height:1.45}
+    #faq,footer{max-width:1040px;margin:18px auto 0}footer{font-size:.83rem}
+    footer label{display:flex;align-items:center;gap:8px;font-weight:600}footer input[type=checkbox]{width:auto;padding:0}
+    #result button.secondary{color:#bcd7ff;border-color:#bcd7ff}
+    @media(max-width:760px){.layout{grid-template-columns:1fr}}
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Sales Quota Capacity Planner","item":"https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sales Quota Capacity Planner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Sales Quota Capacity Planner</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p>FOR SALES AND REVOPS LEADERS</p>
+    <h1>How many reps must you hire to hit next year's number, and by when?</h1>
+    <p>Enter your bookings target, quota, ramp, attainment, attrition and recruiting lead time. The planner counts ramped capacity month by month and works backwards to the <strong>latest start date for each hire cohort</strong>. It runs privately in your browser and uploads nothing.</p>
+  </header>
+  <main class="layout">
+    <section aria-labelledby="inputs-h">
+      <h2 id="inputs-h">Your plan</h2>
+      <form id="form" autocomplete="off" novalidate>
+        <fieldset><legend>Target and quota</legend>
+          <label for="planStart">First month of the 12-month plan<input id="planStart" name="planStart" type="month" value="2027-01"></label>
+          <label for="targetBookings">Annual new-bookings target ($)<input id="targetBookings" type="number" min="0" step="1000" value="12000000" inputmode="decimal"></label>
+          <label for="quota">Per-rep annual quota ($)<input id="quota" type="number" min="0" step="1000" value="900000" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Ramp and attainment</legend>
+          <label for="rampMonths">Ramp months to full productivity<input id="rampMonths" type="number" min="0" max="36" step="1" value="4" inputmode="numeric"></label>
+          <label for="rampCurve">Ramp curve
+            <select id="rampCurve"><option value="linear" selected>Linear (month k of N produces k/N)</option><option value="cliff">Cliff (nothing until ramp ends)</option></select></label>
+          <label for="pctAtOrOverQuota">Reps at or over quota (%)<input id="pctAtOrOverQuota" type="number" min="0" max="100" step="any" value="55" inputmode="decimal"></label>
+          <label for="avgAttainmentOfRest">Average attainment of the other reps (%)<input id="avgAttainmentOfRest" type="number" min="0" max="100" step="any" value="70" inputmode="decimal"></label>
+          <label for="overachieverAttainment">Average attainment of reps at or over quota (%)<span class="hint">100 is conservative; enter more if over-achievers typically beat quota</span><input id="overachieverAttainment" type="number" min="100" max="300" step="any" value="100" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Headcount</legend>
+          <label for="existingReps">Existing reps: count, start month (one cohort per line)<span class="hint">Example line: 6, 2024-06. A start month after the plan start counts as an already-signed hire.</span>
+            <textarea id="existingReps" rows="4">6, 2024-06
+4, 2025-09
+3, 2026-07</textarea></label>
+          <label for="monthlyAttritionPct">Monthly attrition (%)<input id="monthlyAttritionPct" type="number" min="0" max="50" step="any" value="1.2" inputmode="decimal"></label>
+          <label for="hiringLeadTimeMonths">Hiring lead time: months from opening a req to a start date<input id="hiringLeadTimeMonths" type="number" min="0" max="24" step="1" value="3" inputmode="numeric"></label>
+        </fieldset>
+        <fieldset><legend>Pipeline and cost</legend>
+          <label for="pipelineCoverage">Existing pipeline coverage (x of target)<input id="pipelineCoverage" type="number" min="0" max="100" step="any" value="3" inputmode="decimal"></label>
+          <label for="winRatePct">Pipeline win rate (%)<input id="winRatePct" type="number" min="0" max="100" step="any" value="28" inputmode="decimal"></label>
+          <label for="fullyLoadedAnnualCost">Fully loaded annual cost per rep ($)<input id="fullyLoadedAnnualCost" type="number" min="0" step="1000" value="220000" inputmode="decimal"></label>
+        </fieldset>
+      </form>
+      <p class="note">Assumes recruiting starts in the first plan month, bookings spread evenly across months, and reps at or over quota counted at the attainment you enter. Attrition is an expected-value rate, so headcount can be fractional.</p>
+    </section>
+
+    <section id="result" aria-live="polite" aria-labelledby="result-h">
+      <h2 id="result-h">Hiring plan</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="out">
+        <div id="headline" class="hero"></div><div id="subhead"></div>
+        <dl>
+          <dt>Effective attainment</dt><dd id="effAtt"></dd>
+          <dt>Expected bookings per ramped rep</dt><dd id="perRep"></dd>
+          <dt>Bookings from existing reps only</dt><dd id="baseBookings"></dd>
+          <dt>Gap before hiring</dt><dd id="baseGap"></dd>
+          <dt>Bookings with the hiring plan</dt><dd id="planBookings"></dd>
+          <dt>Gap vs target with the plan</dt><dd id="planGap"></dd>
+          <dt>Pipeline-supported bookings (coverage x win rate)</dt><dd id="pipeCeiling"></dd>
+        </dl>
+        <p id="pipeNote" class="note" hidden></p>
+        <p id="infeasible" class="warn" hidden></p>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Hire cohorts: latest start and requisition dates</caption><thead><tr><th scope="col">Start by</th><th scope="col">Hires</th><th scope="col">Open requisition by</th></tr></thead><tbody id="cohorts"></tbody></table></div></div>
+        <h3>Hire early vs hire late</h3>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Incremental hires only, within the 12-month plan</caption><thead><tr><th scope="col">Plan</th><th scope="col">Bookings</th><th scope="col">Hire cost</th><th scope="col">Shortfall if attainment 10% lower</th></tr></thead><tbody id="compare"></tbody></table></div></div>
+        <p id="compareNote" class="note"></p>
+        <h3>Sensitivity: hires needed</h3>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Hires needed at the earliest start (rows: average attainment change in points; columns: attrition vs your input)</caption><thead id="sensHead"></thead><tbody id="sens"></tbody></table></div></div>
+        <h3>Month by month</h3>
+        <div class="tablewrap"><div class="pf-table-scroll"><table><caption>Capacity and bookings</caption><thead><tr><th scope="col">Month</th><th scope="col">Headcount</th><th scope="col">Ramped reps</th><th scope="col">Bookings</th><th scope="col">Cumulative</th><th scope="col">Gap to pace</th></tr></thead><tbody id="months"></tbody></table></div></div>
+        <div class="actions"><button type="button" id="csv">Download CSV</button><button type="button" id="share" class="secondary">Copy shareable link</button></div>
+        <p id="shareMsg" class="note" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>How many sales reps do I need to hire to hit my bookings target?</h3>
+    <p>Divide the target by what one fully ramped rep is expected to book (quota times your real average
+      attainment), then correct for the three things that make that number too low: new hires take months to
+      ramp, some reps leave before they are productive, and recruiting takes time before a rep can even start.
+      This planner does that correction month by month: it counts existing reps by tenure, applies the ramp and
+      attrition, and finds the fewest hires, starting as early as your hiring lead time allows, that close the gap.</p>
+
+    <h3>How do I work out the latest date I can start a hire?</h3>
+    <p>Work backwards from the target. A rep who starts later contributes fewer ramped months inside the year,
+      so each start month has a known contribution. The planner delays each needed hire as far as the target
+      still holds, given the others, and then subtracts your hiring lead time to give the date by which the
+      requisition must be open. Any slack you have is spent on the latest start dates; with no slack, every hire
+      has to start at the earliest month the lead time allows.</p>
+
+    <h3>Why plan on average attainment instead of quota?</h3>
+    <p>Because most teams do not average 100% of quota. If 55% of reps hit quota and the rest average 70%, the
+      team averages about 86.5%, and capacity planned at 100% is roughly 15% short before any ramp or attrition.
+      The planner takes the share of reps at or over quota and the average attainment of the rest and blends
+      them. It counts reps at or over quota at 100% unless you enter a higher figure, which is deliberately
+      conservative.</p>
+
+    <h3>Should I hire early or hire late?</h3>
+    <p>Hiring early costs salary and benefits for months of partial output; hiring late saves that cost but
+      leaves no margin if attainment slips or reps leave. The planner prices both from your fully loaded cost
+      per rep: the extra cost of starting every hire at the earliest month, the extra bookings it buys, and the
+      shortfall each plan shows if attainment is ten percent lower. That turns an argument into a cost per extra
+      dollar of bookings.</p>
+
+    <h3>Does this model pipeline, seasonality or territories?</h3>
+    <p>Only partly. Pipeline coverage and win rate give a ceiling on what the pipeline can support, and the
+      planner warns when more reps would not help because there is not enough pipeline. It does not model
+      seasonality, territory splits, product mix or quota changes mid-year: bookings are spread evenly across
+      months and the target is a single annual number.</p>
+
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The planner runs entirely in your browser. Your target, quota and headcount are never sent anywhere.
+      The share link stores your inputs in the link itself, so anyone you send it to sees those numbers, and the
+      optional usage counter records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, business, or employment advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Pricing the commission side of the same plan? The <a href="../sales-commission-plan-comparison-calculator/">sales commission plan comparison calculator</a> compares payout structures in the same browser-local style.</p>
+    <p>Checking whether your sales motion pays back? The <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a> turns acquisition spend into months to recover it.</p>
+    <p>Looking at the recurring-revenue side? The <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a> shows gross and net revenue retention from one period's movements.</p>
+  </footer>
+
+  <script type="module">
+    import { planCapacity, toCsv, encodeState, decodeState } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELDS = ['planStart','targetBookings','quota','rampMonths','rampCurve','pctAtOrOverQuota','avgAttainmentOfRest','overachieverAttainment','monthlyAttritionPct','hiringLeadTimeMonths','existingReps','pipelineCoverage','winRatePct','fullyLoadedAnnualCost'];
+    const $ = (id) => document.getElementById(id);
+    const usd = (n) => { const s = '$' + Math.round(Math.abs(n)).toLocaleString('en-US'); return n < -0.5 ? '-' + s : s; };
+    const num1 = (n) => (Math.round(n * 10) / 10).toLocaleString('en-US');
+    const pct = (n) => num1(n) + '%';
+    let last = null;
+
+    const values = () => Object.fromEntries(FIELDS.map((id) => [id, $(id).value]));
+
+    try {
+      const saved = decodeState(location.hash.replace(/^#/, '') || location.search);
+      for (const [k, v] of Object.entries(saved)) if ($(k)) $(k).value = v;
+    } catch { /* a malformed link just falls back to the defaults */ }
+
+    function row(tbody, cells, header = false) {
+      const tr = document.createElement('tr');
+      cells.forEach((c, i) => {
+        const cell = document.createElement(header || i === 0 ? 'th' : 'td');
+        if (cell.tagName === 'TH') cell.scope = header ? 'col' : 'row';
+        cell.textContent = c;
+        tr.appendChild(cell);
+      });
+      tbody.appendChild(tr);
+    }
+
+    function render(count = true) {
+      const errors = $('errors'); const out = $('out');
+      try {
+        const r = planCapacity(values());
+        last = r;
+        errors.hidden = true; errors.textContent = ''; out.hidden = false;
+        const head = $('headline'); const sub = $('subhead');
+        if (!r.feasible) {
+          head.textContent = 'Hiring cannot close this gap'; head.className = 'hero warn'; sub.textContent = '';
+        } else if (r.hiresNeeded === 0) {
+          head.textContent = 'No hires needed'; head.className = 'hero ok'; sub.textContent = 'Existing reps are expected to reach the target.';
+        } else {
+          head.textContent = r.hiresNeeded + (r.hiresNeeded === 1 ? ' hire' : ' hires'); head.className = 'hero';
+          const c = r.cohorts[0];
+          sub.textContent = 'First requisition open by ' + c.openRequisitionBy + ' for a ' + c.startDate + ' start.';
+        }
+        $('effAtt').textContent = pct(r.effectiveAttainmentPct);
+        $('perRep').textContent = usd(r.expectedBookingsPerRampedRep);
+        $('baseBookings').textContent = usd(r.baselineBookings);
+        $('baseGap').textContent = usd(r.baselineGap);
+        $('planBookings').textContent = usd(r.plannedBookings);
+        $('planGap').textContent = usd(r.gapVsTarget);
+        $('pipeCeiling').textContent = usd(r.pipeline.ceiling);
+        const pn = $('pipeNote');
+        pn.hidden = !r.pipeline.limited;
+        pn.textContent = r.pipeline.limited ? 'Pipeline check: ' + num1(r.pipeline.coverage) + 'x coverage at a ' + pct(r.pipeline.winRatePct) + ' win rate supports about ' + usd(r.pipeline.ceiling) + ', below the target. At that win rate the target needs ' + num1(r.pipeline.requiredCoverage) + 'x coverage, so extra reps will not book more unless pipeline grows too.' : '';
+        const inf = $('infeasible'); inf.hidden = r.notes.length === 0; inf.textContent = r.notes.join(' ');
+
+        const cb = $('cohorts'); cb.replaceChildren();
+        if (r.cohorts.length === 0) row(cb, ['None', '0', 'n/a']);
+        for (const c of r.cohorts) row(cb, [c.startDate, String(c.count), c.openRequisitionBy + (c.requisitionOffsetMonths === 0 ? ' (plan start)' : '')]);
+
+        const cmp = $('compare'); cmp.replaceChildren();
+        if (r.compare) {
+          row(cmp, ['Hire early (all at ' + r.earliestStart + ')', usd(r.compare.early.bookings), usd(r.compare.early.cost), usd(r.compare.early.shortfallAtLowerAttainment)]);
+          row(cmp, ['Hire late (latest starts)', usd(r.compare.late.bookings), usd(r.compare.late.cost), usd(r.compare.late.shortfallAtLowerAttainment)]);
+          $('compareNote').textContent = r.compare.costPerExtraBookingDollar === null
+            ? 'Starting every hire early buys no extra bookings: there is no slack to spend.'
+            : 'Hiring early adds ' + usd(r.compare.extraBookingsFromEarly) + ' of expected bookings for ' + usd(r.compare.extraCostOfEarly) + ' more cost, about ' + usd(r.compare.costPerExtraBookingDollar * 100) + ' per $100 of extra bookings.';
+        } else {
+          $('compareNote').textContent = 'No hires to compare.';
+        }
+
+        const sh = $('sensHead'); sh.replaceChildren();
+        const mults = [...new Set(r.sensitivity.map((c) => c.attritionMultiplier))];
+        const deltas = [...new Set(r.sensitivity.map((c) => c.attainmentDeltaPoints))];
+        row(sh, ['Attainment', ...mults.map((m) => pct(r.inputs.monthlyAttritionPct * m) + ' attrition')], true);
+        const sb = $('sens'); sb.replaceChildren();
+        for (const d of deltas) {
+          row(sb, [(d > 0 ? '+' : '') + d + ' pts', ...mults.map((m) => {
+            const c = r.sensitivity.find((x) => x.attainmentDeltaPoints === d && x.attritionMultiplier === m);
+            return c.hiresNeeded === null ? 'not fixable' : String(c.hiresNeeded);
+          })]);
+        }
+
+        const mb = $('months'); mb.replaceChildren();
+        for (const m of r.months) row(mb, [m.month, num1(m.headcount), num1(m.rampedRepEquivalents), usd(m.bookings), usd(m.cumulativeBookings), usd(m.cumulativeGap)]);
+        if (count) recordUsage('plan_calculated', $('usageOptOut').checked);
+      } catch (e) {
+        // Hide the last valid readout so a stale plan never sits next to an error.
+        last = null;
+        errors.textContent = e.message; errors.hidden = false; out.hidden = true;
+      }
+    }
+
+    FIELDS.forEach((id) => $(id).addEventListener('input', () => render()));
+    $('usageOptOut').addEventListener('change', () => render(false));
+
+    $('csv').addEventListener('click', () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'sales-capacity-plan.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage('csv_exported', $('usageOptOut').checked);
+    });
+
+    $('share').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#' + encodeState(values());
+      try { history.replaceState(null, '', url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); $('shareMsg').textContent = 'Link copied. It contains your inputs, so share it only with people who may see them.'; }
+      catch { $('shareMsg').textContent = 'Copy this link from the address bar. It contains your inputs.'; }
+      recordUsage('share_link_copied', $('usageOptOut').checked);
+    });
+
+    {
+      const control = $('usageOptOut');
+      try {
+        control.checked = readOptOut(localStorage);
+        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+      } catch { /* storage blocked: counting stays off the persisted path */ }
+    }
+    render(false);
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../project-staffing-margin-optimizer/" data-pf-to="project-staffing-margin-optimizer">Project staffing margin optimizer</a></li>
+      <li><a href="../propane-delivery-route-margin/" data-pf-to="propane-delivery-route-margin">Propane Delivery Route Margin Calculator</a></li>
+      <li><a href="../property-management-profit-calculator/" data-pf-to="property-management-profit-calculator">How many doors does my property management company need? Free calculator</a></li>
+      <li><a href="../provider-credentialing-delay-cost-calculator/" data-pf-to="provider-credentialing-delay-cost-calculator">Provider credentialing delay cost calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sales-quota-capacity-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/?pfEmbed=1&quot; title=&quot;Sales Quota Capacity Planner — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sales-quota-capacity-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/" data-pf-embed-title="Sales Quota Capacity Planner" data-pf-embed-slug="sales-quota-capacity-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="sales-quota-capacity-planner" data-pf-jobs-amount=""></script>
+</body>
+</html>

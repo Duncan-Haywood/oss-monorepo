@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SQL Migration Lock Check vs. reading the migration by hand</title>
+  <meta name="description" content="A careful read catches the obvious case: CREATE INDEX with no CONCURRENTLY. It's much harder to catch by eye whether a lock_timeout earlier in the file…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/vs-reading-the-migration-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SQL Migration Lock Check vs. reading the migration by hand">
+  <meta property="og:description" content="Reading a migration file catches the CREATE INDEX everyone knows to look for. It's a much harder read for whether a lock_timeout above it actually applies…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reading a migration file by hand actually catch?","acceptedAnswer":{"@type":"Answer","text":"A reviewer who knows the rules catches the well-known single-statement case reliably: CREATE INDEX with no CONCURRENTLY, or a bare TRUNCATE. Those are real risks and a careful read finds them the same way this tool's create-index-not-concurrent and truncate checks do."}},{"@type":"Question","name":"Why is a missing lock_timeout hard to catch by eye?","acceptedAnswer":{"@type":"Answer","text":"Whether a given ALTER TABLE is protected depends on whether a SET lock_timeout statement appears earlier in the same file -- a relationship between two statements that can be dozens of lines apart, not a property visible on the risky line itself. A reviewer has to hold the whole file's SET statements in mind while reading every ALTER, which is easy to get right on a short migration and easy to miss on a long generated one."}},{"@type":"Question","name":"Why does NOT VALID plus VALIDATE CONSTRAINT in one transaction look safe when it is not?","acceptedAnswer":{"@type":"Answer","text":"Both statements are individually correct and idiomatic -- NOT VALID is the documented way to add a constraint without an immediate table scan. The trap is entirely about grouping: wrapped in the same BEGIN block as its own VALIDATE CONSTRAINT, the split buys nothing, because the transaction still holds the lock for the whole validation. Nothing about either line looks wrong on its own; the bug is which migration file boundary they happen to share."}},{"@type":"Question","name":"Why is a run of several exclusive-lock statements easy to underestimate?","acceptedAnswer":{"@type":"Answer","text":"Each statement, read on its own, is an acceptably brief lock. Five of them in one transaction is not five brief locks -- it is one lock held from the first statement until the last one finishes, because Postgres does not release an ACCESS EXCLUSIVE lock until the transaction commits. Adding up five separate impact estimates in your head while reading a migration top to bottom is exactly the kind of running total a person is bad at keeping accurate."}},{"@type":"Question","name":"Does this replace understanding what a flagged statement does?","acceptedAnswer":{"@type":"Answer","text":"No. This is a textual scan over SQL, not a query planner -- it cannot see your table's actual row count, current type, or whether an index already exists, so it reports what a statement can do under Postgres's locking rules, not a guarantee that it will hurt in your specific case. Deciding whether a flagged statement is actually safe for your table, and reading SQL this tool's patterns don't recognise, is still a job for reading the migration yourself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #17324a; margin: 0 0 14px; }
+    h2 { font-size: 1.1rem; color: #17324a; margin: 26px 0 8px; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+    th, td { border: 1px solid #d5dbe3; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef2f6; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; padding: 11px 15px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/vs-reading-the-migration-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SQL Migration Lock Check vs. reading the migration by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sql-migration-lock-check/">Will this migration take your database down?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SQL Migration Lock Check vs. reading the migration by hand</span></span></nav>
+  <p class="note"><a href="./">SQL Migration Lock Check</a> · comparison</p>
+  <h1>SQL Migration Lock Check vs. reading the migration by hand</h1>
+  <p>A careful reviewer genuinely catches the well-known single-statement case: a bare <code>CREATE INDEX</code>, a stray <code>TRUNCATE</code>. This page names no company or product — reading a migration file by hand before you run it is a habit most developers already have, not a competing tool.</p>
+
+  <h2>What a careful read catches reliably</h2>
+  <p>The risks that live entirely on one line are the ones a reviewer who knows the rules already catches well: <code>CREATE INDEX</code> with no <code>CONCURRENTLY</code>, <code>VACUUM FULL</code>, a bare <code>TRUNCATE</code>. This tool's <code>create-index-not-concurrent</code>, <code>full-table-rewrite</code>, and <code>truncate</code> checks flag exactly the same statements, for the same reason.</p>
+
+  <h2>What gets harder as soon as it spans more than one line</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Case</th><th>Reading by hand</th><th>This tool</th></tr>
+    <tr><td>A missing <code>lock_timeout</code></td><td>Depends on whether a <code>SET lock_timeout</code> appears earlier in the <em>same file</em>, possibly dozens of lines away from the statement it protects</td><td>Tracks every <code>SET lock_timeout</code> against every exclusive-lock statement below it, every time</td></tr>
+    <tr><td><code>NOT VALID</code> + <code>VALIDATE CONSTRAINT</code> sharing one transaction</td><td>Both lines look correct individually; the bug is which <code>BEGIN</code> block they happen to sit inside</td><td>Flags the pair specifically when they share a transaction, via <code>validate-in-same-transaction</code></td></tr>
+    <tr><td>Several exclusive-lock statements in one transaction</td><td>Each one reads as an acceptably brief lock on its own; adding five of them into one running total while reading top to bottom is easy to get wrong</td><td><code>many-locks-one-transaction</code> reports the compounded hold, not each statement in isolation</td></tr>
+    <tr><td><code>ADD COLUMN</code> with a volatile default, e.g. <code>DEFAULT now()</code></td><td>Looks identical to the cheap, metadata-only constant-default case Postgres 11+ made routine, unless the reader happens to know which functions are VOLATILE</td><td><code>add-column-volatile-default</code> checks the function against Postgres's own volatility classification</td></tr>
+  </table></div>
+
+  <h2>The gap that matters most: a relationship between two statements, not a property of one</h2>
+  <p>
+    Whether an <code>ALTER TABLE</code> is protected by a <code>lock_timeout</code>, or whether a
+    <code>NOT VALID</code> constraint's later <code>VALIDATE</code> actually buys a cheap step, is not
+    visible on the risky line itself — it depends on what else the file does, sometimes many lines
+    away. A reviewer has to hold the whole file's <code>SET</code> and transaction structure in mind
+    while reading every later statement, which is the part that degrades fastest on a long or
+    generated migration. This tool checks every statement against the full file's lock_timeout and
+    transaction context the same way on every run, regardless of file length.
+  </p>
+
+  <h2>When to still read the migration yourself</h2>
+  <p>
+    This is a textual scan over SQL, not a query planner — it has no connection to your database, so
+    it cannot see your table's actual row count, its column's current type, or whether an index it
+    assumes exists actually does. It reports what a statement <em>can</em> do under Postgres's own
+    locking rules, not a guarantee that it will hurt your specific table. Deciding whether a flagged
+    statement is safe for your data, and catching SQL this tool's patterns don't recognise, is still a
+    job for reading the migration yourself.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>What does reading a migration file by hand actually catch?</h3>
+  <p>A reviewer who knows the rules catches the well-known single-statement case reliably: CREATE INDEX with no CONCURRENTLY, or a bare TRUNCATE. Those are real risks and a careful read finds them the same way this tool's create-index-not-concurrent and truncate checks do.</p>
+  <h3>Why is a missing lock_timeout hard to catch by eye?</h3>
+  <p>Whether a given ALTER TABLE is protected depends on whether a SET lock_timeout statement appears earlier in the same file -- a relationship between two statements that can be dozens of lines apart, not a property visible on the risky line itself. A reviewer has to hold the whole file's SET statements in mind while reading every ALTER, which is easy to get right on a short migration and easy to miss on a long generated one.</p>
+  <h3>Why does NOT VALID plus VALIDATE CONSTRAINT in one transaction look safe when it is not?</h3>
+  <p>Both statements are individually correct and idiomatic -- NOT VALID is the documented way to add a constraint without an immediate table scan. The trap is entirely about grouping: wrapped in the same BEGIN block as its own VALIDATE CONSTRAINT, the split buys nothing, because the transaction still holds the lock for the whole validation. Nothing about either line looks wrong on its own; the bug is which migration file boundary they happen to share.</p>
+  <h3>Why is a run of several exclusive-lock statements easy to underestimate?</h3>
+  <p>Each statement, read on its own, is an acceptably brief lock. Five of them in one transaction is not five brief locks -- it is one lock held from the first statement until the last one finishes, because Postgres does not release an ACCESS EXCLUSIVE lock until the transaction commits. Adding up five separate impact estimates in your head while reading a migration top to bottom is exactly the kind of running total a person is bad at keeping accurate.</p>
+  <h3>Does this replace understanding what a flagged statement does?</h3>
+  <p>No. This is a textual scan over SQL, not a query planner -- it cannot see your table's actual row count, current type, or whether an index already exists, so it reports what a statement can do under Postgres's locking rules, not a guarantee that it will hurt in your specific case. Deciding whether a flagged statement is actually safe for your table, and reading SQL this tool's patterns don't recognise, is still a job for reading the migration yourself.</p>
+
+  <p><a class="cta" href="./">Check a migration</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. It is not a database review or a guarantee that a migration will not cause downtime, and it does not replace a qualified professional. <strong>You are responsible for verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../uptime-monitoring-pricing-calculator/" data-pf-to="uptime-monitoring-pricing-calculator">What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</a></li>
+      <li><a href="../vercel-bill-estimator/" data-pf-to="vercel-bill-estimator">What will your Vercel bill be, and what cuts it most?</a></li>
+      <li><a href="../video-hosting-pricing-calculator/" data-pf-to="video-hosting-pricing-calculator">What will video hosting cost for your minutes stored and watched, and who is cheapest?</a></li>
+      <li><a href="../vscode-extension-drift-check/" data-pf-to="vscode-extension-drift-check">Did an extension you already trust just change what it does?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sql-migration-lock-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sql-migration-lock-check"></script>
+</body>
+</html>

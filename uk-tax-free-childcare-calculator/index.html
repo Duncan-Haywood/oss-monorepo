@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Tax-Free Childcare &amp; 30 Hours Calculator (free hours, 20% top-up, Universal Credit comparison)</title>
+  <meta name="description" content="Free UK Tax-Free Childcare and 30 hours calculator for England: do you qualify, the value of free hours, the 20% top-up…">
+  <meta property="og:title" content="Childcare costs after free hours and Tax-Free Childcare: free, private calculator">
+  <meta property="og:description" content="See whether you qualify for the 30 hours and Tax-Free Childcare and what you really pay.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Tax-Free Childcare and 30 Hours Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Tax-Free Childcare give me?", "acceptedAnswer": {"@type": "Answer", "text": "The government adds 20p for every 80p you pay into your childcare account, up to \u00a32,000 a year per child (\u00a34,000 if the child is disabled). In practice that is \u00a3500 a quarter per child, so you pay in up to \u00a38,000 a year to receive the full \u00a32,000."}}, {"@type": "Question", "name": "Who qualifies for Tax-Free Childcare and the 30 hours?", "acceptedAnswer": {"@type": "Answer", "text": "In England, each parent must expect to earn at least 16 hours a week at minimum wage over the next three months (about \u00a32,540 a quarter in 2025/26) and neither may have adjusted net income over \u00a3100,000. Parents on statutory leave, some carers and those in the first 12 months of self-employment are exempt from the earnings test."}}, {"@type": "Question", "name": "What are the 30 hours of free childcare?", "acceptedAnswer": {"@type": "Answer", "text": "In England, working parents get 30 hours a week of funded childcare for 38 weeks a year (1,140 hours) for children from 9 months until they start school. All 3 and 4 year olds get 15 hours whether or not their parents work. Some providers stretch the hours over more weeks of the year at fewer hours a week."}}, {"@type": "Question", "name": "Can I get Tax-Free Childcare and Universal Credit childcare help?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the same costs. Universal Credit repays up to 85% of childcare costs (capped monthly), which is often worth more than the 20% Tax-Free Childcare top-up. If you are on Universal Credit, compare both before choosing."}}, {"@type": "Question", "name": "What happens at \u00a3100,000?", "acceptedAnswer": {"@type": "Answer", "text": "If either parent's adjusted net income goes over \u00a3100,000 the household loses the 30 hours and Tax-Free Childcare entirely, not just part of it. A pension contribution or Gift Aid donation can bring adjusted net income back under."}}, {"@type": "Question", "name": "Does this work in Scotland, Wales or Northern Ireland?", "acceptedAnswer": {"@type": "Answer", "text": "Tax-Free Childcare applies across the UK, but free childcare hours differ by nation, so this calculator models England only."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Childcare costs after free hours and Tax-Free Childcare: free, private calculator","item":"https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Childcare costs after free hours and Tax-Free Childcare: free, private calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/uk-tax/">UK tax, pay &amp; benefits</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Childcare costs after free hours and Tax-Free Childcare: free, private calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">UK TAX-FREE CHILDCARE &amp; 30 HOURS CALCULATOR · ENGLAND · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much will childcare really cost me after the free hours and the 20% top-up?</h1>
+    <p>Enter your childcare hours and rates and each parent's income. You get whether you qualify, the value of the free hours, the Tax-Free Childcare top-up, what you pay each month, and the Universal Credit alternative to compare.</p>
+    <p class="note">England. Figures for 2025/26 and 2026/27 are built in; check them on GOV.UK. Not advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="nation">Where do you live?</label><select id="nation"><option value="england">England</option><option value="other">Scotland, Wales or Northern Ireland</option></select></div>
+      <div><label for="year">Tax year</label><select id="year"><option value="2026-27">2026/27</option><option value="2025-26">2025/26</option></select></div>
+      <div><label for="mode">How are the free hours taken?</label><select id="mode"><option value="term">Term time (38 weeks)</option><option value="stretch">Stretched over the year</option></select></div>
+      <div><label for="minWage">Minimum wage for the lower earner (&pound;/h, blank = adult rate)</label><input id="minWage" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="p1Status">Parent 1</label><select id="p1Status"><option value="working">In work (employed or self-employed)</option><option value="newSelfEmployed">In first 12 months of self-employment</option><option value="exempt">Exempt: statutory leave, carer or disability benefit</option><option value="notWorking">Not working</option></select></div>
+      <div><label for="p1Earnings">Parent 1 expected earnings this tax year (&pound;)</label><input id="p1Earnings" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="p1Ani">Parent 1 adjusted net income (&pound;, blank = same as earnings)</label><input id="p1Ani" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="p2Status">Parent 2</label><select id="p2Status"><option value="working">In work (employed or self-employed)</option><option value="newSelfEmployed">In first 12 months of self-employment</option><option value="exempt">Exempt: statutory leave, carer or disability benefit</option><option value="notWorking">Not working</option><option value="none">No partner (single parent)</option></select></div>
+      <div><label for="p2Earnings">Parent 2 expected earnings this tax year (&pound;)</label><input id="p2Earnings" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="p2Ani">Parent 2 adjusted net income (&pound;, blank = same as earnings)</label><input id="p2Ani" type="number" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <h3>Child 1</h3>
+    <div class="grid">
+      <div><label for="c1Age">Child 1 age</label><select id="c1Age"><option value="u9">Under 9 months</option><option value="9m">9 months to 2 years</option><option value="3-4">3 or 4, not yet at school</option><option value="school">At school</option></select></div>
+      <div><label for="c1Hours">Child 1 hours a week in childcare</label><input id="c1Hours" type="number" min="0" step="0.5" inputmode="decimal"></div>
+      <div><label for="c1Rate">Child 1 hourly rate you pay (&pound;)</label><input id="c1Rate" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="c1Weeks">Child 1 weeks a year in childcare</label><input id="c1Weeks" type="number" min="0" max="52" step="1" inputmode="numeric"></div>
+      <div><label for="c1Disabled">Child 1 disabled?</label><select id="c1Disabled"><option value="no">No</option><option value="yes">Yes (receives disability benefit)</option></select></div>
+    </div>
+    <h3>Child 2</h3>
+    <div class="grid">
+      <div><label for="c2Age">Child 2 age</label><select id="c2Age"><option value="none">No child</option><option value="u9">Under 9 months</option><option value="9m">9 months to 2 years</option><option value="3-4">3 or 4, not yet at school</option><option value="school">At school</option></select></div>
+      <div><label for="c2Hours">Child 2 hours a week in childcare</label><input id="c2Hours" type="number" min="0" step="0.5" inputmode="decimal"></div>
+      <div><label for="c2Rate">Child 2 hourly rate you pay (&pound;)</label><input id="c2Rate" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="c2Weeks">Child 2 weeks a year in childcare</label><input id="c2Weeks" type="number" min="0" max="52" step="1" inputmode="numeric"></div>
+      <div><label for="c2Disabled">Child 2 disabled?</label><select id="c2Disabled"><option value="no">No</option><option value="yes">Yes (receives disability benefit)</option></select></div>
+    </div>
+    <h3>Child 3</h3>
+    <div class="grid">
+      <div><label for="c3Age">Child 3 age</label><select id="c3Age"><option value="none">No child</option><option value="u9">Under 9 months</option><option value="9m">9 months to 2 years</option><option value="3-4">3 or 4, not yet at school</option><option value="school">At school</option></select></div>
+      <div><label for="c3Hours">Child 3 hours a week in childcare</label><input id="c3Hours" type="number" min="0" step="0.5" inputmode="decimal"></div>
+      <div><label for="c3Rate">Child 3 hourly rate you pay (&pound;)</label><input id="c3Rate" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="c3Weeks">Child 3 weeks a year in childcare</label><input id="c3Weeks" type="number" min="0" max="52" step="1" inputmode="numeric"></div>
+      <div><label for="c3Disabled">Child 3 disabled?</label><select id="c3Disabled"><option value="no">No</option><option value="yes">Yes (receives disability benefit)</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my childcare costs</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my childcare costs.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>By child</h2>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Child</th><th class="n">Cost</th><th class="n">Free hours</th><th class="n">Top-up</th><th class="n">You pay</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h2>What to do</h2>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div></div>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> England, up to three children: the 15 and 30 hours of free childcare, the 20% Tax-Free Childcare top-up and its caps, the minimum earnings and &pound;100,000 income tests, and the Universal Credit childcare comparison.</li>
+      <li><strong>Gives:</strong> whether the household qualifies, the cost after free hours, the top-up, what you pay a year and a month, and the &pound;100,000 cliff warning.</li>
+      <li><strong>Not decided:</strong> the quarterly &pound;500 top-up cap timing, the rate your provider funds free hours at, extras and meals, whether your Universal Credit award is large enough, immigration or residence tests, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much does Tax-Free Childcare give me?</h3>
+    <p>The government adds 20p for every 80p you pay into your childcare account, up to £2,000 a year per child (£4,000 if the child is disabled). In practice that is £500 a quarter per child, so you pay in up to £8,000 a year to receive the full £2,000.</p>
+    <h3>Who qualifies for Tax-Free Childcare and the 30 hours?</h3>
+    <p>In England, each parent must expect to earn at least 16 hours a week at minimum wage over the next three months (about £2,540 a quarter in 2025/26) and neither may have adjusted net income over £100,000. Parents on statutory leave, some carers and those in the first 12 months of self-employment are exempt from the earnings test.</p>
+    <h3>What are the 30 hours of free childcare?</h3>
+    <p>In England, working parents get 30 hours a week of funded childcare for 38 weeks a year (1,140 hours) for children from 9 months until they start school. All 3 and 4 year olds get 15 hours whether or not their parents work. Some providers stretch the hours over more weeks of the year at fewer hours a week.</p>
+    <h3>Can I get Tax-Free Childcare and Universal Credit childcare help?</h3>
+    <p>Not for the same costs. Universal Credit repays up to 85% of childcare costs (capped monthly), which is often worth more than the 20% Tax-Free Childcare top-up. If you are on Universal Credit, compare both before choosing.</p>
+    <h3>What happens at £100,000?</h3>
+    <p>If either parent's adjusted net income goes over £100,000 the household loses the 30 hours and Tax-Free Childcare entirely, not just part of it. A pension contribution or Gift Aid donation can bring adjusted net income back under.</p>
+    <h3>Does this work in Scotland, Wales or Northern Ireland?</h3>
+    <p>Tax-Free Childcare applies across the UK, but free childcare hours differ by nation, so this calculator models England only.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with GOV.UK or a qualified adviser before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-100k-tax-trap-calculator/">UK &pound;100k tax trap calculator</a>, the <a href="../uk-child-benefit-charge-calculator/">UK Child Benefit charge calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { nation: "nation", year: "year", mode: "mode", minWage: "minWage", p1Status: "p1Status", p1Earnings: "p1Earnings", p1Ani: "p1Ani", p2Status: "p2Status", p2Earnings: "p2Earnings", p2Ani: "p2Ani", c1Age: "c1Age", c1Hours: "c1Hours", c1Rate: "c1Rate", c1Weeks: "c1Weeks", c1Disabled: "c1Disabled", c2Age: "c2Age", c2Hours: "c2Hours", c2Rate: "c2Rate", c2Weeks: "c2Weeks", c2Disabled: "c2Disabled", c3Age: "c3Age", c3Hours: "c3Hours", c3Rate: "c3Rate", c3Weeks: "c3Weeks", c3Disabled: "c3Disabled" };
+    const IDLE = "Fill in the figures, then click Work out my childcare costs.";
+    const DEFAULTS = { nation: "england", year: "2026-27", mode: "term", p1Status: "working", p2Status: "working", c1Age: "9m", c2Age: "none", c3Age: "none", c1Disabled: "no", c2Disabled: "no", c3Disabled: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.eligible
+        ? `You qualify. You pay ${gbp(r.totals.youPay)} a year (${gbp(r.totals.youPay / 12)} a month) after ${gbp(r.totals.fundedValue)} of free hours and a ${gbp(r.totals.topUp)} Tax-Free Childcare top-up.`
+        : `On these figures you do not qualify for the 30 hours or Tax-Free Childcare. You pay ${gbp(r.totals.youPay)} a year.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map((c) => `<tr><td>Child ${c.i}</td><td class="n">${gbp(c.gross)}</td><td class="n">${gbp(c.fundedValue)}</td><td class="n">${gbp(c.topUp)}</td><td class="n">${gbp(c.youPay)}</td></tr>`).join("") + `<tr class="total"><td>Total</td><td class="n">${gbp(r.totals.gross)}</td><td class="n">${gbp(r.totals.fundedValue)}</td><td class="n">${gbp(r.totals.topUp)}</td><td class="n">${gbp(r.totals.youPay)}</td></tr>`;
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check the rates and your eligibility on GOV.UK before relying on it.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    for (const [id, v] of Object.entries(DEFAULTS)) $("#" + id).value = v;
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: two earners, a 30-hour nursery child and an after-school child.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("childcare-costs.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../uk-ir35-inside-outside-calculator/" data-pf-to="uk-ir35-inside-outside-calculator">IR35 inside vs outside, 2026/27: what the same day rate really pays</a></li>
+      <li><a href="../uk-landlord-section-24-calculator/" data-pf-to="uk-landlord-section-24-calculator">UK landlord Section 24 calculator: how much extra tax on my mortgage interest? Free, private</a></li>
+      <li><a href="../uk-late-payment-interest-calculator/" data-pf-to="uk-late-payment-interest-calculator">Late payment interest calculator: what can I charge on an overdue invoice? Free, private</a></li>
+      <li><a href="../uk-lifetime-isa-vs-pension-calculator/" data-pf-to="uk-lifetime-isa-vs-pension-calculator">Lifetime ISA or pension? Compare them on your own numbers. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=uk-tax-free-childcare-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/?pfEmbed=1&quot; title=&quot;Childcare costs after free hours and Tax-Free Childcare: free, private calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="uk-tax-free-childcare-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/" data-pf-embed-title="Childcare costs after free hours and Tax-Free Childcare: free, private calculator" data-pf-embed-slug="uk-tax-free-childcare-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="uk-tax-free-childcare-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="uk-tax-free-childcare-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

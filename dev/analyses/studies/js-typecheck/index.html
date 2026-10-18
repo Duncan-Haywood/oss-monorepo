@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What does TypeScript&#39;s checker find in 1,265 ventures of plain JavaScript? | Development analyses</title>
+<meta name="description" content="Measured 2026-10-16 at 10356f6549, TypeScript 5.9.3. Script: measure.mjs. Raw diagnostics: results-2026-10-16.json.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>What does TypeScript&#39;s checker find in 1,265 ventures of plain JavaScript?</h1>
+<p class="meta">Study · 2026-10-16 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/js-typecheck/README.md">portfolio/research/js-typecheck/README.md</a></p>
+<article class="doc">
+<p><em>Measured 2026-10-16 at <code>10356f6549</code>, TypeScript 5.9.3. Script: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/js-typecheck/measure.mjs"><code>measure.mjs</code></a>. Raw diagnostics: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/js-typecheck/results-2026-10-16.json"><code>results-2026-10-16.json</code></a>.</em></p>
+<p>The portfolio&#39;s product code is plain, build-free JavaScript: 8,548 <code>.mjs</code> files in the tree, none of them type-checked. The pages are served as committed, with no build step, and that is worth keeping. TypeScript can check JavaScript without changing that: <code>tsc --checkJs --noEmit</code> reads <code>.mjs</code> files and JSDoc comments, reports problems, and writes nothing. The question was whether turning it on would catch real bugs, or mostly produce noise.</p>
+<p><strong>Short answer:</strong> run over everything at once, it is almost all noise: 3,911 diagnostics, one user-visible bug. Run per file, on files that opt in, it costs nothing, and most of the core logic already passes. So the rule is: opt in file by file, starting with new code, and never as a fleet-wide flag.</p>
+<h3>What was run</h3>
+<p>Every venture&#39;s own product <code>.mjs</code>/<code>.js</code> files: 3,410 files in 1,265 ventures. Test files and the ventures that are already TypeScript projects (they have a <code>tsconfig.json</code>) were left out. Each venture was checked in its own <code>tsc</code> process, with the options a shared config would use:</p>
+<pre><code>--allowJs --checkJs --noEmit --target es2022 --module nodenext
+--lib es2023,dom,dom.iterable --types node --skipLibCheck</code></pre>
+<p>Strict mode was <strong>off</strong>. With it off, tsc reports only contradictions it can prove from the code and its JSDoc, not missing annotations. Strict mode would multiply the counts below and tell us nothing new.</p>
+<pre><code>node measure.mjs --tsc &lt;tsc&gt; --types-root &lt;dir&gt;/node_modules/@types --out results.json
+node measure.mjs --recompute-from results-2026-10-16.json    # re-derive every number here</code></pre>
+<p><code>tsc</code> and <code>@types/node</code> come from npm into a scratch directory. They are the only things this script uses beyond the Node standard library, and it reads the tree without changing it.</p>
+<h3>What it found</h3>
+<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Product files checked</td><td>3,410</td></tr><tr><td>Diagnostics</td><td>3,911</td></tr><tr><td>Files with at least one</td><td>1,936</td></tr><tr><td>Files clean as they stand</td><td>1,474 (43%)</td></tr><tr><td><strong>Files clean once two browser globals are declared</strong></td><td><strong>2,721 (80%)</strong></td></tr><tr><td><code>calc.mjs</code> / <code>engine.mjs</code> files (the core logic) clean, same condition</td><td>763 of 1,132 (67%)</td></tr><tr><td>Ventures entirely clean, same condition</td><td>723 of 1,265</td></tr></tbody></table></div>
+<p>Every category was reviewed by hand, reading the flagged lines in context:</p>
+<div class="scroll"><table><thead><tr><th>Diagnostics</th><th>Category</th><th>Real bugs</th></tr></thead><tbody><tr><td>1,282</td><td><code>navigator.globalPrivacyControl</code> / <code>window.doNotTrack</code> are missing from TypeScript&#39;s DOM library. One line, in every copy of the shared <code>usage.mjs</code></td><td>0. One declaration file fixes all of them</td></tr><tr><td>643</td><td>A property is added to an object after the literal that created it (<code>summary.declared = …</code>)</td><td>0</td></tr><tr><td>586</td><td>A property is read off a union before narrowing it (<code>result.profit</code> where <code>result</code> may be <code>{ok:false, errors}</code>)</td><td>0 found. The code narrows by a flag tsc does not follow</td></tr><tr><td>565</td><td>Inference limits: <code>[[&quot;\t&quot;, 3]]</code> read as `(string\</td><td>number)[][]<code>, </code>Date - Date<code>, default parameters such as </code>onError = () =&gt; {}`</td><td>0</td></tr><tr><td>438</td><td>JSDoc disagrees with the code, e.g. <code>@param {number}</code> on a value the form passes as <code>&#39;&#39;</code></td><td>0 behaviour bugs. All of them are documentation that is wrong</td></tr><tr><td>191</td><td><code>querySelector</code> returns <code>Element</code>, used as a form or input</td><td>0</td></tr><tr><td>140</td><td>Classic <code>&lt;script&gt;</code> globals shared between files, JSX in a <code>.js</code> file, CDN imports</td><td>0</td></tr><tr><td>47</td><td>Possibly <code>null</code>/<code>undefined</code></td><td>0 found</td></tr><tr><td>16</td><td>Other</td><td>0</td></tr><tr><td><strong>3</strong></td><td><strong>Duplicate object keys (TS1117)</strong></td><td><strong>2 bugs (one copied into two ventures), plus 1 redundant key</strong></td></tr></tbody></table></div>
+<h4>The bug</h4>
+<p><code>bai2-statement-reader</code> and <code>bai2-to-ofx-converter</code> (one was copied from the other) build their summary as</p>
+<pre><code>{ records: …, transactions: 0, credit: 0, …, accountList: [], transactions: [] }</code></pre>
+<p>The second <code>transactions</code> wins. A statement with transactions works anyway: the first <code>summary.transactions++</code> coerces <code>[]</code> to 0, so the count comes out right, and the test file only used such statements. A bank file with balances but no transaction (16) records, which is a normal file on a quiet day, leaves the <code>[]</code> in place, and the page shows <em>&quot;2 accounts,  transactions&quot;</em> with the count missing. No test covered it, and nobody looking at the code would notice. tsc flags it in under a second. It is fixed in both ventures, with a regression test in each that fails on the old code.</p>
+<p><code>freelancer-schedule-c-categorizer</code> had <code>loan: &quot;loan_principal&quot;</code> twice in one alias table, with the same value both times. It caused no harm and was removed.</p>
+<h3>What this means</h3>
+<ol><li><strong>The yield on existing code is low.</strong> Over 3,410 files that already pass their tests, the checker found one user-visible bug. That is a real result, and its main point is that the existing tests are doing their job, not that the code is full of bugs nobody has seen. &quot;Turn on <code>--checkJs</code> everywhere&quot; would bury that one finding under 3,900 others and teach everyone to ignore the output.</li><li><strong>The cost of opting in is low too.</strong> 80% of the files pass once the two privacy globals are declared (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/typecheck-globals.d.ts"><code>typecheck-globals.d.ts</code></a>), with no other edit, and that includes two thirds of the calculators&#39; <code>calc.mjs</code> files. For those files, opting in costs one line.</li><li><strong>The value is in code not yet written.</strong> The checker&#39;s strength is the edit that renames a field in one place and not another, adds a duplicate key, or calls a method that doesn&#39;t exist (<code>Math.roundd</code>), which is exactly the mistake fast, agent-written code makes. It catches these at the moment they are made, and only in files that opted in.</li><li><strong>The 438 JSDoc mismatches matter, just not as bugs.</strong> Agents read JSDoc to learn what a function takes. A <code>@param {number}</code> that is really <code>number | &#39;&#39;</code> misleads the next session. Once a file opts in, its JSDoc has to stay true.</li></ol>
+<h3>What changed because of it</h3>
+<ul><li><strong>Rule of thumb</strong> in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/PRODUCT_PLAYBOOK.md"><code>PRODUCT_PLAYBOOK.md</code></a> §4: venture JS stays build-free <code>.mjs</code>, and TypeScript is used only as a checker. New files start with <code>// @ts-check</code>. A file you edit gets it too, when <code>--candidates</code> says it already passes.</li><li><strong>Check:</strong> <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/typecheck.mjs"><code>platform/pages/typecheck.mjs</code></a> runs <code>tsc --noEmit</code> over the opted-in files of the ventures you name, using a pinned TypeScript installed outside the tree. <code>--candidates &lt;slug&gt;</code> lists which of a venture&#39;s files would pass today. The <code>ventures-tests</code> workflow runs it on every venture a PR touches, so an opted-in file stays clean.</li><li><strong>Opted in:</strong> the <code>usage.mjs</code> of the three ventures above, so the check has something to run on from the first PR.</li></ul>
+<h3>Limits</h3>
+<ul><li>This measures today&#39;s tree, which has already been through its tests and its fixes. It cannot say how many bugs the checker would have caught while the code was being written, which is the larger and unmeasured claim behind point 3.</li><li>Categories were assigned by diagnostic code and message. &quot;0 real bugs&quot; means none was found in review: all 3 TS1117 findings and most of the ~110 rarer high-signal ones (TS2304, TS2551, TS2554, TS2349, TS1131, TS1064, all 71 TS2367) were read in context, and the large categories were sampled. Not all 3,911 lines were read one by one.</li><li>Non-strict mode only. Strict mode finds more, but nearly all of it is missing annotations rather than contradictions.</li></ul>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

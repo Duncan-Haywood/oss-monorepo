@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stripe vs a Merchant of Record for Indie SaaS</title>
+  <meta name="description" content="When a merchant of record like Paddle, Lemon Squeezy or Polar costs less than running Stripe and filing sales tax yourself, and when it stops.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/stripe-vs-merchant-of-record-for-indie-saas.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When does a merchant of record beat Stripe?", "acceptedAnswer": {"@type": "Answer", "text": "When you are small and sell across borders. Registering and filing sales tax and VAT in the places your customers live has a fixed monthly cost, whether you do it yourself or pay a service, and a merchant of record folds that into a higher percentage. At the default inputs the calculator puts the crossover near seven thousand dollars a month; enter your own average sale and international share to find yours."}}, {"@type": "Question", "name": "What do the fixed per-sale fees do to small prices?", "acceptedAnswer": {"@type": "Answer", "text": "Thirty to fifty cents a sale is a rounding error on a $200 licence and a large share of a $5 one. If your average sale is under about ten dollars, compare the fixed fee before the percentage."}}, {"@type": "Question", "name": "What does a merchant of record not solve?", "acceptedAnswer": {"@type": "Answer", "text": "Chargebacks, refunds policy, payout and currency-conversion fees, and income tax on what you keep stay yours or vary by platform. Whether a platform removes a given registration for your business is a question for your accountant."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/stripe-vs-merchant-of-record-for-indie-saas.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Stripe vs a Merchant of Record for Indie SaaS">
+<meta property="og:description" content="When a merchant of record like Paddle, Lemon Squeezy or Polar costs less than running Stripe and filing sales tax yourself, and when it stops.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Stripe vs a Merchant of Record for Indie SaaS — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../merchant-of-record-fee-calculator/">Stripe or a merchant of record: what do you keep at your monthly revenue?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Stripe vs a Merchant of Record for Indie SaaS</span></span></nav>
+  <p><a href="./">← Merchant of Record Fee Calculator</a></p>
+  <h1>Stripe vs a merchant of record for indie SaaS</h1>
+  <p>Put your monthly revenue, average sale and international share into the <a href="./">calculator</a> to price Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>When does a merchant of record beat Stripe?</h2>
+  <p>When you are small and sell across borders. Registering and filing sales tax and VAT in the places your customers live has a fixed monthly cost, whether you do it yourself or pay a service, and a merchant of record folds that into a higher percentage. At the default inputs the calculator puts the crossover near seven thousand dollars a month; enter your own average sale and international share to find yours.</p>
+  <h2>What do the fixed per-sale fees do to small prices?</h2>
+  <p>Thirty to fifty cents a sale is a rounding error on a $200 licence and a large share of a $5 one. If your average sale is under about ten dollars, compare the fixed fee before the percentage.</p>
+  <h2>What does a merchant of record not solve?</h2>
+  <p>Chargebacks, refunds policy, payout and currency-conversion fees, and income tax on what you keep stay yours or vary by platform. Whether a platform removes a given registration for your business is a question for your accountant.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial, legal or tax advice; verify prices at each provider. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=merchant-of-record-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="merchant-of-record-fee-calculator"></script>
+</body>
+</html>

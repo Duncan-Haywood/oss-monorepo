@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This checker vs. reading the manifest by eye</title>
+  <meta name="description" content="Skimming a Deployment or StatefulSet's YAML before it merges is the default review every team already does.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This checker vs. reading the manifest by eye">
+  <meta property="og:description" content="A visual review of a Deployment's YAML reliably misses a container that looks resourced but has no memory limit…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't reading the manifest in review enough?","acceptedAnswer":{"@type":"Answer","text":"It catches anything visible on its own line -- a resources block missing entirely, an obviously wrong indent. It works less well for a container that has some requests or limits set (so the block looks present and reasonable) but is missing one specific field, or for two numbers that live a few lines apart in different blocks (a request under limits vs. a request under requests) that need to be compared against each other rather than read in isolation. Neither miss is a sign of a careless reviewer -- the YAML looks completely ordinary either way."}},{"@type":"Question","name":"How easy is it really to miss a missing memory limit by eye?","acceptedAnswer":{"@type":"Answer","text":"In this tool's own bundled worked example, a Deployment's only container sets resources.requests.memory: 512Mi and resources.limits.cpu: 500m -- a resources block that is clearly not empty, with two real values in it. Nothing about reading it draws attention to the specific field that is absent: resources.limits.memory. A reviewer confirming 'yes, this has resource limits set' from a glance at the block is not wrong about what they saw; they are answering a coarser question than the one that matters."}},{"@type":"Question","name":"Why is a request exceeding a limit easy to miss in review?","acceptedAnswer":{"@type":"Answer","text":"Because the two numbers being compared sit in different blocks -- requests.cpu and limits.cpu -- often several lines apart, sometimes in a different container's section entirely once a manifest has more than one workload. Each individual line reads as valid YAML with a valid quantity. The problem only exists in the relationship between the two values, and Kubernetes does not point it out until kubectl apply or helm upgrade fails admission validation -- after the review that would have caught it earlier has already passed."}},{"@type":"Question","name":"Does this tool replace reviewing the manifest?","acceptedAnswer":{"@type":"Answer","text":"No, and it checks only resource requests and limits -- one narrow slice of everything a manifest review covers, such as image tags, security context, or probes. Reviewing the manifest is still how a team catches most problems and agrees the change makes sense. This tool exists for the specific, mechanical part of that review that benefits from being checked the same way every time: is every required field present, and does any request exceed its own limit."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+    pre { white-space: pre-wrap; background: #f7f9fb; border: 1px solid #e6eaf0; border-radius: 8px; padding: 10px 12px; font-size: .82rem; overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reading the manifest by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../k8s-resource-limits-check/">Will this container take down its whole node?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reading the manifest by eye</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Kubernetes Resource Limits Check</a></p>
+    <h1>This checker vs. reading the manifest by eye</h1>
+    <p class="lede">Skimming a Deployment or StatefulSet's YAML during review is the default first pass, and
+      every team already does it. It reliably misses a container whose resources block has some fields set
+      but not the one that matters, and a request that exceeds its own limit two lines away -- exactly what
+      this free tool checks automatically.</p>
+
+    <section class="card">
+      <h2>What reading the manifest in review involves</h2>
+      <p>
+        Reviewing a pull request that touches a Deployment or StatefulSet usually means scrolling to the
+        <code>resources</code> block, confirming it exists, and moving on -- especially once a change has
+        already passed a glance at everything else (image tag, replica count, probes). A block with real
+        numbers in it reads as "resourced" at a glance, whether or not every field Kubernetes actually cares
+        about is present.
+      </p>
+      <p>
+        That works well for a resources block that is missing outright, or an obviously malformed value. It
+        works less well for a block with <em>some</em> fields set -- nothing about a container with a memory
+        <em>request</em> calls attention to the memory <em>limit</em> it is missing -- or for two values that
+        need to be compared against each other rather than read on their own, such as a CPU request under
+        <code>requests</code> and a CPU limit under <code>limits</code>, sitting in different blocks.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">The two gaps a visual review is most likely to let through.</caption>
+        <thead><tr><th scope="col">What matters</th><th scope="col">Reading the manifest by eye</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>Every container has a memory <em>limit</em>, not just a request.</td><td>A block with a request already in it reads as resourced; the specific missing field is easy to not notice.</td><td>Checks each of the four fields by name and reports exactly which is absent, per container.</td></tr>
+          <tr><td>No request exceeds its own limit for the same resource.</td><td>Requires comparing two numbers that live in different blocks, sometimes several lines or containers apart.</td><td>Parses both quantities and compares them directly, catching the exact case the API server rejects at apply time.</td></tr>
+          <tr><td>An init container's resources, not just the main containers'.</td><td>Init containers are easy to skim past -- they run once and are not the "real" workload being reviewed.</td><td>Checks init containers with the same four fields as regular containers.</td></tr>
+          <tr><td>A manifest with several workloads in one file.</td><td>Attention naturally concentrates on the first or largest workload in a multi-document file.</td><td>Analyzes every document independently and reports findings per workload.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">Reviewing the manifest is not wrong -- it is how a team catches most problems, including
+        ones this tool does not check at all (image tags, security context, probes). What it automates is the
+        specific, mechanical comparison a visual pass is most likely to skip: is every field present, and does
+        any request exceed its own limit.</p>
+      <p><a class="cta" href="./">Run the free resource-limits checker</a></p>
+    </section>
+
+    <section class="card">
+      <h2>The same worked example a visual review would pass</h2>
+      <p>This is this tool's own bundled worked example -- the "Load worked example" button on the checker loads it verbatim:</p>
+      <pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: checkout-api
+        resources:
+          requests:
+            memory: 512Mi
+          limits:
+            cpu: 500m
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cache
+  namespace: data
+spec:
+  template:
+    spec:
+      containers:
+      - name: cache
+        resources:
+          requests:
+            cpu: 2
+            memory: 4Gi
+          limits:
+            cpu: 1
+            memory: 4Gi
+</pre>
+      <p>
+        Read start to finish, both containers look resourced: <code>checkout-api</code> has a memory request
+        and a CPU limit set, and <code>cache</code> has requests and limits for both memory and CPU. Run this
+        checker's own detection logic against it and it reports <strong>2 workloads, 2 containers left
+        unbounded or invalid, plus 3 more worth reviewing</strong>: <code>checkout-api</code> has no
+        <code>resources.limits.memory</code> at all, despite having a memory request; and <code>cache</code>
+        requests <code>2</code> CPUs while its own limit is <code>1</code> -- a value the API server rejects
+        outright at <code>kubectl apply</code>, not a style note. Neither container's resources block is
+        empty, so neither issue is the kind a quick "does this have limits set?" glance would catch.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Isn't reading the manifest in review enough?</h3>
+      <p>It catches anything visible on its own line -- a resources block missing entirely, an obviously wrong indent. It works less well for a container that has some requests or limits set (so the block looks present and reasonable) but is missing one specific field, or for two numbers that live a few lines apart in different blocks (a request under limits vs. a request under requests) that need to be compared against each other rather than read in isolation. Neither miss is a sign of a careless reviewer -- the YAML looks completely ordinary either way.</p>
+      <h3>How easy is it really to miss a missing memory limit by eye?</h3>
+      <p>In this tool's own bundled worked example, a Deployment's only container sets <code>resources.requests.memory: 512Mi</code> and <code>resources.limits.cpu: 500m</code> -- a resources block that is clearly not empty, with two real values in it. Nothing about reading it draws attention to the specific field that is absent: <code>resources.limits.memory</code>. A reviewer confirming 'yes, this has resource limits set' from a glance at the block is not wrong about what they saw; they are answering a coarser question than the one that matters.</p>
+      <h3>Why is a request exceeding a limit easy to miss in review?</h3>
+      <p>Because the two numbers being compared sit in different blocks -- <code>requests.cpu</code> and <code>limits.cpu</code> -- often several lines apart, sometimes in a different container's section entirely once a manifest has more than one workload. Each individual line reads as valid YAML with a valid quantity. The problem only exists in the relationship between the two values, and Kubernetes does not point it out until <code>kubectl apply</code> or <code>helm upgrade</code> fails admission validation -- after the review that would have caught it earlier has already passed.</p>
+      <h3>Does this tool replace reviewing the manifest?</h3>
+      <p>No, and it checks only resource requests and limits -- one narrow slice of everything a manifest review covers, such as image tags, security context, or probes. Reviewing the manifest is still how a team catches most problems and agrees the change makes sense. This tool exists for the specific, mechanical part of that review that benefits from being checked the same way every time: is every required field present, and does any request exceed its own limit.</p>
+      <p>See how this compares to a broader, deployed policy engine: <a href="vs-polaris.html">this checker vs. Polaris</a>. More on the mechanism behind each finding: <a href="why-a-missing-resource-limit-takes-down-a-node.html">why a missing resource limit takes down a node</a>.</p>
+    </section>
+
+    <footer>
+      <p><strong>Evidence, not a determination.</strong> This tool reports what the manifest declares against a fixed set of documented Kubernetes mechanisms -- it cannot know what your workload actually needs at runtime, and a clean report is not a guarantee the values you set are the right ones. Verify against your own load-testing and <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/" rel="noopener">Kubernetes' own resource-management documentation</a> before relying on it.</p>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or capacity-planning advice, and it does not replace a qualified professional or Kubernetes' own documentation. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+      <p>Everything runs in your browser or as a local CLI. The manifest you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are counted only in local storage, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured. This page names no company or product as a point of comparison -- only the generic habit of reading a manifest by eye during review, which every team already does.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+      <li><a href="../helm-values-schema-check/" data-pf-to="helm-values-schema-check">Does your values.yaml actually match its own schema?</a></li>
+      <li><a href="../hidden-unicode-check/" data-pf-to="hidden-unicode-check">Hidden Unicode Check</a></li>
+      <li><a href="../hreflang-reciprocity-check/" data-pf-to="hreflang-reciprocity-check">hreflang Reciprocity Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-resource-limits-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="k8s-resource-limits-check"></script>
+</body></html>

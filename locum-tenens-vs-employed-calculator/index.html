@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Locum Tenens vs Employed Calculator — 1099 Locum Rate vs W-2 Physician Offer</title>
+  <meta name="description" content="Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax…">
+  <meta property="og:title" content="Locum Tenens vs Employed Calculator — free, private, in your browser">
+  <meta property="og:description" content="What hourly rate makes a locum contract beat an employed offer once tax, benefits and gaps are counted?">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Locum Tenens vs Employed Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare a locum tenens 1099 contract with an employed W-2 physician, NP, PA or CRNA offer: annual take-home after federal tax, break-even locum hourly rate, and a sensitivity table on weeks worked. Runs in your browser.","featureList":"locum tenens vs employed calculator, 1099 vs W-2 physician, break-even locum rate, self-employment tax, malpractice tail coverage, weeks worked sensitivity, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a locum tenens 1099 contract really worth more than an employed job?","acceptedAnswer":{"@type":"Answer","text":"Only if the higher hourly rate survives four things: unpaid gaps between assignments, self-employment tax on both halves of Social Security and Medicare, benefits you now buy yourself (health insurance, retirement match, CME, malpractice), and your own travel costs. This calculator puts both offers on the same yearly basis so you can see the gap and the hourly rate at which they tie."}},{"@type":"Question","name":"What is the break-even locum rate?","acceptedAnswer":{"@type":"Answer","text":"The hourly rate at which a locum year gives the same total value as the employed offer at the number of weeks you enter. Total value is after-tax cash plus everything saved for retirement (yours plus the employer match) plus employer-paid health insurance and CME. Change the weeks worked and the break-even moves: the fewer weeks you work, the higher the rate must be."}},{"@type":"Question","name":"How does self-employment tax change the comparison?","acceptedAnswer":{"@type":"Answer","text":"A 1099 contractor pays both halves of Social Security (12.4% up to the wage base) and Medicare (2.9%), applied to 92.35% of net profit, plus 0.9% Additional Medicare above the threshold. An employee pays half. Half of the self-employment tax is deductible for income tax, which softens but does not remove the difference."}},{"@type":"Question","name":"Why does malpractice tail coverage matter?","acceptedAnswer":{"@type":"Answer","text":"Claims-made policies need tail coverage when a contract ends unless the agency or facility provides it. Enter what you expect to pay per year for premiums or an annualised tail. It is a deductible business cost on the locum side and is assumed to be employer-paid on the employed side."}},{"@type":"Question","name":"How are travel and lodging stipends treated?","acceptedAnswer":{"@type":"Answer","text":"The tool compares what the agency reimburses per week against what you actually spend. A shortfall is treated as a deductible business cost; reimbursement above cost is treated as income. Real per-diem and tax-home rules are more complicated, so confirm yours with a tax professional."}},{"@type":"Question","name":"Which retirement contributions does it allow?","acceptedAnswer":{"@type":"Answer","text":"Locum: a traditional solo 401(k) or SEP contribution up to the $24,500 deferral plus roughly 20% of net earnings, and never above $72,000. Employed: your own 401(k) deferral up to $24,500 plus the match you enter. Catch-up contributions are not modelled."}},{"@type":"Question","name":"What does the sensitivity table show?","acceptedAnswer":{"@type":"Answer","text":"The locum year at 24 to 52 weeks worked: take-home, total value, the difference from the employed offer, and the break-even hourly rate. Fixed costs such as malpractice, health insurance and your retirement contribution stay the same; travel scales with weeks worked."}},{"@type":"Question","name":"What does this leave out?","acceptedAnswer":{"@type":"Answer","text":"State and local tax, the 20% qualified business income deduction, itemised deductions, credits, spouse income, catch-up contributions, signing bonuses, bonuses and relocation, the value of paid holidays beyond PTO, disability and life insurance, and Social Security credits. It is rough federal arithmetic, not advice."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+      select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    h3.sub { margin-top: 0; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Locum Tenens vs Employed Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Locum Tenens vs Employed Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Locum Tenens vs Employed Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">LOCUM TENENS VS EMPLOYED · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What locum rate beats your employed offer?</h1>
+    <p>Enter a <strong>locum tenens (1099)</strong> contract and an <strong>employed (W-2)</strong> offer. See annual <strong>take-home after federal tax</strong> for each, the <strong>break-even locum hourly rate</strong>, and a <strong>sensitivity table on weeks worked</strong> that shows what unpaid gaps between assignments cost.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Rough federal-only arithmetic, not tax advice. Not legal, tax, or financial advice: confirm real numbers with a tax professional and the contract itself before deciding.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <label for="status">Filing status</label>
+    <select id="status"><option value="single">Single</option><option value="mfj">Married filing jointly (this job is the only income)</option><option value="hoh">Head of household</option></select>
+    <div class="grid">
+    <div>
+      <h3 class="sub">Locum tenens (1099)</h3>
+      <label for="rate">Hourly rate ($)</label>
+      <input id="rate" type="text" inputmode="decimal" value="200" autocomplete="off">
+      <label for="hours">Guaranteed hours per week</label>
+      <input id="hours" type="text" inputmode="decimal" value="40" autocomplete="off">
+      <label for="weeks">Weeks worked per year (the rest are unpaid gaps)</label>
+      <input id="weeks" type="text" inputmode="decimal" value="40" autocomplete="off">
+      <label for="travelReimb">Travel and lodging reimbursed by the agency ($ per week worked)</label>
+      <input id="travelReimb" type="text" inputmode="decimal" value="1200" autocomplete="off">
+      <label for="travelCost">Travel and lodging you actually pay ($ per week worked)</label>
+      <input id="travelCost" type="text" inputmode="decimal" value="1500" autocomplete="off">
+      <label for="malpractice">Malpractice and tail coverage you pay ($ per year)</label>
+      <input id="malpractice" type="text" inputmode="decimal" value="6000" autocomplete="off">
+      <label for="expenses">Licences, credentialing, CME and other deductible costs ($ per year)</label>
+      <input id="expenses" type="text" inputmode="decimal" value="4000" autocomplete="off">
+      <label for="health">Health insurance you pay ($ per year)</label>
+      <input id="health" type="text" inputmode="decimal" value="9000" autocomplete="off">
+      <label for="retire">Solo 401(k) or SEP contribution ($ per year)</label>
+      <input id="retire" type="text" inputmode="decimal" value="40000" autocomplete="off">
+    </div>
+    <div>
+      <h3 class="sub">Employed (W-2)</h3>
+      <label for="salary">Annual salary ($)</label>
+      <input id="salary" type="text" inputmode="decimal" value="330000" autocomplete="off">
+      <label for="w2Hours">Hours worked per week</label>
+      <input id="w2Hours" type="text" inputmode="decimal" value="45" autocomplete="off">
+      <label for="pto">Paid time off (weeks per year)</label>
+      <input id="pto" type="text" inputmode="decimal" value="6" autocomplete="off">
+      <label for="w2Health">Your health insurance share ($ per year, pre-tax)</label>
+      <input id="w2Health" type="text" inputmode="decimal" value="3600" autocomplete="off">
+      <label for="w2EmployerHealth">Employer-paid health insurance ($ per year)</label>
+      <input id="w2EmployerHealth" type="text" inputmode="decimal" value="9600" autocomplete="off">
+      <label for="w2Own401k">Your 401(k) contribution ($ per year)</label>
+      <input id="w2Own401k" type="text" inputmode="decimal" value="24500" autocomplete="off">
+      <label for="w2Match">Employer 401(k) match ($ per year)</label>
+      <input id="w2Match" type="text" inputmode="decimal" value="9900" autocomplete="off">
+      <label for="w2Cme">CME allowance ($ per year)</label>
+      <input id="w2Cme" type="text" inputmode="decimal" value="3000" autocomplete="off">
+    </div>
+    </div>
+    <p class="note">Employer-paid malpractice is assumed on the employed side, so it is not entered. Nothing here is saved.</p>
+    <button type="button" id="run">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Edit the numbers, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Side by side (per year)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="side"><thead><tr><th></th><th class="n">Locum (1099)</th><th class="n">Employed (W-2)</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Sensitivity: weeks worked as a locum</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="rows"><thead><tr><th class="n">Weeks worked</th><th class="n">Unpaid gap weeks</th><th class="n">Locum take-home</th><th class="n">Locum total value</th><th class="n">Total value vs employed</th><th class="n">Break-even hourly rate</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Locum:</strong> gross pay is hourly rate times guaranteed hours times weeks worked. Net profit subtracts malpractice, other business costs, and your unreimbursed travel. Self-employment tax is 12.4% Social Security (to the $184,500 2026 wage base) plus 2.9% Medicare on 92.35% of profit, plus 0.9% above the Additional Medicare threshold. Half of it, the self-employed health insurance premium and your retirement contribution come off before the standard deduction and 2026 brackets. <strong>Employed:</strong> FICA on salary less the pre-tax health share, income tax on salary less health share, 401(k) deferral and the standard deduction.</p>
+    <p><strong>Total value</strong> is after-tax cash plus retirement money saved (yours and the employer match) plus employer-paid health insurance and CME. The <strong>break-even locum rate</strong> is the hourly rate at which locum total value equals the employed total value at your weeks worked. Compared this way, retirement saved counts as value rather than as money lost.</p>
+    <p><strong>Not modelled:</strong> state and local tax, the 20% qualified business income deduction, itemised deductions, credits, spouse income, catch-up contributions, bonuses and relocation, per-diem tax-home rules, disability and life insurance. <strong>Unverified:</strong> checked by hand calculation and unit tests only; the 2026 brackets, standard deduction and wage base were copied from sibling tools in this catalogue and should be confirmed against current IRS and SSA publications.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a locum tenens 1099 contract really worth more than an employed job?</h3>
+    <p>Only if the higher hourly rate survives four things: unpaid gaps between assignments, self-employment tax on both halves of Social Security and Medicare, benefits you now buy yourself (health insurance, retirement match, CME, malpractice), and your own travel costs. This calculator puts both offers on the same yearly basis so you can see the gap and the hourly rate at which they tie.</p>
+    <h3>What is the break-even locum rate?</h3>
+    <p>The hourly rate at which a locum year gives the same total value as the employed offer at the number of weeks you enter. Total value is after-tax cash plus everything saved for retirement (yours plus the employer match) plus employer-paid health insurance and CME. Change the weeks worked and the break-even moves: the fewer weeks you work, the higher the rate must be.</p>
+    <h3>How does self-employment tax change the comparison?</h3>
+    <p>A 1099 contractor pays both halves of Social Security (12.4% up to the wage base) and Medicare (2.9%), applied to 92.35% of net profit, plus 0.9% Additional Medicare above the threshold. An employee pays half. Half of the self-employment tax is deductible for income tax, which softens but does not remove the difference.</p>
+    <h3>Why does malpractice tail coverage matter?</h3>
+    <p>Claims-made policies need tail coverage when a contract ends unless the agency or facility provides it. Enter what you expect to pay per year for premiums or an annualised tail. It is a deductible business cost on the locum side and is assumed to be employer-paid on the employed side.</p>
+    <h3>How are travel and lodging stipends treated?</h3>
+    <p>The tool compares what the agency reimburses per week against what you actually spend. A shortfall is treated as a deductible business cost; reimbursement above cost is treated as income. Real per-diem and tax-home rules are more complicated, so confirm yours with a tax professional.</p>
+    <h3>Which retirement contributions does it allow?</h3>
+    <p>Locum: a traditional solo 401(k) or SEP contribution up to the $24,500 deferral plus roughly 20% of net earnings, and never above $72,000. Employed: your own 401(k) deferral up to $24,500 plus the match you enter. Catch-up contributions are not modelled.</p>
+    <h3>What does the sensitivity table show?</h3>
+    <p>The locum year at 24 to 52 weeks worked: take-home, total value, the difference from the employed offer, and the break-even hourly rate. Fixed costs such as malpractice, health insurance and your retirement contribution stay the same; travel scales with weeks worked.</p>
+    <h3>What does this leave out?</h3>
+    <p>State and local tax, the 20% qualified business income deduction, itemised deductions, credits, spouse income, catch-up contributions, signing bonuses, bonuses and relocation, the value of paid holidays beyond PTO, disability and life insurance, and Social Security credits. It is rough federal arithmetic, not advice.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are rough illustrative arithmetic on the figures you enter, not a projection of your actual tax or a recommendation to accept or decline any contract. You are responsible for reviewing and verifying them, ideally with a tax professional and a contract review, before deciding. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any staffing agency, hospital, or medical association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only on this device, never with any of your data, and can be switched off below; Do Not Track is honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Weighing a clinical job? See the <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a>, the <a href="../travel-nurse-contract-comparison-calculator/">travel nurse contract comparison calculator</a>, the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a> and the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, samplePlan, money, fieldNames } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ALL = fieldNames();
+    let last = null;
+
+    const read = () => Object.fromEntries(ALL.map((f) => [f, document.getElementById(f).value]));
+    const fill = (p) => ALL.forEach((f) => (document.getElementById(f).value = p[f]));
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const l = r.locum, e = r.employed;
+      $("#big").innerHTML = [
+        [money(l.takeHome), "Locum take-home after federal tax"],
+        [money(e.takeHome), "Employed take-home after federal tax"],
+        [r.breakEven == null ? "over $5,000/h" : money(r.breakEven) + "/h", "Break-even locum rate at " + r.p.weeks + " weeks"],
+        [(r.diffTotal >= 0 ? "+" : "") + money(r.diffTotal), "Locum total value vs employed"],
+      ].map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      const f = [];
+      f.push({ severity: "info", title: r.winner === "locum" ? "At your numbers the locum contract comes out ahead by " + money(r.diffTotal) + " a year in total value" : "At your numbers the employed offer comes out ahead by " + money(-r.diffTotal) + " a year in total value", detail: "Total value is after-tax cash plus retirement saved plus employer-paid health and CME. Take-home alone differs by " + money(r.diffTakeHome) + " (locum minus employed). Your locum rate is " + money(r.p.rate) + "/h against a break-even of " + (r.breakEven == null ? "more than $5,000/h" : money(r.breakEven) + "/h") + "." });
+      f.push({ severity: "medium", title: "You are unpaid for " + r.weeksGap + " week" + (r.weeksGap === 1 ? "" : "s") + " a year between assignments", detail: r.breakEvenWeeks == null ? "Even a full 52 weeks at this rate does not match the employed offer." : "At this rate you need about " + r.breakEvenWeeks + " paid weeks a year to match the employed offer. Health insurance, malpractice and retirement contributions keep running through gaps." });
+      f.push({ severity: "info", title: "Self-employment tax on the locum side is " + money(l.seTax) + " against " + money(e.fica) + " of FICA on the employed side", detail: "Federal income tax is " + money(l.incTax) + " (locum) against " + money(e.incTax) + " (employed). State tax and the QBI deduction are not modelled." });
+      if (l.retireClamped) f.push({ severity: "medium", title: "Your locum retirement contribution was reduced to " + money(l.retire), detail: "The tool caps it at the $24,500 deferral plus about 20% of net earnings, and at $72,000." });
+      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const side = [
+        ["Gross pay / salary", l.gross, e.salary],
+        ["Business costs and travel shortfall", -l.costs, 0],
+        ["Health insurance you pay", -l.healthCost, -r.p.w2Health],
+        ["Your retirement contributions", -l.retire, -e.own],
+        ["Self-employment tax / FICA", -l.seTax, -e.fica],
+        ["Federal income tax", -l.incTax, -e.incTax],
+        ["Take-home cash", l.takeHome, e.takeHome],
+        ["Retirement saved (yours plus match)", l.retire, e.retire],
+        ["Employer-paid health and CME", 0, r.p.w2EmployerHealth + r.p.w2Cme],
+        ["Total value", l.total, e.total],
+        ["Total value per hour worked", l.effectiveHourly, e.effectiveHourly],
+      ];
+      $("#side tbody").innerHTML = side.map(([n, a, b]) => `<tr><td>${esc(n)}</td><td class="n">${money(a)}</td><td class="n">${money(b)}</td></tr>`).join("");
+      $("#rows tbody").innerHTML = r.rows.map((x) => `<tr><td class="n">${x.weeks}</td><td class="n">${x.gap}</td><td class="n">${money(x.takeHome)}</td><td class="n">${money(x.total)}</td><td class="n">${x.delta >= 0 ? "+" : ""}${money(x.delta)}</td><td class="n">${x.breakEven == null ? "n/a" : money(x.breakEven) + "/h"}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#run").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(samplePlan());
+      if (run()) { record("example_loaded"); status.textContent = "Sample figures: invented, not a real offer."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "locum-vs-employed-sensitivity.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ab-test-significance-calculator/" data-pf-to="ab-test-significance-calculator">A/B Test Significance Calculator — free, private, in your browser</a></li>
+      <li><a href="../aca-subsidy-cliff-calculator/" data-pf-to="aca-subsidy-cliff-calculator">ACA Subsidy Cliff Calculator — free, 2026</a></li>
+      <li><a href="../ad-incrementality-test-analyzer/" data-pf-to="ad-incrementality-test-analyzer">Ad Incrementality Test Analyzer — free, private, in your browser</a></li>
+      <li><a href="../ad-spend-saturation-optimizer/" data-pf-to="ad-spend-saturation-optimizer">Ad Spend Saturation Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=locum-tenens-vs-employed-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/?pfEmbed=1&quot; title=&quot;Locum Tenens vs Employed Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="locum-tenens-vs-employed-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/" data-pf-embed-title="Locum Tenens vs Employed Calculator — free, private, in your browser" data-pf-embed-slug="locum-tenens-vs-employed-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="locum-tenens-vs-employed-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="locum-tenens-vs-employed-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

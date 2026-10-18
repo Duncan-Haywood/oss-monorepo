@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions Cache Poisoning Check vs. zizmor</title>
+  <meta name="description" content="zizmor's cache-poisoning audit flags a cache left on in a release/publish job. This free browser tool instead flags a cache write reachable from a fork PR and…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/vs-zizmor.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GitHub Actions Cache Poisoning Check vs. zizmor">
+  <meta property="og:description" content="zizmor's cache-poisoning audit is scoped to release workflows and does not check restore-keys. This tool checks the write side…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/vs-zizmor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or zizmor's cache-poisoning audit?","acceptedAnswer":{"@type":"Answer","text":"They both name GitHub Actions cache poisoning but check different sides of it. zizmor is an open-source, MIT-licensed static analysis CLI (installed with pip install zizmor or cargo install zizmor) whose cache-poisoning audit, per its own documentation, detects potential cache-poisoning scenarios in release workflows -- it looks at jobs it recognises as publishing a release (a tag-push or release trigger, or a known publisher action such as pypa/gh-action-pypi-publish or softprops/action-gh-release) and flags one still using a cache-aware action there, on the reasoning that a release pipeline should not trust a cache an earlier, less-trusted run could have written. This checker looks at the other side of the same risk, in any workflow, not only release ones: an actions/cache or actions/cache/save write step reachable from a pull_request_target or workflow_run trigger -- where a fork controls what gets written -- and an unscoped restore-keys fallback that can adopt a colliding entry regardless of who wrote it. Run zizmor for the release-workflow question; paste a file here for the write-side and restore-keys questions."}},{"@type":"Question","name":"Does zizmor's cache-poisoning audit already catch what this tool catches?","acceptedAnswer":{"@type":"Answer","text":"Not the same ground. zizmor's audit is scoped to release workflows specifically and, per its published source, does not inspect restore-keys at all -- it checks whether a cache-aware action (actions/cache and roughly two dozen others, including framework-specific ones like actions/setup-node and Swatinem/rust-cache) is active in a job it has identified as a publish step, and suggests turning caching off there. This tool's two findings -- a cache write reachable from pull_request_target/workflow_run, and an unscoped restore-keys fallback -- are not the release-workflow question zizmor asks, so a clean zizmor run on a repository can still carry either of this tool's findings, and a clean scan here says nothing about whether a release job is needlessly trusting a cache."}},{"@type":"Question","name":"Why use a narrower tool if zizmor already covers more ground?","acceptedAnswer":{"@type":"Answer","text":"Two reasons. First, zizmor is a CLI you install and point at files or a repository; this tool is a page you paste a workflow into, with nothing to install, which is faster when you want an answer on the one file in front of you. Second, and more to the point, the two catch genuinely different patterns rather than one being a subset of the other: zizmor's audit does not look at restore-keys or at which trigger wrote a cache entry, so a repository can pass its release-workflow check and still have a fork-writable cache or an unscoped restore-keys fallback that this tool exists to name."}},{"@type":"Question","name":"Does this tool need a GitHub token the way zizmor sometimes does?","acceptedAnswer":{"@type":"Answer","text":"No, never. zizmor documents an optional online mode -- set GH_TOKEN, GITHUB_TOKEN, or ZIZMOR_GITHUB_TOKEN -- for audits that benefit from GitHub API access, and runs offline by default otherwise, which already covers its cache-poisoning audit. This tool has no online mode to opt into: nothing here talks to a server under any configuration, so there is no token to supply."}},{"@type":"Question","name":"Is this page affiliated with zizmor or its maintainers?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source at github.com/zizmorcore/zizmor and docs.zizmor.sh."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #9a3412; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GitHub Actions Cache Poisoning Check vs. zizmor — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-cache-poisoning-check/">Can a fork PR poison your GitHub Actions cache?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">GitHub Actions Cache Poisoning Check vs. zizmor</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Cache Poisoning Check</a></p>
+    <h1>GitHub Actions Cache Poisoning Check vs. zizmor</h1>
+    <p class="lede">Both name the same risk and check different sides of it. zizmor's <code>cache-poisoning</code>
+      audit looks at whether a release job is trusting a cache it should not. This tool looks at whether a fork
+      can write that cache in the first place, and whether <code>restore-keys</code> can adopt a poisoned entry --
+      in any workflow, free, in your browser, with nothing to install.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>zizmor</strong> (<code>github.com/zizmorcore/zizmor</code>) is an open-source, MIT-licensed static
+        analysis tool for GitHub Actions, installed with <code>pip install zizmor</code> or
+        <code>cargo install zizmor</code> and run against workflow files or a whole repository. Its
+        <code>cache-poisoning</code> audit, per its own documentation, detects potential cache-poisoning scenarios
+        in release workflows: it identifies a job as a release or publish step by its trigger (a tag push, a
+        <code>release</code> event) or by its use of a known publisher action (<code>pypa/gh-action-pypi-publish</code>,
+        <code>softprops/action-gh-release</code>, and similar), and flags one that also has a cache-aware action
+        enabled -- <code>actions/cache</code> and roughly two dozen others, including framework-specific ones such
+        as <code>actions/setup-node</code> and <code>Swatinem/rust-cache</code> -- on the reasoning that a release
+        pipeline should not restore a cache an earlier, less-trusted run may have written.
+      </p>
+      <p>
+        <strong>This checker</strong> looks at the other side of the same risk, in any workflow rather than only
+        release ones: you paste the YAML of a workflow file, and it lists every <code>actions/cache</code> or
+        <code>actions/cache/save</code> write step reachable from a <code>pull_request_target</code> or
+        <code>workflow_run</code> trigger -- where a fork's pull request controls what gets written -- and every
+        <code>restore-keys</code> fallback with no explicit scope, which can adopt a colliding entry written by an
+        unrelated, unprivileged job. It runs entirely in your browser, needs no install and no token, and makes no network call of its own under any configuration.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want to know whether a release/publish job in my repo is trusting a cache an earlier, less-trusted run could have written.</td><td>zizmor's <code>cache-poisoning</code> audit -- that is exactly the scenario it targets.</td></tr>
+          <tr><td>I want to know whether a <code>pull_request_target</code> or <code>workflow_run</code> job in my repo can write to the Actions cache.</td><td>This checker -- zizmor's audit does not check who wrote a cache entry, only whether one is active in a job it identifies as a release step.</td></tr>
+          <tr><td>I want to know whether my <code>restore-keys</code> fallback can adopt an entry a different, unprivileged job wrote.</td><td>This checker -- <code>restore-keys</code> is outside the scope of zizmor's <code>cache-poisoning</code> audit entirely.</td></tr>
+          <tr><td>I want one maintained scanner covering dozens of GitHub Actions security patterns beyond caching -- permissions, credential leakage, injection, impostor commits, and more.</td><td>zizmor -- that breadth is its whole job; this tool checks only the two cache patterns above.</td></tr>
+          <tr><td>I don't want to install a CLI (pip or cargo) or add a new GitHub Action just to check one file.</td><td>This checker -- it is a page, not a package.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run zizmor in CI for the release-workflow question and still reach for this tool the moment the question is the write side or <code>restore-keys</code>, which zizmor's <code>cache-poisoning</code> audit does not check.</p>
+      <p><a class="cta" href="./">Run the free cache poisoning check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or zizmor's cache-poisoning audit?</h3>
+      <p>They both name GitHub Actions cache poisoning but check different sides of it. zizmor is an open-source, MIT-licensed static analysis CLI (installed with <code>pip install zizmor</code> or <code>cargo install zizmor</code>) whose <code>cache-poisoning</code> audit, per its own documentation, detects potential cache-poisoning scenarios in release workflows -- it looks at jobs it recognises as publishing a release (a tag-push or <code>release</code> trigger, or a known publisher action such as <code>pypa/gh-action-pypi-publish</code> or <code>softprops/action-gh-release</code>) and flags one still using a cache-aware action there, on the reasoning that a release pipeline should not trust a cache an earlier, less-trusted run could have written. This checker looks at the other side of the same risk, in any workflow, not only release ones: an <code>actions/cache</code> or <code>actions/cache/save</code> write step reachable from a <code>pull_request_target</code> or <code>workflow_run</code> trigger -- where a fork controls what gets written -- and an unscoped <code>restore-keys</code> fallback that can adopt a colliding entry regardless of who wrote it. Run zizmor for the release-workflow question; paste a file here for the write-side and <code>restore-keys</code> questions.</p>
+      <h3>Does zizmor's cache-poisoning audit already catch what this tool catches?</h3>
+      <p>Not the same ground. zizmor's audit is scoped to release workflows specifically and, per its published source, does not inspect <code>restore-keys</code> at all -- it checks whether a cache-aware action (<code>actions/cache</code> and roughly two dozen others, including framework-specific ones like <code>actions/setup-node</code> and <code>Swatinem/rust-cache</code>) is active in a job it has identified as a publish step, and suggests turning caching off there. This tool's two findings -- a cache write reachable from <code>pull_request_target</code>/<code>workflow_run</code>, and an unscoped <code>restore-keys</code> fallback -- are not the release-workflow question zizmor asks, so a clean zizmor run on a repository can still carry either of this tool's findings, and a clean scan here says nothing about whether a release job is needlessly trusting a cache.</p>
+      <h3>Why use a narrower tool if zizmor already covers more ground?</h3>
+      <p>Two reasons. First, zizmor is a CLI you install and point at files or a repository; this tool is a page you paste a workflow into, with nothing to install, which is faster when you want an answer on the one file in front of you. Second, and more to the point, the two catch genuinely different patterns rather than one being a subset of the other: zizmor's audit does not look at <code>restore-keys</code> or at which trigger wrote a cache entry, so a repository can pass its release-workflow check and still have a fork-writable cache or an unscoped <code>restore-keys</code> fallback that this tool exists to name.</p>
+      <h3>Does this tool need a GitHub token the way zizmor sometimes does?</h3>
+      <p>No, never. zizmor documents an optional online mode -- set <code>GH_TOKEN</code>, <code>GITHUB_TOKEN</code>, or <code>ZIZMOR_GITHUB_TOKEN</code> -- for audits that benefit from GitHub API access, and runs offline by default otherwise, which already covers its cache-poisoning audit. This tool has no online mode to opt into: nothing here talks to a server under any configuration, so there is no token to supply.</p>
+      <h3>Is this page affiliated with zizmor or its maintainers?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source at github.com/zizmorcore/zizmor and docs.zizmor.sh.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against cache poisoning, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against zizmor -- it is a static page describing category facts sourced from zizmor's own public documentation and source, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-cache-poisoning-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-cache-poisoning-check"></script>
+</body></html>

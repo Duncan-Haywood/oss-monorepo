@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Volunteer Shift Scheduler — free volunteer schedule maker, no sign-up</title>
+  <meta name="description" content="Free volunteer shift scheduler for churches, PTAs, food banks and youth sports. Paste your volunteers with the days they can do and their maximum shifts…">
+  <meta property="og:title" content="Volunteer Shift Scheduler — free, private, no sign-up">
+  <meta property="og:description" content="A fair volunteer roster from availability, max shifts and roles. Unfilled slots flagged, CSV, per-person calendar files and reminder messages.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Volunteer Shift Scheduler", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste volunteers with their availability, maximum shifts and roles they cannot do, list the shifts that need covering, and get a fair roster with unfilled places flagged. Exports a CSV, a calendar file for each volunteer and reminder messages. Runs entirely in your browser; nothing is uploaded.", "featureList": "volunteer schedule maker, volunteer shift scheduler free, fair shift assignment, availability and max shifts, roles volunteers cannot do, unfilled slot report, per-volunteer ics calendar, reminder messages, no sign-up, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a volunteer schedule for free?", "acceptedAnswer": {"@type": "Answer", "text": "Type one volunteer per line with the days they can do, like Ana: Sat AM, Sun; max 3. List your shifts one per line as date, slot, role and how many people you need. Click Build the roster and the page assigns people to shifts, flags any place it could not fill, and lets you download a CSV, calendar files and reminder messages."}}, {"@type": "Question", "name": "How does it decide who gets which shift?", "acceptedAnswer": {"@type": "Answer", "text": "It fills the hardest shifts first, meaning the ones with the fewest available people for each place. For every place it picks the available person who has the fewest shifts so far. If a place is still empty it tries moving one of a candidate's shifts to someone else, and a final pass moves shifts from the busiest people to those with at least two fewer. There is no randomness, so the same input always gives the same roster."}}, {"@type": "Question", "name": "Will it ever double-book a volunteer?", "acceptedAnswer": {"@type": "Answer", "text": "No. Nobody is put on two shifts in the same slot on the same day, or on two slots whose times overlap if you gave them times. A separate checker re-reads the finished roster and confirms nobody is double-booked, over their maximum, or on a shift they said they could not do."}}, {"@type": "Question", "name": "What happens when there are not enough volunteers?", "acceptedAnswer": {"@type": "Answer", "text": "The places it cannot fill are listed with the reason, such as nobody available or everyone available already at their maximum, and they show as UNFILLED in the CSV. The report also lists who is over- or under-loaded so you know whom to ask for one more shift."}}, {"@type": "Question", "name": "How do I send each volunteer their shifts?", "acceptedAnswer": {"@type": "Answer", "text": "Copy the reminder messages and paste them into email or a group chat, or download a calendar file for one volunteer and send it to them. The calendar file opens in Google Calendar, Apple Calendar and Outlook."}}, {"@type": "Question", "name": "Can I share the roster setup with a co-organiser?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Copy share link puts your volunteers and shifts into the part of the web address after the hash, which browsers do not send to any server. Anyone you give that link to can open it and see the same names, so send it only to people who should see them."}}, {"@type": "Question", "name": "Is my volunteer list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f4ef; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1c3558; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1c3558; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f5a; }
+    .card { background: #fff; border: 1px solid #d8dae0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1c355812; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5c6475; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4f8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e7ee; color: #1c3558; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e3e7ee; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f5a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.gap td { background: #fdf3da; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef1f6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1c3558; }
+    footer { margin-top: 28px; border-top: 1px solid #d8dae0; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    details summary { cursor: pointer; font-weight: 700; color: #1c3558; }
+    pre { background: #eef1f6; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Volunteer Shift Scheduler — free, private, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Volunteer Shift Scheduler — free, private, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Volunteer Shift Scheduler — free, private, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">VOLUNTEER SHIFT SCHEDULER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Make a fair volunteer schedule in a few minutes</h1>
+    <p>Paste your <strong>volunteers</strong> with the days they can do and the most shifts they will take, list the <strong>shifts</strong> you need covered, and get a <strong>roster nobody is double-booked on</strong>, with any <strong>unfilled places</strong> flagged. Download a CSV, a calendar file for each person, or reminder messages to paste. No accounts, and your volunteers' names stay on your device.</p>
+    <p class="note">For church, school PTA, food bank, youth sports and event volunteer coordinators. New to this? Read <a href="./how-to-schedule-volunteers-fairly.html">how to schedule volunteers fairly, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Volunteers</h2>
+    <label for="volunteers">One volunteer per line: <code>Name: availability; max N; not: Role, Role</code></label>
+    <textarea id="volunteers" rows="9" placeholder="Ana Ruiz: Sat; max 3&#10;Ben Okafor: Sat AM; max 2; not: Driver&#10;Carla Meyer: Sat PM, 2026-10-10; max 2&#10;Frank Lee: any; max 2"></textarea>
+    <p class="note">Availability is a comma-separated list of weekdays (<code>Sat</code>, <code>weekends</code>), slots (<code>AM</code>), both together (<code>Sat AM</code>), dates (<code>2026-10-10</code>) or <code>any</code>. Leave it out to mean any time. <code>max</code> is the most shifts that person will take. <code>not:</code> lists roles they cannot do.</p>
+
+    <h2 style="margin-top:18px">2. Shifts</h2>
+    <label for="shifts">One shift per line: <code>date, slot, role, how many people</code></label>
+    <textarea id="shifts" rows="6" placeholder="Saturdays 2026-10-10 to 2026-10-24, AM, Greeter, 2&#10;2026-10-17, PM, Setup, 1"></textarea>
+    <p class="note">Role and number are optional (one person, role "Volunteer"). A date like <code>Saturdays 2026-10-10 to 2026-10-31</code> repeats the shift every Saturday in that range.</p>
+    <div class="row3">
+      <div><label for="slots">Slot times (optional, for the calendar and for overlap checks)</label><input id="slots" placeholder="AM=9am-12pm, PM=1pm-4pm"></div>
+      <div><label for="defaultMax">Default max shifts per person (blank = no limit)</label><input id="defaultMax" inputmode="numeric" placeholder="3"></div>
+      <div><label for="org">Name of your group (used in messages and calendars)</label><input id="org" placeholder="Riverside Food Pantry"></div>
+    </div>
+
+    <button type="button" id="build">Build the roster</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="copy-link">Copy share link</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your volunteers and shifts, then click Build the roster.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your roster</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="check-line"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="roster"><thead><tr><th>Date</th><th>Slot</th><th>Role</th><th>Volunteers</th><th class="n">Filled</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h2 style="margin-top:22px">Fairness</h2>
+    <p class="note" id="fairness"></p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="loads"><thead><tr><th>Volunteer</th><th class="n">Shifts</th><th class="n">Their max</th><th>Flag</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h2 style="margin-top:22px">One volunteer</h2>
+    <label for="who">Show one volunteer</label>
+    <select id="who"></select>
+    <div class="scroll"><div class="pf-table-scroll"><table id="byvol"><thead><tr><th>Date</th><th>Slot</th><th>Role</th><th>With</th></tr></thead><tbody></tbody></table></div></div>
+
+    <h2 style="margin-top:22px">Reminder messages</h2>
+    <label for="note">Optional line added to every message (where to park, what to wear)</label>
+    <input id="note" placeholder="Please arrive 10 minutes early and use the side door.">
+    <pre id="reminders"></pre>
+
+    <button type="button" id="dl-csv">Download roster CSV</button>
+    <button type="button" id="dl-vol-csv">Download by-volunteer CSV</button>
+    <button type="button" id="dl-ics">Download calendar (.ics), whole roster</button>
+    <button type="button" id="dl-who-ics">Download calendar (.ics), selected volunteer</button>
+    <button type="button" class="secondary" id="copy-reminders">Copy reminder messages</button>
+    <button type="button" class="secondary" id="copy-text">Copy roster as text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Order:</strong> the shifts with the fewest available people for each place are filled first, so a hard-to-cover shift is not left until everyone is used up.</p>
+    <p><strong>Picking:</strong> for each place it chooses the available person with the fewest shifts so far, then the one with fewer other options, then the one listed first. Nothing is random, so the same input always gives the same roster.</p>
+    <p><strong>Repair:</strong> if a place is still empty, it tries moving one shift from a candidate to someone else who can do it, which frees the candidate for the empty place.</p>
+    <p><strong>Balance:</strong> a last pass moves a shift from the busiest person to someone with at least two fewer shifts, as long as that person can do it. It never changes how many places are filled.</p>
+    <p><strong>Checked:</strong> a separate validator re-reads the finished roster and confirms nobody is double-booked, over their maximum, or on a shift they said they could not do.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make a volunteer schedule for free?</h3>
+    <p>Type one volunteer per line with the days they can do, like Ana: Sat AM, Sun; max 3. List your shifts one per line as date, slot, role and how many people you need. Click Build the roster and the page assigns people to shifts, flags any place it could not fill, and lets you download a CSV, calendar files and reminder messages.</p>
+    <h3>How does it decide who gets which shift?</h3>
+    <p>It fills the hardest shifts first, meaning the ones with the fewest available people for each place. For every place it picks the available person who has the fewest shifts so far. If a place is still empty it tries moving one of a candidate's shifts to someone else, and a final pass moves shifts from the busiest people to those with at least two fewer. There is no randomness, so the same input always gives the same roster.</p>
+    <h3>Will it ever double-book a volunteer?</h3>
+    <p>No. Nobody is put on two shifts in the same slot on the same day, or on two slots whose times overlap if you gave them times. A separate checker re-reads the finished roster and confirms nobody is double-booked, over their maximum, or on a shift they said they could not do.</p>
+    <h3>What happens when there are not enough volunteers?</h3>
+    <p>The places it cannot fill are listed with the reason, such as nobody available or everyone available already at their maximum, and they show as UNFILLED in the CSV. The report also lists who is over- or under-loaded so you know whom to ask for one more shift.</p>
+    <h3>How do I send each volunteer their shifts?</h3>
+    <p>Copy the reminder messages and paste them into email or a group chat, or download a calendar file for one volunteer and send it to them. The calendar file opens in Google Calendar, Apple Calendar and Outlook.</p>
+    <h3>Can I share the roster setup with a co-organiser?</h3>
+    <p>Yes. Copy share link puts your volunteers and shifts into the part of the web address after the hash, which browsers do not send to any server. Anyone you give that link to can open it and see the same names, so send it only to people who should see them.</p>
+    <h3>Is my volunteer list uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your organisation's own rules, background-check or safeguarding requirements, or your judgment about who is suited to which role. Check every name, date and role before you send a roster to anyone.</p>
+    <p><strong>Independent.</strong> Not affiliated with any church, school, charity, sports body or volunteer-management software company, and none is named or ranked here. The example volunteers are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that any result is fit for a particular purpose.</p>
+    <p>Everything runs in your browser. Your volunteers' names and availability are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>text_shared</code>, <code>link_copied</code>) are counted in this browser's local storage only, never with any of your data, and you can switch them off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../league-schedule-generator/">league schedule generator</a> for fixtures and the <a href="../shift-roster-builder/">shift roster builder</a> for paid staff rosters, plus the <a href="../weekly-staff-schedule-maker/">weekly staff schedule maker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { buildRoster, readSpec, validateRoster, rosterCsv, volunteerCsv, rosterIcs, reminderFor, remindersText, rosterText, dayLabel, encodeShare, decodeShare, sampleFields } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const IDS = ["volunteers", "shifts", "slots", "defaultMax", "org"];
+    let last = null;
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const later = (fn) => setTimeout(fn, 0);
+
+    function readFields() {
+      const f = {};
+      for (const id of IDS) f[id] = $("#" + id).value;
+      return f;
+    }
+    function setFields(f) {
+      for (const id of IDS) $("#" + id).value = f[id] ?? "";
+    }
+    const when = (sh) => (sh.start !== null ? `${sh.slot} ${String(Math.floor(sh.start / 60)).padStart(2, "0")}:${String(sh.start % 60).padStart(2, "0")}` : sh.slot);
+
+    function flagFor(r, i) {
+      const st = r.stats;
+      if (st.noOptions.includes(i)) return '<span class="pill high">fits no shift</span>';
+      if (st.over.includes(i)) return '<span class="pill high">over-loaded</span>';
+      if (st.under.includes(i)) return '<span class="pill high">under-loaded</span>';
+      if (st.idle.includes(i)) return '<span class="pill high">no shifts</span>';
+      return '<span class="pill good">fair</span>';
+    }
+
+    function whoRows(r, idx) {
+      return r.volunteers[idx].shifts.map((s) => {
+        const sh = r.spec.shifts[s];
+        const others = r.seats[s].filter((x) => x !== idx).map((x) => r.spec.volunteers[x].name).join(", ");
+        return `<tr><td>${dayLabel(sh.day)}</td><td>${esc(when(sh))}</td><td>${esc(sh.role)}</td><td>${esc(others)}</td></tr>`;
+      }).join("") || '<tr><td colspan="4">No shifts for this volunteer.</td></tr>';
+    }
+
+    function render(r, warnings) {
+      last = { r };
+      const st = r.stats;
+      $("#report").hidden = false;
+      const notices = [...warnings];
+      for (const u of r.unfilled) {
+        const sh = r.spec.shifts[u.shift];
+        notices.push(`Still needed: ${u.missing} for ${dayLabel(sh.day)}, ${when(sh)}, ${sh.role} (${u.reason}).`);
+      }
+      if (st.noOptions.length) notices.push(`${st.noOptions.map((i) => r.volunteers[i].name).join(", ")} can do none of the shifts as listed. Check their days, slots and excluded roles.`);
+      $("#notices").innerHTML = notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
+      $("#big").innerHTML = [
+        [`${st.filled}/${st.needed}`, "places filled"], [st.unfilledSeats, "still needed"], [r.volunteers.length, "volunteers"],
+        [`${st.min}–${st.max}`, "shifts each (min–max)"], [st.mean, "average shifts"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      const v = validateRoster(r);
+      $("#check-line").innerHTML = v.ok
+        ? '<span class="pill good">checked</span> Nobody is double-booked, over their maximum, or on a shift they said they cannot do.'
+        : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
+      $("#roster tbody").innerHTML = r.spec.shifts.map((sh, i) => {
+        const names = r.seats[i].map((x) => esc(r.spec.volunteers[x].name)).join(", ");
+        const missing = sh.need - r.seats[i].length;
+        const gap = missing ? `<strong>${missing} needed</strong>` : "";
+        return `<tr${missing ? ' class="gap"' : ""}><td>${dayLabel(sh.day)}</td><td>${esc(when(sh))}</td><td>${esc(sh.role)}</td><td>${names}${names && gap ? "; " : ""}${gap}</td><td class="n">${r.seats[i].length}/${sh.need}</td></tr>`;
+      }).join("");
+      $("#fairness").textContent = `Shifts per person range from ${st.min} to ${st.max} (spread ${st.spread}, standard deviation ${st.stdev}). ${st.repaired} shift(s) moved to fill a gap and ${st.moved} moved to even things out. Over-loaded means more than the average rounded up; under-loaded means fewer than the average rounded down while still under their own maximum.`;
+      $("#loads tbody").innerHTML = r.volunteers.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.load}</td><td class="n">${x.max ?? "no limit"}</td><td>${flagFor(r, x.index)}</td></tr>`).join("");
+      const sel = $("#who");
+      const keep = sel.value;
+      sel.innerHTML = r.volunteers.map((x) => `<option value="${x.index}">${esc(x.name)}</option>`).join("");
+      if (keep && Number(keep) < r.volunteers.length) sel.value = keep;
+      showWho();
+      showReminders();
+    }
+
+    function showWho() {
+      if (last) $("#byvol tbody").innerHTML = whoRows(last.r, Number($("#who").value) || 0);
+    }
+    function showReminders() {
+      if (last) $("#reminders").textContent = remindersText(last.r, $("#note").value);
+    }
+
+    function run() {
+      const { spec, errors, warnings } = readSpec(readFields());
+      if (errors.length) { status.textContent = errors.slice(0, 3).join(" "); return false; }
+      let r;
+      try { r = buildRoster(spec); } catch (e) { status.textContent = e.message; return false; }
+      render(r, warnings);
+      status.textContent = "Done. Scroll down for the roster.";
+      return true;
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const slug = (t) => t.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "volunteer";
+    async function copy(text, done) {
+      try { await navigator.clipboard.writeText(text); status.textContent = done; return true; }
+      catch { status.textContent = "Your browser blocked copying. Select the text and copy it by hand."; return false; }
+    }
+
+    $("#build").addEventListener("click", () => later(() => { if (run()) record("roster_built"); }));
+    $("#load-example").addEventListener("click", () => {
+      setFields(sampleFields());
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample roster: invented volunteers, not a real group."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      setFields({});
+      $("#report").hidden = true; last = null; status.textContent = "Cleared.";
+    });
+    $("#copy-link").addEventListener("click", async () => {
+      const f = readFields();
+      if (!f.volunteers.trim() && !f.shifts.trim()) { status.textContent = "Enter your volunteers and shifts first."; return; }
+      const url = `${location.href.split("#")[0]}#s=${encodeShare(f)}`;
+      if (await copy(url, "Link copied. It contains the names you typed, so share it only with people who should see them.")) record("link_copied");
+    });
+    $("#who").addEventListener("change", showWho);
+    $("#note").addEventListener("input", showReminders);
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("volunteer-roster.csv", rosterCsv(last.r), "text/csv"); record("csv_downloaded"); });
+    $("#dl-vol-csv").addEventListener("click", () => { if (!last) return; download("volunteer-shifts-by-person.csv", volunteerCsv(last.r), "text/csv"); record("csv_downloaded"); });
+    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("volunteer-roster.ics", rosterIcs(last.r, null), "text/calendar"); record("ics_downloaded"); });
+    $("#dl-who-ics").addEventListener("click", () => {
+      if (!last) return;
+      const idx = Number($("#who").value) || 0;
+      download(`${slug(last.r.spec.volunteers[idx].name)}-shifts.ics`, rosterIcs(last.r, idx), "text/calendar");
+      record("ics_downloaded");
+    });
+    $("#copy-reminders").addEventListener("click", async () => { if (last && await copy(remindersText(last.r, $("#note").value), "Copied. Paste each message into an email or group chat.")) record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => { if (last && await copy(rosterText(last.r), "Copied. Paste it into your group chat.")) record("text_shared"); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+
+    const shared = location.hash.startsWith("#s=") ? decodeShare(location.hash) : null;
+    if (shared) { setFields(shared); later(() => { if (run()) status.textContent = "Opened from a share link. Check the names and dates, then use the buttons below the roster."; }); }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../drone-mapping-job-calculator/" data-pf-to="drone-mapping-job-calculator">Drone Mapping Job Calculator</a></li>
+      <li><a href="../dumpster-rental-margin-calculator/" data-pf-to="dumpster-rental-margin-calculator">Dumpster Rental Margin Calculator</a></li>
+      <li><a href="../ebike-rental-fleet-profit-calculator/" data-pf-to="ebike-rental-fleet-profit-calculator">E-Bike Rental Fleet Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../embroidery-shop-quote-calculator/" data-pf-to="embroidery-shop-quote-calculator">How much should you charge for embroidery?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=volunteer-shift-scheduler">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/?pfEmbed=1&quot; title=&quot;Volunteer Shift Scheduler — free, private, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="volunteer-shift-scheduler"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/" data-pf-embed-title="Volunteer Shift Scheduler — free, private, no sign-up" data-pf-embed-slug="volunteer-shift-scheduler"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="volunteer-shift-scheduler" data-pf-jobs-amount=""></script>
+</body>
+</html>

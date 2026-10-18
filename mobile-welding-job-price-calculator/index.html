@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Welding Job Price Calculator — Free</title>
+  <meta name="description" content="Free mobile welding job price calculator: on-site and drive hours, pay, rig, consumables, truck miles, materials and target margin in; a job price…">
+  <meta property="og:title" content="What should I charge for a mobile welding job? Free calculator">
+  <meta property="og:description" content="Hours, drive, rig, materials and margin in; a job price, travel table and break-even jobs out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c2410c'/%3E%3Crect x='9' y='6' width='14' height='20' rx='2' fill='%23fff'/%3E%3Ccircle cx='20' cy='16' r='1.6' fill='%23c2410c'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mobile Welding Job Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price a mobile welding job: on-site and drive hours, welder pay, rig, consumables, truck miles, materials, fixed costs, card fees and target margin give a job price, a travel-distance table, an overrun check and break-even jobs per month. Runs in your browser; nothing is uploaded.","featureList":"Job price, cost breakdown, travel distance table, overrun impact, offered-price check, break-even jobs per month, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a mobile welding job?","acceptedAnswer":{"@type":"Answer","text":"Add up the hours on site and the drive, the welder's pay, the rig and consumables, the truck cost per mile, materials, and a share of your fixed monthly costs, then divide by what is left after the card fee and the margin you want. The calculator does that and shows each line so you can see what the customer is paying for."}},{"@type":"Question","name":"Should I charge for travel time?","acceptedAnswer":{"@type":"Answer","text":"The drive costs you hours you cannot bill elsewhere plus truck cost per mile, so the calculator prices both and shows what share of the quote is the drive. The distance table shows how the price climbs from 0 to 80 miles out, which is where a flat call-out fee stops covering the trip."}},{"@type":"Question","name":"What does it cost me when a welding job runs over?","acceptedAnswer":{"@type":"Answer","text":"With the price fixed, extra hours on site are pure cost. The planner shows profit and margin if setup, welding and helper time run over by the percentage you choose. The drive does not stretch, so only on-site time is affected."}},{"@type":"Question","name":"How many jobs a month do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Each job leaves a contribution after variable costs and card fees. Fixed monthly costs divided by that contribution is the number of jobs needed, and the planner also warns if your jobs per month need more hours than you said you have."}},{"@type":"Question","name":"Is this a quote, a code or a legal document?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not decide weld procedure, code compliance, inspection, licensing, insurance or tax treatment, and the defaults are placeholders, not market rates."}}]}</script>
+    
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"What should I charge for a mobile welding job? Free calculator","item":"https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What should I charge for a mobile welding job? Free calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What should I charge for a mobile welding job? Free calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">MOBILE WELDING JOB PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a mobile welding job?</h1>
+    <p>Enter the hours, the drive, your rig and materials. It shows the price that earns your margin, what the job leaves if it runs long, how the price climbs with distance, and how many jobs a month cover your fixed costs.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The job</h2>
+      <div class="grid">
+        <div><label for="weldHours">Welding (arc-on) hours on site</label><input id="weldHours" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="setupHours">Setup, prep and cleanup hours on site</label><input id="setupHours" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="helperHours">Helper hours on site</label><input id="helperHours" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="materials">Materials you buy for the job ($)</label><input id="materials" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="materialsMarkupPct">Markup you charge on materials (%)</label><input id="materialsMarkupPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="quotedPrice">A price you were offered or plan to quote ($, optional)</label><input id="quotedPrice" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Getting there</h2>
+      <div class="grid">
+        <div><label for="milesOneWay">Miles one way from your shop or last job</label><input id="milesOneWay" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="mph">Average driving speed (mph)</label><input id="mph" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="costPerMile">Truck and trailer cost per mile ($)</label><input id="costPerMile" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your costs</h2>
+      <div class="grid">
+        <div><label for="welderRate">Your pay per hour, loaded ($)</label><input id="welderRate" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="helperRate">Helper pay per hour, loaded ($)</label><input id="helperRate" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="rigPerHour">Rig, machine and tool wear per on-site hour ($)</label><input id="rigPerHour" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="consumablesPerWeldHour">Wire, rod, gas and discs per welding hour ($)</label><input id="consumablesPerWeldHour" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="fixedMonthly">Fixed costs per month: insurance, truck payment, phone, software ($)</label><input id="fixedMonthly" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="billableHoursPerMonth">Hours per month you can really bill, drive included</label><input id="billableHoursPerMonth" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Pricing and the month</h2>
+      <div class="grid">
+        <div><label for="targetMarginPct">Profit margin you want on each job (%)</label><input id="targetMarginPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="cardFeePct">Card or payment fee (%)</label><input id="cardFeePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="minCallout">Minimum call-out charge ($)</label><input id="minCallout" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="overrunPct">Test: job runs over on site by (%)</label><input id="overrunPct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="jobsPerMonth">Jobs you do per month</label><input id="jobsPerMonth" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Price the job</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I price a mobile welding job?</h3>
+      <p>Add up the hours on site and the drive, the welder's pay, the rig and consumables, the truck cost per mile, materials, and a share of your fixed monthly costs, then divide by what is left after the card fee and the margin you want. The calculator does that and shows each line so you can see what the customer is paying for.</p>
+      <h3>Should I charge for travel time?</h3>
+      <p>The drive costs you hours you cannot bill elsewhere plus truck cost per mile, so the calculator prices both and shows what share of the quote is the drive. The distance table shows how the price climbs from 0 to 80 miles out, which is where a flat call-out fee stops covering the trip.</p>
+      <h3>What does it cost me when a welding job runs over?</h3>
+      <p>With the price fixed, extra hours on site are pure cost. The planner shows profit and margin if setup, welding and helper time run over by the percentage you choose. The drive does not stretch, so only on-site time is affected.</p>
+      <h3>How many jobs a month do I need to break even?</h3>
+      <p>Each job leaves a contribution after variable costs and card fees. Fixed monthly costs divided by that contribution is the number of jobs needed, and the planner also warns if your jobs per month need more hours than you said you have.</p>
+      <h3>Is this a quote, a code or a legal document?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not decide weld procedure, code compliance, inspection, licensing, insurance or tax treatment, and the defaults are placeholders, not market rates.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Weld procedure, code and inspection requirements, whether the work needs a permit or engineer, licensing and insurance, what customers in your area will pay, tax treatment, and how long a repair really takes (an estimate you make, not a measurement). The defaults are placeholders, not market rates: check every figure against your own books.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../fence-bid-calculator/">fence bid calculator</a>, the <a href="../shop-rate-calculator/">shop rate calculator</a> and the <a href="../mobile-mechanic-visit-pricing-calculator/">mobile mechanic visit pricing calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any code, licence, insurance or inspection obligation that applies to your work. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you price a job, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const q = price(o);
+      if (!q.valid) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Your margin and card fee leave nothing to price against. Keep them well under 100% together.</div>'; $("out").hidden = false; return; }
+      if (!(q.totalHours > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No hours</span> Enter welding, setup or driving time.</div>'; $("out").hidden = false; return; }
+      let h = "";
+      h += `<div class="finding"><h4>Price this job at</h4><p class="stats"><strong>${money(q.price)}</strong>${q.minBinds ? " (your minimum call-out; the cost-based price is only " + money(q.calc) + ")" : ""}. It covers ${q.totalHours.toFixed(1)} hours away (${q.onSite.toFixed(1)} on site, ${q.travelHours.toFixed(1)} driving), leaves <strong>${money(q.profit)}</strong> profit (${pct(q.margin)} margin) after costs and card fees, and pays about ${money(q.perHour)} for every hour away before your pay and fixed costs. The no-profit floor is ${money(lowestSafePrice(o))}; below that you pay to work.</p></div>`;
+      h += `<div class="finding"><h4>Where the money goes</h4>${table(["Line", "This job"], [["Your time on site and driving", money(q.labor)], ["Helper", money(q.helper)], ["Rig, machine and tools", money(q.rig)], ["Wire, rod, gas and discs", money(q.consumables)], ["Truck miles", money(q.travel)], ["Materials at cost", money(q.materials)], ["Share of fixed costs (" + money2(q.overheadPerHour) + " an hour)", money(q.overhead)], ["Card fee", money(q.fees)], ["Profit", money(q.profit)]])}<p class="note">The drive is about ${pct(q.travelShare)} of the price.</p></div>`;
+      const ov = overrunImpact(o, o.overrunPct);
+      if (ov) h += `<div class="finding"><h4>If it runs ${o.overrunPct}% long</h4><p>Held at ${money(ov.price)}, ${o.overrunPct}% more time on site adds ${money(ov.extraCost)} of cost, leaves ${money(ov.profit)} profit and a ${pct(ov.margin)} margin. ${ov.profit < 0 ? "You would lose money on this job. Quote a fixed price only when the scope is clear, or add a clause to bill extra time." : "That is " + money(ov.lostProfit) + " of your margin gone."}</p></div>`;
+      h += `<div class="finding"><h4>Price by distance</h4>${table(["Miles one way", "Drive hours", "Price", "Drive share of price"], distanceLadder(o).map((x) => [x.miles, x.travelHours.toFixed(1), money(x.price), pct(x.travelShare)]))}<p class="note">Same job, same margin, moved further out. Compare with the flat travel fee you charge today.</p></div>`;
+      const c = checkPrice(o, o.quotedPrice);
+      if (c) h += `<div class="finding"><h4>The price you entered: ${money(c.price)}</h4><p>It leaves ${money(c.profit)} profit (${isFinite(c.margin) ? pct(c.margin) : "n/a"} margin), ${c.gapToTarget >= 0 ? money(c.gapToTarget) + " above" : money(-c.gapToTarget) + " below"} the price that earns your target margin.</p></div>`;
+      const m = monthly(o);
+      if (m) h += `<div class="finding"><h4>The month</h4><p>Each job like this leaves ${money(m.contribution)} before fixed costs. At ${m.jobs} jobs a month that is ${money(m.revenue)} of work and <strong>${money(m.profit)}</strong> after ${money(m.fixed)} of fixed costs. ` + (m.breakEvenJobs === null ? "At this price a job never covers fixed costs." : `You break even at about <strong>${m.breakEvenJobs.toFixed(1)} jobs</strong>.`) + (m.overCapacity ? ` These jobs need ${m.hours.toFixed(0)} hours a month, more than the ${o.billableHoursPerMonth} you said you can bill.` : "") + `</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("quote_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../medical-billing-pricing-calculator/" data-pf-to="medical-billing-pricing-calculator">Medical billing pricing calculator: percent vs per-claim vs flat</a></li>
+      <li><a href="../mini-golf-course-profit-calculator/" data-pf-to="mini-golf-course-profit-calculator">Mini-golf course profit calculator: does the course pay for itself? Free, private</a></li>
+      <li><a href="../mobile-detailing-day-planner/" data-pf-to="mobile-detailing-day-planner">Which detailing jobs should you take today? Free day planner</a></li>
+      <li><a href="../mobile-mechanic-visit-pricing-calculator/" data-pf-to="mobile-mechanic-visit-pricing-calculator">Mobile mechanic pricing calculator: what to charge per job and per stop. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mobile-welding-job-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/?pfEmbed=1&quot; title=&quot;What should I charge for a mobile welding job? Free calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="mobile-welding-job-price-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/" data-pf-embed-title="What should I charge for a mobile welding job? Free calculator" data-pf-embed-slug="mobile-welding-job-price-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="mobile-welding-job-price-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="mobile-welding-job-price-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why repo:my-org/my-repo:* lets a stranger's pull request into your AWS account</title>
+<meta name="description" content="What GitHub's OIDC sub claim actually contains, why pinning aud restricts nothing, why repo:owner/name:* includes the pull_request context and therefore forks…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to tell whether a GitHub Actions OIDC trust policy really pins your AWS role to one repository",
+  "step": [
+    { "@type": "HowToStep", "name": "Read the trust policy, not the permissions policy", "text": "In the IAM console this is the role's Trust relationships tab, or `aws iam get-role --role-name NAME --query Role.AssumeRolePolicyDocument` on the command line. The permissions policy says what the role can do; the trust policy says who may become it, and that is the document with the OIDC conditions in it." },
+    { "@type": "HowToStep", "name": "Find the condition on the sub claim -- and do not accept aud in its place", "text": "Look for a condition key of token.actions.githubusercontent.com:sub. The aud claim is sts.amazonaws.com for every AWS and GitHub OIDC integration in existence, so it identifies the service and never the repository. If there is no sub condition, any GitHub Actions workflow in any repository on GitHub can assume the role." },
+    { "@type": "HowToStep", "name": "Read the context segment of the sub value", "text": "GitHub's sub claim is repo:<owner>/<repo>:<context>. A value ending in :* pins the repository but leaves the context open, which matches ref:refs/heads/<any branch>, every tag, every environment, and pull_request -- the context GitHub issues to workflows triggered by a pull request, including one opened from a fork by someone with no write access." },
+    { "@type": "HowToStep", "name": "Check which operator carries the condition", "text": "IAM treats * and ? as wildcards only under StringLike. Under StringEquals they are ordinary characters, so StringEquals with repo:org/name:* matches a sub claim whose final character is literally an asterisk -- which no GitHub token carries. That policy fails closed and the role cannot be assumed at all, which is a broken deployment rather than an exposure." },
+    { "@type": "HowToStep", "name": "If the condition lists several values, find the widest one", "text": "IAM grants when any listed value matches, so a multi-value sub condition is exactly as permissive as its least restrictive entry. Four pinned branches plus one repo:org/name:* is as open as the wildcard alone." },
+    { "@type": "HowToStep", "name": "Automate it", "text": "A free tool that applies all of the above to a pasted policy, in the browser with no upload, and as a zero-dependency CLI for CI, is at ../oidc-trust-policy-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why repo:my-org/my-repo:* lets a stranger's pull request into your AWS account">
+<meta property="og:description" content="What GitHub's OIDC sub claim actually contains, why pinning aud restricts nothing, why repo:owner/name:* includes the pull_request context and therefore forks…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why repo:my-org/my-repo:* lets a stranger's pull request into your AWS account — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../oidc-trust-policy-check/">GitHub Actions OIDC Trust Policy Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why repo:my-org/my-repo:* lets a stranger's pull request into your AWS account</span></span></nav>
+<h1>Why <code>repo:my-org/my-repo:*</code> lets a stranger's pull request into your AWS account</h1>
+
+<p>
+  Federating GitHub Actions into AWS with OIDC is the right move: it replaces a long-lived
+  <code>AWS_SECRET_ACCESS_KEY</code> in your repository secrets with a short-lived token minted per run.
+  The catch is that the entire security boundary then lives in one place — the role's <strong>trust
+  policy</strong> — and the ways that document goes wrong all look approximately correct while you are
+  reading it.
+</p>
+
+<h2>The sub claim is the only thing that says "which repository"</h2>
+
+<p>
+  When a workflow requests a token, GitHub signs a set of claims about the run. Two of them appear in
+  almost every trust policy, and they do very different jobs:
+</p>
+
+<div class="pf-table-scroll"><table>
+  <tbody>
+    <tr>
+      <th><code>aud</code></th>
+      <td>The audience — <code>sts.amazonaws.com</code>. This is the same value for
+        <em>every</em> AWS/GitHub OIDC integration on the planet. It says the token is meant for AWS STS.
+        It says nothing whatsoever about who issued it.</td>
+    </tr>
+    <tr>
+      <th><code>sub</code></th>
+      <td>The subject — <code>repo:&lt;owner&gt;/&lt;repo&gt;:&lt;context&gt;</code>. This is the only
+        claim that identifies the repository and the circumstances of the run.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  So a trust policy that carefully pins <code>aud</code> and says nothing about <code>sub</code> is
+  <strong>assumable by a GitHub Actions workflow in any repository on GitHub</strong>. Anyone can create a
+  repository, add a workflow, and request a token with that audience. This is the single highest-severity
+  version of the mistake, and it is easy to ship because the policy visibly contains a condition block and
+  visibly names GitHub's issuer.
+</p>
+
+<h2>The context segment decides whether forks are included</h2>
+
+<p>The context is the part after the repository, and it is one of:</p>
+
+<div class="pf-table-scroll"><table>
+  <tbody>
+    <tr><th><code>ref:refs/heads/main</code></th><td>a run on that branch</td></tr>
+    <tr><th><code>ref:refs/tags/v1.2.3</code></th><td>a run for that tag</td></tr>
+    <tr><th><code>environment:production</code></th><td>a job targeting that environment — the only context that can carry required reviewers</td></tr>
+    <tr><th><code>pull_request</code></th><td>a run triggered by a pull request, <strong>including one opened from a fork</strong></td></tr>
+  </tbody>
+</table></div>
+
+<p>
+  Which is why <code>repo:my-org/my-repo:*</code> is not the harmless "just this repo" shorthand it looks
+  like. It matches all four rows. On a public repository — or any repository that accepts pull requests
+  from forks — that includes a workflow run proposed by someone with no write access and no review. If the
+  role can write to production, so can they.
+</p>
+
+<pre><code>// Looks locked down. Is not.
+"Condition": {
+  "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
+  "StringLike":   { "token.actions.githubusercontent.com:sub": "repo:my-org/my-repo:*" }
+}</code></pre>
+
+<p>The fix is to name the context you actually deploy from:</p>
+
+<pre><code>"Condition": {
+  "StringEquals": {
+    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+    "token.actions.githubusercontent.com:sub": "repo:my-org/my-repo:ref:refs/heads/main"
+  }
+}</code></pre>
+
+<p>
+  Note that this uses <code>StringEquals</code>, not <code>StringLike</code>. When you are pinning an exact
+  value, an equality operator is both clearer and immune to a wildcard sneaking in later.
+</p>
+
+<h2>The trap that runs the other way: a literal asterisk</h2>
+
+<p>
+  IAM only treats <code>*</code> and <code>?</code> as wildcards under the <code>StringLike</code> family of
+  operators. Under <code>StringEquals</code> they are ordinary characters. So this:
+</p>
+
+<pre><code>"StringEquals": { "token.actions.githubusercontent.com:sub": "repo:my-org/my-repo:*" }</code></pre>
+
+<p>
+  is asking for a subject claim whose last character is literally an asterisk. No GitHub token ever carries
+  one, so the condition never matches and <strong>the role cannot be assumed at all</strong>. This fails
+  <em>closed</em>. It is a broken deployment pipeline, not an exposure — and it is worth calling out
+  separately, because a checker that reports it as "wildcard in sub: critical" sends you to tighten a policy
+  that is already refusing everybody, while the actual symptom is a deploy job failing with an unhelpful
+  STS error.
+</p>
+
+<h2>In a list of values, the widest one wins</h2>
+
+<p>
+  IAM grants access when <em>any</em> value in a condition list matches. So a policy like this is exactly as
+  permissive as its last line, no matter how carefully the first three are written:
+</p>
+
+<pre><code>"StringLike": {
+  "token.actions.githubusercontent.com:sub": [
+    "repo:my-org/my-repo:ref:refs/heads/main",
+    "repo:my-org/my-repo:ref:refs/heads/staging",
+    "repo:my-org/my-repo:environment:production",
+    "repo:my-org/my-repo:*"
+  ]
+}</code></pre>
+
+<p>
+  Read top-down, that list is reassuring for three lines. This is a common shape in practice because entries
+  get appended over time — someone adds a temporary wildcard to unblock a release and it stays.
+</p>
+
+<h2>One more: a negated operator does not pin anything</h2>
+
+<p>
+  <code>StringNotEquals</code> and <code>StringNotLike</code> exclude what they list and permit everything
+  else. A condition that excludes one repository still admits every other repository on GitHub, so a
+  negated operator on <code>sub</code> is not a narrower pin — it is an open door with one name struck off.
+</p>
+
+<h2>What this does not cover</h2>
+
+<p>
+  The trust policy is the door, not the room. Even a perfectly pinned policy leaves questions it cannot
+  answer: what the role is permitted to do once assumed, who can push to the branch you pinned, and whether
+  the environment you named actually has required reviewers configured. A role pinned to
+  <code>ref:refs/heads/main</code> in a repository where any contributor can push to <code>main</code> is
+  reachable by any contributor. And an organisation can customise which claims its OIDC issuer includes, in
+  which case a policy written against the customised claim will legitimately not match the default shape
+  described here.
+</p>
+
+<p>
+  This is evidence about a specific set of conditions, not a full security assessment — see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover. The checker
+  applies every rule on this page to a policy you paste, in your browser, with nothing uploaded, and ships
+  the same classifier as a zero-dependency CLI you can run as a CI gate.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> —
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=oidc-trust-policy-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="oidc-trust-policy-check"></script>
+</body>
+</html>

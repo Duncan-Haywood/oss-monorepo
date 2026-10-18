@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Required Checks Drift Check — Is a Branch Protection Check Stuck Forever?</title>
+  <meta name="description" content="Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again…">
+  <meta property="og:title" content="Is a required status check stuck forever on your repo?">
+  <meta property="og:description" content="A renamed job, a removed job, or a workflow that dropped its pull_request trigger all leave branch protection requiring a status that will never post again.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Required Checks Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares a repository's branch-protection required status check names against the job names its GitHub Actions workflows would currently report, flagging every required check that no job can ever satisfy again. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a pull request get stuck at “Expected — Waiting for status to be reported”?","acceptedAnswer":{"@type":"Answer","text":"Branch protection matches required status checks by exact name. If the job that used to report that name was renamed, removed, or its workflow no longer triggers on pull_request, GitHub has nothing left to satisfy that name — every future pull request sits pending forever, with nothing in the pull request itself explaining why."}},{"@type":"Question","name":"Does this tool read my branch protection settings for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste the required check names (from Settings → Branches, or the JSON from the GitHub API) and your workflow YAML, and the comparison happens entirely in this page."}},{"@type":"Question","name":"How does it compute a job's check name?","acceptedAnswer":{"@type":"Answer","text":"A job's name: field if it has one, otherwise its job id, exactly as GitHub Actions reports it. A matrix job gets \" (value1, value2, ...)\" appended for each combination, in the matrix's declared order."}},{"@type":"Question","name":"What can't it verify?","acceptedAnswer":{"@type":"Answer","text":"A dynamic matrix built from an expression like fromJson(...), or one using include/exclude, cannot be enumerated statically — those jobs are reported as unverifiable rather than guessed at. A job that calls a reusable workflow (uses: a .yml file) uses a different naming convention this tool does not compute, for the same reason."}},{"@type":"Question","name":"Does a clean result mean my branch protection is fully correct?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific, well-documented thing: whether each required check name matches a job that would report on a pull request today. It is not a full audit of your branch protection rules or CI configuration."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea#required { min-height: 90px; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.current { background: #dcefe4; color: #14532d; }
+    .pill.stale { background: #fde8e8; color: #9a3412; }
+    .pill.current-but-no-pr-trigger { background: #fde8e8; color: #9a3412; }
+    .pill.unverifiable-dynamic-matrix { background: #fff4d6; color: #7a5b00; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is a required status check stuck forever on your repo?","item":"https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is a required status check stuck forever on your repo? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is a required status check stuck forever on your repo?</span></span></nav>
+  <header>
+    <p class="note">REQUIRED CHECKS DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is a required status check stuck forever?</h1>
+    <p>Branch protection matches a required status check by <strong>exact name</strong>. Rename a job, delete it, or drop its workflow's <code>pull_request</code> trigger, and nothing warns you — GitHub just never reports that name again, and every future pull request sits at <em>“Expected — Waiting for status to be reported”</em> until someone notices. Paste your required check names and workflow YAML below to find every one that is already stuck.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — not even to read your branch protection settings for you.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your required status check names</h2>
+    <p class="note">From <strong>Settings → Branches → Branch protection rules → Require status checks to pass</strong>, one per line — or paste the JSON from <code>gh api repos/:owner/:repo/branches/:branch/protection</code> directly, contexts array and all. Leave this blank to just see the check names your workflows would currently report.</p>
+    <textarea id="required" spellcheck="false" placeholder="build
+lint
+Build and Test (18)"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> that could produce one of the checks above.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another workflow file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Required check name</th><th>Status</th><th>What this means</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                                        # list computed check names for .github/workflows
+python3 check.py --required-checks names.txt            # compare against a plain-text list
+python3 check.py --required-checks protection.json      # or the branch-protection API's own JSON
+python3 check.py --required-checks names.txt --format json
+python3 check.py --required-checks names.txt --fail-on-stale   # exit 2 if any required check is stale</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Fetch your own required-checks JSON with <code>gh api repos/:owner/:repo/branches/:branch/protection &gt; protection.json</code> and feed it straight in.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a pull request get stuck at “Expected — Waiting for status to be reported”?</h3>
+    <p>Branch protection matches required status checks by exact name. If the job that used to report that name was renamed, removed, or its workflow no longer triggers on <code>pull_request</code>, GitHub has nothing left to satisfy that name — every future pull request sits pending forever, with nothing in the pull request itself explaining why.</p>
+    <h3>Does this tool read my branch protection settings for me?</h3>
+    <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste the required check names (from Settings → Branches, or the JSON from the GitHub API) and your workflow YAML, and the comparison happens entirely in this page.</p>
+    <h3>How does it compute a job's check name?</h3>
+    <p>A job's <code>name:</code> field if it has one, otherwise its job id, exactly as GitHub Actions reports it. A matrix job gets <code>" (value1, value2, ...)"</code> appended for each combination, in the matrix's declared order.</p>
+    <h3>What can't it verify?</h3>
+    <p>A dynamic matrix built from an expression like <code>fromJson(...)</code>, or one using <code>include</code>/<code>exclude</code>, cannot be enumerated statically — those jobs are reported as <strong>unverifiable</strong> rather than guessed at. A job that calls a reusable workflow (<code>uses:</code> a <code>.yml</code> file) uses a different naming convention this tool does not compute, for the same reason.</p>
+    <h3>Does a clean result mean my branch protection is fully correct?</h3>
+    <p>No. This checks one specific, well-documented thing: whether each required check name matches a job that would report on a pull request today. It is not a full audit of your branch protection rules or CI configuration.</p>
+    <p>More: <a href="how-required-status-checks-go-stale.html">how a required status check goes stale, and how to fix it</a>, and <a href="vs-reading-every-workflow-file-by-hand.html">this checker vs. reading every workflow file by hand</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your CI configuration, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming in GitHub's own UI before changing branch protection settings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A stale required check is one specific way branch protection can silently stop working. <a href="../branch-protection-drift-check/">Branch Protection Drift Check</a> flags the surrounding policy fields drifting weaker — review counts, admin enforcement, force-push and deletion rules — <a href="../pinned-actions-check/">Pinned Actions Check</a> flags a third-party <code>uses:</code> reference that isn't pinned to a commit SHA, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags a workflow or job with no explicit <code>permissions:</code> grant, and <a href="../codeowners-shadow-check/">CODEOWNERS Shadow Check</a> flags a review-requirement rule a later pattern silently overrides — four more slices of a CI/branch-protection setup that looks correct until you check.</p>
+    <p class="support">Free and open source. If this saved you from a permanently stuck pull request, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, parseRequiredChecks, compare, hasStale, summaryLine, CURRENT } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      required: $("#required"), files: $("#files"), status: $("#status"),
+      reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE_REQUIRED = "build\nlint\nrelease\n";
+    const EXAMPLE_FILES = [
+      {
+        name: ".github/workflows/ci.yml",
+        text: `name: ci
+on: pull_request
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run lint
+`,
+      },
+      {
+        name: ".github/workflows/deploy.yml",
+        text: `name: deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm publish
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(results) {
+      els.rows.innerHTML = results.map((r) => `
+        <tr>
+          <td><code>${escapeHtml(r.name)}</code></td>
+          <td><span class="pill ${r.status}">${r.status.replace(/-/g, " ")}</span></td>
+          <td>${r.note ? escapeHtml(r.note) : "Matches a job that would report on a pull request today."}</td>
+        </tr>`).join("");
+    }
+
+    function runCheck(files, requiredText) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      let reports;
+      try {
+        reports = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const requiredNames = parseRequiredChecks(requiredText || "");
+      if (!requiredNames.length) {
+        const rows = reports.flatMap((r) => {
+          if (r.reusable) return [{ name: `${r.jobId} (${r.file})`, status: "unverifiable-dynamic-matrix", note: "calls a reusable workflow — naming convention not computed." }];
+          if (r.dynamic) return [{ name: `${r.baseName} (${r.file})`, status: "unverifiable-dynamic-matrix", note: "dynamic or include/exclude matrix — names not enumerable." }];
+          return (r.checkNames || []).map((name) => ({
+            name,
+            status: CURRENT,
+            note: r.runsOnPr === false ? "this workflow does not trigger on pull_request." : "computed from the pasted workflow(s).",
+          }));
+        });
+        els.verdict.className = "verdict";
+        els.verdict.textContent = `${rows.length} check name(s) computed. Paste your required checks above to compare.`;
+        renderRows(rows);
+        els.reportCard.hidden = false;
+        els.status.textContent = "";
+        record("check_run");
+        els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      const results = compare(requiredNames, reports);
+      const risk = hasStale(results) || results.some((r) => r.status !== CURRENT);
+      els.verdict.className = `verdict ${hasStale(results) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(results);
+      renderRows(results);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles(), els.required.value));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE_FILES) addFile(f.name, f.text);
+      els.required.value = EXAMPLE_REQUIRED;
+      runCheck(EXAMPLE_FILES, EXAMPLE_REQUIRED);
+      record("example_loaded");
+      els.status.textContent = 'Worked example: "build" was renamed to "Build and Test" without updating branch protection (stale), "lint" still matches (current), and "release" only runs on push, so it can never satisfy a required check on a pull request either.';
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.required.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-transitive-pin-check/" data-pf-to="actions-transitive-pin-check">Does your pinned workflow load something unpinned underneath it?</a></li>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=required-checks-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/?pfEmbed=1&quot; title=&quot;Is a required status check stuck forever on your repo? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="required-checks-drift-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/" data-pf-embed-title="Is a required status check stuck forever on your repo?" data-pf-embed-slug="required-checks-drift-check"></script>
+</body>
+</html>

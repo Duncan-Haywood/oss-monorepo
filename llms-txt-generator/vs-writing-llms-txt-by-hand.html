@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This generator vs. writing llms.txt by hand | llms.txt Generator</title>
+<meta name="description" content="Hand-writing an llms.txt is copying URLs into a text file and hoping you got the Markdown link bullets, the ## section headings…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/vs-writing-llms-txt-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This generator vs. writing llms.txt by hand">
+<meta property="og:description" content="Hand-writing llms.txt means copying URLs into a text file and getting the Markdown shape right yourself…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What actually goes wrong when you write llms.txt by hand?","acceptedAnswer":{"@type":"Answer","text":"Three things, all mechanical rather than judgment calls. The link bullets have to be exact Markdown — \"- [Title](url): optional note\" — and a missing bracket or a bare URL without the link syntax is easy to type past yourself. The pages need grouping under \"## Section\" headings, not a flat list, which the spec expects but nothing stops you from skipping. And the file has to be kept in sync as pages are added or removed, which nobody remembers to do by hand once it is not new anymore."}},{"@type":"Question","name":"Isn't llms.txt just a short text file — why would I need a generator for it?","acceptedAnswer":{"@type":"Answer","text":"The content decisions — which pages matter, what to say about each one — are genuinely yours, and this tool does not make them for you. What it removes is the formatting risk: it always emits the required H1 title, optional blockquote summary, and Markdown link bullets grouped under \"## Section\" headings, and it validates the result against the same rules before you publish, so a typo'd bracket or an ungrouped link list is caught rather than shipped."}},{"@type":"Question","name":"How do I keep llms.txt updated as my docs change, without redoing this by hand every time?","acceptedAnswer":{"@type":"Answer","text":"Wire cli.mjs's --dir (a local Markdown docs tree) or --sitemap (a local or live sitemap.xml) mode into your build or deploy script. It regenerates the file from your current pages on every run, so the file tracks what you actually publish instead of a snapshot from whenever you last remembered to edit it by hand."}},{"@type":"Question","name":"I already have an llms.txt I wrote by hand — do I need to redo it?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. Paste it into this tool's validate tab first — it checks the same structural rules a generated file already satisfies, for free, with nothing uploaded. If it comes back clean, keep it; if it flags a missing section heading or a malformed link, you now know exactly what to fix instead of guessing."}}]}</script>
+<style>
+:root{font:16px/1.6 system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#17604a;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#17604a;margin:0 0 6px}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em;color:#17324a}
+.lede{font-size:1.05rem;max-width:66ch;color:#4d5a6a}
+p{line-height:1.6}
+section.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324a10;margin:1rem 0}
+h2{margin-top:0;color:#17324a}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e3e9ef;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4d5a6a}
+.fine,.note{font-size:.88rem;color:#4d5a6a}
+footer{color:#4d5a6a;font-size:.86rem;margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/vs-writing-llms-txt-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This generator vs. writing llms.txt by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../llms-txt-generator/">Build a valid llms.txt for your site, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This generator vs. writing llms.txt by hand</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; llms.txt Generator</a></p>
+<header>
+<h1>This generator vs. writing llms.txt by hand</h1>
+<p class="lede">Hand-writing an llms.txt means copying URLs into a text file and getting the Markdown shape right yourself &mdash; the exact link-bullet syntax, the <code>## Section</code> grouping the spec expects &mdash; then remembering to update it every time a page is added or removed. This free tool builds and validates the same spec-compliant file from a pasted sitemap.xml, a short page list, or a local docs tree, and the CLI keeps it current automatically.</p>
+</header>
+<section class="card">
+<h2>What actually goes wrong by hand</h2>
+<p>
+  <code>llms.txt</code> looks like a plain text file, so it is tempting to
+  just type one. Three specific things go wrong when you do, and none of
+  them are judgment calls &mdash; they are mechanical slips that are easy to
+  make once and never notice:
+</p>
+<ul>
+  <li><strong>The link syntax.</strong> Each entry under a section has to be
+  a real Markdown link bullet &mdash; <code>- [Title](url): optional
+  note</code> &mdash; not a bare URL pasted on its own line. Drop a bracket
+  or forget the leading <code>- [</code> and the file still looks fine to
+  read; it is just no longer the shape the spec describes.</li>
+  <li><strong>The section grouping.</strong> The convention expects links
+  grouped under <code>## Section</code> headings, not one flat list. Nothing
+  stops you from skipping the headings entirely, and a flat list is exactly
+  what you get if you started by pasting a raw <code>sitemap.xml</code> in
+  by hand, one <code>&lt;loc&gt;</code> per line.</li>
+  <li><strong>Staying in sync.</strong> The file is a snapshot of whatever
+  your docs looked like the day you wrote it. Add a page, rename one, or
+  retire a section, and the hand-written file does not know &mdash; nothing
+  forces you to reopen it, so it quietly drifts from what you actually
+  publish.</li>
+</ul>
+<p>
+  <strong>This generator</strong> removes exactly those three failure
+  points. It always emits the correct H1 title, optional blockquote
+  summary, and Markdown link bullets grouped under <code>## Section</code>
+  headings, from a pasted page list, a pasted <code>sitemap.xml</code>, or
+  &mdash; via the CLI &mdash; a local Markdown docs tree, and every build is
+  checked against the same validator shown in the tool's third tab before
+  you publish. For staying in sync, wire <code>cli.mjs</code>'s
+  <code>--dir</code> or <code>--sitemap</code> mode into your own build or
+  deploy script and it regenerates from your current pages on every run,
+  instead of from whatever you remembered to type in by hand.
+</p>
+<p>
+  What it does not do is pick which pages belong in the file &mdash; that
+  judgment call is still yours, generator or not. See
+  <a href="./what-is-llms-txt.html">what llms.txt is, and whether you need
+  one</a> for the background, or
+  <a href="./vs-a-hosted-docs-platform.html">this generator vs. a hosted
+  docs platform's built-in llms.txt feature</a> for the other comparison
+  this venture publishes.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Writing it by hand</th><th scope="col">This generator</th></tr></thead>
+<tbody>
+<tr><td>Type each <code>- [Title](url): note</code> bullet yourself and hope you didn't drop a bracket.</td><td>Paste a page list or sitemap; the Markdown link syntax is always correct.</td></tr>
+<tr><td>Remember to group links under <code>## Section</code> headings, or skip it and get a flat list.</td><td>Sections come from the page-list tab's own <code>## Section</code> lines, or one grouped "Pages" section from a sitemap.</td></tr>
+<tr><td>No way to check the result except reading it over yourself.</td><td>Every build runs back through the same validator you can also paste any llms.txt into directly.</td></tr>
+<tr><td>Reopen and re-edit the file by hand whenever a page is added or removed.</td><td>Wire <code>cli.mjs --dir</code> or <code>--sitemap</code> into your deploy script and it regenerates automatically.</td></tr>
+<tr><td>Deciding which pages belong in the file.</td><td>Still your call &mdash; this tool formats and validates, it does not curate.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, building and validating run in your browser, and nothing you paste is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>What actually goes wrong when you write llms.txt by hand?</h3>
+<p>Three things, all mechanical rather than judgment calls. The link bullets have to be exact Markdown &mdash; "<code>- [Title](url): optional note</code>" &mdash; and a missing bracket or a bare URL without the link syntax is easy to type past yourself. The pages need grouping under "<code>## Section</code>" headings, not a flat list, which the spec expects but nothing stops you from skipping. And the file has to be kept in sync as pages are added or removed, which nobody remembers to do by hand once it is not new anymore.</p>
+<h3>Isn't llms.txt just a short text file &mdash; why would I need a generator for it?</h3>
+<p>The content decisions &mdash; which pages matter, what to say about each one &mdash; are genuinely yours, and this tool does not make them for you. What it removes is the formatting risk: it always emits the required H1 title, optional blockquote summary, and Markdown link bullets grouped under "## Section" headings, and it validates the result against the same rules before you publish, so a typo'd bracket or an ungrouped link list is caught rather than shipped.</p>
+<h3>How do I keep llms.txt updated as my docs change, without redoing this by hand every time?</h3>
+<p>Wire <code>cli.mjs</code>'s <code>--dir</code> (a local Markdown docs tree) or <code>--sitemap</code> (a local or live sitemap.xml) mode into your build or deploy script. It regenerates the file from your current pages on every run, so the file tracks what you actually publish instead of a snapshot from whenever you last remembered to edit it by hand.</p>
+<h3>I already have an llms.txt I wrote by hand &mdash; do I need to redo it?</h3>
+<p>Not necessarily. Paste it into this tool's <a href="./#mode-check">validate tab</a> first &mdash; it checks the same structural rules a generated file already satisfies, for free, with nothing uploaded. If it comes back clean, keep it; if it flags a missing section heading or a malformed link, you now know exactly what to fix instead of guessing.</p>
+<p class="note">
+  Open the <a href="./">llms.txt Generator</a>, or read <a href="./what-is-llms-txt.html">what llms.txt is, and whether you need one</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not technical, legal, or SEO advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> The hosted browser page is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p><strong>Nothing you paste leaves your browser.</strong> This page describes writing a file by hand, a generic practice, not any specific company or product &mdash; it names and evaluates no other tool or vendor.</p>
+<p class="support">Free and open source. If it saved you some formatting, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pg-stat-statements-analyzer/" data-pf-to="pg-stat-statements-analyzer">pg_stat_statements Analyzer — free, private, paste-the-output</a></li>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+      <li><a href="../pip-audit-triage/" data-pf-to="pip-audit-triage">Which pip-audit findings actually matter?</a></li>
+      <li><a href="../postgres-explain-analyzer/" data-pf-to="postgres-explain-analyzer">Why is my Postgres query slow? Paste the plan.</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llms-txt-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="llms-txt-generator"></script>
+</body></html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</title>
+<meta name="description" content="Clicking through your own AWS/GCS/Azure console shows you the access setting you think you set. It does not show you what an anonymous outsider actually…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does checking the console by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Your cloud provider's console shows you the settings you (or someone on your team) configured: a bucket policy document, an ACL grant list, an account-level \"Block Public Access\" toggle. That is a real, useful read of intent -- what the configuration says should happen." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Several independent settings can each grant or block public listing, and the console shows each one separately -- it does not always make obvious which one actually wins for an anonymous, unauthenticated request. A bucket policy statement can grant s3:ListBucket to a wildcard principal while a different admin reads only the account-level Block Public Access toggle and sees it enabled, not realising a resource-level policy can still take effect depending on how it was applied. An old ACL grant from before a stricter policy was added can persist unnoticed. A storage account's container-level \"Public access level\" in Azure can be set independently of the account's own \"Allow Blob public access\" setting, and either alone reading \"restricted\" does not confirm the other agrees. The only way to know for certain what an anonymous outsider receives is to actually send the anonymous request they would send -- which is what this tool does, and reading five separate settings correctly by hand does not replace." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A console check is a point-in-time, manual look. A new bucket policy statement, a fresh IaC deploy, or a teammate widening an ACL for a one-off debugging session can reopen a bucket at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to open the console." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console">
+<meta property="og:description" content="Clicking through your own AWS/GCS/Azure console shows you the access setting you think you set. It does not show you what an anonymous outsider actually…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</span></span></nav>
+<h1>Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</h1>
+<p>Names no specific company or product — this compares against clicking through your own
+provider's console, a manual habit every bucket owner already has, not a company or product this
+could be mistaken for.</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th></th><th>Checking the console by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>What it reads</td><td>The settings a person configured — bucket policy, ACLs, the account-level public-access toggle</td><td>The actual response an anonymous, unauthenticated request receives</td></tr>
+    <tr><td>Catches a policy/ACL/account-toggle conflict</td><td>Only if you know which layer wins and check the right one</td><td>Yes — it sends the real request, so it reports what wins, not what any one setting says in isolation</td></tr>
+    <tr><td>Repeatable in CI</td><td>No — a manual click-through</td><td>Yes — a scriptable exit code (0 private/not-found, 1 exposed)</td></tr>
+    <tr><td>Catches drift after a deploy or a policy edit</td><td>Only the next time someone happens to look</td><td>Every run, on demand or on a schedule</td></tr>
+  </tbody>
+</table></div>
+
+<h2>What does checking the console by hand actually show you?</h2>
+<p>Your cloud provider's console shows you the settings you (or someone on your team) configured: a bucket policy document, an ACL grant list, an account-level "Block Public Access" toggle. That is a real, useful read of intent -- what the configuration says should happen.</p>
+
+<h2>Where does the by-hand check fall short?</h2>
+<p>Several independent settings can each grant or block public listing, and the console shows each one separately -- it does not always make obvious which one actually wins for an anonymous, unauthenticated request. A bucket policy statement can grant s3:ListBucket to a wildcard principal while a different admin reads only the account-level Block Public Access toggle and sees it enabled, not realising a resource-level policy can still take effect depending on how it was applied. An old ACL grant from before a stricter policy was added can persist unnoticed. A storage account's container-level "Public access level" in Azure can be set independently of the account's own "Allow Blob public access" setting, and either alone reading "restricted" does not confirm the other agrees. The only way to know for certain what an anonymous outsider receives is to actually send the anonymous request they would send -- which is what this tool does, and reading five separate settings correctly by hand does not replace.</p>
+
+<h2>Why does this matter for CI, not just a one-time check?</h2>
+<p>A console check is a point-in-time, manual look. A new bucket policy statement, a fresh IaC deploy, or a teammate widening an ACL for a one-off debugging session can reopen a bucket at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to open the console.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class — anonymous public listing at the one bucket or container you give it. A clean
+  report describes what one request found, not a guarantee the bucket has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice. You are responsible for reviewing and
+  verifying its output before relying on it, and for having authorisation to test any bucket or
+  container you point the CLI at. To the maximum extent permitted by law, the authors accept no
+  liability for any loss or damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../cloudwatch-logs-cost-advisor/" data-pf-to="cloudwatch-logs-cost-advisor">Why is your CloudWatch Logs bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-bucket-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloud-bucket-exposure-check"></script>
+</body>
+</html>

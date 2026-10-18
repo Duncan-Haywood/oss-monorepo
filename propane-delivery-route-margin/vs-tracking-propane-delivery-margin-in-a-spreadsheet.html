@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Propane Route Margin Calculator vs. a Spreadsheet | Worked Comparison</title>
+  <meta name="description" content="Compare a free propane delivery route margin calculator against tracking customer profitability by hand in a spreadsheet — what each gets right…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html">
+  <meta property="og:title" content="Propane Route Margin Calculator vs. a Spreadsheet">
+  <meta property="og:description" content="What a propane route margin calculator gets right versus a homemade spreadsheet, and when a spreadsheet is still the better tool.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just track propane customer margins in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Plenty of small dealers do, and a spreadsheet is a fine tool for tracking a customer list over a season. The failure mode is not the spreadsheet itself — it is the minimum-delivery-fee threshold, which is a conditional (does this fill size trigger the fee, yes or no) that a copied-down formula has to re-implement correctly for every row, and easy to get wrong once for a new customer with an unusual fill size. A calculator that re-evaluates the condition on every input avoids that particular drift; a spreadsheet formula copied down a column does not check itself."}},{"@type":"Question","name":"Does this calculator replace my customer spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. This tool prices one customer at a time and does not save a running list across sessions the way a spreadsheet's rows do. Many small dealers use both: this calculator to get one customer's arithmetic right, including the minimum-delivery-fee edge case, and their own spreadsheet to log the result alongside address, tank ownership, and delivery history for every customer over a season."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #0d2038; background: #eaf1fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; color: #0d3d7a; }
+    table { width: 100%; border-collapse: collapse; background: #fbfdff; } th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #c0d3ee; vertical-align: top; }
+    .note { font-size: .9rem; color: #4a5f7d; } footer { margin-top: 28px; font-size: .82rem; color: #4a5f7d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Propane Route Margin Calculator vs. a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../propane-delivery-route-margin/">Propane Delivery Route Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Propane Route Margin Calculator vs. a Spreadsheet</span></span></nav>
+  <p><a href="./">← Propane delivery route margin calculator</a></p>
+  <h1>This calculator vs. tracking propane delivery margin in a spreadsheet</h1>
+  <p>Names no specific product or company — this compares a free calculator against the generic method most
+    independent propane dealers already use: a personal or shared spreadsheet with a margin formula typed in
+    once and copied down for every customer.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Question</th><th>Spreadsheet formula</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Minimum-delivery fee threshold</td><td>A manual IF formula per row, easy to leave off a new customer or get backwards (charged when it should not be, or the reverse)</td><td>Applies the threshold the same way on every customer, and states plainly whether it triggered</td></tr>
+      <tr><td>Deliveries per year from fill size</td><td>An extra column you have to add and keep dividing correctly as fill size changes</td><td>Computed automatically from annual gallons ÷ average fill size</td></tr>
+      <tr><td>Fixed monthly cost per customer</td><td>Often folded invisibly into "the price per gallon" instead of tracked on its own</td><td>Tank rental and hazmat compliance cost are separate line items, every time</td></tr>
+      <tr><td>Whole-route income check</td><td>A second sheet or a manual sum, often not kept in sync with the per-customer tab</td><td>Built in — enter each customer's monthly profit and see the route total against your income goal</td></tr>
+      <tr><td>History across customers and seasons</td><td>Its actual strength — a running log with address, tank ownership, and delivery history</td><td>Prices one customer at a time; does not replace a customer log</td></tr>
+      <tr><td>Shareable single scenario</td><td>Requires sending the whole file or a screenshot</td><td>One link, via "Copy shareable link," with no file attached</td></tr>
+    </tbody>
+  </table></div>
+  <p>Neither tool determines your retail price, your wholesale cost, or how much propane a tank needs —
+    both are arithmetic on numbers you already have, and both are only as accurate as the figures you type in.</p>
+  <h2>Common questions</h2>
+  <h3>Why not just track propane customer margins in a spreadsheet?</h3>
+  <p>Plenty of small dealers do, and a spreadsheet is a fine tool for tracking a customer list over a season. The
+    failure mode is not the spreadsheet itself &mdash; it is the minimum-delivery-fee threshold, which is a
+    conditional (does this fill size trigger the fee, yes or no) that a copied-down formula has to re-implement
+    correctly for every row, and easy to get wrong once for a new customer with an unusual fill size. A
+    calculator that re-evaluates the condition on every input avoids that particular drift; a spreadsheet
+    formula copied down a column does not check itself.</p>
+  <h3>Does this calculator replace my customer spreadsheet?</h3>
+  <p>Not necessarily. This tool prices one customer at a time and does not save a running list across sessions
+    the way a spreadsheet's rows do. Many small dealers use both: this calculator to get one customer's
+    arithmetic right, including the minimum-delivery-fee edge case, and their own spreadsheet to log the result
+    alongside address, tank ownership, and delivery history for every customer over a season.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not propane-supply, delivery-scheduling, or safety guidance of any kind. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dog-walking-route-pricing/" data-pf-to="dog-walking-route-pricing">Dog Walking &amp; Pet Sitting Rate Calculator</a></li>
+      <li><a href="../driving-instructor-lesson-pricing-calculator/" data-pf-to="driving-instructor-lesson-pricing-calculator">Driving Instructor Lesson Pricing Calculator — what a lesson really earns, free</a></li>
+      <li><a href="../drone-mapping-job-calculator/" data-pf-to="drone-mapping-job-calculator">Drone Mapping Job Calculator</a></li>
+      <li><a href="../dumpster-rental-margin-calculator/" data-pf-to="dumpster-rental-margin-calculator">Dumpster Rental Margin Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=propane-delivery-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="propane-delivery-route-margin"></script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Whatnot Sales Report Analyzer — Profit per Show and Category After Fees</title>
+  <meta name="description" content="Free analyzer for Whatnot sellers: load your orders CSV and see profit per sale, show and category after Whatnot commission and payment processing…">
+  <meta property="og:title" content="Whatnot Sales Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-sale, per-show and per-category profit after Whatnot commission, processing and what you paid for the item. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Whatnot Sales Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Whatnot seller orders CSV into per-sale, per-show, per-category and per-month profit after Whatnot commission and payment processing, with effective fee rate, optional cost basis, low-price sale drag and the shows and categories that lose money. Runs entirely in your browser; the file is never uploaded.", "featureList": "Profit per sale, profit per show, profit per category, profit per month, effective fee rate, cost basis by SKU, editable commission and processing rates, worst and best sales, copyable summary, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which of my Whatnot shows and categories actually make money?", "acceptedAnswer": {"@type": "Answer", "text": "Export your orders from Whatnot Seller Hub (or keep a sheet with an order date, show, category and sold price) and drop it here. The tool takes the sold price, subtracts Whatnot's commission and payment processing to get your payout, then subtracts what you paid for the item if you give a cost column or paste SKU,cost pairs. What is left is profit per sale, per show, per category and per month. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What does Whatnot actually take from a sale?", "acceptedAnswer": {"@type": "Answer", "text": "Whatnot's published US shape is a commission on the item price (8% by default, lower or capped in some categories) plus payment processing of 2.9% on what the buyer paid, meaning item, shipping and tax, plus a flat 30 cents. So the effective rate on a small sale is well above the headline. Both rates are editable here; check them against your own payout statement, since Whatnot can change them."}}, {"@type": "Question", "name": "How do I give the tool what I paid for each item?", "acceptedAnswer": {"@type": "Answer", "text": "Either add a cost column to the file (Cost, Item Cost, Cost Basis or Purchase Price) or paste one SKU,cost pair per line in step 2. Pairs match on the SKU column first, then the order ID, then the exact product name, and a pasted cost overrides the file's. Sales with no cost are left out of profit and the show and category verdicts, and the page says how many."}}, {"@type": "Question", "name": "Why can a payout be lower than price minus fees?", "acceptedAnswer": {"@type": "Answer", "text": "Where the file has a net earnings column it is trusted as your payout. Any gap between sold price minus the fees and that figure is shown as an other deduction; a shipping label, an adjustment or a fee the file does not itemise are the usual causes."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Whatnot's seller export, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order Date, Product Name, Show, Category, Sold Price and Net Earnings always works."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you supply and does not replace your own judgement or a qualified tax adviser. It is independent of Whatnot and is not affiliated with or endorsed by Whatnot Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Whatnot Sales Report Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Whatnot Sales Report Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Whatnot Sales Report Analyzer — free, private, CSV in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">WHATNOT SALES REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Whatnot shows and categories actually make money?</h1>
+    <p>Load your <strong>Whatnot seller orders CSV</strong> and get <strong>profit per sale, show, category and month after Whatnot's commission and payment processing</strong>, the <strong>effective fee rate</strong> (the 30 cents and the processing on shipping and tax are why it is not the headline 8%), optional <strong>cost per SKU</strong>, the <strong>low-price sales that barely pay</strong>, and your worst and best sales.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Whatnot: not affiliated with or endorsed by Whatnot Inc. Column names are matched by alias from memory of Whatnot's export; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your orders file</h2>
+    <p class="note">Needs an <strong>Order Date</strong> and a sold price (<strong>Sold Price</strong> or <strong>Sale Price</strong>). Used when present: <strong>Product Name</strong>, <strong>Show</strong>, <strong>Category</strong>, <strong>SKU</strong>, <strong>Order ID</strong>, <strong>Shipping Charged</strong> and <strong>Sales Tax</strong> (they are part of what processing is charged on), <strong>Commission</strong>, <strong>Processing Fee</strong> or a single <strong>Fees</strong> column, <strong>Net Earnings</strong>, a <strong>Cost</strong> column, and <strong>Status</strong> (cancelled, returned and refunded orders are left out and counted). Comma, tab and semicolon files, quoted fields, US and day-first dates and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Order ID,Order Date,Product Name,Show,Category,Sold Price,Net Earnings"></textarea>
+    <div class="grid">
+      <div><label for="feemode">Whatnot fees</label><select id="feemode"><option value="auto">Use the file's fee columns (rates below if there are none)</option><option value="schedule">Always apply the rates below</option></select></div>
+      <div><label for="commrate">Commission % of item price</label><input type="number" id="commrate" value="8" min="0" max="100" step="0.1" inputmode="decimal"></div>
+      <div><label for="payrate">Processing % of what the buyer paid</label><input type="number" id="payrate" value="2.9" min="0" max="100" step="0.1" inputmode="decimal"></div>
+      <div><label for="payfixed">Processing flat fee per order ($)</label><input type="number" id="payfixed" value="0.30" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. What you paid (optional, but it is what makes this profit)</h2>
+    <p class="note">A cost column in the file is used as it is. Anything you paste here overrides it for the items it matches, by SKU first, then order ID, then exact product name. Sales with no cost are left out of profit and brand verdicts.</p>
+    <label for="costlist">Cost per SKU (optional)</label>
+    <textarea id="costlist" spellcheck="false" placeholder="One per line: SKU, cost&#10;TRA-001, 14.50&#10;SNE-014, 62"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By show</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Whatnot fees</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Avg sale</th></tr></thead><tbody id="by-show"></tbody></table></div></div>
+    <h3>By category</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Whatnot fees</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Avg sale</th></tr></thead><tbody id="by-category"></tbody></table></div></div>
+    <h3>By month</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Whatnot fees</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Avg sale</th></tr></thead><tbody id="by-month"></tbody></table></div></div>
+    <h3 id="worst-title">Ten worst sales</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Sold</th><th scope="col">Item</th><th scope="col">Show</th><th scope="col">Category</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Other deduction</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="worst"></tbody></table></div></div>
+    <h3 id="best-title">Ten best sales</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Sold</th><th scope="col">Item</th><th scope="col">Show</th><th scope="col">Category</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Other deduction</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="best"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download sale table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Whatnot's fees</strong> are read from the file's commission and processing columns (or a single fees column). Without them, the rates in step 1 are applied: commission of 8% of the item price by default, and payment processing of 2.9% of item plus shipping plus tax, plus a flat 30 cents. The defaults are constants in this tool, not a live lookup, and category rates and caps are not modelled: set the commission rate to your own.</li>
+      <li><strong>Payout</strong> is the net earnings column when the file has one, otherwise sold price minus fees. <strong>Other deductions</strong> are the gap between price minus fees and the file's net earnings.</li>
+      <li><strong>Profit</strong> is payout minus the cost you gave for that item. Sales with no cost have no profit figure and are not counted in margins or the show and category verdicts.</li>
+      <li><strong>Reconciles.</strong> The show rows, the category rows and the month rows each add up to the totals at the top.</li>
+      <li><strong>Effective fee rate</strong> is fees over sold price. It is high on low-priced sales because the 30 cents is fixed per order.</li>
+      <li><strong>Shows and categories that lost money</strong> are groups whose costed sales lost money in total, with at least three costed sales. With no cost data at all, the page names only categories where fees alone take 15% or more of the price.</li>
+      <li><strong>Not modelled:</strong> sales tax remittance, income tax, shipping labels you paid outside the file, giveaways and free items, chargebacks, packaging, your own time, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which of my Whatnot shows and categories actually make money?</h3>
+    <p>Export your orders from Whatnot Seller Hub (or keep a sheet with an order date, show, category and sold price) and drop it here. The tool takes the sold price, subtracts Whatnot's commission and payment processing to get your payout, then subtracts what you paid for the item if you give a cost column or paste SKU,cost pairs. What is left is profit per sale, per show, per category and per month. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What does Whatnot actually take from a sale?</h3>
+    <p>Whatnot's published US shape is a commission on the item price (8% by default, lower or capped in some categories) plus payment processing of 2.9% on what the buyer paid, meaning item, shipping and tax, plus a flat 30 cents. So the effective rate on a small sale is well above the headline. Both rates are editable here; check them against your own payout statement, since Whatnot can change them.</p>
+    <h3>How do I give the tool what I paid for each item?</h3>
+    <p>Either add a cost column to the file (Cost, Item Cost, Cost Basis or Purchase Price) or paste one SKU,cost pair per line in step 2. Pairs match on the SKU column first, then the order ID, then the exact product name, and a pasted cost overrides the file's. Sales with no cost are left out of profit and the show and category verdicts, and the page says how many.</p>
+    <h3>Why can a payout be lower than price minus fees?</h3>
+    <p>Where the file has a net earnings column it is trusted as your payout. Any gap between sold price minus the fees and that figure is shown as an other deduction; a shipping label, an adjustment or a fee the file does not itemise are the usual causes.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Whatnot's seller export, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order Date, Product Name, Show, Category, Sold Price and Net Earnings always works.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file and the costs you supply and does not replace your own judgement or a qualified tax adviser. It is independent of Whatnot and is not affiliated with or endorsed by Whatnot Inc.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Whatnot.</strong> Whatnot is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Whatnot Inc. or any other platform in any way. Column names are matched by alias from memory of Whatnot's export and may not match every export, and the fee schedule may change.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing one lot rather than a history? See the <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> for the fee on a single sale, or <a href="../where-to-sell-calculator/">where to sell</a> to compare channels.</p>
+    <p>Sell on more than one marketplace? <a href="../reseller-books/">Reseller Books</a> reads this report together with the others into one monthly profit and loss.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const opt = (v) => (v === null || v === undefined ? "–" : money(v));
+    const ratePct = (v) => (v === null ? "–" : (v * 100).toFixed(1) + "%");
+    const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) && v >= 0 ? v : d; };
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value, commissionRate: num("#commrate", 8), paymentRate: num("#payrate", 2.9), paymentFixed: num("#payfixed", 0.3) });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.items, { costList: $("#costlist").value, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.items} sales across ${s.shows} show(s) and ${s.categories} categor${s.categories === 1 ? "y" : "ies"}, ${dateStr(s.from)} to ${dateStr(s.to)}. Sales ${cur}${money(s.price)}, Whatnot fees ${cur}${money(s.fee)} (<strong>${ratePct(s.feeRate)} effective</strong>), other deductions ${cur}${money(s.deductions)}, payout ${cur}${money(s.payout)}` + (s.costedItems ? `, cost ${cur}${money(s.cost)} on ${s.costedItems} item(s), <strong>profit ${cur}${money(s.profit)}</strong>${s.margin === null ? "" : ` (${pct(s.margin)} of sale price)`}.` : ". <strong>No costs supplied, so these are payouts, not profit.</strong>");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.items}</td><td class="n">${money(g.price)}</td><td class="n">${money(g.fee)}</td><td class="n">${ratePct(g.feeRate)}</td><td class="n">${money(g.payout)}</td><td class="n">${g.costedItems ? money(g.cost) : "–"}</td><td class="n">${opt(g.profit)}</td><td class="n">${g.margin === null ? "–" : pct(g.margin)}</td><td class="n">${g.avgPrice === null ? "–" : money(g.avgPrice)}</td></tr>`).join("");
+      $("#by-show").innerHTML = grp(r.byShow);
+      $("#by-category").innerHTML = grp(r.byCategory);
+      $("#by-month").innerHTML = grp(r.byMonth);
+      const items = (rows) => rows.map((x) => `<tr><td>${dateStr(x.t)}</td><td>${esc(x.title || x.id || "(untitled)")}</td><td>${esc(x.showLabel)}</td><td>${esc(x.categoryLabel)}</td><td class="n">${money(x.price)}</td><td class="n">${money(x.fee)}</td><td class="n">${ratePct(x.effectiveFeeRate)}</td><td class="n">${x.deductions ? money(x.deductions) : "–"}</td><td class="n">${money(x.payout)}</td><td class="n">${opt(x.cost)}</td><td class="n">${opt(x.profit)}</td></tr>`).join("");
+      const by = r.rankBasis === "profit" ? "profit after fee and cost" : "payout (no costs supplied)";
+      $("#worst-title").textContent = `Ten worst items by ${by}`;
+      $("#best-title").textContent = `Ten best items by ${by}`;
+      $("#worst").innerHTML = items(r.worstItems);
+      $("#best").innerHTML = items(r.bestItems);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.excludedCount) notes.push(`${n.excludedCount} cancelled, returned or refunded order(s) were left out.`);
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (r.costList.errors.length) notes.push("Cost list: " + r.costList.errors.slice(0, 3).map((x) => `line ${x.line} (${x.reason})`).join("; ") + ".");
+      if (r.unmatched.length) notes.push(`${r.unmatched.length} pasted cost(s) matched no sale: ${r.unmatched.slice(0, 5).join(", ")}${r.unmatched.length > 5 ? ", …" : ""}.`);
+      notes.push(n.feeSource === "column" ? "Whatnot fees read from the file's fee columns." : "No fee columns used: the commission and processing rates in step 1 were applied.");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r, { currency: n.currency });
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} sales.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      $("#costlist").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic sales across three made-up shows and five categories with costs in the file. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#costlist").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["order_date,order_id,title,show,category,sale_price,whatnot_fees,effective_fee_rate,other_deduction,payout,cost,profit"].concat(last.items.map((x) => [dateStr(x.t), q(x.id), q(x.title), q(x.showLabel), q(x.categoryLabel), x.price.toFixed(2), x.fee.toFixed(2), x.effectiveFeeRate.toFixed(3), x.deductions.toFixed(2), x.payout.toFixed(2), f(x.cost), f(x.profit)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "whatnot-profit-by-sale.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bundle-discount-optimizer/" data-pf-to="bundle-discount-optimizer">Bundle Discount Optimizer — free, private, in your browser</a></li>
+      <li><a href="../business-insurance-policy-reader/" data-pf-to="business-insurance-policy-reader">Check your business insurance policy for gaps and client-contract limits. Free, private</a></li>
+      <li><a href="../card-grading-submission-picker/" data-pf-to="card-grading-submission-picker">Which cards are worth sending to a grader, and which should you sell raw?</a></li>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=whatnot-sales-report-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/?pfEmbed=1&quot; title=&quot;Whatnot Sales Report Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="whatnot-sales-report-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/" data-pf-embed-title="Whatnot Sales Report Analyzer — free, private, CSV in your browser" data-pf-embed-slug="whatnot-sales-report-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="whatnot-sales-report-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="whatnot-sales-report-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BAI2 Statement Reader — Read and Check a Bank BAI2 File in Your Browser</title>
+  <meta name="description" content="Free BAI2 file viewer and checker: turns a bank's BAI2 statement into accounts, balances and a transaction list you can download as CSV, and checks the 49…">
+  <meta property="og:title" content="BAI2 Statement Reader — free, private, in your browser">
+  <meta property="og:description" content="Read a BAI2 bank file as a table, find why an import fails, and rebuild the trailers. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BAI2 Statement Reader", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a BAI2 bank statement file into accounts, balances and transactions, checks the account, group and file control totals and record counts, and rebuilds the trailers. Runs entirely in your browser; the file is never uploaded.", "featureList": "BAI2 file viewer, BAI2 to CSV, control total check, record count check, balance roll-forward check, trailer rebuild"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I read a BAI2 file?", "acceptedAnswer": {"@type": "Answer", "text": "Paste it or drop it onto this page. It splits the comma-separated records, joins 88 continuation lines, and shows each account with its opening and closing balances and a table of transactions with type, amount, bank reference, customer reference and text. You can download the transactions as a CSV for Excel or your accounting system."}}, {"@type": "Question", "name": "What is a BAI2 file?", "acceptedAnswer": {"@type": "Answer", "text": "BAI2 is the cash-management format banks use to send balance and transaction reporting to companies: record 01 is the file header, 02 a group of accounts as of a date, 03 an account with its balances, 16 a transaction, 88 a continuation of the line before, 49 the account trailer, 98 the group trailer and 99 the file trailer. Amounts are whole cents with no decimal point."}}, {"@type": "Question", "name": "Why does my accounting system reject the BAI2 file?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are control totals that no longer match after the file was edited or truncated, a record count that does not include 88 continuation lines, a missing closing slash, an amount written with a decimal point, or a missing 99 trailer from a partly downloaded file. This tool checks each of them and gives the line."}}, {"@type": "Question", "name": "What does the account control total in the 49 record include?", "acceptedAnswer": {"@type": "Answer", "text": "Banks differ. Some sum only the 16 transaction amounts, some also add the summary lines in the 03 record such as total credits, and some add the balances too. This tool accepts any of those four sums, says which one the file follows, and only reports an error when none of them matches."}}, {"@type": "Question", "name": "Can this tool fix my BAI2 file?", "acceptedAnswer": {"@type": "Answer", "text": "It can rebuild the 49, 98 and 99 trailers, the totals and record counts, from the records above them. It never changes a transaction or a balance, because a wrong amount is a data question for the bank, not a typo. If the trailers were right and the transactions were edited, the rebuild would hide the edit, so look at the findings first."}}, {"@type": "Question", "name": "Is it safe to put a bank statement file into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Account numbers are masked to their last four digits in the report and in the exports. Your own policies still decide whether you may open a bank file in a browser."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether your bank's variant adds fields, lockbox and other BAI formats, the BTRS or BAI1 layouts, whether the closing balance is right for your books, and anything that needs the bank's own records. A clean result is not a promise that a system will import the file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"BAI2 Statement Reader — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BAI2 Statement Reader — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">BAI2 Statement Reader — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">BAI2 STATEMENT READER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is actually in this BAI2 file?</h1>
+    <p>Paste or drop a <strong>BAI2 bank statement file</strong> and see its <strong>accounts, balances and transactions as a table</strong>, download them as <strong>CSV</strong>, and find out <strong>why an import fails</strong>: wrong account, group or file control totals, record counts that skip 88 lines, missing slashes, amounts with decimals and balances that do not roll forward. After a hand edit or a truncated download, rebuild the trailers in one click.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Account numbers are masked to their last four digits in the report and exports. Independent of the BAI and of every bank. The record layout and type-code list are from memory of the public BAI2 format; no bank's own validator was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your BAI2 file</h2>
+    <p class="note">Usually a <code>.bai</code>, <code>.bai2</code>, <code>.txt</code> or <code>.csv</code> file from your bank's prior-day or current-day reporting: lines beginning 01, 02, 03, 16, 88, 49, 98 and 99 and ending in a slash.</p>
+    <label for="file">Choose a BAI2 file</label>
+    <input type="file" id="file" accept=".bai,.bai2,.txt,.csv,.dat,text/plain">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="01,123456789,ACMEGARAGE,261003,0600,1,,,2/&#10;02,ACMEGARAGE,123456789,1,261002,2359,USD,/ ..."></textarea>
+    <p>
+      <button type="button" id="validate">Read and check</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read and check.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Accounts</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Account</th><th scope="col">As of</th><th scope="col">Ccy</th><th class="n" scope="col">Opening</th><th class="n" scope="col">Closing</th><th class="n" scope="col">Items</th><th class="n" scope="col">Credits</th><th class="n" scope="col">Debits</th></tr></thead><tbody id="accounts"></tbody></table></div></div>
+    <h3>Transactions</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Account</th><th scope="col">Type</th><th class="n" scope="col">Amount</th><th scope="col">Bank ref</th><th scope="col">Customer ref</th><th scope="col">Text</th></tr></thead><tbody id="txns"></tbody></table></div></div>
+    <p><button type="button" id="download-tx">Download transactions as CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    <div id="fix-box" hidden>
+      <h3>Rebuild the trailers</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download corrected file</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Records:</strong> 01 file header, 02 group header (statement date), 03 account with balance and summary entries, 16 transaction, 88 continuation of the record before it, 49 account trailer, 98 group trailer, 99 file trailer. Every record ends with a slash.</li>
+      <li><strong>Amounts</strong> are whole cents with no decimal point. A 16 record is a credit for type codes 100 to 399 and a debit for 400 to 699; codes 010 to 099 are balances. Common codes have names; others show their range.</li>
+      <li><strong>Control totals:</strong> the 49 total is accepted if it equals any of four sums (transactions; transactions plus summary lines; plus balances; balances plus transactions) because banks differ. 98 is the sum of the 49 totals and 99 the sum of the 98 totals. Record counts include 88 lines.</li>
+      <li><strong>Roll-forward:</strong> opening ledger (010) plus credits minus debits should equal closing ledger (015). A gap is a warning, not an error: pending items and bank adjustments can explain it.</li>
+      <li><strong>Rebuild</strong> rewrites 49, 98 and 99 only, using the convention the file already follows. It never edits a transaction or a balance, and it joins any 88 lines onto their record.</li>
+      <li><strong>Not checked:</strong> bank-specific extra fields, lockbox and BAI1 or BTRS layouts, loan and international variants beyond reading them, your books, and anything that needs the bank's own records.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I read a BAI2 file?</h3>
+    <p>Paste it or drop it onto this page. It splits the comma-separated records, joins 88 continuation lines, and shows each account with its opening and closing balances and a table of transactions with type, amount, bank reference, customer reference and text. You can download the transactions as a CSV for Excel or your accounting system.</p>
+    <h3>What is a BAI2 file?</h3>
+    <p>BAI2 is the cash-management format banks use to send balance and transaction reporting to companies: record 01 is the file header, 02 a group of accounts as of a date, 03 an account with its balances, 16 a transaction, 88 a continuation of the line before, 49 the account trailer, 98 the group trailer and 99 the file trailer. Amounts are whole cents with no decimal point.</p>
+    <h3>Why does my accounting system reject the BAI2 file?</h3>
+    <p>The usual causes are control totals that no longer match after the file was edited or truncated, a record count that does not include 88 continuation lines, a missing closing slash, an amount written with a decimal point, or a missing 99 trailer from a partly downloaded file. This tool checks each of them and gives the line.</p>
+    <h3>What does the account control total in the 49 record include?</h3>
+    <p>Banks differ. Some sum only the 16 transaction amounts, some also add the summary lines in the 03 record such as total credits, and some add the balances too. This tool accepts any of those four sums, says which one the file follows, and only reports an error when none of them matches.</p>
+    <h3>Can this tool fix my BAI2 file?</h3>
+    <p>It can rebuild the 49, 98 and 99 trailers, the totals and record counts, from the records above them. It never changes a transaction or a balance, because a wrong amount is a data question for the bank, not a typo. If the trailers were right and the transactions were edited, the rebuild would hide the edit, so look at the findings first.</p>
+    <h3>Is it safe to put a bank statement file into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Account numbers are masked to their last four digits in the report and in the exports. Your own policies still decide whether you may open a bank file in a browser.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether your bank's variant adds fields, lockbox and other BAI formats, the BTRS or BAI1 layouts, whether the closing balance is right for your books, and anything that needs the bank's own records. A clean result is not a promise that a system will import the file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, payments, compliance, accounting, or financial advice, and it does not replace a qualified professional or your bank's own reporting. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against your bank's own statement before you post or reconcile anything, and a clean result is not a promise that another system will import the file.</p>
+    <p><strong>Not affiliated with the BAI or any bank.</strong> BAI is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to the Bank Administration Institute or any bank or accounting system. The record layout and type-code list are read from memory of the public file format and may not match every bank's variant.</p>
+    <p><strong>Payment data.</strong> BAI2 files contain bank account numbers, balances and the names of payers and payees. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open a bank file in a browser tool is a question for your own security policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>controls_rebuilt</code>, <code>transactions_exported</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../bai2-to-ofx-converter/">BAI2 to OFX, QBO, QIF and Xero converter</a> turns this file into an import for QuickBooks, Quicken or Xero, the <a href="../eu-bank-statement-reader/">EU bank statement reader</a> does the same for camt.053 and MT940 files, the <a href="../nacha-file-validator/">NACHA file validator</a> checks the ACH files you send out, the <a href="../sepa-payment-file-validator/">SEPA payment file validator</a> does the same for euro transfers, and the <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a> matches payments against what you invoiced.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, maskedFindingsCsv, transactionsCsv, decodeBuffer, cents, fmtDate, mask } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.records} records, ${s.groups} group${s.groups === 1 ? "" : "s"}, ${s.accounts} account${s.accounts === 1 ? "" : "s"}, ${s.transactions} transaction${s.transactions === 1 ? "" : "s"} · credits ${cents(s.credit)}, debits ${cents(s.debit)}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      const bal = (a, code) => { const x = a.statuses.find((y) => y.code === code); return x ? cents(x.amount) : "—"; };
+      $("#accounts").innerHTML = s.accountList.map((a) => `<tr><td>${a.line}</td><td>${esc(a.masked)}</td><td>${esc(fmtDate(a.date))}</td><td>${esc(a.currency)}</td><td class="n">${bal(a, 10)}</td><td class="n">${bal(a, 15)}</td><td class="n">${a.count}</td><td class="n">${cents(a.credit)}</td><td class="n">${cents(a.debit)}</td></tr>`).join("") || `<tr><td colspan="9">No complete account found.</td></tr>`;
+      const shown = s.transactionList.slice(0, 500);
+      $("#txns").innerHTML = shown.map((t) => `<tr><td>${t.line}</td><td>${esc(mask(t.account))}</td><td>${esc(t.name)}</td><td class="n${t.kind === "debit" ? " short" : ""}">${cents(t.signed)}</td><td>${esc(t.bankRef)}</td><td>${esc(t.custRef)}</td><td>${esc(t.text)}</td></tr>`).join("") + (s.transactionList.length > shown.length ? `<tr><td colspan="7">Showing the first 500 of ${s.transactionList.length}; the CSV has them all.</td></tr>` : "") || `<tr><td colspan="7">No transactions found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? "These trailers do not match the records above them. Rebuilding changes only the lines below; every transaction and balance is left exactly as it is, so check the transactions first: a rebuild also hides an edited amount."
+        : "The 49, 98 and 99 trailers already match the records; nothing to rebuild.";
+      $("#fix-list").innerHTML = fix.changes.filter(Boolean).map((c) => `<li>${esc(c)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.records} record(s).` : `No errors in ${s.records} record(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_validated");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic file for a made-up company, not real accounts."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same synthetic file after a hand edit, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Read and check."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("controls_rebuilt"); download("corrected.bai", fixedText, "text/plain"); } });
+    $("#download-tx").addEventListener("click", () => { if (lastResult) { record("transactions_exported"); download("bai2-transactions.csv", transactionsCsv(lastResult), "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("bai2-findings.csv", maskedFindingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../inherited-ira-10-year-withdrawal-planner/" data-pf-to="inherited-ira-10-year-withdrawal-planner">Inherited IRA 10-Year Rule Calculator 2026 — withdrawal plan, free</a></li>
+      <li><a href="../insurance-agency-book-valuation-calculator/" data-pf-to="insurance-agency-book-valuation-calculator">Insurance Agency Book Valuation Calculator — free, private, in your browser</a></li>
+      <li><a href="../insurance-denial-appeal-builder/" data-pf-to="insurance-denial-appeal-builder">Insurance Denial Appeal Builder — free, private, in your browser</a></li>
+      <li><a href="../investor-update-builder/" data-pf-to="investor-update-builder">Investor Update Builder — your numbers, written up for your investors</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bai2-statement-reader">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/?pfEmbed=1&quot; title=&quot;BAI2 Statement Reader — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="bai2-statement-reader"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/" data-pf-embed-title="BAI2 Statement Reader — free, private, in your browser" data-pf-embed-slug="bai2-statement-reader"></script>
+</body>
+</html>

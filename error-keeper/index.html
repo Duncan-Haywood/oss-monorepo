@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Error Keeper — Free Self-Hosted Error Tracking (Sentry Alternative)</title>
+  <meta name="description" content="A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes…">
+  <meta property="og:title" content="Error Keeper — know when your app breaks, on your own server">
+  <meta property="og:description" content="Self-hosted error tracking with smart grouping, regression and spike alerts, a 1 KB browser snippet and a Node SDK. MIT, zero dependencies.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/error-keeper/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Error Keeper", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted error tracking: groups the same bug together, alerts on new errors, regressions and spikes, and shows the latest stack. One Node process, your data."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Sentry, Rollbar, Bugsnag or Honeybadger?", "acceptedAnswer": {"@type": "Answer", "text": "They are good products and the right answer for a team that wants source maps, session replay and performance tracing. They also bill by event volume, and the self-hosted Sentry is a dozen containers with Kafka and ClickHouse. Error Keeper does the part most small teams use every day: group the same bug together, tell you when something new or a regression or a spike happens, and show the latest stack. It is one dependency-free Node process with a JSON file, and your stack traces stay on your server."}}, {"@type": "Question", "name": "How does it decide two errors are the same bug?", "acceptedAnswer": {"@type": "Answer", "text": "It builds a key from the error type and the top three in-app stack frames (function and file name, never line numbers or bundle hashes), so a deploy that shifts lines does not split a group. With no stack it uses the message with numbers, ids, quoted values and URLs removed. You can override the key with your own fingerprint. The box above runs the real grouping code on whatever you paste."}}, {"@type": "Question", "name": "What counts as a regression or a spike?", "acceptedAnswer": {"@type": "Answer", "text": "Mark an issue resolved in a release. If an event arrives from that release or a later one, it reopens and alerts as a regression. A spike is at least 10 events in the current hour and well above that issue's own 24-hour baseline (mean plus four standard deviations, and at least three times the mean), so a noisy bug does not page you every hour."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "No source-map unminifying, no session replay, no performance tracing, no multi-user accounts or per-user permissions, and the JSON file is fine for thousands of events a day, not millions. Browser errors from minified bundles show minified frames; ship unminified stacks to your own server or use a service that unminifies if you need that."}}, {"@type": "Question", "name": "Is it safe to send real errors to it?", "acceptedAnswer": {"@type": "Answer", "text": "It masks emails, bearer tokens, common API-key shapes and sensitive query values before storing anything, and keeps user ids only as hashes. That is a safety net, not a guarantee: you run the server, so you are responsible for what your app sends, for securing the keys, for backups and for the privacy rules where you and your users live."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #a3173f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #7a1430; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #7a1430; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #a3173f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #a3173f; border: 1px solid #a3173f; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Error Keeper — know when your app breaks, on your own server","item":"https://duncan-haywood.github.io/monorepo-projects/error-keeper/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/error-keeper/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/error-keeper/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Error Keeper — know when your app breaks, on your own server — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Error Keeper — know when your app breaks, on your own server</span></span></nav>
+  <main>
+  <h1>Know when your app breaks, and which bug it is.</h1>
+  <p>Error Keeper is an open-source error tracker for small teams. A one-kilobyte browser snippet and a Node client send crashes to a server you run. It groups the same bug together even when line numbers, ids and bundle hashes differ, alerts you the first time a bug appears, when a bug you fixed comes back, and when one suddenly gets much worse, and shows the latest stack. First, see the grouping on your own stack traces. It runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Group your errors</h2>
+    <label for="traces">Paste stack traces (Chrome, Node, Firefox or Safari format). Separate errors with a line containing only ---</label>
+<textarea id="traces" spellcheck="false" placeholder="TypeError: Cannot read properties of undefined (reading 'id')&#10;    at render (https://app.example.com/main.3f9a1c.js:10:5)&#10;---&#10;..."></textarea>
+    <button id="run" type="button">Group them</button>
+    <button id="demo" type="button" class="alt">Try a sample</button>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the server yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/error-keeper
+INGEST_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) \
+  ALLOWED_ORIGINS=https://app.example.com node server.mjs</pre>
+    <p>Browser: <code>&lt;script defer src="https://YOUR-HOST/sdk.js" data-key="INGEST_KEY" data-release="1.4.2"&gt;&lt;/script&gt;</code>. Node: <code>createKeeper({url, key, release}).install()</code>. Open your server's address, enter the admin key and read the issue list. Set <code>ALERT_WEBHOOK_URL</code> for a signed alert that is also a valid Slack or Discord incoming webhook. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Sentry, Rollbar, Bugsnag or Honeybadger?</h3>
+    <p>They are good products and the right answer for a team that wants source maps, session replay and performance tracing. They also bill by event volume, and the self-hosted Sentry is a dozen containers with Kafka and ClickHouse. Error Keeper does the part most small teams use every day: group the same bug together, tell you when something new or a regression or a spike happens, and show the latest stack. It is one dependency-free Node process with a JSON file, and your stack traces stay on your server.</p>
+    <h3>How does it decide two errors are the same bug?</h3>
+    <p>It builds a key from the error type and the top three in-app stack frames (function and file name, never line numbers or bundle hashes), so a deploy that shifts lines does not split a group. With no stack it uses the message with numbers, ids, quoted values and URLs removed. You can override the key with your own fingerprint. The box above runs the real grouping code on whatever you paste.</p>
+    <h3>What counts as a regression or a spike?</h3>
+    <p>Mark an issue resolved in a release. If an event arrives from that release or a later one, it reopens and alerts as a regression. A spike is at least 10 events in the current hour and well above that issue's own 24-hour baseline (mean plus four standard deviations, and at least three times the mean), so a noisy bug does not page you every hour.</p>
+    <h3>What does it not do?</h3>
+    <p>No source-map unminifying, no session replay, no performance tracing, no multi-user accounts or per-user permissions, and the JSON file is fine for thousands of events a day, not millions. Browser errors from minified bundles show minified frames; ship unminified stacks to your own server or use a service that unminifies if you need that.</p>
+    <h3>Is it safe to send real errors to it?</h3>
+    <p>It masks emails, bearer tokens, common API-key shapes and sensitive query values before storing anything, and keeps user ids only as hashes. That is a safety net, not a guarantee: you run the server, so you are responsible for what your app sends, for securing the keys, for backups and for the privacy rules where you and your users live.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../status-keeper/">Status Keeper</a> tells customers when you are down, <a href="../cron-heartbeat/">Cron Heartbeat</a> catches jobs that silently stop, <a href="../visit-keeper/">Visit Keeper</a> counts visitors without cookies and <a href="../support-desk/">Support Desk</a> handles the emails that follow.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. It can miss errors, group unrelated ones or drop events under load, and is not a substitute for monitoring you depend on; nothing here is legal, tax, or financial advice. You are the operator of your server: you are responsible for what your app sends it, for securing the keys, for backups, and for the privacy rules where you and your users live. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
+  </main>
+  <script type="module">
+    import { ingest, newState, list, parseStack, fingerprint } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    const SAMPLE = [
+      "TypeError: Cannot read properties of undefined (reading 'id')\n    at renderCart (https://shop.example.com/assets/main.3f9a1c2b.js:10:5)\n    at Object.run (https://shop.example.com/assets/vendor.node_modules/react.js:1:1)",
+      "TypeError: Cannot read properties of undefined (reading 'name')\n    at renderCart (https://shop.example.com/assets/main.9d41e07a.js:88:12)\n    at Object.run (https://shop.example.com/assets/vendor.node_modules/react.js:1:1)",
+      "Error: Order 88123 failed: card declined\n    at charge (/srv/app/payments.js:41:11)\n    at async checkout (/srv/app/checkout.js:20:3)",
+      "Error: Order 90017 failed: card declined\n    at charge (/srv/app/payments.js:44:11)\n    at async checkout (/srv/app/checkout.js:20:3)",
+      "RangeError: Invalid array length\n    at buildReport (/srv/app/report.js:7:9)",
+    ].join("\n---\n");
+    function show(text) {
+      const out = $("out"); out.replaceChildren(); $("err").textContent = "";
+      const blocks = text.split(/^\s*---\s*$/m).map((s) => s.trim()).filter(Boolean);
+      if (!blocks.length) { $("err").textContent = "Paste at least one stack trace."; return; }
+      const st = newState(), now = Date.now();
+      for (const b of blocks) {
+        const [first, ...rest] = b.split("\n"), m = first.match(/^(\w*(?:Error|Exception)?):?\s*(.*)$/);
+        try { ingest(st, { type: m && m[1] || "Error", message: m ? m[2] : first, stack: b }, now); } catch (e) { $("err").textContent = e.message; return; }
+      }
+      const issues = list(st, { now });
+      out.append(el("p", `${blocks.length} error${blocks.length === 1 ? "" : "s"} became ${issues.length} issue${issues.length === 1 ? "" : "s"}.`));
+      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Issue</th><th scope='col' class='n'>Events</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      for (const i of issues) { const tr = document.createElement("tr"), th = el("th", `${i.type}: ${i.title}`); th.scope = "row"; tr.append(th, el("td", String(i.count), "n")); tb.append(tr); }
+      t.append(tb); out.append(t);
+      out.append(el("p", "Grouping uses the error type and the top in-app frames, never line numbers, so the same bug on a new deploy stays in one group.", "note"));
+      record("group");
+    }
+    $("run").addEventListener("click", () => show($("traces").value));
+    $("demo").addEventListener("click", () => { $("traces").value = SAMPLE; show(SAMPLE); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to x, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../deal-keeper/" data-pf-to="deal-keeper">Deal Keeper — which deals are really at risk, and what will actually close</a></li>
+      <li><a href="../drip-keeper/" data-pf-to="drip-keeper">Drip Keeper — self-hosted lifecycle email</a></li>
+      <li><a href="../dunning-engine/" data-pf-to="dunning-engine">Dunning Engine — failed payment recovery for Stripe, self-hosted</a></li>
+      <li><a href="../feedback-board/" data-pf-to="feedback-board">Feedback Board — a Canny alternative you host yourself</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=error-keeper">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/error-keeper/?pfEmbed=1&quot; title=&quot;Error Keeper — know when your app breaks, on your own server — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="error-keeper"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/error-keeper/" data-pf-embed-title="Error Keeper — know when your app breaks, on your own server" data-pf-embed-slug="error-keeper"></script>
+</body>
+</html>

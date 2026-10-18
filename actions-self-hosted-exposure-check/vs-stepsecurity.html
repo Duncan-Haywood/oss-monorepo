@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. StepSecurity Harden-Runner | Actions Self-Hosted Exposure Check</title>
+<meta name="description" content="StepSecurity's Harden-Runner is a GitHub Action you add to a job that monitors that job's own network and file activity while it runs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/vs-stepsecurity.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. StepSecurity Harden-Runner">
+<meta property="og:description" content="Two different moments: Harden-Runner watches what a job does while it runs. This checker reads the workflow file itself and flags the…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or StepSecurity's Harden-Runner?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They act at different moments and most teams taking self-hosted-runner exposure seriously will want both. Harden-Runner, from StepSecurity, is a GitHub Action you add as a step inside a job; while that job runs, it monitors outbound network calls and file integrity and can block or flag unexpected egress -- a runtime control, watching one job as it actually executes. This checker never runs a job at all. It is a free, zero-dependency scanner (browser or CLI) that reads your .github/workflows/*.yml files as text and flags every job that combines a self-hosted runner label with pull_request, pull_request_target, workflow_run, or issue_comment -- GitHub's own documented risky combination -- before that job is ever scheduled. Reach for Harden-Runner to monitor and constrain what a job does while it runs. Reach for this to catch the exposed combination in your workflow files themselves, including ones that have not run yet." }
+    },
+    {
+      "@type": "Question",
+      "name": "If Harden-Runner already monitors the runner, why check the workflow file too?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because a runtime monitor only sees a job once it starts, and by definition a self-hosted runner triggered by a forked pull_request has already let a stranger's workflow-file edits reach your machine by the time any step -- Harden-Runner included -- begins executing. Reading the workflow YAML directly catches the exposed trigger-plus-label combination itself, as a static fact about the file, whether or not the job has ever run. The two are complementary rather than redundant: this checker is about whether a job should be reachable by a fork at all; Harden-Runner is about constraining what that job can do once it is." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Harden-Runner free too? What does this add?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Being free is not the difference, and this page does not claim it is: StepSecurity offers Harden-Runner as a GitHub Action available to add to a workflow. The difference is shape and scope. Harden-Runner instruments a running job and needs to be added, per job, to the workflows you want it watching. This checker needs nothing added to your workflows at all -- point the CLI at a checkout, or paste YAML into the browser tool, and it reads the files as they already are, with no network call and nothing installed into your CI. It is built for the moment before a job runs, which a runtime action by definition cannot cover." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with StepSecurity?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by StepSecurity, Inc., and Harden-Runner and StepSecurity are named here only to describe what this checker is and is not. The description of Harden-Runner on this page is drawn from StepSecurity's own public documentation; check it there for what the action currently monitors and how." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; color: #1a2330; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; font-size: 0.86rem; color: #55606f; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/vs-stepsecurity.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. StepSecurity Harden-Runner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-self-hosted-exposure-check/">Is your self-hosted GitHub Actions runner exposed to a fork?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. StepSecurity Harden-Runner</span></span></nav>
+<p><a href="index.html">&larr; Actions self-hosted exposure check</a></p>
+
+<h1>This checker vs. StepSecurity Harden-Runner</h1>
+
+<p>
+  <strong>Harden-Runner</strong>, from
+  <a href="https://www.stepsecurity.io/harden-runner" rel="nofollow noopener">StepSecurity</a>, is a
+  GitHub Action you add as a step inside a job. While that job runs, it monitors the job's outbound
+  network calls and file integrity, and can flag or block egress that was not expected -- a runtime
+  control that watches one job for the duration it actually executes on the runner.
+</p>
+
+<p>
+  This checker does not run a job at all. It is a free, zero-dependency tool -- usable in the browser
+  or as a stdlib-only Python CLI -- that reads your <code>.github/workflows/*.yml</code> files as text
+  and flags every job whose <code>runs-on</code> includes the literal <code>self-hosted</code> label
+  <em>and</em> whose triggering event is <code>pull_request</code>, <code>pull_request_target</code>,
+  <code>workflow_run</code>, or <code>issue_comment</code> -- the exact combination GitHub's own
+  documentation names as a reason not to use self-hosted runners on a public repository -- and prints
+  which trigger matched. Nothing about it needs a job to run first.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Monitor and constrain what a specific job actually does -- network calls, file writes -- while it runs on your infrastructure.</td>
+      <td>Harden-Runner -- that is precisely its job, as a step inside the workflow it is watching.</td>
+    </tr>
+    <tr>
+      <td>Find out, before any job has ever run, which workflow files pair a self-hosted runner with a trigger a fork can raise.</td>
+      <td>This checker -- a text scan of your workflow YAML, no job execution needed.</td>
+    </tr>
+    <tr>
+      <td>Audit a whole repository's workflow files in CI with a single exit code, no action installed into the workflows themselves.</td>
+      <td>This checker's CLI -- <code>python3 check.py --fail-on-risk</code>, stdlib only.</td>
+    </tr>
+    <tr>
+      <td>Get an allowlist of expected network endpoints and be alerted on anything outside it during a run.</td>
+      <td>Harden-Runner -- this checker makes no claim about runtime network behavior at all.</td>
+    </tr>
+    <tr>
+      <td>Decide whether a newly-opened workflow file is safe to merge before it ever executes on a self-hosted runner.</td>
+      <td>This checker -- it reads the file as committed; nothing has to run first.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These sit at different points in the same job's life rather than competing for the same one. This
+  checker is a cheap, static gate on the workflow files themselves -- run it in CI on every pull
+  request that touches <code>.github/workflows/</code> -- and Harden-Runner is a runtime control for
+  the jobs you have decided should run. A team that wants both exposure classes covered reasonably
+  runs this checker first and Harden-Runner on the jobs it lets through.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or StepSecurity's Harden-Runner?</h3>
+<p>They act at different moments and most teams taking self-hosted-runner exposure seriously will want both. Harden-Runner, from StepSecurity, is a GitHub Action you add as a step inside a job; while that job runs, it monitors outbound network calls and file integrity and can block or flag unexpected egress -- a runtime control, watching one job as it actually executes. This checker never runs a job at all. It is a free, zero-dependency scanner (browser or CLI) that reads your .github/workflows/*.yml files as text and flags every job that combines a self-hosted runner label with pull_request, pull_request_target, workflow_run, or issue_comment -- GitHub's own documented risky combination -- before that job is ever scheduled. Reach for Harden-Runner to monitor and constrain what a job does while it runs. Reach for this to catch the exposed combination in your workflow files themselves, including ones that have not run yet.</p>
+
+<h3>If Harden-Runner already monitors the runner, why check the workflow file too?</h3>
+<p>Because a runtime monitor only sees a job once it starts, and by definition a self-hosted runner triggered by a forked pull_request has already let a stranger's workflow-file edits reach your machine by the time any step -- Harden-Runner included -- begins executing. Reading the workflow YAML directly catches the exposed trigger-plus-label combination itself, as a static fact about the file, whether or not the job has ever run. The two are complementary rather than redundant: this checker is about whether a job should be reachable by a fork at all; Harden-Runner is about constraining what that job can do once it is.</p>
+
+<h3>Is Harden-Runner free too? What does this add?</h3>
+<p>Being free is not the difference, and this page does not claim it is: StepSecurity offers Harden-Runner as a GitHub Action available to add to a workflow. The difference is shape and scope. Harden-Runner instruments a running job and needs to be added, per job, to the workflows you want it watching. This checker needs nothing added to your workflows at all -- point the CLI at a checkout, or paste YAML into the browser tool, and it reads the files as they already are, with no network call and nothing installed into your CI. It is built for the moment before a job runs, which a runtime action by definition cannot cover.</p>
+
+<h3>Is this page affiliated with StepSecurity?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by StepSecurity, Inc., and Harden-Runner and StepSecurity are named here only to describe what this checker is and is not. The description of Harden-Runner on this page is drawn from StepSecurity's own public documentation; check it there for what the action currently monitors and how.</p>
+
+<p><a href="index.html">&larr; Back to the Actions self-hosted exposure check</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit or a compliance attestation, it does not guarantee your CI infrastructure is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including whether a flagged pattern is actually exploitable on your repository. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-self-hosted-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-self-hosted-exposure-check"></script>
+</body>
+</html>

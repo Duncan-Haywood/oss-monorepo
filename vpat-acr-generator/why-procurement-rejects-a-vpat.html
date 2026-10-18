@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Did Procurement Reject Our VPAT? | What Reviewers Actually Check</title>
+  <meta name="description" content="An ACR is usually sent back not because a product failed a criterion, but because the document cannot be read as evidence…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/why-procurement-rejects-a-vpat.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Why would a reviewer reject a VPAT when our product conforms well?","acceptedAnswer":{"@type":"Answer","text":"Because conformance and evidence are different things. A reviewer cannot verify your product; they can only read your document. An ACR that says \"Partially Supports\" on a criterion and leaves Remarks blank has told them a problem exists and nothing about its size, so the safe reading is the worst one. A report with fewer \"Supports\" rows but a real sentence on every partial row routinely scores better than a cleaner-looking one that explains nothing."}},
+    {"@type":"Question","name":"Which rows actually need remarks?","acceptedAnswer":{"@type":"Answer","text":"The ones marked Partially Supports and Does Not Support. Those are the two values a reviewer reads as risk, and Remarks is the only place the document says how much. A Supports row is self-explanatory and a Not Applicable row is usually obvious from the product type, so leaving those blank costs little. The generator on this site flags every Partially Supports or Does Not Support row with empty Remarks before you export."}},
+    {"@type":"Question","name":"What header fields do reviewers check first?","acceptedAnswer":{"@type":"Answer","text":"Product name, report date, and evaluation methods used. The date tells a reviewer whether the report describes the version being bought or one from three releases ago. Evaluation methods tell them whether the answers came from assistive-technology testing, an automated scan, or somebody's recollection. A report missing either is hard to weigh against a competing vendor's, and those three fields are exactly the ones this generator refuses to let you export quietly."}},
+    {"@type":"Question","name":"Is a generic remark better than a blank one?","acceptedAnswer":{"@type":"Answer","text":"Only slightly, and WebAIM's procurement guidance names generic remarks as its own failure. \"Some issues exist\" or \"partially conformant\" repeated on twelve rows tells a reviewer that the rows were filled in rather than evaluated. A useful remark names what does not work, where, and what a user encounters: which component, which assistive technology, and whether a workaround exists. Two specific sentences beat a paragraph of hedging."}},
+    {"@type":"Question","name":"Should we mark a criterion Not Evaluated or guess at it?","acceptedAnswer":{"@type":"Answer","text":"Mark it Not Evaluated. It is one of the template's own values and it is the honest label for a row nobody has tested. A guess that turns out wrong is a misrepresentation in a procurement document, which is a far worse position than an admitted gap. A reviewer who sees three Not Evaluated rows with a note about when they will be tested is reading an ACR written by someone who tested the other forty-seven."}},
+    {"@type":"Question","name":"How many criteria does an ACR have to cover?","acceptedAnswer":{"@type":"Answer","text":"This generator walks the 50 WCAG 2.1 Level A and Level AA success criteria that most ACRs in circulation are scored against, grouped by the four principles in the order the standard and the template both use. It does not cover Level AAA or the nine WCAG 2.2 additions. Check the criterion set against the W3C's own materials and the current ITI template before you submit, the same as every other output of this tool."}},
+    {"@type":"Question","name":"Does this tool test our product or choose conformance levels for us?","acceptedAnswer":{"@type":"Answer","text":"No, and that limit is deliberate. It never scans, crawls, or assesses anything, and it never selects a level on your behalf. Every conformance value and every remark is yours, entered from your own testing. What it does is format those answers into the standard table shape and flag the completeness problems that get a document sent back. Format and completeness, never assessment."}},
+    {"@type":"Question","name":"Is anything we type sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The generator runs entirely in your browser tab, with no account and no upload. An optional draft auto-save writes to your own browser's local storage and can be turned off; clearing your browser data clears it. An unreleased product's accessibility gaps are commercially sensitive, which is the reason the tool has no server in the loop at all."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2320; background: #f4f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { font-size: 1.15rem; margin: 30px 0 8px; }
+    h3 { font-size: .98rem; margin: 20px 0 4px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a3d1f; margin: 0 0 6px; }
+    .cta { display: inline-block; margin: 18px 0; background: #8a3d1f; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .worked { background: #fff; border: 1px solid #ddd3bf; border-radius: 12px; padding: 16px 18px; margin: 18px 0; }
+    .worked p { margin: 0 0 10px; font-size: .92rem; }
+    .worked p:last-child { margin-bottom: 0; }
+    .bad, .good { border-left: 3px solid #c98a6a; padding-left: 12px; }
+    .good { border-left-color: #3f7a4f; }
+    .caption { font-size: .82rem; color: #5c5748; margin: 10px 0 0; }
+    footer { margin-top: 34px; font-size: .82rem; color: #5c5748; border-top: 1px solid #ddd3bf; padding-top: 16px; }
+    footer a, main a { color: #8a3d1f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/why-procurement-rejects-a-vpat.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Did Procurement Reject Our VPAT?">
+<meta property="og:description" content="An ACR is usually sent back not because a product failed a criterion, but because the document cannot be read as evidence…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Did Procurement Reject Our VPAT? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vpat-acr-generator/">Free VPAT / Accessibility Conformance Report Generator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Did Procurement Reject Our VPAT?</span></span></nav>
+  <main>
+    <p class="eyebrow">SECTION 508 AND ENTERPRISE PROCUREMENT</p>
+    <h1>Why did procurement reject our VPAT?</h1>
+
+    <p>Almost never because the product failed a criterion. Reviewers expect gaps &mdash; every real product has them, and an ACR claiming full conformance across all fifty criteria is the one that draws suspicion. Documents get sent back because they cannot be read as evidence: a row marked as a partial failure with nothing written beside it, a missing date, no statement of how any of it was tested. The reviewer is not judging your product. They are judging whether your document lets them judge your product.</p>
+
+    <a class="cta" href="./">Open the free VPAT/ACR generator</a>
+
+    <h2>The reviewer's actual problem</h2>
+    <p>Put yourself on the other side of the table. Someone has three ACRs from three vendors and a deadline. They cannot install your software, they cannot run a screen reader against it, and they are not going to take your word for anything they cannot see stated. Every conclusion they reach comes out of the document in front of them.</p>
+    <p>That makes an empty Remarks cell the most expensive thing in the file. A criterion marked <strong>Partially Supports</strong> has told the reviewer that something is broken. With nothing beside it, they have no way to tell a cosmetic focus-outline gap from a form nobody using a screen reader can complete &mdash; so the defensible assumption is the second one. The row you left blank to avoid drawing attention is the row that gets read most harshly.</p>
+
+    <h2>What a usable remark looks like</h2>
+    <div class="worked">
+      <p class="bad"><strong>Sent back:</strong> &ldquo;Partially Supports. Some issues exist.&rdquo;</p>
+      <p class="good"><strong>Accepted:</strong> &ldquo;Partially Supports. The data-grid column headers are not programmatically associated with their cells, so NVDA and JAWS announce cell values without the column name. Affects the reporting module only; the same data is available in the CSV export, which is fully accessible. Fix scheduled for the 4.2 release.&rdquo;</p>
+      <p class="caption">An illustration of the shape, not a template to copy &mdash; the content has to come from your own testing of your own product. What makes the second version work is that it names the component, the assistive technology, the user-facing consequence, and whether there is a way around it.</p>
+    </div>
+    <p>WebAIM's own procurement guidance singles out generic remarks as a distinct failure from missing ones, and the reason is worth sitting with: &ldquo;partially conformant&rdquo; pasted onto twelve rows tells a reviewer those rows were <em>filled in</em> rather than evaluated. It reads as less trustworthy than a blank, because a blank at least does not pretend.</p>
+
+    <h2>The three header fields that decide whether the rest gets read</h2>
+    <p>A conformance table with no context is not evidence of anything. Three fields carry most of that context, and a report missing them is hard to weigh against a competitor's:</p>
+    <div class="worked">
+      <p><strong>Product name and version.</strong> An ACR describes a specific build. Without the version, a reviewer cannot tell whether it covers what they are about to buy.</p>
+      <p><strong>Report date.</strong> Distinguishes a current assessment from one written three releases ago and never revisited. An undated ACR is treated as old.</p>
+      <p><strong>Evaluation methods used.</strong> The single field that separates a tested report from an asserted one. Say what you actually did: which assistive technologies and versions, which browsers, manual testing or automated scanning or both, and who performed it.</p>
+    </div>
+    <p>The generator on this site will not let those three go quietly. It lists each blank one alongside the row-level problems, before you export, while it is still cheap to fix.</p>
+
+    <h2>Not Evaluated is a real answer</h2>
+    <p>The template carries five values, and <strong>Not Evaluated</strong> is one of them. It is the honest label for a criterion nobody has tested yet, and it is a far better position than a guess. A guess that proves wrong is a misrepresentation in a document attached to a bid, with consequences that outlast the bid; an admitted gap is a scheduling conversation. A reviewer who sees three Not Evaluated rows and a note about when they will be covered is looking at an ACR written by someone who genuinely evaluated the other forty-seven.</p>
+    <p>Unanswered criteria default to Not Evaluated here rather than being dropped from the document, for the same reason: a fifty-row table with forty-one rows in it raises a question the vendor did not mean to raise.</p>
+
+    <h2>What this tool does, and the line it will not cross</h2>
+    <p>It formats your answers and checks them for completeness. It does not scan your product, does not crawl anything, and never picks a conformance level for you &mdash; every value and every remark is yours, entered from your own testing, and you remain responsible for all of it. That boundary is the whole design: a tool that guessed at conformance levels would be producing an assessment it is in no position to make, in a document you are signing.</p>
+    <p>What it can do is make sure the document you sign does not fail for a reason that has nothing to do with your product.</p>
+
+    <h2>Common questions</h2>
+
+    <h3>Why would a reviewer reject a VPAT when our product conforms well?</h3>
+    <p>Because conformance and evidence are different things. A reviewer cannot verify your product; they can only read your document. An ACR that says "Partially Supports" on a criterion and leaves Remarks blank has told them a problem exists and nothing about its size, so the safe reading is the worst one. A report with fewer "Supports" rows but a real sentence on every partial row routinely scores better than a cleaner-looking one that explains nothing.</p>
+
+    <h3>Which rows actually need remarks?</h3>
+    <p>The ones marked Partially Supports and Does Not Support. Those are the two values a reviewer reads as risk, and Remarks is the only place the document says how much. A Supports row is self-explanatory and a Not Applicable row is usually obvious from the product type, so leaving those blank costs little. The generator on this site flags every Partially Supports or Does Not Support row with empty Remarks before you export.</p>
+
+    <h3>What header fields do reviewers check first?</h3>
+    <p>Product name, report date, and evaluation methods used. The date tells a reviewer whether the report describes the version being bought or one from three releases ago. Evaluation methods tell them whether the answers came from assistive-technology testing, an automated scan, or somebody's recollection. A report missing either is hard to weigh against a competing vendor's, and those three fields are exactly the ones this generator refuses to let you export quietly.</p>
+
+    <h3>Is a generic remark better than a blank one?</h3>
+    <p>Only slightly, and WebAIM's procurement guidance names generic remarks as its own failure. "Some issues exist" or "partially conformant" repeated on twelve rows tells a reviewer that the rows were filled in rather than evaluated. A useful remark names what does not work, where, and what a user encounters: which component, which assistive technology, and whether a workaround exists. Two specific sentences beat a paragraph of hedging.</p>
+
+    <h3>Should we mark a criterion Not Evaluated or guess at it?</h3>
+    <p>Mark it Not Evaluated. It is one of the template's own values and it is the honest label for a row nobody has tested. A guess that turns out wrong is a misrepresentation in a procurement document, which is a far worse position than an admitted gap. A reviewer who sees three Not Evaluated rows with a note about when they will be tested is reading an ACR written by someone who tested the other forty-seven.</p>
+
+    <h3>How many criteria does an ACR have to cover?</h3>
+    <p>This generator walks the 50 WCAG 2.1 Level A and Level AA success criteria that most ACRs in circulation are scored against, grouped by the four principles in the order the standard and the template both use. It does not cover Level AAA or the nine WCAG 2.2 additions. Check the criterion set against the W3C's own materials and the current ITI template before you submit, the same as every other output of this tool.</p>
+
+    <h3>Does this tool test our product or choose conformance levels for us?</h3>
+    <p>No, and that limit is deliberate. It never scans, crawls, or assesses anything, and it never selects a level on your behalf. Every conformance value and every remark is yours, entered from your own testing. What it does is format those answers into the standard table shape and flag the completeness problems that get a document sent back. Format and completeness, never assessment.</p>
+
+    <h3>Is anything we type sent anywhere?</h3>
+    <p>No. The generator runs entirely in your browser tab, with no account and no upload. An optional draft auto-save writes to your own browser's local storage and can be turned off; clearing your browser data clears it. An unreleased product's accessibility gaps are commercially sensitive, which is the reason the tool has no server in the loop at all.</p>
+
+    <a class="cta" href="./">Start your ACR</a>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, or accessibility-audit advice, and it does not replace a qualified professional or your own testing. This tool does not test, assess, or audit your product, and it does not determine any criterion's conformance level &mdash; every level and remark is yours to enter, based on your own testing, and you remain solely responsible for the accuracy of everything you submit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>VPAT&reg; is a registered trademark of the Information Technology Industry Council (ITI). This tool is not affiliated with, endorsed by, or sponsored by ITI, WebAIM, or any standards body; those names are used only to describe the document format and the published guidance this page refers to.</p>
+    <p><a href="./">VPAT / Accessibility Conformance Report generator</a> &mdash; free, browser-only, and open source.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../meta-catalog-csv-check/" data-pf-to="meta-catalog-csv-check">Meta Catalog CSV Check — free, private, in your browser</a></li>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+      <li><a href="../npm-deployment-evidence/" data-pf-to="npm-deployment-evidence">npm Deployment Evidence</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vpat-acr-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vpat-acr-generator"></script>
+</body>
+</html>

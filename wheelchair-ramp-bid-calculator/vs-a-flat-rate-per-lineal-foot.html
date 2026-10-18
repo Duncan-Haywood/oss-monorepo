@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat rate per lineal foot | Wheelchair Ramp Bid Calculator</title>
+<meta name="description" content="A flat '$X / lineal foot' special can't see landings, handrails, and footings the run itself never counts.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat rate per lineal foot">
+<meta property="og:description" content="A 24-inch straight wood ramp and a 48-inch switchback aluminum ramp with a rest landing, a demo, and a permit both get quoted at the same flat per-lineal-foot…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat rate per lineal foot get a taller ramp wrong?","acceptedAnswer":{"@type":"Answer","text":"Because lineal feet of run is not the walking surface, and it is not the parts list. A flat rate is usually set on a small straight run with the minimum two landings; a taller rise needs a rest landing the coupon never counted, a switchback needs a turn landing, and both-side handrail and footing counts grow with the landings, not with the run alone. Using this calculator's own figures, a 24-inch straight wood ramp costs $4,601.99 to run and prices at $6,135.98 -- $255.67 per lineal foot. A 48-inch switchback aluminum ramp with a rest landing, demo, and permit costs $13,910.58 to run and this calculator prices it at $18,547.43 -- 3.02 times the small ramp's price, not twice, on exactly twice the run."}},{"@type":"Question","name":"What does a flat rate per lineal foot usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Landings, handrail, footings, and the surface material. A flat per-lf rate has no line for a rest landing a taller rise requires, no line for a switchback's turn landing, no line for both-side handrail lineal footage, no line for the footing count a longer run and more landings both add, and no line for a pricier surface like aluminum or concrete instead of wood. It also has no line for demoing existing stairs or pulling a permit."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own figures: the 24-inch straight wood ramp prices at $6,135.98, on a job that costs $4,601.99 to run, at $255.67 per lineal foot. Apply that same per-lf rate to the 48-inch switchback aluminum ramp (rest landing, demo, permit) and it quotes at $12,271.96 -- $1,638.61 below the ramp's own $13,910.58 break-even cost, before counting the $6,275.47 it falls short of what this calculator prices the ramp at ($18,547.43, 3.02 times the small ramp)."}},{"@type":"Question","name":"Is a flat rate per lineal foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a ramp close to the rise, layout, and surface the rate was set on -- typically a short straight run needing only the two required landings -- a flat per-lf number can land close, because that is probably the ramp the rate was set on. The risk is quoting a rise tall enough to need a rest landing, a switchback, a pricier surface, a demo, or a permit at the same rate, because the rate does not know the rise, the layout, or the surface until someone measures the site, and by then the flat number has often already been quoted over the phone."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your supplier's material pricing, or what other ramp builders in your area charge. It takes rise, slope, layout, surface, width, handrail, footings, demo, permit, and your own wage, burden, overhead, and target margin, and turns that into a price for this ramp -- the arithmetic a flat rate per lineal foot skips, not a market survey or a code determination."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1d2530;background:#eef2f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1c5f7a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #d3dce6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a2a4a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dce6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat rate per lineal foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../wheelchair-ramp-bid-calculator/">Wheelchair Ramp Bid Calculator — ADA Slope &amp; Landings</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat rate per lineal foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Wheelchair Ramp Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat rate per lineal foot</h1>
+<p class="lede">&ldquo;$X a lineal foot, any ramp&rdquo; is not a price for a ramp build &mdash; it is a price for one rise, one layout, and one surface, quietly applied to a rise twice as tall that needs a rest landing, a switchback turn, and both-side handrail the coupon never saw.</p>
+</header>
+<section>
+<h2>What a flat rate per lineal foot is</h2>
+<p>
+A flat rate per lineal foot is the fastest way to quote a ramp over the
+phone: multiply the run by a number and read it back. Homeowners like it
+because it is easy to compare against a competitor's quote, and it is
+the number a customer holding one will ask you to match.
+</p>
+<p>
+The number behind it was usually set for the simplest version of the
+job &mdash; a short, straight run at the minimum slope, needing only the
+two required landings and a basic wood surface &mdash; and then reused
+for every ramp afterward, whether or not the next one is tall enough to
+need a rest landing, turns a switchback, or goes on a pricier surface.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+rise, slope, layout (straight or switchback), surface, width, whether to
+demo existing stairs, and whether to include a permit, plus your own
+wage, payroll burden, overhead, and target margin. It converts rise and
+slope to run, adds every landing the layout and rise require, prices the
+walking surface by material, prices both-side handrail and footings
+separately, and returns the price, the price per lineal foot, the
+effective hourly rate, and the walk-away price &mdash; for this ramp,
+not a flat rate for every ramp.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate per lineal foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same per foot whether the rise needs only the two required landings or a rest landing and a switchback turn on top of them.</td>
+<td>Counts every landing the rise and layout require &mdash; intermediate rest landings at the maximum-rise interval, plus a turn landing for a switchback that did not already rest &mdash; and prices the walking surface from run plus every landing, not run alone.</td>
+</tr>
+<tr>
+<td>Has no line for both-side handrail, even though handrail lineal footage grows with the run and every landing, not with the run alone.</td>
+<td>Prices handrail from the run and landing perimeter as its own line, separate from the walking surface.</td>
+</tr>
+<tr>
+<td>Has no line for footings, which scale with both the run length and the landing count.</td>
+<td>Prices footings by count &mdash; a pair at the house, a pair per landing, and posts along the run &mdash; as its own line.</td>
+</tr>
+<tr>
+<td>Charges the same rate for pressure-treated wood and for composite, aluminum, or poured concrete, even though the material cost per square foot can be several times higher.</td>
+<td>Prices the walking surface by the selected material's own decking and framing cost per square foot.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the price, the profit, and the effective hourly rate, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two ramps, one flat rate</h2>
+<p>
+Using this calculator's own figures, at a 25% target margin, a $28
+hourly wage, 32% payroll burden, and $85 in travel and equipment:
+</p>
+<p>
+A 24-inch rise, straight, pressure-treated wood ramp with the two
+required landings costs <strong>$4,601.99</strong> to run and this
+calculator prices it at <strong>$6,135.98</strong> &mdash;
+<strong>$255.67 per lineal foot</strong>. A 48-inch rise switchback on
+modular aluminum &mdash; a rest landing, a turn landing, 111 lf of
+handrail, 22 footings, a stair demo, and a permit &mdash; costs
+<strong>$13,910.58</strong> to run and this calculator prices it at
+<strong>$18,547.43</strong>, <strong>3.02 times</strong> the small
+ramp's price on just twice the run. Quote the aluminum switchback at
+the wood ramp's flat <strong>$255.67-per-foot</strong> rate instead,
+and 48 feet prices at <strong>$12,271.96</strong> &mdash;
+<strong>$1,638.61 below the ramp's own break-even cost</strong> &mdash;
+before counting the <strong>$6,275.47</strong> it falls short of what
+this calculator prices the ramp at. Same rate, one ramp that pays and
+one that loses money the moment the rest landing and the handrail show
+up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat rate per lineal foot get a taller ramp wrong?</h3>
+<p>Because lineal feet of run is not the walking surface, and it is not the parts list. A flat rate is usually set on a small straight run with the minimum two landings; a taller rise needs a rest landing the coupon never counted, a switchback needs a turn landing, and both-side handrail and footing counts grow with the landings, not with the run alone. Using this calculator's own figures, a 24-inch straight wood ramp costs $4,601.99 to run and prices at $6,135.98 -- $255.67 per lineal foot. A 48-inch switchback aluminum ramp with a rest landing, demo, and permit costs $13,910.58 to run and this calculator prices it at $18,547.43 -- 3.02 times the small ramp's price, not twice, on exactly twice the run.</p>
+<h3>What does a flat rate per lineal foot usually leave out entirely?</h3>
+<p>Landings, handrail, footings, and the surface material. A flat per-lf rate has no line for a rest landing a taller rise requires, no line for a switchback's turn landing, no line for both-side handrail lineal footage, no line for the footing count a longer run and more landings both add, and no line for a pricier surface like aluminum or concrete instead of wood. It also has no line for demoing existing stairs or pulling a permit.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own figures: the 24-inch straight wood ramp prices at $6,135.98, on a job that costs $4,601.99 to run, at $255.67 per lineal foot. Apply that same per-lf rate to the 48-inch switchback aluminum ramp (rest landing, demo, permit) and it quotes at $12,271.96 -- $1,638.61 below the ramp's own $13,910.58 break-even cost, before counting the $6,275.47 it falls short of what this calculator prices the ramp at ($18,547.43, 3.02 times the small ramp).</p>
+<h3>Is a flat rate per lineal foot ever the right way to quote?</h3>
+<p>For a ramp close to the rise, layout, and surface the rate was set on -- typically a short straight run needing only the two required landings -- a flat per-lf number can land close, because that is probably the ramp the rate was set on. The risk is quoting a rise tall enough to need a rest landing, a switchback, a pricier surface, a demo, or a permit at the same rate, because the rate does not know the rise, the layout, or the surface until someone measures the site, and by then the flat number has often already been quoted over the phone.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market, your supplier's material pricing, or what other ramp builders in your area charge. It takes rise, slope, layout, surface, width, handrail, footings, demo, permit, and your own wage, burden, overhead, and target margin, and turns that into a price for this ramp -- the arithmetic a flat rate per lineal foot skips, not a market survey or a code determination.</p>
+<p class="note">
+Open the <a href="./">Wheelchair Ramp Bid Calculator</a> to price your own ramp, or read <a href="./how-much-to-charge-to-build-a-wheelchair-ramp.html">how much to charge to build a wheelchair ramp</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it won you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sunroom-bid-calculator/" data-pf-to="sunroom-bid-calculator">Sunroom Bid Calculator</a></li>
+      <li><a href="../tile-layout-optimizer/" data-pf-to="tile-layout-optimizer">Tile Layout Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tile-layout-planner/" data-pf-to="tile-layout-planner">Tile Layout Planner — free, private, in your browser</a></li>
+      <li><a href="../walk-in-shower-bid-calculator/" data-pf-to="walk-in-shower-bid-calculator">Walk-In Shower Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wheelchair-ramp-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="wheelchair-ramp-bid-calculator"></script>
+</body></html>

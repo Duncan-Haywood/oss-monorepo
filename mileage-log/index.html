@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mileage Log — Free IRS-Ready Mileage Tracker in Your Browser</title>
+  <meta name="description" content="Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed…">
+  <meta property="og:title" content="Mileage Log — free, private, works offline">
+  <meta property="og:description" content="Log trips or track with GPS, price them at the IRS rate for each date, and check the log for audit gaps. Data stays on your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mileage-log/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mileage Log", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A private mileage log that prices each trip at the IRS standard mileage rate for its date, splits business, commuting and other miles for Schedule C Part IV, checks the log for missing purposes and odometer gaps, and exports CSV. Data stays in your browser.", "featureList": "Trip log with odometer or GPS, IRS standard rate by trip date including the 2026 mid-year change, Schedule C Part IV split, audit-readiness checks, CSV and JSON export, works offline, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the IRS expect a mileage log to show?", "acceptedAnswer": {"@type": "Answer", "text": "For each business trip: the date, the miles, where you went and the business purpose, plus the odometer readings at the start and end of the year to prove the total. The IRS calls this adequate records or sufficient evidence, and a log written at or near the time of the trip carries the most weight."}}, {"@type": "Question", "name": "Which rate does it use?", "acceptedAnswer": {"@type": "Answer", "text": "The IRS standard mileage rate for the date of each trip: 70 cents for 2025 business miles, 72.5 cents for January to June 2026 and 76 cents from July 1, 2026. Medical and charity rates are included and every rate can be overridden in the settings. Check irs.gov before you file."}}, {"@type": "Question", "name": "Does it track my location in the background?", "acceptedAnswer": {"@type": "Answer", "text": "No. GPS tracking works only while this page is open and the screen stays on, and it only starts when you press Start. Nothing is uploaded: positions are used to add up the distance in your browser and are not stored. For unattended tracking a native app is still better; this tool is for a log you control."}}, {"@type": "Question", "name": "Where is my data kept, and can I lose it?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device. Clearing site data, or a browser that clears storage for sites you have not opened in a while, removes it. Use Download backup regularly; the file restores on any device."}}, {"@type": "Question", "name": "Can I use it offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Once the page has loaded it works with no signal, and you can add it to your home screen."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published rates to the trips you enter and checks your log for gaps. It does not decide whether a trip is deductible, whether the standard rate is available for your vehicle, or how to file."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+      @media print { .noprint, button, .card:not(.printable) { display: none !important; } body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #f2f7fa; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.35rem; color: #1f4a5d; }
+    .kpi span { font-size: .8rem; color: #4c5a68; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    .sr { position: absolute; left: -9999px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Mileage Log — free, private, works offline","item":"https://duncan-haywood.github.io/monorepo-projects/mileage-log/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mileage-log/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mileage-log/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mileage Log — free, private, works offline — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Mileage Log — free, private, works offline</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header class="noprint">
+    <p class="note">MILEAGE LOG · WORKS OFFLINE · DATA STAYS ON YOUR DEVICE</p>
+    <h1>A mileage log that would hold up if you were asked for it.</h1>
+    <p>Log trips by odometer, by typing miles, or with <strong>GPS while the page is open</strong>. Every trip is priced at the <strong>IRS standard mileage rate for its own date</strong> (the 2026 business rate changed on July 1), the year is split into business, commuting and other miles for <strong>Schedule C Part IV</strong>, and the log is checked for the gaps an examiner looks for. Export a CSV any time. No account, no subscription.</p>
+    <p class="note">Trips are stored in this browser only and never sent anywhere. Download a backup now and then: clearing browser data clears the log.</p>
+  </header>
+
+  <section class="card noprint">
+    <h2>1. Year and odometer</h2>
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"></select></div>
+      <div><label for="odo-start">Odometer on January 1</label><input id="odo-start" inputmode="decimal" placeholder="e.g. 41200"></div>
+      <div><label for="odo-end">Odometer on December 31 (or today)</label><input id="odo-end" inputmode="decimal" placeholder="e.g. 54700"></div>
+    </div>
+    <details>
+      <summary>Rates (override if the IRS changes them)</summary>
+      <div class="grid">
+        <div><label for="rate-business">Business, $ per mile</label><input id="rate-business" inputmode="decimal" placeholder="by date: 0.70 / 0.725 / 0.76"></div>
+        <div><label for="rate-medical">Medical, $ per mile</label><input id="rate-medical" inputmode="decimal" placeholder="by date"></div>
+        <div><label for="rate-charity">Charity, $ per mile</label><input id="rate-charity" inputmode="decimal" placeholder="0.14"></div>
+      </div>
+      <p class="note">Leave blank to use the IRS rate for each trip's date. Verify current rates at irs.gov/tax-professionals/standard-mileage-rates.</p>
+    </details>
+  </section>
+
+  <section class="card noprint" id="reimburse-card">
+    <h2>Employee? Claim reimbursement from your employer</h2>
+    <p class="note">Since 2018 employees cannot deduct unreimbursed mileage on a federal return, so the useful document is a claim to your employer. It lists your business trips for a date range at your employer's per-mile rate (leave blank for the IRS rate on each trip's date) and downloads as a printable HTML page.</p>
+    <div class="grid">
+      <div><label for="rb-name">Your name (optional)</label><input id="rb-name" autocomplete="name"></div>
+      <div><label for="rb-employer">Employer (optional)</label><input id="rb-employer" autocomplete="organization"></div>
+      <div><label for="rb-from">From date</label><input id="rb-from" type="date"></div>
+      <div><label for="rb-to">To date</label><input id="rb-to" type="date"></div>
+      <div><label for="rb-rate">Employer rate, $ per mile</label><input id="rb-rate" inputmode="decimal" placeholder="blank = IRS rate by date"></div>
+    </div>
+    <p><button type="button" class="secondary" id="reimburse">Download reimbursement claim (HTML)</button></p>
+    <p class="note" id="rb-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card noprint" id="routes-card" hidden>
+    <h2>Repeat a trip</h2>
+    <p class="note">Your most frequent deductible routes. One tap fills the form for today; add the odometer or confirm the miles, then save.</p>
+    <div id="routes"></div>
+  </section>
+
+  <section class="card noprint">
+    <h2 id="form-title">2. Add a trip</h2>
+    <div class="grid">
+      <div><label for="t-date">Date</label><input id="t-date" type="date"></div>
+      <div><label for="t-cat">Category</label><select id="t-cat"><option value="business">Business</option><option value="commute">Commuting (not deductible)</option><option value="medical">Medical</option><option value="charity">Charity</option><option value="personal">Personal / other</option></select></div>
+      <div><label for="t-from">From</label><input id="t-from" autocomplete="off"></div>
+      <div><label for="t-to">To (destination)</label><input id="t-to" autocomplete="off"></div>
+      <div><label for="t-purpose">Business purpose</label><input id="t-purpose" autocomplete="off" placeholder="e.g. Estimate visit, bank deposit"></div>
+      <div><label for="t-client">Client or job (optional)</label><input id="t-client" autocomplete="off"></div>
+      <div><label for="t-vehicle">Vehicle (optional)</label><input id="t-vehicle" list="vehicle-list" autocomplete="off" placeholder="e.g. Ford Transit"><datalist id="vehicle-list"></datalist></div>
+      <div><label for="t-odo-start">Odometer start</label><input id="t-odo-start" inputmode="decimal"></div>
+      <div><label for="t-odo-end">Odometer end</label><input id="t-odo-end" inputmode="decimal"></div>
+      <div><label for="t-miles">Miles (if no odometer)</label><input id="t-miles" inputmode="decimal"></div>
+      <div><label for="t-tolls">Tolls, $</label><input id="t-tolls" inputmode="decimal"></div>
+      <div><label for="t-parking">Parking, $</label><input id="t-parking" inputmode="decimal"></div>
+    </div>
+    <p>
+      <button type="button" id="save-trip">Save trip</button>
+      <button type="button" class="secondary" id="cancel-edit" hidden>Cancel edit</button>
+      <button type="button" class="secondary" id="gps-toggle">Start GPS tracking</button>
+    </p>
+    <p class="note" id="form-status">Business, medical and charity trips need a destination and a purpose. GPS tracking only works while this page is open and the screen is on; it fills in the miles when you stop.</p>
+  </section>
+
+  <section class="card printable" id="report" aria-live="polite">
+    <h2 id="report-title">Summary</h2>
+    <div class="kpis" id="kpis"></div>
+    <div id="report-findings"></div>
+    <div id="vehicles-wrap" hidden>
+      <h3>By vehicle</h3>
+      <p class="note">The standard rate is claimed per vehicle. Enter each vehicle's January 1 and December 31 odometer to get its own business-use share.</p>
+      <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Vehicle</th><th class="n" scope="col">Business</th><th class="n" scope="col">Commuting</th><th class="n" scope="col">Odo Jan 1</th><th class="n" scope="col">Odo Dec 31</th><th class="n" scope="col">Business use</th><th class="n" scope="col">Deduction</th></tr></thead><tbody id="vehicles"></tbody></table></div></div>
+    </div>
+    <h3>Schedule C, Part IV numbers</h3>
+    <p class="note">Total business, commuting and other miles for the year, as that section of Schedule C asks. Other = all miles driven that are neither business nor commuting; it needs both odometer readings.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Miles</th></tr></thead><tbody id="sched"></tbody></table></div></div>
+    <h3>By month</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Business miles</th><th class="n" scope="col">Other logged miles</th><th class="n" scope="col">Deduction</th></tr></thead><tbody id="months"></tbody></table></div></div>
+    <h3>Trips</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Category</th><th scope="col">Trip</th><th scope="col">Purpose</th><th class="n" scope="col">Miles</th><th class="n" scope="col">Rate</th><th class="n" scope="col">Deduction</th><th class="noprint" scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="trips"></tbody></table></div></div>
+    <p class="note" id="empty" hidden>No trips for this year yet. Add one above, or load the example to see how it works.</p>
+  </section>
+
+  <section class="card noprint">
+    <h2>3. Export, back up, restore</h2>
+    <p>
+      <button type="button" id="export-csv">Export CSV for this year</button>
+      <p class="note" id="storage-guard" aria-live="polite"></p>
+      <button type="button" class="secondary" id="export-json">Download backup (all years)</button>
+      <button type="button" class="secondary" id="import-btn">Restore from backup</button>
+      <button type="button" class="secondary" id="print">Print this year</button>
+      <button type="button" class="secondary" id="preparer">Report for my tax preparer (HTML)</button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore">
+    </p>
+    <p>
+      <button type="button" class="secondary" id="load-example">Load an example year</button>
+      <button type="button" class="danger" id="clear-all">Delete all trips on this device</button>
+    </p>
+    <p class="note" id="io-status"></p>
+  </section>
+
+  <section class="card noprint">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Deduction</strong> is each trip's miles times the IRS standard rate for the trip's date and category. Business, medical and charity trips are deductible at their rate; commuting and personal trips are not. Tolls and parking on business trips are shown separately because they are deductible in addition to the standard rate.</li>
+      <li><strong>Odometer readings</strong> take priority over typed miles when both are present and the end is higher than the start.</li>
+      <li><strong>Audit-readiness checks</strong> look at the log itself: deductible trips missing a purpose or destination, odometer readings that contradict each other, possible duplicates, a log made mostly of round numbers, entries typed long after the trip, and business miles that exceed the year's total.</li>
+      <li><strong>Not modelled:</strong> whether the standard rate is available for your vehicle, the actual-expense method (see the <a href="../mileage-deduction-method-calculator/">mileage method calculator</a>), state rules, employee reimbursement plans, and whether a particular trip is deductible at all.</li>
+    </ul>
+  </section>
+
+  <section class="card noprint">
+    <h2>Common questions</h2>
+    <h3>What does the IRS expect a mileage log to show?</h3>
+    <p>For each business trip: the date, the miles, where you went and the business purpose, plus the odometer readings at the start and end of the year to prove the total. The IRS calls this adequate records or sufficient evidence, and a log written at or near the time of the trip carries the most weight.</p>
+    <h3>Which rate does it use?</h3>
+    <p>The IRS standard mileage rate for the date of each trip: 70 cents for 2025 business miles, 72.5 cents for January to June 2026 and 76 cents from July 1, 2026. Medical and charity rates are included and every rate can be overridden in the settings. Check irs.gov before you file.</p>
+    <h3>Does it track my location in the background?</h3>
+    <p>No. GPS tracking works only while this page is open and the screen stays on, and it only starts when you press Start. Nothing is uploaded: positions are used to add up the distance in your browser and are not stored. For unattended tracking a native app is still better; this tool is for a log you control.</p>
+    <h3>Where is my data kept, and can I lose it?</h3>
+    <p>In your browser on this device. Clearing site data, or a browser that clears storage for sites you have not opened in a while, removes it. Use Download backup regularly; the file restores on any device.</p>
+    <h3>Can I use it offline?</h3>
+    <p>Yes. Once the page has loaded it works with no signal, and you can add it to your home screen.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies published rates to the trips you enter and checks your log for gaps. It does not decide whether a trip is deductible, whether the standard rate is available for your vehicle, or how to file.</p>
+  </section>
+
+  <footer class="noprint">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the trips you enter and on IRS rates that change; confirm rates and rules at irs.gov or with a tax professional before you file.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your trips are never uploaded; there are no accounts, cookies, or analytics vendors. GPS positions are used only to add up distance while you track and are not stored. Anonymous feature events (<code>trip_saved</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the trips. Turn it off below, or with Do Not Track / Global Privacy Control.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Choosing between the standard rate and actual expenses? Try the <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a>. Driving for a delivery or rideshare app? See the <a href="../gig-driver-net-pay-calculator/">gig driver net pay calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CATEGORIES, summarizeByVehicle, vehicleNames, frequentRoutes, tripFromRoute, preparerReportHtml, NO_VEHICLE, rateFor, tripMiles, validateTrip, normalizeTrip, summarize, addFix, toCsv, exportJson, importJson, sampleTrips, money, money0, pct } from "./calc.mjs";
+    import { reimbursementClaim, reimbursementHtml } from "./reimburse.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const KEY = "mileage-log-data-v1";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const LABEL = { business: "Business", commute: "Commuting", medical: "Medical", charity: "Charity", personal: "Personal" };
+    let state = { trips: [], settings: {} };
+    let editing = null, track = null, watchId = null;
+
+    function load() {
+      try { const d = JSON.parse(localStorage.getItem(KEY) || "null"); if (d && Array.isArray(d.trips)) state = { trips: d.trips.map(normalizeTrip), settings: d.settings || {} }; } catch { /* storage is optional */ }
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { $("#io-status").textContent = "Your browser would not save this. Download a backup so nothing is lost."; } }
+    const numOrNull = (v) => { const n = parseFloat(String(v).replace(/[^0-9.]/g, "")); return Number.isNaN(n) ? null : n; };
+    const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+    const year = () => $("#year").value;
+    const override = () => {
+      const o = {};
+      for (const c of ["business", "medical", "charity"]) { const v = numOrNull($("#rate-" + c).value); if (v !== null) o[c] = v; }
+      return o;
+    };
+    const odos = () => {
+      const s = state.settings[year()] || {};
+      return { start: s.start ?? null, end: s.end ?? null };
+    };
+
+    function fillYears() {
+      const ys = new Set([String(new Date().getFullYear()), "2026", "2025"]);
+      for (const t of state.trips) ys.add(t.date.slice(0, 4));
+      const sel = $("#year"), cur = sel.value || String(new Date().getFullYear());
+      sel.innerHTML = [...ys].sort().reverse().map((y) => `<option value="${y}">${y}</option>`).join("");
+      sel.value = ys.has(cur) ? cur : [...ys].sort().reverse()[0];
+    }
+    function fillOdos() {
+      const o = odos();
+      $("#odo-start").value = o.start ?? ""; $("#odo-end").value = o.end ?? "";
+    }
+
+    function render() {
+      const o = odos();
+      const r = summarize(state.trips, { year: year(), override: override(), yearStartOdo: o.start, yearEndOdo: o.end });
+      const s = r.summary;
+      $("#report-title").textContent = `Summary for ${s.year}`;
+      const kpi = (b, t) => `<div class="kpi"><b>${b}</b><span>${t}</span></div>`;
+      $("#kpis").innerHTML = [
+        kpi(Math.round(s.by.business.miles).toLocaleString("en-US"), "business miles"),
+        kpi(money(s.mileageDeduction), "standard-rate deduction"),
+        kpi(money(s.tolls + s.parking), "tolls + parking, on top"),
+        kpi(s.logged ? pct(s.businessUse) : "–", "business use " + (s.haveOdo ? "(of year miles)" : "(of logged miles)")),
+        kpi(String(s.trips), "trips logged"),
+      ].join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const row = (l, v) => `<tr><th scope="row">${l}</th><td class="n">${v === null ? "add odometer readings" : Math.round(v).toLocaleString("en-US")}</td></tr>`;
+      $("#sched").innerHTML = row("Total miles driven in the year", s.yearMiles) + row("Business miles", s.by.business.miles) + row("Commuting miles", s.by.commute.miles) + row("Other miles", s.haveOdo ? s.otherMiles : null);
+      $("#months").innerHTML = s.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${Math.round(m.business)}</td><td class="n">${Math.round(m.other)}</td><td class="n">${money(m.deduction)}</td></tr>`).join("");
+      $("#trips").innerHTML = [...r.trips].reverse().map((t) => {
+        const m = tripMiles(t), rate = rateFor(t.date, t.category, override());
+        return `<tr><td>${t.date}</td><td>${LABEL[t.category] || t.category}${t.gps ? " (GPS)" : ""}</td><td>${esc(t.from)}${t.from && t.to ? " → " : ""}${esc(t.to)}${t.client ? " · " + esc(t.client) : ""}</td><td>${esc(t.purpose)}</td><td class="n">${m}</td><td class="n">${rate ? rate.toFixed(3) : "–"}</td><td class="n">${rate ? money(m * rate) : "–"}</td><td class="noprint"><button type="button" class="secondary" data-edit="${esc(t.id)}">Edit</button><button type="button" class="danger" data-del="${esc(t.id)}">Delete</button></td></tr>`;
+      }).join("");
+      $("#empty").hidden = r.trips.length > 0;
+      renderVehicles();
+      renderRoutes();
+    }
+
+    const vOdo = () => (state.settings[year()] || {}).vehicleOdo || {};
+    function renderVehicles() {
+      const vs = summarizeByVehicle(state.trips, { year: year(), override: override(), vehicleOdo: vOdo() });
+      const named = vs.filter((v) => v.vehicle !== NO_VEHICLE).length;
+      $("#vehicles-wrap").hidden = named === 0;
+      $("#vehicle-list").innerHTML = vehicleNames(state.trips).map((n) => `<option value="${esc(n)}">`).join("");
+      $("#vehicles").innerHTML = vs.map((v) => {
+        const o = vOdo()[v.vehicle] || {}, named = v.vehicle !== NO_VEHICLE;
+        const inp = (k) => named ? `<input class="cost" data-vodo="${k}" data-v="${esc(v.vehicle)}" inputmode="decimal" aria-label="${esc(v.vehicle)} odometer ${k === "start" ? "January 1" : "December 31"}" value="${o[k] ?? ""}">` : "–";
+        return `<tr><th scope="row">${esc(v.vehicle)}</th><td class="n">${Math.round(v.business).toLocaleString("en-US")}</td><td class="n">${Math.round(v.commute).toLocaleString("en-US")}</td><td class="n">${inp("start")}</td><td class="n">${inp("end")}</td><td class="n">${v.businessUse == null ? "–" : pct(v.businessUse, 1)}</td><td class="n">${money(v.deduction)}</td></tr>`;
+      }).join("");
+    }
+    $("#vehicles").addEventListener("input", (e) => {
+      const el = e.target.closest("[data-vodo]"); if (!el) return;
+      const y = year(), cur = state.settings[y] || {}, vo = { ...(cur.vehicleOdo || {}) };
+      vo[el.dataset.v] = { ...(vo[el.dataset.v] || {}), [el.dataset.vodo]: numOrNull(el.value) };
+      state.settings[y] = { ...cur, vehicleOdo: vo }; save();
+      const rows = summarizeByVehicle(state.trips, { year: y, override: override(), vehicleOdo: vo });
+      const row = el.closest("tr"), v = rows.find((x) => x.vehicle === el.dataset.v);
+      row.children[5].textContent = v && v.businessUse != null ? pct(v.businessUse, 1) : "–";
+    });
+
+    let routes = [];
+    function renderRoutes() {
+      routes = frequentRoutes(state.trips);
+      $("#routes-card").hidden = routes.length === 0;
+      $("#routes").innerHTML = routes.map((r, i) => `<button type="button" class="secondary" data-route="${i}">${esc(r.from || "…")} → ${esc(r.to)} · ${r.miles} mi · ${r.count}×</button>`).join("");
+    }
+    $("#routes").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-route]"); if (!b) return;
+      const d = tripFromRoute(routes[Number(b.dataset.route)], today());
+      clearForm();
+      $("#t-date").value = d.date; $("#t-cat").value = d.category; $("#t-from").value = d.from; $("#t-to").value = d.to; $("#t-purpose").value = d.purpose; $("#t-client").value = d.client; $("#t-vehicle").value = d.vehicle; $("#t-miles").value = d.miles || "";
+      $("#form-status").textContent = `Filled from your usual ${d.to} trip. Check the miles (or enter odometer readings), then save.`;
+      $("#form-title").scrollIntoView({ behavior: "smooth" });
+    });
+
+    function readForm() {
+      return { id: editing || undefined, date: $("#t-date").value, category: $("#t-cat").value, from: $("#t-from").value, to: $("#t-to").value, purpose: $("#t-purpose").value, client: $("#t-client").value, vehicle: $("#t-vehicle").value,
+        odoStart: numOrNull($("#t-odo-start").value) ?? "", odoEnd: numOrNull($("#t-odo-end").value) ?? "", miles: numOrNull($("#t-miles").value) ?? 0, tolls: numOrNull($("#t-tolls").value) ?? 0, parking: numOrNull($("#t-parking").value) ?? 0,
+        gps: $("#t-miles").dataset.gps === "1" };
+    }
+    function clearForm() {
+      for (const id of ["from", "to", "purpose", "client", "vehicle", "odo-start", "odo-end", "miles", "tolls", "parking"]) $("#t-" + id).value = "";
+      $("#t-miles").dataset.gps = ""; $("#t-date").value = today(); editing = null;
+      $("#form-title").textContent = "2. Add a trip"; $("#save-trip").textContent = "Save trip"; $("#cancel-edit").hidden = true;
+    }
+
+    $("#save-trip").addEventListener("click", () => {
+      const raw = readForm();
+      const v = validateTrip(raw);
+      if (!v.ok) { $("#form-status").textContent = v.errors.join(" "); return; }
+      const prior = editing ? state.trips.find((t) => t.id === editing) : null;
+      const trip = normalizeTrip({ ...raw, enteredAt: prior ? prior.enteredAt : undefined });
+      state.trips = state.trips.filter((t) => t.id !== trip.id).concat(trip);
+      save(); if (!prior) record("trip_saved");
+      fillYears(); $("#year").value = trip.date.slice(0, 4); fillOdos();
+      $("#form-status").textContent = `Saved: ${tripMiles(trip)} miles on ${trip.date}.`;
+      const cat = $("#t-cat").value; clearForm(); $("#t-cat").value = cat; render();
+    });
+    $("#cancel-edit").addEventListener("click", () => { clearForm(); $("#form-status").textContent = "Edit cancelled."; });
+    $("#trips").addEventListener("click", (e) => {
+      const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
+      if (ed) {
+        const t = state.trips.find((x) => x.id === ed.dataset.edit); if (!t) return;
+        editing = t.id; $("#t-date").value = t.date; $("#t-cat").value = t.category; $("#t-from").value = t.from; $("#t-to").value = t.to; $("#t-purpose").value = t.purpose; $("#t-client").value = t.client; $("#t-vehicle").value = t.vehicle || "";
+        $("#t-odo-start").value = t.odoStart; $("#t-odo-end").value = t.odoEnd; $("#t-miles").value = t.miles || ""; $("#t-tolls").value = t.tolls || ""; $("#t-parking").value = t.parking || "";
+        $("#form-title").textContent = "2. Edit trip"; $("#save-trip").textContent = "Update trip"; $("#cancel-edit").hidden = false;
+        $("#form-title").scrollIntoView({ behavior: "smooth" });
+      } else if (del) {
+        state.trips = state.trips.filter((t) => t.id !== del.dataset.del); save(); render();
+      }
+    });
+
+    for (const id of ["#year"]) $(id).addEventListener("change", () => { fillOdos(); render(); });
+    for (const id of ["#rate-business", "#rate-medical", "#rate-charity"]) $(id).addEventListener("input", render);
+    for (const [id, k] of [["#odo-start", "start"], ["#odo-end", "end"]]) $(id).addEventListener("input", () => {
+      const y = year(); state.settings[y] = { ...(state.settings[y] || {}), [k]: numOrNull($(id).value) }; save(); render();
+    });
+
+    // GPS: only while the page is open; positions are summed and never stored.
+    $("#gps-toggle").addEventListener("click", () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId); watchId = null;
+        const miles = Math.round((track?.miles || 0) * 10) / 10;
+        $("#t-miles").value = miles || ""; $("#t-miles").dataset.gps = miles ? "1" : "";
+        $("#gps-toggle").textContent = "Start GPS tracking";
+        $("#form-status").textContent = miles ? `GPS tracked ${miles} miles. Add the destination and purpose, then save.` : "No distance was recorded. Enter the miles by hand.";
+        track = null; return;
+      }
+      if (!("geolocation" in navigator)) { $("#form-status").textContent = "This browser has no location access. Enter odometer readings or miles instead."; return; }
+      track = { miles: 0 };
+      watchId = navigator.geolocation.watchPosition((p) => {
+        track = addFix(track, { lat: p.coords.latitude, lon: p.coords.longitude, accuracy: p.coords.accuracy });
+        $("#form-status").textContent = `Tracking… ${(track.miles || 0).toFixed(1)} miles so far. Keep this page open.`;
+      }, (err) => { $("#form-status").textContent = "Location was not available: " + err.message; navigator.geolocation.clearWatch(watchId); watchId = null; $("#gps-toggle").textContent = "Start GPS tracking"; }, { enableHighAccuracy: true, maximumAge: 5000 });
+      $("#gps-toggle").textContent = "Stop GPS tracking";
+      $("#form-status").textContent = "Tracking… keep this page open and the screen on.";
+    });
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
+    }
+    $("#export-csv").addEventListener("click", () => {
+      const list = state.trips.filter((t) => t.date.startsWith(year()));
+      if (!list.length) { $("#io-status").textContent = "No trips in this year to export."; return; }
+      download(`mileage-log-${year()}.csv`, toCsv(list, { override: override() }), "text/csv"); record("csv_exported");
+    });
+    $("#export-json").addEventListener("click", () => { download("mileage-log-backup.json", exportJson(state.trips, state.settings), "application/json"); $("#io-status").textContent = "Backup downloaded. Keep the file somewhere safe."; });
+    $("#import-btn").addEventListener("click", () => $("#import-file").click());
+    $("#import-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = importJson(await f.text(), state.trips);
+      if (r.error) { $("#io-status").textContent = r.error; return; }
+      state.trips = r.trips; state.settings = { ...r.settings, ...state.settings }; save(); fillYears(); fillOdos(); render();
+      $("#io-status").textContent = `Restored ${r.added} trip${r.added === 1 ? "" : "s"}; ${r.trips.length} on this device now.`; e.target.value = "";
+    });
+    $("#preparer").addEventListener("click", () => {
+      const list = state.trips.filter((t) => t.date.startsWith(year()));
+      if (!list.length) { $("#io-status").textContent = "No trips in this year to report."; return; }
+      const o = odos();
+      download(`mileage-report-${year()}.html`, preparerReportHtml(state.trips, { year: year(), override: override(), yearStartOdo: o.start, yearEndOdo: o.end, vehicleOdo: vOdo() }), "text/html");
+      record("preparer_report"); $("#io-status").textContent = "Report downloaded. Open it in a browser to print or save as PDF for your preparer.";
+    });
+    $("#reimburse").addEventListener("click", () => {
+      const opts = { from: $("#rb-from").value, to: $("#rb-to").value, rate: $("#rb-rate").value.trim(), override: override() };
+      const c = reimbursementClaim(state.trips, opts);
+      if (!c.rows.length) { $("#rb-status").textContent = "No business trips with miles in that date range."; return; }
+      download("mileage-reimbursement-claim.html", reimbursementHtml(state.trips, { ...opts, name: $("#rb-name").value, employer: $("#rb-employer").value }), "text/html");
+      record("reimbursement_claim");
+      $("#rb-status").textContent = `Claim downloaded: ${c.rows.length} trips, ${c.miles} miles.` + (c.incomplete ? ` ${c.incomplete} lack a destination or purpose.` : "") + (c.overIrsCents ? " Your rate is above the IRS rate; the excess is generally taxable wages." : "");
+    });
+    $("#print").addEventListener("click", () => window.print());
+    $("#load-example").addEventListener("click", () => {
+      const ex = sampleTrips(2026);
+      const have = new Set(state.trips.map((t) => t.id));
+      state.trips = state.trips.concat(ex.trips.filter((t) => !have.has(t.id)));
+      state.settings["2026"] = { start: ex.yearStartOdo, end: ex.yearEndOdo }; save(); fillYears(); $("#year").value = "2026"; fillOdos(); render();
+      record("example_loaded"); $("#io-status").textContent = "Example year loaded: synthetic trips for a home-visit contractor. Delete them before you start your own log.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      if (!confirm("Delete every trip stored in this browser? Download a backup first if you might want them.")) return;
+      state = { trips: [], settings: {} }; save(); fillYears(); fillOdos(); render(); $("#io-status").textContent = "All trips deleted from this device.";
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+
+    load(); fillYears(); fillOdos(); clearForm(); render();
+  </script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cheap-meal-plan-optimizer/" data-pf-to="cheap-meal-plan-optimizer">Cheapest Meal Plan Optimizer — free, private, in your browser</a></li>
+      <li><a href="../child-tax-credit-calculator/" data-pf-to="child-tax-credit-calculator">Child Tax Credit Calculator — free 2025/2026 CTC &amp; ACTC estimator</a></li>
+      <li><a href="../chiropractor-new-patient-roi-calculator/" data-pf-to="chiropractor-new-patient-roi-calculator">Chiropractor New Patient ROI Calculator — free</a></li>
+      <li><a href="../client-concentration-risk-analyzer/" data-pf-to="client-concentration-risk-analyzer">How dependent is your revenue on one client?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mileage-log">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/mileage-log/?pfEmbed=1&quot; title=&quot;Mileage Log — free, private, works offline — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="mileage-log"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/mileage-log/" data-pf-embed-title="Mileage Log — free, private, works offline" data-pf-embed-slug="mileage-log"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="mileage-log" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="mileage-log" data-pf-link-amount=""></script>
+</body>
+</html>

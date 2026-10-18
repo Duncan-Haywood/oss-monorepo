@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Price A Freight Load For A Target Margin: Gross, Float And Net</title>
+  <meta name="description" content="A step-by-step method for freight brokers to price a load for a target net margin: start from gross profit, subtract the cost of fronting the carrier…">
+  <meta property="og:title" content="How To Price A Freight Load For A Target Margin">
+  <meta property="og:description" content="Why a 15% gross margin load can lose money, and how to solve the rate to quote.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/how-to-price-a-freight-load-for-target-margin.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the formula for a broker's net margin on a load?","acceptedAnswer":{"@type":"Answer","text":"Net margin is (shipper rate plus billed extras, minus carrier rate and paid extras, minus the cost of fronting the carrier, factoring, reserve, commission and overhead) divided by revenue. Gross margin is the same thing before those costs."}},{"@type":"Question","name":"How do I find the highest carrier rate I can pay?","acceptedAnswer":{"@type":"Answer","text":"Fix the shipper rate, then solve for the carrier cost that leaves your target net margin: revenue times (1 minus factoring, reserve, commission and target) minus overhead, divided by one plus the float cost minus commission. The calculator does this for every load."}},{"@type":"Question","name":"Should I charge more for net 60 shippers?","acceptedAnswer":{"@type":"Answer","text":"You are lending the carrier cost for the extra days. At a 10% cost of capital, 30 extra days on a $2,000 carrier cost is about $16, which is a meaningful part of a $200 gross profit. Either price it in, shorten terms or factor the invoice and enter the fee."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/how-to-price-a-freight-load-for-target-margin.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Price A Freight Load For A Target Margin — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freight-broker-load-margin-calculator/">Freight Broker Load Margin Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Price A Freight Load For A Target Margin</span></span></nav>
+  <p><a href="./">&larr; Freight broker load margin calculator</a></p>
+  <h1>How to price a freight load for a target net margin</h1>
+  <p>Gross margin is the number every load board and TMS shows, and it leaves out the costs that decide whether a broker makes money: the days you fund the carrier before the shipper pays, the factoring fee, the claims reserve, and your overhead. This is a way to price from the net margin you want, backwards.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+  <h2>The method</h2>
+  <h3>1. Write down revenue and carrier cost with the extras</h3>
+  <p>Revenue is the line haul plus whatever you bill for detention, lumper or layover. Carrier cost is the carrier rate plus the same extras you pay out. The difference is gross profit.</p>
+  <h3>2. Charge for the days you carry the carrier</h3>
+  <p>If you pay the carrier in 3 days and the shipper pays in 45, you lend the carrier cost for 42 days at your cost of capital. On a $2,000 carrier cost at 10% that is about $23.</p>
+  <h3>3. Add the percentage costs</h3>
+  <p>Factoring and claims or bad-debt reserve come off revenue. A rep commission usually comes off gross profit. Each is small, and together they take a thin margin to zero.</p>
+  <h3>4. Subtract the fixed cost per load</h3>
+  <p>Divide your monthly TMS, insurance and admin cost by loads moved to get a per-load figure.</p>
+  <h3>5. Solve for the rate</h3>
+  <p>Because net profit moves in a straight line with the shipper rate, the rate that gives your target net margin can be solved exactly. The calculator gives that quote, and the highest carrier rate you can pay if the shipper rate is already fixed.</p>
+  <p><a class="cta" href="./">Try it with your own loads</a></p>
+  <h2>Questions</h2>
+  <h3>What is the formula for a broker's net margin on a load?</h3>
+  <p>Net margin is (shipper rate plus billed extras, minus carrier rate and paid extras, minus the cost of fronting the carrier, factoring, reserve, commission and overhead) divided by revenue. Gross margin is the same thing before those costs.</p>
+  <h3>How do I find the highest carrier rate I can pay?</h3>
+  <p>Fix the shipper rate, then solve for the carrier cost that leaves your target net margin: revenue times (1 minus factoring, reserve, commission and target) minus overhead, divided by one plus the float cost minus commission. The calculator does this for every load.</p>
+  <h3>Should I charge more for net 60 shippers?</h3>
+  <p>You are lending the carrier cost for the extra days. At a 10% cost of capital, 30 extra days on a $2,000 carrier cost is about $16, which is a meaningful part of a $200 gross profit. Either price it in, shorten terms or factor the invoice and enter the fee.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not know your lanes, contracts or customers. Check the arithmetic against your own books.</p>
+    <p>Everything the calculator does runs in your browser; your figures are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freight-broker-load-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freight-broker-load-margin-calculator"></script>
+</body>
+</html>

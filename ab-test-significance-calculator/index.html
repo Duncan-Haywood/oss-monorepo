@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A/B Test Significance Calculator — p-value, SRM, Bayesian and Sequential</title>
+  <meta name="description" content="Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check…">
+  <meta property="og:title" content="A/B Test Significance Calculator — free, private, in your browser">
+  <meta property="og:description" content="Is your A/B test result real? Frequentist, Bayesian and peeking-safe answers, plus sample size planning.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "A/B Test Significance Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter visitors and conversions for a control and a variant and get the p-value, confidence interval, sample ratio mismatch check, Bayesian probability to beat control and an always-valid sequential result. Also plans sample size and test duration. Runs in your browser.", "featureList": "A/B test significance calculator, price test revenue per visitor comparison, sample size calculator, sample ratio mismatch check, Bayesian A/B test, sequential testing always-valid p-value, peeking false positive rate, relative lift confidence interval, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my A/B test result is statistically significant?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the p-value from a two-proportion z-test with your significance level, usually 0.05. A p-value below 0.05 means a difference this large would show up less than 5% of the time if the two versions truly converted the same. This tool also shows the confidence interval for the difference, which tells you how big the effect could plausibly be, not just whether it is zero."}}, {"@type": "Question", "name": "How many visitors do I need for an A/B test?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your baseline conversion rate, the smallest lift you care about, your significance level and your power. As a guide, detecting a 10% relative lift on a 5% baseline at 95% confidence and 80% power takes about 31,000 visitors per group. Use the planner above to enter your own numbers and see how many days that takes at your traffic."}}, {"@type": "Question", "name": "What is sample ratio mismatch (SRM)?", "acceptedAnswer": {"@type": "Answer", "text": "If you planned a 50/50 split but the groups came out 5,000 and 4,500, something is wrong with assignment or tracking. A chi-square test on the group sizes flags splits that are too lopsided to be chance. When SRM fires, the conversion comparison cannot be trusted, so fix the cause first."}}, {"@type": "Question", "name": "Why is peeking at an A/B test a problem?", "acceptedAnswer": {"@type": "Answer", "text": "A fixed-sample p-value is only valid if you look once at a sample size chosen in advance. If you check repeatedly and stop the first time p drops below 0.05, the real false-positive rate climbs to about 14% with five looks and 19% with ten. The always-valid p-value and interval this tool shows stay valid however often you look, at the cost of being more conservative."}}, {"@type": "Question", "name": "What does the Bayesian result mean?", "acceptedAnswer": {"@type": "Answer", "text": "It uses a uniform Beta prior on each conversion rate and reports the probability that the variant's true rate is higher than the control's, plus the expected loss if you choose each option. A 96% probability means that, given the data and the prior, the variant is better with about 96% credibility. It is not the same number as one minus the p-value."}}, {"@type": "Question", "name": "Which result should I trust, frequentist, Bayesian or always-valid?", "acceptedAnswer": {"@type": "Answer", "text": "On a test you planned for a fixed sample size and looked at once, the ordinary p-value and interval are right. If you monitored the test as it ran, use the always-valid result. The Bayesian probability is a useful second view of the same data, but decide your stopping rule before you start whichever you use."}}, {"@type": "Question", "name": "How do I know if a price increase worked in an A/B test?", "acceptedAnswer": {"@type": "Answer", "text": "Compare revenue per visitor, which is conversion rate times price, not conversion alone. A higher price usually converts worse, so a conversion test will often call it a loss even when it earns more. The price panel above tests the difference in revenue per visitor and shows the break-even conversion: raising $29 to $39 can lose up to about 26% of buyers before revenue per visitor falls. It looks only at first-purchase revenue, so also check refunds and churn before rolling out."}}, {"@type": "Question", "name": "Is my conversion data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. You type four numbers and everything is computed in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"A/B Test Significance Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A/B Test Significance Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">A/B Test Significance Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">A/B TEST SIGNIFICANCE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your A/B test result real?</h1>
+    <p>Enter visitors and conversions for the control and the variant. You get the <strong>p-value and confidence interval</strong>, a <strong>sample ratio mismatch</strong> check that catches broken splits, the <strong>Bayesian chance the variant beats control</strong>, and an <strong>always-valid result</strong> that stays honest if you checked the test while it ran. A second panel plans <strong>sample size and duration</strong> before you start.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical analysis of numbers you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your test results</h2>
+    <div class="row2">
+      <fieldset><legend>Control (A)</legend>
+        <label for="n1">Visitors</label><input id="n1" inputmode="numeric" placeholder="10000">
+        <label for="c1">Conversions</label><input id="c1" inputmode="numeric" placeholder="520">
+      </fieldset>
+      <fieldset><legend>Variant (B)</legend>
+        <label for="n2">Visitors</label><input id="n2" inputmode="numeric" placeholder="10000">
+        <label for="c2">Conversions</label><input id="c2" inputmode="numeric" placeholder="578">
+      </fieldset>
+    </div>
+    <div class="grid">
+      <div><label for="alpha">Significance level</label><select id="alpha"><option value="0.1">10% (90% confidence)</option><option value="0.05" selected>5% (95% confidence)</option><option value="0.01">1% (99% confidence)</option></select></div>
+      <div><label for="share">Planned share of traffic to control (%)</label><input id="share" inputmode="decimal" value="50"></div>
+      <div><label for="looks">Times you checked results while it ran</label><input id="looks" inputmode="numeric" value="1"></div>
+    </div>
+    <p class="note">Conversions are visitors who did the thing you are measuring (bought, signed up, clicked) counted once each. The planned share is what your tool was set to send to control, used only for the sample ratio mismatch check. Enter how many times you looked at the results and considered stopping; 1 means you looked once, at the end.</p>
+    <button type="button" id="analyze">Analyze</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your numbers, then click Analyze.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="methods"><thead><tr><th>Method</th><th class="n">Result</th><th>How to read it</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card" id="price-test">
+    <h2>Testing two prices? Compare revenue per visitor, not conversion</h2>
+    <p class="note">A higher price almost always converts worse. What matters is whether it earns more per visitor. Enter each price and how many visitors saw it and bought.</p>
+    <div class="row2">
+      <fieldset><legend>Current price (A)</legend>
+        <label for="pn1">Visitors</label><input id="pn1" inputmode="numeric" placeholder="4000">
+        <label for="pc1">Buyers</label><input id="pc1" inputmode="numeric" placeholder="160">
+        <label for="pp1">Price ($)</label><input id="pp1" inputmode="decimal" placeholder="29">
+      </fieldset>
+      <fieldset><legend>Test price (B)</legend>
+        <label for="pn2">Visitors</label><input id="pn2" inputmode="numeric" placeholder="4000">
+        <label for="pc2">Buyers</label><input id="pc2" inputmode="numeric" placeholder="138">
+        <label for="pp2">Price ($)</label><input id="pp2" inputmode="decimal" placeholder="39">
+      </fieldset>
+    </div>
+    <div class="grid"><div><label for="pmonthly">Visitors per month (optional)</label><input id="pmonthly" inputmode="numeric" placeholder="10000"></div></div>
+    <button type="button" id="price-run">Compare prices</button>
+    <button type="button" class="secondary" id="price-example">Load an example</button>
+    <p id="price-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div class="big" id="price-big"></div>
+    <div id="price-findings"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="price-table" hidden><thead><tr><th>Measure</th><th class="n">Result</th><th>How to read it</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <section class="card" id="multi-test">
+    <h2>More than one variant? Test A/B/n without fooling yourself</h2>
+    <p class="note">One line per arm: name, visitors, conversions. The first line is the control. Each variant is compared with control, and p-values are Holm-adjusted so testing several variants does not make a false winner likely.</p>
+    <label for="multi-text">Arms</label>
+    <textarea id="multi-text" rows="5" placeholder="Control, 5000, 250&#10;Variant B, 5000, 290&#10;Variant C, 5000, 262"></textarea>
+    <button type="button" id="multi-run">Compare variants</button>
+    <button type="button" class="secondary" id="multi-example">Load an example</button>
+    <p id="multi-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div id="multi-findings"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="multi-table" hidden><thead><tr><th>Arm</th><th class="n">Rate</th><th class="n">Lift vs control</th><th class="n">p (raw)</th><th class="n">p (Holm)</th><th class="n">Chance best</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Plan a test: how many visitors do you need?</h2>
+    <div class="grid">
+      <div><label for="base">Baseline conversion rate (%)</label><input id="base" inputmode="decimal" placeholder="5"></div>
+      <div><label for="mde">Smallest lift worth detecting</label><input id="mde" inputmode="decimal" placeholder="10"></div>
+      <div><label for="mode">That lift is</label><select id="mode"><option value="relative" selected>relative (% of baseline)</option><option value="absolute">absolute (percentage points)</option></select></div>
+      <div><label for="power">Power</label><select id="power"><option value="0.8" selected>80%</option><option value="0.9">90%</option><option value="0.95">95%</option></select></div>
+      <div><label for="daily">Visitors per day, both groups combined (optional)</label><input id="daily" inputmode="numeric" placeholder="1000"></div>
+    </div>
+    <button type="button" id="plan">Calculate sample size</button>
+    <p id="plan-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div class="big" id="plan-big"></div>
+    <h3>Or: what lift can your traffic detect?</h3>
+    <div class="grid">
+      <div><label for="avail">Visitors per group you can get</label><input id="avail" inputmode="numeric" placeholder="10000"></div>
+    </div>
+    <button type="button" class="secondary" id="detect">Find the smallest detectable lift</button>
+    <div class="big" id="detect-big"></div>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Fixed-sample test:</strong> pooled two-proportion z-test, two-sided. The interval on the difference uses the unpooled standard error; the interval on relative lift uses the log risk ratio (Katz). <strong>Sample ratio mismatch:</strong> chi-square goodness of fit on the two group sizes against your planned split; a p-value below 0.001 is flagged as a likely broken test. <strong>Bayesian:</strong> uniform Beta(1,1) priors, 20,000 seeded posterior draws; reports the probability the variant is better, the expected loss from choosing each side, and a 95% credible interval on relative lift. <strong>Always-valid:</strong> a mixture sequential probability ratio test (mSPRT) with a normal mixing distribution whose spread is 10% of the control rate; its p-value and interval remain valid at every look, so they are wider than the fixed-sample ones. <strong>Peeking:</strong> the false-positive rate for stopping the first time p &lt; your level across evenly spaced looks, from 20,000 seeded simulations. <strong>Sample size:</strong> the standard two-proportion formula with unpooled variance under the alternative. <strong>Price test:</strong> revenue per visitor is conversion rate times price; the difference is tested with a delta-method z-test (variance price&sup2;&middot;p(1&minus;p)/n per group), the Bayesian chance that B earns more uses the same seeded Beta draws scaled by each price, and the break-even conversion is the control rate times the price ratio.</p>
+    <p><strong>Not modelled:</strong> more than two variants (correct for multiple comparisons yourself), revenue per visitor with varying order values (the price panel assumes one fixed price per group), retention after purchase, variance reduction, novelty effects, and weekly seasonality. <strong>Unverified:</strong> checked against published reference values and simulation in unit tests only, not against a commercial platform.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know if my A/B test result is statistically significant?</h3>
+    <p>Compare the p-value from a two-proportion z-test with your significance level, usually 0.05. A p-value below 0.05 means a difference this large would show up less than 5% of the time if the two versions truly converted the same. This tool also shows the confidence interval for the difference, which tells you how big the effect could plausibly be, not just whether it is zero.</p>
+    <h3>How many visitors do I need for an A/B test?</h3>
+    <p>It depends on your baseline conversion rate, the smallest lift you care about, your significance level and your power. As a guide, detecting a 10% relative lift on a 5% baseline at 95% confidence and 80% power takes about 31,000 visitors per group. Use the planner above to enter your own numbers and see how many days that takes at your traffic.</p>
+    <h3>What is sample ratio mismatch (SRM)?</h3>
+    <p>If you planned a 50/50 split but the groups came out 5,000 and 4,500, something is wrong with assignment or tracking. A chi-square test on the group sizes flags splits that are too lopsided to be chance. When SRM fires, the conversion comparison cannot be trusted, so fix the cause first.</p>
+    <h3>Why is peeking at an A/B test a problem?</h3>
+    <p>A fixed-sample p-value is only valid if you look once at a sample size chosen in advance. If you check repeatedly and stop the first time p drops below 0.05, the real false-positive rate climbs to about 14% with five looks and 19% with ten. The always-valid p-value and interval this tool shows stay valid however often you look, at the cost of being more conservative.</p>
+    <h3>What does the Bayesian result mean?</h3>
+    <p>It uses a uniform Beta prior on each conversion rate and reports the probability that the variant's true rate is higher than the control's, plus the expected loss if you choose each option. A 96% probability means that, given the data and the prior, the variant is better with about 96% credibility. It is not the same number as one minus the p-value.</p>
+    <h3>Which result should I trust, frequentist, Bayesian or always-valid?</h3>
+    <p>On a test you planned for a fixed sample size and looked at once, the ordinary p-value and interval are right. If you monitored the test as it ran, use the always-valid result. The Bayesian probability is a useful second view of the same data, but decide your stopping rule before you start whichever you use.</p>
+    <h3>How do I know if a price increase worked in an A/B test?</h3>
+    <p>Compare revenue per visitor, which is conversion rate times price, not conversion alone. A higher price usually converts worse, so a conversion test will often call it a loss even when it earns more. The price panel above tests the difference in revenue per visitor and shows the break-even conversion: raising $29 to $39 can lose up to about 26% of buyers before revenue per visitor falls. It looks only at first-purchase revenue, so also check refunds and churn before rolling out.</p>
+    <h3>Is my conversion data uploaded anywhere?</h3>
+    <p>No. You type four numbers and everything is computed in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p>Testing ads across regions or stores instead of page visitors? The <a href="../ad-incrementality-test-analyzer/">ad incrementality test analyzer</a> reads a geo holdout and measures the lift with an interval.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the numbers you enter; they do not guarantee what will happen when you roll out a change. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any experimentation platform, analytics vendor or research firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>plan_run</code>, <code>price_test_run</code>, <code>multi_test_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running experiments on pricing or growth? See the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../van-westendorp-pricing-analyzer/">Van Westendorp pricing analyzer</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>. Setting a trial length? The <a href="../trial-conversion-timing-analyzer/">trial conversion timing analyzer</a> shows on which day of a trial people first pay.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleSize, detectableEffect, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money, multiTest, parseArms, multiSampleText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id) => { const v = $("#" + id).value.trim().replace(/,/g, ""); return v === "" ? NaN : Number(v); };
+    let last = null;
+
+    function run() {
+      const a = analyze({ n1: num("n1"), c1: num("c1"), n2: num("n2"), c2: num("c2"), alpha: Number($("#alpha").value), controlShare: num("share") / 100, looks: Math.max(1, num("looks") || 1) });
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.bayes, s = a.sequential;
+      $("#big").innerHTML = [
+        [signedPct(a.relative), "Relative lift, variant vs control"],
+        [a.p.toFixed(4), "p-value (fixed sample)"],
+        [pct(b.probBBeatsA, 1), "Chance variant beats control"],
+        [s.significant ? "Yes" : "Not yet", "Significant when peeking is allowed"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const cl = Math.round((1 - a.alpha) * 100);
+      const rows = [
+        ["Control rate", pct(a.p1), `${a.c1} of ${a.n1} visitors`],
+        ["Variant rate", pct(a.p2), `${a.c2} of ${a.n2} visitors`],
+        ["Difference", `${pct(a.diff)} points`, `${cl}% interval ${pct(a.ci.low)} to ${pct(a.ci.high)}`],
+        ["Relative lift interval", a.relativeCi ? `${signedPct(a.relativeCi.low)} to ${signedPct(a.relativeCi.high)}` : "n/a", `${cl}% interval on the lift; needs at least one conversion in each group`],
+        ["Fixed-sample p-value", a.p.toFixed(4), a.significant ? `Below ${a.alpha}: significant if you looked once` : `Not below ${a.alpha}`],
+        ["Always-valid p-value", s.p.toFixed(4), `Interval on the difference ${pct(s.low)} to ${pct(s.high)}; valid at every look`],
+        ["Chance variant is better", pct(b.probBBeatsA, 1), `Credible interval on lift ${signedPct(b.liftLow)} to ${signedPct(b.liftHigh)}`],
+        ["Expected loss if you ship B", pct(b.expectedLossChoosingB, 3), `Expected loss if you keep A: ${pct(b.expectedLossChoosingA, 3)} (absolute conversion points)`],
+        ["Sample ratio check", `p = ${a.srm.p < 0.0001 ? a.srm.p.toExponential(1) : a.srm.p.toFixed(4)}`, a.srm.p < 0.001 ? "Split is off: fix assignment before trusting results" : "Split matches the plan"],
+      ];
+      $("#methods tbody").innerHTML = rows.map(([m, v, n]) => `<tr><td>${esc(m)}</td><td class="n">${esc(v)}</td><td>${esc(n)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(o) { $("#n1").value = o.n1; $("#c1").value = o.c1; $("#n2").value = o.n2; $("#c2").value = o.c2; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleText());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented test, not a real experiment."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["n1", "c1", "n2", "c2"]) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = "Enter your numbers, then click Analyze."; });
+    $("#plan").addEventListener("click", () => {
+      const r = sampleSize({ baseline: num("base") / 100, mde: num("mde") / 100, mode: $("#mode").value, alpha: Number($("#alpha").value), power: Number($("#power").value) });
+      const ps = $("#plan-status");
+      if (r.error) { ps.textContent = r.error; $("#plan-big").innerHTML = ""; return; }
+      const d = daysToRun(r.total, num("daily"));
+      $("#plan-big").innerHTML = [
+        [r.perArm.toLocaleString("en-US"), "Visitors per group"],
+        [r.total.toLocaleString("en-US"), "Visitors in total"],
+        [`${pct(r.p1)} → ${pct(r.p2)}`, "Rates the test can tell apart"],
+        [d ? `${d.days} days` : "add daily traffic", d ? `About ${d.weeks} full week${d.weeks === 1 ? "" : "s"}; run whole weeks to cover weekday effects` : "Time to reach that sample"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      ps.textContent = "Decide this sample size and your stopping rule before you start, then do not stop early on a good-looking result.";
+      record("plan_run");
+    });
+
+    $("#detect").addEventListener("click", () => {
+      const r = detectableEffect({ baseline: num("base") / 100, perArm: num("avail"), alpha: Number($("#alpha").value), power: Number($("#power").value) });
+      const ps = $("#plan-status");
+      if (r.error) { ps.textContent = r.error; $("#detect-big").innerHTML = ""; return; }
+      $("#detect-big").innerHTML = [
+        [signedPct(r.relativeEffect), "Smallest relative lift you can reliably detect"],
+        [`${pct(r.p1)} → ${pct(r.p2)}`, "Rates the test can tell apart"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      ps.textContent = "Smaller true lifts will usually look like noise at this traffic. Uses the baseline, significance level and power above.";
+      record("detect_run");
+    });
+
+    function runPrice() {
+      const r = priceTest({ n1: num("pn1"), c1: num("pc1"), price1: num("pp1"), n2: num("pn2"), c2: num("pc2"), price2: num("pp2"), alpha: Number($("#alpha").value), monthlyVisitors: num("pmonthly") });
+      const ps = $("#price-status"), tbl = $("#price-table");
+      if (r.error) { ps.textContent = r.error; $("#price-big").innerHTML = ""; $("#price-findings").innerHTML = ""; tbl.hidden = true; return false; }
+      const b = r.bayes, cl = Math.round((1 - r.alpha) * 100);
+      $("#price-big").innerHTML = [
+        [signedPct(r.relative), "Revenue per visitor, B vs A"],
+        [pct(b.probBBeatsA, 1), "Chance B earns more per visitor"],
+        [signedPct(r.conversionChange), "Change in conversion"],
+        [pct(r.breakEvenRate), "Conversion B needs to break even"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#price-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const rows = [
+        ["Revenue per visitor, A", money(r.rpv1), `${pct(r.p1)} conversion at ${money(r.price1)}`],
+        ["Revenue per visitor, B", money(r.rpv2), `${pct(r.p2)} conversion at ${money(r.price2)}`],
+        ["Difference", money(r.diff), `${cl}% interval ${money(r.ci.low)} to ${money(r.ci.high)} per visitor`],
+        ["p-value", r.p.toFixed(4), r.significant ? `Below ${r.alpha}: unlikely to be chance` : `Not below ${r.alpha}`],
+        ["Expected loss if you ship B", money(b.expectedLossChoosingB), `Expected loss if you keep A: ${money(b.expectedLossChoosingA)} per visitor`],
+        ["Lift credible interval", `${signedPct(b.liftLow)} to ${signedPct(b.liftHigh)}`, "95% Bayesian interval on revenue per visitor"],
+        ["Tolerable conversion drop", pct(Math.max(0, r.breakEvenRelativeDrop), 1), r.breakEvenRelativeDrop > 0 ? "Share of buyers the higher price can lose before revenue per visitor falls" : "B is cheaper, so it must win volume instead"],
+      ];
+      if (r.monthly) rows.push(["Monthly revenue change", money(r.monthly.revenueDelta), `At ${r.monthly.visitors.toLocaleString("en-US")} visitors a month if the result holds`]);
+      tbl.querySelector("tbody").innerHTML = rows.map(([m, v, n]) => `<tr><td>${esc(m)}</td><td class="n">${esc(v)}</td><td>${esc(n)}</td></tr>`).join("");
+      tbl.hidden = false;
+      ps.textContent = "Done. Decide your stopping rule before you start, and do not stop early on a good-looking result.";
+      return true;
+    }
+    function runMulti() {
+      const ms = $("#multi-status"), tbl = $("#multi-table");
+      const parsed = parseArms($("#multi-text").value);
+      const r = parsed.error ? parsed : multiTest({ arms: parsed.arms, alpha: Number($("#alpha").value) });
+      if (r.error) { ms.textContent = r.error; $("#multi-findings").innerHTML = ""; tbl.hidden = true; return false; }
+      ms.textContent = `${r.rows.length} variants against ${r.control.name}.`;
+      $("#multi-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const row = (n, rate, lift, p, ph, best) => `<tr><td>${esc(n)}</td><td class="n">${pct(rate)}</td><td class="n">${lift}</td><td class="n">${p}</td><td class="n">${ph}</td><td class="n">${pct(best, 1)}</td></tr>`;
+      tbl.querySelector("tbody").innerHTML = row(r.control.name, r.control.rate, "control", "", "", r.control.probBest) +
+        r.rows.map((x) => row(x.name, x.rate, signedPct(x.lift), x.p.toFixed(4), x.pHolm.toFixed(4) + (x.significant ? " *" : ""), x.probBest)).join("");
+      tbl.hidden = false;
+      return true;
+    }
+    $("#multi-run").addEventListener("click", () => { if (runMulti()) record("multi_test_run"); });
+    $("#multi-example").addEventListener("click", () => {
+      $("#multi-text").value = multiSampleText();
+      if (runMulti()) { record("example_loaded"); $("#multi-status").textContent = "Sample data: an invented test, not a real experiment."; }
+    });
+    $("#price-run").addEventListener("click", () => { if (runPrice()) record("price_test_run"); });
+    $("#price-example").addEventListener("click", () => {
+      const o = priceSampleText();
+      $("#pn1").value = o.n1; $("#pc1").value = o.c1; $("#pp1").value = o.price1; $("#pn2").value = o.n2; $("#pc2").value = o.c2; $("#pp2").value = o.price2;
+      if (runPrice()) { record("example_loaded"); $("#price-status").textContent = "Sample data: an invented test, not a real experiment."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "ab-test-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../au-gst-registration-checker/" data-pf-to="au-gst-registration-checker">Australia GST registration checker: do you have to register? Free, private</a></li>
+      <li><a href="../au-redundancy-pay-calculator/" data-pf-to="au-redundancy-pay-calculator">Australian redundancy pay calculator. Free, private</a></li>
+      <li><a href="../au-sole-trader-tax-set-aside-calculator/" data-pf-to="au-sole-trader-tax-set-aside-calculator">Australia Sole Trader Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../augusta-rule-calculator/" data-pf-to="augusta-rule-calculator">Augusta Rule Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ab-test-significance-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/?pfEmbed=1&quot; title=&quot;A/B Test Significance Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ab-test-significance-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/" data-pf-embed-title="A/B Test Significance Calculator — free, private, in your browser" data-pf-embed-slug="ab-test-significance-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ab-test-significance-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ab-test-significance-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

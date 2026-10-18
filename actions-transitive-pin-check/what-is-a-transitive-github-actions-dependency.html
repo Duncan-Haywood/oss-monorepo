@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is a transitive GitHub Actions dependency?</title>
+  <meta name="description" content="Your workflow's uses: lines are direct dependencies. A reusable workflow or composite action can have its own uses…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/what-is-a-transitive-github-actions-dependency.html">
+  <meta property="og:title" content="What is a transitive GitHub Actions dependency?">
+  <meta property="og:description" content="A reusable workflow or composite action you've pinned to a commit SHA can itself load a third-party action by a mutable tag underneath.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a transitive GitHub Actions dependency?","acceptedAnswer":{"@type":"Answer","text":"Every uses: line in your own workflow file is a direct dependency — the thing you chose and, ideally, pinned yourself. A reusable workflow or a composite action is just another file with its own steps, and if one of those steps has its own uses: line, that is a transitive dependency: something your workflow depends on that you did not write, did not review, and cannot see by reading your own repository. Pinning your direct reference to a commit SHA fixes what that one line points to. It says nothing about what the file at that commit itself loads."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/what-is-a-transitive-github-actions-dependency.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is a transitive GitHub Actions dependency? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is a transitive GitHub Actions dependency?</span></span></nav>
+  <p><a href="./">← Actions Transitive Pin Check</a></p>
+  <h1>What is a transitive GitHub Actions dependency?</h1>
+  <p>Every <code>uses:</code> line in your own workflow file is a direct dependency — the thing you chose and, ideally, pinned yourself. A reusable workflow or a composite action is just another file with its own steps, and if one of those steps has its own <code>uses:</code> line, that is a transitive dependency: something your workflow depends on that you did not write, did not review, and cannot see by reading your own repository. Pinning your direct reference to a commit SHA fixes what that one line points to. It says nothing about what the file at that commit itself loads.</p>
+  <h2>Where it hides</h2>
+  <pre><code># your workflow — this line is pinned, and it is genuinely fixed
+- uses: octo-org/shared-workflows/.github/workflows/build.yml@2c4d34e6cff37bafe66eba7a6c1c8a5c9d9c1a6e
+
+# the file AT that commit — a step nobody reviewing your diff ever sees
+- uses: some-third-party/build-helper@v3</code></pre>
+  <p>Your SHA pin proves <code>build.yml</code> at that exact commit cannot be silently repointed to a different commit. It does not touch the second line, because that line lives in a file you neither wrote nor pinned. If <code>some-third-party/build-helper</code>'s <code>v3</code> tag is ever repointed — by its maintainer, or by whoever compromises that maintainer's account — every workflow that trusts your pinned reusable workflow inherits whatever code <code>v3</code> now resolves to, on the next run, with no change to your own repository at all.</p>
+  <h2>Why this is easy to miss</h2>
+  <p>A top-level SHA pin is the well-known fix for the well-known problem: a mutable tag on a reference you wrote yourself. Reviewing that takes one look at your own workflow files. The transitive case takes fetching and reading a file that lives in someone else's repository, at a specific commit, before you can even tell whether there is anything to check — which is why most pinning checkers, this portfolio's own <a href="../pinned-actions-check/">Pinned Actions Check</a> included, are explicit that they classify only the <code>uses:</code> lines in the file you scan, and say nothing about what a pinned reusable workflow or composite action loads underneath it.</p>
+  <h2>Check your own workflow</h2>
+  <p><a href="./">Paste a workflow into Actions Transitive Pin Check</a> to fetch every pinned reference's own definition from <code>raw.githubusercontent.com</code> and flag one that loads something unpinned underneath, or run the CLI in your own repository:</p>
+  <pre><code>node check.mjs --fail-on-risk</code></pre>
+  <p class="note">That exits nonzero if any pinned reference loads an unpinned one underneath it — wire it into your own CI to block a newly-introduced gap before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe from supply-chain risk — only that this one specific gap was not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>The workflow YAML you paste in the linked tool is read in your browser and never uploaded; the transitive check makes a direct browser request to <code>raw.githubusercontent.com</code> for each pinned reference's own file, unauthenticated, and reads nothing else.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to raw.githubusercontent.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-transitive-pin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-transitive-pin-check"></script>
+</body>
+</html>

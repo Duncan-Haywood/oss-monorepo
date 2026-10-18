@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I Keep Taking Warranty Work? | Effective Labor Rate Calculator</title>
+  <meta name="description" content="Dropping warranty work raises your effective labor rate — but only backfilling those hours with customer-pay work raises your profit.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/should-i-keep-taking-warranty-work.html">
+  <meta property="og:title" content="Should I Keep Taking Warranty Work?">
+  <meta property="og:description" content="Dropping warranty work raises your effective labor rate — but only backfilling those hours with customer-pay work raises your profit.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Should I keep taking warranty work?","acceptedAnswer":{"@type":"Answer","text":"It depends on what fills the bay if you don't. On a shop billing $95 an hour on warranty against a $165 posted rate, dropping it and leaving the bay empty cuts monthly profit before tax from $18,475 to $14,200 — a real loss, even though the effective labor rate looks better at $145.00. The same drop with the hours backfilled by customer-pay work instead raises profit to $20,725. Same new rate, opposite outcome, because the rate alone does not say what happened to the hour."}},
+    {"@type":"Question","name":"Why does dropping warranty work raise my effective labor rate?","acceptedAnswer":{"@type":"Answer","text":"Because the effective labor rate is a blend, and warranty is usually the lowest-paying hour in it. On the worked example, warranty reimburses $95 an hour against a $165 posted rate, while customer-pay work already collects $145. Removing the $95 hours from the average — whether or not anything replaces them — pulls the blended rate up to the customer-pay rate of $145.00. The rate moving is arithmetic, not evidence that the shop is better off."}},
+    {"@type":"Question","name":"Does a higher effective labor rate always mean more profit?","acceptedAnswer":{"@type":"Answer","text":"No. The effective labor rate is dollars per hour sold — it says nothing about how many hours were sold. A shop that drops 45 warranty hours and leaves the bay empty sells fewer hours at a higher average rate, and on the worked example that costs $4,275 a month in profit even though the rate improved. A rate and a profit total can move in opposite directions whenever the hours behind them change."}},
+    {"@type":"Question","name":"How much profit do I lose if I drop warranty work and the bay sits empty?","acceptedAnswer":{"@type":"Answer","text":"On the worked example, exactly the warranty labor sales that disappeared: $4,275 for the month, or roughly $51,300 a year at the same mix. Technician pay and overhead do not fall just because the bay is empty, so every dollar of warranty labor sales that isn't replaced comes straight off the bottom line."}},
+    {"@type":"Question","name":"When does it make sense to stop taking warranty work?","acceptedAnswer":{"@type":"Answer","text":"When the shop already has more customer-pay demand than bay capacity — a waitlist, hours turned away, or a scheduler that is full past the warranty work's own turnaround window. In that case the warranty hour is not idle time being given up, it is customer-pay time being displaced, and swapping it for a $145 hour instead of a $95 one is a straightforward gain. A shop with open bays has no customer-pay work waiting to take the warranty hour's place, so refusing it just empties the bay."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.03; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { font-size: 1.2rem; margin: 32px 0 8px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
+    .lede { font-size: 1.05rem; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: .92rem; }
+    th, td { border: 1px solid #cbd4e0; padding: 8px 10px; text-align: left; }
+    th { background: #e3e9f0; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 18px; border-radius: 8px; background: #2f5d50; color: #f4f8f6; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #cbd4e0; font-size: .82rem; color: #4d5b6c; }
+    footer a, main a { color: #2f5d50; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/should-i-keep-taking-warranty-work.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I Keep Taking Warranty Work? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../auto-repair-effective-labor-rate/">Effective Labor Rate Calculator for Auto Repair Shops</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I Keep Taking Warranty Work?</span></span></nav>
+  <main>
+    <p class="eyebrow">EFFECTIVE LABOR RATE CALCULATOR</p>
+    <h1>Should I keep taking warranty work?</h1>
+    <p class="lede">Warranty pays whatever the manufacturer sets &mdash; usually well below your door rate &mdash; so dropping it looks like an easy win for your effective labor rate. It is, on the rate. It is not automatically a win on profit, and the difference is entirely about what fills the hour you freed up.</p>
+
+    <p><a class="cta" href="./">Work out my own numbers &rarr;</a></p>
+
+    <h2>The shop keeping warranty</h2>
+    <p>Same three-technician shop as the rest of this calculator: $165 posted, 320 customer-pay hours at $145.00 an hour, 45 warranty hours at $95.00 an hour, 28 internal hours, $19,200 of technician pay, $34,000 of overhead and $21,000 of parts gross profit.</p>
+    <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Figure</th><th scope="col" class="num">This month</th></tr></thead>
+      <tbody>
+        <tr><td>Effective labor rate</td><td class="num">$138.84</td></tr>
+        <tr><td>Labor sales</td><td class="num">$50,675</td></tr>
+        <tr><td>Labor gross profit</td><td class="num">$31,475 (62.1%)</td></tr>
+        <tr><th scope="row">Profit before tax</th><td class="num"><strong>$18,475</strong></td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>Warranty is $3,150 of this month's $9,550 billing gap &mdash; 33%. Refusing it looks, on that line alone, like the obvious fix.</p>
+
+    <h2>Two ways to stop taking it &mdash; and they end differently</h2>
+    <p>Refuse the 45 warranty hours and one of two things happens to that time. Either nothing replaces it, or customer-pay work does. Both raise the effective labor rate to the same number. Only one of them raises profit.</p>
+    <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Outcome</th><th scope="col" class="num">Effective rate</th><th scope="col" class="num">Labor sales</th><th scope="col" class="num">Profit before tax</th></tr></thead>
+      <tbody>
+        <tr><td>Keep the warranty work</td><td class="num">$138.84</td><td class="num">$50,675</td><td class="num">$18,475</td></tr>
+        <tr><td>Drop it, bay sits empty</td><td class="num">$145.00</td><td class="num">$46,400</td><td class="num">$14,200</td></tr>
+        <tr><td>Drop it, backfilled with customer-pay work</td><td class="num">$145.00</td><td class="num">$52,925</td><td class="num">$20,725</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>Both alternatives post the same <strong>$145.00</strong> effective rate, because the $95 warranty hours are what were pulling the blended number down &mdash; whether or not anything replaces them changes nothing about the average of what is left. But one alternative costs the shop <strong>$4,275</strong> a month against keeping the work, and the other gains <strong>$2,250</strong>. A rate improving from $138.84 to $145.00 reads as good news either way. Only the profit line says which one actually happened.</p>
+
+    <h2>The question the rate can't answer</h2>
+    <p>An empty bay produces nothing. Technician pay and overhead do not fall because a technician has no warranty ticket in front of them, so every dollar of warranty labor sales that isn't replaced by something else comes straight off the bottom line &mdash; $4,275 this month, about $51,300 a year at this mix. The rate goes up because the denominator (hours sold) fell along with the numerator (labor dollars), and a $95 hour disappearing from both sides of that ratio moves the average even when nothing good happened.</p>
+    <p>So the real question is not "does warranty pay less than my door rate" &mdash; it always does. It is: <strong>if I turn this hour away, what takes its place?</strong> A shop with a waitlist, a scheduler booked past the warranty repair's own turnaround window, or customer-pay jobs it is already declining for lack of a bay has an answer: a $145 hour. A shop with open capacity has no answer, and the hour just goes empty.</p>
+
+    <h2>How to tell which shop you are</h2>
+    <ol>
+      <li>Check your scheduler for the weeks around when warranty work typically lands. If customer-pay appointments are being pushed out past your own acceptable wait, you have replacement demand.</li>
+      <li>Run <a href="./">the calculator</a> with your own warranty hours zeroed out and internal hours raised by the same amount &mdash; that is the empty-bay case.</li>
+      <li>Run it again with those hours added to customer-pay hours and sales at your own customer-pay rate instead &mdash; that is the backfilled case.</li>
+      <li>Compare profit before tax, not the effective rate, between the two. The rate will look identical either way.</li>
+    </ol>
+    <p>Nothing here says whether to accept a specific warranty claim, a specific manufacturer's reimbursement schedule, or how any repair order should be coded &mdash; only what the arithmetic does to a month's numbers under each assumption.</p>
+
+    <p><a class="cta" href="./">Work out my own numbers &rarr;</a></p>
+
+    <h2>Common questions</h2>
+    <h3>Should I keep taking warranty work?</h3>
+    <p>It depends on what fills the bay if you don't. On a shop billing $95 an hour on warranty against a $165 posted rate, dropping it and leaving the bay empty cuts monthly profit before tax from $18,475 to $14,200 &mdash; a real loss, even though the effective labor rate looks better at $145.00. The same drop with the hours backfilled by customer-pay work instead raises profit to $20,725. Same new rate, opposite outcome, because the rate alone does not say what happened to the hour.</p>
+    <h3>Why does dropping warranty work raise my effective labor rate?</h3>
+    <p>Because the effective labor rate is a blend, and warranty is usually the lowest-paying hour in it. On the worked example, warranty reimburses $95 an hour against a $165 posted rate, while customer-pay work already collects $145. Removing the $95 hours from the average &mdash; whether or not anything replaces them &mdash; pulls the blended rate up to the customer-pay rate of $145.00. The rate moving is arithmetic, not evidence that the shop is better off.</p>
+    <h3>Does a higher effective labor rate always mean more profit?</h3>
+    <p>No. The effective labor rate is dollars per hour sold &mdash; it says nothing about how many hours were sold. A shop that drops 45 warranty hours and leaves the bay empty sells fewer hours at a higher average rate, and on the worked example that costs $4,275 a month in profit even though the rate improved. A rate and a profit total can move in opposite directions whenever the hours behind them change.</p>
+    <h3>How much profit do I lose if I drop warranty work and the bay sits empty?</h3>
+    <p>On the worked example, exactly the warranty labor sales that disappeared: $4,275 for the month, or roughly $51,300 a year at the same mix. Technician pay and overhead do not fall just because the bay is empty, so every dollar of warranty labor sales that isn't replaced comes straight off the bottom line.</p>
+    <h3>When does it make sense to stop taking warranty work?</h3>
+    <p>When the shop already has more customer-pay demand than bay capacity &mdash; a waitlist, hours turned away, or a scheduler that is full past the warranty work's own turnaround window. In that case the warranty hour is not idle time being given up, it is customer-pay time being displaced, and swapping it for a $145 hour instead of a $95 one is a straightforward gain. A shop with open bays has no customer-pay work waiting to take the warranty hour's place, so refusing it just empties the bay.</p>
+
+    <h2>Related</h2>
+    <p>Want the full breakdown of where this month's gap came from, not just the warranty slice? See <a href="./what-is-my-effective-labor-rate.html">what is my effective labor rate</a>. Pricing the hour from the cost side instead, before any work is sold? The <a href="../shop-rate-calculator/">shop rate calculator</a> builds a required hourly rate up from payroll, vehicles and office costs.</p>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator it describes are not legal, tax, accounting, insurance, employment or financial advice, and they do not tell you what to charge, what warranty work to accept, or how any technician should be paid or classified. The worked example is an illustration, not a benchmark for your market or your manufacturer's reimbursement schedule. Verify every figure against your own management system, payroll records and accounts, and against a qualified professional, before relying on it or deciding what work to accept. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><a href="./">Effective labor rate calculator</a> &middot; free and open source &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../late-invoice-collections-kit/" data-pf-to="late-invoice-collections-kit">Late Invoice Collections Kit — free, private, in your browser</a></li>
+      <li><a href="../lead-response-time-analyzer/" data-pf-to="lead-response-time-analyzer">Lead Response Time Analyzer — free, private, in your browser</a></li>
+      <li><a href="../mosquito-control-program-pricing-calculator/" data-pf-to="mosquito-control-program-pricing-calculator">Mosquito control program pricing calculator</a></li>
+      <li><a href="../no-show-fee-calculator/" data-pf-to="no-show-fee-calculator">No-Show &amp; Cancellation Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=auto-repair-effective-labor-rate">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="auto-repair-effective-labor-rate"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "slug": "garage-door-bid-calculator",
+  "name": "Garage doors",
+  "group": "Exterior & roofing",
+  "summary": "Garage door replacements priced from the door, springs, hardware, opener, disposal and shop hours.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "milesOneWay": 12,
+  "items": [
+    {
+      "label": "Install 16x7 insulated steel door (R-9) with springs and hardware",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 4.25,
+      "materialPerUnit": 1660,
+      "source": "4.25 h for a double door replacement (JOB_TYPES replacement); door 16 x 7 x $12.50/sf = $1,400 (CONSTRUCTION_PRESETS insulated_r9; index.html doorCost) + double spring kit $175 (SPRING_KIT_COST) + hardware $85 (index.html)"
+    },
+    {
+      "label": "Belt-drive 3/4 HP opener",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 380,
+      "source": "door + opener 5.5 h less door-only 4.25 h for a double (JOB_TYPES; index.html laborHours 5.5); opener $380 (OPENER_PRESETS belt_three_quarter; index.html)"
+    },
+    {
+      "label": "Old-door disposal",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 45,
+      "source": "disposalCost $45 (index.html); no separate hours in the specialist"
+    },
+    {
+      "label": "Permit and inspection",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 0,
+      "source": "permitCost $0 (index.html)"
+    }
+  ],
+  "specialistModels": "Spring-only and opener-only service calls, door size and construction pricing per square foot, jackshaft openers, high-cycle springs, vehicle cost per mile and an after-hours multiplier."
+}

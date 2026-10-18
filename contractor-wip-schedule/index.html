@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contractor WIP Schedule — over/under billing from your job list</title>
+  <meta name="description" content="Free work-in-progress schedule for contractors. Paste your open jobs with contract, estimated cost, cost to date and billings to see percent complete…">
+  <meta property="og:title" content="Contractor WIP Schedule — free, private, in your browser">
+  <meta property="og:description" content="Are you billed ahead or behind on each job, and is the profit real? A percent-of-completion WIP schedule for the bank and the surety.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Contractor WIP Schedule", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your open jobs with contract, estimated cost, cost to date and billings. Builds a percent-of-completion work-in-progress schedule with over- and underbillings, expected losses, cash still to come, a cost-growth stress test and backlog against working capital. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a WIP schedule and why do lenders and sureties ask for it?", "acceptedAnswer": {"@type": "Answer", "text": "A work-in-progress schedule lists every open job with its contract, estimated total cost, cost to date and billings to date. It shows how much revenue you have really earned on each job, whether you are billed ahead or behind, and what profit is still to come. A surety or bank reads it to see whether your reported profit is real and whether you can finish the jobs you hold."}}, {"@type": "Question", "name": "What does percent complete mean here?", "acceptedAnswer": {"@type": "Answer", "text": "Cost to date divided by the current estimated total cost, the cost-to-cost method. A job with 51,000 spent of an estimated 68,000 is 75% complete. Earned revenue is that percentage of the contract. It is only as good as the estimate, which is why an estimate that has not been updated is the most common way a schedule misleads."}}, {"@type": "Question", "name": "What is overbilling and underbilling?", "acceptedAnswer": {"@type": "Answer", "text": "Overbilling means you have billed more than you have earned; it is a liability, cash you hold that you still owe work for. Underbilling means you have done more work than you have billed, an asset that is not yet a receivable. Both are shown job by job and in total."}}, {"@type": "Question", "name": "Why does a losing job show its whole loss now?", "acceptedAnswer": {"@type": "Answer", "text": "When the estimated cost is above the contract the job will lose money however far along it is, so the expected loss is recognised as soon as you know it rather than a little at a time. The schedule shows the loss already inside your costs and the provision still to book."}}, {"@type": "Question", "name": "What is cash still to come?", "acceptedAnswer": {"@type": "Answer", "text": "What is left to bill minus what is left to spend. When it is negative you have already billed more than the job's margin over its cost, so finishing the job will consume cash you are holding today. It is the clearest warning that front-loaded billing is borrowing from the end of a job."}}, {"@type": "Question", "name": "What do the backlog and working capital figures mean?", "acceptedAnswer": {"@type": "Answer", "text": "Backlog is the contract value you have not yet earned. If you enter working capital (current assets less current liabilities) the tool compares backlog with it, and with working capital that leaves out underbillings. The multiples it uses, 10 times for a single job and 20 times in total, are planning figures you can change. Sureties set their own limits."}}, {"@type": "Question", "name": "How does the cost-growth stress test work?", "acceptedAnswer": {"@type": "Answer", "text": "It raises every job's estimated cost by a percentage you choose, 5% by default, and reruns the schedule. It shows the profit you would give up and which jobs would turn into losses, so you can see how much slack your margins really have."}}, {"@type": "Question", "name": "Is my job list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your jobs. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Contractor WIP Schedule — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Contractor WIP Schedule — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Contractor WIP Schedule — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CONTRACTOR WIP SCHEDULE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is the profit on your open jobs real?</h1>
+    <p>Enter each open job with its <strong>contract, estimated total cost, cost to date and billed to date</strong>. The tool builds the <strong>work-in-progress schedule your bank and surety ask for</strong>: percent complete, earned revenue, <strong>over- and underbilling</strong>, the whole loss on any job that will lose money, <strong>cash still to come</strong> on each job, and what a cost overrun would do to your margins. Add your working capital to see backlog against it.</p>
+    <p class="note">Your job list never leaves this browser tab. Arithmetic on numbers you supply, not accounting, tax or financial advice, and not a surety or lender opinion.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your open jobs</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: job, contract, estimated total cost, cost to date, billed to date, prior estimate)</label>
+    <textarea id="rows" spellcheck="false" placeholder="job,contract,estimated total cost,cost to date,billed to date&#10;Maple St kitchen,86000,68000,51000,70000&#10;Oak Ave addition,240000,198000,92000,150000"></textarea>
+    <h2 style="margin-top:18px">Optional</h2>
+    <div class="row3">
+      <div><label for="wc">Working capital ($)</label><input id="wc" inputmode="decimal" placeholder="current assets - current liabilities"></div>
+      <div><label for="stress">Cost-growth stress (%)</label><input id="stress" inputmode="decimal" value="5"></div>
+      <div><label for="single">Single-job multiple of working capital</label><input id="single" inputmode="decimal" value="10"></div>
+      <div><label for="agg">Total-backlog multiple of working capital</label><input id="agg" inputmode="decimal" value="20"></div>
+    </div>
+    <p class="note">The prior estimate column is optional and shows how far each estimate has grown since your last schedule. The multiples are planning figures, not any surety's limits. Use the working capital from your own statements.</p>
+    <button type="button" id="analyze">Build the schedule</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your jobs, then click Build the schedule.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>What to look at</h3>
+    <div id="findings"></div>
+    <h3>Schedule</h3>
+    <p class="note">Over is billed above earned revenue; under is earned above billed. Cash to come is what is left to bill minus what is left to spend; negative means finishing will use up cash you already hold.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="acc"><thead><tr><th>Job</th><th class="n">Contract</th><th class="n">% complete</th><th class="n">Earned</th><th class="n">Billed</th><th class="n">Over / (under)</th><th class="n">Est margin</th><th class="n">Backlog</th><th class="n">Cash to come</th></tr></thead><tbody></tbody></table></div></div>
+    <div id="surety"></div>
+    <div id="stressbox"></div>
+    <button type="button" id="download">Download schedule CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Percent complete is cost to date divided by the current estimated total cost, capped at 100%. Earned revenue is that percentage of the contract. Over- or underbilling is billed minus earned. Estimated gross profit is the contract minus the estimated cost; if it is negative the whole expected loss is recognised now, and the tool shows the part already inside your costs and the provision still to book. Backlog is contract minus earned. Cash still to come is the amount left to bill minus the amount left to spend. The stress test raises every estimate by the percentage you enter and reruns the schedule. With working capital entered, backlog is divided by it, and by working capital less underbillings, which some sureties use.</p>
+    <p><strong>Not modelled:</strong> change orders not yet approved, retainage and its release timing, taxes and tax-basis methods, completed-contract or other accounting elections, material stored off site, job overhead allocation, bonding rates and any surety's actual limits, and timing of receipts. <strong>Unverified:</strong> the arithmetic is checked in unit tests against hand-calculated cases; it is not reviewed by an accountant or surety, and the results are only as good as your estimates to complete.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a WIP schedule and why do lenders and sureties ask for it?</h3>
+    <p>A work-in-progress schedule lists every open job with its contract, estimated total cost, cost to date and billings to date. It shows how much revenue you have really earned on each job, whether you are billed ahead or behind, and what profit is still to come. A surety or bank reads it to see whether your reported profit is real and whether you can finish the jobs you hold.</p>
+    <h3>What does percent complete mean here?</h3>
+    <p>Cost to date divided by the current estimated total cost, the cost-to-cost method. A job with 51,000 spent of an estimated 68,000 is 75% complete. Earned revenue is that percentage of the contract. It is only as good as the estimate, which is why an estimate that has not been updated is the most common way a schedule misleads.</p>
+    <h3>What is overbilling and underbilling?</h3>
+    <p>Overbilling means you have billed more than you have earned; it is a liability, cash you hold that you still owe work for. Underbilling means you have done more work than you have billed, an asset that is not yet a receivable. Both are shown job by job and in total.</p>
+    <h3>Why does a losing job show its whole loss now?</h3>
+    <p>When the estimated cost is above the contract the job will lose money however far along it is, so the expected loss is recognised as soon as you know it rather than a little at a time. The schedule shows the loss already inside your costs and the provision still to book.</p>
+    <h3>What is cash still to come?</h3>
+    <p>What is left to bill minus what is left to spend. When it is negative you have already billed more than the job's margin over its cost, so finishing the job will consume cash you are holding today. It is the clearest warning that front-loaded billing is borrowing from the end of a job.</p>
+    <h3>What do the backlog and working capital figures mean?</h3>
+    <p>Backlog is the contract value you have not yet earned. If you enter working capital (current assets less current liabilities) the tool compares backlog with it, and with working capital that leaves out underbillings. The multiples it uses, 10 times for a single job and 20 times in total, are planning figures you can change. Sureties set their own limits.</p>
+    <h3>How does the cost-growth stress test work?</h3>
+    <p>It raises every job's estimated cost by a percentage you choose, 5% by default, and reruns the schedule. It shows the profit you would give up and which jobs would turn into losses, so you can see how much slack your margins really have.</p>
+    <h3>Is my job list uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your jobs. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a CPA, a surety agent, a lender or another qualified professional. Results are arithmetic on the jobs and assumptions you supply; they are not an accounting opinion, a bonding decision or a prediction of any job's outcome.</p>
+    <p><strong>Independent.</strong> Not affiliated with any accounting, construction-management, surety or lending vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your job list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pay-application-generator/">pay application generator</a>, the <a href="../change-order-margin-calculator/">change order margin calculator</a>, the <a href="../certified-payroll-calculator/">certified payroll calculator</a> the <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> and the <a href="../surety-bond-capacity-calculator/">surety bond capacity calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const st = val("#stress");
+      const r = analyze(parsed.jobs, { workingCapital: val("#wc"), stress: st === undefined ? undefined : st / 100, singleMultiple: val("#single"), aggregateMultiple: val("#agg") });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.backlog), `Backlog across ${r.n} jobs, with ${money(r.backlogGross)} of profit still to earn`],
+        [money(r.grossRecognised), `Gross profit earned to date (${pct(r.estMargin, 1)} expected at completion)`],
+        [money(r.netOver), r.netOver >= 0 ? `Net overbilled: ${money(r.over)} over, ${money(r.under)} under` : `Net underbilled: ${money(r.over)} over, ${money(r.under)} under`],
+        [money(r.stress.fadeDollars), `Profit given up if every estimate grows ${pct(r.stress.growth, 0)}`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.level}">${f.level === "good" ? "ok" : f.level}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`).join("");
+      $("#acc tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.name)}${x.loss ? '<br><span class="note">expected loss</span>' : ""}</td><td class="n">${money(x.contract)}</td><td class="n">${pct(x.pctComplete, 0)}</td><td class="n">${money(x.earned)}</td><td class="n">${money(x.billed)}</td><td class="n">${x.overUnder >= 0 ? money(x.overUnder) : "(" + money(-x.overUnder) + ")"}</td><td class="n">${pct(x.estMargin, 1)}</td><td class="n">${money(x.backlog)}</td><td class="n">${money(x.cashToCome)}</td></tr>`).join("");
+      const s = r.surety;
+      $("#surety").innerHTML = s ? `<div class="warn">Backlog is ${num(s.backlogToWc, 1)}x working capital (${num(s.backlogToAdjWc, 1)}x if underbillings are excluded). The largest job is ${num(s.largestToWc, 1)}x. Overbillings equal ${pct(s.overbillingShareOfWc, 0)} of working capital.</div>` : "";
+      $("#stressbox").innerHTML = `<div class="warn">If every estimate grows ${pct(r.stress.growth, 0)}, expected profit falls from ${money(r.estGross)} to ${money(r.stress.estGross)}${r.stress.newLosses.length ? "; new losses: " + esc(r.stress.newLosses.join(", ")) : ""}.</div>`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#wc").value = "210000"; $("#stress").value = "5"; $("#single").value = "10"; $("#agg").value = "20";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: six invented jobs, not a real contractor."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Build the schedule.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your jobs, then click Build the schedule."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "wip-schedule.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cannabis-280e-tax-calculator/" data-pf-to="cannabis-280e-tax-calculator">Cannabis 280E tax calculator, in your browser</a></li>
+      <li><a href="../card-processing-fee-audit/" data-pf-to="card-processing-fee-audit">Card processing fee audit</a></li>
+      <li><a href="../card-surcharge-vs-cash-discount-calculator/" data-pf-to="card-surcharge-vs-cash-discount-calculator">Card Surcharge vs Cash Discount Calculator — free</a></li>
+      <li><a href="../cash-balance-plan-calculator/" data-pf-to="cash-balance-plan-calculator">Cash Balance Plan Calculator — free, private, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=contractor-wip-schedule">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/?pfEmbed=1&quot; title=&quot;Contractor WIP Schedule — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="contractor-wip-schedule"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/" data-pf-embed-title="Contractor WIP Schedule — free, private, in your browser" data-pf-embed-slug="contractor-wip-schedule"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="contractor-wip-schedule" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="contractor-wip-schedule" data-pf-link-amount=""></script>
+</body>
+</html>

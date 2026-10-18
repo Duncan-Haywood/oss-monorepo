@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Should I Charge for a Wildlife Exclusion Job?</title>
+  <meta name="description" content="A worked example of pricing a raccoon exclusion: what the flat removal fee misses once you count five daily trap checks, a two-story seal…">
+  <meta property="og:title" content="What should I charge for a wildlife exclusion job?">
+  <meta property="og:description" content="The customer is holding a $395 removal ad. The job is eight visits, 224 miles and 23.6 crew hours, and it costs $2,896.07 to do.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/what-to-charge-for-wildlife-exclusion.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should I charge for a wildlife exclusion job?","acceptedAnswer":{"@type":"Answer","text":"Far more than the flat removal fee homeowners shop against. On the worked example on this page — a raccoon in a two-story attic, three traps out for five days, 45 feet of seal, 250 square feet of decontamination and insulation replacement, and a three-year warranty — the walk-away price is $2,896.07 and the bid at a 22% net margin is $3,712.91. The $395 removal ad the customer is holding is $2,501.07 short of what the job costs to do, because it prices one visit and the job is eight."}},{"@type":"Question","name":"Why is the flat removal fee so far off?","acceptedAnswer":{"@type":"Answer","text":"Because it prices catching an animal, and the job is ending the problem. The removal fee covers one trip. This job carries an inspection trip, an install trip, a trap check on each of five days, and a trip back to pull the one-way door — eight round trips, 224 miles and $306.53 of paid drive time before anyone has touched the roof. Add the seal, the attic and the warranty reserve and the arithmetic is not close."}},{"@type":"Question","name":"Which single line costs the most?","acceptedAnswer":{"@type":"Answer","text":"Insulation, at $825 — 250 square feet removed at $1.40 and replaced at $1.90. Labor as a whole is larger at $895.66, but no single labor line beats it; the closest is driving, at $306.53. That ordering is worth knowing because it is the opposite of how these jobs get quoted: operators negotiate hardest over the trapping, which is $124.77 of on-site labor here, and treat the attic restoration as an add-on the customer can decline."}},{"@type":"Question","name":"Why does the height of the work change the labor by that much?","acceptedAnswer":{"@type":"Answer","text":"Because reaching the work is most of the work. The same 45 feet of seal costs $155.80 of labor at ground level and $264.86 at a two-story eave on an extension ladder — a 1.7x multiplier applied to the exclusion and device time only, not to trap checks in the yard or decontamination in the attic. An operator pricing per linear foot from a single rate is wrong by that factor, in the same direction, on every two-story house they bid."}},{"@type":"Question","name":"What is the warranty reserve for?","acceptedAnswer":{"@type":"Answer","text":"A callback. This job was sold with three years on the exclusion, and a callback is a truck, a technician and a ladder returning to a hole that reopened. The reserve here is 8% of the warranted work only — the exclusion labor, the exclusion material and the device, $453.86 between them — which comes to $36.31. That figure is small enough to be painless and specific enough to be honest, which is more than can be said for the usual reserve of zero."}},{"@type":"Question","name":"Is any of this legal or wildlife-regulation advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures entered. It makes no determination about what your state’s wildlife code requires, how often traps must be checked, whether a species may lawfully be excluded on a given date, or what licence or permit a job needs. Verify every figure and every requirement against your own costs, your state wildlife agency, and a qualified professional before sending a bid."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2b22; background: #eef3ec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { margin-top: 34px; font-size: 1.2rem; }
+    h3 { margin-bottom: 4px; font-size: 1.02rem; }
+    p, li { line-height: 1.58; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #24603c; margin: 0 0 6px; }
+    .cta { display: inline-block; margin: 18px 0; padding: 11px 16px; border-radius: 8px; background: #24603c; color: #f3f8f3; text-decoration: none; font-weight: 650; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; margin: 12px 0; }
+    th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid #cfdbd0; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #4b5a50; }
+    tr.entered td { background: #dde8dd; font-weight: 700; }
+    footer { margin-top: 34px; font-size: .82rem; color: #4b5a50; border-top: 1px solid #cfdbd0; padding-top: 16px; }
+    a { color: #24603c; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/what-to-charge-for-wildlife-exclusion.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What should I charge for a wildlife exclusion job? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../wildlife-exclusion-bid-calculator/">Wildlife Exclusion Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What should I charge for a wildlife exclusion job?</span></span></nav>
+  <p class="eyebrow">NUISANCE WILDLIFE CONTROL PRICING</p>
+  <h1>What should I charge for a wildlife exclusion job?</h1>
+
+  <p>The homeowner who called you has a browser tab open on a &ldquo;$395 raccoon removal&rdquo; ad, and they are going to ask why you are not that. The honest answer is that the ad prices catching an animal and you are quoting ending the problem &mdash; but &ldquo;it&rsquo;s more work&rdquo; is not an answer anybody buys. A visit count is.</p>
+
+  <p>This page works one job all the way through. The <a href="./">wildlife exclusion bid calculator</a> does the same arithmetic on your own numbers, in your browser, with nothing uploaded.</p>
+
+  <a class="cta" href="./">Open the calculator</a>
+
+  <h2>The job</h2>
+
+  <p>A raccoon in the attic of a two-story house. A separate inspection trip, then three traps set for five days with a check on each day, 45 linear feet of soffit and roof line sealed at the two-story eave, one one-way door with a trip back to pull it, 250 square feet of attic decontaminated, insulation removed and replaced over the same area, a disposal ticket, some chewed soffit repaired, and three years of warranty on the seal.</p>
+
+  <p>The crew is two people on a $25 wage carrying a 52% payroll burden &mdash; $38 an hour each once workers&rsquo; comp for at-height work is in it; one of them goes alone on the trap checks. The shop is 14 miles out, 22 minutes each way, and the truck costs $0.85 a mile.</p>
+
+  <h2>Start with the visits, because that is the argument</h2>
+
+  <div class="table-wrap">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Visit</th><th scope="col">How many</th><th scope="col">Who goes</th></tr></thead>
+    <tbody>
+      <tr><td>Inspection</td><td>1</td><td>2</td></tr>
+      <tr><td>Install: set traps, seal, hang the one-way door</td><td>1</td><td>2</td></tr>
+      <tr><td>Trap check, one per day the traps are out</td><td>5</td><td>1</td></tr>
+      <tr><td>Pull the device, close the last hole</td><td>1</td><td>2</td></tr>
+      <tr class="entered"><td>Total round trips</td><td>8</td><td>&mdash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <p>Eight round trips at 14 miles each way is <strong>224 miles</strong>, and 22 minutes each way is <strong>$306.53 of paid drive time</strong> &mdash; more than the entire on-site trapping labor. The flat removal fee prices one of those eight trips. That is the whole gap, and it is visible before anyone argues about rates.</p>
+
+  <p>It is also why the calculator asks how many days the traps stay out rather than asking for a trapping price. Most states require a set trap to be checked every 24 hours; each of those checks is a truck leaving the shop.</p>
+
+  <h2>Every line</h2>
+
+  <div class="table-wrap">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Line</th><th scope="col">Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Driving, all eight visits</td><td>$306.53</td></tr>
+      <tr><td>Inspection on site (45 min, 2 people)</td><td>$57.00</td></tr>
+      <tr><td>Seal and device labor (45 ft &times; 1.4 min &times; 1.7 for two-story, plus the door)</td><td>$264.86</td></tr>
+      <tr><td>Trapping and checks on site</td><td>$124.77</td></tr>
+      <tr><td>Attic decontamination labor (250 sq ft)</td><td>$142.50</td></tr>
+      <tr><td><em>Labor subtotal</em></td><td><em>$895.66</em></td></tr>
+      <tr><td>Vehicle, 224 miles at $0.85</td><td>$190.40</td></tr>
+      <tr><td>Seal material (45 ft &times; $3.20), device, bait</td><td>$210.00</td></tr>
+      <tr><td>Decontamination material (PPE, disinfectant, bags)</td><td>$137.50</td></tr>
+      <tr><td>Insulation: 250 sq ft out at $1.40, back in at $1.90</td><td>$825.00</td></tr>
+      <tr><td>Disposal and soffit repair</td><td>$250.00</td></tr>
+      <tr><td><em>Direct cost</em></td><td><em>$2,508.56</em></td></tr>
+      <tr><td>Warranty reserve, 8% of the $453.86 of warranted work</td><td>$36.31</td></tr>
+      <tr><td>Overhead at 14% of direct cost</td><td>$351.20</td></tr>
+      <tr class="entered"><td>Walk-away price</td><td>$2,896.07</td></tr>
+      <tr class="entered"><td>Bid at a 22% net margin</td><td>$3,712.91</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <p>23.6 crew hours, so the bid is <strong>$157.53 per crew hour</strong>. That is the number to sanity-check against your own shop, because it is the one figure here that does not move when you change how the job is described.</p>
+
+  <h2>Three things this ordering should change</h2>
+
+  <h3>The attic is the biggest line, and it is the one that gets dropped</h3>
+  <p>Insulation is $825 &mdash; the largest single line on the job, larger than any labor line. It is also the line a nervous operator offers to remove when the customer flinches at the total, because it feels like an upsell. Removing it does not make the bid competitive with a $395 ad; it makes a $3,712.91 bid into a $2,700 bid that leaves contaminated insulation in an attic somebody's children sleep under.</p>
+
+  <h3>Height is a multiplier, not a surcharge</h3>
+  <p>The same 45 feet of seal is $155.80 of labor at ground level and $264.86 at a two-story eave. If you price exclusion per linear foot from a single rate, every two-story house you bid is wrong by that factor, in the same direction. A per-foot rate sheet is fine as long as it has tiers in it.</p>
+
+  <h3>The reserve is small, and zero is not</h3>
+  <p>Eight percent of the warranted work is $36.31 on this job &mdash; less than the disposal ticket. Almost nobody carries it, so the first callback in year two comes out of the profit on whatever job is running that week. Sizing it against the seal and the device rather than against the whole invoice is what keeps it small enough to actually charge.</p>
+
+  <h2>What this does not tell you</h2>
+
+  <p>It does not tell you when you may exclude. The calculator flags a job scheduled in a month when the species you picked commonly has young that cannot leave on their own, because sealing then traps them inside &mdash; but the actual window is set by your state wildlife agency, varies by latitude and species, and changes. The flag is a prompt to go and check before you put a date on the calendar. It is not a determination that any date is or is not permitted, and this page is not a substitute for your agency or your licence conditions.</p>
+
+  <a class="cta" href="./">Price your own job</a>
+
+  <h2>Common questions</h2>
+
+  <h3>What should I charge for a wildlife exclusion job?</h3>
+  <p>Far more than the flat removal fee homeowners shop against. On the worked example on this page &mdash; a raccoon in a two-story attic, three traps out for five days, 45 feet of seal, 250 square feet of decontamination and insulation replacement, and a three-year warranty &mdash; the walk-away price is $2,896.07 and the bid at a 22% net margin is $3,712.91. The $395 removal ad the customer is holding is $2,501.07 short of what the job costs to do, because it prices one visit and the job is eight.</p>
+
+  <h3>Why is the flat removal fee so far off?</h3>
+  <p>Because it prices catching an animal, and the job is ending the problem. The removal fee covers one trip. This job carries an inspection trip, an install trip, a trap check on each of five days, and a trip back to pull the one-way door &mdash; eight round trips, 224 miles and $306.53 of paid drive time before anyone has touched the roof. Add the seal, the attic and the warranty reserve and the arithmetic is not close.</p>
+
+  <h3>Which single line costs the most?</h3>
+  <p>Insulation, at $825 &mdash; 250 square feet removed at $1.40 and replaced at $1.90. Labor as a whole is larger at $895.66, but no single labor line beats it; the closest is driving, at $306.53. That ordering is worth knowing because it is the opposite of how these jobs get quoted: operators negotiate hardest over the trapping, which is $124.77 of on-site labor here, and treat the attic restoration as an add-on the customer can decline.</p>
+
+  <h3>Why does the height of the work change the labor by that much?</h3>
+  <p>Because reaching the work is most of the work. The same 45 feet of seal costs $155.80 of labor at ground level and $264.86 at a two-story eave on an extension ladder &mdash; a 1.7x multiplier applied to the exclusion and device time only, not to trap checks in the yard or decontamination in the attic. An operator pricing per linear foot from a single rate is wrong by that factor, in the same direction, on every two-story house they bid.</p>
+
+  <h3>What is the warranty reserve for?</h3>
+  <p>A callback. This job was sold with three years on the exclusion, and a callback is a truck, a technician and a ladder returning to a hole that reopened. The reserve here is 8% of the warranted work only &mdash; the exclusion labor, the exclusion material and the device, $453.86 between them &mdash; which comes to $36.31. That figure is small enough to be painless and specific enough to be honest, which is more than can be said for the usual reserve of zero.</p>
+
+  <h3>Is any of this legal or wildlife-regulation advice?</h3>
+  <p>No. It is arithmetic on the figures entered. It makes no determination about what your state&rsquo;s wildlife code requires, how often traps must be checked, whether a species may lawfully be excluded on a given date, or what licence or permit a job needs. Verify every figure and every requirement against your own costs, your state wildlife agency, and a qualified professional before sending a bid.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, wildlife-regulation, veterinary, tax, financial, or insurance advice, and it does not tell you what to charge, how often traps must be checked, whether a species may lawfully be excluded on a given date, or what licence, permit or coverage a job needs. It is arithmetic on an illustrative example rather than market data. Verify every figure against your own costs, your state wildlife agency, and a qualified professional before sending a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><a href="./">Wildlife exclusion bid calculator</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../spray-foam-bid-calculator/" data-pf-to="spray-foam-bid-calculator">Spray Foam Bid Calculator</a></li>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../window-cleaning-bid-calculator/" data-pf-to="window-cleaning-bid-calculator">Window Cleaning Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=wildlife-exclusion-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="wildlife-exclusion-bid-calculator"></script>
+</body>
+</html>

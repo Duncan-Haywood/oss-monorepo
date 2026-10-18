@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment</title>
+<meta name="description" content="Obsidian's own developer guidelines list the required manifest fields, the versions.json mechanism, and the innerHTML/outerHTML/insertAdjacentHTML risk.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment">
+<meta property="og:description" content="Obsidian's guidelines name the requirements. They don't check your specific files against them -- that step has always been either a guess or a reviewer's…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't Obsidian's own developer documentation already cover this?","acceptedAnswer":{"@type":"Answer","text":"It lists the required manifest.json fields, explains that versions.json needs its own matching entry for the current version, and names innerHTML/outerHTML/insertAdjacentHTML as a cross-site-scripting risk to avoid. What it doesn't do is read your specific manifest.json, your specific versions.json, or your specific source files and tell you which one you actually got wrong, in which file, on which line. That cross-check is what used to mean either guessing from the docs or finding out from a reviewer's comment."}},{"@type":"Question","name":"What does waiting for a reviewer's comment actually cost?","acceptedAnswer":{"@type":"Answer","text":"A round trip on your pull request in obsidian-releases, at minimum -- open a submission, wait for a maintainer or bot to read it, get a comment naming the exact field or line, push a fix, and wait again. For a plugin id or author field still carrying the obsidian-sample-plugin template's default value, or a versions.json entry that quietly fell out of sync with manifest.json, that comment may be the first time anyone notices. Scanning before you open the pull request catches the same defect without spending a review round trip to find it."}},{"@type":"Question","name":"Can I just search my code and manifest by hand for these patterns?","acceptedAnswer":{"@type":"Answer","text":"You can, and for a small plugin it may be faster than downloading a tool. The risk is coverage: six required manifest fields, three template placeholder values, a versions.json cross-reference, and three DOM APIs to grep for across every .js/.ts/.jsx/.tsx file in the project -- easy to miss one on a plugin with more than a couple of source files. This tool runs the same checks against every file you point it at, in the browser or as a CI-gating CLI, so a placeholder or an unsafe assignment buried in a file you didn't think to check is not the one a reviewer finds first."}},{"@type":"Question","name":"Does a clean report from this tool guarantee my plugin gets approved?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. This is pattern-matching against known manifest/versions.json field names and known risky API calls in the files you point it at -- a line-level heuristic, not data-flow or runtime analysis. It can miss an innerHTML assignment built from a genuinely safe value, or a guideline this tool does not check at all. A clean report means your current files agree with the specific patterns this tool checks; it is not a guarantee of approval, so verify against Obsidian's current plugin guidelines before you submit."}}]}</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../obsidian-plugin-review-check/">Obsidian Plugin Review Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment</span></span></nav>
+<p><a href="index.html">&larr; Obsidian Plugin Review Checker</a></p>
+<h1>This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment</h1>
+<p>
+  Obsidian's developer guidelines name the required <code>manifest.json</code> fields, explain that
+  <code>versions.json</code> needs its own matching entry for the current version, and call out
+  <code>innerHTML</code>/<code>outerHTML</code>/<code>insertAdjacentHTML</code> as a cross-site-scripting
+  risk to avoid. What they do not do is read your specific <code>manifest.json</code>, your specific
+  <code>versions.json</code>, or your specific source files and tell you which one you actually got
+  wrong, in which file, on which line. That cross-check has always meant either a guess informed by the
+  docs, or a definite answer from a reviewer's comment on your pull request days later.
+</p>
+
+<h2>What each approach actually gives you</h2>
+<p>
+  <strong>Obsidian's documentation</strong> is complete and authoritative about what the requirements
+  are. It is not a scanner: it cannot look at your project and tell you that your <code>manifest.json</code>
+  still carries the sample plugin's <code>"id": "sample-plugin"</code>, because it has never seen your
+  files.
+</p>
+<p>
+  <strong>A reviewer's comment</strong> will eventually tell you, with certainty -- after you open a pull
+  request in <code>obsidianmd/obsidian-releases</code>, wait for it to be read, and get a comment naming
+  the exact field or line. For a <code>versions.json</code> entry that quietly fell out of sync with
+  <code>manifest.json</code>, that comment may be the first time anyone notices.
+</p>
+<p>
+  <strong>This checker</strong> runs the same field, placeholder, and API checks a reviewer would, against
+  your manifest, your <code>versions.json</code>, and your source, before you submit -- in the browser
+  (nothing uploaded) or as a Node CLI you can gate CI on.
+</p>
+
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which field, placeholder, or API call is the problem, and where?</td><td>This checker's scan -- file and line, free, nothing uploaded.</td></tr>
+<tr><td>What are the required manifest fields and their names?</td><td>This checker lists them; both it and Obsidian's docs agree, since this tool's field list is checked against Obsidian's published guidelines.</td></tr>
+<tr><td>Will the community plugin list actually approve my submission?</td><td>Neither. Only Obsidian's own review determines that -- this is evidence about your files as they stand today.</td></tr>
+<tr><td>Is my plugin's source code uploaded anywhere?</td><td>No. The browser tool reads files with the File API; the CLI never makes a network call.</td></tr>
+</tbody>
+</table></div>
+
+<h2>Common questions</h2>
+<h3>Doesn't Obsidian's own developer documentation already cover this?</h3>
+<p>It lists the required manifest.json fields, explains that versions.json needs its own matching entry for the current version, and names innerHTML/outerHTML/insertAdjacentHTML as a cross-site-scripting risk to avoid. What it doesn't do is read your specific manifest.json, your specific versions.json, or your specific source files and tell you which one you actually got wrong, in which file, on which line. That cross-check is what used to mean either guessing from the docs or finding out from a reviewer's comment.</p>
+<h3>What does waiting for a reviewer's comment actually cost?</h3>
+<p>A round trip on your pull request in obsidian-releases, at minimum -- open a submission, wait for a maintainer or bot to read it, get a comment naming the exact field or line, push a fix, and wait again. For a plugin id or author field still carrying the obsidian-sample-plugin template's default value, or a versions.json entry that quietly fell out of sync with manifest.json, that comment may be the first time anyone notices. Scanning before you open the pull request catches the same defect without spending a review round trip to find it.</p>
+<h3>Can I just search my code and manifest by hand for these patterns?</h3>
+<p>You can, and for a small plugin it may be faster than downloading a tool. The risk is coverage: six required manifest fields, three template placeholder values, a versions.json cross-reference, and three DOM APIs to grep for across every .js/.ts/.jsx/.tsx file in the project -- easy to miss one on a plugin with more than a couple of source files. This tool runs the same checks against every file you point it at, in the browser or as a CI-gating CLI, so a placeholder or an unsafe assignment buried in a file you didn't think to check is not the one a reviewer finds first.</p>
+<h3>Does a clean report from this tool guarantee my plugin gets approved?</h3>
+<p>No, and it is not built to. This is pattern-matching against known manifest/versions.json field names and known risky API calls in the files you point it at -- a line-level heuristic, not data-flow or runtime analysis. It can miss an innerHTML assignment built from a genuinely safe value, or a guideline this tool does not check at all. A clean report means your current files agree with the specific patterns this tool checks; it is not a guarantee of approval, so verify against Obsidian's current plugin guidelines before you submit.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or security advice, and it does not replace a qualified professional or
+  Obsidian's own review process. You are responsible for reviewing and verifying its output before
+  relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by
+  law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The checker this page describes reads files you select
+  locally with the File API and never uploads them.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a
+  product of Dynalist Inc., named here only to describe what this tool checks.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=obsidian-plugin-review-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="obsidian-plugin-review-check"></script>
+</body>
+</html>

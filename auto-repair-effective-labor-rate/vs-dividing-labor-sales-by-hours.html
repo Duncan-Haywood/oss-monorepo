@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Effective Labor Rate Calculator vs. Dividing It Yourself | Worked Comparison</title>
+  <meta name="description" content="You can work out an effective labor rate from your own DMS reports: labor sales divided by hours.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html">
+  <meta property="og:title" content="Effective Labor Rate Calculator vs. Dividing It Yourself">
+  <meta property="og:description" content="The division is one line of arithmetic. Here is how to do it from your own reports, and the four places it gives a number you cannot act on.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just divide labor sales by labor hours myself?","acceptedAnswer":{"@type":"Answer","text":"Yes, and you should — it is one line of arithmetic and your management system already prints both numbers. Pull labor sales and the labor hours they were billed against for the same period and divide. That single figure is the most useful number most shops are not looking at. The reasons this page exists are what the division does not tell you: which hours you divided by, that a blended rate hides two very different rates, that unbilled hours never appear in it at all, and that the posted rate a target gross profit requires is not the rate the target names."}},{"@type":"Question","name":"Which hours should I divide by — sold hours or clock hours?","acceptedAnswer":{"@type":"Answer","text":"For an effective labor rate, divide by the hours you actually billed against, not the hours you paid for. Those are different numbers and they give different answers. On this page's worked figures, dividing $50,675 of labor sales by the 365 hours sold gives $138.84; dividing the same sales by the 393 hours consumed — the sold hours plus 28 internal and comeback hours nobody was invoiced for — gives $128.94. Neither is wrong, but they answer different questions, and a hand calculation rarely says which one it did. The calculator reports both and labels them."}},{"@type":"Question","name":"Why does a blended effective rate hide the problem?","acceptedAnswer":{"@type":"Answer","text":"Because customer-pay and warranty work are paid at rates you control to very different degrees. On the worked figures the blended rate is $138.84, but customer-pay collected $145.00 an hour and warranty collected $95.00. Those have different fixes: customer-pay discounting is a pricing and counter-process problem, warranty shortfall is a mix problem whose only lever is how much of that work you accept. A shop reading only the blended number tends to attack whichever cause is most visible rather than the largest. On these figures customer-pay is 67% of the shortfall and warranty is 33%."}},{"@type":"Question","name":"If I need a 70% labor gross profit, why can I not just post that rate?","acceptedAnswer":{"@type":"Answer","text":"Because you will collect the new posted rate in roughly the same proportion you collect the current one. On the worked figures a 70% labor gross profit needs $175.34 to actually reach the invoice — but at the 84% realization the shop is currently running, posting $175.34 collects about $147.54. The posted rate that delivers $175.34 of realized rate is $208.39. This gross-up is the step a spreadsheet almost always misses, and it is why a rate rise worked out by hand usually lands short of what it was meant to fix."}},{"@type":"Question","name":"Does this calculator replace my spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No, and for tracking it should not. This page prices one period at a time and saves no history, while a spreadsheet's real strength is a row per month, per technician or per service advisor, tied to your own DMS export. Many shops would use both: this calculator to get one month's arithmetic right and see where the gap sits, and their own sheet to log the result and watch the trend over a year."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #c9d2c6; vertical-align: top; }
+    code { background: #e3e9e1; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    .note { font-size: .9rem; color: #4f5b54; }
+    footer { margin-top: 32px; font-size: .82rem; color: #4f5b54; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Effective Labor Rate Calculator vs. Dividing It Yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../auto-repair-effective-labor-rate/">Effective Labor Rate Calculator for Auto Repair Shops</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Effective Labor Rate Calculator vs. Dividing It Yourself</span></span></nav>
+  <p><a href="./">← Effective labor rate calculator</a></p>
+  <h1>This calculator vs. dividing labor sales by hours yourself</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic method
+    every shop owner already has: pulling labor sales and labor hours off your management system's own
+    reports and dividing one by the other.</p>
+
+  <h2>First — the division is right, and you should do it</h2>
+  <p>Labor sales ÷ the labor hours they were billed against. That is the effective labor rate, it is one
+    line of arithmetic, and your DMS already prints both numbers on reports you run anyway. If you take
+    nothing else from this page, take that: it is the single most useful figure most shops are not
+    looking at, and no tool is required to get it.</p>
+  <p>What follows is not an argument that the division is hard. It is the four places the division gives
+    a number you cannot act on, and each of them is a place a hand calculation quietly picks an answer
+    without telling you it chose.</p>
+
+  <h2>The worked example</h2>
+  <p>Every figure below comes from this calculator's own starting numbers — a three-technician shop with a
+    $165 posted rate, one month: 320 customer-pay hours billing $46,400, 45 warranty hours billing $4,275,
+    28 internal and comeback hours billed to nobody, and 480 technician clock hours paid.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Dividing it yourself</th><th>This calculator</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>The headline rate</strong></td>
+          <td><code>$50,675 ÷ 365 = $138.84</code> — correct, and the same number this page reports</td>
+          <td>$138.84, plus the realization ratio it implies: you collect 84 cents of every posted dollar</td>
+        </tr>
+        <tr>
+          <td><strong>Which hours you divided by</strong></td>
+          <td>Whichever column the report happened to show. Sold hours give $138.84; the 393 hours actually consumed give $128.94 — a $9.89 difference from the same sales figure</td>
+          <td>Reports both, labelled: an effective rate on hours sold and an effective rate on all hours consumed</td>
+        </tr>
+        <tr>
+          <td><strong>Customer-pay vs. warranty</strong></td>
+          <td>Blended into one number unless you deliberately pull and divide the two separately</td>
+          <td>Split out: $145.00 customer-pay, $95.00 warranty — and the shortfall apportioned 67% / 33% between them</td>
+        </tr>
+        <tr>
+          <td><strong>Unbilled hours</strong></td>
+          <td>Invisible. Nobody was invoiced for the 28 comeback and internal hours, so they appear in no labor-sales figure and change no division</td>
+          <td>Priced at the posted rate — $4,620 this month, about $55,440 a year — and carried into cost per billed hour</td>
+        </tr>
+        <tr>
+          <td><strong>What an hour actually costs</strong></td>
+          <td>Usually payroll ÷ clock hours: <code>$19,200 ÷ 480 = $40.00</code></td>
+          <td>$40.00 a clock hour, but $52.60 inside every hour you bill, because you sold 365 of the 480 hours you paid for (76% efficiency)</td>
+        </tr>
+        <tr>
+          <td><strong>The rate a target gross profit needs</strong></td>
+          <td>Commonly set to the required rate itself — which then gets collected at the same 84% and lands short</td>
+          <td>$175.34 must reach the invoice for 70% labor gross profit, so the posted rate has to be $208.39</td>
+        </tr>
+        <tr>
+          <td><strong>History across months</strong></td>
+          <td>Its real strength — a row per month, per tech, or per advisor, tied to your own export</td>
+          <td>Prices one period at a time and saves no history; it does not replace a tracking sheet</td>
+        </tr>
+        <tr>
+          <td><strong>Where the numbers go</strong></td>
+          <td>Your file, your machine</td>
+          <td>Also your machine — the arithmetic runs in your browser and nothing you type is uploaded</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The four places the division goes quiet</h2>
+
+  <h3>1. It does not say which hours it used</h3>
+  <p>Sold hours and consumed hours are different, and on these figures they are 28 hours apart. The same
+    $50,675 of labor sales is either $138.84 an hour or $128.94 an hour depending on which denominator the
+    report you grabbed happened to contain. Both are real numbers; only one answers "what did I collect for
+    an hour I sold". A hand calculation makes that choice silently.</p>
+
+  <h3>2. A blended rate averages two problems with different fixes</h3>
+  <p>$138.84 is the average of $145.00 of customer-pay work and $95.00 of warranty work. Customer-pay
+    discounting — coupons, fleet rates, waived diagnostic time, book hours trimmed at the counter — is
+    money the shop gave away and can stop giving away. Warranty shortfall is a rate somebody else sets,
+    and the only lever is how much of that work you take. Reading one blended number tends to send a shop
+    at whichever of those is loudest rather than whichever is biggest. Here it is customer-pay, at 67% of
+    a $9,550 monthly gap.</p>
+
+  <h3>3. Unbilled hours cannot appear in a sales figure</h3>
+  <p>The 28 hours that went to comebacks, policy work and shop vehicles produced no invoice, so they are in
+    no labor-sales total and no division will ever surface them. Payroll paid for them regardless, which is
+    why they show up instead as the difference between $40.00 a clock hour and $52.60 a billed hour. At the
+    posted rate those bays represented $4,620 of capacity this month.</p>
+
+  <h3>4. A target rate is not the rate you post</h3>
+  <p>This is the one that costs real money. If 70% labor gross profit needs $175.34 to land on the invoice,
+    posting $175.34 does not deliver it — you would collect roughly 84% of it, about $147.54, for the same
+    reason you collect 84% of $165 today. The posted rate that actually realizes $175.34 is $208.39.
+    Every rate rise that "didn't work" is a candidate for this arithmetic.</p>
+
+  <h2>When your spreadsheet is the better tool</h2>
+  <p>For tracking, it plainly is. This page has no memory: close it and the month is gone. A sheet with a
+    row per month — or per technician, or per service advisor — tied to your own DMS export is how you see
+    a trend, and that is a thing this calculator does not do and is not trying to do. The sensible
+    arrangement is both: work one month out here to see where the gap sits and what the required posted
+    rate is, then log the result in your own file.</p>
+
+  <p class="note">Every figure on this page is the calculator's own worked example, not a claim about any
+    real shop and not an industry benchmark. Your mix, your rates and your reports will produce different
+    numbers — the point is which numbers to produce, not what they should come out to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Can I just divide labor sales by labor hours myself?</h3>
+  <p>Yes, and you should — it is one line of arithmetic and your management system already prints both
+    numbers. Pull labor sales and the labor hours they were billed against for the same period and divide.
+    That single figure is the most useful number most shops are not looking at. The reasons this page
+    exists are what the division does not tell you: which hours you divided by, that a blended rate hides
+    two very different rates, that unbilled hours never appear in it at all, and that the posted rate a
+    target gross profit requires is not the rate the target names.</p>
+
+  <h3>Which hours should I divide by — sold hours or clock hours?</h3>
+  <p>For an effective labor rate, divide by the hours you actually billed against, not the hours you paid
+    for. Those are different numbers and they give different answers. On this page's worked figures,
+    dividing $50,675 of labor sales by the 365 hours sold gives $138.84; dividing the same sales by the 393
+    hours consumed — the sold hours plus 28 internal and comeback hours nobody was invoiced for — gives
+    $128.94. Neither is wrong, but they answer different questions, and a hand calculation rarely says
+    which one it did. The calculator reports both and labels them.</p>
+
+  <h3>Why does a blended effective rate hide the problem?</h3>
+  <p>Because customer-pay and warranty work are paid at rates you control to very different degrees. On the
+    worked figures the blended rate is $138.84, but customer-pay collected $145.00 an hour and warranty
+    collected $95.00. Those have different fixes: customer-pay discounting is a pricing and counter-process
+    problem, warranty shortfall is a mix problem whose only lever is how much of that work you accept. A
+    shop reading only the blended number tends to attack whichever cause is most visible rather than the
+    largest. On these figures customer-pay is 67% of the shortfall and warranty is 33%.</p>
+
+  <h3>If I need a 70% labor gross profit, why can I not just post that rate?</h3>
+  <p>Because you will collect the new posted rate in roughly the same proportion you collect the current
+    one. On the worked figures a 70% labor gross profit needs $175.34 to actually reach the invoice — but
+    at the 84% realization the shop is currently running, posting $175.34 collects about $147.54. The
+    posted rate that delivers $175.34 of realized rate is $208.39. This gross-up is the step a spreadsheet
+    almost always misses, and it is why a rate rise worked out by hand usually lands short of what it was
+    meant to fix.</p>
+
+  <h3>Does this calculator replace my spreadsheet?</h3>
+  <p>No, and for tracking it should not. This page prices one period at a time and saves no history, while
+    a spreadsheet's real strength is a row per month, per technician or per service advisor, tied to your
+    own DMS export. Many shops would use both: this calculator to get one month's arithmetic right and see
+    where the gap sits, and their own sheet to log the result and watch the trend over a year.</p>
+
+  <p><a href="./">Open the effective labor rate calculator →</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, accounting, insurance, employment, legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../late-invoice-collections-kit/" data-pf-to="late-invoice-collections-kit">Late Invoice Collections Kit — free, private, in your browser</a></li>
+      <li><a href="../lead-response-time-analyzer/" data-pf-to="lead-response-time-analyzer">Lead Response Time Analyzer — free, private, in your browser</a></li>
+      <li><a href="../mosquito-control-program-pricing-calculator/" data-pf-to="mosquito-control-program-pricing-calculator">Mosquito control program pricing calculator</a></li>
+      <li><a href="../no-show-fee-calculator/" data-pf-to="no-show-fee-calculator">No-Show &amp; Cancellation Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=auto-repair-effective-labor-rate">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="auto-repair-effective-labor-rate"></script>
+</body>
+</html>

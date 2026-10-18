@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>App Store &amp; Google Play Listing Checker — Keyword Field, Character Limits and Rejection Risks</title>
+  <meta name="description" content="Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words…">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="App Store &amp; Google Play Listing Checker">
+  <meta property="og:description" content="Check listing text for character limits, wasted keyword-field characters and rejection risks before you submit. Nothing leaves your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "App Store & Google Play Listing Checker", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded. A zero-dependency CLI lints a fastlane metadata folder in CI.", "featureList": ["Checks name, subtitle, keyword, description and promotional-text limits for the App Store", "Checks title, short description and full description limits for Google Play", "Finds wasted characters in the 100-character iOS keyword field: spaces, duplicates, plurals, words already in the name or subtitle", "Flags promotional claims, emoji and ALL-CAPS in names and titles", "Flags placeholder text, keyword stuffing and other-platform mentions", "Blocks on terms you ask it to avoid, such as competitor names", "Zero-dependency Node CLI that reads a fastlane metadata folder"]}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many characters does the App Store keyword field allow?", "acceptedAnswer": {"@type": "Answer", "text": "100 characters, comma-separated, with no need for spaces. Spaces next to commas spend characters and add nothing. Apple also matches singular and plural forms and indexes your name and subtitle separately, so repeating those words in the keyword field wastes room. This tool counts all of that and lists the characters you could win back."}}, {"@type": "Question", "name": "What are the App Store and Google Play title limits?", "acceptedAnswer": {"@type": "Answer", "text": "Apple allows 30 characters for the app name and 30 for the subtitle; Google Play allows 30 for the title and 80 for the short description. Both stores count characters, not bytes, so an emoji or accented letter counts as one. A listing over a limit is refused at submission."}}, {"@type": "Question", "name": "Is this a prediction of whether review will pass?", "acceptedAnswer": {"@type": "Answer", "text": "No. Limits are mechanical and reported as failures. Everything else is a heuristic drawn from each store's published metadata rules — a promotional word in a name, a repeated keyword, a mention of another platform — and is reported as a notice that says exactly what it saw. Passing every check does not mean a listing will be approved."}}, {"@type": "Question", "name": "Is my listing text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text you paste is checked in your browser and is never transmitted or stored. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    select, input[type="text"], textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; }
+    textarea { min-height: 70px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .counter { font-weight: 400; color: #55606f; font-size: .8rem; margin-left: 6px; }
+    .counter.over { color: #9a3412; font-weight: 700; }
+    code { overflow-wrap: anywhere; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"App Store \u0026 Google Play Listing Checker","item":"https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="App Store &amp; Google Play Listing Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">App Store &amp; Google Play Listing Checker</span></span></nav>
+  <header>
+    <p class="note">APP STORE &amp; GOOGLE PLAY LISTING CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Fix the listing text before the store does it for you</h1>
+    <p>
+      Paste your listing copy and see which fields are <strong>over the character limit</strong>,
+      how many of the 100 App Store <strong>keyword characters are wasted</strong> on spaces, repeats and
+      words already in your name, and which lines carry <strong>promotional claims, placeholder text or
+      keyword stuffing</strong> that reviewers send back.
+    </p>
+    <p class="note">Nothing is uploaded. Your text is checked in this browser and is not transmitted or stored.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your listing</h2>
+    <label for="store">Store</label>
+    <select id="store">
+      <option value="ios">Apple App Store (App Store Connect)</option>
+      <option value="play">Google Play Console</option>
+    </select>
+    <div id="fields"></div>
+    <label for="avoid">Terms to avoid (optional, comma-separated — competitor or brand names)</label>
+    <input type="text" id="avoid" placeholder="uber, lyft">
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Findings</h2>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>Want this as a release gate?</h2>
+    <p>The CLI reads a fastlane metadata folder and exits non-zero when something would block the submission:</p>
+    <pre class="cmd" tabindex="0">node check.mjs fastlane/metadata
+node check.mjs fastlane/metadata/android --store play
+node check.mjs fastlane/metadata --avoid "uber,lyft" --strict
+node check.mjs fastlane/metadata --json</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/app-listing-metadata-check" rel="noopener">check.mjs and engine.mjs from the repo</a> — plain Node 18+, nothing to install, no network. Exit 1 on a danger finding, 2 when the paths could not be used.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many characters does the App Store keyword field allow?</h3>
+    <p>100 characters, comma-separated, with no need for spaces. Spaces next to commas spend characters and add nothing. Apple also matches singular and plural forms and indexes your name and subtitle separately, so repeating those words in the keyword field wastes room. This tool counts all of that and lists the characters you could win back.</p>
+    <h3>What are the App Store and Google Play title limits?</h3>
+    <p>Apple allows 30 characters for the app name and 30 for the subtitle; Google Play allows 30 for the title and 80 for the short description. Both stores count characters, not bytes, so an emoji or accented letter counts as one. A listing over a limit is refused at submission.</p>
+    <h3>Is this a prediction of whether review will pass?</h3>
+    <p>No. Limits are mechanical and reported as failures. Everything else is a heuristic drawn from each store's published metadata rules — a promotional word in a name, a repeated keyword, a mention of another platform — and is reported as a notice that says exactly what it saw. Passing every check does not mean a listing will be approved.</p>
+    <h3>Is my listing text uploaded anywhere?</h3>
+    <p>No. The text you paste is checked in your browser and is never transmitted or stored. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, business, or app-review advice, and it does not replace reading each store's own current guidelines. It reports whether the text you provided trips specific, mechanically checkable rules — nothing more. It is not a guarantee that a submission will be accepted, and passing every check here does not mean an app will pass review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Apple or Google.</strong> "App Store", "App Store Connect", "Google Play" and "Google Play Console" are the trademarks of their respective owners, used here only to say which store's published rules a check refers to. The limits and rules in this tool were last reviewed on 2026-10-06 and may be out of date; each store's own documentation is authoritative.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Everything you paste here stays in your browser; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a pass before you ship: <a href="../app-store-screenshot-check/">App Store Screenshot Check</a> catches a rejected icon or wrong-size screenshot, and <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Check</a> catches a missing required-reason API declaration. Once it is live, <a href="../app-review-insights/">App Review Insights</a> turns your reviews into release drops, themes and a reply queue.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkListing, LIMITS, FIELD_LABELS } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const longFields = new Set(['description', 'full_description', 'promotional_text', 'release_notes']);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    function buildFields() {
+      const store = $('#store').value;
+      $('#fields').innerHTML = Object.entries(LIMITS[store]).map(([f, max]) => `
+        <label for="f-${f}">${FIELD_LABELS[f]} <span class="counter" id="c-${f}">0 / ${max}</span></label>
+        ${longFields.has(f) ? `<textarea id="f-${f}" data-f="${f}"></textarea>` : `<input type="text" id="f-${f}" data-f="${f}">`}`).join('');
+      for (const el of document.querySelectorAll('[data-f]')) el.addEventListener('input', () => updateCounter(el));
+    }
+
+    function updateCounter(el) {
+      const f = el.dataset.f;
+      const max = LIMITS[$('#store').value][f];
+      const n = [...el.value].length;
+      const c = $('#c-' + f);
+      c.textContent = `${n} / ${max}`;
+      c.classList.toggle('over', n > max);
+    }
+
+    function values() {
+      const v = {};
+      for (const el of document.querySelectorAll('[data-f]')) v[el.dataset.f] = el.value;
+      return v;
+    }
+
+    function render() {
+      const report = checkListing({ store: $('#store').value, fields: values(), avoid: $('#avoid').value.split(',') });
+      $('#findings').innerHTML = report.findings.length === 0
+        ? '<p class="ok">None of the checked problems were found in this text.</p>'
+        : report.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+      $('#report-card').hidden = false;
+    }
+
+    function fill(map) {
+      for (const [f, v] of Object.entries(map)) { const el = $('#f-' + f); if (el) { el.value = v; updateCounter(el); } }
+    }
+
+    $('#store').addEventListener('change', buildFields);
+    $('#check').addEventListener('click', () => {
+      const any = Object.values(values()).some((v) => v.trim());
+      if (!any) { $('#status').innerHTML = '<span class="error">Paste at least one field first (or load the worked example).</span>'; return; }
+      $('#status').textContent = '';
+      render();
+      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'check_run');
+    });
+    $('#load-example').addEventListener('click', () => {
+      $('#store').value = 'ios';
+      buildFields();
+      fill({ name: 'Streakly: Best Habit Tracker', subtitle: 'Habit tracker', keywords: 'habit, tracker,routine,routines,app,free,goal', description: 'Streakly is the habit tracker for everyone. Lorem ipsum dolor sit amet. Also on Android.' });
+      render();
+      $('#status').textContent = 'Worked example: a promotional name, a subtitle that repeats it, and a keyword field with spaces, repeats and generic words.';
+      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+    $('#clear').addEventListener('click', () => { buildFields(); $('#avoid').value = ''; $('#report-card').hidden = true; $('#status').textContent = ''; });
+
+    buildFields();
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../dependency-confusion-check/" data-pf-to="dependency-confusion-check">Could a public package be substituted for your internal one?</a></li>
+      <li><a href="../deploy-concurrency-check/" data-pf-to="deploy-concurrency-check">Deploy Concurrency Check</a></li>
+      <li><a href="../devsec-toolkit/" data-pf-to="devsec-toolkit">devsec-toolkit: every DevSecOps check in one free command</a></li>
+      <li><a href="../dmarc-report-reader/" data-pf-to="dmarc-report-reader">DMARC Report Reader — read rua reports without a SaaS</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=app-listing-metadata-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/?pfEmbed=1&quot; title=&quot;App Store &amp; Google Play Listing Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="app-listing-metadata-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/app-listing-metadata-check/" data-pf-embed-title="App Store &amp; Google Play Listing Checker" data-pf-embed-slug="app-listing-metadata-check"></script>
+</body>
+</html>

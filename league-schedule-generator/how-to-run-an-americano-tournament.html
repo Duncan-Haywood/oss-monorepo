@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run An Americano Tournament: Rotating Partners For Padel And Pickleball</title>
+  <meta name="description" content="How an Americano works for padel, pickleball, badminton and tennis: rotating partners, courts, sit-outs and scoring, with a worked 8-player, 2-court schedule.">
+  <meta property="og:title" content="How To Run An Americano Tournament: Rotating Partners For Padel And Pickleball">
+  <meta property="og:description" content="Rotating partners, courts, sit-outs and scoring, with an 8-player example. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-an-americano-tournament.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many rounds does an Americano have?", "acceptedAnswer": {"@type": "Answer", "text": "With 8 players and 2 courts, 7 rounds lets every player partner every other player exactly once. In general, with n players the full cycle is n - 1 rounds when n is a multiple of 4; shorter nights simply stop earlier, and the tool lets you pick any number of rounds."}}, {"@type": "Question", "name": "What if the number of players is not a multiple of 4?", "acceptedAnswer": {"@type": "Answer", "text": "Each court needs 4 players, so the extras sit out. The tool shares sit-outs so nobody sits out more than one round more than anyone else, and it shares games the same way."}}, {"@type": "Question", "name": "How do you score an Americano?", "acceptedAnswer": {"@type": "Answer", "text": "Each player keeps the points their side scored in every game, and the night's winner is the player with the most points. Games are usually played to a fixed score such as 21 or 24, or for a fixed time. This tool builds the rotation; it does not keep score or rate anyone."}}, {"@type": "Question", "name": "What is the difference between Americano and Mexicano?", "acceptedAnswer": {"@type": "Answer", "text": "In an Americano the pairings are fixed in advance so everyone partners as many different people as possible. In a Mexicano, each round after the first is drawn from the standings, so players of similar level meet. The tool has both: Build rotation for Americano and Draw next round for Mexicano."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/how-to-run-an-americano-tournament.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Run An Americano Tournament: Rotating Partners For Padel And Pickleball — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../league-schedule-generator/">League Schedule Generator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Run An Americano Tournament: Rotating Partners For Padel And Pickleball</span></span></nav>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run an Americano: rotating partners for padel, pickleball and badminton nights</h1>
+  <p>An Americano is a social doubles format where everyone plays with and against as many different people as possible. Nobody needs a fixed partner, so it suits club nights, open mornings and mixed-level groups. Each round you get a new partner, and your own points count towards your own total.</p>
+  <p><a class="cta" href="./">Open the free rotation builder</a> (the Americano card on the page: enter players, courts and rounds)</p>
+  <h2>A worked example: 8 players, 2 courts, 7 rounds</h2>
+  <p>Eight invented players on two courts play 7 rounds. Everyone plays every round, so there are no sit-outs. Every player partners each of the other seven players exactly once, and nobody plays the same partner twice.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Court</th><th>Side A</th><th>Side B</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>Eli & Fay</td><td>Ben & Gus</td></tr>
+      <tr><td>1</td><td>2</td><td>Cy & Hal</td><td>Ana & Dee</td></tr>
+      <tr><td>2</td><td>1</td><td>Dee & Hal</td><td>Fay & Gus</td></tr>
+      <tr><td>2</td><td>2</td><td>Ben & Eli</td><td>Ana & Cy</td></tr>
+      <tr><td>3</td><td>1</td><td>Dee & Gus</td><td>Ana & Ben</td></tr>
+      <tr><td>3</td><td>2</td><td>Fay & Hal</td><td>Cy & Eli</td></tr>
+      <tr><td>4</td><td>1</td><td>Ben & Fay</td><td>Ana & Hal</td></tr>
+      <tr><td>4</td><td>2</td><td>Eli & Gus</td><td>Cy & Dee</td></tr>
+      <tr><td>5</td><td>1</td><td>Cy & Fay</td><td>Ana & Gus</td></tr>
+      <tr><td>5</td><td>2</td><td>Ben & Dee</td><td>Eli & Hal</td></tr>
+      <tr><td>6</td><td>1</td><td>Gus & Hal</td><td>Ana & Eli</td></tr>
+      <tr><td>6</td><td>2</td><td>Ben & Cy</td><td>Dee & Fay</td></tr>
+      <tr><td>7</td><td>1</td><td>Ana & Fay</td><td>Dee & Eli</td></tr>
+      <tr><td>7</td><td>2</td><td>Cy & Gus</td><td>Ben & Hal</td></tr>
+    </tbody>
+  </table></div>
+  <p>The plan is built by a seeded search and then checked by a separate validator: nobody is on two courts in a round, and the counts of games and sit-outs are within one of even. The same seed gives the same plan, so you can rebuild it on another device.</p>
+  <p><a class="cta" href="./">Build your own rotation</a></p>
+  <h2>Questions</h2>
+  <h3>How many rounds does an Americano have?</h3>
+  <p>With 8 players and 2 courts, 7 rounds lets every player partner every other player exactly once. In general, with n players the full cycle is n - 1 rounds when n is a multiple of 4; shorter nights simply stop earlier, and the tool lets you pick any number of rounds.</p>
+  <h3>What if the number of players is not a multiple of 4?</h3>
+  <p>Each court needs 4 players, so the extras sit out. The tool shares sit-outs so nobody sits out more than one round more than anyone else, and it shares games the same way.</p>
+  <h3>How do you score an Americano?</h3>
+  <p>Each player keeps the points their side scored in every game, and the night's winner is the player with the most points. Games are usually played to a fixed score such as 21 or 24, or for a fixed time. This tool builds the rotation; it does not keep score or rate anyone.</p>
+  <h3>What is the difference between Americano and Mexicano?</h3>
+  <p>In an Americano the pairings are fixed in advance so everyone partners as many different people as possible. In a Mexicano, each round after the first is drawn from the standings, so players of similar level meet. The tool has both: Build rotation for Americano and Draw next round for Mexicano.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a> for team leagues, and <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing before you announce it; your club's own rules apply. The example players are invented.</p>
+    <p>Everything the tool does runs in your browser; player names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+</body>
+</html>

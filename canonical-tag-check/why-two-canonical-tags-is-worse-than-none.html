@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why two canonical tags on one page is worse than none</title>
+<meta name="description" content="A CMS plugin and a hand-written template can both emit a &lt;link rel=canonical&gt; tag on the same page, naming two different URLs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/why-two-canonical-tags-is-worse-than-none.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why two canonical tags on one page is worse than none">
+<meta property="og:description" content="One canonical tag missing is a notice: search engines infer one on their own. Two canonical tags naming different URLs is a danger…">
+<meta property="og:url" content="./why-two-canonical-tags-is-worse-than-none.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a page end up with two canonical tags?","acceptedAnswer":{"@type":"Answer","text":"Because more than one system on the page believes it owns the job. A common pairing: an SEO plugin (Yoast, RankMath, and similar) auto-generates a canonical tag from the page's own URL on every request, while a hand-written template -- left over from before the plugin was installed, or added by a developer who did not know the plugin already handled it -- emits its own canonical tag pointing at a different path. Neither system checks whether the other already added one."}},{"@type":"Question","name":"Which canonical tag actually wins?","acceptedAnswer":{"@type":"Answer","text":"Browsers and search engines honor only the first <link rel=\"canonical\"> tag found in the page's <head> and ignore every one after it. Which tag renders first depends on template output order -- something no one on the team necessarily controls or has looked at -- so the winner is effectively arbitrary from the page author's point of view, and can change silently the next time the template or plugin output order shifts."}},{"@type":"Question","name":"Is two canonical tags worse than having none at all?","acceptedAnswer":{"@type":"Answer","text":"In one concrete sense, yes: with zero canonical tags, search engines infer a reasonable one on their own -- typically the URL you requested. With two conflicting ones, the page is actively telling crawlers two different things about itself, and which instruction wins is decided by markup order rather than intent. A missing canonical is a gap a search engine fills in sensibly; a contradicting pair is the page's own head disagreeing with itself."}},{"@type":"Question","name":"How would I actually find this on a real page?","acceptedAnswer":{"@type":"Answer","text":"View-source or the Elements panel shows every tag in <head>, including duplicates, but only if you think to scroll past the first canonical tag and check for a second one -- most manual checks stop at the first match. This tool's CLI fetches the page, collects every <link rel=\"canonical\"> tag in <head> rather than stopping at the first, and flags a danger finding the moment two of them name different URLs."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why two canonical tags on one page is worse than none — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../canonical-tag-check/">Canonical Tag Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why two canonical tags on one page is worse than none</span></span></nav>
+<p><a href="index.html">&larr; Canonical Tag Checker</a></p>
+<h1>Why two canonical tags on one page is worse than none</h1>
+
+<p>A missing canonical tag is a <strong>notice</strong>: search engines infer a reasonable one on their own,
+usually the URL you requested. Two canonical tags naming different URLs on the same page is a
+<strong>danger</strong>: the page's own <code>&lt;head&gt;</code> is contradicting itself, and only the
+first tag found is ever honored -- the rest are silently ignored, by design, not as an error either side
+reports back to you.</p>
+
+<h2>A worked example</h2>
+<p>
+  A blog post at <code>/guide/</code> runs an SEO plugin that auto-generates
+  <code>&lt;link rel=&quot;canonical&quot; href=&quot;https://example.com/guide/&quot;&gt;</code> from the page's own URL on
+  every request. The theme's template -- written before the plugin was installed, and never removed --
+  also emits its own tag: <code>&lt;link rel=&quot;canonical&quot; href=&quot;https://example.com/blog/guide/&quot;&gt;</code>.
+  Fetching that page and checking it:
+</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Finding</th><th scope="col">Severity</th><th scope="col">What it reports</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>multiple-conflicting-canonical</code></td>
+      <td>danger</td>
+      <td>"2 canonical tags naming 2 different URLs" -- evidence:
+        <code>https://example.com/guide/</code> | <code>https://example.com/blog/guide/</code></td>
+    </tr>
+  </tbody>
+</table></div>
+<p>
+  Which of the two wins is decided by markup order -- whichever the plugin or the template happens to print
+  first in <code>&lt;head&gt;</code> -- not by which one anyone actually intended. Neither the plugin nor the
+  template knows the other one already added a tag, so nothing on the page itself ever surfaces the conflict.
+</p>
+
+<h2>Common questions</h2>
+<h3>Why can a page end up with two canonical tags?</h3>
+<p>Because more than one system on the page believes it owns the job. A common pairing: an SEO plugin (Yoast, RankMath, and similar) auto-generates a canonical tag from the page's own URL on every request, while a hand-written template -- left over from before the plugin was installed, or added by a developer who did not know the plugin already handled it -- emits its own canonical tag pointing at a different path. Neither system checks whether the other already added one.</p>
+<h3>Which canonical tag actually wins?</h3>
+<p>Browsers and search engines honor only the first &lt;link rel=&quot;canonical&quot;&gt; tag found in the page's &lt;head&gt; and ignore every one after it. Which tag renders first depends on template output order -- something no one on the team necessarily controls or has looked at -- so the winner is effectively arbitrary from the page author's point of view, and can change silently the next time the template or plugin output order shifts.</p>
+<h3>Is two canonical tags worse than having none at all?</h3>
+<p>In one concrete sense, yes: with zero canonical tags, search engines infer a reasonable one on their own -- typically the URL you requested. With two conflicting ones, the page is actively telling crawlers two different things about itself, and which instruction wins is decided by markup order rather than intent. A missing canonical is a gap a search engine fills in sensibly; a contradicting pair is the page's own head disagreeing with itself.</p>
+<h3>How would I actually find this on a real page?</h3>
+<p>View-source or the Elements panel shows every tag in &lt;head&gt;, including duplicates, but only if you think to scroll past the first canonical tag and check for a second one -- most manual checks stop at the first match. This tool's CLI fetches the page, collects every &lt;link rel=&quot;canonical&quot;&gt; tag in &lt;head&gt; rather than stopping at the first, and flags a danger finding the moment two of them name different URLs.</p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a> &middot; checking a URL that already
+redirects? See <a href="vs-checking-canonicals-by-view-source.html">what view-source can't tell you</a>
+about the target it points at.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>
+  is optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../supabase-bill-estimator/" data-pf-to="supabase-bill-estimator">What will your Supabase bill be, and what cuts it most?</a></li>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=canonical-tag-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="canonical-tag-check"></script>
+</body>
+</html>

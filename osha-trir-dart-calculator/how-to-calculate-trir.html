@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Calculate TRIR (OSHA Formula + Worked Example)</title>
+  <meta name="description" content="The OSHA TRIR and DART rate formulas, worked through on a real recordable-case count and hours-worked figure — not a rounded example…">
+  <meta property="og:title" content="How to Calculate TRIR">
+  <meta property="og:description" content="The formula, worked through on a real recordable-case count and hours-worked figure, with the same arithmetic the free calculator runs on your own numbers.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/how-to-calculate-trir.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the TRIR formula?","acceptedAnswer":{"@type":"Answer","text":"TRIR = (number of OSHA-recordable cases × 200,000) ÷ total hours worked by all employees. 200,000 is OSHA's own base rate: the hours 100 full-time employees work in a year at 40 hours a week for 50 weeks, so the rate reads as recordable cases per 100 full-time workers per year regardless of a company's actual headcount."}},{"@type":"Question","name":"What counts as a recordable case?","acceptedAnswer":{"@type":"Answer","text":"OSHA's recordkeeping rule (29 CFR 1904.7) defines it: a work-related injury or illness that results in death, days away from work, restricted work or transfer, medical treatment beyond first aid, loss of consciousness, or a significant diagnosed condition. Deciding whether a specific case meets that bar is the employer's own recordkeeping judgment call — this page and the calculator it links to start from a count you've already made, not from a case description."}},{"@type":"Question","name":"Where do the case counts and hours worked come from?","acceptedAnswer":{"@type":"Answer","text":"Your own OSHA 300 Log of Work-Related Injuries and Illnesses, which every covered employer already keeps, and the OSHA 300A Summary posted every February. Total hours worked is the sum of hours actually worked by every employee in the period, including overtime, and excluding vacation, sick, and holiday time not actually worked."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2420; background: #eef3f1; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #cbdcd3; padding: 6px 10px; }
+    code { background: #dcece3; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #f2f9f5; border: 1px solid #a9cbb6; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #1f5c3b; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4d6459; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/how-to-calculate-trir.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Calculate TRIR — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../osha-trir-dart-calculator/">OSHA TRIR &amp; DART Rate Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Calculate TRIR</span></span></nav>
+  <p><a href="./">&larr; Back to the TRIR &amp; DART rate calculator</a></p>
+  <h1>How to calculate TRIR</h1>
+  <p>TRIR (Total Recordable Incident Rate) is <strong>recordable cases times 200,000, divided by total hours
+    worked</strong>. It answers one question: at this rate of recordable cases, how many would you expect per 100
+    full-time workers in a year? The rest of this page works through the formula on a real case count, not a rounded
+    example.</p>
+
+  <h2>The formula</h2>
+  <p><code>TRIR = (recordable cases &times; 200,000) &divide; total hours worked</code></p>
+  <p><code>DART rate = (DART cases &times; 200,000) &divide; total hours worked</code></p>
+  <p>200,000 is OSHA's own base rate: 100 full-time employees, 40 hours a week, 50 weeks a year. It is fixed
+    regardless of your company's actual headcount, which is what makes the rate comparable between a 12-person crew
+    and a 400-person one.</p>
+
+  <h2>Worked example</h2>
+  <p>A contractor logs 6 OSHA-recordable cases over a year in which its employees worked 120,000 hours combined.
+    2 of those 6 cases involved days away, restricted duty, or a transfer (DART cases); the other 4 needed only
+    medical treatment beyond first aid.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Figure</th><th>Arithmetic</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>TRIR</td><td>6 &times; 200,000 &divide; 120,000</td><td>10.00</td></tr>
+      <tr><td>DART rate</td><td>2 &times; 200,000 &divide; 120,000</td><td>3.33</td></tr>
+      <tr><td>Recordable, not DART</td><td>6 &minus; 2</td><td>4</td></tr>
+    </tbody>
+  </table></div>
+  <p>Against a 3.0 target &mdash; a common GC prequalification ceiling &mdash; this contractor's TRIR of 10.00 is
+    <strong>7.00 points above target</strong>.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">What it takes to close that gap</h2>
+    <p>Holding the recordable count at 6 and adding no new case, the rate falls as more injury-free hours are worked:
+      solve <code>6 &times; 200,000 &divide; target = hours needed</code> for a target of 3.0, and subtract the
+      120,000 already worked. That is <strong>400,000 &minus; 120,000 = 280,000 additional injury-free hours</strong>
+      &mdash; a real number a safety program can plan around, not a guess at how the rate might trend.</p>
+  </div>
+
+  <h2>Do this with your own counts</h2>
+  <p>The <a href="./">TRIR &amp; DART rate calculator</a> runs this same arithmetic on your own recordable count,
+    DART count, and hours worked, lets you set whatever target rate a bid form or renewal is measuring you against,
+    and converts the injury-free-hours figure into months if you give it your average monthly hours. Nothing you
+    type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>What is the TRIR formula?</h3>
+  <p>TRIR = (number of OSHA-recordable cases &times; 200,000) &divide; total hours worked by all employees. 200,000
+    is OSHA's own base rate: the hours 100 full-time employees work in a year at 40 hours a week for 50 weeks, so the
+    rate reads as recordable cases per 100 full-time workers per year regardless of a company's actual headcount.</p>
+
+  <h3>What counts as a recordable case?</h3>
+  <p>OSHA's recordkeeping rule (29 CFR 1904.7) defines it: a work-related injury or illness that results in death,
+    days away from work, restricted work or transfer, medical treatment beyond first aid, loss of consciousness, or
+    a significant diagnosed condition. Deciding whether a specific case meets that bar is the employer's own
+    recordkeeping judgment call &mdash; this page and the calculator it links to start from a count you've already
+    made, not from a case description.</p>
+
+  <h3>Where do the case counts and hours worked come from?</h3>
+  <p>Your own OSHA 300 Log of Work-Related Injuries and Illnesses, which every covered employer already keeps, and
+    the OSHA 300A Summary posted every February. Total hours worked is the sum of hours actually worked by every
+    employee in the period, including overtime, and excluding vacation, sick, and holiday time not actually
+    worked.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator it links to are arithmetic references, not legal,
+      safety-compliance, insurance, or financial advice, and they do not determine whether any case is OSHA
+      recordable or represent that any company is compliant with any OSHA rule. Verify every figure against your own
+      OSHA 300 log and a qualified Certified Safety Professional before relying on it. To the maximum extent
+      permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source &mdash; <a href="LICENSE" rel="noopener">MIT licensed</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../eu-whistleblower-channel-checker/" data-pf-to="eu-whistleblower-channel-checker">EU Whistleblower Directive checker: do you need a channel, what is missing, when is the reply due. Free, private</a></li>
+      <li><a href="../eudr-scope-checker/" data-pf-to="eudr-scope-checker">EUDR scope checker: are you covered, what must you do, and by when? Free, private</a></li>
+      <li><a href="../expense-tracker/" data-pf-to="expense-tracker">Expense Tracker — free, private, Schedule C ready</a></li>
+      <li><a href="../fifo-pick-evidence/" data-pf-to="fifo-pick-evidence">FIFO Pick Evidence</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=osha-trir-dart-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="osha-trir-dart-calculator"></script>
+</body>
+</html>

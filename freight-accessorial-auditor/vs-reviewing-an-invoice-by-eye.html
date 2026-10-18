@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye</title>
+<meta name="description" content="Reading a carrier invoice yourself catches one obviously high line. It reliably misses a second identical charge billed twice…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye">
+<meta property="og:description" content="Reading an invoice yourself catches a charge that looks obviously high. It cannot reliably catch a second identical line billed at an ordinary-looking price…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just review the invoice myself and catch the overcharges?","acceptedAnswer":{"@type":"Answer","text":"For one line that is obviously high -- a detention charge several times what a normal stop costs -- yes, that is often visible on a single read. What a read misses is a line repeated twice at an ordinary-looking price, a per-unit rate with a free allowance and a cap that needs a two-step calculation, a fuel surcharge whose percent of linehaul was never actually computed, and whether an overage has supporting evidence attached once the invoice runs past a handful of lines."}},{"@type":"Question","name":"Why is a duplicate line harder to catch than one that looks expensive?","acceptedAnswer":{"@type":"Answer","text":"An expensive-looking line stands out on its own -- it triggers a \"that seems like a lot\" reaction independent of anything else on the invoice. A duplicate does the opposite: the second liftgate charge at the same ordinary price looks completely fine by itself, so reading it a second time raises nothing. Catching it means noticing that two separate lines share the same invoice, reference, code, and amount -- a comparison across rows, not a judgment about any one row -- which is exactly what a skim does not do."}},{"@type":"Question","name":"What does the detention or fuel math actually require?","acceptedAnswer":{"@type":"Answer","text":"A per-unit accessorial like detention, storage, or reweigh is rarely a single number: it is a rate per hour or per hundredweight, usually past a free allowance and often under a cap. Getting the expected amount right means subtracting the free time first, multiplying only the remainder by the rate, then checking the cap -- three steps, and the middle one is easy to skip when a dollar figure already looks plausible. A contracted fuel surcharge is harder still to eyeball: the dollar amount alone says nothing until it is divided by the linehaul charge and compared against the contracted percent, which is a division most reviews never actually do."}},{"@type":"Question","name":"If I already track evidence for each disputed line, doesn't that cover it?","acceptedAnswer":{"@type":"Answer","text":"Tracking whether you hold a scale ticket, BOL, or rate confirmation for each line is exactly the bookkeeping a real review needs -- but holding that alongside which lines are actually over the rate card, across an invoice with more than a handful of rows, is where a manual review loses the thread. An overage with supporting evidence attached is a settled line, not a dispute; an overage with no evidence, or evidence that contradicts the billed condition, is the one worth raising. Keeping that pairing straight by eye across a whole invoice is the same cross-row bookkeeping the duplicate check needs, one column over."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual review any shipper, broker, or AP clerk already does -- reading a carrier invoice and checking it against what they expect to owe. It names no competing product or company. The auditor makes no network request of any kind: everything runs in your browser, and an imported file is read locally and never uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f1e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:30ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#5b665e}section{background:#fffdf8;border:1px solid #d8d0c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dcc9;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4dcc9;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5b665e}.fine,.note{font-size:.88rem;color:#5b665e}footer{color:#5b665e;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freight-accessorial-auditor/">Freight Accessorial Invoice Auditor</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Freight Accessorial Invoice Auditor</a></p>
+<header>
+<h1>Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye</h1>
+<p class="lede">Reading a carrier invoice yourself catches the one line that looks obviously high. It reliably misses a second identical charge billed at an ordinary-looking price, the free-time-and-cap math behind a per-unit rate, a fuel surcharge never turned into a percent of linehaul, and whether an overage actually has evidence attached &mdash; which is what this free, no-upload auditor computes exactly, on every line.</p>
+</header>
+<section>
+<h2>Where reading it yourself stops being enough</h2>
+<p>
+  Every AP clerk, broker, and small shipper who pays freight bills already does this: open the
+  invoice, scan the lines, and flag whatever looks expensive. For the one line that is genuinely
+  several times what a normal stop costs, that scan works &mdash; it is designed to catch exactly
+  that. The problem is everything else on a real invoice does not look wrong on its own; it only
+  becomes wrong when compared against something else, and a skim does not make that comparison.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you're trying to catch</th><th scope="col">Reading the invoice yourself</th><th scope="col">This auditor</th></tr></thead>
+<tbody>
+<tr><td>One line that is obviously higher than a normal charge of that kind.</td><td>Works. This is the case a scan is built to catch.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>The same accessorial billed twice &mdash; same invoice, reference, code, and amount.</td><td>Invisible on its own: an ordinary-looking price raises nothing, even read twice. Catching it means comparing every line against every other line, not judging one line at a time.</td><td>Flagged automatically as a possible duplicate the moment two lines share invoice, reference, code, and amount.</td></tr>
+<tr><td>A per-unit rate with a free allowance and a cap &mdash; detention, storage, reweigh, driver assist.</td><td>Needs three steps in your head: subtract the free time, multiply the remainder by the rate, then check the cap. Easy to skip the subtraction when the total already looks plausible.</td><td>Computed exactly, with the reasoning shown &mdash; e.g. "3 hours past 2 free &times; $65.00/hour" &mdash; not just a number.</td></tr>
+<tr><td>Whether a fuel surcharge matches the contracted percent of linehaul.</td><td>The dollar figure alone tells you nothing until it is divided by linehaul and compared to the contract percent &mdash; a division most reviews never actually run.</td><td>Billed percent of linehaul computed and compared against both the contract percent and an optional index-plus-adder figure.</td></tr>
+<tr><td>Whether a flagged overage actually has supporting evidence attached.</td><td>Easy to lose track of which of several flagged lines you have a scale ticket or BOL for once the invoice runs past a handful of rows.</td><td>Each line's evidence status is tracked against its own variance, so only an overage with missing or contradicting evidence counts as actionable.</td></tr>
+<tr><td>The total dollar amount actually above the rate card across a whole invoice.</td><td>Added up longhand, one line at a time &mdash; error-prone, and easy to double-count a line whose evidence already settled it.</td><td>Totalled exactly, excluding lines that could not be priced and lines evidence already supports.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A scan for the one big line is still the fastest way to catch the charge that is obviously
+  wrong, and this auditor is not doing anything a patient, line-by-line audit with a calculator
+  and a highlighter could not &mdash; it is reading the same invoice a patient audit would, just
+  comparing every line against every other line and against the rate card automatically instead
+  of leaving those comparisons to be made by hand.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. An imported file is read locally and never uploaded.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just review the invoice myself and catch the overcharges?</h3>
+<p>For one line that is obviously high -- a detention charge several times what a normal stop costs -- yes, that is often visible on a single read. What a read misses is a line repeated twice at an ordinary-looking price, a per-unit rate with a free allowance and a cap that needs a two-step calculation, a fuel surcharge whose percent of linehaul was never actually computed, and whether an overage has supporting evidence attached once the invoice runs past a handful of lines.</p>
+<h3>Why is a duplicate line harder to catch than one that looks expensive?</h3>
+<p>An expensive-looking line stands out on its own -- it triggers a "that seems like a lot" reaction independent of anything else on the invoice. A duplicate does the opposite: the second liftgate charge at the same ordinary price looks completely fine by itself, so reading it a second time raises nothing. Catching it means noticing that two separate lines share the same invoice, reference, code, and amount -- a comparison across rows, not a judgment about any one row -- which is exactly what a skim does not do.</p>
+<h3>What does the detention or fuel math actually require?</h3>
+<p>A per-unit accessorial like detention, storage, or reweigh is rarely a single number: it is a rate per hour or per hundredweight, usually past a free allowance and often under a cap. Getting the expected amount right means subtracting the free time first, multiplying only the remainder by the rate, then checking the cap -- three steps, and the middle one is easy to skip when a dollar figure already looks plausible. A contracted fuel surcharge is harder still to eyeball: the dollar amount alone says nothing until it is divided by the linehaul charge and compared against the contracted percent, which is a division most reviews never actually do.</p>
+<h3>If I already track evidence for each disputed line, doesn't that cover it?</h3>
+<p>Tracking whether you hold a scale ticket, BOL, or rate confirmation for each line is exactly the bookkeeping a real review needs -- but holding that alongside which lines are actually over the rate card, across an invoice with more than a handful of rows, is where a manual review loses the thread. An overage with supporting evidence attached is a settled line, not a dispute; an overage with no evidence, or evidence that contradicts the billed condition, is the one worth raising. Keeping that pairing straight by eye across a whole invoice is the same cross-row bookkeeping the duplicate check needs, one column over.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual review any shipper, broker, or AP clerk already does -- reading a carrier invoice and checking it against what they expect to owe. It names no competing product or company. The auditor makes no network request of any kind: everything runs in your browser, and an imported file is read locally and never uploaded.</p>
+<p class="note">
+  Have a whole invoice to check at once? See <a href="how-to-audit-a-whole-freight-invoice.html">how to audit a whole freight invoice</a>, or open the <a href="./">Freight Accessorial Invoice Auditor</a> directly.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual review method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cloud-egress-calculator/" data-pf-to="cloud-egress-calculator">Cloud Egress Cost Calculator</a></li>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freight-accessorial-auditor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freight-accessorial-auditor"></script>
+</body></html>

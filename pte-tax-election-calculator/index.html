@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PTE Tax Election Calculator — Free</title>
+  <meta name="description" content="Free calculator for S corporation and partnership owners: does a state pass-through entity tax (PTET) election save federal tax once the SALT cap…">
+  <meta property="og:title" content="Is a PTET election worth it? Free calculator">
+  <meta property="og:description" content="Federal and state tax with and without a pass-through entity tax election, and where the election starts to pay. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22h4v-7H7zm7 0h4V9h-4zm7 0h4v-10h-4z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PTE Tax Election Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimate whether a state pass-through entity tax (PTET) election saves federal tax for an S corporation or partnership owner, with the SALT cap phase-out, the lower AGI, the credit and the lost 20% pass-through deduction. Runs in your browser; nothing is uploaded.","featureList":"Federal and state tax with and without a PTET election, SALT cap phase-out, QBI deduction effect, first income at which the election pays, sensitivity grid, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a PTET election always save federal tax?","acceptedAnswer":{"@type":"Answer","text":"No. It only helps when your state and local taxes already exceed the SALT deduction cap. If they fit under the cap, moving the state tax to the entity changes nothing except a smaller 20% pass-through deduction, and the election costs you money. The calculator shows which side you are on and the income at which it starts to pay."}},{"@type":"Question","name":"How does a pass-through entity tax election work?","acceptedAnswer":{"@type":"Answer","text":"The partnership or S corporation pays state income tax itself, deducts it in computing the income that flows to you, and the state gives you a credit or exclusion so you are not taxed again on the same income. Because the deduction is taken at the entity, it is not subject to the personal SALT cap."}},{"@type":"Question","name":"Why does the election lower my AGI and raise my cap?","acceptedAnswer":{"@type":"Answer","text":"The entity-level deduction reduces the income reported to you. The SALT cap phases out as income rises, so lower income means a higher cap, which can restore some deduction for your other state and local taxes. The calculator includes that effect."}},{"@type":"Question","name":"Why does it reduce my 20% pass-through deduction?","acceptedAnswer":{"@type":"Answer","text":"The qualified business income deduction is a percentage of the business income that reaches your return. A PTET payment deducted at the entity lowers that income, so the deduction base shrinks. The calculator shows the lost deduction as its own line."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in, with one flat federal rate. State rules differ on who may elect, the rate, the credit, the payment deadline and whether the election is binding, so confirm with a tax professional before electing. The defaults are placeholders."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is a PTET election worth it? Free calculator","item":"https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is a PTET election worth it? Free calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is a PTET election worth it? Free calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PTE TAX ELECTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is a pass-through entity tax election worth it?</h1>
+    <p>Enter your pass-through income, your state's PTET rate and credit, your other state and local taxes and the SALT cap. It compares federal plus state tax with and without the election, splits the difference into its causes, and finds the income at which the election starts to pay.</p>
+    <p class="note">Planning arithmetic on your own numbers, with one flat federal rate.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your pass-through income</h2>
+      <div class="grid">
+        <div><label for="pteIncome">Your share of pass-through income subject to the state PTET ($)</label><input id="pteIncome" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="otherIncome">Other income on your return before this ($: wages, interest, other AGI)</label><input id="otherIncome" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="fedRatePct">Federal marginal rate on the change (%)</label><input id="fedRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="qbiRatePct">20% pass-through deduction rate that applies (%; 0 if none)</label><input id="qbiRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The state election</h2>
+      <div class="grid">
+        <div><label for="pteRatePct">State PTET rate on the income (%)</label><input id="pteRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="personalRatePct">State income tax rate on the same income without the election (%)</label><input id="personalRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="creditPct">Share of the PTET payment the state credits against your personal tax (%)</label><input id="creditPct" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your other deductions</h2>
+      <div class="grid">
+        <div><label for="otherSalt">Other state and local tax you pay ($: property tax, tax on other income)</label><input id="otherSalt" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="otherItemized">Other itemized deductions ($: mortgage interest, charity)</label><input id="otherItemized" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="standardDeduction">Standard deduction ($)</label><input id="standardDeduction" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. The SALT cap</h2>
+      <div class="grid">
+        <div><label for="saltCap">SALT cap ($)</label><input id="saltCap" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="phaseoutThreshold">MAGI where the cap starts to shrink ($)</label><input id="phaseoutThreshold" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="phaseoutRatePct">Cap lost per dollar of MAGI over that (%)</label><input id="phaseoutRatePct" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="capFloor">Lowest the cap can fall to ($)</label><input id="capFloor" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Compare with and without the election</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Does a PTET election always save federal tax?</h3>
+      <p>No. It only helps when your state and local taxes already exceed the SALT deduction cap. If they fit under the cap, moving the state tax to the entity changes nothing except a smaller 20% pass-through deduction, and the election costs you money. The calculator shows which side you are on and the income at which it starts to pay.</p>
+      <h3>How does a pass-through entity tax election work?</h3>
+      <p>The partnership or S corporation pays state income tax itself, deducts it in computing the income that flows to you, and the state gives you a credit or exclusion so you are not taxed again on the same income. Because the deduction is taken at the entity, it is not subject to the personal SALT cap.</p>
+      <h3>Why does the election lower my AGI and raise my cap?</h3>
+      <p>The entity-level deduction reduces the income reported to you. The SALT cap phases out as income rises, so lower income means a higher cap, which can restore some deduction for your other state and local taxes. The calculator includes that effect.</p>
+      <h3>Why does it reduce my 20% pass-through deduction?</h3>
+      <p>The qualified business income deduction is a percentage of the business income that reaches your return. A PTET payment deducted at the entity lowers that income, so the deduction base shrinks. The calculator shows the lost deduction as its own line.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in, with one flat federal rate. State rules differ on who may elect, the rate, the credit, the payment deadline and whether the election is binding, so confirm with a tax professional before electing. The defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your state lets your entity elect and which owners are covered, the true rate and credit rules, payment deadlines and estimated-payment requirements, whether the election is binding or can be revoked, how a loss, a multi-state return or a non-resident owner changes things, the alternative minimum tax, and the exact federal bracket your change lands in. This uses one flat federal rate on the change, and a 20% pass-through deduction base without its wage and property limits. The cap figures and every other default are placeholders, not current law: check them for your year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../salt-cap-calculator/">SALT cap calculator</a> (the cap and its phase-out on their own), the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a> and the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting every federal and state rule that applies to an election, its deadlines and its payments. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no taxpayer identifiers are asked for or needed. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, compare, firstPayingIncome, sensitivity } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.pteIncome > 0) || !(o.pteRatePct > 0) || !(o.fedRatePct > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter pass-through income, a PTET rate and a federal rate above zero.</div>'; $("out").hidden = false; return; }
+      const c = compare(o);
+      let h = "";
+      h += `<div class="finding"><h4>${c.helps ? "The election saves" : "The election costs"}</h4><p class="stats"><strong>${money(Math.abs(c.savings))}</strong> a year on these numbers. Federal tax ${c.federalSavings >= 0 ? "falls" : "rises"} by ${money(Math.abs(c.federalSavings))}; your state bill ${Math.abs(c.stateChange) < 1 ? "does not change" : (c.stateChange > 0 ? "rises by " : "falls by ") + money(Math.abs(c.stateChange))}.</p></div>`;
+      h += `<div class="finding"><h4>Why</h4>${table(["Effect on federal tax", "Amount"], [["State tax moved to the entity: itemized deduction change", money(c.parts.deductionChange)], ["Lower AGI (income reported to you falls by the PTET payment)", money(c.parts.agiDrop)], ["Smaller 20% pass-through deduction", money(c.parts.qbiLoss)]])}<p class="note">Positive is tax saved. Without the election, ${money(c.no.saltStuck)} of your state and local tax sits above the cap and earns no deduction; with it, ${money(c.yes.saltStuck)}. Your cap is ${money(c.no.cap)} without the election and ${money(c.yes.cap)} with it.${c.yes.wastedCredit > 0 ? ` The state credit exceeds your personal tax on this income by ${money(c.yes.wastedCredit)}, which this assumes is lost.` : ""}</p></div>`;
+      const x = firstPayingIncome(o);
+      h += `<div class="finding"><h4>Where it starts to pay</h4><p>${x === null ? "On these settings the election does not pay at any income up to $5 million." : `Holding everything else fixed, the election first saves tax at about <strong>${money(x)}</strong> of pass-through income. Below that, your state and local tax fits under the cap and the election only shrinks your 20% deduction.`}</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>Yearly saving by income and federal rate</h4>${table(["Pass-through income \\ Federal rate", ...g[0].cells.map((x) => x.rate + "%")], g.map((r) => [money(r.income), ...r.cells.map((x) => money(x.savings))]))}<p class="note">Negative means the election costs money.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("compare_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../employment-contract-checker/" data-pf-to="employment-contract-checker">Check a job offer or employment agreement before you sign — free, private</a></li>
+      <li><a href="../escape-room-pricing-capacity-planner/" data-pf-to="escape-room-pricing-capacity-planner">What should my escape room charge, and how full must it be? Free planner</a></li>
+      <li><a href="../estate-sale-net-proceeds-calculator/" data-pf-to="estate-sale-net-proceeds-calculator">Estate Sale Net Proceeds Calculator</a></li>
+      <li><a href="../ev-charging-site-roi-calculator/" data-pf-to="ev-charging-site-roi-calculator">EV charging station ROI calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pte-tax-election-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/?pfEmbed=1&quot; title=&quot;Is a PTET election worth it? Free calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pte-tax-election-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/" data-pf-embed-title="Is a PTET election worth it? Free calculator" data-pf-embed-slug="pte-tax-election-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="pte-tax-election-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="pte-tax-election-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Dimensional Weight Is Billed, And Why The Box Wins</title>
+  <meta name="description" content="Dimensional weight is the cube of your carton divided by a DIM divisor. Carriers bill the greater of that and the scale weight…">
+  <meta property="og:title" content="How Dimensional Weight Is Billed, And Why The Box Wins">
+  <meta property="og:description" content="Cube divided by divisor, versus the scale, greater wins, rounded up. Work out the carton size at which the penalty stops.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/how-dimensional-weight-is-billed.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is dimensional weight calculated?","acceptedAnswer":{"@type":"Answer","text":"Multiply the length, width and height of the packed carton in inches to get cubic inches, then divide by the DIM divisor in your carrier agreement. That result is the dimensional weight in pounds. The carrier bills the greater of that figure and the package's actual weight, rounded up to the next whole pound. Most carriers round each side to the nearest whole inch before multiplying, so a 12.5 inch side is cubed as 13."}},{"@type":"Question","name":"What is a good DIM divisor?","acceptedAnswer":{"@type":"Answer","text":"A higher one, because it divides the same cubic inches into fewer pounds. The published US domestic figure for the major parcel carriers has been 139. Negotiated accounts commonly carry 166, and 194 or 250 appear on higher volume agreements. If you ship light bulky goods, a better divisor is often worth more than a headline rate discount, because it changes the weight every single package is rated at rather than the price of a weight you were never going to hit."}},{"@type":"Question","name":"Why does a light item cost so much to ship?","acceptedAnswer":{"@type":"Answer","text":"Because the box is what gets priced, not the item. A four pound item in a sixteen by twelve by ten inch carton is 1,920 cubic inches, which at a 139 divisor is a dimensional weight of 13.81 pounds and a billable weight of 14. Ten of those pounds are air. Nothing about the item changed; the carton decided the bill, and a smaller carton would have ended the penalty entirely."}},{"@type":"Question","name":"How do I stop paying dimensional weight?","acceptedAnswer":{"@type":"Answer","text":"Get the cube below your actual weight multiplied by the divisor. That product is the break even: any carton under it bills on the goods instead of the space. For a four pound item at a 139 divisor the ceiling is 556 cubic inches, which is roughly an eight by eight by eight box. Right sizing cartons, using fewer sizes with less void fill, and shipping flat where the product allows are the three changes that move it."}},{"@type":"Question","name":"What is girth, and why do carriers care about it?","acceptedAnswer":{"@type":"Answer","text":"Girth is the longest side plus twice each of the other two, which approximates the strap around measurement of the package. Parcel surcharge tables are written in it because it captures awkwardness in a single number. Past certain lengths and girths a package picks up an additional handling charge, then a large package surcharge with its own minimum billable weight, and past the maximum it is refused as a parcel and has to move as freight."}},{"@type":"Question","name":"Is dimensional weight the same as freight class?","acceptedAnswer":{"@type":"Answer","text":"No, though they solve the same problem. Parcel carriers convert volume to weight with a divisor and bill the greater of that and the scale weight. Less than truckload freight instead sorts a shipment into a class band from its density in pounds per cubic foot, and handling, stowability and liability can move that class regardless of density. Use a divisor for anything that ships as a parcel and a density band for anything on a pallet."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #0f5a6e; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5563; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/how-dimensional-weight-is-billed.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Dimensional Weight Is Billed, And Why The Box Wins — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../parcel-dim-weight-calculator/">Dimensional Weight Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Dimensional Weight Is Billed, And Why The Box Wins</span></span></nav>
+  <p><a href="./">&larr; Dimensional weight calculator</a></p>
+  <h1>How dimensional weight is billed, and why the box wins</h1>
+  <p>Every parcel carrier bills the greater of two numbers: what your package weighs, and what the space it occupies is priced at. The second is dimensional weight, and for anyone shipping light or bulky goods it is almost always the one that wins. The arithmetic is simple, it is entirely in your control, and most sellers meet it for the first time on an invoice rather than before choosing a carton.</p>
+  <p><a class="cta" href="./">Open the free dimensional weight calculator</a></p>
+
+  <h2>The arithmetic, in order</h2>
+  <ol>
+    <li>Measure the packed carton, outside dimensions, in inches. Round each side to the nearest whole inch, which is what most carriers do before they multiply.</li>
+    <li>Multiply length by width by height. That is the cube, in cubic inches.</li>
+    <li>Divide the cube by your DIM divisor. The published US domestic figure has been 139; your agreement may say 166, 194 or 250.</li>
+    <li>Compare that to the actual weight and take the larger, then round up to the next whole pound. That is your billable weight.</li>
+  </ol>
+
+  <h2>Worked example</h2>
+  <p>A four pound item in a sixteen by twelve by ten inch carton is 1,920 cubic inches. At a 139 divisor that is a dimensional weight of 13.81 pounds, so the package bills at 14 pounds to move four pounds of goods. Ten pounds of that invoice is empty space. The break even cube is the actual weight times the divisor, or 556 cubic inches here, so any carton smaller than roughly eight by eight by eight would have billed on the goods instead. On this footprint the same ceiling is a packed height of 2.9 inches, which tells you plainly that the fix is a different box rather than better packing.</p>
+
+  <h2>Common questions</h2>
+  <h3>How is dimensional weight calculated?</h3>
+  <p>Multiply the length, width and height of the packed carton in inches to get cubic inches, then divide by the DIM divisor in your carrier agreement. That result is the dimensional weight in pounds. The carrier bills the greater of that figure and the package's actual weight, rounded up to the next whole pound. Most carriers round each side to the nearest whole inch before multiplying, so a 12.5 inch side is cubed as 13.</p>
+  <h3>What is a good DIM divisor?</h3>
+  <p>A higher one, because it divides the same cubic inches into fewer pounds. The published US domestic figure for the major parcel carriers has been 139. Negotiated accounts commonly carry 166, and 194 or 250 appear on higher volume agreements. If you ship light bulky goods, a better divisor is often worth more than a headline rate discount, because it changes the weight every single package is rated at rather than the price of a weight you were never going to hit.</p>
+  <h3>Why does a light item cost so much to ship?</h3>
+  <p>Because the box is what gets priced, not the item. A four pound item in a sixteen by twelve by ten inch carton is 1,920 cubic inches, which at a 139 divisor is a dimensional weight of 13.81 pounds and a billable weight of 14. Ten of those pounds are air. Nothing about the item changed; the carton decided the bill, and a smaller carton would have ended the penalty entirely.</p>
+  <h3>How do I stop paying dimensional weight?</h3>
+  <p>Get the cube below your actual weight multiplied by the divisor. That product is the break even: any carton under it bills on the goods instead of the space. For a four pound item at a 139 divisor the ceiling is 556 cubic inches, which is roughly an eight by eight by eight box. Right sizing cartons, using fewer sizes with less void fill, and shipping flat where the product allows are the three changes that move it.</p>
+  <h3>What is girth, and why do carriers care about it?</h3>
+  <p>Girth is the longest side plus twice each of the other two, which approximates the strap around measurement of the package. Parcel surcharge tables are written in it because it captures awkwardness in a single number. Past certain lengths and girths a package picks up an additional handling charge, then a large package surcharge with its own minimum billable weight, and past the maximum it is refused as a parcel and has to move as freight.</p>
+  <h3>Is dimensional weight the same as freight class?</h3>
+  <p>No, though they solve the same problem. Parcel carriers convert volume to weight with a divisor and bill the greater of that and the scale weight. Less than truckload freight instead sorts a shipment into a class band from its density in pounds per cubic foot, and handling, stowability and liability can move that class regardless of density. Use a divisor for anything that ships as a parcel and a density band for anything on a pallet.</p>
+
+  <h2>Why it is worth doing in advance</h2>
+  <p>The point of working it out before you list a product rather than after you ship one is that both levers are cheap in advance and expensive later. Carton sizes are a purchasing decision you make once and live with for thousands of shipments, and the DIM divisor is a line in an agreement you can ask about at renewal. Neither is available to you on the day the invoice arrives.</p>
+  <p>Shipping on pallets instead? Less than truckload freight prices on density bands rather than a divisor &mdash; the <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> covers that case.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Divisors, rounding rules and surcharge thresholds are carrier contract terms that change; verify the output against your own agreement or a qualified logistics professional. You remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out.</p>
+    <p><a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=parcel-dim-weight-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="parcel-dim-weight-calculator"></script>
+</body>
+</html>

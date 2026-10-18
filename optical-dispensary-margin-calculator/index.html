@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Optical Dispensary Margin Calculator — Free</title>
+  <meta name="description" content="Free calculator for optical shops and optometrists: what each eyeglass sale really earns after frame, lenses, remakes…">
+  <meta property="og:title" content="Optical dispensary margin calculator">
+  <meta property="og:description" content="See which eyeglass sales earn money after plan fees, remakes and optician time, and what to charge. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f4e79'/%3E%3Ccircle cx='10' cy='17' r='5' stroke='%23fff' stroke-width='2' fill='none'/%3E%3Ccircle cx='22' cy='17' r='5' stroke='%23fff' stroke-width='2' fill='none'/%3E%3Cpath d='M15 17h2' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Optical Dispensary Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per eyeglass sale type for an optical shop or optometry practice after frames, lenses, remakes, plan and card fees and optician time, with profit per optician-hour, patient price for a target margin and break-even sales per month. Runs in your browser.","featureList":"Margin per sale type, profit per optician-hour, patient price for target margin, vision plan vs cash comparison, break-even sales, cost sensitivity, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on eyeglasses?","acceptedAnswer":{"@type":"Answer","text":"Optical retail is one of the higher-margin parts of an eye care practice, but the average hides a wide spread. A cash sale with a marked-up frame can earn several times what a sale on a low-reimbursement vision plan earns. This tool subtracts the frame, lenses, coatings, a remake allowance, card and plan fees, free adjustments and the optician's time, then shows what each kind of sale really earns so you can see where the margin is made."}},{"@type":"Question","name":"How do vision plans change the math?","acceptedAnswer":{"@type":"Answer","text":"A plan pays a fixed amount toward the frame and lenses and often withholds a claim fee, while the patient pays the rest. Enter what the plan pays and what the patient pays as separate numbers. The tool applies the card fee only to the patient's payment and the claim fee only to the plan's, and gives you the patient price that reaches your target margin if the plan payment is fixed."}},{"@type":"Question","name":"How much does a remake cost?","acceptedAnswer":{"@type":"Answer","text":"A remake costs the lens lab charge and coatings again plus the optician's time to re-order, verify and re-fit. Multiply by how often it happens. Even a six percent remake rate quietly takes a few dollars from every sale, and the scenario table shows what three more points would cost across a month."}},{"@type":"Question","name":"How many sales a month do I need to cover fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Divide monthly fixed costs (rent, utilities, base staffing, software, doctor lease) by the average contribution per sale at your current mix of cash and plan sales. The result is only as good as that mix, so rerun it if plans change what they pay or you add a premium frame line."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Optical dispensary margin calculator","item":"https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Optical dispensary margin calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Optical dispensary margin calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">OPTICAL DISPENSARY MARGIN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which eyeglass sales actually make money?</h1>
+    <p>Frame markup is only part of it. Type your sale types, what the patient and the vision plan each pay, what the frame and lenses cost you, your remake rate, claim and card fees and optician wage. The tool shows what each kind of sale earns, which use an optician hour best, the patient price that hits your target margin, how plan sales compare with cash sales, and how many sales a month cover your fixed costs.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not benchmarks or any real practice's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your costs</h2>
+      <div class="grid">
+        <div><label for="cardPct">Card fee (%)</label><input id="cardPct" type="text" value=""></div>
+        <div><label for="cardFixed">Card fee per sale ($)</label><input id="cardFixed" type="text" value=""></div>
+        <div><label for="planFee">Plan claim fee (%)</label><input id="planFee" type="text" value=""><p class="note">Fees and short-pays withheld from plan payments.</p></div>
+        <div><label for="remake">Remake and warranty rate (%)</label><input id="remake" type="text" value=""><p class="note">Share of sales that need lenses remade.</p></div>
+        <div><label for="remakeMins">Minutes per remake</label><input id="remakeMins" type="text" value=""><p class="note">Optician time to redo and re-fit.</p></div>
+        <div><label for="adjust">Free adjustments and repairs per sale ($)</label><input id="adjust" type="text" value=""><p class="note">Average cost of after-sale visits.</p></div>
+        <div><label for="wage">Optician wage ($/hour)</label><input id="wage" type="text" value=""></div>
+        <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" type="text" value=""><p class="note">Employer taxes, workers' comp, paid breaks.</p></div>
+        <div><label for="fixedMonth">Fixed costs ($/month)</label><input id="fixedMonth" type="text" value=""><p class="note">Rent, utilities, base staffing, software, insurance, doctor lease. Not owner pay.</p></div>
+        <div><label for="target">Target margin per sale (%)</label><input id="target" type="text" value=""><p class="note">After goods, remakes, fees and optician time.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your sale types</h2>
+      <p class="note">One row per kind of sale, such as cash single vision or a plan progressive. Enter the frame and lens cost you pay, not the retail price. Use 0 for plan pays on a cash sale. Leave a row empty to skip it.</p>
+      <div class="scroll"><div class="pf-table-scroll"><table class="menu">
+        <thead><tr><th scope="col">Sale type</th><th scope="col" class="n">Patient pays $</th><th scope="col" class="n">Plan pays $</th><th scope="col" class="n">Frame cost $</th><th scope="col" class="n">Lens lab $</th><th scope="col" class="n">Coatings $</th><th scope="col" class="n">Optician min</th><th scope="col" class="n">Sales/mo</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><label class="sr" for="name1">Sale 1 name</label><input id="name1" type="text" value=""></td>
+          <td><label class="sr" for="patient1">Sale 1 patient pays ($)</label><input id="patient1" type="text" value=""></td>
+          <td><label class="sr" for="plan1">Sale 1 plan payment ($)</label><input id="plan1" type="text" value=""></td>
+          <td><label class="sr" for="frame1">Sale 1 frame wholesale cost ($)</label><input id="frame1" type="text" value=""></td>
+          <td><label class="sr" for="lens1">Sale 1 lens lab cost ($)</label><input id="lens1" type="text" value=""></td>
+          <td><label class="sr" for="coat1">Sale 1 coatings and extras cost ($)</label><input id="coat1" type="text" value=""></td>
+          <td><label class="sr" for="mins1">Sale 1 optician minutes</label><input id="mins1" type="text" value=""></td>
+          <td><label class="sr" for="perMonth1">Sale 1 sales per month</label><input id="perMonth1" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name2">Sale 2 name</label><input id="name2" type="text" value=""></td>
+          <td><label class="sr" for="patient2">Sale 2 patient pays ($)</label><input id="patient2" type="text" value=""></td>
+          <td><label class="sr" for="plan2">Sale 2 plan payment ($)</label><input id="plan2" type="text" value=""></td>
+          <td><label class="sr" for="frame2">Sale 2 frame wholesale cost ($)</label><input id="frame2" type="text" value=""></td>
+          <td><label class="sr" for="lens2">Sale 2 lens lab cost ($)</label><input id="lens2" type="text" value=""></td>
+          <td><label class="sr" for="coat2">Sale 2 coatings and extras cost ($)</label><input id="coat2" type="text" value=""></td>
+          <td><label class="sr" for="mins2">Sale 2 optician minutes</label><input id="mins2" type="text" value=""></td>
+          <td><label class="sr" for="perMonth2">Sale 2 sales per month</label><input id="perMonth2" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name3">Sale 3 name</label><input id="name3" type="text" value=""></td>
+          <td><label class="sr" for="patient3">Sale 3 patient pays ($)</label><input id="patient3" type="text" value=""></td>
+          <td><label class="sr" for="plan3">Sale 3 plan payment ($)</label><input id="plan3" type="text" value=""></td>
+          <td><label class="sr" for="frame3">Sale 3 frame wholesale cost ($)</label><input id="frame3" type="text" value=""></td>
+          <td><label class="sr" for="lens3">Sale 3 lens lab cost ($)</label><input id="lens3" type="text" value=""></td>
+          <td><label class="sr" for="coat3">Sale 3 coatings and extras cost ($)</label><input id="coat3" type="text" value=""></td>
+          <td><label class="sr" for="mins3">Sale 3 optician minutes</label><input id="mins3" type="text" value=""></td>
+          <td><label class="sr" for="perMonth3">Sale 3 sales per month</label><input id="perMonth3" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name4">Sale 4 name</label><input id="name4" type="text" value=""></td>
+          <td><label class="sr" for="patient4">Sale 4 patient pays ($)</label><input id="patient4" type="text" value=""></td>
+          <td><label class="sr" for="plan4">Sale 4 plan payment ($)</label><input id="plan4" type="text" value=""></td>
+          <td><label class="sr" for="frame4">Sale 4 frame wholesale cost ($)</label><input id="frame4" type="text" value=""></td>
+          <td><label class="sr" for="lens4">Sale 4 lens lab cost ($)</label><input id="lens4" type="text" value=""></td>
+          <td><label class="sr" for="coat4">Sale 4 coatings and extras cost ($)</label><input id="coat4" type="text" value=""></td>
+          <td><label class="sr" for="mins4">Sale 4 optician minutes</label><input id="mins4" type="text" value=""></td>
+          <td><label class="sr" for="perMonth4">Sale 4 sales per month</label><input id="perMonth4" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name5">Sale 5 name</label><input id="name5" type="text" value=""></td>
+          <td><label class="sr" for="patient5">Sale 5 patient pays ($)</label><input id="patient5" type="text" value=""></td>
+          <td><label class="sr" for="plan5">Sale 5 plan payment ($)</label><input id="plan5" type="text" value=""></td>
+          <td><label class="sr" for="frame5">Sale 5 frame wholesale cost ($)</label><input id="frame5" type="text" value=""></td>
+          <td><label class="sr" for="lens5">Sale 5 lens lab cost ($)</label><input id="lens5" type="text" value=""></td>
+          <td><label class="sr" for="coat5">Sale 5 coatings and extras cost ($)</label><input id="coat5" type="text" value=""></td>
+          <td><label class="sr" for="mins5">Sale 5 optician minutes</label><input id="mins5" type="text" value=""></td>
+          <td><label class="sr" for="perMonth5">Sale 5 sales per month</label><input id="perMonth5" type="text" value=""></td>
+        </tr>
+        </tbody>
+      </table></div></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my margins</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good margin on eyeglasses?</h3>
+      <p>Optical retail is one of the higher-margin parts of an eye care practice, but the average hides a wide spread. A cash sale with a marked-up frame can earn several times what a sale on a low-reimbursement vision plan earns. This tool subtracts the frame, lenses, coatings, a remake allowance, card and plan fees, free adjustments and the optician's time, then shows what each kind of sale really earns so you can see where the margin is made.</p>
+      <h3>How do vision plans change the math?</h3>
+      <p>A plan pays a fixed amount toward the frame and lenses and often withholds a claim fee, while the patient pays the rest. Enter what the plan pays and what the patient pays as separate numbers. The tool applies the card fee only to the patient's payment and the claim fee only to the plan's, and gives you the patient price that reaches your target margin if the plan payment is fixed.</p>
+      <h3>How much does a remake cost?</h3>
+      <p>A remake costs the lens lab charge and coatings again plus the optician's time to re-order, verify and re-fit. Multiply by how often it happens. Even a six percent remake rate quietly takes a few dollars from every sale, and the scenario table shows what three more points would cost across a month.</p>
+      <h3>How many sales a month do I need to cover fixed costs?</h3>
+      <p>Divide monthly fixed costs (rent, utilities, base staffing, software, doctor lease) by the average contribution per sale at your current mix of cash and plan sales. The result is only as good as that mix, so rerun it if plans change what they pay or you add a premium frame line.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What your market will pay, which vision plans to stay in network with, your contracted rates, frame-board and lab terms, insurance and billing compliance, the doctor's compensation, equipment and financing, and how to treat any of this for tax or accounting. Take costs from invoices, take plan payments from your remittances, and talk to your accountant about the books.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a>, the <a href="../card-processing-fee-audit/">card processing fee audit</a> the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> the <a href="../hearing-aid-dispensing-margin-calculator/">hearing aid dispensing margin calculator</a> and the <a href="../independent-pharmacy-rx-margin-calculator/">independent pharmacy prescription margin calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and optician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
+      h += '<div class="finding"><h4>Each sale type</h4>' + table(["Sale type", "Collected", "Goods", "Remake allowance", "Fees", "Optician time", "Earns", "Margin", "Per optician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.remakeCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perOpticianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per optician-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Patient price for target assumes the plan payment stays fixed.</p></div>';
+      h += '<div class="finding"><h4>Best and worst use of an optician hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per optician-hour (" + money(a.bestPerHour.perOpticianHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perOpticianHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Plan sales vs cash sales</h4><p>Plan sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average cash sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
+      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download sale table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "optical-sale-margins.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pto-accrual-liability-calculator/" data-pf-to="pto-accrual-liability-calculator">PTO accrual liability calculator</a></li>
+      <li><a href="../qcd-calculator/" data-pf-to="qcd-calculator">QCD calculator</a></li>
+      <li><a href="../real-estate-photographer-shoot-profit-calculator/" data-pf-to="real-estate-photographer-shoot-profit-calculator">Real Estate Photographer Shoot Profit Calculator — free, private</a></li>
+      <li><a href="../real-estate-professional-status-calculator/" data-pf-to="real-estate-professional-status-calculator">Do I qualify as a real estate professional? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=optical-dispensary-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/?pfEmbed=1&quot; title=&quot;Optical dispensary margin calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="optical-dispensary-margin-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/" data-pf-embed-title="Optical dispensary margin calculator" data-pf-embed-slug="optical-dispensary-margin-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="optical-dispensary-margin-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="optical-dispensary-margin-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

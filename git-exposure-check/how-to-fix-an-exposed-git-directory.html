@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to fix a publicly exposed .git directory</title>
+<meta name="description" content="A publicly readable .git directory means everything ever committed -- not just the current checkout -- can be reconstructed.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/how-to-fix-an-exposed-git-directory.html">
+<meta property="og:title" content="How to fix a publicly exposed .git directory">
+<meta property="og:description" content="Block access first, then rotate every credential the repository's full history ever held -- not just what's in the current code -- and fix the deploy step that…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a publicly exposed .git directory",
+  "step": [
+    { "@type": "HowToStep", "name": "Block web access to .git immediately", "text": "Add a server-level rule that refuses any request path containing /.git/ before it reaches your application, and deploy it as its own change so it ships even if everything else is mid-fix." },
+    { "@type": "HowToStep", "name": "Treat this as a full-history exposure, not a current-code exposure", "text": "A working .git directory lets a tool such as git-dumper or GitTools reconstruct every commit, including ones already reverted or squashed away. Assume anything ever committed -- not just what is in the latest commit -- was readable." },
+    { "@type": "HowToStep", "name": "Rotate every credential the history ever held", "text": "Search the full history, not the current tree, for API keys, database passwords, and tokens, and rotate each one at its issuing service. A find-and-replace that removes a secret from the latest commit does nothing about a clone someone already took." },
+    { "@type": "HowToStep", "name": "Fix the deploy step, not just the server rule", "text": "The server block from step 1 is a stopgap. Find out how .git ended up inside the served directory -- usually a straight rsync or COPY of the whole repository checkout -- and change the deploy to publish a build output or export instead." }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  .note { font-size: 0.88rem; opacity: 0.8; }
+  footer { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/how-to-fix-an-exposed-git-directory.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to fix a publicly exposed .git directory — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../git-exposure-check/">Git Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to fix a publicly exposed .git directory</span></span></nav>
+<p><a href="./">&larr; Git Exposure Checker</a></p>
+<h1>How to fix a publicly exposed .git directory</h1>
+<p>
+  If <a href="./">Git Exposure Checker</a> (or any other check) has just told you a site's
+  <code>.git</code> directory is publicly readable, the order below limits damage first and
+  cleans up second -- doing it in the other order leaves a window where the directory is still
+  readable while you're deciding what else to do.
+</p>
+
+<h2>1. Block web access to .git immediately</h2>
+<p>
+  This is the fastest step and it stops the bleeding regardless of what caused it. Add a
+  server-level rule that refuses any request path containing <code>/.git/</code> before it
+  reaches your application, and ship it as its own change first:
+</p>
+<pre><code># nginx
+location ~ /\.git { deny all; return 404; }
+
+# Apache (.htaccess or vhost)
+RedirectMatch 404 /\.git
+
+# Caddy
+@dotgit path_regexp \.git
+respond @dotgit 404</code></pre>
+<p class="note">A CDN or reverse proxy in front of the origin needs the same rule, or a request
+that bypasses it still reaches an unprotected origin.</p>
+
+<h2>2. Treat this as a full-history exposure, not a current-code exposure</h2>
+<p>
+  A working <code>.git</code> directory lets a free tool such as <code>git-dumper</code> or
+  GitTools reconstruct the entire repository, not just the files currently deployed. That
+  includes every commit -- files and secrets that were added and later removed, branches that
+  were merged and deleted, anything squashed away in a rebase. Assume anyone who found the
+  exposure took a full clone before you fixed step 1, and plan the rest of this around that
+  assumption rather than around what the current checkout contains.
+</p>
+
+<h2>3. Rotate every credential the history ever held</h2>
+<p>
+  Search the full history for anything that looks like a key, password, or token -- not a grep
+  of the current tree, which only shows what's still there:
+</p>
+<pre><code>git log -p --all | grep -iE "api[_-]?key|secret|password|token" </code></pre>
+<p>
+  Rotate each match at the service that issued it (revoke and reissue, don't just change a
+  config value locally). A credential that was ever committed and later deleted from the code is
+  still valid at its issuer until you rotate it there -- removing it from the repository does
+  nothing to a copy someone already has.
+</p>
+
+<h2>4. Fix the deploy step, not just the server rule</h2>
+<p>
+  The rule in step 1 is a stopgap that depends on staying in every server config forever. Find
+  out how <code>.git</code> ended up inside what gets served -- the common cause is a deploy
+  script that copies or syncs the whole repository checkout (<code>rsync</code>, a Dockerfile
+  <code>COPY .</code>, an FTP push of the working directory) instead of a build output that never
+  contained <code>.git</code> in the first place. Publish a built artifact, an export, or an
+  explicit file list instead, and the exposure class stops being possible rather than merely
+  blocked.
+</p>
+<p>
+  Once the fix ships, re-run the checker to confirm <code>.git/HEAD</code> and
+  <code>.git/config</code> are no longer reachable: <a href="./">Git Exposure Checker</a>.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security or legal advice, and it does not replace a
+  qualified incident-response review. <strong>You are responsible for verifying these steps
+  against your own environment</strong> before relying on them.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline
+  without notice.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+      <li><a href="../s3-bucket-exposure-check/" data-pf-to="s3-bucket-exposure-check">S3 Bucket Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=git-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="git-exposure-check"></script>
+</body>
+</html>

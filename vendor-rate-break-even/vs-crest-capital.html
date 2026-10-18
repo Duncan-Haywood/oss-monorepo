@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Crest Capital's lease calculator | Supplier Rate Break-Even Calculator</title>
+  <meta name="description" content="Crest Capital is a national equipment financing and leasing lender whose calculator estimates the monthly payment on one piece of equipment.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/vs-crest-capital.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. Crest Capital's lease calculator | Supplier Rate Break-Even Calculator">
+  <meta property="og:description" content="Crest Capital's calculator prices one equipment lease. This page compares that lease — or any vendor rate — against what you pay today…">
+  <meta property="og:url" content="./vs-crest-capital.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Crest Capital's lease calculator?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. Crest Capital, a national equipment financing and leasing lender founded in 1989 and headquartered in Alpharetta, Georgia, offers a calculator on its own site that estimates the monthly payment for financing or leasing one piece of equipment, vehicle, or software — a first step toward applying for that financing through Crest Capital. This calculator does not estimate a lease payment at all: it takes a fixed cost and a per-job cost for up to three alternatives — a supplier discount, a subcontractor rate, or a lease payment you already have a quote for — and compares each against what you pay today, at your actual jobs per month, to show the true cost per job, the profit and margin at that volume, and the exact job count where a fixed fee pays for itself. If you need a payment estimate for financing new equipment, Crest Capital's calculator or a comparable lender's is built for that. If you already have a rate, a discount offer, or a lease quote in hand and want to know whether it is actually cheaper at the volume you run, this page answers that instead."}},{"@type":"Question","name":"Is this page affiliated with Crest Capital?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Crest Capital. Crest Capital is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, sans-serif; color: #17231c; background: #e8efe9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #16734b; overflow-wrap: anywhere; }
+    .eyebrow { font-weight: 700; letter-spacing: .04em; color: #16734b; font-size: .85rem; }
+    header { margin: 1rem 0; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.04em; }
+    .lede { font-size: 1.05rem; max-width: 64ch; color: #486454; }
+    section { background: #fff; border: 1px solid #cbd9cf; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #12351b12; margin: 1rem 0; }
+    h2 { margin-top: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th, td { border-bottom: 1px solid #d9e4dc; padding: .55rem .5rem; text-align: left; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #486454; }
+    .fine { font-size: .88rem; color: #53685a; }
+    footer { color: #53685a; font-size: .86rem; margin-top: 1.5em; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Crest Capital's lease calculator | Supplier Rate Break-Even Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vendor-rate-break-even/">Vendor Rate Break-Even Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Crest Capital's lease calculator | Supplier Rate Break-Even Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vendor Rate Break-Even Calculator</a></p>
+<header>
+<h1>This calculator vs. Crest Capital's lease calculator</h1>
+<p class="lede">One prices a lease in isolation. The other compares whatever rate you were offered — lease, discount, or subcontractor — against what you already pay, at the job volume you actually run.</p>
+</header>
+
+<section>
+<h2>What Crest Capital's calculator is</h2>
+<p>
+<strong>Crest Capital</strong> is a national equipment financing and leasing
+lender, founded in 1989 and headquartered in Alpharetta, Georgia, that
+finances equipment, vehicles, and software for small and mid-size
+businesses. Its site offers a free calculator that takes the cost of one
+piece of equipment and estimates the monthly payment for financing or
+leasing it through Crest Capital, typically as a first step toward
+submitting an application. It prices one thing — a new lease or loan on
+one asset — and is built to lead toward Crest Capital's own financing
+product.
+</p>
+</section>
+
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page does not estimate a lease payment and is not tied to any lender.
+It starts from a rate you already have — a supplier's bulk-discount pricing,
+a subcontractor's day rate, or a lease payment quoted by Crest Capital or
+anyone else — and compares it against your current fixed and per-job costs
+at the number of jobs you actually run each month. It shows the monthly
+cost, cost per job, profit per job, and margin for each option side by
+side, plus the exact job volume where a new fixed fee pays for itself
+against the per-job savings it offers. Everything runs in the browser;
+nothing is uploaded, and there is no application to submit.
+</p>
+</section>
+
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>I want to finance or lease a new piece of equipment and need a monthly payment estimate before applying.</td>
+<td>Crest Capital's calculator or a comparable lender's — pricing new financing is exactly its job, and this calculator has no financing terms of its own to offer.</td>
+</tr>
+<tr>
+<td>I already have a lease quote, a supplier discount, or a subcontractor rate and want to know if it actually beats what I pay today at my real job volume.</td>
+<td>This calculator — enter your current cost and the new rate's fixed and per-job figures, and it shows the break-even volume and the cost per job at your own numbers.</td>
+</tr>
+<tr>
+<td>I want to compare up to three vendor offers against each other and against my current baseline in one table.</td>
+<td>This calculator — Crest Capital's tool prices one lease at a time and does not compare it to a baseline or to other vendors.</td>
+</tr>
+<tr>
+<td>I don't want to enter my equipment cost into a lender's site before I know whether the deal is worth pursuing.</td>
+<td>This calculator — it needs only the fixed and per-job cost figures already on the rate card or lease quote, and sends nothing to Crest Capital or anyone else.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Neither tool replaces the other. A business financing a new asset for the
+first time still needs a lender's own payment estimate — that is what Crest
+Capital's calculator, or a comparable lender's, is for. Once a rate is on
+the table, from a lender, a supplier, or a subcontractor, this page is
+where you check whether it is actually cheaper at the volume you run,
+before signing anything.
+</p>
+
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Crest Capital's lease calculator?</h3>
+<p>They answer different questions. Crest Capital, a national equipment financing and leasing lender founded in 1989 and headquartered in Alpharetta, Georgia, offers a calculator on its own site that estimates the monthly payment for financing or leasing one piece of equipment, vehicle, or software — a first step toward applying for that financing through Crest Capital. This calculator does not estimate a lease payment at all: it takes a fixed cost and a per-job cost for up to three alternatives — a supplier discount, a subcontractor rate, or a lease payment you already have a quote for — and compares each against what you pay today, at your actual jobs per month, to show the true cost per job, the profit and margin at that volume, and the exact job count where a fixed fee pays for itself. If you need a payment estimate for financing new equipment, Crest Capital's calculator or a comparable lender's is built for that. If you already have a rate, a discount offer, or a lease quote in hand and want to know whether it is actually cheaper at the volume you run, this page answers that instead.</p>
+<h3>Is this page affiliated with Crest Capital?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Crest Capital. Crest Capital is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="fine">This page is a factual comparison of what each tool does, not an evaluation of which is better. Details about Crest Capital above describe the general shape of its business and calculator as publicly described at the time of writing and may have changed — verify against Crest Capital's own site before deciding, and no specific rate, fee, or price for Crest Capital's financing is stated here.</p>
+</section>
+
+<p><a href="./">Open the Vendor Rate Break-Even Calculator</a> and compare your own numbers.</p>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Your data stays in this browser; no inputs are uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rmd-calculator/" data-pf-to="rmd-calculator">RMD Calculator — free, private, in your browser</a></li>
+      <li><a href="../roth-conversion-bracket-fill-calculator/" data-pf-to="roth-conversion-bracket-fill-calculator">Roth Conversion Calculator 2026 — fill your bracket, free</a></li>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vendor-rate-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vendor-rate-break-even"></script>
+</body>
+</html>

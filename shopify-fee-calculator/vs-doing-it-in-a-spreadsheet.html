@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. doing it in a spreadsheet | Shopify Fee &amp; Profit Calculator</title>
+<meta name="description" content="Names no spreadsheet application or company. A worked $66 order shows the four places a hand-built Shopify fee spreadsheet quietly gets the wrong number -- the…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-doing-it-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing it in a spreadsheet">
+<meta property="og:description" content="A worked $66 order shows four places a hand-built Shopify fee spreadsheet quietly gets the wrong number.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/vs-doing-it-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just build a Shopify fee spreadsheet myself?","acceptedAnswer":{"@type":"Answer","text":"Yes, and for tracking a month at a time you should — a spreadsheet's real strength is a row per order or per month tied to your own export, which this calculator does not keep. What a hand-built sheet quietly gets wrong is the arithmetic inside one row: the extra Shopify third-party transaction fee on top of a processor's own rate, the monthly plan cost that has to be divided across orders rather than left off as overhead, and the algebra for a target-margin or break-even price, which is not a single division."}},{"@type":"Question","name":"Why does my spreadsheet understate how much more PayPal or Stripe costs than Shopify Payments?","acceptedAnswer":{"@type":"Answer","text":"Because Shopify charges its own third-party transaction fee — 2% on the Basic plan — on top of whatever PayPal, Stripe or another processor charges, and a formula built from the processor's published rate alone never includes it. On this page's worked $66 order that fee is $1.32 by itself. A spreadsheet missing it shows Shopify Payments beating a third-party processor by $0.58 of profit; the true gap, once Shopify's own cut is added, is $1.90 — about 3.3 times larger."}},{"@type":"Question","name":"Why does my per-order profit look different at low volume than at high volume?","acceptedAnswer":{"@type":"Answer","text":"The monthly plan fee has to be divided by that month's order count, not treated as a separate overhead line, because it is cash that specific month's orders have to cover between them. On this page's worked order, a $39/month Basic plan allocates to $0.26 at 150 orders a month but $3.90 at 10 orders a month — a $3.64 profit swing on the identical sale, from volume alone. A spreadsheet that tracks the plan fee separately from per-order profit hides that swing."}},{"@type":"Question","name":"Why is the price my spreadsheet says I need for a target margin too high?","acceptedAnswer":{"@type":"Answer","text":"Because \"cost divided by (1 minus the target margin)\" leaves out that the processing fee is also a percentage of the final price, not a cost paid before the fee is taken. Solving for the correct price means the fee percentage and the target margin both come out of the same denominator. On this page's worked order that omission overprices the item by $3.67 — a spreadsheet says $43.66, the correct target-margin price is $39.99."}},{"@type":"Question","name":"Why does my break-even price come out too high?","acceptedAnswer":{"@type":"Answer","text":"Because the shipping a customer pays at checkout is revenue that already goes toward covering costs, and a break-even formula that solves for the full order total rather than netting that shipping back out overstates the minimum item price by the full amount charged for shipping. On this page's worked order that is $6.00 — a spreadsheet that skips the step says $31.78 is the floor; it is actually $25.78."}}]}</script>
+<style>
+  :root { font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+  body { max-width: 820px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+  a { color: #14532d; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: .3rem 0; max-width: 26ch; }
+  .lede { font-size: 1.05rem; max-width: 66ch; color: #4f5b54; }
+  section { background: #fff; border: 1px solid #c9d2c6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c23200d; margin: 1.2rem 0; }
+  h2 { margin-top: 0; }
+  h3 { margin-top: 1.2rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d2c6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5b54; }
+  code { background: #e3e9e1; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+  .fine, .note { font-size: .88rem; color: #4f5b54; }
+  footer { color: #4f5b54; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing it in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing it in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Shopify Fee &amp; Profit Calculator</a></p>
+<header>
+<h1>This calculator vs. doing it in a spreadsheet</h1>
+<p class="lede">Names no spreadsheet application or company. Your management system already gives you the rates; the arithmetic is not hard. Here is exactly where a hand-built Shopify fee sheet quietly picks the wrong number, worked against the same $66 order this calculator would price.</p>
+</header>
+
+<section>
+<h2>First &mdash; a spreadsheet is the right tool for tracking</h2>
+<p>
+  A row per order, or per month, tied to your own Shopify and processor exports is how you watch a trend
+  across a quarter. This calculator keeps no history at all: close the tab and the order is gone. If what
+  you need is <em>last month's</em> numbers, or twelve months of them side by side, your spreadsheet already
+  does that better than this page ever will.
+</p>
+<p>
+  What follows is not an argument that the fee math is hard. It is four places a formula built by hand
+  quietly gives you a number you cannot act on, each shown against the same worked order.
+</p>
+</section>
+
+<section>
+<h2>The worked order</h2>
+<p>
+  One Shopify Basic order: a $60.00 item, $6.00 shipping charged to the customer ($66.00 revenue),
+  $22.00 cost of goods, $7.20 to ship it, $1.10 packaging, and a $39/month Basic plan. Shopify Payments
+  runs 2.9% + $0.30; the comparison processor runs a published 3.49% + $0.30 &mdash; plus, on Basic, Shopify's
+  own 2% third-party transaction fee on top, which is the part a hand formula built from the processor's
+  rate card alone leaves out.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Spreadsheet built from rate cards</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>Profit on Shopify Payments</strong></td>
+  <td><code>$66.00 &minus; ($60.00&times;2.9%+$0.30) &minus; $30.56 = $33.23</code> &mdash; correct, and the same figure this page reports</td>
+  <td>$33.23, 50.3% margin</td>
+</tr>
+<tr>
+  <td><strong>Profit on the third-party processor</strong></td>
+  <td>$32.65 &mdash; the processor's own 3.49% + $0.30 only</td>
+  <td>$31.33 &mdash; the processor's rate <em>plus</em> Shopify's own 2% third-party transaction fee ($1.32) that the rate card does not carry</td>
+</tr>
+<tr>
+  <td><strong>How much more the third-party path really costs</strong></td>
+  <td>$0.58 of profit &mdash; underweighted, because the missing $1.32 fee is a cost on both paths' difference</td>
+  <td>$1.90 of profit &mdash; about 3.3&times; the spreadsheet's gap</td>
+</tr>
+<tr>
+  <td><strong>Per-order profit at 150 orders/month</strong></td>
+  <td>$33.23, plan cost tracked as separate monthly overhead</td>
+  <td>$33.23 &mdash; plan cost of $0.26 already folded in</td>
+</tr>
+<tr>
+  <td><strong>The same order at 10 orders/month</strong></td>
+  <td>Still $33.23, if the plan line stays separate from per-order profit</td>
+  <td>$29.59 &mdash; a $3.64 swing, because $39 spread across 10 orders is $3.90 each, not $0.26</td>
+</tr>
+<tr>
+  <td><strong>Price needed for a 30% margin</strong></td>
+  <td><code>$30.56 &divide; (1&minus;30%) = $43.66</code> &mdash; cost divided by one minus the margin, fee left out of the denominator</td>
+  <td>$39.99 &mdash; the fee percentage shares the same denominator as the margin, so it is not added on top twice</td>
+</tr>
+<tr>
+  <td><strong>Minimum (break-even) item price</strong></td>
+  <td>$31.78 &mdash; the full covering-cost total, shipping charged left in</td>
+  <td>$25.78 &mdash; the $6.00 the customer already pays for shipping is netted back out first</td>
+</tr>
+<tr>
+  <td><strong>Where the numbers go</strong></td>
+  <td>Your file, your machine</td>
+  <td>Also your machine &mdash; the arithmetic runs in your browser and nothing you type is uploaded</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>The four places a hand formula goes quiet</h2>
+
+<h3>1. The rate card is not the whole third-party fee</h3>
+<p>
+  A processor's own published rate &mdash; 3.49% + $0.30 in this worked order &mdash; is not what a
+  third-party checkout actually costs on Shopify. On plans below Plus, Shopify adds its own third-party
+  transaction fee (2% on Basic, falling to 1% on Grow, 0.5% on Advanced, and 0% only on Plus) on the same
+  order total. Leave it out and the $66.00 order's true third-party fee of $4.11 reads as $2.79 &mdash;
+  which shrinks the real $1.90 profit gap between Shopify Payments and the outside processor down to $0.58,
+  about a third of the true number. The direction of the decision does not change on this order, but the
+  size of it does, and a merchant weighing whether switching processors is worth the hassle is weighing the
+  wrong number either way.
+</p>
+
+<h3>2. A monthly plan fee has to be divided by that month's orders</h3>
+<p>
+  $39 a month is not a line you can leave off a per-order number and still call it profit &mdash; it is cash
+  that month's orders have to cover between them, and how many orders there are changes how much each one
+  owes. At 150 orders a month the same $66.00 order nets $33.23 after $0.26 of allocated plan cost; at 10
+  orders a month, the identical order nets $29.59, because the same $39 now allocates to $3.90. A
+  spreadsheet that tracks "plan cost" as separate overhead, rather than dividing it into each order's own
+  fee line, hides a swing that is largest for exactly the low-volume stores a plan-upgrade decision matters
+  most for.
+</p>
+
+<h3>3. A target-margin price is not cost &divide; (1 &minus; margin)</h3>
+<p>
+  That formula is correct when nothing else in the sale scales with price. A payment-processing fee does:
+  it is a percentage of whatever price you land on, so it belongs in the same denominator as the margin
+  you are solving for, not added afterward. On this order, cost &divide; (1&minus;30%) says $43.66; the
+  price that actually clears a 30% margin once the 2.9% fee is priced in is $39.99. Priced from the naive
+  formula, this order is $3.67 more expensive than it needs to be to hit the same target &mdash; a real cost
+  in a competitive listing, for a margin the correct price already delivers.
+</p>
+
+<h3>4. A break-even price still has to net shipping back out</h3>
+<p>
+  The $6.00 a customer pays for shipping is revenue, and it already goes toward covering the order's costs
+  &mdash; so the item price alone does not have to carry the whole covering-cost total. A break-even formula
+  that solves for the full amount and stops there puts the floor at $31.78; netting the $6.00 shipping
+  charge back out (the step this calculator's own algebra always takes) puts it at $25.78. Skip that step
+  and every break-even and minimum-price figure a spreadsheet reports is high by however much the customer
+  is already paying for shipping.
+</p>
+</section>
+
+<section>
+<h2>When your spreadsheet is still the better tool</h2>
+<p>
+  For tracking, always. This page prices one order at a time and remembers nothing between visits. A sheet
+  with a row per order, or per month, tied to your own Shopify and processor exports is how you watch
+  realized margin move across a quarter, catch a rate that changed, or see which SKU is quietly thin. The
+  two are not competing tools: use this calculator to get one order's arithmetic right and see the four
+  places above before you build the formula, then keep tracking the results in the sheet you already have.
+</p>
+<p class="note">
+  Every figure on this page comes from this calculator's own worked example, not a claim about Shopify's
+  current published rates or any specific processor's schedule. Enter the rates from your own statements
+  &mdash; the numbers above illustrate where a formula goes wrong, not what you will be charged.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Can I just build a Shopify fee spreadsheet myself?</h3>
+<p>Yes, and for tracking a month at a time you should &mdash; a spreadsheet's real strength is a row per order or per month tied to your own export, which this calculator does not keep. What a hand-built sheet quietly gets wrong is the arithmetic inside one row: the extra Shopify third-party transaction fee on top of a processor's own rate, the monthly plan cost that has to be divided across orders rather than left off as overhead, and the algebra for a target-margin or break-even price, which is not a single division.</p>
+<h3>Why does my spreadsheet understate how much more PayPal or Stripe costs than Shopify Payments?</h3>
+<p>Because Shopify charges its own third-party transaction fee &mdash; 2% on the Basic plan &mdash; on top of whatever PayPal, Stripe or another processor charges, and a formula built from the processor's published rate alone never includes it. On this page's worked $66 order that fee is $1.32 by itself. A spreadsheet missing it shows Shopify Payments beating a third-party processor by $0.58 of profit; the true gap, once Shopify's own cut is added, is $1.90 &mdash; about 3.3 times larger.</p>
+<h3>Why does my per-order profit look different at low volume than at high volume?</h3>
+<p>The monthly plan fee has to be divided by that month's order count, not treated as a separate overhead line, because it is cash that specific month's orders have to cover between them. On this page's worked order, a $39/month Basic plan allocates to $0.26 at 150 orders a month but $3.90 at 10 orders a month &mdash; a $3.64 profit swing on the identical sale, from volume alone. A spreadsheet that tracks the plan fee separately from per-order profit hides that swing.</p>
+<h3>Why is the price my spreadsheet says I need for a target margin too high?</h3>
+<p>Because "cost divided by (1 minus the target margin)" leaves out that the processing fee is also a percentage of the final price, not a cost paid before the fee is taken. Solving for the correct price means the fee percentage and the target margin both come out of the same denominator. On this page's worked order that omission overprices the item by $3.67 &mdash; a spreadsheet says $43.66, the correct target-margin price is $39.99.</p>
+<h3>Why does my break-even price come out too high?</h3>
+<p>Because the shipping a customer pays at checkout is revenue that already goes toward covering costs, and a break-even formula that solves for the full order total rather than netting that shipping back out overstates the minimum item price by the full amount charged for shipping. On this page's worked order that is $6.00 &mdash; a spreadsheet that skips the step says $31.78 is the floor; it is actually $25.78.</p>
+<p class="note">
+  Open the <a href="./">Shopify Fee &amp; Profit Calculator</a> to price your own order.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors.</p>
+<p class="support">Free and open source. If it saved you from an underpriced order, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-nightly-rate-optimizer/" data-pf-to="str-nightly-rate-optimizer">STR Nightly Rate Optimizer — free, private, in your browser</a></li>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shopify-fee-calculator"></script>
+</body></html>

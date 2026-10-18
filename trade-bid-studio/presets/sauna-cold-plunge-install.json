@@ -1,0 +1,55 @@
+{
+  "slug": "sauna-cold-plunge-install-bid-calculator",
+  "name": "Sauna and cold plunge installs",
+  "group": "Landscaping & outdoor",
+  "summary": "Sauna and cold-plunge installs priced from build, prep and helper hours, the unit, subcontract and drive.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 48,
+  "burdenRate": 0,
+  "targetMargin": 20,
+  "milesOneWay": 25,
+  "items": [
+    {
+      "label": "Build or install on site",
+      "unit": "hour",
+      "qty": 14,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 13,
+      "source": "DEFAULTS.buildHours 14 (calc.mjs); tool wear $8/on-site hour + consumables $5/build hour (DEFAULTS.toolsPerHour, consumablesPerBuildHour); lead pay $48 is already loaded, so burden 0"
+    },
+    {
+      "label": "Site prep, hookup and cleanup",
+      "unit": "hour",
+      "qty": 4,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 8,
+      "source": "DEFAULTS.prepHours 4; tool wear $8/on-site hour (calc.mjs)"
+    },
+    {
+      "label": "Helper labor (at the helper's own rate)",
+      "unit": "hour",
+      "qty": 14,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 28,
+      "source": "DEFAULTS.helperHours 14 at helperRate $28 loaded (calc.mjs); entered as dollars because the helper's rate differs from the lead's"
+    },
+    {
+      "label": "Heater or plunge unit, lumber, insulation and trim",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 4200,
+      "source": "DEFAULTS.materials $4,200 (calc.mjs placeholder); specialist adds a 25% markup on equipment and subcontract that line items do not"
+    },
+    {
+      "label": "Electrician or other subcontract",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 900,
+      "source": "DEFAULTS.subcontract $900 (calc.mjs)"
+    }
+  ],
+  "specialistModels": "Overhead recovered per billable hour ($3,500/month over 120 h), a 25% markup on equipment and subcontract, card fees, a $1,500 minimum, overrun and distance stress tests, and a monthly break-even view."
+}

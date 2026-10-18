@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How many clients do I need before booth rent pays off? | Booth Rent vs Commission Calculator</title>
+  <meta name="description" content="On $85 tickets and $275/week rent, booth rent breaks even at about 8.4 clients a week. Below that, a 50% commission chair pays more.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/how-many-clients-does-booth-rent-need.html">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="How many clients do I need before booth rent pays off?">
+  <meta property="og:description" content="Booth rent keeps more of every ticket but adds rent, card fees, and backbar a commission chair doesn't carry.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many clients do I need before booth rent pays off?","acceptedAnswer":{"@type":"Answer","text":"On the calculator's defaults — an $85 average ticket, a $275/week booth rent, 50% commission split, and the other default costs — booth rent breaks even at about 8.4 clients a week. Below that, the commission chair pays more; above it, booth rent pays more, and the gap grows with every extra client because booth rent keeps the full ticket price minus fixed costs, while commission only ever pays half."}},{"@type":"Question","name":"What if I only see 6 clients a week?","acceptedAnswer":{"@type":"Answer","text":"On the same defaults, 6 clients a week puts commission $76.11 ahead for the week ($263 vs $186.89), and you would need about 2.4 more clients a week — roughly 8.4 total — before booth rent catches up. Below breakeven, more clients help both sides, but they help booth rent more, which is why the gap closes rather than staying fixed."}},{"@type":"Question","name":"How high can the rent go before it stops paying?","acceptedAnswer":{"@type":"Answer","text":"On the default 14-clients-a-week book, booth rent could rise to about $451.17 a week — not just the $275 in the example — before it stops beating the same commission split. That gap between an offered rent and this ceiling is exactly what the calculator's own rent-offer field scores for you."}},{"@type":"Question","name":"Does hourly pay flip at the same client count as weekly pay?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. This calculator scores both separately because they can disagree: booth rent usually adds unpaid hours a commission chair doesn't carry (laundry, booking, backbar prep), so a client count where booth rent wins on the week's total dollars can still lose on dollars per hour if those extra hours outweigh the extra take-home. Check both numbers, not just one."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#20221c;background:#f6f4ec}body{max-width:760px;margin:auto;padding:32px 18px}h1{font-size:clamp(1.9rem,5.5vw,3rem);line-height:1;letter-spacing:-.04em}p,li{line-height:1.55}a{color:#0d6b4f}footer{font-size:.82rem;color:#57584f;margin-top:28px}.eyebrow{color:#0d6b4f;font-weight:750;letter-spacing:.08em;font-size:.8rem}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{text-align:left;border-bottom:1px solid #dcd6c4;padding:8px 10px}th{font-size:.85rem;color:#57584f}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/how-many-clients-does-booth-rent-need.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How many clients do I need before booth rent pays off? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../booth-rent-vs-commission/">Booth Rent vs Commission Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How many clients do I need before booth rent pays off?</span></span></nav>
+  <p class="eyebrow">BOOTH RENT VS COMMISSION CALCULATOR</p>
+  <h1>How many clients do I need before booth rent pays off?</h1>
+  <p>Booth rent keeps the full price of every ticket, but it also adds a fixed rent check, card fees, backbar, and often unpaid laundry and booking hours a salon used to absorb. At a light book, those fixed costs can cost more than commission would have taken. At a full book, the math flips, because rent stays fixed while commission keeps taking its cut of every new client. There is a specific client count where one flips into the other — this calculator solves for it as <code>breakEvenClients</code>.</p>
+
+  <h2>The default book</h2>
+  <p>On the calculator's defaults — $85 average ticket, 50% commission, a $275/week booth rent, 2.9% card fees, 10% backbar, and the other default costs — the break-even is <strong>about 8.4 clients a week</strong>. At the default <strong>14 clients a week</strong>, that book is already past it: commission pays $603/week, booth rent pays <strong>$779.17</strong>, a <strong>$176.17-a-week</strong> ($8,808.50/year) edge for booth rent, and booth rent also wins on dollars per hour ($31.80 vs $30.92).</p>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Clients/week</th><th>Commission take-home</th><th>Booth take-home</th><th>Winner</th></tr>
+    <tr><td>6</td><td>$263.00</td><td>$186.89</td><td>Commission, by $76.11</td></tr>
+    <tr><td>~8.4 (break-even)</td><td>≈ tied</td><td>≈ tied</td><td>Flips here</td></tr>
+    <tr><td>14 (default)</td><td>$603.00</td><td>$779.17</td><td>Booth, by $176.17</td></tr>
+  </table></div>
+  <p>At 6 clients a week the same lease is <strong>$76.11 behind</strong> for the week, and needs about <strong>2.4 more clients</strong> — roughly 8.4 total — to catch up. Below break-even, growing the book still helps both sides; it just helps booth rent faster, because commission only ever keeps half of each new ticket while booth rent keeps nearly all of it after fixed costs.</p>
+
+  <h2>How high the rent can go</h2>
+  <p>The same default 14-client book supports booth rent up to about <strong>$451.17 a week</strong> — not just the $275 in the example — before it stops beating the commission split. A salon offering a rent between the two is still worth checking client-by-client; a rent above the ceiling loses money against commission no matter how full the book is.</p>
+  <p><a href="index.html">Open the calculator</a> and enter your own ticket, client count, and costs — the breakeven, the extra clients needed, and the rent ceiling all update from your numbers, not these defaults.</p>
+
+  <h2>What this is not</h2>
+  <ul>
+    <li>Not a claim that a bigger check is always the better job — see the hourly figures too; booth rent's unpaid hours can erase its dollar lead.</li>
+    <li>Not tax, insurance, or licensing advice for going independent.</li>
+    <li>Not a guarantee your actual client count or costs will hold — these are the numbers you type, not a forecast.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>How many clients do I need before booth rent pays off?</h3>
+  <p>On the calculator's defaults — an $85 average ticket, a $275/week booth rent, 50% commission split, and the other default costs — booth rent breaks even at about 8.4 clients a week. Below that, the commission chair pays more; above it, booth rent pays more, and the gap grows with every extra client because booth rent keeps the full ticket price minus fixed costs, while commission only ever pays half.</p>
+  <h3>What if I only see 6 clients a week?</h3>
+  <p>On the same defaults, 6 clients a week puts commission $76.11 ahead for the week ($263 vs $186.89), and you would need about 2.4 more clients a week — roughly 8.4 total — before booth rent catches up. Below breakeven, more clients help both sides, but they help booth rent more, which is why the gap closes rather than staying fixed.</p>
+  <h3>How high can the rent go before it stops paying?</h3>
+  <p>On the default 14-clients-a-week book, booth rent could rise to about $451.17 a week — not just the $275 in the example — before it stops beating the same commission split. That gap between an offered rent and this ceiling is exactly what the calculator's own rent-offer field scores for you.</p>
+  <h3>Does hourly pay flip at the same client count as weekly pay?</h3>
+  <p>Not necessarily. This calculator scores both separately because they can disagree: booth rent usually adds unpaid hours a commission chair doesn't carry (laundry, booking, backbar prep), so a client count where booth rent wins on the week's total dollars can still lose on dollars per hour if those extra hours outweigh the extra take-home. Check both numbers, not just one.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="index.html">Back to the calculator</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../photo-addon-pricing-calculator/" data-pf-to="photo-addon-pricing-calculator">Photo Package Add-On Pricing Calculator</a></li>
+      <li><a href="../photo-booth-event-quote/" data-pf-to="photo-booth-event-quote">Photo Booth Event Quote Calculator</a></li>
+      <li><a href="../pickleball-facility-pro-forma/" data-pf-to="pickleball-facility-pro-forma">Pickleball Facility Pro Forma — free, private, in your browser</a></li>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=booth-rent-vs-commission">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="booth-rent-vs-commission"></script>
+</body>
+</html>

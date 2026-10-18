@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Which Shopify promo costs less | 10% off vs $10 off vs free shipping</title>
+  <meta name="description" content="10% off, a dollar-off coupon, and free shipping are not the same discount on Shopify. Percentage fees follow the new total…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/which-shopify-promo-costs-less.html">
+  <meta property="og:title" content="Which Shopify promo still pays — 10% off vs free shipping">
+  <meta property="og:description" content="Free shipping zeros what the customer pays to ship. It does not zero the label. Compare it to 10% off and a coupon on the same order.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is free shipping cheaper than 10% off on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not on orders where the label is a large share of the advertised discount. A 10% coupon cuts the item price, so Shopify Payments or PayPal percentage fees also drop. Free shipping sets shipping charged to $0 and leaves the label you pay on the order. Run both against your costs before you pick a sale."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does a $10 coupon take more profit than 10% off?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On a $48 item, 10% off is $4.80 and a $10 coupon is $10. Both also change the order total that percentage processing fees apply to. The calculator shows the net after fees, goods, and the label — not the face value of the discount."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0d6b45; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 8px 6px; border-bottom: 1px solid #c5d9cc; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #3d5649; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/which-shopify-promo-costs-less.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which Shopify promo still pays — 10% off vs free shipping — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which Shopify promo still pays — 10% off vs free shipping</span></span></nav>
+  <p><a href="./">← Shopify fee calculator</a></p>
+  <h1>Which Shopify promo still pays: 10% off, $10 off, or free shipping</h1>
+  <p>
+    Merchants treat “10% off,” “$10 off,” and “free shipping” as similar
+    generosity. They are not. Shopify Payments and PayPal take a
+    <strong>percentage of item plus shipping charged</strong>. A percent-off
+    coupon shrinks that base. Free shipping sets shipping charged to $0 and
+    leaves the label you actually pay on the order.
+  </p>
+  <p>
+    On a typical Basic-plan example — a $48 item, $6 shipping charged, a $5
+    label, $14 goods, $1 pack, and 2.9% + $0.30 Shopify Payments — list
+    price keeps about $31.74. The same order under three common sales:
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th>Offer</th><th>Customer pays</th><th>Fees</th><th>You keep</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>List price</td><td>$54.00</td><td>$1.87</td><td>$31.74</td></tr>
+      <tr><td>10% off the item</td><td>$49.20</td><td>$1.73</td><td>$27.08</td></tr>
+      <tr><td>Free shipping</td><td>$48.00</td><td>$1.69</td><td>$25.92</td></tr>
+      <tr><td>$10 off the item</td><td>$44.00</td><td>$1.58</td><td>$22.03</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    If a sale has to run, <strong>10% off keeps about $1.17 more than free
+    shipping</strong> on that order. Free shipping is the one that can flip a
+    thin listing to a loss: a $24 item with a $9 label and $10 shipping
+    charged still profits under 10% off and loses money when shipping is
+    advertised as free.
+  </p>
+  <p>
+    Rates change by country, plan, card type, and contract. This page does
+    not publish Shopify’s live schedule. Open the
+    <a href="./">Shopify fee calculator</a>, enter the percentages from your
+    statements, and compare the four offers on one order.
+  </p>
+  <p>
+    The calculator is arithmetic, not advice. It does not recommend a sale
+    or claim a promo will increase volume enough to make up the difference.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is free shipping cheaper than 10% off on Shopify?</h3>
+  <p>Not on orders where the label is a large share of the advertised discount. A 10% coupon cuts the item price, so Shopify Payments or PayPal percentage fees also drop. Free shipping sets shipping charged to $0 and leaves the label you pay on the order. Run both against your costs before you pick a sale.</p>
+  <h3>Why does a $10 coupon take more profit than 10% off?</h3>
+  <p>On a $48 item, 10% off is $4.80 and a $10 coupon is $10. Both also change the order total that percentage processing fees apply to. The calculator shows the net after fees, goods, and the label — not the face value of the discount.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../str-nightly-rate-optimizer/" data-pf-to="str-nightly-rate-optimizer">STR Nightly Rate Optimizer — free, private, in your browser</a></li>
+      <li><a href="../str-occupancy-tax-calculator/" data-pf-to="str-occupancy-tax-calculator">STR Occupancy Tax Calculator</a></li>
+      <li><a href="../str-tax-loophole-calculator/" data-pf-to="str-tax-loophole-calculator">STR Tax Loophole Calculator — free, 2026</a></li>
+      <li><a href="../str-turnover-crew-planner/" data-pf-to="str-turnover-crew-planner">Which turnovers should a cleaning crew take today, and which crew?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shopify-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shopify-fee-calculator"></script>
+</body>
+</html>

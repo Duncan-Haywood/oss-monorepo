@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I use Seller Fulfilled Prime? | FBA vs SFP vs FBM</title>
+  <meta name="description" content="Compare Amazon FBA, Seller Fulfilled Prime, and merchant fulfilled on the same SKU. See leftover after a 2-day label and pack time…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/should-i-use-seller-fulfilled-prime.html">
+  <meta property="og:title" content="Should I use Seller Fulfilled Prime?">
+  <meta property="og:description" content="FBA vs Seller Fulfilled Prime vs FBM: leftover after the 2-day label, pack minutes, and the Prime-badge take rate.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon Seller Fulfilled Prime vs FBA",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "FBA leftover with Prime take, Seller Fulfilled Prime leftover after a 2-day label and pack time, merchant-fulfilled leftover without Prime, expected leftover per session, monthly leftover at typed FBA volume, 2-day label ceiling that still matches FBA, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I leave FBA for Seller Fulfilled Prime?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, a $8.95 2-day label, and 6 minutes at $18 — FBA keeps $4.03 more per session than Seller Fulfilled Prime ($7.70 vs $3.67), $460.37 on 80 FBA units. The 2-day label has to fall to about $2.75 before SFP matches. Merchant fulfilled without Prime keeps $4.66 because the Ground label is cheaper, but 40% take is not enough; it needs about 66.1% to match FBA."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Seller Fulfilled Prime the same as FBM?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Seller Fulfilled Prime keeps the Prime badge, so take is usually close to FBA, but you buy a 2-day label and pack the order. Merchant fulfilled drops the Prime filter and usually converts fewer sessions. The page shows all three on the same visitor pool. It does not recommend a fulfillment method and it does not publish Amazon's live SFP SLA."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does Seller Fulfilled Prime beat FBA?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the 2-day label plus pack time is cheaper than Amazon's pick fee, inbound, and storage after the take-rate gap. On these defaults a $2.40 2-day label flips SFP ahead by $0.23 per session, $26.20 on 80 FBA units. A bulky pick fee can also flip the table. Replace the label and take rates from your own Buy Shipping preview and conversion report."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/should-i-use-seller-fulfilled-prime.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I use Seller Fulfilled Prime? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I use Seller Fulfilled Prime?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Should I use Seller Fulfilled Prime?</h1>
+  <p>
+    Sellers search this after Amazon invites the account to
+    Seller Fulfilled Prime. FBA already has the Prime badge. SFP
+    keeps that badge if you buy a 2-day label and pack on time.
+    Merchant fulfilled is the cheaper Ground label without Prime.
+    The main calculator’s FBA vs FBM table does not model that
+    badge, so a completed-sale leftover can hide a take-rate gap.
+  </p>
+  <p>
+    On the default $29.99 large-standard unit, FBA keeps $4.03 more
+    per session than SFP ($7.70 vs $3.67), $460.37 on 80 FBA units.
+    Amazon’s $4.15 pick plus inbound is cheaper than an $8.95 2-day
+    label and 6 minutes at $18. The 2-day label has to fall to about
+    $2.75 before SFP matches. A $2.40 label flips SFP ahead by $0.23
+    per session, $26.20 a month. Merchant fulfilled keeps $11.64 on
+    a completed sale but only $4.66 expected at 40% take — it needs
+    about 66.1% to match FBA.
+  </p>
+  <form id="sfpForm" class="fields">
+    <label>Sale price ($) <input id="salePrice" type="number" min="0" step="0.01" value="29.99" inputmode="decimal"></label>
+    <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15" inputmode="decimal"></label>
+    <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+    <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+    <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2" inputmode="decimal"></label>
+    <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75" inputmode="decimal"></label>
+    <label>You paid for the item ($) <input id="costOfGoods" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+    <label>Inbound / unit ($) <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20" inputmode="decimal"></label>
+    <label>Prep / packaging ($) <input id="packagingCost" type="number" min="0" step="0.01" value="0.60" inputmode="decimal"></label>
+    <label>FBM Ground label ($) <input id="fbmShippingCost" type="number" min="0" step="0.01" value="4.75" inputmode="decimal"></label>
+    <label>SFP 2-day label ($) <input id="sfpShippingCost" type="number" min="0" step="0.01" value="8.95" inputmode="decimal"></label>
+    <label>SFP pack minutes <input id="sfpMinutes" type="number" min="0" step="0.1" value="6" inputmode="decimal"></label>
+    <label>Pack wage ($ / hr) <input id="sfpHourlyWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+    <label>FBA take (%) <input id="fbaTakePct" type="number" min="0" max="100" step="0.1" value="70" inputmode="decimal"></label>
+    <label>SFP take (%) <input id="sfpTakePct" type="number" min="0" max="100" step="0.1" value="65" inputmode="decimal"></label>
+    <label>FBM take (%) <input id="fbmTakePct" type="number" min="0" max="100" step="0.1" value="40" inputmode="decimal"></label>
+    <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1" inputmode="decimal"></label>
+    <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87" inputmode="decimal"></label>
+    <label>Professional plan / month ($) <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99" inputmode="decimal"></label>
+    <label>FBA units per month <input id="monthlyUnits" type="number" min="1" step="1" value="80" inputmode="numeric"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Take</th>
+        <th scope="col">Ship / pick</th>
+        <th scope="col">Completed</th>
+        <th scope="col">Expected</th>
+        <th scope="col">vs FBA</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Expected leftover is take × completed sale on the same visitor
+    pool (typed FBA units ÷ FBA take). Return mix is held at zero so
+    this table stays a badge-and-label question. Complementary to
+    <a href="./">FBA vs FBM on the main calculator</a>
+    (no Prime take), to
+    <a href="should-i-use-amazon-mcf-for-website-orders.html">MCF for website orders</a>
+    (a non-Amazon checkout from FBA stock), and to
+    <a href="do-amazon-returns-wipe-the-profit.html">expected returns</a>.
+    Paste the 2-day label from Buy Shipping and the take rates from
+    your conversion report. This page does not publish Amazon’s live
+    SFP SLA or fee schedule.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not recommend
+    leaving FBA, joining Seller Fulfilled Prime, or dropping the
+    Prime badge.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I leave FBA for Seller Fulfilled Prime?</h3>
+  <p>On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, a $8.95 2-day label, and 6 minutes at $18 — FBA keeps $4.03 more per session than Seller Fulfilled Prime ($7.70 vs $3.67), $460.37 on 80 FBA units. The 2-day label has to fall to about $2.75 before SFP matches. Merchant fulfilled without Prime keeps $4.66 because the Ground label is cheaper, but 40% take is not enough; it needs about 66.1% to match FBA.</p>
+  <h3>Is Seller Fulfilled Prime the same as FBM?</h3>
+  <p>No. Seller Fulfilled Prime keeps the Prime badge, so take is usually close to FBA, but you buy a 2-day label and pack the order. Merchant fulfilled drops the Prime filter and usually converts fewer sessions. The page shows all three on the same visitor pool. It does not recommend a fulfillment method and it does not publish Amazon's live SFP SLA.</p>
+  <h3>When does Seller Fulfilled Prime beat FBA?</h3>
+  <p>When the 2-day label plus pack time is cheaper than Amazon's pick fee, inbound, and storage after the take-rate gap. On these defaults a $2.40 2-day label flips SFP ahead by $0.23 per session, $26.20 on 80 FBA units. A bulky pick fee can also flip the table. Replace the label and take rates from your own Buy Shipping preview and conversion report.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareSfp, sfpNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "referralRate", "length", "width", "height", "weightLb",
+      "costOfGoods", "inboundPerUnit", "packagingCost", "fbmShippingCost",
+      "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct",
+      "sfpTakePct", "fbmTakePct", "monthsInStorage", "storageRate",
+      "monthlySellerFee", "monthlyUnits",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareSfp(raw);
+        document.getElementById("summary").textContent = sfpNote(result);
+        document.getElementById("verdict").textContent = result.winner === "fba"
+          ? `FBA keeps ${money(Math.abs(result.extraKeptOnSfp))} more per session than Seller Fulfilled Prime`
+          : result.winner === "sfp"
+            ? `Seller Fulfilled Prime keeps ${money(result.extraKeptOnSfp)} more per session than FBA`
+            : result.winner === "fbm"
+              ? `Merchant fulfilled keeps ${money(result.extraKeptOnFbm)} more per session than FBA`
+              : "The three paths leave the same expected leftover on these rates";
+        document.getElementById("compare").innerHTML = result.rows.map((row) => {
+          const winner = result.winner === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.shippingCost)}</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${row.id === "fba" ? "Current" : money(row.vsFba)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "sfp_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kdp-royalty-to-journal/" data-pf-to="kdp-royalty-to-journal">KDP royalty report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-fba-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amazon-fba-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="amazon-fba-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="amazon-fba-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

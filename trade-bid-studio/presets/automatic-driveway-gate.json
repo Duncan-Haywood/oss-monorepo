@@ -1,0 +1,72 @@
+{
+  "slug": "automatic-driveway-gate-bid-calculator",
+  "name": "Automatic driveway gate",
+  "group": "Exterior & roofing",
+  "summary": "Motorized swing or slide gates priced from operators, leaf footage, power, safety kit, remotes and permit.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.25,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Hang and program swing operator",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 3.5,
+      "materialPerUnit": 1450,
+      "source": "single swing = 1 operator (calc.mjs operatorCount); hoursPerOperator 3.5, operatorEach $1,450 (index.html defaults)"
+    },
+    {
+      "label": "Aluminum gate leaf, 5 ft tall",
+      "unit": "linear ft",
+      "qty": 12,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 85,
+      "source": "openingWidthFt 12; hoursPerLfGate 0.35, gatePerLf $85 x aluminum weightFactor 1 (index.html, MATERIAL_PRESETS)"
+    },
+    {
+      "label": "AC trench and conduit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3,
+      "materialPerUnit": 185,
+      "source": "power ac: hoursTrench 3, trenchMaterial $185 (index.html defaults, suggestedPowerKit ac)"
+    },
+    {
+      "label": "UL 325 photo-eye kit",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 165,
+      "source": "photoEyeKit $165, always included in calculateBid; no separate install hours in the specialist"
+    },
+    {
+      "label": "Extra remotes",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 45,
+      "source": "extraRemotes 2, remoteEach $45 (index.html defaults)"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 125,
+      "source": "permitFee $125 (index.html default)"
+    },
+    {
+      "label": "Travel, trailer and lift",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 285,
+      "source": "travelAndEquipment $285 (index.html default)"
+    }
+  ],
+  "specialistModels": "Single vs dual swing vs slide kits, material weight factors, steel-post or masonry column counts, AC vs solar power, vehicle loops, keypad, battery backup and edge sensors."
+}

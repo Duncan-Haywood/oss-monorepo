@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet | Turo Host Payout Calculator</title>
+  <meta name="description" content="A spreadsheet can multiply one trip price by one host-share percentage. It won't hold Turo's whole plan-by-booking-window matrix…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet | Turo Host Payout Calculator">
+  <meta property="og:description" content="A spreadsheet multiplies fine once you already know which host-share cell applies. Where it quietly goes wrong: the plan x booking-window matrix itself…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a Turo payout just trip price times host share?","acceptedAnswer":{"@type":"Answer","text":"The multiplication itself is trivial and a spreadsheet does it fine once you already know the right host-share percentage to type in. What a plain spreadsheet does not do on its own is hold Turo's whole plan-by-booking-window matrix — three earnings plans times four booking windows, twelve possible host-share cells for one trip — so you have to already know which cell applies before you can even start the formula."}},{"@type":"Question","name":"Why is comparing plans and booking windows harder in a spreadsheet than it looks?","acceptedAnswer":{"@type":"Answer","text":"Seeing what the same trip would have paid under a different plan, or if the guest had booked earlier or later, means building and maintaining eleven more formula cells alongside the one you actually need — and updating all twelve every time the trip price or extra fees change. This calculator recomputes the full plan comparison and the full booking-window comparison automatically, from the same inputs, every time you calculate."}},{"@type":"Question","name":"What happens if I type a percentage into the wrong cell in my own sheet?","acceptedAnswer":{"@type":"Answer","text":"Nothing — a spreadsheet returns whatever the formula says, whether the host-share percentage you typed matches the plan and booking window you actually have or not, and there is no built-in check that the two agree. This calculator derives the host share from the plan and booking window you select, so the two can never disagree, and it flags findings like a missing trip price rather than silently returning zero or a stale number."}},{"@type":"Question","name":"Does this replace a host's own income-tracking spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or ledger that tracks every trip, every payout, and every month's total over a year is still the right tool for that ongoing record. This page answers one question at a time — what does this trip pay under my plan and booking window, and what would it have paid under the other eleven combinations — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a1f16; background: #f2f6ef; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #235c26; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.02em; line-height: 1.1; color: #1f4d20; }
+    h2 { color: #1f4d20; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e6efe1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5245; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #235c26; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .85rem; color: #4a5245; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5245; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet | Turo Host Payout Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../turo-host-payout-calculator/">Turo Host Payout Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet | Turo Host Payout Calculator</span></span></nav>
+  <p><a href="./">&larr; Turo host payout calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A lot of hosts already track payouts in a spreadsheet: one column for
+    trip price, one for the host-share percentage, a formula that multiplies
+    them. That arithmetic is trivial and a spreadsheet does it fine <em>once
+    you already know which host-share percentage to type in</em>. What it
+    does not do on its own is <strong>hold Turo's whole plan-by-booking-window
+    matrix</strong> -- three earnings plans times four booking windows is
+    twelve possible host-share cells for the same trip, and a plain
+    spreadsheet has no built-in way to check that the cell you used actually
+    matches the plan and window you have.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What's trip price times host share?</td>
+        <td>Either one &mdash; a spreadsheet multiplies fine.</td>
+      </tr>
+      <tr>
+        <td>Which of the twelve plan x booking-window cells applies to this trip?</td>
+        <td>This calculator &mdash; you pick the plan and the window, it derives the share; a spreadsheet needs you to already know the answer before you can build the formula.</td>
+      </tr>
+      <tr>
+        <td>What would this exact trip have paid under the other two plans?</td>
+        <td>This calculator &mdash; a full plan comparison table, generated automatically from the same trip.</td>
+      </tr>
+      <tr>
+        <td>What would this exact trip have paid if the guest had booked earlier or later?</td>
+        <td>This calculator &mdash; a full booking-window comparison table, same trip, same plan.</td>
+      </tr>
+      <tr>
+        <td>If I mistype the host-share percentage, will anything catch it?</td>
+        <td>This calculator &mdash; the share is derived from your plan and window, never typed in directly, so the two can't drift apart.</td>
+      </tr>
+      <tr>
+        <td>Is anything I enter uploaded anywhere?</td>
+        <td>No, on either &mdash; but this calculator needs no account, no template, and no formula to maintain.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Calculate a Turo payout now</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and the trip price, plan, booking
+    window, and every fee you enter stay on this device &mdash;
+    nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Isn't a Turo payout just trip price times host share?</h3>
+  <p>The multiplication itself is trivial and a spreadsheet does it fine once you already know the right host-share percentage to type in. What a plain spreadsheet does not do on its own is hold Turo's whole plan-by-booking-window matrix &mdash; three earnings plans times four booking windows, twelve possible host-share cells for one trip &mdash; so you have to already know which cell applies before you can even start the formula.</p>
+  <h3>Why is comparing plans and booking windows harder in a spreadsheet than it looks?</h3>
+  <p>Seeing what the same trip would have paid under a different plan, or if the guest had booked earlier or later, means building and maintaining eleven more formula cells alongside the one you actually need &mdash; and updating all twelve every time the trip price or extra fees change. This calculator recomputes the full plan comparison and the full booking-window comparison automatically, from the same inputs, every time you calculate.</p>
+  <h3>What happens if I type a percentage into the wrong cell in my own sheet?</h3>
+  <p>Nothing &mdash; a spreadsheet returns whatever the formula says, whether the host-share percentage you typed matches the plan and booking window you actually have or not, and there is no built-in check that the two agree. This calculator derives the host share from the plan and booking window you select, so the two can never disagree, and it flags findings like a missing trip price rather than silently returning zero or a stale number.</p>
+  <h3>Does this replace a host's own income-tracking spreadsheet?</h3>
+  <p>No. A spreadsheet or ledger that tracks every trip, every payout, and every month's total over a year is still the right tool for that ongoing record. This page answers one question at a time &mdash; what does this trip pay under my plan and booking window, and what would it have paid under the other eleven combinations &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Turo. Turo is a trademark of its owner, named here only to describe the host-earnings structure this tool computes against.</p>
+    <p>Free and open source. If it saved you from rebuilding the matrix by hand, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../app-review-insights/" data-pf-to="app-review-insights">App Review Insights — free, private, CSV in your browser</a></li>
+      <li><a href="../app-subscription-proceeds-calculator/" data-pf-to="app-subscription-proceeds-calculator">What does an app subscriber really leave you after store fees?</a></li>
+      <li><a href="../auction-car-flip-calculator/" data-pf-to="auction-car-flip-calculator">Auction Car Flip Calculator — free, private, in your browser</a></li>
+      <li><a href="../axe-throwing-bar-profit-calculator/" data-pf-to="axe-throwing-bar-profit-calculator">Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=turo-host-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="turo-host-payout-calculator"></script>
+</body>
+</html>

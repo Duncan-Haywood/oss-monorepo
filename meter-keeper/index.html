@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meter Keeper — Free Self-Hosted Usage Metering for Stripe</title>
+  <meta name="description" content="A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage…">
+  <meta property="og:title" content="Meter Keeper — self-hosted usage metering for Stripe">
+  <meta property="og:description" content="Idempotent usage events, graduated, volume and package pricing, invoice previews, entitlement checks and a retrying Stripe feed.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/meter-keeper/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meter Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source usage metering for usage-based pricing: idempotent events, tiered pricing, invoice previews, entitlement checks and a retrying feed into Stripe Billing Meters. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Lago, OpenMeter, Orb or Metronome?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good products and the right choice if you need invoicing, tax and a full billing platform. Meter Keeper does one narrow job for a small team that already bills through Stripe: count usage exactly once, price it, enforce limits, and feed Stripe Billing Meters. It is one dependency-free Node process with a JSON file for state, so there is nothing to operate. If you outgrow it, your events are plain JSON you can replay elsewhere."}}, {"@type": "Question", "name": "What stops an event being counted twice?", "acceptedAnswer": {"@type": "Answer", "text": "Every event carries an id you choose. Sending the same id again is reported as a duplicate and changes nothing, so your client can retry freely after a timeout. The same id is passed to Stripe as the meter event identifier, so a retry from this server cannot double-bill either."}}, {"@type": "Question", "name": "What happens when Stripe is down?", "acceptedAnswer": {"@type": "Answer", "text": "Events are stored first and forwarded after, from a queue. A 5xx or rate-limit answer is retried with a growing delay for up to eight tries. A permanent error, such as a customer with no Stripe id, goes to a visible dead-letter list instead of vanishing. Stripe only accepts events up to 35 days old, so look at the queue at least weekly."}}, {"@type": "Question", "name": "Which pricing models are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Flat per unit, graduated tiers, volume tiers, and package pricing (a price per block of N units), each with free included units, an optional base fee, a monthly minimum and a hard usage limit. The invoice preview is a calculation from the usage this server has seen, not the invoice: your Stripe prices stay the source of truth for what a customer is charged."}}, {"@type": "Question", "name": "Is it safe to put real customer data in?", "acceptedAnswer": {"@type": "Answer", "text": "Store only ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy and tax rules where you and your customers live."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 150px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Meter Keeper — self-hosted usage metering for Stripe","item":"https://duncan-haywood.github.io/monorepo-projects/meter-keeper/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/meter-keeper/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/meter-keeper/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Meter Keeper — self-hosted usage metering for Stripe — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Meter Keeper — self-hosted usage metering for Stripe</span></span></nav>
+  <main>
+  <h1>Charge for usage without building a billing system.</h1>
+  <p>Meter Keeper is an open-source usage meter for small SaaS teams that bill through Stripe. Your app sends events; it counts each one exactly once, prices the month, tells your app when a customer is over a limit, and feeds Stripe Billing Meters with retries. You run it in your own account. First, try your pricing against real usage numbers. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Price a month of usage</h2>
+    <div class="cols">
+      <div><label for="plan">Pricing for one meter (JSON; money in cents)</label>
+<textarea id="plan" spellcheck="false">{
+  "base": 4900,
+  "line": {
+    "model": "graduated",
+    "included": 10000,
+    "tiers": [
+      { "upTo": 90000, "unit": 0.05 },
+      { "upTo": null, "unit": 0.03 }
+    ]
+  }
+}</textarea></div>
+      <div><label for="usage">Units used last month, one customer per line (name, quantity)</label>
+<textarea id="usage" spellcheck="false">acme, 8200
+globex, 46000
+initech, 120000
+umbrella, 410000
+hooli, 2300000</textarea></div>
+    </div>
+    <button id="sim-btn" type="button">Price it</button>
+    <p class="note err" id="sim-err" role="alert"></p>
+    <p class="note" id="sim-sum" aria-live="polite"></p>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Customer</th><th scope="col" class="n">Units</th><th scope="col" class="n">Bill</th><th scope="col" class="n">Per 1,000 units</th></tr></thead><tbody id="sim-rows"></tbody></table></div>
+    <p class="note">Models: <code>flat</code> (<code>unit</code>), <code>graduated</code> (each tier priced at its own rate), <code>volume</code> (the whole quantity at the rate of the tier it lands in; tiers may carry a <code>flat</code> fee) and <code>package</code> (<code>unit</code> per block of <code>size</code>). Tier limits count units after the included ones. Look at the right-hand column: if your biggest customers pay far less per unit than your smallest, that is the discount you chose.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the meter yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/meter-keeper
+cp meter-config.example.json meter-config.json      # your meters and plans
+API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mjs   # DRY_RUN=true until you change it
+
+curl -X POST localhost:8080/v1/events -H "authorization: Bearer $API_KEY" \
+  -d '{"id":"req_8f3a","customer":"acme","meter":"api_calls","value":1}'</pre>
+    <p class="note">Send the same <code>id</code> twice and the second is a harmless duplicate. Read back with <code>GET /v1/usage</code>, <code>/v1/invoice-preview</code>, <code>/v1/projection</code> and <code>/v1/check?customer=acme&amp;meter=api_calls&amp;quantity=1</code> (does this call fit the plan's limit?). To feed Stripe, create a Billing Meter with the same event name, give the server a restricted key that can write meter events, and set <code>DRY_RUN=false</code>. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Lago, OpenMeter, Orb or Metronome?</h3>
+    <p>Those are good products and the right choice if you need invoicing, tax and a full billing platform. Meter Keeper does one narrow job for a small team that already bills through Stripe: count usage exactly once, price it, enforce limits, and feed Stripe Billing Meters. It is one dependency-free Node process with a JSON file for state, so there is nothing to operate. If you outgrow it, your events are plain JSON you can replay elsewhere.</p>
+    <h3>What stops an event being counted twice?</h3>
+    <p>Every event carries an id you choose. Sending the same id again is reported as a duplicate and changes nothing, so your client can retry freely after a timeout. The same id is passed to Stripe as the meter event identifier, so a retry from this server cannot double-bill either.</p>
+    <h3>What happens when Stripe is down?</h3>
+    <p>Events are stored first and forwarded after, from a queue. A 5xx or rate-limit answer is retried with a growing delay for up to eight tries. A permanent error, such as a customer with no Stripe id, goes to a visible dead-letter list instead of vanishing. Stripe only accepts events up to 35 days old, so look at the queue at least weekly.</p>
+    <h3>Which pricing models are supported?</h3>
+    <p>Flat per unit, graduated tiers, volume tiers, and package pricing (a price per block of N units), each with free included units, an optional base fee, a monthly minimum and a hard usage limit. The invoice preview is a calculation from the usage this server has seen, not the invoice: your Stripe prices stay the source of truth for what a customer is charged.</p>
+    <h3>Is it safe to put real customer data in?</h3>
+    <p>Store only ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy and tax rules where you and your customers live.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../drip-keeper/">Drip Keeper</a> sends lifecycle email, <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn, <a href="../license-keeper/">License Keeper</a> issues license keys and <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a launch waitlist.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of your meter: you are responsible for the accuracy of what you send it, for what you charge your customers, and for backups. Invoice previews and projections are calculations, not invoices, and are not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { price } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const money = (c) => (c / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+    const row = (cells) => { const tr = document.createElement("tr"); cells.forEach((c, i) => { const td = document.createElement(i ? "td" : "th"); if (!i) td.scope = "row"; if (i) td.className = "n"; if (i === 0) td.className = ""; td.textContent = c; tr.append(td); }); $("sim-rows").append(tr); };
+    $("sim-btn").addEventListener("click", () => {
+      $("sim-err").textContent = ""; $("sim-rows").innerHTML = ""; $("sim-sum").textContent = "";
+      let plan;
+      try { plan = JSON.parse($("plan").value); if (!plan.line || !["flat", "graduated", "volume", "package"].includes(plan.line.model)) throw new Error('"line.model" must be flat, graduated, volume or package'); }
+      catch (e) { $("sim-err").textContent = "Pricing JSON problem: " + e.message; return; }
+      const lines = $("usage").value.split("\n").map((l) => l.trim()).filter(Boolean);
+      let total = 0, units = 0, n = 0;
+      for (const l of lines) {
+        const [name, q] = l.split(/[,\t]/).map((s) => s.trim()); const qty = Number(String(q).replace(/[_ ]/g, ""));
+        if (!name || !Number.isFinite(qty) || qty < 0) { $("sim-err").textContent = `Could not read "${l}". Use: name, quantity`; return; }
+        const bill = Math.max(Math.round(price(plan.line, qty)) + (plan.base || 0), plan.minimum || 0);
+        total += bill; units += qty; n++;
+        row([name, qty.toLocaleString("en-US"), money(bill), qty ? money((bill / qty) * 1000) : "-"]);
+      }
+      if (n) $("sim-sum").textContent = `${n} customers, ${units.toLocaleString("en-US")} units, ${money(total)} in total — ${money((total / units) * 1000)} per 1,000 units on average.`;
+      record("price");
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.stripe.com, github.com, and x, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../webhook-relay/" data-pf-to="webhook-relay">webhook-relay — keep webhooks safe while your app is down</a></li>
+      <li><a href="../cancel-flow/" data-pf-to="cancel-flow">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a></li>
+      <li><a href="../changelog-keeper/" data-pf-to="changelog-keeper">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a></li>
+      <li><a href="../churn-radar/" data-pf-to="churn-radar">Churn Radar — see who is about to cancel before they do</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=meter-keeper">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/meter-keeper/?pfEmbed=1&quot; title=&quot;Meter Keeper — self-hosted usage metering for Stripe — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="meter-keeper"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/meter-keeper/" data-pf-embed-title="Meter Keeper — self-hosted usage metering for Stripe" data-pf-embed-slug="meter-keeper"></script>
+</body>
+</html>

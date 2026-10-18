@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet | Security Deposit Return Calculator</title>
+  <meta name="description" content="A spreadsheet can subtract deductions from a deposit. It won't flag an unlabeled line item, prorate the interest a jurisdiction requires…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet | Security Deposit Return Calculator">
+  <meta property="og:description" content="A spreadsheet totals a deposit minus deductions fine. Where it quietly goes wrong: prorated interest, an unlabeled deduction…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a security deposit refund just deposit minus deductions?","acceptedAnswer":{"@type":"Answer","text":"The subtraction is trivial and a spreadsheet does it fine. What a plain spreadsheet does not do on its own is flag a deduction with no description, catch the case where deductions exceed the deposit (a balance owed, not a refund), or keep the copy you send the other party from silently drifting away from the number your own sheet shows — because that copy usually gets retyped by hand into an email."}},{"@type":"Question","name":"Why is prorating deposit interest harder in a spreadsheet than it looks?","acceptedAnswer":{"@type":"Answer","text":"Interest is deposit times the jurisdiction's annual rate times days held over 365, and every deposit calculator or landlord's own sheet has to encode that formula once and then trust it every time a rate or a day count changes. Enter a rate with no day count, or a day count with no rate, and a spreadsheet cell just returns zero with no explanation — this calculator flags that combination explicitly instead of returning a silent zero."}},{"@type":"Question","name":"What's actually different about the itemized statement this produces?","acceptedAnswer":{"@type":"Answer","text":"The statement is generated from the exact settlement figures already on screen, not retyped from them. Editing a deduction after calculating, without recalculating, disables the copy button rather than handing out a statement that disagrees with the table above it — a spreadsheet-to-email copy has no equivalent safeguard, because the retype is a separate, unchecked step."}},{"@type":"Question","name":"Does this replace a landlord's own record-keeping spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or ledger that tracks every tenant, every deposit, and every move-out date over years is still the right tool for that ongoing record. This page answers one settlement at a time — what does this deposit refund to, or what does this partial month prorate to — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #2a6b8e; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.02em; line-height: 1.1; color: #1f4a5d; }
+    h2 { color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5a68; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #2a6b8e; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .85rem; color: #4c5a68; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet | Security Deposit Return Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-deposit-return-calculator/">Security Deposit Refund &amp; Prorated Rent Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet | Security Deposit Return Calculator</span></span></nav>
+  <p><a href="./">&larr; Security deposit refund &amp; prorated rent calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A lot of landlords and tenants already reach for a spreadsheet at
+    move-out: one column for each deduction, a subtotal, a formula that
+    subtracts it from the deposit. That arithmetic is trivial and a
+    spreadsheet does it fine. What it does not do on its own is <strong>flag
+    the mistakes that actually cause disputes</strong>: an unlabeled
+    deduction, a balance that has quietly gone negative, an interest formula
+    entered once and never rechecked, or a statement that drifted from the
+    sheet because it was retyped into an email by hand.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What's the deposit minus the deductions?</td>
+        <td>Either one &mdash; a spreadsheet subtracts fine.</td>
+      </tr>
+      <tr>
+        <td>Did I forget to describe one of the deduction line items?</td>
+        <td>This calculator &mdash; flags any deduction with no description before you send it.</td>
+      </tr>
+      <tr>
+        <td>Do the deductions exceed the deposit &mdash; is this a refund or a balance owed?</td>
+        <td>This calculator &mdash; labels the result explicitly rather than leaving a negative cell to interpret.</td>
+      </tr>
+      <tr>
+        <td>My jurisdiction requires deposit interest. What's the prorated amount?</td>
+        <td>This calculator &mdash; enter the rate and days held; a rate with no days (or the reverse) is flagged instead of silently returning zero.</td>
+      </tr>
+      <tr>
+        <td>Can I send the other party a statement that can't drift from my own numbers?</td>
+        <td>This calculator &mdash; the copy button builds the statement from the settlement already on screen, and disables itself if you edit an input without recalculating.</td>
+      </tr>
+      <tr>
+        <td>Is anything I enter uploaded anywhere?</td>
+        <td>No, on either &mdash; but this calculator needs no account, no template, and no formula to maintain.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Calculate a refund or prorated rent now</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and the deposit amount, every
+    deduction, and every rent figure you enter stay on this device &mdash;
+    nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Isn't a security deposit refund just deposit minus deductions?</h3>
+  <p>The subtraction is trivial and a spreadsheet does it fine. What a plain spreadsheet does not do on its own is flag a deduction with no description, catch the case where deductions exceed the deposit (a balance owed, not a refund), or keep the copy you send the other party from silently drifting away from the number your own sheet shows &mdash; because that copy usually gets retyped by hand into an email.</p>
+  <h3>Why is prorating deposit interest harder in a spreadsheet than it looks?</h3>
+  <p>Interest is deposit times the jurisdiction's annual rate times days held over 365, and every deposit calculator or landlord's own sheet has to encode that formula once and then trust it every time a rate or a day count changes. Enter a rate with no day count, or a day count with no rate, and a spreadsheet cell just returns zero with no explanation &mdash; this calculator flags that combination explicitly instead of returning a silent zero.</p>
+  <h3>What's actually different about the itemized statement this produces?</h3>
+  <p>The statement is generated from the exact settlement figures already on screen, not retyped from them. Editing a deduction after calculating, without recalculating, disables the copy button rather than handing out a statement that disagrees with the table above it &mdash; a spreadsheet-to-email copy has no equivalent safeguard, because the retype is a separate, unchecked step.</p>
+  <h3>Does this replace a landlord's own record-keeping spreadsheet?</h3>
+  <p>No. A spreadsheet or ledger that tracks every tenant, every deposit, and every move-out date over years is still the right tool for that ongoing record. This page answers one settlement at a time &mdash; what does this deposit refund to, or what does this partial month prorate to &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it settled a deposit dispute, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ie-self-employed-tax-set-aside-calculator/" data-pf-to="ie-self-employed-tax-set-aside-calculator">Ireland Self-Employed Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../in-freelancer-advance-tax-set-aside-calculator/" data-pf-to="in-freelancer-advance-tax-set-aside-calculator">India Freelancer Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../inherited-ira-10-year-withdrawal-planner/" data-pf-to="inherited-ira-10-year-withdrawal-planner">Inherited IRA 10-Year Rule Calculator 2026 — withdrawal plan, free</a></li>
+      <li><a href="../insurance-agency-book-valuation-calculator/" data-pf-to="insurance-agency-book-valuation-calculator">Insurance Agency Book Valuation Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-deposit-return-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-deposit-return-calculator"></script>
+</body>
+</html>

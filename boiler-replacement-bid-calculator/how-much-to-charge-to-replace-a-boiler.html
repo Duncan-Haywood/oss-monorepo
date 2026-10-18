@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much to Charge to Replace a Boiler | Boiler Bid</title>
+  <meta name="description" content="How much to charge to replace a boiler: price the plant, hot water versus steam, like-for-like versus a steam conversion, and extras…">
+  <meta property="og:title" content="How Much to Charge to Replace a Boiler">
+  <meta property="og:description" content="A hydronic tech's walkthrough of MBH-versus-scope math, zones, liners, and the walk-away price a boiler special cannot see.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to replace a boiler?","acceptedAnswer":{"@type":"Answer","text":"Charge from input MBH, system, scope, and extras — not a published $4,500 boiler special. An 80 MBH gas hot-water like-for-like swap with two zones is a different job from a 140 MBH oil steam-to-hot-water conversion with four zones, an indirect tank, and a chimney liner."}},{"@type":"Question","name":"Is a like-for-like swap the same bid as a steam-to-hot-water conversion?","acceptedAnswer":{"@type":"Answer","text":"No. Like-for-like drops a same-fuel, same-system plant in the same size class. A condensing upgrade is a vent and condensate change. Steam-to-hot-water is a piping job plus the plant. Matching a boiler special on a steam conversion is how a sold changeout becomes a loss when the piping and the liner eat the margin."}},{"@type":"Question","name":"How do zones, a liner, and an indirect change a boiler price?","acceptedAnswer":{"@type":"Answer","text":"Hot water is circulators and zone valves. Steam is a Hartford loop and a low-water cutoff. An indirect water heater, a chimney liner, oil-to-gas, and primary/secondary piping do not live in a published boiler special."}},{"@type":"Question","name":"Is this the same as a furnace, a water heater, or a mini-split?","acceptedAnswer":{"@type":"Answer","text":"No. A furnace is forced air, AFUE, and a matching coil. A water heater is a tank or tankless, not a hydronic plant. A mini-split is a line-set and heads. This prices a boiler changeout: input MBH, system, scope, and extras."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"How to bid a boiler replacement","step":[{"@type":"HowToStep","name":"Size the plant","text":"Input MBH, plus the number of heating zones. This is not a furnace changeout and it is not a water-heater swap."},{"@type":"HowToStep","name":"Pick the system","text":"Hot water / hydronic, or steam. Each has different hours per zone and hardware."},{"@type":"HowToStep","name":"Pick the scope","text":"Like-for-like, condensing upgrade, or steam-to-hot-water. Each has different plant hours and a different boiler invoice."},{"@type":"HowToStep","name":"Price the fuel","text":"Natural gas is the cheap-special assumption. Oil is a burner and a tank. Propane is an orifice and a regulator."},{"@type":"HowToStep","name":"Add extras","text":"An indirect water heater, a chimney liner, oil-to-gas, and primary/secondary piping are their own tickets."},{"@type":"HowToStep","name":"Load wage, overhead, and margin","text":"Price is cost divided by one minus the target margin. The walk-away number is total cost."}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2f36; background: #e8edf2; }
+    body { max-width: 720px; margin: 0 auto; padding: 36px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { margin-top: 2rem; }
+    a { color: #8a3a22; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #2a2018; color: #f4eee6; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 36px; font-size: .85rem; color: #5a616b; }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/how-much-to-charge-to-replace-a-boiler.html">
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/how-much-to-charge-to-replace-a-boiler.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much to Charge to Replace a Boiler — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../boiler-replacement-bid-calculator/">Boiler Replacement Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much to Charge to Replace a Boiler</span></span></nav>
+  <p><a href="index.html">← Boiler replacement bid calculator</a></p>
+  <h1>How much to charge to replace a boiler</h1>
+  <p>Hydronic and steam techs get shopped on a published <strong>$4,500 installed boiler</strong> Facebook special. Those numbers cannot see the system or the extras. An 80 MBH gas hot-water like-for-like swap with two zones is a different job from a 140 MBH oil steam-to-hot-water conversion with four zones, an indirect tank, and a chimney liner.</p>
+  <a class="cta" href="index.html">Open the free boiler replacement bid calculator</a>
+
+  <h2>Price the plant and the extras, not the $4,500 dump</h2>
+  <p>A boiler changeout is a plant, then a system, then how much of that plant is actually sold. Like-for-like drops a same-fuel, same-system boiler in the same size class. A condensing upgrade is a vent and condensate change. Steam-to-hot-water is a piping job plus the plant. Hot water is circulators and zone valves. Steam is a Hartford loop and a low-water cutoff.</p>
+
+  <h2>Like-for-like is not a steam conversion</h2>
+  <p>The cheap special is almost always an 80 MBH gas hydronic swap, two zones, no liner, no indirect. A steam-to-hot-water conversion is a different crew week. Matching a per-MBH number on a conversion job is how a sold boiler becomes a loss when the piping and the liner eat the margin.</p>
+
+  <h2>This is not a furnace, a water heater, or a mini-split</h2>
+  <p>A furnace is forced air, AFUE, and a matching coil. A water heater is a tank or tankless, not a hydronic plant. A mini-split is a line-set and heads. A fireplace insert is a liner in a firebox. A chimney sweep is a flue cleaning. This prices a boiler changeout: input MBH, system, scope, and extras.</p>
+
+  <h2>Walk-away price</h2>
+  <p>Load the wage with payroll burden. Add overhead as a share of direct cost. Then take margin as a share of the customer’s price, not a markup on cost. The walk-away number is total cost. A proposed price under that number loses money before you take anything out of it.</p>
+
+  <p>This page is a walkthrough of the arithmetic in the <a href="index.html">boiler replacement bid calculator</a>. Standing on a no-heat call? <a href="should-i-patch-this-boiler-for-one-more-winter.html">Should I patch this boiler for one more winter?</a> They already bought the unit? <a href="should-i-install-a-customer-supplied-boiler.html">Should I install a customer-supplied boiler?</a> Saturday no-heat? <a href="should-i-take-a-saturday-boiler-call.html">Should I take a Saturday boiler call?</a> It is not a heat-loss calculation, a fuel-gas code determination, a chimney design, or a price you should copy onto a contract.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge to replace a boiler?</h3>
+  <p>Charge from input MBH, system, scope, and extras — not a published $4,500 boiler special. An 80 MBH gas hot-water like-for-like swap with two zones is a different job from a 140 MBH oil steam-to-hot-water conversion with four zones, an indirect tank, and a chimney liner.</p>
+  <h3>Is a like-for-like swap the same bid as a steam-to-hot-water conversion?</h3>
+  <p>No. Like-for-like drops a same-fuel, same-system plant in the same size class. A condensing upgrade is a vent and condensate change. Steam-to-hot-water is a piping job plus the plant. Matching a boiler special on a steam conversion is how a sold changeout becomes a loss when the piping and the liner eat the margin.</p>
+  <h3>How do zones, a liner, and an indirect change a boiler price?</h3>
+  <p>Hot water is circulators and zone valves. Steam is a Hartford loop and a low-water cutoff. An indirect water heater, a chimney liner, oil-to-gas, and primary/secondary piping do not live in a published boiler special.</p>
+  <h3>Is this the same as a furnace, a water heater, or a mini-split?</h3>
+  <p>No. A furnace is forced air, AFUE, and a matching coil. A water heater is a tank or tankless, not a hydronic plant. A mini-split is a line-set and heads. This prices a boiler changeout: input MBH, system, scope, and extras.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is. It is not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice. Verify every figure against your own boiler invoices and crew times before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools may be moved or taken offline without notice. Do not use this as a system of record.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../hvac-maintenance-contract-calculator/" data-pf-to="hvac-maintenance-contract-calculator">HVAC Maintenance Contract Pricing Calculator</a></li>
+      <li><a href="../mini-split-bid-calculator/" data-pf-to="mini-split-bid-calculator">Mini-Split Install Bid Calculator</a></li>
+      <li><a href="../security-camera-bid-calculator/" data-pf-to="security-camera-bid-calculator">Security Camera Installation Bid Calculator</a></li>
+      <li><a href="../septic-pumping-bid-calculator/" data-pf-to="septic-pumping-bid-calculator">Septic Pumping Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=boiler-replacement-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="boiler-replacement-bid-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Service Hourly Yield Analyzer — Revenue Per Booked Hour From Your Booking Export</title>
+  <meta name="description" content="Free tool for salons, barbers, spas, trainers, tutors and detailers: drop in your booking or sales export and see revenue per booked hour by service, stylist…">
+  <meta property="og:title" content="Service Hourly Yield Analyzer — free, private, in your browser">
+  <meta property="og:description" content="Revenue per booked hour by service, staff, weekday and hour from a booking export, with low-yield flags, a price-change what-if and the value of idle hours.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Service Hourly Yield Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a booking or sales export and reports revenue per booked hour by service, staff member, weekday and hour of day, flags the low-yield services, and estimates a price change and the value of idle hours from your own assumptions. Runs entirely in your browser; the file is never uploaded.", "featureList": "Revenue per hour by service, by staff, by weekday, by hour, low-yield service flags, price increase what-if, idle hours value, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find my revenue per hour by service from a Square Appointments, Acuity, Vagaro, Fresha or Booksy export?", "acceptedAnswer": {"@type": "Answer", "text": "Export your appointments or sales list as a CSV with the service, start date, duration (or end time) and price, drop it here and click Analyze. The tool divides the price of each completed booking by its length, adds up the dollars and the hours for each service, and reports dollars per booked hour. A service that takes three times as long has to earn three times as much just to break even with a quick one."}}, {"@type": "Question", "name": "Why is revenue per hour more useful than revenue per appointment?", "acceptedAnswer": {"@type": "Answer", "text": "A $150 colour that holds the chair for 150 minutes earns $60 an hour, and a $45 haircut that takes 30 minutes earns $90 an hour. Ranking services by ticket size hides that. Dollars per booked hour shows which services use your limited hours best and which ones quietly cost you money."}}, {"@type": "Question", "name": "Which bookings are counted?", "acceptedAnswer": {"@type": "Answer", "text": "Completed bookings that have both a readable price and a readable duration or end time. No-shows are shown separately as empty chair time. Bookings cancelled by the client or the business and bookings still open are left out. If the file has no status column, every row is treated as completed."}}, {"@type": "Question", "name": "What does the price-change what-if assume?", "acceptedAnswer": {"@type": "Answer", "text": "You type a price increase percentage and the share of bookings you expect to lose on the flagged low-yield services. The tool applies both to those services' revenue in the file and reports the change. Both numbers are your assumptions, not a forecast, and the freed hours are not assumed to be refilled."}}, {"@type": "Question", "name": "What is the capacity figure?", "acceptedAnswer": {"@type": "Answer", "text": "If you type the hours you are open for bookings each week, the tool compares them with the hours booked per week in the file (attended plus no-shows) and shows idle hours and what one more filled hour a week is worth at your average yield. It ignores breaks, admin time, walk-ins and staff who work part-time, so treat it as a rough gauge."}}, {"@type": "Question", "name": "Is my client and sales data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors."}}, {"@type": "Question", "name": "Which file formats and column names does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Comma, semicolon, tab or pipe separated text, including UTF-8 with a byte order mark and UTF-16, with quoted fields. Durations can be minutes, hours, 1h 30m or 1:30, or you can supply an end time instead. Column names and status words are matched by alias and no real Square Appointments, Acuity, Vagaro, Fresha, Booksy, Mindbody or Jobber export was available when this was written; if your file is not read, the message names what was missing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .few { color: #6a7580; font-style: italic; }
+    .bar { display: inline-block; height: 8px; background: #2f7d5b; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Service Hourly Yield Analyzer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Service Hourly Yield Analyzer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Service Hourly Yield Analyzer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SERVICE HOURLY YIELD ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your services actually earns money for the hour it takes?</h1>
+    <p>Drop in the <strong>booking or sales export</strong> from your scheduling app and get <strong>revenue per booked hour</strong> by <strong>service, staff member, weekday and hour of day</strong>, the services that earn the <strong>least for the chair time they use</strong>, what a <strong>price change</strong> on them could be worth, and what your <strong>idle hours</strong> cost.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Square, Acuity, Vagaro, Fresha, Booksy, Mindbody and Jobber: not affiliated with or endorsed by any of them. Figures are estimates from your file and your assumptions.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your export and your assumptions</h2>
+    <p class="note">Needs a <strong>start date</strong>, a <strong>price</strong> and a <strong>duration</strong> (minutes, hours, 1h 30m or 1:30) or an <strong>end time</strong>. <strong>Service</strong>, <strong>staff</strong> and <strong>status</strong> columns are used when present. <strong>Column names are matched by alias and unverified against real exports.</strong></p>
+    <label for="file">Booking export CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Stylist,Service,Start Time,Duration (min),Status,Price"></textarea>
+    <div class="grid">
+      <div><label for="lowpct">Flag a service earning under this % of your average per hour</label><input type="number" id="lowpct" value="75" min="0" max="100" step="1" inputmode="numeric"></div>
+      <div><label for="dateorder">Dates like 03/04/2026 are</label><select id="dateorder"><option value="auto">Detect from the file</option><option value="mdy">Month first (03/04 = March 4)</option><option value="dmy">Day first (03/04 = 3 April)</option></select></div>
+      <div><label for="open">Hours you are open for bookings per week (optional)</label><input type="number" id="open" value="0" min="0" max="168" step="1" inputmode="numeric"></div>
+    </div>
+    <h3>Price-change what-if (your assumptions)</h3>
+    <div class="grid">
+      <div><label for="up">Raise the price of flagged services by, %</label><input type="number" id="up" value="10" min="0" max="500" step="1" inputmode="numeric"></div>
+      <div><label for="loss">Bookings of those services you expect to lose, %</label><input type="number" id="loss" value="5" min="0" max="100" step="1" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze bookings</button>
+      <button type="button" class="secondary" id="load-example">Load sample data</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the export file or paste it, then click Analyze bookings.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Price-change what-if</h3>
+    <p class="stats" id="what-if"></p>
+    <h3>Capacity</h3>
+    <p class="stats" id="capacity"></p>
+    <h3>By service</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Service</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">vs overall</th><th class="n" scope="col">Avg. length</th><th class="n" scope="col">Avg. price</th><th class="n" scope="col">Share of hours</th></tr></thead><tbody id="by-service"></tbody></table></div></div>
+    <h3>By staff</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Staff</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">vs overall</th><th class="n" scope="col">Avg. length</th><th class="n" scope="col">Avg. price</th><th class="n" scope="col">Share of hours</th></tr></thead><tbody id="by-staff"></tbody></table></div></div>
+    <h3>By weekday</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Weekday</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">vs overall</th><th class="n" scope="col">Avg. length</th><th class="n" scope="col">Avg. price</th><th class="n" scope="col">Share of hours</th></tr></thead><tbody id="by-weekday"></tbody></table></div></div>
+    <h3>By hour of day</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Starts at</th><th class="n" scope="col">Bookings</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">vs overall</th><th class="n" scope="col">Avg. length</th><th class="n" scope="col">Avg. price</th><th class="n" scope="col">Share of hours</th></tr></thead><tbody id="by-hour"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download tables as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Counted bookings:</strong> completed bookings with both a readable price and a readable duration (or end time). No-shows with a known length are shown as empty chair time. Client and business cancellations and bookings still open are left out. With no status column, every row counts as completed.</li>
+      <li><strong>Revenue per booked hour</strong> is the summed price divided by the summed hours of the same bookings, not an average of per-booking rates, so long bookings weigh in proportion to their time.</li>
+      <li><strong>Missing values are never guessed.</strong> A row with no price or no duration is left out of the yield and counted, so the hours in every denominator are the hours the dollars came from.</li>
+      <li><strong>Low-yield flag:</strong> a service with at least 5 bookings earning under the percentage you type of your overall figure. A group under 5 bookings is marked as a small sample and never named best or worst.</li>
+      <li><strong>Price-change what-if:</strong> the flagged services' revenue times (1 + your increase) times (1 − your expected volume loss). Both are your assumptions, not a forecast; freed hours are not assumed to be refilled, and demand, competitors and clients who leave are not modelled.</li>
+      <li><strong>Capacity:</strong> booked hours (attended plus no-shows) per week over the span of the file against the open hours you type. Breaks, admin time, walk-ins and part-time staff are not modelled.</li>
+      <li><strong>Reconciles.</strong> The service rows add up to the total revenue and hours at the top; weekday rows do too; hour-of-day rows add up over bookings that carry a start time.</li>
+      <li><strong>Not modelled:</strong> product sales, tips, processing fees, commissions and wages, supply costs, prep and clean-up time between bookings, and anything not in the file. Revenue per hour is not profit per hour.</li>
+      <li><strong>Unverified:</strong> column names and status words are matched by alias and no real Square Appointments, Acuity, Vagaro, Fresha, Booksy, Mindbody or Jobber export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find my revenue per hour by service from a Square Appointments, Acuity, Vagaro, Fresha or Booksy export?</h3>
+    <p>Export your appointments or sales list as a CSV with the service, start date, duration (or end time) and price, drop it here and click Analyze. The tool divides the price of each completed booking by its length, adds up the dollars and the hours for each service, and reports dollars per booked hour. A service that takes three times as long has to earn three times as much just to break even with a quick one.</p>
+    <h3>Why is revenue per hour more useful than revenue per appointment?</h3>
+    <p>A $150 colour that holds the chair for 150 minutes earns $60 an hour, and a $45 haircut that takes 30 minutes earns $90 an hour. Ranking services by ticket size hides that. Dollars per booked hour shows which services use your limited hours best and which ones quietly cost you money.</p>
+    <h3>Which bookings are counted?</h3>
+    <p>Completed bookings that have both a readable price and a readable duration or end time. No-shows are shown separately as empty chair time. Bookings cancelled by the client or the business and bookings still open are left out. If the file has no status column, every row is treated as completed.</p>
+    <h3>What does the price-change what-if assume?</h3>
+    <p>You type a price increase percentage and the share of bookings you expect to lose on the flagged low-yield services. The tool applies both to those services' revenue in the file and reports the change. Both numbers are your assumptions, not a forecast, and the freed hours are not assumed to be refilled.</p>
+    <h3>What is the capacity figure?</h3>
+    <p>If you type the hours you are open for bookings each week, the tool compares them with the hours booked per week in the file (attended plus no-shows) and shows idle hours and what one more filled hour a week is worth at your average yield. It ignores breaks, admin time, walk-ins and staff who work part-time, so treat it as a rough gauge.</p>
+    <h3>Is my client and sales data uploaded?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors.</p>
+    <h3>Which file formats and column names does it read?</h3>
+    <p>Comma, semicolon, tab or pipe separated text, including UTF-8 with a byte order mark and UTF-16, with quoted fields. Durations can be minutes, hours, 1h 30m or 1:30, or you can supply an end time instead. Column names and status words are matched by alias and no real Square Appointments, Acuity, Vagaro, Fresha, Booksy, Mindbody or Jobber export was available when this was written; if your file is not read, the message names what was missing.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Pricing decisions are yours.</p>
+    <p><strong>Not affiliated with Square, Acuity, Vagaro, Fresha, Booksy, Mindbody or Jobber.</strong> These and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Export layouts change; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> and the <a href="../booth-rent-vs-commission/">booth rent vs commission calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const dash = (x, f) => (x === null || x === undefined ? "–" : f(x));
+
+    function tableRows(list) {
+      if (!list.length) return null;
+      const top = Math.max(...list.map((r) => r.yield || 0), 1);
+      return list.map((r) => `<tr class="${r.lowSample ? "few" : ""}"><th scope="row">${esc(r.label)}${r.lowSample ? " (few bookings)" : ""}</th><td class="n">${r.bookings}</td><td class="n">${r.hours}</td><td class="n">${usd(r.revenue)}</td><td class="n">${dash(r.yield, usd)}<span class="bar" style="width:${Math.round(((r.yield || 0) / top) * 60)}px"></span></td><td class="n">${dash(r.vsOverallPct, (x) => Math.round(x) + "%")}</td><td class="n">${dash(r.avgMinutes, (x) => x + " min")}</td><td class="n">${dash(r.avgPrice, usd)}</td><td class="n">${dash(r.shareHours, (x) => x.toFixed(1) + "%")}</td></tr>`).join("");
+    }
+    const fill = (id, list, none) => { $(id).innerHTML = tableRows(list) || `<tr><td colspan="9" class="note">${none}</td></tr>`; };
+
+    function run(text) {
+      const d = detectDelimiter(text);
+      const n = normalizeBookings(parseCsv(text, d), { decimalComma: d === ";", dateOrder: $("#dateorder").value });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const a = analyze(n.records, { lowYieldPct: num("#lowpct", 75), priceUpPct: num("#up", 0), volumeLossPct: num("#loss", 0), openHoursPerWeek: num("#open", 0) });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      const s = a.summary, w = a.whatIf, c = a.capacity;
+      $("#big").innerHTML = [[dash(s.yield, usd), "revenue per booked hour"], [usd(s.revenue), `revenue over ${s.hours} booked hours`], [dash(s.avgPrice, usd), `average booking (${s.avgMinutes ?? "–"} min)`], [s.noShowHours + " h", "empty chair time from no-shows"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `${s.firstDay} to ${s.lastDay} (${s.spanDays} days). ${s.completed} completed booking(s), ${s.usedInYield} with both a price and a length. ${s.noShows} no-show, ${s.leftOut} cancelled or open and left out.` + (n.hasStatus ? "" : " The file has no status column, so every row was treated as completed.");
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#what-if").innerHTML = w.flagged.length ? `Your assumptions: raise ${esc(w.flagged.join(", "))} by ${w.priceUpPct}% and lose ${w.volumeLossPct}% of their bookings. On ${usd(w.flaggedRevenue)} of revenue over ${w.flaggedHours} hours that changes revenue by <strong>${w.gain < 0 ? "-" : "+"}${usd(Math.abs(w.gain))}</strong> over the period in the file, about <strong>${usd(w.gainPerYear)} a year</strong>, and frees ${w.freedHours} hours you could fill with higher-yield work. These are your assumptions, not a forecast.` : `No service with enough bookings earns under ${w.lowYieldPct}% of your average per hour, so there is nothing to flag. Raise the threshold to flag more.`;
+      $("#capacity").textContent = c ? `${c.heldPerWeek} booked hours a week against ${c.openHours} open (${c.utilizationPct.toFixed(0)}%)` + (c.overCapacity ? ". That is above your open hours, so check the hours you typed or whether the file covers more than one chair." : `, about ${c.idlePerWeek} idle hours a week. At your average of ${usd(s.yield ?? 0)} an hour, each extra hour filled per week is worth about ${usd(c.valuePerFilledHourYear ?? 0)} a year.`) : "Type the hours you are open per week above to see utilisation and the value of idle hours.";
+      fill("#by-service", a.byService, "No services.");
+      fill("#by-staff", a.byStaff, "The file has no staff column.");
+      fill("#by-weekday", a.byWeekday, "No dates.");
+      fill("#by-hour", a.byHour, "The file has no appointment times, so there is no hour-of-day breakdown.");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") + ".");
+      if (n.ambiguousDates) notes.push("Every date in the file could be read month-first or day-first; month-first was assumed. Change the date setting if that is wrong.");
+      notes.push("Columns read: " + Object.entries(n.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = `Read ${n.records.length} booking row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the export file or paste it first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const text = sampleCsv();
+      $("#paste").value = text; $("#file").value = "";
+      if (run(text)) { record("example_loaded"); status.textContent = "Sample data: an invented salon, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the export file or paste it, then click Analyze bookings."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "hourly-yield-report.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../medicare-irmaa-cliff-calculator/" data-pf-to="medicare-irmaa-cliff-calculator">Medicare IRMAA Cliff Calculator — free, 2026</a></li>
+      <li><a href="../mega-backdoor-roth-calculator/" data-pf-to="mega-backdoor-roth-calculator">Mega Backdoor Roth 401(k) Calculator</a></li>
+      <li><a href="../merchant-cash-advance-true-cost-calculator/" data-pf-to="merchant-cash-advance-true-cost-calculator">Merchant Cash Advance True Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../meta-ads-fatigue-analyzer/" data-pf-to="meta-ads-fatigue-analyzer">Meta Ads Fatigue Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=service-hourly-yield-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/?pfEmbed=1&quot; title=&quot;Service Hourly Yield Analyzer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="service-hourly-yield-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/" data-pf-embed-title="Service Hourly Yield Analyzer — free, private, in your browser" data-pf-embed-slug="service-hourly-yield-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="service-hourly-yield-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="service-hourly-yield-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

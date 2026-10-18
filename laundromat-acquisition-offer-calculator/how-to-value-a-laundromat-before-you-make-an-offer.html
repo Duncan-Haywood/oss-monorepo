@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to value a laundromat before you make an offer: a worked example</title>
+  <meta name="description" content="How to work out what to pay for a laundromat: adjusted cash flow, a manager and machine reserve, a cash-flow multiple and debt coverage…">
+  <meta property="og:title" content="How to value a laundromat before you make an offer: a worked example">
+  <meta property="og:description" content="How to work out what to pay for a laundromat: adjusted cash flow, a manager and machine reserve, a cash-flow multiple and debt coverage…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/how-to-value-a-laundromat-before-you-make-an-offer.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I pay for a laundromat?","acceptedAnswer":{"@type":"Answer","text":"Price it off adjusted cash flow, not revenue: take the yearly revenue, subtract utilities, rent, labor, repairs, insurance and supplies, a paid manager if you will not work the store, and a reserve for replacing machines. Buyers commonly pay a multiple of that number, often around 3 to 4 times, then check that the cash flow can pay the loan with room to spare. The lower of the two limits is the price to walk away at."}},{"@type":"Question","name":"What is a good debt service coverage ratio for a laundromat loan?","acceptedAnswer":{"@type":"Answer","text":"Lenders usually want the cash flow to cover the yearly loan payments at least 1.25 times, so a 25% cushion. This calculator solves for the largest loan a cash flow can carry at the coverage you enter, then shows what happens to coverage if revenue falls 10% or 20%."}},{"@type":"Question","name":"Why include a manager and a machine reserve if I will run it myself?","acceptedAnswer":{"@type":"Answer","text":"Because the next owner may not, and because the books you are shown rarely pay the owner for their own hours. Counting a manager keeps the price honest if you ever step back, and a reserve for washers and dryers stops an old equipment room from looking like free cash flow."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this financial, tax or lending advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Verify the seller's revenue from meter reads, card-system reports and bank deposits, and check any offer with an accountant, broker or lender before you make it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/how-to-value-a-laundromat-before-you-make-an-offer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to value a laundromat before you make an offer: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../laundromat-acquisition-offer-calculator/">Laundromat Acquisition Offer Calculator — what to pay and what the loan can carry</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to value a laundromat before you make an offer: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">Laundromat Acquisition Offer Calculator</a> · guide</p>
+    <h1>How to value a laundromat before you make an offer: a worked example</h1>
+    <p>The asking price is the seller's number. Yours comes from the cash the store really leaves a hands-off owner, and from what a lender will let that cash pay for. Work out both before you make an offer, and offer under the lower.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A store takes in <strong>$360,000</strong> a year. Utilities cost $98,000, rent $60,000, attendants $42,000, repairs $18,000 and insurance, supplies and fees $14,000. You will not work the store, so a manager costs $36,000, and you set aside $15,000 a year to replace machines. Adjusted cash flow is <strong>$77,000</strong>.</p>
+    <p>At 3.5x that is $269,500. A 10-year loan at 10.5% covering 85% of the price, with 1.25x coverage required, could carry a price up to $447,565. The lower, the multiple, makes the walk-away price <strong>$269,500</strong>. Three prices against it:</p>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th>Offer</th><th>Price</th><th>Coverage</th><th>Walk-away</th></tr></thead><tbody>
+<tr><td>Asking price</td><td>$340,000</td><td>1.65x</td><td>Above</td></tr>
+<tr><td>Counter</td><td>$290,000</td><td>1.93x</td><td>Above</td></tr>
+<tr><td>Opening offer</td><td>$250,000</td><td>2.24x</td><td>Within</td></tr>
+    </tbody></table></div></div>
+    <p>The asking price is cash-flow positive and would clear the loan, so the seller will say it is a fair deal. But it is 4.42 times cash flow, and with revenue down 10% coverage falls to 1.09x, thin enough that a bad winter becomes a missed payment. A drop in revenue of about 15.2% uses up the whole cushion even at the walk-away price.</p>
+    <p><a href="./index.html">Run your own numbers</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I pay for a laundromat?</h3>
+    <p>Price it off adjusted cash flow, not revenue: take the yearly revenue, subtract utilities, rent, labor, repairs, insurance and supplies, a paid manager if you will not work the store, and a reserve for replacing machines. Buyers commonly pay a multiple of that number, often around 3 to 4 times, then check that the cash flow can pay the loan with room to spare. The lower of the two limits is the price to walk away at.</p>
+    <h3>What is a good debt service coverage ratio for a laundromat loan?</h3>
+    <p>Lenders usually want the cash flow to cover the yearly loan payments at least 1.25 times, so a 25% cushion. This calculator solves for the largest loan a cash flow can carry at the coverage you enter, then shows what happens to coverage if revenue falls 10% or 20%.</p>
+    <h3>Why include a manager and a machine reserve if I will run it myself?</h3>
+    <p>Because the next owner may not, and because the books you are shown rarely pay the owner for their own hours. Counting a manager keeps the price honest if you ever step back, and a reserve for washers and dryers stops an old equipment room from looking like free cash flow.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this financial, tax or lending advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Verify the seller's revenue from meter reads, card-system reports and bank deposits, and check any offer with an accountant, broker or lender before you make it.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not financial, tax, legal or lending advice. <strong>Use at your own risk.</strong> A business purchase can lose money and the result is only as good as the revenue and costs you enter; check any offer with an accountant, broker or lender.</p>
+    <p><strong>Independent.</strong> Not affiliated with any broker, marketplace, lender or equipment maker, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../laundromat-machine-payback-calculator/">laundromat machine payback calculator</a> and the <a href="../wash-and-fold-price-calculator/">wash-and-fold price calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    document.getElementById("optout").addEventListener("click", () => { setUsageOptOut(true); const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+      <li><a href="../childcare-enrollment-mix-optimizer/" data-pf-to="childcare-enrollment-mix-optimizer">Childcare enrollment mix optimizer</a></li>
+      <li><a href="../childcare-tuition-calculator/" data-pf-to="childcare-tuition-calculator">Daycare Tuition Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=laundromat-acquisition-offer-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="laundromat-acquisition-offer-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. ServiceCore | Porta Potty Event Quote Calculator</title>
+<meta name="description" content="ServiceCore is an ongoing business-management platform built for portable restroom, septic, and dumpster rental operators.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/vs-servicecore.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. ServiceCore">
+<meta property="og:description" content="Two different shapes: ServiceCore runs a portable sanitation yard's whole fleet and route operation.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or ServiceCore?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a portable sanitation yard of any size will likely end up touching both eventually. ServiceCore, founded in 2017, builds business-management software specifically for portable restroom, septic, and dumpster rental operators — the company says it hires more people out of the portable sanitation and dumpster industries than any other software company in that space. It bundles customer and asset management, route planning and scheduling, and accounting tools including estimates, invoices, and payment processing into one ongoing account, aimed at operators running multiple trucks across a standing customer base. ServiceCore's own pricing page is not reachable from this session to confirm today's plan names or any dollar figure, so no price for it is invented here: only its well-documented identity and category — fleet- and route-management software for portable sanitation and rolloff operators, sold as an ongoing account — are stated, and no dollar amount for ServiceCore appears on this page. This calculator does one narrower thing: starting from one event's attendance, duration, unit mix, pump-out visits, and the two round trips a flat headcount rate hides, plus your rates and target margin, it turns that into the event price, the price per unit-day, a starting fleet-size estimate, and the walk-away price below which the job loses money, plus a printable customer proposal for that one event — before any of it touches a route or billing system. It runs free in any browser, keeps no account, and uploads nothing you type. A yard that already tracks a standing customer base, routes trucks, and bills recurring service is better served by ServiceCore or a comparable platform; an operator who wants an instant, private answer to what one event rental should cost from its days, pump-outs, and fleet mix before opening a business system is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with ServiceCore?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by ServiceCore. ServiceCore is a trademark of its respective owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f4efe6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a4b12; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5348; }
+  section { background: #fff; border: 1px solid #d9d0c2; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a2a120d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9d0c2; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5348; }
+  .fine, .note { font-size: .88rem; color: #5c5348; }
+  footer { color: #5c5348; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/vs-servicecore.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. ServiceCore — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../portable-restroom-event-quote/">Porta Potty Event Quote Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. ServiceCore</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Porta Potty Event Quote Calculator</a></p>
+<header>
+<h1>This calculator vs. ServiceCore</h1>
+<p class="lede">Two different shapes: ServiceCore is an account-based platform for running a portable sanitation yard's whole fleet, routes, and billing. This page is a free, private worksheet for one question &mdash; what should this event rental cost, given its days, pump-outs, and fleet mix &mdash; before you send the quote.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>ServiceCore</strong> is business-management software, founded in
+  2017, built specifically for portable restroom, septic, and dumpster
+  rental operators &mdash; a narrower niche than general field-service
+  platforms, and the company states it hires more people out of the
+  portable sanitation and dumpster industries than any other software
+  company in that space. It bundles customer and asset (unit and truck)
+  management, route planning and scheduling, and accounting tools including
+  estimates, invoices, and payment processing into one ongoing account, aimed
+  at operators running multiple trucks across a standing customer base
+  rather than a single one-off rental. ServiceCore's own pricing page is not
+  reachable from this session to confirm today's plan names or any dollar
+  figure, so no price for it is invented here: only its well-documented
+  identity and category &mdash; fleet- and route-management software for
+  portable sanitation and rolloff operators, sold as an ongoing account
+  &mdash; are stated, and no dollar amount for ServiceCore appears on this
+  page.
+</p>
+<p>
+  This calculator does none of what ServiceCore does. It does not track a
+  customer, route a truck, or bill recurring service, and it stores no
+  customer or job record on a server. It takes one event &mdash; attendance,
+  duration in days, a mix of standard, deluxe, ADA-accessible, and
+  hand-wash units, pump-out visits, and the two round trips (delivery and
+  pickup) a flat headcount rate hides &mdash; plus your rates, loaded labor,
+  and target margin, and turns that into the event price, the price per
+  unit-day, a starting fleet-size estimate from attendance and duration, and
+  the walk-away price below which the job loses money &mdash; plus, if you
+  already have a number on the table, a check of whether it clears that
+  walk-away floor, and a single printable customer proposal for that one
+  event. It runs free in any browser, keeps no account, and uploads nothing
+  you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a portable sanitation yard and need a standing customer base, routed trucks, and recurring billing tracked in one system across every driver.</td><td>ServiceCore, or a comparable business-management platform &mdash; running the whole operation is not something this calculator does.</td></tr>
+<tr><td>What should I charge for this one event, given its days on site, pump-outs, and fleet mix?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>How much does a Friday-drop, Sunday-pickup weekend actually add over a single-day rate, beyond the extra units?</td><td>This calculator's separate days-on-site, pump-out, and two-round-trip line items &mdash; a flat headcount special hides all three.</td></tr>
+<tr><td>A customer's budget is below what I'd normally quote. Does it still clear my walk-away floor?</td><td>This calculator's proposed-price check &mdash; it flags a price below break-even before you agree to it.</td></tr>
+<tr><td>I need my whole fleet, routes, and recurring billing running from one shared account across the season.</td><td>ServiceCore &mdash; built as an ongoing, account-based platform for exactly that job.</td></tr>
+<tr><td>How many units does an event this size actually need?</td><td>This calculator's own <a href="how-many.html">fleet-size estimate</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. ServiceCore is used through an ongoing account built for multi-truck operators, not a one-off event quote.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most portable sanitation yards get different value from each: ServiceCore
+  (or a comparable platform) for running the yard's whole fleet-to-invoice
+  operation as an ongoing account, and a private calculator like this one
+  for an instant, no-login answer to what one event rental should cost from
+  its days, pump-outs, and fleet mix before a business system is involved.
+  This page's own figures are a pricing model, not a customer record, a
+  routed job, or a signed contract.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or ServiceCore?</h3>
+<p>They do different jobs, and a portable sanitation yard of any size will likely end up touching both eventually. ServiceCore, founded in 2017, builds business-management software specifically for portable restroom, septic, and dumpster rental operators &mdash; the company says it hires more people out of the portable sanitation and dumpster industries than any other software company in that space. It bundles customer and asset management, route planning and scheduling, and accounting tools including estimates, invoices, and payment processing into one ongoing account, aimed at operators running multiple trucks across a standing customer base. ServiceCore's own pricing page is not reachable from this session to confirm today's plan names or any dollar figure, so no price for it is invented here: only its well-documented identity and category &mdash; fleet- and route-management software for portable sanitation and rolloff operators, sold as an ongoing account &mdash; are stated, and no dollar amount for ServiceCore appears on this page. This calculator does one narrower thing: starting from one event's attendance, duration, unit mix, pump-out visits, and the two round trips a flat headcount rate hides, plus your rates and target margin, it turns that into the event price, the price per unit-day, a starting fleet-size estimate, and the walk-away price below which the job loses money, plus a printable customer proposal for that one event &mdash; before any of it touches a route or billing system. It runs free in any browser, keeps no account, and uploads nothing you type. A yard that already tracks a standing customer base, routes trucks, and bills recurring service is better served by ServiceCore or a comparable platform; an operator who wants an instant, private answer to what one event rental should cost from its days, pump-outs, and fleet mix before opening a business system is in the right place here.</p>
+<h3>Is this page affiliated with ServiceCore?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by ServiceCore. ServiceCore is a trademark of its respective owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Porta Potty Event Quote Calculator</a> to price your own event.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or health-department advice, and it does not tell you what to charge or how many units an event requires. It does not determine ADA, OSHA, or local sanitation compliance. Verify every figure against your own rates, insurance, and a qualified professional before relying on it or sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against ServiceCore &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="nofollow noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bonus-take-home-gross-up-calculator/" data-pf-to="bonus-take-home-gross-up-calculator">How much of my bonus do I keep? Free take-home and gross-up calculator</a></li>
+      <li><a href="../booth-rent-vs-commission/" data-pf-to="booth-rent-vs-commission">Booth Rent vs Commission Calculator</a></li>
+      <li><a href="../bounce-house-rental-calculator/" data-pf-to="bounce-house-rental-calculator">Bounce House Rental Calculator</a></li>
+      <li><a href="../boutique-fitness-studio-pricing-planner/" data-pf-to="boutique-fitness-studio-pricing-planner">Is my studio's unlimited membership priced right? Free pricing planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=portable-restroom-event-quote">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="portable-restroom-event-quote"></script>
+</body></html>

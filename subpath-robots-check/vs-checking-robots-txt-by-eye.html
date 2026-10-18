@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. opening robots.txt and looking — Subpath Robots Check</title>
+<meta name="description" content="Opening your site's robots.txt and reading it confirms the file you publish looks right. It cannot tell you whether that is the file a crawler actually reads…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/vs-checking-robots-txt-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. opening robots.txt and looking">
+<meta property="og:description" content="The file that looks fine when you open it is usually not the file a crawler reads. Checking by eye confirms syntax…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"I opened my robots.txt in a browser and it looks fine — isn't that enough?","acceptedAnswer":{"@type":"Answer","text":"It confirms the file you publish is syntactically correct, which is a real thing to check. It does not confirm that file is the one a crawler reads. The URL you probably opened is your site's own robots.txt under its path prefix — exactly the file this tool exists to point out gets fetched by nothing."}},{"@type":"Question","name":"What would I have to do by hand to actually answer the governance question?","acceptedAnswer":{"@type":"Answer","text":"Work out your site's origin root from the URL, open robots.txt there instead of at your own path, and read it for a Disallow rule that matches your path prefix — applying RFC 9309's longest-match-wins rule, where Allow only wins a tie. That is a different file, a different question, and a rule most people have not memorized, which is exactly why a step of it gets skipped."}},{"@type":"Question","name":"Can eyeballing the origin-root file catch a rule that blocks my path?","acceptedAnswer":{"@type":"Answer","text":"It can, if you know to check that specific file and apply the longest-match rule correctly. It is easy to get backwards: a shorter Disallow and a longer, more specific Allow both matching your path resolve to Allow, not to whichever rule is read first or looks more prominent."}},{"@type":"Question","name":"Does checking by eye ever catch something this tool does not?","acceptedAnswer":{"@type":"Answer","text":"Yes — whether the file reads naturally, whether a comment explains an unusual rule, anything about tone or intent. This tool checks one mechanical question: which file governs, and what follows for sitemap discovery. It is not a substitute for reading the file that does apply."}},{"@type":"Question","name":"Is anything pasted into either process uploaded?","acceptedAnswer":{"@type":"Answer","text":"Opening a URL in a browser tab involves no third party beyond the site itself. This checker runs entirely in your browser too and makes no network calls of its own — not even to fetch the robots.txt files it reports on."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/vs-checking-robots-txt-by-eye.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. opening robots.txt and looking — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../subpath-robots-check/">Your GitHub Pages sitemap is probably never read</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. opening robots.txt and looking</span></span></nav>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. opening robots.txt and looking</h1>
+<p class="lede">The obvious way to check your robots.txt is to open it in a browser tab and read it. That works for what it checks: is the file syntactically sane, does it say what you meant. It does not answer the question that actually determines whether your sitemap gets read, because the file most people open by habit &mdash; the one at their own site's address &mdash; is usually not the file a crawler fetches at all.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Opening robots.txt and reading it</strong> is free and needs no tool: paste the URL, look at the text. It correctly answers "is this file well-formed" and "does this rule say what I think it says", for whichever file you happened to open.</p>
+<p><strong>This checker</strong> starts from your site's URL rather than a robots.txt URL, works out which file actually governs it under RFC 9309 (always the origin root, never a path prefix), and reports the gap when the two differ. Paste the origin-root file too, and it applies the longest-match-wins rule for you rather than leaving it to be eyeballed.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is the robots.txt I publish syntactically correct?</td><td>Either one. Opening it and reading it answers this directly, and so does this checker's inert-directive report.</td></tr>
+<tr><td>Is the file I just read the one a crawler actually fetches?</td><td>This checker. The file at your own site's address is the governing file only when your site is at an origin root &mdash; otherwise it is a different URL you have to know to check.</td></tr>
+<tr><td>Does a rule in the origin-root file block my path outright?</td><td>This checker, applying RFC 9309's longest-match rule to whatever you paste, rather than reading it by eye.</td></tr>
+<tr><td>Will my Sitemap: line ever be auto-discovered?</td><td>This checker's core question. A file that looks correct when opened can still be a file nothing requests.</td></tr>
+<tr><td>Is anything I paste uploaded anywhere?</td><td>Neither. Opening a URL involves no third party beyond the site itself, and this checker makes no network calls of its own.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>I opened my robots.txt in a browser and it looks fine &mdash; isn't that enough?</h3>
+<p>It confirms the file you publish is syntactically correct, which is a real thing to check. It does not confirm that file is the one a crawler reads. The URL you probably opened is your site's own robots.txt under its path prefix &mdash; exactly the file this tool exists to point out gets fetched by nothing.</p>
+<h3>What would I have to do by hand to actually answer the governance question?</h3>
+<p>Work out your site's origin root from the URL, open robots.txt there instead of at your own path, and read it for a Disallow rule that matches your path prefix &mdash; applying RFC 9309's longest-match-wins rule, where Allow only wins a tie. That is a different file, a different question, and a rule most people have not memorized, which is exactly why a step of it gets skipped.</p>
+<h3>Can eyeballing the origin-root file catch a rule that blocks my path?</h3>
+<p>It can, if you know to check that specific file and apply the longest-match rule correctly. It is easy to get backwards: a shorter Disallow and a longer, more specific Allow both matching your path resolve to Allow, not to whichever rule is read first or looks more prominent.</p>
+<h3>Does checking by eye ever catch something this tool does not?</h3>
+<p>Yes &mdash; whether the file reads naturally, whether a comment explains an unusual rule, anything about tone or intent. This tool checks one mechanical question: which file governs, and what follows for sitemap discovery. It is not a substitute for reading the file that does apply.</p>
+<h3>Is anything pasted into either process uploaded?</h3>
+<p>Opening a URL in a browser tab involves no third party beyond the site itself. This checker runs entirely in your browser too and makes no network calls of its own &mdash; not even to fetch the robots.txt files it reports on.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not a security audit, a compliance attestation, or a guarantee about your site's search visibility. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Opening robots.txt and reading it" describes a manual habit every developer already has access to, not any company's product or service.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side and makes no network calls; nothing you paste is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+      <li><a href="../canonical-tag-check/" data-pf-to="canonical-tag-check">Canonical Tag Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=subpath-robots-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="subpath-robots-check"></script>
+</body>
+</html>

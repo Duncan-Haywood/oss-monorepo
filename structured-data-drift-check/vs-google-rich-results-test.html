@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Structured Data Drift Check vs. Google's Rich Results Test</title>
+  <meta name="description" content="Google's Rich Results Test checks whether your JSON-LD is valid and eligible for a rich result. It does not check whether that JSON-LD says the same thing as…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/vs-google-rich-results-test.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Structured Data Drift Check vs. Google's Rich Results Test">
+  <meta property="og:description" content="Rich Results Test answers is this markup valid and eligible. This tool answers a different question: does this markup say what the page actually says…">
+  <meta property="og:url" content="./vs-google-rich-results-test.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Structured Data Drift Check or Google's Rich Results Test?","acceptedAnswer":{"@type":"Answer","text":"They check different things. Rich Results Test parses your JSON-LD, tells you whether it is syntactically valid, and reports whether the page is eligible for a specific rich result in Google Search. Structured Data Drift Check does not check eligibility at all. It takes JSON-LD that already parses fine and asks a narrower question Rich Results Test does not ask: does the text inside that JSON-LD actually appear, word for word, in the page's own visible content. A FAQPage block can be perfectly valid and fully eligible in Rich Results Test while describing an answer that was rewritten on the page six months ago and never updated in the markup. Rich Results Test has no way to catch that, because it never reads the page's visible text at all."}},{"@type":"Question","name":"Does Rich Results Test already catch a mismatch between JSON-LD and visible text?","acceptedAnswer":{"@type":"Answer","text":"No. Rich Results Test validates the structured data against schema.org's shape and Google's eligibility rules for a given rich result type. It parses the JSON-LD in isolation and does not compare it against the rendered page content, so a FAQPage answer that no longer matches what a visitor reads on the page will still pass Rich Results Test as valid and eligible. Google's own guidelines say FAQPage and HowTo content must be visible on the page, but Rich Results Test's tool does not enforce that guideline by diffing the two texts — it only checks that the markup itself is well formed."}},{"@type":"Question","name":"Is Google's Rich Results Test free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Rich Results Test is a free tool at Google's own search.google.com/test/rich-results, with no account required to test a single URL or code snippet. Structured Data Drift Check is also free, with no account, and the two are not competing on price — they check different things and neither replaces the other."}},{"@type":"Question","name":"Is this page affiliated with Google?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Google. Google and Rich Results Test are named here only to describe what that tool checks and does not check, based on Google's own public documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Structured Data Drift Check vs. Google's Rich Results Test — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../structured-data-drift-check/">Does your structured data match what's actually on the page?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Structured Data Drift Check vs. Google's Rich Results Test</span></span></nav>
+  <p><a href="./">&larr; Structured Data Drift Check</a></p>
+  <h1>Structured Data Drift Check vs. Google's Rich Results Test</h1>
+  <p>
+    <strong>Rich Results Test</strong> is Google's own free tool for checking
+    a page's structured data. Paste a URL or a code snippet and it tells you
+    whether the JSON-LD parses correctly and whether the page is eligible for
+    a specific rich result in Google Search &mdash; a FAQ rich result, a
+    HowTo carousel, a Product snippet, and so on. It is the closest thing to
+    an authoritative answer for "will Google show this as a rich result",
+    and it is genuinely useful for that question.
+  </p>
+  <p>
+    That is not this tool's job. Rich Results Test parses your JSON-LD in
+    isolation: it never reads the page's visible, rendered text at all, so it
+    cannot tell you whether what the markup claims still matches what a
+    visitor actually sees. Structured Data Drift Check does exactly that one
+    comparison &mdash; it takes JSON-LD that already parses fine and checks,
+    word for word, whether its claims appear in the page's own visible copy,
+    reporting the exact character where the two diverge when they don't.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Is my JSON-LD syntactically valid, and is this page eligible for a specific Google rich result?</td>
+        <td>Rich Results Test &mdash; that needs Google's own eligibility rules for each rich result type, which a text-diff tool has no opinion on.</td>
+      </tr>
+      <tr>
+        <td>My FAQPage markup is valid and eligible &mdash; does it still say what the page's visible text says today?</td>
+        <td>Structured Data Drift Check &mdash; paste the page's HTML and get the exact claim, and the exact character, where the two diverge, no signup, nothing leaves your device.</td>
+      </tr>
+      <tr>
+        <td>I want to know whether Google will actually show a rich result for this page.</td>
+        <td>Rich Results Test &mdash; a text-diff can confirm the words match, it makes no claim about eligibility or ranking.</td>
+      </tr>
+      <tr>
+        <td>I want to check this on every page of a build, as a CI gate, without uploading anything to Google.</td>
+        <td>Structured Data Drift Check's CLI &mdash; it reads only local files and never makes a network call.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    The two are not substitutes. A page that needs to know whether it
+    qualifies for a rich result at all needs Google's own eligibility
+    checker &mdash; nothing else can answer that authoritatively. A page
+    whose markup already passes that check, but whose visible copy was
+    edited afterward and the JSON-LD was not, needs the comparison Rich
+    Results Test was never built to make. Running both catches more than
+    either alone: Rich Results Test for eligibility, this tool for whether
+    the eligible markup is still telling the truth.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Structured Data Drift Check or Google's Rich Results Test?</h3>
+  <p>They check different things. Rich Results Test parses your JSON-LD, tells you whether it is syntactically valid, and reports whether the page is eligible for a specific rich result in Google Search. Structured Data Drift Check does not check eligibility at all. It takes JSON-LD that already parses fine and asks a narrower question Rich Results Test does not ask: does the text inside that JSON-LD actually appear, word for word, in the page's own visible content. A FAQPage block can be perfectly valid and fully eligible in Rich Results Test while describing an answer that was rewritten on the page six months ago and never updated in the markup. Rich Results Test has no way to catch that, because it never reads the page's visible text at all.</p>
+  <h3>Does Rich Results Test already catch a mismatch between JSON-LD and visible text?</h3>
+  <p>No. Rich Results Test validates the structured data against schema.org's shape and Google's eligibility rules for a given rich result type. It parses the JSON-LD in isolation and does not compare it against the rendered page content, so a FAQPage answer that no longer matches what a visitor reads on the page will still pass Rich Results Test as valid and eligible. Google's own guidelines say FAQPage and HowTo content must be visible on the page, but Rich Results Test's tool does not enforce that guideline by diffing the two texts &mdash; it only checks that the markup itself is well formed.</p>
+  <h3>Is Google's Rich Results Test free?</h3>
+  <p>Yes. Rich Results Test is a free tool at Google's own search.google.com/test/rich-results, with no account required to test a single URL or code snippet. Structured Data Drift Check is also free, with no account, and the two are not competing on price &mdash; they check different things and neither replaces the other.</p>
+  <h3>Is this page affiliated with Google?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Google. Google and Rich Results Test are named here only to describe what that tool checks and does not check, based on Google's own public documentation.</p>
+  <p class="note">
+    More: <a href="why-google-requires-structured-data-to-match-visible-text.html">why Google requires structured data to match visible text</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether a JSON-LD claim's exact text is present in the page's own visible copy, not a legal opinion or an eligibility determination for any rich result. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a drift before it caught you, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+      <li><a href="../auth-mau-pricing-calculator/" data-pf-to="auth-mau-pricing-calculator">What will authentication cost at your user count, and who is cheapest?</a></li>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=structured-data-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="structured-data-drift-check"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tip Pool Compliance Calculator vs. Deciding It in a Staff Meeting</title>
+  <meta name="description" content="A verbal tip-pooling policy decided in a staff meeting has no record of who is eligible or why. This free calculator checks the same roster against the federal…">
+  <meta property="og:title" content="Tip Pool Compliance Calculator vs. Deciding It in a Staff Meeting">
+  <meta property="og:description" content="The rule most staff meetings get backwards, and the dollar figure nobody in the room can compute in their head.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a staff meeting enough to set tip-pool eligibility?","acceptedAnswer":{"@type":"Answer","text":"A staff meeting can settle who wants to be in the pool. It has no way to check that against a federal rule that most owners have never seen written down as two separate tests: managers and supervisors are never eligible, full stop, and back-of-house staff are eligible only when no tip credit is taken. Those two rules get confused for one rule constantly — \"the manager helped bus tables, so it's fine\" is exactly the sentence a staff meeting produces and the FLSA does not accept."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241b1b; background: #f2eeec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); letter-spacing: -.03em; margin-bottom: 10px; }
+    h2 { margin-top: 1.8em; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: .92rem; }
+    th, td { border: 1px solid #ddceca; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eee3df; }
+    a { color: #5e2313; }
+    footer { margin-top: 30px; font-size: .85rem; color: #5c4f4b; border-top: 1px solid #ddceca; padding-top: 16px; }
+    .back { display: inline-block; margin-top: 18px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tip Pool Compliance Calculator vs. Deciding It in a Staff Meeting — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tip-pool-compliance-calculator/">Tip Pool Compliance Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tip Pool Compliance Calculator vs. Deciding It in a Staff Meeting</span></span></nav>
+  <h1>Tip pool compliance calculator vs. deciding it in a staff meeting</h1>
+  <p>Not affiliated with, endorsed by, or sponsored by any point-of-sale, payroll, or restaurant-management product. This page compares the free calculator against the most common way tip-pooling eligibility actually gets decided at a small restaurant or bar: out loud, in a shift or staff meeting, with nobody writing the rule down.</p>
+
+  <h2>Is a staff meeting enough to set tip-pool eligibility?</h2>
+  <p>A staff meeting can settle who wants to be in the pool. It has no way to check that against a federal rule that most owners have never seen written down as two separate tests: managers and supervisors are never eligible, full stop, and back-of-house staff are eligible only when no tip credit is taken. Those two rules get confused for one rule constantly &mdash; "the manager helped bus tables, so it's fine" is exactly the sentence a staff meeting produces and the FLSA does not accept.</p>
+
+  <h2>The worked example</h2>
+  <p>Same roster, run both ways: servers and bartenders front-of-house, dishwashers back-of-house, and a shift manager, with a $5.12 tip credit taken.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th></th><th>Staff meeting</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Checks the manager against the rule?</td><td>Only if someone in the room remembers the 2018 amendment</td><td>Every time, automatically</td></tr>
+      <tr><td>Checks back-of-house against the tip-credit election?</td><td>Rarely &mdash; "everyone splits it" is the default</td><td>Every time, automatically</td></tr>
+      <tr><td>Front-of-house hours actually pooled</td><td>Not computed</td><td>230 hrs/week</td></tr>
+      <tr><td>Weekly back-wage exposure if the pool is invalid</td><td>Not computed</td><td>$1,177.60</td></tr>
+      <tr><td>Exposure across four weeks</td><td>Not computed</td><td>$4,710.40</td></tr>
+      <tr><td>Leaves a record you can hand a bookkeeper</td><td>No &mdash; whoever was in the room remembers it differently by next quarter</td><td>Yes &mdash; a link that reopens the exact roster</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The staff meeting is not wrong to exist &mdash; someone still has to decide who is on shift and who gets a cut. What it cannot do on its own is the rule check, because the rule has two independent branches and a room full of people focused on schedules is not where that gets caught.</p>
+
+  <p><a href="./" class="back">&larr; Back to the tip pool compliance calculator</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it makes no determination about your restaurant's classification of any role, or about any state law beyond the federal FLSA baseline. It is arithmetic and a rule lookup on the roster you type. Verify every role's classification against DOL Fact Sheet #15, your state's wage-hour agency, and a qualified employment attorney before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> This page makes no network requests of its own; the calculator it links to runs entirely client-side, and nothing you enter is sent to a server.</p>
+    <p>Free and open source. If it saved you a wage claim, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cottage-food-pricing-calculator/" data-pf-to="cottage-food-pricing-calculator">Cottage Food Pricing Calculator — free, private, in your browser</a></li>
+      <li><a href="../crypto-cost-basis-calculator/" data-pf-to="crypto-cost-basis-calculator">Crypto Cost Basis Calculator — free, private, in your browser</a></li>
+      <li><a href="../csa-share-pricing-calculator/" data-pf-to="csa-share-pricing-calculator">What should a CSA share cost?</a></li>
+      <li><a href="../customer-lifetime-value-predictor/" data-pf-to="customer-lifetime-value-predictor">Customer Lifetime Value Predictor — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tip-pool-compliance-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tip-pool-compliance-calculator"></script>
+</body>
+</html>

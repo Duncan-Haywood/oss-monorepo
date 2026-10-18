@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KDP Royalty Calculator — KU Page Reads vs Going Wide</title>
+  <meta name="description" content="See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide.">
+  <meta property="og:title" content="KDP royalty calculator: KU vs going wide">
+  <meta property="og:description" content="Compare 90 days exclusive on KDP Select against the same book sold wide. Every rate is a box you overwrite from your KDP dashboard.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"KDP Royalty Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"70% vs 35% ebook royalty, KU page-read versus paid sale, exclusive versus wide, KDP paperback print cost, Ingram wholesale net, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #20232a; background: #eef3f0; }
+    body { max-width: 1100px; margin: auto; padding: 32px 18px; }
+    header { max-width: 720px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1; letter-spacing: -.05em; margin: 8px 0 16px; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    section { background: #fff; border: 1px solid #ccd8d1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 20px #19362a0c; }
+    h2 { font-size: 1.1rem; margin: 0 0 12px; }
+    .fields { display: grid; gap: 12px; }
+    label { display: grid; gap: 5px; font-weight: 650; font-size: .9rem; }
+    input, select { font: inherit; padding: 10px; border: 1px solid #aabbb2; border-radius: 7px; }
+    .result { background: #19382d; color: #f6fff9; border-color: #19382d; }
+    .hero { font-size: 2.2rem; font-weight: 800; letter-spacing: -.04em; margin: 10px 0; }
+    .good { color: #bff0c9; }
+    .warn { color: #ffd09c; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
+    dt, dd { margin: 0; }
+    dd { font-variant-numeric: tabular-nums; text-align: right; }
+    .note { font-size: .83rem; opacity: .82; line-height: 1.45; }
+    .warn-inline { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 22px; font-size: .83rem; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    .result a { color: #bff0c9; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"KDP royalty calculator: KU vs going wide","item":"https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many Kindle Unlimited page reads equal one paid sale?","acceptedAnswer":{"@type":"Answer","text":"On the starting example — a $4.99 ebook on the 70% plan with a 2 MB file and $0.15/MB delivery — one paid sale nets $3.193. At a $0.0045 KENP rate that is 709.6 Kindle Edition Normalized Pages. Your own list price, file size, plan, and this month's KENP rate change that number; the readout updates as you type."}},{"@type":"Question","name":"Does this tell me to enroll in KDP Select?","acceptedAnswer":{"@type":"Answer","text":"No. It reports two 90-day totals on the numbers you typed. Enrolling, leaving, or staying in KDP Select is a contract decision you make against Amazon's current terms, not a recommendation this page can make."}},{"@type":"Question","name":"Why can the paperback line go negative?","acceptedAnswer":{"@type":"Answer","text":"KDP paperback royalty is a share of list minus printing cost. A short book on a low list can have a print cost larger than that share. The page shows the negative rather than hiding it, because that is the arithmetic Amazon's own print preview is warning you about."}},{"@type":"Question","name":"Is the print-cost formula the same as KDP's live preview?","acceptedAnswer":{"@type":"Answer","text":"No. The blank-override starting formula is a published-shape approximation (a small fixed amount plus a per-page rate, B\u0026W or color) so the page has a number before you paste one. KDP's own print preview, for your trim, paper, ink, and marketplace, is the figure to paste into the override box."}},{"@type":"Question","name":"What is left out?","acceptedAnswer":{"@type":"Answer","text":"Expanded distribution, hardcover, audiobook, VAT, currency conversion, ads, returns, and any change in paid-sale volume from being in or out of KU. Those are real, and they are not in this arithmetic. A later line can add them; inventing them here would be a forecast wearing a calculator's clothes."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="KDP royalty calculator: KU vs going wide — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">KDP royalty calculator: KU vs going wide</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">FOR SELF-PUBLISHED AUTHORS · RUNS IN YOUR BROWSER</p>
+    <h1>What does this book keep exclusive versus wide?</h1>
+    <p>
+      Put one 90-day window through Kindle Direct Publishing paid sales, Kindle Unlimited page reads,
+      a KDP paperback, and the same book sold on other stores plus Ingram. The page reports the two
+      totals. It does not tell you to enroll or leave KDP Select.
+    </p>
+    <p>
+      <a href="how-much-does-kdp-take.html">How much does KDP take from author royalties?</a>
+      ·
+      <a href="should-i-enroll-this-book-in-kindle-unlimited.html">Should I enroll this book in Kindle Unlimited?</a>
+      ·
+      <a href="vs-amazon-kdp-royalty-calculator.html">This calculator vs. Amazon's KDP royalty calculator</a>
+      ·
+      <a href="vs-a-spreadsheet.html">This calculator vs. a spreadsheet</a>
+    </p>
+    <p class="note">Also emailing your readers directly? See the
+      <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>
+      for pricing a sponsored placement to the same list.</p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>Your book and your rates</h2>
+      <div class="fields">
+        <label>eBook list price ($)
+          <input id="ebookList" type="number" inputmode="decimal" min="0" step="0.01" value="4.99">
+        </label>
+        <label>eBook royalty plan
+          <select id="ebookPlan">
+            <option value="70" selected>70% (minus delivery)</option>
+            <option value="35">35% (no delivery deduction)</option>
+          </select>
+        </label>
+        <label>File size (MB)
+          <input id="fileSizeMb" type="number" inputmode="decimal" min="0" step="0.1" value="2">
+        </label>
+        <label>Delivery cost per MB ($)
+          <input id="deliveryPerMb" type="number" inputmode="decimal" min="0" step="0.01" value="0.15">
+        </label>
+        <label>Paid ebook sales in the window
+          <input id="ebookPaidSales" type="number" inputmode="decimal" min="0" step="1" value="80">
+        </label>
+        <label>KU page reads in the window (KENP)
+          <input id="kenpReads" type="number" inputmode="decimal" min="0" step="1" value="12000">
+        </label>
+        <label>KENP rate from your KDP dashboard ($/page)
+          <input id="kenpRate" type="number" inputmode="decimal" min="0" step="0.0001" value="0.0045">
+        </label>
+        <label>Paperback list price ($)
+          <input id="paperbackList" type="number" inputmode="decimal" min="0" step="0.01" value="14.99">
+        </label>
+        <label>Paperback page count
+          <input id="paperbackPages" type="number" inputmode="decimal" min="0" step="1" value="280">
+        </label>
+        <label>Paperback ink
+          <select id="paperbackColor">
+            <option value="false" selected>Black and white</option>
+            <option value="true">Premium color</option>
+          </select>
+        </label>
+        <label>Paperback print cost override ($) — leave blank to use the starting formula
+          <input id="paperbackPrintOverride" type="number" inputmode="decimal" min="0" step="0.01" placeholder="from KDP preview">
+        </label>
+        <label>KDP paperback sales in the window
+          <input id="paperbackSales" type="number" inputmode="decimal" min="0" step="1" value="20">
+        </label>
+        <label>Other-store ebook sales if wide
+          <input id="otherStoreSales" type="number" inputmode="decimal" min="0" step="1" value="40">
+        </label>
+        <label>Other-store net per ebook sale ($)
+          <input id="otherStoreNet" type="number" inputmode="decimal" min="0" step="0.01" value="2.50">
+        </label>
+        <label>Ingram paperback sales if wide
+          <input id="ingramSales" type="number" inputmode="decimal" min="0" step="1" value="10">
+        </label>
+        <label>Ingram wholesale discount (0–1)
+          <input id="ingramWholesale" type="number" inputmode="decimal" min="0" max="1" step="0.01" value="0.40">
+        </label>
+        <label>Ingram print cost ($)
+          <input id="ingramPrintCost" type="number" inputmode="decimal" min="0" step="0.01" value="5.00">
+        </label>
+      </div>
+      <p class="note">
+        70% / 35%, the $2.99–$9.99 70% band, delivery per MB, and 60% paperback minus print
+        are starting points from Amazon's published KDP royalty help, not a live schedule.
+        Overwrite every box from your current KDP royalty report and print preview.
+        KENP rate changes monthly; paste this month's figure from your dashboard.
+      </p>
+      <p class="note">
+        <button type="button" id="copyLink">Copy shareable link</button>
+        <span id="linkStatus" role="status" aria-live="polite"></span>
+      </p>
+    </section>
+
+    <section id="result" class="result" aria-live="polite">
+      <h2>90-day readout</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="headline" class="hero"></div>
+      <p id="subhead"></p>
+      <p id="planNote" class="note" hidden></p>
+      <dl>
+        <dt>eBook net per paid sale</dt><dd id="unitEbook"></dd>
+        <dt>KDP paperback print cost</dt><dd id="kdpPrint"></dd>
+        <dt>KDP paperback net per sale</dt><dd id="unitPaperback"></dd>
+        <dt>KU page-reads needed to match one paid sale</dt><dd id="pagesToMatchOneSale"></dd>
+        <dt>Exclusive total</dt><dd id="exclusive"></dd>
+        <dt>Wide total</dt><dd id="wide"></dd>
+        <dt>KU page-reads that would match the wide extras</dt><dd id="readsToMatchWide"></dd>
+      </dl>
+      <p class="note">
+        Exclusive is paid KDP ebooks + KU + KDP paperbacks. Wide is the same paid KDP ebooks
+        and KDP paperbacks, plus other-store ebooks and Ingram paperbacks, and no KU.
+        The two paths share the KDP paid-sale count on purpose: the decision this page
+        prices is the KU window versus the wide extras, not a forecast of how visibility changes.
+      </p>
+      <p class="note">Already have your KDP royalty report? The <a href="../kdp-royalty-report-analyzer/">KDP royalty report analyzer</a> reads it and shows royalty, refunds and Kindle Unlimited pages per title &mdash; nothing uploaded.</p>
+    </section>
+  </main>
+
+  <section id="faq" style="margin-top:18px">
+    <h2>Common questions</h2>
+
+    <h3>How many Kindle Unlimited page reads equal one paid sale?</h3>
+    <p>
+      On the starting example — a $4.99 ebook on the 70% plan with a 2&nbsp;MB file and
+      $0.15/MB delivery — one paid sale nets $3.193. At a $0.0045 KENP rate that is
+      709.6 Kindle Edition Normalized Pages. Your own list price, file size, plan, and
+      this month's KENP rate change that number; the readout updates as you type.
+    </p>
+
+    <h3>Does this tell me to enroll in KDP Select?</h3>
+    <p>
+      No. It reports two 90-day totals on the numbers you typed. Enrolling, leaving, or
+      staying in KDP Select is a contract decision you make against Amazon's current
+      terms, not a recommendation this page can make.
+    </p>
+
+    <h3>Why can the paperback line go negative?</h3>
+    <p>
+      KDP paperback royalty is a share of list minus printing cost. A short book on a
+      low list can have a print cost larger than that share. The page shows the negative
+      rather than hiding it, because that is the arithmetic Amazon's own print preview
+      is warning you about.
+    </p>
+
+    <h3>Is the print-cost formula the same as KDP's live preview?</h3>
+    <p>
+      No. The blank-override starting formula is a published-shape approximation
+      (a small fixed amount plus a per-page rate, B&amp;W or color) so the page has a
+      number before you paste one. KDP's own print preview, for your trim, paper,
+      ink, and marketplace, is the figure to paste into the override box.
+    </p>
+
+    <h3>What is left out?</h3>
+    <p>
+      Expanded distribution, hardcover, audiobook, VAT, currency conversion, ads,
+      returns, and any change in paid-sale volume from being in or out of KU.
+      Those are real, and they are not in this arithmetic. A later line can add
+      them; inventing them here would be a forecast wearing a calculator's clothes.
+    </p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically. &ldquo;Copy shareable link&rdquo; is the one way this book&rsquo;s figures travel, and only because you send them: they go in the page&rsquo;s URL fragment, which a browser never puts in a request line or a Referer header. Treat the link like the numbers &mdash; whoever holds it can read them.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. <a href="LICENSE">LICENSE</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { compareExclusiveVsWide, exclusiveNote, FORM_FIELD_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeInputs, decodeInputs, hasSharedInputs, formValues } from './share.mjs';
+
+    // Imported rather than restated: `share.mjs` needs the same list, and a
+    // field added to the form must become shareable at the same moment it
+    // becomes calculable. See the note on FORM_FIELD_IDS in calc.mjs.
+    const ids = FORM_FIELD_IDS;
+    const $ = (id) => document.getElementById(id);
+    // The sign goes outside the symbol: a 400-page $6.99 paperback nets below
+    // its print cost, and that row is the one an author most needs to read.
+    const money = (n) => {
+      if (!Number.isFinite(n)) return 'not available';
+      const text = `$${Math.abs(n).toFixed(2)}`;
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pages = (n) => (Number.isFinite(n) ? n.toFixed(1) : 'not available');
+
+    function inputs() {
+      const raw = Object.fromEntries(ids.map((id) => [id, $(id).value]));
+      raw.paperbackColor = raw.paperbackColor === 'true';
+      return raw;
+    }
+
+    function render(count = true) {
+      const errorsEl = $('errors');
+      const headline = $('headline');
+      const planNote = $('planNote');
+      try {
+        const r = compareExclusiveVsWide(inputs());
+        errorsEl.hidden = true;
+        errorsEl.textContent = '';
+        headline.hidden = false;
+        headline.textContent = r.exclusiveWins ? 'Exclusive is ahead' : 'Wide is ahead';
+        headline.className = `hero ${r.exclusiveWins ? 'good' : 'warn'}`;
+        $('subhead').textContent = exclusiveNote(r);
+        $('unitEbook').textContent = money(r.unitEbook);
+        $('kdpPrint').textContent = money(r.kdpPrint);
+        $('unitPaperback').textContent = money(r.unitPaperback);
+        $('pagesToMatchOneSale').textContent = pages(r.pagesToMatchOneSale);
+        $('exclusive').textContent = money(r.exclusive);
+        $('wide').textContent = money(r.wide);
+        $('readsToMatchWide').textContent = pages(r.readsToMatchWide);
+        const showPlan = r.usedSeventy && !r.seventyEligible;
+        planNote.hidden = !showPlan;
+        planNote.textContent = showPlan
+          ? 'The 70% plan is selected, but this list price is outside Amazon\'s published $2.99–$9.99 70% band. Confirm the plan your dashboard actually pays before trusting the 70% line.'
+          : '';
+        if (count) recordUsage('royalty_compared', $('usageOptOut').checked);
+      } catch (e) {
+        errorsEl.textContent = e.message;
+        errorsEl.hidden = false;
+        headline.hidden = true;
+        $('subhead').textContent = '';
+        planNote.hidden = true;
+        planNote.textContent = '';
+        $('unitEbook').textContent = '';
+        $('kdpPrint').textContent = '';
+        $('unitPaperback').textContent = '';
+        $('pagesToMatchOneSale').textContent = '';
+        $('exclusive').textContent = '';
+        $('wide').textContent = '';
+        $('readsToMatchWide').textContent = '';
+      }
+    }
+
+    ids.forEach((id) => $(id).addEventListener('input', () => render()));
+    $('usageOptOut').addEventListener('change', () => render(false));
+
+    // Seventeen inputs decide one verdict, and that verdict is almost never
+    // reached alone — a co-author, an editor, or a small press has to see the
+    // same numbers to disagree usefully about them. The comparison rides in
+    // the fragment, which a browser puts in neither a request line nor a
+    // Referer header.
+    $('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(inputs());
+      history.replaceState(null, '', `${location.pathname}${location.search}${query ? `#${query}` : ''}`);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        $('linkStatus').textContent = 'Link copied. It carries this book’s figures, not a usage count.';
+      } catch {
+        $('linkStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+      }
+      // This venture's recordUsage takes (event, optedOut) — most siblings
+      // take (storage, optedOut, event), and the sibling order was what this
+      // call originally used. It threw on `'link_copied'.getItem`, which
+      // usage.mjs swallows by design, so the copy button recorded nothing at
+      // all while looking like it worked.
+      recordUsage('link_copied', $('usageOptOut').checked);
+    });
+
+    // A shared link replaces every field, including the ones it did not
+    // carry. Writing the decoded object on directly would leave the
+    // recipient's own print override and plan sitting in the gaps, and they
+    // would be comparing a different book without anything saying so. See
+    // share.mjs for why `formValues` is the supported way in.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (hasSharedInputs(fromLink)) {
+      for (const [id, value] of Object.entries(formValues(fromLink))) $(id).value = value;
+      $('linkStatus').textContent = 'Opened a shared book. Check the rates against your own KDP dashboard before deciding.';
+    }
+
+    render(false);
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kdp-royalty-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/?pfEmbed=1&quot; title=&quot;KDP royalty calculator: KU vs going wide — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="kdp-royalty-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/" data-pf-embed-title="KDP royalty calculator: KU vs going wide" data-pf-embed-slug="kdp-royalty-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="kdp-royalty-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

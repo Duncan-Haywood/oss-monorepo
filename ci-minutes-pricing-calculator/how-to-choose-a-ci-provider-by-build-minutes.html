@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a CI Provider by Build Minutes</title>
+  <meta name="description" content="Why CI bills jump at certain build-minute volumes, why per-seat plans and pay-as-you-go minutes compare differently, and what to fix before switching vendor.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ci-minutes-pricing-calculator/how-to-choose-a-ci-provider-by-build-minutes.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do CI prices differ so much at the same build-minute volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some vendors sell a per-seat plan with a pool of included minutes (GitLab, Bitbucket), others bill pure pay-as-you-go minutes (GitHub Actions beyond its free allowance, Buildkite hosted agents), and the per-minute rate varies by more than a factor of two. At 10,000 Linux minutes a month the cheapest and most expensive list prices in the calculator differ by more than four times."}}, {"@type": "Question", "name": "What matters more than the per-minute price?", "acceptedAnswer": {"@type": "Answer", "text": "Minutes you do not use. Caching dependencies, cancelling superseded runs, path filters and right-sized runners usually cut a CI bill more than switching vendor. Also check concurrency limits and queue time: a cheap provider that makes developers wait costs more in salary than it saves."}}, {"@type": "Question", "name": "When should I switch CI providers?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means rewriting pipeline config, moving secrets and re-tuning caches. Run the calculator with your growth rate before deciding, and remember macOS and Windows minutes bill at multiples of Linux."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ci-minutes-pricing-calculator/how-to-choose-a-ci-provider-by-build-minutes.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose a CI Provider by Build Minutes">
+<meta property="og:description" content="Why CI bills jump at certain build-minute volumes, why per-seat plans and pay-as-you-go minutes compare differently, and what to fix before switching vendor.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ci-minutes-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose a CI Provider by Build Minutes — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ci-minutes-pricing-calculator/">What will CI cost at your build-minute volume, and who is cheapest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose a CI Provider by Build Minutes</span></span></nav>
+  <p><a href="./">← CI Minutes Pricing Calculator</a></p>
+  <h1>How to choose a CI provider by build minutes</h1>
+  <p>Put your build minutes per month and growth rate into the <a href="./">calculator</a> to price GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do CI prices differ so much at the same build-minute volume?</h2>
+  <p>Some vendors sell a per-seat plan with a pool of included minutes (GitLab, Bitbucket), others bill pure pay-as-you-go minutes (GitHub Actions beyond its free allowance, Buildkite hosted agents), and the per-minute rate varies by more than a factor of two. At 10,000 Linux minutes a month the cheapest and most expensive list prices in the calculator differ by more than four times.</p>
+  <h2>What matters more than the per-minute price?</h2>
+  <p>Minutes you do not use. Caching dependencies, cancelling superseded runs, path filters and right-sized runners usually cut a CI bill more than switching vendor. Also check concurrency limits and queue time: a cheap provider that makes developers wait costs more in salary than it saves.</p>
+  <h2>When should I switch CI providers?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means rewriting pipeline config, moving secrets and re-tuning caches. Run the calculator with your growth rate before deciding, and remember macOS and Windows minutes bill at multiples of Linux.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ci-minutes-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ci-minutes-pricing-calculator"></script>
+</body>
+</html>

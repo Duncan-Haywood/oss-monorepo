@@ -1,0 +1,55 @@
+{
+  "slug": "pole-barn-bid-calculator",
+  "name": "Pole barn",
+  "group": "Exterior & roofing",
+  "summary": "Post-frame pole barns priced from footprint, eave height, roof steel, doors, floor and options.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Frame and wall steel (posts, trusses, 10 ft walls)",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.01111,
+      "materialPerUnit": 4.892,
+      "source": "40x30 ft (index.html); frame 1/90 h per building sq ft (suggestedShellKit); 14 posts x $85 + 6 trusses x $220 + 1,400 sq ft wall steel x $2.40 = $5,870 / 1,200 sq ft (postCount/trussCount/wallAreaSqFt in calc.mjs)"
+    },
+    {
+      "label": "Roof steel, 4/12 with 1.5 ft overhang",
+      "unit": "sq ft",
+      "qty": 1496,
+      "hoursPerUnit": 0.007143,
+      "materialPerUnit": 2.8,
+      "source": "(40 + 3) x (30 + 3) x 1.0541 = 1,496 sq ft (roofAreaSqFt, overhang 1.5 in suggestedShellKit); 1/140 h and $2.80 per sq ft"
+    },
+    {
+      "label": "Gravel floor, 4 in",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.005,
+      "materialPerUnit": 0.4691,
+      "source": "1/200 h per sq ft; 4 in / 12 / 27 cu yd per sq ft x $38/cu yd (suggestedFloorKit('gravel'))"
+    },
+    {
+      "label": "Walk doors",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 1.8,
+      "materialPerUnit": 380,
+      "source": "2 walk doors (index.html); 1.8 h and $380 each (suggestedShellKit)"
+    },
+    {
+      "label": "Trip, site time, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 7,
+      "materialPerUnit": 180,
+      "source": "hoursTrip 4 + siteHours 3 (suggestedShellKit); travel and equipment $180 (index.html)"
+    }
+  ],
+  "specialistModels": "Bay, post and truss counts from length and spacing, an 8%-per-foot eave-height factor, slab vs gravel floors, lean-to, wainscot, insulation and electrical packages."
+}

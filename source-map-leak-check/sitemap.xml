@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/how-source-maps-leak-in-production.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/vs-checking-devtools-by-hand.html</loc></url>
+</urlset>

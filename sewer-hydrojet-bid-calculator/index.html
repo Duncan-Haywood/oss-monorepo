@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access</title>
+  <meta name="description" content="Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull, roots and grease…">
+  <meta property="og:title" content="Hydro-Jet and Sewer Camera Bid Calculator">
+  <meta property="og:description" content="A 50-foot cable from an existing cleanout is not the same job as a 140-foot main with a toilet pull, roots, and a camera pass. Bid the footage and the access.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hydro-Jet and Sewer Camera Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Camera versus cable versus hydro-jet versus combo hours, extra footage past the included run, existing cleanout versus toilet pull versus new cleanout versus roof vent, roots and grease, hose distance from the truck, second line, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a toilet pull or new cleanout cost more than an existing cleanout job?","acceptedAnswer":{"@type":"Answer","text":"Access is priced as its own line because getting into the line changes the labor before the machine ever starts running: pulling and resetting a toilet, or cutting in a new cleanout, adds real hours a job that already has a cleanout doesn't need. Match the access option to what's actually on site rather than assuming every job starts the same way."}},{"@type":"Question","name":"Why does a “$149 drain special” price so much lower than this tool's number?","acceptedAnswer":{"@type":"Answer","text":"A flat brochure price usually covers a short run from an existing cleanout with no roots, no grease, and no camera pass — extra footage past the included run, roots, grease, hose distance from the truck, and a camera warranty pass all add hours the flat price never counted. Enter your actual line feet and conditions to see what the special would need to charge to still be profitable."}},{"@type":"Question","name":"Does the camera pass replace a real sewer inspection or a home-sale scope report?","acceptedAnswer":{"@type":"Answer","text":"No. This prices your labor and equipment time for running a camera, not a certified inspection report, a real-estate condition disclosure, or a code determination about the line's condition. Whatever the camera finds is still something you (or a licensed inspector) has to interpret and document separately."}},{"@type":"Question","name":"Is the footage-included assumption accurate for my trucks?","acceptedAnswer":{"@type":"Answer","text":"The included footage and hose-run figures are common ballpark starting points, not a manufacturer spec for your specific jet unit or cable machine. Replace them with what your actual equipment carries so the “extra footage” charge kicks in at the right point."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2a32; background: #e6eef1; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d7377; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c3d3d8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0f2a330d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5c64; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0a8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0a8; background: #eef5f6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1a2a32; }
+    button:hover { background: #dcecee; }
+    .result { position: sticky; top: 15px; background: #0f3d42; color: #eef7f7; border-color: #0f3d42; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #5ec8c5; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5c64; }
+    footer a { color: #0d7377; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #9ee4df; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5c64; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #0f3d42; --pr-accent: #0d7377;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Hydro-Jet and Sewer Camera Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hydro-Jet and Sewer Camera Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Hydro-Jet and Sewer Camera Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR DRAIN-CLEANING AND PLUMBING SHOPS</p>
+    <h1>Bid the footage, the access, and the camera.</h1>
+    <p>Price a sewer camera inspection or hydro-jet the way the trade actually loses money: extra footage past the included run, cleanout versus toilet pull versus a new cleanout, roots and grease, hose distance from the truck, and the camera warranty pass. You get the bid, the price per foot of line, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The line</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing work type or access never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Work type
+            <select id="work">
+              <option value="camera">Camera inspection only</option>
+              <option value="cable">Cable / auger (the drain special)</option>
+              <option value="jet">Hydro-jet only</option>
+              <option value="combo" selected>Hydro-jet + camera warranty pass</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="cleanout" selected>Existing cleanout</option>
+              <option value="toilet-pull">Toilet pull (no cleanout)</option>
+              <option value="new-cleanout">Install a new cleanout first</option>
+              <option value="roof-vent">Roof-vent access</option>
+            </select>
+          </label>
+          <label>Line
+            <select id="line">
+              <option value="branch">Kitchen / laundry branch</option>
+              <option value="main" selected>Main sewer to the street</option>
+              <option value="storm">Storm / yard drain</option>
+            </select>
+          </label>
+          <label>Line footage (ft) <input id="lineFeet" type="number" min="1" step="1" value="75" inputmode="numeric"></label>
+          <label>Footage included in the trip (ft) <input id="includedFootage" type="number" min="0" step="1" value="50" inputmode="numeric"></label>
+          <label>Hose run from the truck (ft) <input id="hoseRunFeet" type="number" min="0" step="1" value="60" inputmode="numeric"></label>
+          <label>Hose footage included (ft) <input id="includedHoseFeet" type="number" min="0" step="1" value="80" inputmode="numeric"></label>
+          <label class="check"><input id="hasRoots" type="checkbox"> Roots / root cutting</label>
+          <label class="check"><input id="hasGrease" type="checkbox"> Grease / extra jet pass</label>
+          <label class="check"><input id="extraLine" type="checkbox"> Second line on the same trip</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours for a camera pass <input id="hoursCameraBase" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours for a cable run <input id="hoursCableBase" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours for a hydro-jet pass <input id="hoursJetBase" type="number" min="0" step="0.25" value="1.25" inputmode="decimal"></label>
+          <label>Hours / extra foot past included <input id="hoursPerExtraFoot" type="number" min="0" step="0.005" value="0.02" inputmode="decimal"></label>
+          <label>Hours to pull the toilet <input id="hoursToiletPull" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours to install a cleanout <input id="hoursNewCleanout" type="number" min="0" step="0.25" value="2.5" inputmode="decimal"></label>
+          <label>Hours for roof-vent access <input id="hoursRoofVent" type="number" min="0" step="0.25" value="1.25" inputmode="decimal"></label>
+          <label>Hours to cut roots <input id="hoursRootCut" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours for a grease pass <input id="hoursGreasePass" type="number" min="0" step="0.25" value="0.5" inputmode="decimal"></label>
+          <label>Hours for a second line <input id="hoursSecondLine" type="number" min="0" step="0.25" value="0.75" inputmode="decimal"></label>
+          <label>Hours / extra hose foot <input id="hoursPerExtraHoseFoot" type="number" min="0" step="0.001" value="0.008" inputmode="decimal"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5" inputmode="decimal"></label>
+          <label>Camera wear / head <input id="cameraWear" type="number" min="0" step="1" value="35" inputmode="numeric"></label>
+          <label>Cable wear <input id="cableWear" type="number" min="0" step="1" value="15" inputmode="numeric"></label>
+          <label>Jet water / nozzle / disposal <input id="jetWear" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+          <label>Wax ring <input id="waxRing" type="number" min="0" step="1" value="12" inputmode="numeric"></label>
+          <label>Cleanout fitting <input id="cleanoutFitting" type="number" min="0" step="1" value="85" inputmode="numeric"></label>
+          <label>Root-cutter rental <input id="rootCutterRental" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0" inputmode="numeric"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32" inputmode="decimal"></label>
+          <label>Travel, truck, dump fees <input id="travelAndEquipment" type="number" min="0" step="5" value="55" inputmode="numeric"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="35" inputmode="decimal"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 149" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h tech loaded at 32% is $50.16. Quoting the raw wage on a published $149 drain special is how a 140-foot toilet-pull main that looked fine turns into a two-hour loss after the first wax ring.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">camera / hydro-jet price</div>
+      <dl>
+        <dt>Work and line</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Wear + fittings + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per foot of line</dt><dd id="perFoot"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a plumbing specification, or a code determination &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section><h2>Common questions</h2><h3>Why does a toilet pull or new cleanout cost more than an existing cleanout job?</h3><p>Access is priced as its own line because getting into the line changes the labor before the machine ever starts running: pulling and resetting a toilet, or cutting in a new cleanout, adds real hours a job that already has a cleanout doesn't need. Match the access option to what's actually on site rather than assuming every job starts the same way.</p><h3>Why does a &ldquo;$149 drain special&rdquo; price so much lower than this tool's number?</h3><p>A flat brochure price usually covers a short run from an existing cleanout with no roots, no grease, and no camera pass &mdash; extra footage past the included run, roots, grease, hose distance from the truck, and a camera warranty pass all add hours the flat price never counted. Enter your actual line feet and conditions to see what the special would need to charge to still be profitable.</p><h3>Does the camera pass replace a real sewer inspection or a home-sale scope report?</h3><p>No. This prices your labor and equipment time for running a camera, not a certified inspection report, a real-estate condition disclosure, or a code determination about the line's condition. Whatever the camera finds is still something you (or a licensed inspector) has to interpret and document separately.</p><h3>Is the footage-included assumption accurate for my trucks?</h3><p>The included footage and hose-run figures are common ballpark starting points, not a manufacturer spec for your specific jet unit or cable machine. Replace them with what your actual equipment carries so the &ldquo;extra footage&rdquo; charge kicks in at the right point.</p></section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Mainline Drain Services LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State plumbing lic. #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Hydro-jet 80 ft of main sewer through the cleanout&#10;Camera verification pass"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Excavation, pipe repair or lining&#10;Restoration of landscaping or hardscape"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Camera footage available on request."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-for-hydro-jetting.html">How much to charge for hydro-jetting</a>. Wondering how this compares to a field-service platform? <a href="vs-jobber.html">This calculator vs. Jobber</a>. Building your own bid sheet instead? <a href="vs-building-your-own-spreadsheet.html">This calculator vs. building your own spreadsheet</a>.</p>
+    <p>Pricing a sewer line replacement instead of a camera or hydro-jet clear? The <a href="../sewer-line-replace-bid-calculator/">sewer line replacement bid calculator</a> prices open-cut, pipe bursting, or CIPP lining — nothing uploaded.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedWorkKit,
+      suggestedAccessKit,
+    } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const FIELD_IDS = [
+      'lineFeet','includedFootage','hoseRunFeet','includedHoseFeet',
+      'hoursTrip','hoursCameraBase','hoursCableBase','hoursJetBase','hoursPerExtraFoot',
+      'hoursToiletPull','hoursNewCleanout','hoursRoofVent','hoursRootCut','hoursGreasePass',
+      'hoursSecondLine','hoursPerExtraHoseFoot','siteHours',
+      'cameraWear','cableWear','jetWear','waxRing','cleanoutFitting','rootCutterRental','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['hasRoots','hasGrease','extraLine'];
+    const SELECT_IDS = ['work','access','line'];
+    const SUGGESTED_WORK_IDS = ['hoursCameraBase','hoursCableBase','hoursJetBase','cameraWear','cableWear','jetWear'];
+    const SUGGESTED_ACCESS_IDS = ['hoursToiletPull','hoursNewCleanout','hoursRoofVent','waxRing','cleanoutFitting'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyWorkKit(force) {
+      const rates = suggestedWorkKit(el('work').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyAccessKit(force) {
+      const rates = suggestedAccessKit(el('access').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('work').value = job.work;
+      el('access').value = job.access;
+      el('line').value = job.line;
+      applyWorkKit(true);
+      applyAccessKit(true);
+      [...SUGGESTED_WORK_IDS, ...SUGGESTED_ACCESS_IDS].forEach(id => { el(id).dataset.edited = ''; });
+      el('lineFeet').value = job.lineFeet;
+      el('includedFootage').value = job.includedFootage;
+      el('hoseRunFeet').value = job.hoseRunFeet;
+      el('hasRoots').checked = job.hasRoots;
+      el('hasGrease').checked = job.hasGrease;
+      el('extraLine').checked = job.extraLine;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'camera / hydro-jet price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perFoot','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'camera / hydro-jet price';
+      el('scope').textContent = `${result.work} · ${result.line} · ${result.lineFeet} ft`;
+      const extraBits = [
+        result.access === 'cleanout' ? 'existing cleanout' : result.access.replace('-', ' '),
+        result.extraFeet ? `${result.extraFeet} extra ft` : null,
+        result.hasRoots ? 'roots' : null,
+        result.hasGrease ? 'grease' : null,
+        result.extraLine ? 'second line' : null,
+        result.includesCamera ? 'camera' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard trip';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perFoot').textContent = result.pricePerFoot === null ? 'n/a' : money(result.pricePerFoot);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Camera / cable / jet', result.hourShares.machine],
+        ['Extra footage + hose', result.hourShares.run],
+        ['Access (toilet / cleanout / roof)', result.hourShares.access],
+        ['Roots / grease / second line', result.hourShares.conditions],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Wear + fittings + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carried them and the recipient reopened the bid at
+      // this venture's defaults -- a different deposit and validity window
+      // under a headline price that matched to the cent. They ride beside the
+      // payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A work/access change never overwrites a restored rate: mark the
+      // rates a preset suggests as already "edited", the same guard the form
+      // itself sets when a shop types over the suggestion.
+      [...SUGGESTED_WORK_IDS, ...SUGGESTED_ACCESS_IDS].forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
+    presets.addEventListener('change', () => {
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('work').addEventListener('change', () => {
+      applyWorkKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('line').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_WORK_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    restoreShare();
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'sewer-hydrojet-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Clearing restores flow through the line as found; it is not a repair, and a line with structural damage, offsets or a collapsed section may re-block.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{workLabel} of the {lineLabel} — {lineFeet~0} ft",
+        "Access: {accessLabel}",
+        {
+          "line": "{hoseRunFeet~0} ft of hose run from the truck",
+          "when": "hoseRunFeet"
+        },
+        {
+          "line": "Cut roots from the line",
+          "when": "hasRoots"
+        },
+        {
+          "line": "Clear grease from the line",
+          "when": "hasGrease"
+        },
+        {
+          "line": "Service a second line",
+          "when": "extraLine"
+        },
+        {
+          "line": "Camera the line and record the condition",
+          "when": "includesCamera"
+        },
+        "Flow-test the line and leave the access point resealed"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "workLabel": ({"camera":"Camera inspection","cable":"Cable / auger clearing","jet":"Hydro-jetting","combo":"Hydro-jetting with a camera verification pass"})[el('work')?.value],
+        "accessLabel": el('access')?.selectedOptions?.[0]?.textContent?.trim(),
+        "lineLabel": el('line')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Sewer line service — {lineFeet~0} ft'], proposalFields(result))[0] || 'Sewer line service — ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sump-pump-bid-calculator/" data-pf-to="sump-pump-bid-calculator">Sump Pump Bid Calculator</a></li>
+      <li><a href="../toilet-replacement-bid-calculator/" data-pf-to="toilet-replacement-bid-calculator">Toilet Replacement Bid Calculator</a></li>
+      <li><a href="../water-heater-bid-calculator/" data-pf-to="water-heater-bid-calculator">Water Heater Replacement Bid Calculator</a></li>
+      <li><a href="../water-softener-bid-calculator/" data-pf-to="water-softener-bid-calculator">Water Softener Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sewer-hydrojet-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/?pfEmbed=1&quot; title=&quot;Hydro-Jet and Sewer Camera Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sewer-hydrojet-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/" data-pf-embed-title="Hydro-Jet and Sewer Camera Bid Calculator" data-pf-embed-slug="sewer-hydrojet-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="sewer-hydrojet-bid-calculator" data-pf-jobs-amount="#price"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

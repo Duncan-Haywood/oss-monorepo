@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to fix a publicly listable S3, GCS, or Azure Blob bucket</title>
+<meta name="description" content="Blocking anonymous listing is a different setting per provider, and none of the three fix it by making the bucket private again -- here is the exact command…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/how-to-fix-a-publicly-listable-bucket.html">
+<meta property="og:title" content="How to fix a publicly listable S3, GCS, or Azure Blob bucket">
+<meta property="og:description" content="The exact command that blocks anonymous listing on AWS S3, Google Cloud Storage, and Azure Blob Storage -- and the separate object-read check a clean listing…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a publicly listable cloud storage bucket",
+  "step": [
+    { "@type": "HowToStep", "name": "Block anonymous listing at the provider, not just delete the object that worried you", "text": "Deleting or moving a sensitive object leaves the bucket itself still listable to the next anonymous request. Fix the listing permission directly: AWS S3's account- and bucket-level Block Public Access, Google Cloud Storage's Public Access Prevention plus removing allUsers/allAuthenticatedUsers from the bucket's IAM policy, or Azure Blob Storage's per-container public access level set to Private." },
+    { "@type": "HowToStep", "name": "Re-run the checker to confirm the listing itself is closed", "text": "Run node check.mjs against the same bucket URL again. A private or not-found result means the one request this tool sends -- the anonymous LIST -- is now refused. That confirms listing is fixed; it does not confirm anything about object-level access." },
+    { "@type": "HowToStep", "name": "Check public object-read access separately, using the provider's own tooling", "text": "A bucket can have listing blocked while a direct link to a known object key still resolves publicly -- a separate setting this checker was never designed to test, since it never has an object key to try without a listing to find one in. Use AWS IAM Access Analyzer for S3, GCS's own Public access badge in the console or gcloud storage buckets describe, or Azure's container-level public access setting (which controls both listing and blob read together, unlike S3 and GCS) to confirm objects are not independently public." },
+    { "@type": "HowToStep", "name": "Find out how it became public and fix that, not just this bucket", "text": "A bucket rarely goes public by itself. Common causes: a bucket policy or ACL added for a one-off integration and never removed, an infrastructure-as-code module whose default is public-read, or a manual console change nobody recorded. Check every other bucket the same account, team, or Terraform module created for the same misconfiguration, and turn on account-level Block Public Access (S3) or org-level Public Access Prevention (GCS) so a future bucket cannot repeat it by default." }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  .note { font-size: 0.88rem; opacity: 0.8; }
+  footer { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/how-to-fix-a-publicly-listable-bucket.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to fix a publicly listable S3, GCS, or Azure Blob bucket — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to fix a publicly listable S3, GCS, or Azure Blob bucket</span></span></nav>
+<p><a href="./">&larr; Cloud Bucket Exposure Checker</a></p>
+<h1>How to fix a publicly listable bucket</h1>
+<p>
+  If <a href="./">Cloud Bucket Exposure Checker</a> (or any other check) just reported that an
+  AWS S3, Google Cloud Storage, or Azure Blob Storage bucket allows anonymous public listing, the
+  fix is a provider setting, not a file you delete -- and it is a different setting on each of the
+  three. The order below closes the listing first, then checks the separate thing a clean listing
+  result does not cover.
+</p>
+
+<h2>1. Block anonymous listing at the provider</h2>
+<p>
+  Deleting the object you were worried about does nothing to the bucket's own listing permission --
+  the next anonymous request can still enumerate whatever is left. Fix the setting that actually
+  controls it:
+</p>
+<pre><code># AWS S3 -- block public access at the bucket (and prefer the account-level
+# setting too, so a future bucket cannot be created public by default)
+aws s3api put-public-access-block --bucket YOUR-BUCKET \
+  --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+# Google Cloud Storage -- turn on Public Access Prevention, and remove any
+# allUsers / allAuthenticatedUsers grant from the bucket's own IAM policy
+gcloud storage buckets update gs://YOUR-BUCKET --public-access-prevention
+gcloud storage buckets remove-iam-policy-binding gs://YOUR-BUCKET \
+  --member=allUsers --role=roles/storage.objectViewer
+
+# Azure Blob Storage -- set the container's public access level to Private
+az storage container set-permission --name YOUR-CONTAINER \
+  --account-name YOUR-ACCOUNT --public-access off</code></pre>
+<p class="note">
+  A Block Public Access setting or an explicit ACL/IAM grant can each cause the same symptom on
+  AWS and GCS -- check both a bucket policy and the legacy ACL on S3, and both Public Access
+  Prevention and the IAM policy on GCS. Azure's per-container public access level is the one
+  setting that governs both listing and object read together, unlike S3 and GCS, where they are
+  separate.
+</p>
+
+<h2>2. Re-run the checker to confirm the listing itself is closed</h2>
+<p>
+  <code>node check.mjs &lt;bucket-url&gt;</code> again, against the same URL. A <code>private</code>
+  or <code>not-found</code> result means the one request this tool ever sends -- the anonymous
+  <code>LIST</code> -- is now refused or the bucket no longer resolves. That confirms listing is
+  fixed. It does not confirm anything about whether an individual object is still publicly
+  readable, because this tool was never designed to test that -- see step 3.
+</p>
+
+<h2>3. Check public object-read access separately</h2>
+<p>
+  A bucket can have listing blocked while a direct link to a known object key still resolves
+  publicly -- a real, separate exposure this checker cannot detect, because it never has an object
+  key to test without a listing to find one in. Confirm it with the provider's own tooling instead
+  of assuming a clean listing result covers it: AWS IAM Access Analyzer for S3 (flags buckets and
+  objects reachable from outside the account), the Public access badge GCS shows per bucket in the
+  console, or Azure's container-level public access setting, which -- unlike S3 and GCS -- already
+  controls object read at the same time as listing, so fixing step 1 on Azure fixes both.
+</p>
+
+<h2>4. Find out how it became public, and fix that too</h2>
+<p>
+  A bucket rarely goes public by itself. The common causes are a bucket policy or ACL added for a
+  one-off integration and never removed, an infrastructure-as-code module whose default is
+  public-read, or a manual console change nobody recorded. Check every other bucket the same
+  account, team, or Terraform/CloudFormation module created for the same misconfiguration --
+  a fix applied to one bucket at a time is exactly how the next one gets missed -- and turn on
+  account-level Block Public Access (S3) or org-level Public Access Prevention (GCS) so a newly
+  created bucket cannot repeat it by default.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or your cloud provider's own configuration audit. <strong>You are responsible
+  for verifying these steps against your own environment</strong> before relying on them, and for
+  having authorisation to change any account, bucket, or container you act on.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This page is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+      <li><a href="../cloudwatch-logs-cost-advisor/" data-pf-to="cloudwatch-logs-cost-advisor">Why is your CloudWatch Logs bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-bucket-exposure-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloud-bucket-exposure-check"></script>
+</body>
+</html>

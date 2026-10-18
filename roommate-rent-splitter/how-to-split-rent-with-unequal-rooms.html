@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Split Rent With Unequal Rooms: A Worked Example</title>
+  <meta name="description" content="How to split rent between roommates when the rooms differ: why equal and square-footage splits cause arguments…">
+  <meta property="og:title" content="How To Split Rent With Unequal Rooms: A Worked Example">
+  <meta property="og:description" content="Why equal splits fail and how to price each room so nobody envies anyone, with three roommates worked out. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/how-to-split-rent-with-unequal-rooms.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just split rent by square footage?","acceptedAnswer":{"@type":"Answer","text":"Square feet ignore what people actually value. A 90 square foot room with its own bathroom and a window onto the street can be worth more than a 140 square foot room that is a walk-through. Splitting by area gives the wrong rent to whoever's tastes differ from the average."}},{"@type":"Question","name":"What is the simplest fair method with three or more roommates?","acceptedAnswer":{"@type":"Answer","text":"Have everyone privately split the total rent across the rooms to show what each room is worth to them, then assign rooms to maximise total value and set prices so nobody prefers another room. That is envy-free rent division, and the tool does the arithmetic."}},{"@type":"Question","name":"Can a room end up with a negative price?","acceptedAnswer":{"@type":"Answer","text":"Rarely, when everyone dislikes a room strongly enough that someone has to be paid to take it. The tool shows the figure as it is rather than hiding it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #2a4aa6; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5daea; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #2a4aa6; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #444d63; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/how-to-split-rent-with-unequal-rooms.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Split Rent With Unequal Rooms: A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../roommate-rent-splitter/">Roommate Rent Splitter — fair rent for unequal rooms</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Split Rent With Unequal Rooms: A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Roommate rent splitter</a></p>
+  <h1>How to split rent with unequal rooms, with a worked example</h1>
+  <p>Three roommates rent a flat for $3,000 a month. One room has a private bathroom, one is a good size and one is small. Splitting $1,000 each is easy and quietly unfair: the person in the small room subsidises the one with the bathroom. This page shows a method where nobody can say that.</p>
+  <p><a class="cta" href="./">Open the free rent splitter</a></p>
+  <h2>Step 1: everyone says what each room is worth to them</h2>
+  <p>Each person privately spreads the $3,000 across the three rooms. More on one room means less on the others. The invented numbers:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Person</th><th>Master with bath</th><th>Big bedroom</th><th>Small bedroom</th></tr></thead>
+    <tbody>
+      <tr><td>Ana</td><td>$1,400</td><td>$900</td><td>$700</td></tr>
+      <tr><td>Ben</td><td>$900</td><td>$1,200</td><td>$900</td></tr>
+      <tr><td>Cleo</td><td>$1,000</td><td>$1,000</td><td>$1,000</td></tr>
+    </tbody>
+  </table></div>
+  <h2>Step 2: give rooms to the people who value them most</h2>
+  <p>Of the six ways to hand out three rooms, the highest total value is Ana in the master ($1,400), Ben in the big bedroom ($1,200) and Cleo in the small one ($1,000): $3,600 of value for $3,000 of rent, so $600 of surplus to share out.</p>
+  <h2>Step 3: set prices nobody would swap</h2>
+  <p>The prices must add up to $3,000, and at those prices nobody should prefer another room. Among all such prices, the tool picks the ones where the least-happy person is as happy as possible. Here the surplus divides evenly:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Person</th><th>Room</th><th>Rent</th><th>Their value</th><th>Surplus</th></tr></thead>
+    <tbody>
+      <tr><td>Ana</td><td>Master with bath</td><td>$1,200</td><td>$1,400</td><td>$200</td></tr>
+      <tr><td>Ben</td><td>Big bedroom</td><td>$1,000</td><td>$1,200</td><td>$200</td></tr>
+      <tr><td>Cleo</td><td>Small bedroom</td><td>$800</td><td>$1,000</td><td>$200</td></tr>
+    </tbody>
+  </table></div>
+  <p>Check it: Ana would pay $1,000 for the big room and get $900 of value, a $100 loss against her $200 gain. Ben in the master at $1,200 would get $900 of value, a $300 loss. Cleo would be happy anywhere at a fair price but pays the least. Nobody gains by swapping.</p>
+  <h2>Why honesty is the safe strategy</h2>
+  <p>Because everyone has the same total to spread, exaggerating a favourite room means undervaluing the others, and an inflated room costs more. Compare notes after, not before.</p>
+  <h2>Common questions</h2>
+  <h3>Why not just split rent by square footage?</h3>
+  <p>Square feet ignore what people actually value. A 90 square foot room with its own bathroom and a window onto the street can be worth more than a 140 square foot room that is a walk-through. Splitting by area gives the wrong rent to whoever's tastes differ from the average.</p>
+  <h3>What is the simplest fair method with three or more roommates?</h3>
+  <p>Have everyone privately split the total rent across the rooms to show what each room is worth to them, then assign rooms to maximise total value and set prices so nobody prefers another room. That is envy-free rent division, and the tool does the arithmetic.</p>
+  <h3>Can a room end up with a negative price?</h3>
+  <p>Rarely, when everyone dislikes a room strongly enough that someone has to be paid to take it. The tool shows the figure as it is rather than hiding it.</p>
+  <p><a class="cta" href="./">Split your own rent</a></p>
+  <footer>
+    <p>Arithmetic on invented numbers, not legal or tenancy advice; your lease and local law decide what you owe the landlord. No warranty. Free, best-effort hosting with no SLA.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freelance-contract-maker/" data-pf-to="freelance-contract-maker">Freelance Contract Maker — free service agreement generator, no signup</a></li>
+      <li><a href="../freelance-dashboard/" data-pf-to="freelance-dashboard">Freelance Dashboard — what is owed, what is unbilled, what to do next</a></li>
+      <li><a href="../freelance-editor-quote-calculator/" data-pf-to="freelance-editor-quote-calculator">Editing quote calculator: price a proofread, copyedit or developmental edit. Free, private</a></li>
+      <li><a href="../freelance-writer-rate-calculator/" data-pf-to="freelance-writer-rate-calculator">Freelance Writer Rate Calculator — per-word vs. flat fee, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=roommate-rent-splitter">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="roommate-rent-splitter"></script>
+</body>
+</html>

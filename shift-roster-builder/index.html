@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
+  <meta name="description" content="Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff's availability, hour limits and wages…">
+  <meta property="og:title" content="Shift Roster Builder — free, private, in your browser">
+  <meta property="og:description" content="Assign named people to shifts by availability, hour limits, rest gaps and cost, and see who your schedule depends on.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shift Roster Builder","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"List the shifts you need covered and your staff with availability, weekly hour limits and wages. Builds a weekly roster that respects those rules, covers as many shifts as possible, avoids overtime and shows which shifts could not be filled and why, who is a single point of failure, and a CSV. Runs entirely in your browser.","featureList":"employee schedule maker, shift roster builder, work schedule generator, restaurant scheduling, overtime avoidance, availability and rest rules, who is critical report, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I make an employee schedule that covers every shift?","acceptedAnswer":{"@type":"Answer","text":"List each shift you need covered with how many people it takes, list each person with their availability, weekly hour limits and wage, and assign people to shifts one hard rule at a time: available for the whole shift, not double-booked, enough rest since their last shift, under their weekly limit. This tool does that search for you and shows any shift it could not fill with the reason."}},{"@type":"Question","name":"How does the roster builder decide who works which shift?","acceptedAnswer":{"@type":"Answer","text":"It never breaks a hard rule (availability, weekly hour cap, rest between shifts, consecutive days, no double-booking). Among the rosters that follow those rules it covers as many shifts as possible first, then picks the lowest payroll, counting overtime above your threshold, nudged by the hour balance slider and by each person's minimum hours. The search is a seeded simulated-annealing optimiser, so the same inputs always give the same roster."}},{"@type":"Question","name":"Is the roster guaranteed to be the cheapest possible?","acceptedAnswer":{"@type":"Answer","text":"No. Choosing who works which shift is a hard combinatorial problem, so the tool searches rather than proves optimality. On small problems the test suite checks the result against an exhaustive search of every possible roster and it matches. On a full week it finds a strong roster quickly, and the result is deterministic so you can compare changes fairly."}},{"@type":"Question","name":"What does the hour balance slider do?","acceptedAnswer":{"@type":"Answer","text":"At zero the tool chases the lowest payroll, which can pile hours on the cheapest people and leave others under their minimum. Raising it adds a penalty for each person's hours drifting from their fair share of the total, in proportion to their weekly limit. Payroll shown is always the real cost, not the penalised score."}},{"@type":"Question","name":"What does who-is-critical mean?","acceptedAnswer":{"@type":"Answer","text":"For each person on the roster the tool re-builds the week without them and reports how many hours of shifts would then go uncovered. A person whose absence leaves hours uncovered is a single point of failure: one sick call and a shift is open. Use it to see where you need a backup or wider availability."}},{"@type":"Question","name":"What rules and laws does it check?","acceptedAnswer":{"@type":"Answer","text":"It enforces the availability, weekly hour limit, rest gap and consecutive-day limit that you type in, and prices weekly overtime above the threshold you set, plus optional daily overtime and double time (California-style presets included). It does not know your local predictive-scheduling or fair-workweek notice rules, break and meal-period rules, minor-labor limits, union terms or tip rules, which vary by place. Check the roster against the rules that apply to you."}},{"@type":"Question","name":"Is my staff list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Names, wages and availability are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your roster. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+      .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+    #wall { display: none; }
+    @media print {
+      body.print-wall > :not(#wall) { display: none !important; }
+      body.print-wall #wall { display: block; color: #000; background: #fff; }
+      #wall h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      #wall table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+      #wall th, #wall td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Shift Roster Builder — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shift Roster Builder — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Shift Roster Builder — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SHIFT ROSTER BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build this week's schedule without the spreadsheet puzzle</h1>
+    <p>List <strong>the shifts you need covered</strong> and <strong>your people</strong> with their availability, weekly hour limits and wages. The tool assigns people to shifts so that <strong>every shift is covered if it can be</strong>, nobody works outside their availability, gets less rest than you allow, or goes into <strong>overtime</strong> when someone cheaper is free. Shifts it cannot fill come back with the reason, and it shows <strong>who the week depends on</strong>. Download the roster as a CSV.</p>
+    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your people</h2>
+    <label for="staff">One person per line: name, hourly wage, max hours a week, min hours a week, availability</label>
+    <textarea id="staff" spellcheck="false" placeholder="Ana, 18, 40, 30, Mon-Sat 6-22&#10;Ben, 16, 32, 20, Mon-Fri 6-22; Sat 8-16&#10;Cleo, 15, 24, 12, any"></textarea>
+    <p class="note">Availability is days and hours separated by semicolons: <code>Mon-Fri 9-17; Sat 10am-2pm; Sun off</code>. Days you do not list count as unavailable; leave it blank or write <code>any</code> for always free. Max hours default to 40.</p>
+    <h2>Shifts to cover</h2>
+    <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
+    <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
+    <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
+    <label for="file">…or upload a staff CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="rest">Minimum rest between shifts (hours)</label><input id="rest" inputmode="decimal" value="10"></div>
+      <div><label for="consec">Most days in a row</label><input id="consec" inputmode="decimal" value="6"></div>
+      <div><label for="daily">Most hours in one day (0 = no limit)</label><input id="daily" inputmode="decimal" value="0"></div>
+      <div><label for="otafter">Overtime after (hours a week)</label><input id="otafter" inputmode="decimal" value="40"></div>
+      <div><label for="otmult">Overtime pay multiplier</label><input id="otmult" inputmode="decimal" value="1.5"></div>
+      <div><label for="otrule">Overtime rule (state presets)</label><select id="otrule"><option value="">Weekly only</option><option value="ca">California: over 8 a day, double over 12</option><option value="ak">Alaska (and Nevada for lower-paid staff): over 8 a day</option><option value="co">Colorado: over 12 a day</option></select></div>
+      <div><label for="dotafter">Daily overtime after (hours, 0 = off)</label><input id="dotafter" inputmode="decimal" value="0"></div>
+      <div><label for="mealafter">Unpaid meal break on shifts over (hours, 0 = off)</label><input id="mealafter" inputmode="decimal" value="0"></div>
+      <div><label for="splitprem">Split-shift premium per split day ($, 0 = off)</label><input id="splitprem" inputmode="decimal" value="0"></div>
+      <div><label for="diffwhen">Pay differential hours (e.g. Sat-Sun; Mon-Fri 22-24)</label><input id="diffwhen" value=""></div>
+      <div><label for="diffhour">Differential, extra $ per hour</label><input id="diffhour" inputmode="decimal" value="0"></div>
+      <div><label for="diffpct">Differential, extra % of wage</label><input id="diffpct" inputmode="decimal" value="0"></div>
+      <div><label for="splitgap">A split shift has a gap over (hours)</label><input id="splitgap" inputmode="decimal" value="1"></div>
+      <div><label for="mealmin">Unpaid break length (minutes)</label><input id="mealmin" inputmode="decimal" value="30"></div>
+      <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
+      <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
+      <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
+      <div><label for="dailysales">Sales by day, Mon to Sun ($, optional)</label><input id="dailysales" placeholder="e.g. 1200, 1100, 1300, 1500, 2600, 3200, 1800"></div>
+      <div><label for="hoursline">Weekly hours line to watch (optional)</label><input id="hoursline" inputmode="decimal" placeholder="e.g. 30"></div>
+      <div><label for="tippot">Tip pot to split this week ($, optional)</label><input id="tippot" inputmode="decimal" placeholder="e.g. 1450"></div>
+      <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
+      <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
+      <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
+    </div>
+    <button type="button" id="analyze">Build the roster</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
+    <p><label for="lastweek-file">Carry over last week: choose last week's roster CSV</label> <input id="lastweek-file" type="file" accept=".csv,text/csv"> <span class="note">Sets each person's <code>prev:</code> (when their last shift ended) so rest rules hold across Monday.</span></p>
+    <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
+    <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
+  </section>
+
+  <section class="card" id="collect">
+    <h2>Collect your team's availability</h2>
+    <p class="note">Stop chasing availability in group chats. Make a link, send it to your team, and each person fills a week grid and sends you one line back. Paste the lines below and they replace each person's availability in your staff list; wages, roles and the hours cap you set stay (a person can only lower their own max hours). The link carries only the business name, week and, if you add it, one person's name; nothing is stored or uploaded.</p>
+    <div class="row3">
+      <div><label for="collect-biz">Business name (shown to staff)</label><input id="collect-biz" placeholder="e.g. Corner Café"></div>
+      <div><label for="collect-name">Person's name (optional, for a personal link)</label><input id="collect-name" placeholder="e.g. Ana"></div>
+    </div>
+    <label for="collect-link">Link to send (uses the week start above, if set)</label>
+    <input id="collect-link" readonly>
+    <button type="button" class="secondary" id="collect-copy">Copy link</button>
+    <label for="replies">Paste the replies here, one per line</label>
+    <textarea id="replies" spellcheck="false" style="min-height:90px" placeholder="Ana | Mon-Fri 9-17; Sat off | max: 30 | off: Wed&#10;Ben | Mon-Sun 0-24"></textarea>
+    <button type="button" id="merge-replies">Merge into staff list</button>
+    <p id="merge-status" role="status" class="note"></p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>The roster</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table class="sched" id="grid"><thead></thead><tbody></tbody></table></div></div>
+    <div id="unfilled-box"></div>
+    <div id="hire-box"></div>
+    <h3>Hours and pay by person</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="people"><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Hours</th><th class="n">Overtime</th><th class="n">Payroll</th><th>Against their limits</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Who this week depends on</h3>
+    <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
+    <div id="critical"></div>
+    <div id="daily-box"></div>
+    <div id="cover-box"></div>
+    <div id="fair-box"></div>
+    <div id="hours-box"></div>
+    <div id="tip-box"></div>
+    <div id="trim-box"></div>
+    <h3>Changes since you posted it</h3>
+    <p class="note">Posted a schedule, then changed it? Choose the roster CSV you posted, say when you made the change, and see every shift that was added, cancelled or moved, how much notice each got, and the premium pay <em>your own</em> rule would owe. Fair-workweek laws differ by city and change: enter your window and premium from the rule that applies to you; nothing here is a statement of what a law requires.</p>
+    <div class="grid">
+      <div><label for="posted-file">Roster you posted (CSV)</label><input id="posted-file" type="file" accept=".csv,text/csv"></div>
+      <div><label for="changed-at">Changed on (date and time)</label><input id="changed-at" type="datetime-local"></div>
+      <div><label for="notice-h">Notice window (hours)</label><input id="notice-h" inputmode="decimal" value="336"></div>
+      <div><label for="premium-h">Premium per late change (hours of pay)</label><input id="premium-h" inputmode="decimal" value="1"></div>
+      <div><label for="exempt-names">Employee-requested, no premium (names, comma separated)</label><input id="exempt-names" placeholder="e.g. Ben, Cleo"></div>
+    </div>
+    <div id="changes-out" aria-live="polite"></div>
+    <h3>Someone called in sick? Who can take the shift</h3>
+    <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
+    <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
+    <div id="cover-out" aria-live="polite"></div>
+    <h3>Someone out for several days? Re-cover all their shifts</h3>
+    <p class="note">Pick the person and the days they are out. Every shift they hold on those days goes to someone else, cheapest first, without moving anyone else's existing shifts. Shifts nobody can take stay open, with the reason.</p>
+    <label for="absent-who">Person out</label> <select id="absent-who"></select>
+    <fieldset id="absent-days" style="border:0;padding:0;margin:.4rem 0"><legend class="note">Days out (none ticked = the whole week)</legend><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Mon" value="0"> Mon</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Tue" value="1"> Tue</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Wed" value="2"> Wed</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Thu" value="3"> Thu</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Fri" value="4"> Fri</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Sat" value="5"> Sat</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Sun" value="6"> Sun</label></fieldset>
+    <div id="absent-out" aria-live="polite"></div>
+    <h3>Against filling shifts in listed order</h3>
+    <p class="note">What you get by going through the shifts in time order and giving each to the first person in your list who is free and within the rules.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Shifts left open</th><th class="n">Overtime hours</th><th class="n">Payroll</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download roster CSV</button>
+    <button type="button" class="secondary" id="download-hours">Download hours CSV</button>
+    <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
+      <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
+      <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="print-wall">Print a wall copy (names and shifts only)</button>
+      <span class="note">No pay or wages on it, so it is safe to post in the break room.</span></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
+      <div id="messages" aria-live="polite"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift premiums, skills or roles, tips, union rules, seniority, time off requests across weeks (one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make an employee schedule that covers every shift?</h3>
+    <p>List each shift you need covered with how many people it takes, list each person with their availability, weekly hour limits and wage, and assign people to shifts one hard rule at a time: available for the whole shift, not double-booked, enough rest since their last shift, under their weekly limit. This tool does that search for you and shows any shift it could not fill with the reason.</p>
+    <h3>How does the roster builder decide who works which shift?</h3>
+    <p>It never breaks a hard rule (availability, weekly hour cap, rest between shifts, consecutive days, no double-booking). Among the rosters that follow those rules it covers as many shifts as possible first, then picks the lowest payroll, counting overtime above your threshold, nudged by the hour balance slider and by each person's minimum hours. The search is a seeded simulated-annealing optimiser, so the same inputs always give the same roster.</p>
+    <h3>Is the roster guaranteed to be the cheapest possible?</h3>
+    <p>No. Choosing who works which shift is a hard combinatorial problem, so the tool searches rather than proves optimality. On small problems the test suite checks the result against an exhaustive search of every possible roster and it matches. On a full week it finds a strong roster quickly, and the result is deterministic so you can compare changes fairly.</p>
+    <h3>What does the hour balance slider do?</h3>
+    <p>At zero the tool chases the lowest payroll, which can pile hours on the cheapest people and leave others under their minimum. Raising it adds a penalty for each person's hours drifting from their fair share of the total, in proportion to their weekly limit. Payroll shown is always the real cost, not the penalised score.</p>
+    <h3>What does who-is-critical mean?</h3>
+    <p>For each person on the roster the tool re-builds the week without them and reports how many hours of shifts would then go uncovered. A person whose absence leaves hours uncovered is a single point of failure: one sick call and a shift is open. Use it to see where you need a backup or wider availability.</p>
+    <h3>What rules and laws does it check?</h3>
+    <p>It enforces the availability, weekly hour limit, rest gap and consecutive-day limit that you type in, and prices weekly overtime above the threshold you set, plus optional daily overtime and double time (California-style presets included). It does not know your local predictive-scheduling or fair-workweek notice rules, break and meal-period rules, minor-labor limits, union terms or tip rules, which vary by place. Check the roster against the rules that apply to you.</p>
+    <h3>Is my staff list uploaded anywhere?</h3>
+    <p>No. Names, wages and availability are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your roster. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Next step: the <a href="../time-off-request-planner/">time-off request planner</a> decides which vacation requests fit your minimum cover.</p>
+    <p>Once the roster is posted: the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> prices the premium pay that late changes and short rests trigger under predictive scheduling laws.</p>
+    <p>Then check the hours as worked: the <a href="../ca-meal-rest-break-premium-checker/">California meal and rest break premium checker</a> audits timecards for late, short and missed meal periods.</p>
+    <p>Related tools: the <a href="../shift-cover-optimizer/">shift-cover optimizer</a> (how many people each hour needs, and the cheapest shift lengths), the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost daypart analyzer</a> and the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a>.</p>
+    <p>Running a fixed rotation instead of a weekly rota? The <a href="../shift-rotation-schedule-generator/">shift rotation schedule generator</a> builds Pitman, DuPont, 4-on-4-off and 24/48 calendars with an .ics export.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id, d) => { const t = $("#" + id).value.trim(); return t === "" ? d : Number(t); };
+    let last = null, lastIn = null;
+
+    function showCover() {
+      if (!last) return;
+      const c = coverOptions(lastIn.staff, lastIn.slots, last, Number($("#cover-shift").value));
+      if (c.error) { $("#cover-out").innerHTML = ""; return; }
+      const fit = c.fits.length
+        ? `<div class="scroll"><table><thead><tr><th>Could take it</th><th class="n">Payroll change</th><th class="n">Their hours then</th></tr></thead><tbody>${c.fits.map((f) => `<tr><td>${esc(f.name)}${f.overtimeAfter > 0.01 ? ' <span class="pill medium">overtime</span>' : ""}</td><td class="n">${f.extraCost >= 0 ? "+" : ""}${money2(f.extraCost)}</td><td class="n">${num(f.hoursAfter)}</td></tr>`).join("")}</tbody></table></div>`
+        : '<div class="warn">Nobody can take this shift without changing someone else\'s week.</div>';
+      const blk = c.blocked.length ? `<p class="note">Free then but blocked: ${c.blocked.map((b) => esc(b.name) + " (" + esc(b.reason) + ")").join("; ")}.</p>` : "";
+      const sw = swapOptions(lastIn.staff, lastIn.slots, last, Number($("#cover-shift").value));
+      const swap = !sw.error && sw.trades.length
+        ? `<p class="note"><strong>Or trade shifts</strong> (both weeks stay within every rule):</p><div class="scroll"><table><thead><tr><th>${esc(sw.from)} swaps with</th><th>Takes back</th><th class="n">Payroll change</th></tr></thead><tbody>${sw.trades.slice(0, 8).map((t) => `<tr><td>${esc(t.with)}${t.direct ? "" : ' <span class="pill medium">needs a trade</span>'}</td><td>${DAYS[t.gives.day]} ${fmtClock(t.gives.startMin)}–${fmtClock(t.gives.endMin)}${t.gives.label ? " " + esc(t.gives.label) : ""}</td><td class="n">${t.extraCost >= 0 ? "+" : ""}${money2(t.extraCost)}</td></tr>`).join("")}</tbody></table></div>`
+        : "";
+      $("#cover-out").innerHTML = fit + blk + swap;
+    }
+    $("#cover-shift").addEventListener("change", showCover);
+
+    function showAbsence() {
+      if (!last) return;
+      const days = [...document.querySelectorAll(".absent-day:checked")].map((c) => Number(c.value));
+      const a = absencePlan(lastIn.staff, lastIn.slots, last, $("#absent-who").value, days.length ? days : null);
+      if (a.error) { $("#absent-out").innerHTML = ""; return; }
+      const lbl = (x) => `${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}`;
+      if (!a.moves.length && !a.open.length) { $("#absent-out").innerHTML = `<p class="note">${esc(a.person)} has no shifts on those days.</p>`; return; }
+      const mv = a.moves.length
+        ? `<div class="scroll"><table><thead><tr><th>Shift</th><th>Goes to</th><th class="n">Payroll change</th></tr></thead><tbody>${a.moves.map((m) => `<tr><td>${lbl(m.slot)}</td><td>${esc(m.to)}${m.overtimeAfter > 0.01 ? ' <span class="pill medium">overtime</span>' : ""}</td><td class="n">${m.extraCost >= 0 ? "+" : ""}${money2(m.extraCost)}</td></tr>`).join("")}</tbody></table></div><p class="note">Total payroll change: <strong>${a.extraCost >= 0 ? "+" : ""}${money2(a.extraCost)}</strong>.</p>`
+        : "";
+      const op = a.open.length
+        ? `<div class="warn">Nobody can take: ${a.open.map((o) => lbl(o.slot) + (o.blocked.length ? " (" + o.blocked.map((b) => esc(b.name) + " " + esc(b.reason)).join("; ") + ")" : " (nobody else is available)")).join("; ")}.</div>`
+        : "";
+      $("#absent-out").innerHTML = mv + op;
+    }
+    $("#absent-who").addEventListener("change", showAbsence);
+    document.querySelectorAll(".absent-day").forEach((c) => c.addEventListener("change", showAbsence));
+
+    function run() {
+      const st = parseStaff($("#staff").value, { weekStart: $("#weekstart").value || null }), sh = parseShifts($("#shifts").value);
+      const errors = [...st.errors, ...sh.errors, ...parseAvailability($("#diffwhen").value).errors.map((e) => "pay differential hours: " + e)];
+      if (errors.length) { status.textContent = errors.slice(0, 4).join(" · ") + (errors.length > 4 ? ` · and ${errors.length - 4} more` : ""); report.hidden = true; return false; }
+      status.textContent = "Building…";
+      const r = buildRoster(st.staff, sh.slots, {
+        minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
+        mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), splitPremium: val("splitprem", 0), splitGap: val("splitgap", 1), diffWhen: $("#diffwhen").value, diffPerHour: val("diffhour", 0), diffPct: val("diffpct", 0), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
+        burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r; lastIn = { staff: st.staff, slots: sh.slots };
+      $("#absent-who").innerHTML = st.staff.map((p) => `<option>${esc(p.name)}</option>`).join("");
+      $("#cover-shift").innerHTML = sh.slots.map((x, i) => `<option value="${i}">${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}${r.owner[i] >= 0 ? " (" + esc(st.staff[r.owner[i]].name) + ")" : " (open)"}</option>`).join("");
+      showCover();
+      const sf = scheduleFlags(r, { weekStart: $("#weekstart").value || null, today: new Date().toISOString().slice(0, 10) });
+      const flagMsgs = [
+        ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
+        ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
+        ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; a suggested break time is in the last notice below.`),
+        ...sf.sevenDays.map((x) => `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.`),
+        ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
+      ];
+      const brk = placeBreaks(r);
+      if (brk.length) flagMsgs.push("Suggested meal breaks (30 min, before the 5th hour, staggered so others stay on): " + brk.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
+      $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
+        [money(r.cost), `Estimated payroll for ${num(r.hours)} scheduled hours`],
+        [num(r.otHours), "Overtime hours scheduled"],
+        [r.critical.length ? String(r.critical.length) : "0", r.critical.length ? "People whose absence would leave a shift uncovered" : "People whose absence would leave a shift uncovered"],
+      ];
+      const lp = laborPercent(r.cost, val("sales", 0), val("labortarget", 0));
+      if (lp) big.splice(2, 0, [num(lp.pct) + "%", lp.target === null ? "Payroll as a share of projected sales" : (lp.over ? `Payroll share of sales: over your ${num(lp.target)}% target by ${money(-lp.headroom)}` : `Payroll share of sales: ${money(lp.headroom)} under your ${num(lp.target)}% target`)]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#grid thead").innerHTML = `<tr><th>Person</th>${DAYS.map((d) => `<th>${d}</th>`).join("")}</tr>`;
+      $("#grid tbody").innerHTML = r.grid.map((g) => `<tr><td><strong>${esc(g.name)}</strong></td>${g.days.map((d) => `<td>${d.length ? d.map(esc).join("<br>") : "—"}</td>`).join("")}</tr>`).join("");
+      $("#unfilled-box").innerHTML = r.unfilled.length
+        ? `<h3>Shifts nobody could take</h3><div class="scroll"><table><thead><tr><th>Shift</th><th>Why</th></tr></thead><tbody>${r.unfilled.map((u) => `<tr><td>${DAYS[u.slot.day]} ${fmtClock(u.slot.startMin)}–${fmtClock(u.slot.endMin)}${u.slot.label ? " " + esc(u.slot.label) : ""}</td><td>${esc(u.text)}</td></tr>`).join("")}</tbody></table></div>`
+        : "";
+      $("#people tbody").innerHTML = r.people.map((p) => {
+        const note = p.splitDays > 0 ? `<span class="pill medium">${p.splitDays} split day${p.splitDays > 1 ? "s" : ""} (premium in pay)</span>` : p.short > 0.01 ? `<span class="pill medium">${num(p.short)} h under minimum</span>` : (p.hours === 0 ? '<span class="pill info">no shifts</span>' : `<span class="pill good">within ${num(p.maxHours, 0)} h limit</span>`);
+        return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
+      }).join("");
+      $("#hire-box").innerHTML = r.hireTest
+        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll. A what-if only; it is not added to your list.</p>`
+        : "";
+      $("#critical").innerHTML = r.critical.length
+        ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`
+        : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
+      const tbox = $("#trim-box");
+      tbox.innerHTML = "";
+      if (lp && lp.over) {
+        const need = -lp.headroom, t = trimOptions(st.staff, sh.slots, r);
+        if (!t.error && t.rows.length) {
+          let run = 0;
+          const rows = t.rows.slice(0, 8);
+          tbox.innerHTML = `<h3>Getting under your ${num(lp.target)}% target</h3><p class="note">You are ${money(need)} over. These are the biggest single savings, safe cuts first (another person still works that shift). Each saving is for that cut alone; cuts to the same person's week do not add up exactly because overtime is priced across the week. This is a list of options, not a re-run of the roster.</p><div class="scroll"><table><thead><tr><th>Drop</th><th>From</th><th class="n">Saves</th><th class="n">Running total</th></tr></thead><tbody>${rows.map((x) => { run += x.saves; return `<tr><td>${DAYS[x.slot.day]} ${fmtClock(x.slot.startMin)}–${fmtClock(x.slot.endMin)}${x.slot.label ? " " + esc(x.slot.label) : ""}${x.leavesEmpty ? ' <span class="pill medium">leaves it empty</span>' : ""}${x.breaksMinimum ? ' <span class="pill medium">under their minimum</span>' : ""}</td><td>${esc(x.person)}</td><td class="n">${money2(x.saves)}</td><td class="n">${money2(run)}</td></tr>`; }).join("")}</tbody></table></div>`;
+        }
+      }
+      const dl = dailyLabor(r, st.staff, $("#dailysales").value);
+      $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
+      const cg = coverageGrid(r);
+      $("#cover-box").innerHTML = cg.rows.length ? `<h3>People on, hour by hour</h3><p class="note">Headcount for each clock hour (an hour counts when any part of it is covered). Darker is busier; a <strong>1</strong> is one person alone, which is where a no-show hurts.</p><div class="scroll"><table><thead><tr><th>Day</th>${cg.rows[0].counts.map((_, i) => `<th class="n">${fmtClock(((cg.from + i) % 24) * 60)}</th>`).join("")}</tr></thead><tbody>${cg.rows.map((row) => `<tr><td>${row.day}</td>${row.counts.map((c) => `<td class="n" style="background:rgba(106,61,181,${(0.5 * c / Math.max(cg.peak, 1)).toFixed(2)})">${c || ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
+      const fr = fairnessReport(r);
+      $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; raise \u201cSpread weekend, closing and opening shifts\u201d to have the search even it out; it cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
+      const ht = val("hoursline", 0) > 0 ? hoursThresholds(r, { threshold: val("hoursline", 0) }) : null;
+      const tp = val("tippot", 0) > 0 ? tipPool(r, val("tippot", 0)) : null;
+      $("#tip-box").innerHTML = tp && tp.rows.length ? `<h3>Tip pool by hours</h3><p class="note">${money2(tp.pot)} split in proportion to scheduled hours, to the cent, so the shares add back to the pot. A planning aid: who may share in a pool, and any limits, depend on where you are and are yours to apply.</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Share</th><th class="n">Per hour</th></tr></thead><tbody>${tp.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td class="n">${money2(x.share)}</td><td class="n">${money2(x.perHour)}</td></tr>`).join("")}</tbody></table></div>` : "";
+      $("#hours-box").innerHTML = ht && (ht.over.length || ht.near.length) ? `<h3>Around your ${num(ht.threshold)}-hour line</h3><p class="note">Some employers owe more (health coverage, benefits, paid leave) to people at a weekly-hours line. These people are at or just under yours, so moving a few hours is a choice you make on purpose. A list only: the builder does not enforce the line and states no legal requirement.</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours</th><th>Where they stand</th></tr></thead><tbody>${ht.over.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td>${x.by < 0.005 ? "exactly at the line" : num(x.by) + " h over"}</td></tr>`).join("")}${ht.near.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td>${num(x.short)} h under</td></tr>`).join("")}</tbody></table></div>` : "";
+      $("#cmp tbody").innerHTML = [["This roster", r.unfilledSlots, r.otHours, r.cost], ["Listed order", r.listed.unfilledSlots, r.listed.otHours, r.listed.cost]]
+        .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
+      $("#icsperson").innerHTML = '<option value="">Everyone</option>' + r.people.map((p) => `<option>${esc(p.name)}</option>`).join("");
+      if (!$("#weekstart").value) { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); $("#weekstart").value = d.toISOString().slice(0, 10); }
+      showChanges();
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the roster.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function download(name, text, type = "text/csv") {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    }
+    const OT_PRESETS = { "": [0, 0], ca: [8, 12], ak: [8, 0], co: [12, 0] };
+    $("#otrule").addEventListener("change", () => {
+      const p = OT_PRESETS[$("#otrule").value] || [0, 0];
+      $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
+    });
+    $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts(); persist();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with seven people."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#staff").value = String(rd.result); persist(); record("file_loaded"); status.textContent = `Loaded ${f.name} into the people box. Add your shifts and click the button.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; persist(); $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
+    $("#print-wall").addEventListener("click", () => {
+      if (!last) return;
+      const ws = $("#weekstart").value;
+      $("#wall").innerHTML = `<h1>Schedule${ws ? ", week of " + esc(ws) : ""}</h1><table><thead>${$("#grid thead").innerHTML}</thead><tbody>${$("#grid tbody").innerHTML}</tbody></table>`;
+      document.body.classList.add("print-wall");
+      window.print();
+      document.body.classList.remove("print-wall");
+    });
+    $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
+    $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
+    $("#download-ics").addEventListener("click", () => {
+      if (!last) return;
+      try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
+      catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
+
+    $("#make-messages").addEventListener("click", () => {
+      if (!last) return;
+      let msgs;
+      try { msgs = rosterMessages(last, $("#weekstart").value || null); } catch (e) { msgs = rosterMessages(last); }
+      const box = $("#messages"); box.textContent = "";
+      for (const m of msgs) {
+        const row = document.createElement("div"); row.style.marginTop = "8px";
+        const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
+        ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
+        const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
+        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        row.append(ta, b); box.append(row);
+      }
+      record("messages_made");
+    });
+
+    // Remember the team on this device only; nothing is sent anywhere.
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "labortarget", "hoursline", "tippot"];
+    const KEY = "shift-roster-builder:setup:v1";
+    const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
+    const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} }
+    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) { apply(saved); status.textContent = "Restored your last setup from this device. Click the button to rebuild."; } } catch (e) {}
+    for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
+    $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
+    $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+
+    let postedCsv = "";
+    function showChanges() {
+      const out = $("#changes-out");
+      if (!last || !postedCsv) { out.innerHTML = ""; return; }
+      const ws = $("#weekstart").value, ca = $("#changed-at").value;
+      let changedAt = null;
+      if (ws && ca) { const m = (new Date(ca) - new Date(ws + "T00:00")) / 60000; if (Number.isFinite(m)) changedAt = m; }
+      const wages = {}; for (const p of lastIn.staff) wages[p.name] = p.wage;
+      const r = scheduleChanges(postedCsv, rosterCsv(last), { changedAt, noticeHours: val("notice-h", 336), premiumHours: val("premium-h", 1), wages, exempt: $("#exempt-names").value.split(",") });
+      if (!r.changes.length) { out.innerHTML = '<p class="ok">The roster matches the one you posted: nothing changed.</p>'; return; }
+      const what = (c) => c.kind === "moved" ? `moved ${esc(fmtClock(c.from.start % 1440))}–${esc(fmtClock(c.from.end % 1440))} to ${esc(fmtClock(c.to.start % 1440))}–${esc(fmtClock(c.to.end % 1440))}` : c.kind === "cancelled" ? `cancelled ${esc(fmtClock(c.from.start % 1440))}–${esc(fmtClock(c.from.end % 1440))}` : `added ${esc(fmtClock(c.to.start % 1440))}–${esc(fmtClock(c.to.end % 1440))}`;
+      const day = (c) => DAYS[Math.floor(c.touchesFrom / 1440)];
+      const head = r.noticeKnown ? `<p><strong>${r.changes.length} change${r.changes.length === 1 ? "" : "s"}, ${r.shortNotice} on short notice. Premium on your numbers: ${money2(r.owed)}.</strong></p>` : `<p><strong>${r.changes.length} change${r.changes.length === 1 ? "" : "s"}.</strong> Give the Monday of this week above and a change time to see notice and premium.</p>`;
+      out.innerHTML = head + `<div class="scroll"><table><thead><tr><th>Person</th><th>Day</th><th>Change</th><th class="n">Hours</th><th class="n">Notice (h)</th><th class="n">Premium</th></tr></thead><tbody>${r.changes.map((c) => `<tr><td>${esc(c.person)}</td><td>${day(c)}</td><td>${what(c)}</td><td class="n">${c.hoursDelta > 0 ? "+" : ""}${num(c.hoursDelta)}</td><td class="n">${c.noticeHours === null ? "—" : num(c.noticeHours)}</td><td class="n">${c.exempt ? "requested" : c.premiumUnpriced ? "no wage" : c.shortNotice ? money2(c.premium) : "—"}</td></tr>`).join("")}</tbody></table></div><p class="note">Notice is counted from the change time to the earliest start the change touches. A person who is swapped out and another swapped in show as two changes; list employee-requested ones above to take them out.</p>`;
+    }
+    $("#posted-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { postedCsv = String(rd.result); showChanges(); };
+      rd.readAsText(f);
+    });
+    for (const id of ["changed-at", "notice-h", "premium-h", "exempt-names", "weekstart"]) $("#" + id).addEventListener("input", showChanges);
+    $("#lastweek-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.readAsText(f);
+    });
+    $("#setup-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { try { apply(JSON.parse(String(rd.result))); persist(); status.textContent = `Loaded ${f.name}. Click the button to build the roster.`; } catch (err) { status.textContent = "That file is not a setup file saved by this tool."; } };
+      rd.readAsText(f);
+    });
+    function collectLink() {
+      const u = new URL("availability.html", location.href), q = new URLSearchParams();
+      const b = $("#collect-biz").value.trim(), n = $("#collect-name").value.trim(), w = $("#weekstart").value;
+      if (b) q.set("b", b); if (n) q.set("n", n); if (w) q.set("w", w);
+      u.hash = q.toString();
+      $("#collect-link").value = u.href;
+    }
+    for (const id of ["collect-biz", "collect-name", "weekstart"]) $("#" + id).addEventListener("input", collectLink);
+    collectLink();
+    $("#collect-copy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("#collect-link").value); $("#merge-status").textContent = "Link copied."; }
+      catch { $("#collect-link").select(); $("#merge-status").textContent = "Select the link and copy it."; }
+    });
+    $("#merge-replies").addEventListener("click", () => {
+      const r = mergeAvailabilityReplies($("#staff").value, $("#replies").value);
+      if (r.updated.length || r.added.length) { $("#staff").value = r.text; persist(); }
+      const bits = [];
+      if (r.updated.length) bits.push(`Updated ${r.updated.join(", ")}.`);
+      if (r.added.length) bits.push(`Added ${r.added.join(", ")} with no wage: fill it in before building.`);
+      if (r.errors.length) bits.push(`Skipped: ${r.errors.join(" ")}`);
+      $("#merge-status").textContent = bits.join(" ") || "Paste at least one reply line.";
+      if (r.updated.length || r.added.length) $("#replies").value = "";
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<div id="wall" aria-hidden="true"></div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../daily-prep-quantity-optimizer/" data-pf-to="daily-prep-quantity-optimizer">Daily prep quantity optimizer</a></li>
+      <li><a href="../dining-room-table-mix-optimizer/" data-pf-to="dining-room-table-mix-optimizer">Dining room table mix optimizer</a></li>
+      <li><a href="../distillery-excise-tax-calculator/" data-pf-to="distillery-excise-tax-calculator">Distillery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../dry-cleaner-profit-calculator/" data-pf-to="dry-cleaner-profit-calculator">Dry cleaner calculator: how many pieces a month do you need to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shift-roster-builder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/?pfEmbed=1&quot; title=&quot;Shift Roster Builder — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="shift-roster-builder"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/" data-pf-embed-title="Shift Roster Builder — free, private, in your browser" data-pf-embed-slug="shift-roster-builder"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="shift-roster-builder" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="shift-roster-builder" data-pf-link-amount=""></script>
+</body>
+</html>

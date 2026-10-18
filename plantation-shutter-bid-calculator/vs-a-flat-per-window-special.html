@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-window special | Plantation Shutter Bid Calculator</title>
+<meta name="description" content="A published '$250 a window installed' special cannot see the mount, the grade, the scope, or a second story.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/plantation-shutter-bid-calculator/vs-a-flat-per-window-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-window special">
+<meta property="og:description" content="Six 30x60 2-panel inside-mount paint-grade hangs and eight 48x80 4-panel outside-mount stain-grade template openings on a second story both get called…">
+<meta property="og:url" content="vs-a-flat-per-window-special.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat \"$250 a window\" special get a plantation shutter install wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the mount, the grade, and the scope, not the panel in the truck. Six small inside-mount paint-grade openings hung straight from stock are a different job from eight wide outside-mount stain-grade openings on a second story that need a measure trip, custom milling, treatment removal, and a bypass track. A flat per-window special charges both the same because it was priced on the cheapest opening and mount combination, not the job in front of the estimator."}},{"@type":"Question","name":"What does a flat per-window rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The mount, the grade, the scope, and the extras. A published $250-a-window number is set on an inside-mount, paint-grade, product-on-site hang -- it has no line for outside-mount trim and hardware, no line for a stain-grade mill invoice, no line for a measure trip or template-and-custom millwork, and no line for treatment removal, a specialty opening, a bypass track, a cafe split, or a second story."}},{"@type":"Question","name":"How much do scope, mount, grade, and extras actually add over the per-window rate?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped presets, at a $42 crew wage, 32% payroll burden, 15% overhead, and a 20% target margin -- the form's own defaults: the cheap-special preset -- 6 openings, 30x60, 2-panel, inside mount, paint-grade, hang only -- walks away at $5,348.16 against a flat $250-a-window quote of $1,500.00, already $3,848.16 short of its own break-even cost. The losing-job preset -- 8 openings, 48x80, 4-panel, outside mount, stain-grade, template-and-custom, two stories, a specialty opening, and a bypass track -- walks away at $20,943.86 against a flat quote of $2,000.00, $18,943.86 short of its own break-even cost -- nearly five times worse than the cheap job's shortfall on the same $250-a-window rate."}},{"@type":"Question","name":"Is a flat per-window rate ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- small inside-mount paint-grade openings hung straight from stock, no removal, no bypass, no second story -- a flat rate can land close, because that is probably the job the rate was set on. The risk is quoting an outside-mount stain-grade template job the same way sight unseen, because the rate does not know the mount, the grade, the scope, or which extras apply until someone counts the openings, and by then the flat number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your mill or hardware supplier's invoice pricing, or your shop's overhead. It takes the openings, the mount, the grade, the scope, and which extras apply, plus your own wage, burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-window special skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2f36; background: #e8edf2; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #3a4a2a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; }
+  section { background: #e8edf2; border: 1px solid #3a4a2a44; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #0000000d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #3a4a2a33; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  .fine, .note { font-size: .88rem; }
+  footer { font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/plantation-shutter-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-window special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../plantation-shutter-bid-calculator/">Plantation Shutter Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-window special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Plantation Shutter Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-window special</h1>
+<p class="lede">"$250 a window installed" is not a price for a job &mdash; it is a price for six small inside-mount paint-grade openings hung from the truck, quietly reused for every house that also asks for plantation shutters.</p>
+</header>
+<section>
+<h2>What a flat per-window special is</h2>
+<p>
+A flat per-window special is the fastest way to quote a shutter job over
+the phone or on a Facebook ad: quote the published $250-a-window number,
+skip the walkthrough. Homeowners shop it because a flyer or a post already
+gave them a figure, and it is the figure they will ask you to match &mdash;
+even for a job the number was never priced on.
+</p>
+<p>
+The number behind it was set for one kind of job &mdash; small inside-mount
+openings, paint-grade, hung straight from stock with nothing to remove
+&mdash; and then reused for every house afterward, whether or not the next
+one needs an outside mount, a stain-grade mill invoice, a measure-and-template
+trip, or a second story.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+openings, the typical width and height, panels per opening, the mount
+(inside or outside), the grade (paint or stain), the scope (product-on-site
+hang, measure-and-install, or template-and-custom), and whether the job
+needs treatment removal, a specialty opening, a bypass track, or a cafe
+split, plus your own wage, payroll burden, overhead, and target margin. It
+returns the bid price, the price per opening, and the walk-away price below
+which the job loses money &mdash; for this mount and this grade, not a flat
+number for every house.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-window special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same figure per window for an inside-mount paint-grade hang and an outside-mount stain-grade template job &mdash; even though the mill invoice and the hang hours on the second job can run several times the first.</td>
+<td>Prices the mount, the grade, and the scope separately, from panels per opening and square footage, not a blended per-window number.</td>
+</tr>
+<tr>
+<td>Has no line for treatment removal, a specialty or arched opening, a bypass track, or a cafe split, regardless of whether the job the customer wants actually needs them.</td>
+<td>Prices each of those as its own labor and material line, applied only when the job calls for it.</td>
+</tr>
+<tr>
+<td>Quotes the same rate for a one-story ranch and a second-story job that needs a ladder or scaffold on every opening.</td>
+<td>Prices extra stories as their own labor line, applied per opening above the ground floor.</td>
+</tr>
+<tr>
+<td>Has no separate line for a measure trip or template-and-custom milling, which a stain-grade or unusual-opening job usually needs and a product-on-site hang does not.</td>
+<td>Prices measure and template hours separately by scope, so a millwork job is not priced like a hang-only job.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against what a flat per-window special would have quoted the same job, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two houses, one flat special</h2>
+<p>
+Using this calculator's own shipped presets, at a $42 crew wage, 32%
+payroll burden, 15% overhead, and a 20% target margin &mdash; the form's
+own defaults, not a number invented for this page:
+</p>
+<p>
+The cheap-special preset &mdash; 6 openings, 30&times;60, 2-panel, inside
+mount, paint-grade, hang only &mdash; walks away at <strong>$5,348.16</strong>
+and this calculator bids it at <strong>$6,685.20</strong>
+($1,114.20 per opening). A flat $250-a-window quote on the same 6 openings
+comes to <strong>$1,500.00</strong> &mdash; already
+<strong>$3,848.16 short of the job's own break-even cost</strong>.
+</p>
+<p>
+Take the same $250-a-window rate to a template-and-custom job instead
+&mdash; 8 openings, 48&times;80, 4-panel, outside mount, stain-grade,
+two stories, a specialty opening, and a bypass track &mdash; and the job
+walks away at <strong>$20,943.86</strong>, with this calculator bidding it
+at <strong>$26,179.83</strong> ($3,272.48 per opening). The same flat rate
+on 8 openings comes to <strong>$2,000.00</strong> &mdash;
+<strong>$18,943.86 short of that job's own break-even cost</strong>,
+nearly five times worse than the cheap job's shortfall on the identical
+per-window rate. Same $250-a-window special, one house where it merely
+undercuts and one where it loses money on every opening the moment the
+mill invoice and the second story are counted.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat "$250 a window" special get a plantation shutter install wrong?</h3>
+<p>Because the cost driver is the mount, the grade, and the scope, not the panel in the truck. Six small inside-mount paint-grade openings hung straight from stock are a different job from eight wide outside-mount stain-grade openings on a second story that need a measure trip, custom milling, treatment removal, and a bypass track. A flat per-window special charges both the same because it was priced on the cheapest opening and mount combination, not the job in front of the estimator.</p>
+<h3>What does a flat per-window rate usually leave out entirely?</h3>
+<p>The mount, the grade, the scope, and the extras. A published $250-a-window number is set on an inside-mount, paint-grade, product-on-site hang -- it has no line for outside-mount trim and hardware, no line for a stain-grade mill invoice, no line for a measure trip or template-and-custom millwork, and no line for treatment removal, a specialty opening, a bypass track, a cafe split, or a second story.</p>
+<h3>How much do scope, mount, grade, and extras actually add over the per-window rate?</h3>
+<p>On this calculator's own shipped presets, at a $42 crew wage, 32% payroll burden, 15% overhead, and a 20% target margin -- the form's own defaults: the cheap-special preset -- 6 openings, 30x60, 2-panel, inside mount, paint-grade, hang only -- walks away at $5,348.16 against a flat $250-a-window quote of $1,500.00, already $3,848.16 short of its own break-even cost. The losing-job preset -- 8 openings, 48x80, 4-panel, outside mount, stain-grade, template-and-custom, two stories, a specialty opening, and a bypass track -- walks away at $20,943.86 against a flat quote of $2,000.00, $18,943.86 short of its own break-even cost -- nearly five times worse than the cheap job's shortfall on the same $250-a-window rate.</p>
+<h3>Is a flat per-window rate ever the right way to quote?</h3>
+<p>For a narrow band of similar jobs -- small inside-mount paint-grade openings hung straight from stock, no removal, no bypass, no second story -- a flat rate can land close, because that is probably the job the rate was set on. The risk is quoting an outside-mount stain-grade template job the same way sight unseen, because the rate does not know the mount, the grade, the scope, or which extras apply until someone counts the openings, and by then the flat number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market, your mill or hardware supplier's invoice pricing, or your shop's overhead. It takes the openings, the mount, the grade, the scope, and which extras apply, plus your own wage, burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-window special skips, not a market survey.</p>
+<p class="note">
+  Open the <a href="index.html">Plantation Shutter Bid Calculator</a> to price your own job, or read
+  <a href="how-much-to-charge-to-install-plantation-shutters.html">how much you should charge to install plantation shutters</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a design or installation is adequate. Verify every figure against your own payroll, insurance, and material costs, and against a licensed professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it keeps you off a losing flat-special quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../garage-door-bid-calculator/" data-pf-to="garage-door-bid-calculator">Garage Door Bid Calculator</a></li>
+      <li><a href="../interior-door-bid-calculator/" data-pf-to="interior-door-bid-calculator">Interior Door Bid Calculator</a></li>
+      <li><a href="../locksmith-bid-calculator/" data-pf-to="locksmith-bid-calculator">Locksmith Bid Calculator</a></li>
+      <li><a href="../patio-door-bid-calculator/" data-pf-to="patio-door-bid-calculator">Patio Door Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=plantation-shutter-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="plantation-shutter-bid-calculator"></script>
+</body></html>

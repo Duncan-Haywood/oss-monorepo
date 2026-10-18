@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ad Slot Sell-Through Planner for Newsletters &amp; Podcasts — Free, Private</title>
+  <meta name="description" content="Free ad slot sell-through planner for newsletter and podcast publishers. Paste past runs to see sell-through, unsold revenue…">
+  <meta property="og:title" content="Should you raise your sponsorship price? Free sell-through planner">
+  <meta property="og:description" content="Paste your last runs of ad slots and see sell-through, the revenue left unsold, a price recommendation and whether the next issue is on pace.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f6b5c'/%3E%3Cpath d='M7 23V15h4v8zm7 0V9h4v14zm7 0V12h4v11z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ad Slot Sell-Through Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste past newsletter or podcast ad runs to see sell-through, unsold revenue, a price-response estimate, a price recommendation, booking pace for the next run, last-minute floor revenue and multi-run package math. Runs in your browser; nothing is uploaded.", "featureList": "Sell-through and trend, unsold revenue, price response fit, price scenarios, pacing, last-minute floor, packages, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good ad sell-through rate for a newsletter or podcast?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number, because it depends on how many slots you offer per issue. As a rule of thumb, sell-through above about 90% usually means you are underpriced or short of inventory, and below about 60% means price, reach or slot count is out of line with demand. Track it per run and watch the trend rather than one number."}}, {"@type": "Question", "name": "How does this tool decide whether to raise or lower my price?", "acceptedAnswer": {"@type": "Answer", "text": "It anchors on your current price and recent sell-through, applies a price response that is fitted from your own history when there are enough varied-price runs (otherwise an assumed one), and finds the price that earns the most per run. It never moves more than 25% in one step."}}, {"@type": "Question", "name": "Why does a sold-out run not prove I can charge more?", "acceptedAnswer": {"@type": "Answer", "text": "A sold-out run only shows demand was at least your capacity, not how far above it. The tool assumes a modest excess and labels it, and it leaves sold-out and empty runs out of the price-response fit because they only bound demand."}}, {"@type": "Question", "name": "Is this a forecast or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning aid that does arithmetic on the numbers you paste in and on stated assumptions. Real buyers respond to timing, audience fit and relationships. Treat the output as a hypothesis to test one price change at a time."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f8f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #0f6b5c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d36; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #cfe3de; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d3610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9cdc5; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .rowline { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; border-top: 1px solid #e2efeb; padding: 8px 0 12px; }
+    .rowline label { margin: 4px 0 2px; font-size: .82rem; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f6b5c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dff0ec; color: #0b3d36; }
+    button.small { padding: 7px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e2efeb; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e2efeb; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dcefe9; color: #0b3d36; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 10px 0 4px; border: 1px solid #cfe3de; }
+    .bar span { display: block; height: 100%; }
+    .legend { font-size: .82rem; color: #4c5268; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe3de; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #a9cdc5; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Should you raise your sponsorship price? Free sell-through planner","item":"https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should you raise your sponsorship price? Free sell-through planner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should you raise your sponsorship price? Free sell-through planner</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">AD SLOT SELL-THROUGH PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are your sponsorship slots priced right?</h1>
+    <p>Paste your last runs of ad slots, one line per issue or episode. You get sell-through and its trend, the revenue left unsold, a read on how your sales respond to price, a recommended price move, whether the next run is on booking pace, and what a last-minute floor or a multi-run package is worth.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions, not a forecast.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="h-history">
+      <h2 id="h-history">1. Past runs</h2>
+      <label for="history">One run per line: label, slots offered, slots sold, price per slot (oldest first)</label>
+      <textarea id="history" spellcheck="false" placeholder="Mar 3, 3, 2, 400&#10;Mar 10, 3, 3, 400"></textarea>
+      <div id="parse-errors" class="error" role="alert"></div>
+      <div class="grid">
+        <div><label for="runs-per-month">Runs per month</label><input id="runs-per-month" type="number" min="0.25" step="0.25" value="4" inputmode="decimal"></div>
+        <div><label for="list-price">Price per slot today ($)</label><input id="list-price" type="number" min="1" step="1" placeholder="from your last run" inputmode="numeric"></div>
+        <div><label for="slots">Slots per run</label><input id="slots" type="number" min="1" step="1" placeholder="from your last run" inputmode="numeric"></div>
+      </div>
+      <button type="button" id="run">Plan</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+      <button type="button" class="secondary" id="reset">Clear</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-next">
+      <h2 id="h-next">2. The next run (optional)</h2>
+      <div class="grid">
+        <div><label for="days-out">Days until it goes out</label><input id="days-out" type="number" min="0" step="1" value="14" inputmode="numeric"></div>
+        <div><label for="sold-now">Slots sold so far</label><input id="sold-now" type="number" min="0" step="1" value="1" inputmode="numeric"></div>
+        <div><label for="floor-pct">Lowest price you would take (% of list)</label><input id="floor-pct" type="number" min="0" max="100" step="5" value="50" inputmode="numeric"></div>
+        <div><label for="fill-chance">Chance a floor price fills a slot (%)</label><input id="fill-chance" type="number" min="0" max="100" step="5" value="50" inputmode="numeric"></div>
+        <div><label for="pkg-discount">Discount for a 3-run package (%)</label><input id="pkg-discount" type="number" min="0" max="60" step="1" value="10" inputmode="numeric"></div>
+        <div><label for="pkg-discount-6">Discount for a 6-run package (%)</label><input id="pkg-discount-6" type="number" min="0" max="60" step="1" value="15" inputmode="numeric"></div>
+      </div>
+      <p class="note">Booking curve assumed: 35% of final bookings are in 28 days out, 60% at 14, 80% at 7, 92% at 3. Replace it with your own history when you have it.</p>
+    </section>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good ad sell-through rate for a newsletter or podcast?</h3>
+      <p>There is no single number, because it depends on how many slots you offer per issue. As a rule of thumb, sell-through above about 90% usually means you are underpriced or short of inventory, and below about 60% means price, reach or slot count is out of line with demand. Track it per run and watch the trend rather than one number.</p>
+      <h3>How does this tool decide whether to raise or lower my price?</h3>
+      <p>It anchors on your current price and recent sell-through, applies a price response that is fitted from your own history when there are enough varied-price runs (otherwise an assumed one), and finds the price that earns the most per run. It never moves more than 25% in one step.</p>
+      <h3>Why does a sold-out run not prove I can charge more?</h3>
+      <p>A sold-out run only shows demand was at least your capacity, not how far above it. The tool assumes a modest excess and labels it, and it leaves sold-out and empty runs out of the price-response fit because they only bound demand.</p>
+      <h3>Is this a forecast or financial advice?</h3>
+      <p>No. It is a planning aid that does arithmetic on the numbers you paste in and on stated assumptions. Real buyers respond to timing, audience fit and relationships. Treat the output as a hypothesis to test one price change at a time.</p>
+    </section>
+
+    <section class="card">
+      <h2>What this does not cover</h2>
+      <p>Audience quality and niche, seasonality, sponsor renewals and relationships, make-goods, agency commissions and marketplace fees, tax, and the difference between flat-fee and CPM deals. Price response is a simple constant-elasticity model; with fewer than four usable runs at two or more prices it is an assumption, and the page says so.</p>
+      <p>Related tools: the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a> for a first price from audience size, and the <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { parseHistory, summarize, fitElasticity, priceScenarios, recommend, pacing, lastMinute, packages, diagnose, num, money, percent } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const EXAMPLE = "Aug 4, 3, 3, 350\nAug 11, 3, 3, 350\nAug 18, 3, 2, 450\nAug 25, 3, 2, 450\nSep 1, 3, 3, 350\nSep 8, 3, 1, 550\nSep 15, 3, 2, 450\nSep 22, 3, 1, 450\nSep 29, 3, 1, 450";
+    const LEVEL = { high: "high", medium: "medium", info: "info" };
+
+    function run() {
+      const { rows, errors } = parseHistory($("history").value);
+      $("parse-errors").innerHTML = errors.map(esc).join("<br>");
+      const s = summarize(rows);
+      if (!s) { $("out").hidden = true; return; }
+      const last = rows[rows.length - 1];
+      const price = num($("list-price").value) > 0 ? num($("list-price").value) : last.price;
+      const slots = num($("slots").value) > 0 ? num($("slots").value) : last.offered;
+      const perMonth = num($("runs-per-month").value) > 0 ? num($("runs-per-month").value) : 1;
+      const fit = fitElasticity(rows);
+      const anchorRate = s.recent !== null ? s.recent : s.rate;
+      const rec = recommend({ price, slots, anchorRate, e: fit.e });
+      const sc = priceScenarios({ price, slots, anchorRate, e: fit.e, runsPerMonth: perMonth });
+      const daysOut = num($("days-out").value), soldNow = num($("sold-now").value);
+      const pace = Number.isFinite(daysOut) && Number.isFinite(soldNow) ? pacing({ slots, soldNow, daysOut, typicalFinalRate: anchorRate }) : null;
+      let h = `<div class="finding"><h4>History</h4><p class="stats">${percent(s.rate)} sold across ${s.runs} runs · ${money(s.revenue)} booked of ${money(s.capacity)} at the prices you charged (${money(s.unsold)} unsold)</p>`
+        + `<div class="scroll"><table><thead><tr><th>Run</th><th class="n">Sold</th><th class="n">Price</th><th class="n">Sell-through</th><th class="n">Revenue</th></tr></thead><tbody>`
+        + s.perRow.map((r) => `<tr><td>${esc(r.label)}</td><td class="n">${r.sold}/${r.offered}</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.revenue)}</td></tr>`).join("")
+        + `</tbody></table></div></div>`;
+      for (const f of diagnose({ summary: s, fit, rec, pace })) h += `<div class="finding"><h4><span class="pill ${LEVEL[f.level]}">${f.level === "info" ? "Note" : f.level === "high" ? "Act" : "Watch"}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      h += `<div class="finding"><h4>Price scenarios (${slots} slots, anchored on ${percent(anchorRate >= 0.999 ? 1 : anchorRate)} sold at ${money(price)}, response ${fit.e.toFixed(2)} ${fit.source})</h4><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Price</th><th class="n">Expected sold</th><th class="n">Per run</th><th class="n">Per month</th></tr></thead><tbody>`
+        + sc.map((r) => `<tr><td>${r.change > 0 ? "+" : ""}${Math.round(r.change * 100)}%</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.perRun)}</td><td class="n">${money(r.perMonth)}</td></tr>`).join("")
+        + `</tbody></table></div><p class="note">Change one price at a time and give it three runs before judging it.</p></div>`;
+      if (pace) h += `<div class="finding"><h4>Next run: ${pace.status}</h4><p>${soldNow} of ${slots} slots sold with ${daysOut} days to go. Typically about ${percent(pace.share)} of bookings are in by now`
+        + (pace.projected !== null ? `, which projects ${pace.projected.toFixed(1)} sold and ${pace.projectedUnsold.toFixed(1)} unsold.` : ".") + `</p>`;
+      if (pace && pace.projectedUnsold !== null) {
+        const lm = lastMinute({ unsold: pace.projectedUnsold, price, floorPct: num($("floor-pct").value) / 100, fillChance: num($("fill-chance").value) / 100 });
+        if (lm) h += `<p>A last-minute floor of ${money(lm.floor)} per slot would earn about ${money(lm.expected)} in expectation (${money(lm.ifFilled)} if every slot fills), at the cost of telling buyers the rate card bends by ${money(lm.erosionPerSlot)}.</p>`;
+      }
+      if (pace) h += `</div>`;
+      const tiers = [{ runs: 3, discount: num($("pkg-discount").value) / 100 }, { runs: 6, discount: num($("pkg-discount-6").value) / 100 }];
+      const pk = packages({ price, tiers });
+      h += `<div class="finding"><h4>Multi-run packages</h4><table><thead><tr><th>Package</th><th class="n">Per slot</th><th class="n">Committed</th><th class="n">Given up vs list</th></tr></thead><tbody>`
+        + pk.map((p) => `<tr><td>${p.runs} runs at ${percent(p.discount)} off</td><td class="n">${money(p.each)}</td><td class="n">${money(p.committed)}</td><td class="n">${money(p.vsList)}</td></tr>`).join("")
+        + `</tbody></table><p class="note">Worth it when the committed runs would otherwise sell below list or not at all. Not worth it for slots that already sell out.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { $("history").value = EXAMPLE; $("list-price").value = ""; $("slots").value = ""; record("example_loaded"); run(); });
+    $("reset").addEventListener("click", () => { $("history").value = ""; $("out").hidden = true; $("parse-errors").textContent = ""; });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../funeral-price-list-checker/" data-pf-to="funeral-price-list-checker">Funeral price list checker: what is required, what is your choice</a></li>
+      <li><a href="../garmin-world-traveler-watchface/" data-pf-to="garmin-world-traveler-watchface">World Traveler | A world-time Garmin watch face</a></li>
+      <li><a href="../gig-driver-net-pay-calculator/" data-pf-to="gig-driver-net-pay-calculator">Gig Driver Net Pay Calculator</a></li>
+      <li><a href="../greenhouse-bench-planner/" data-pf-to="greenhouse-bench-planner">Greenhouse bench planner: sow dates and bench space by week — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ad-slot-sell-through-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/?pfEmbed=1&quot; title=&quot;Should you raise your sponsorship price? Free sell-through planner — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ad-slot-sell-through-planner"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/" data-pf-embed-title="Should you raise your sponsorship price? Free sell-through planner" data-pf-embed-slug="ad-slot-sell-through-planner"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ad-slot-sell-through-planner" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ad-slot-sell-through-planner" data-pf-link-amount=""></script>
+</body>
+</html>

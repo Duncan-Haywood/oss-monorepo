@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price a Change Order on a Fixed-Price Project</title>
+  <meta name="description" content="How freelancers and small agencies price scope creep: use the rate the quote implies, add a premium for rush work, decide a free allowance up front…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/scope-creep-change-order-calculator/how-to-price-a-change-order.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this upload my project details?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is computed in your browser from what you type. Nothing is sent anywhere. The CLI makes no network call."}}, {"@type": "Question", "name": "How is the change order price worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The rate your original quote implies (quoted price divided by quoted hours), plus an optional premium for rush or re-planned work. Each extra request is its hours times that rate, after any free allowance you choose to absorb."}}, {"@type": "Question", "name": "What does it cost me if I just absorb the extra work?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows it: the extra hours at your implied rate, and how far your effective hourly rate falls once the same fixed price covers more hours."}}, {"@type": "Question", "name": "Is this a contract or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces a plain-language price list you can paste into an email or change-order form. Check your contract for how changes must be approved."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/scope-creep-change-order-calculator/how-to-price-a-change-order.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Price a Change Order on a Fixed-Price Project">
+<meta property="og:description" content="How freelancers and small agencies price scope creep: use the rate the quote implies, add a premium for rush work, decide a free allowance up front…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/scope-creep-change-order-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Price a Change Order on a Fixed-Price Project — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../scope-creep-change-order-calculator/">Scope Creep Change Order Calculator — price the extra requests</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Price a Change Order on a Fixed-Price Project</span></span></nav>
+  <p><a href="./">← Scope Creep Change Order Calculator</a></p>
+  <h1>How to price a change order on a fixed-price project</h1>
+  <p>Put your quote and the new requests into the <a href="./">calculator</a> to get a message you can send. This is the method behind the number.</p>
+  <h3>Does this upload my project details?</h3>
+    <p>No. Everything is computed in your browser from what you type. Nothing is sent anywhere. The CLI makes no network call.</p>
+    <h3>How is the change order price worked out?</h3>
+    <p>The rate your original quote implies (quoted price divided by quoted hours), plus an optional premium for rush or re-planned work. Each extra request is its hours times that rate, after any free allowance you choose to absorb.</p>
+    <h3>What does it cost me if I just absorb the extra work?</h3>
+    <p>The tool shows it: the extra hours at your implied rate, and how far your effective hourly rate falls once the same fixed price covers more hours.</p>
+    <h3>Is this a contract or legal advice?</h3>
+    <p>No. It produces a plain-language price list you can paste into an email or change-order form. Check your contract for how changes must be approved.</p>
+    
+  <h2>When should I send the change order?</h2>
+  <p>Before the work starts, and in writing. "Can you also…" is the moment the price is still a conversation; after delivery it is an argument. Name the item, the hours, the amount and the schedule impact.</p>
+  <h2>What premium is reasonable?</h2>
+  <p>None for a small add-on you would have quoted anyway. A premium of 10–25% is common when the request interrupts a planned build, needs a re-plan, or has to be done on a short deadline. Say which it is.</p>
+  <h2>Should I include a free allowance?</h2>
+  <p>Decide it before the project, not mid-argument. A small allowance (5–10% of quoted hours) shows goodwill and keeps tiny tweaks from becoming invoices; the calculator uses it up in order before billing starts.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or accounting advice and not a contract. Figures are arithmetic on the estimates you enter; they are not a quote and not a guarantee. Check your agreement for how scope changes must be approved.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>order_built</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    
+    <p class="support">Free and open source. If this saved you an awkward conversation, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../gabor-granger-price-analyzer/" data-pf-to="gabor-granger-price-analyzer">Gabor-Granger Price Analyzer — free, private, in your browser</a></li>
+      <li><a href="../gambling-loss-deduction-calculator/" data-pf-to="gambling-loss-deduction-calculator">Gambling Loss Deduction Calculator — free, 2026 90% cap</a></li>
+      <li><a href="../ghost-members-export-analyzer/" data-pf-to="ghost-members-export-analyzer">Ghost Members Export Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../gig-driver-earnings-report-analyzer/" data-pf-to="gig-driver-earnings-report-analyzer">Gig Driver Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=scope-creep-change-order-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="scope-creep-change-order-calculator"></script>
+</body>
+</html>

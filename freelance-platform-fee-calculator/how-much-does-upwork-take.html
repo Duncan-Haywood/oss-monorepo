@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Upwork Take? (2026 Fee, Explained)</title>
+  <meta name="description" content="Upwork retired its old 20%/10%/5% fee tiers in May 2025. Here is what replaced it, why no calculator can compute your exact fee for you…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/how-much-does-upwork-take.html">
+  <meta property="og:title" content="How Much Does Upwork Take?">
+  <meta property="og:description" content="Upwork's fee is no longer a fixed formula. Here's what changed, and how to price a job around your own quoted rate.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What percentage does Upwork take from freelancers in 2026?","acceptedAnswer":{"@type":"Answer","text":"There is no single answer any more. Since May 1, 2025, Upwork replaced its old tiered freelancer service fee (20% on the first $500 billed to a client, 10% up to $10,000, 5% above that) with a variable fee between 0% and 15% per contract. Upwork's own pricing system sets the exact percentage per client relationship, and it is shown to you only when you send a proposal or accept an offer — not published as a table anyone can look up."}},{"@type":"Question","name":"Why did Upwork change its fee structure?","acceptedAnswer":{"@type":"Answer","text":"Upwork has described the change as rewarding long-term client relationships: freelancers with more billing history with a specific client tend to see a lower fee on that contract, with the rate able to fall toward 0% for well-established relationships, while a brand-new client relationship typically starts near the top of the 0-15% range. The mechanics of exactly how the percentage is set are Upwork's own pricing system and are not fully public."}},{"@type":"Question","name":"Is my Upwork fee the same on every contract?","acceptedAnswer":{"@type":"Answer","text":"No. The fee is set per contract at the time you send a proposal or receive an offer, and it is locked for that contract's duration once work begins. A different client, or a new contract with the same client, can carry a different quoted percentage."}},{"@type":"Question","name":"How do I calculate what I'll actually keep from an Upwork contract?","acceptedAnswer":{"@type":"Answer","text":"Look at the percentage Upwork itself quoted you for that specific contract — it is shown before you accept — and use that as the fee in a payout calculator rather than assuming a fixed rate. This site's Upwork vs. Fiverr fee calculator takes your quoted percentage as an input, alongside any withdrawal fee and a tax reserve, and reports the take-home."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #12233a; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/how-much-does-upwork-take.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Upwork Take? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Upwork Take?</span></span></nav>
+  <p><a href="./">← Upwork vs. Fiverr fee calculator</a></p>
+  <h1>How much does Upwork actually take?</h1>
+  <p>
+    Until May 2025, the answer was a table: 20% on the first $500 billed to a
+    client, 10% on the next chunk up to $10,000, and 5% above that, all
+    tracked per client relationship over the contract's lifetime. That table
+    is retired. It is worth knowing it existed, because a lot of pages
+    written before the change still describe it as current.
+  </p>
+  <p>
+    Since May 1, 2025, Upwork charges a <strong>variable freelancer service
+    fee between 0% and 15% per contract</strong>. Upwork's own pricing
+    system sets the number for a given client relationship — freelancers
+    with more billing history with a specific client tend to see a lower
+    rate, with well-established relationships able to fall toward 0%, while
+    a new client relationship typically starts near the top of the range.
+    The exact mechanics of how the system picks a number are not fully
+    published.
+  </p>
+  <p>
+    What <em>is</em> guaranteed: you see the exact percentage before you
+    commit. It is shown when you send a proposal or receive an offer, and it
+    is locked for that contract once work begins — it will not move mid
+    contract, and a different contract, even with the same client, can carry
+    a different quoted rate.
+  </p>
+  <p>
+    That is also why no calculator — this one included — can tell you your
+    Upwork fee from a formula. There is no formula to run any more. What a
+    calculator <em>can</em> do is take the percentage Upwork already quoted
+    you and turn it into an actual take-home figure, next to withdrawal
+    fees and a tax reserve you set yourself.
+  </p>
+  <a class="cta" href="./">Run your quoted fee through the calculator</a>
+  <h2>Common questions</h2>
+  <h3>What percentage does Upwork take from freelancers in 2026?</h3>
+  <p>There is no single answer any more. Since May 1, 2025, Upwork replaced its old tiered freelancer service fee (20% on the first $500 billed to a client, 10% up to $10,000, 5% above that) with a variable fee between 0% and 15% per contract. Upwork's own pricing system sets the exact percentage per client relationship, and it is shown to you only when you send a proposal or accept an offer — not published as a table anyone can look up.</p>
+  <h3>Why did Upwork change its fee structure?</h3>
+  <p>Upwork has described the change as rewarding long-term client relationships: freelancers with more billing history with a specific client tend to see a lower fee on that contract, with the rate able to fall toward 0% for well-established relationships, while a brand-new client relationship typically starts near the top of the 0-15% range. The mechanics of exactly how the percentage is set are Upwork's own pricing system and are not fully public.</p>
+  <h3>Is my Upwork fee the same on every contract?</h3>
+  <p>No. The fee is set per contract at the time you send a proposal or receive an offer, and it is locked for that contract's duration once work begins. A different client, or a new contract with the same client, can carry a different quoted percentage.</p>
+  <h3>How do I calculate what I'll actually keep from an Upwork contract?</h3>
+  <p>Look at the percentage Upwork itself quoted you for that specific contract — it is shown before you accept — and use that as the fee in a payout calculator rather than assuming a fixed rate. This site's <a href="./">Upwork vs. Fiverr fee calculator</a> takes your quoted percentage as an input, alongside any withdrawal fee and a tax reserve, and reports the take-home.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, or legal advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Upwork. Upwork is a trademark of Upwork Inc., named here only to describe its own published fee change.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../amazon-fba-calculator/" data-pf-to="amazon-fba-calculator">Amazon FBA vs FBM Profit Calculator</a></li>
+      <li><a href="../amazon-inventory-loader-check/" data-pf-to="amazon-inventory-loader-check">Amazon Inventory Loader Check — free, private, in your browser</a></li>
+      <li><a href="../amazon-ppc-search-term-analyzer/" data-pf-to="amazon-ppc-search-term-analyzer">Amazon PPC Search Term Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../amazon-seller-profit-analyzer/" data-pf-to="amazon-seller-profit-analyzer">Amazon Seller Profit Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-platform-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freelance-platform-fee-calculator"></script>
+</body>
+</html>

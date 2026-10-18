@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per finished square foot | Quartz &amp; Granite Countertop Bid Calculator</title>
+<meta name="description" content="A flat $60-a-finished-square-foot countertop quote is priced on one easy galley run, not on the sink cutout, edge profile…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/countertop-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat price per finished square foot">
+<meta property="og:description" content="A $60/sq ft quote covers a plain galley run with $612.45 to spare -- and falls $539.07 short on this calculator's own shipped default job…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/countertop-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price-per-finished-square-foot countertop quote get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because countertop cost scales with layout waste, sink and cooktop cutouts, edge profile, seams, and waterfall ends — not with finished square footage alone. A straight galley run with a drop-in sink and an eased edge is a different job from the same footage in an island with an undermount sink, an ogee edge, and two waterfall ends. A flat per-square-foot price quotes both the same and is wrong on one of them every time."}},{"@type":"Question","name":"What does a flat price-per-square-foot quote usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Layout waste that turns finished footage into whole slabs, sink and cooktop cutout labor, the edge profile actually chosen, seams, and waterfall ends — which consume a whole extra slab wrapped down the side of an island rather than adding finished top. A published per-square-foot number is set on one configuration — usually a plain galley run with a drop-in sink and an eased edge — and has no separate line for any of those."}},{"@type":"Question","name":"How much do sink cutouts, edge profile, and waterfall ends actually add over a flat rate?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples, at a $38 hourly wage, 30% burden, 15% overhead, and a 25% target margin: a 40 sq ft galley with a drop-in sink and an eased edge walks away at $1,787.55, comfortably under a $60/sq ft, $2,400.00 quote. This calculator's own shipped default job — a 55 sq ft L-kitchen with an undermount sink, a cooktop cutout, and an ogee edge — walks away at $3,839.07, $539.07 short of that same $60/sq ft number. A 28 sq ft island with two waterfall ends and no sink at all — the calculator's own \"slab trap\" preset — walks away at $3,447.95, $1,767.95 short of a $60/sq ft, $1,680.00 quote."}},{"@type":"Question","name":"Is a flat price-per-square-foot quote ever the right way to bid a countertop job?","acceptedAnswer":{"@type":"Answer","text":"For something close to the easy run it was probably priced on — a straight galley, a drop-in sink, an eased edge, no waterfalls — a flat rate can land close, and on this calculator's own numbers that easy job clears a $60/sq ft quote with over $600 to spare. The risk is an undermount or farmhouse sink, a mitered edge, and waterfall ends stacking on top of each other, because a flat per-square-foot price has no way to see any of them until the slab is already on the truck."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local slab costs or what competitors charge. It takes the finished footage, layout, cutouts, edge profile, and waterfall ends you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe — the arithmetic a flat per-square-foot number skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#1c2430;background:#eef1f5}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#3d6a8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#fff;border:1px solid #d3dce6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a2a4a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dce6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}.loses{color:#8a2a2a;font-weight:700}.covers{color:#1d6b3a;font-weight:700}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/countertop-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per finished square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../countertop-bid-calculator/">Quartz &amp; Granite Countertop Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per finished square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Quartz &amp; Granite Countertop Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per finished square foot</h1>
+<p class="lede">"$60 a finished square foot, installed" is not a price for a countertop &mdash; it is a price for one plain galley run with a drop-in sink, quietly applied to an island with an undermount sink, an ogee edge, and two waterfall ends.</p>
+</header>
+<section>
+<h2>What a flat price-per-square-foot quote is</h2>
+<p>
+A flat per-square-foot number is the fastest way to bid over the phone or match a
+homeowner's forum post: one figure, easy to multiply by any finished footage, and
+the number a caller holding a competitor's estimate will ask you to match on
+their own kitchen.
+</p>
+<p>
+The number behind it was set for one job &mdash; usually a plain, easy galley run
+with a drop-in sink, an eased edge, and no waterfalls &mdash; and then reused for
+every kitchen afterward, whether or not the next job has an undermount or
+farmhouse sink to polish, a mitered edge, two waterfall ends wrapping an island,
+or a U-shape layout that eats far more slab than the same footage in a straight
+run.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter finished
+square footage, layout, material, sink and cooktop cutouts, edge profile,
+backsplash, waterfall ends, and your own shop rates. It prices slab count
+from layout waste, cutout and edge labor, and waterfall ends separately, and
+returns a walk-away price and price per finished square foot below which the
+job loses money &mdash; for this kitchen, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$60/sq ft quote</th><th class="num" scope="col">Walk-away price</th><th scope="col">Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td>40 sq ft galley, drop-in sink, eased edge, no waterfalls</td><td class="num">$2,400.00</td><td class="num">$1,787.55</td><td class="covers">Covers, $612.45 to spare</td></tr>
+<tr><td>55 sq ft L-kitchen, undermount sink + cooktop, ogee edge (this calculator's own default job)</td><td class="num">$3,300.00</td><td class="num">$3,839.07</td><td class="loses">Short $539.07</td></tr>
+<tr><td>28 sq ft island, no sink, two waterfall ends, mitered edge (the slab trap)</td><td class="num">$1,680.00</td><td class="num">$3,447.95</td><td class="loses">Short $1,767.95</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own job presets at a $38 hourly wage, 30% payroll burden, 15% overhead on direct cost, and a 25% target margin &mdash; the form's own shipped defaults, not numbers invented for this page. Open the calculator to check any row yourself.</p>
+<p class="note">
+Notice the middle row: it is this calculator's own shipped starting
+point, not a job picked to prove a point, and a $60/sq ft quote already falls
+over five hundred dollars short of it. The bottom row is the sharper case --
+28 sq ft is a small kitchen by any flat-rate math, yet two waterfall ends
+consume enough extra slab and labor to make it the most expensive job on the
+list. A flat square-foot number cannot see a waterfall at all, because a
+waterfall end is not finished top.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price-per-square-foot quote does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate whether the layout is a straight galley run or a U-shape with an island &mdash; applying the same waste percent to both.</td>
+<td>Applies layout waste by shape (12% galley up to 28% U-shape) before converting required stone into whole slabs, so an L-shape or U-shape prices differently from a straight run.</td>
+</tr>
+<tr>
+<td>Has no separate line for a sink or cooktop cutout, so a drop-in, an undermount, and a farmhouse hole are absorbed into the same per-square-foot number.</td>
+<td>Prices sink and cooktop cutout labor separately, scaled to how much finishing the hole actually needs &mdash; a drop-in hides the cut edge under its own rim; an undermount or farmhouse sink leaves it fully exposed and polished.</td>
+</tr>
+<tr>
+<td>Prices a waterfall end the same as ordinary finished square footage, or has no line for it at all.</td>
+<td>Adds a waterfall end's own slab area and its own labor hours, since a waterfall wraps the countertop down the side of an island in one continuous piece rather than adding finished top the homeowner measures.</td>
+</tr>
+<tr>
+<td>Charges one edge rate no matter the profile, though a mitered edge runs roughly 5.6&times; the labor of an eased edge per lineal foot.</td>
+<td>Prices edge labor per lineal foot by the profile actually chosen &mdash; eased, bevel, ogee, or mitered.</td>
+</tr>
+<tr>
+<td>Gives the homeowner a price to shop, not a number to check a quote against once the kitchen turns out to have an undermount sink and two waterfall ends after the flat rate was already promised.</td>
+<td>Reports the walk-away price and price per finished square foot for the job as entered, so a shopped rate can be scored against real cost before it is confirmed.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat price-per-square-foot quote is not wrong because it is simple &mdash; it
+is wrong when it is applied to a layout, sink, edge profile, or waterfall count
+it was not set on, and "a countertop" alone never tells you that has happened.
+This calculator does not replace judgment about your market; it replaces the
+arithmetic a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price-per-finished-square-foot countertop quote get the price wrong?</h3>
+<p>Because countertop cost scales with layout waste, sink and cooktop cutouts, edge profile, seams, and waterfall ends &mdash; not with finished square footage alone. A straight galley run with a drop-in sink and an eased edge is a different job from the same footage in an island with an undermount sink, an ogee edge, and two waterfall ends. A flat per-square-foot price quotes both the same and is wrong on one of them every time.</p>
+<h3>What does a flat price-per-square-foot quote usually leave out entirely?</h3>
+<p>Layout waste that turns finished footage into whole slabs, sink and cooktop cutout labor, the edge profile actually chosen, seams, and waterfall ends &mdash; which consume a whole extra slab wrapped down the side of an island rather than adding finished top. A published per-square-foot number is set on one configuration &mdash; usually a plain galley run with a drop-in sink and an eased edge &mdash; and has no separate line for any of those.</p>
+<h3>How much do sink cutouts, edge profile, and waterfall ends actually add over a flat rate?</h3>
+<p>On this calculator's own worked examples, at a $38 hourly wage, 30% burden, 15% overhead, and a 25% target margin: a 40 sq ft galley with a drop-in sink and an eased edge walks away at $1,787.55, comfortably under a $60/sq ft, $2,400.00 quote. This calculator's own shipped default job &mdash; a 55 sq ft L-kitchen with an undermount sink, a cooktop cutout, and an ogee edge &mdash; walks away at $3,839.07, $539.07 short of that same $60/sq ft number. A 28 sq ft island with two waterfall ends and no sink at all &mdash; the calculator's own "slab trap" preset &mdash; walks away at $3,447.95, $1,767.95 short of a $60/sq ft, $1,680.00 quote.</p>
+<h3>Is a flat price-per-square-foot quote ever the right way to bid a countertop job?</h3>
+<p>For something close to the easy run it was probably priced on &mdash; a straight galley, a drop-in sink, an eased edge, no waterfalls &mdash; a flat rate can land close, and on this calculator's own numbers that easy job clears a $60/sq ft quote with over $600 to spare. The risk is an undermount or farmhouse sink, a mitered edge, and waterfall ends stacking on top of each other, because a flat per-square-foot price has no way to see any of them until the slab is already on the truck.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local slab costs or what competitors charge. It takes the finished footage, layout, cutouts, edge profile, and waterfall ends you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe &mdash; the arithmetic a flat per-square-foot number skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat price per finished square foot is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the layout, sink, edge, and waterfall count it was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Quartz &amp; Granite Countertop Bid Calculator</a> and price your own job. Curious how the per-square-foot number people quote off the top of their head gets set in the first place? See <a href="./how-much-to-charge-to-install-quartz-countertops.html">how much to charge to install quartz countertops</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not stone, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cut-list-optimizer/" data-pf-to="cut-list-optimizer">Cut List Optimizer — compare sheet sizes and board lengths before you buy</a></li>
+      <li><a href="../drywall-bid-calculator/" data-pf-to="drywall-bid-calculator">Drywall Bid Calculator</a></li>
+      <li><a href="../fireplace-insert-bid-calculator/" data-pf-to="fireplace-insert-bid-calculator">Fireplace Insert Bid Calculator</a></li>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=countertop-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="countertop-bid-calculator"></script>
+</body></html>

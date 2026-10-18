@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an AWS Lambda Memory Size to Cut Cost</title>
+  <meta name="description" content="How Lambda bills memory times duration, why more memory can cost less, how to read peak memory from REPORT lines…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/how-to-choose-aws-lambda-memory-size-to-cut-cost.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does more Lambda memory always cost more?", "acceptedAnswer": {"@type": "Answer", "text": "No. You pay for memory times billed time. For CPU-bound code, doubling memory roughly halves duration, so the bill barely moves and requests finish sooner; past one vCPU (about 1,769 MB) a single-threaded function stops getting faster and the extra memory is pure cost."}}, {"@type": "Question", "name": "How do I find my function's peak memory?", "acceptedAnswer": {"@type": "Answer", "text": "Every invocation writes a REPORT line with Max Memory Used. Take the maximum over a representative sample, including your heaviest requests, and leave headroom; the analyzer does this and warns when peak use is above 90% of the configured size."}}, {"@type": "Question", "name": "Is arm64 really cheaper?", "acceptedAnswer": {"@type": "Answer", "text": "Lambda lists arm64 at about 20% less per GB-second than x86_64, and many functions run at similar speed, but native dependencies and some runtimes differ. Measure duration on arm64 before assuming the saving."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/how-to-choose-aws-lambda-memory-size-to-cut-cost.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose an AWS Lambda Memory Size to Cut Cost">
+<meta property="og:description" content="How Lambda bills memory times duration, why more memory can cost less, how to read peak memory from REPORT lines…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose an AWS Lambda Memory Size to Cut Cost — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../lambda-memory-rightsizer/">Is your Lambda memory setting costing you money?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose an AWS Lambda Memory Size to Cut Cost</span></span></nav>
+  <p><a href="./">← Back to Lambda Memory Rightsizer</a></p>
+  <h1>How to choose an AWS Lambda memory size to cut cost</h1>
+  <p>Lambda bills <strong>memory &times; billed duration</strong>. Most teams set memory once, copy it to the next function, and never look again. The setting is usually wrong in one of two directions, and both cost money.</p>
+
+  <h2>Memory also buys CPU</h2>
+  <p>Lambda allocates CPU in proportion to memory, reaching about one vCPU at 1,769 MB. A CPU-bound function at 512 MB gets a third of a core; at 1,769 MB it gets a whole one and can finish in a third of the time. Cost is memory times time, so the faster size can cost the same or less. An I/O-bound function waiting on a database does not speed up with CPU, so every extra MB is waste.</p>
+
+  <h2>Read the REPORT lines</h2>
+  <p>Every invocation ends with a line like this in CloudWatch Logs:</p>
+  <pre>REPORT RequestId: 7f3a... Duration: 864.12 ms Billed Duration: 865 ms Memory Size: 1024 MB Max Memory Used: 138 MB</pre>
+  <p><code>Max Memory Used</code> against <code>Memory Size</code> tells you whether you are paying for memory you never touch. <code>Duration</code> percentiles tell you what a size change would do to latency. <code>Init Duration</code> appears only on cold starts.</p>
+
+  <h2>Two bad settings</h2>
+  <ul>
+    <li><strong>Far too much memory</strong>: peak use is 14% of the configured size and the function is I/O-bound. Dropping to the smallest size with headroom cuts compute cost by the same factor.</li>
+    <li><strong>Too little</strong>: peak use is above 90% of the limit, so one larger payload ends in an out-of-memory failure, or a CPU-bound function runs three times slower than it needs to.</li>
+  </ul>
+
+  <h2>Model, then measure</h2>
+  <p>You cannot read another size's duration from a log. The analyzer models it from the share of your duration that scales with CPU and shows the answer at 0%, your guess and 100%. If the three agree the choice is safe; if they differ, the real answer is in your code, and AWS Lambda Power Tuning will measure it by running the function at several sizes.</p>
+  <pre>aws logs tail /aws/lambda/my-fn --since 1d | node cli.mjs analyze - --invocations 5000000</pre>
+
+  <h2>What this cannot see</h2>
+  <p>A sample is not your traffic: the heaviest requests may be absent. List prices ignore your free tier, discounts, volume tiers, provisioned concurrency and region. Memory is also a latency and out-of-memory decision, not only a cost one.</p>
+
+  <h2>Common questions</h2>
+  <h3>Does more Lambda memory always cost more?</h3>
+  <p>No. You pay for memory times billed time. For CPU-bound code, doubling memory roughly halves duration, so the bill barely moves and requests finish sooner; past one vCPU (about 1,769 MB) a single-threaded function stops getting faster and the extra memory is pure cost.</p>
+  <h3>How do I find my function's peak memory?</h3>
+  <p>Every invocation writes a REPORT line with Max Memory Used. Take the maximum over a representative sample, including your heaviest requests, and leave headroom; the analyzer does this and warns when peak use is above 90% of the configured size.</p>
+  <h3>Is arm64 really cheaper?</h3>
+  <p>Lambda lists arm64 at about 20% less per GB-second than x86_64, and many functions run at similar speed, but native dependencies and some runtimes differ. Measure duration on arm64 before assuming the saving.</p>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying its output. Vendor and product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+      <li><a href="../k8s-resource-limits-check/" data-pf-to="k8s-resource-limits-check">Will this container take down its whole node?</a></li>
+      <li><a href="../k8s-rollout-safety-check/" data-pf-to="k8s-rollout-safety-check">Will your Kubernetes rollout drop live requests?</a></li>
+      <li><a href="../lambda-vs-fargate-cost-breakeven/" data-pf-to="lambda-vs-fargate-cost-breakeven">Lambda or Fargate? Find your cost break-even</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=lambda-memory-rightsizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="lambda-memory-rightsizer"></script>
+</body>
+</html>

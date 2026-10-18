@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Did the 1099-K Threshold Keep Changing? A Year-by-Year Timeline</title>
+  <meta name="description" content="The federal Form 1099-K reporting threshold has been $20,000/200 transactions, then $5,000, then back to $20,000/200 -- all since 2022.">
+  <meta property="og:title" content="Why did the 1099-K threshold keep changing?">
+  <meta property="og:description" content="Four different numbers have applied to Form 1099-K since 2022. Here is the year-by-year timeline and why a platform's actual behavior in 2024 does not match…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/why-did-the-1099-k-threshold-keep-changing.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What was the 1099-K threshold before 2022?","acceptedAnswer":{"@type":"Answer","text":"$20,000 in gross payments and more than 200 transactions, both required, from 2011 through 2021. That is also the current threshold — the number spent three years lower and then came back."}},{"@type":"Question","name":"What changed in 2022?","acceptedAnswer":{"@type":"Answer","text":"The American Rescue Plan Act (ARPA), passed in 2021, legislated a much lower $600 threshold with no transaction-count minimum, intended to take effect for the 2022 tax year. The IRS delayed enforcement of that lower figure by notice, first for 2022 and then again for 2023, so platforms kept using $20,000/200 in practice for both years even though the statute on the books said $600."}},{"@type":"Question","name":"What actually happened in 2024?","acceptedAnswer":{"@type":"Answer","text":"The IRS announced a real transition threshold of $5,000, with no transaction-count minimum, as a step toward the eventual $600 figure (Notice 2023-74). This one was not delayed — platforms actually issued Form 1099-K under the $5,000 rule for payments made in 2024, filed in early 2025."}},{"@type":"Question","name":"What happened for 2025 and after?","acceptedAnswer":{"@type":"Answer","text":"The next planned step was $2,500 for 2025, on the way down to $600 for 2026. Before that lower 2025 figure ever took effect, the One Big Beautiful Bill Act (OBBBA), signed 2025-07-04, repealed ARPA's threshold entirely and restored $20,000/200 transactions. The IRS's Fact Sheet 2025-08 (October 2025) confirmed this applies retroactively back to the 2022 tax year — so the $600 and $2,500 figures never actually took legal effect for any year, and $20,000/200 is the standing rule for 2025, 2026, and beyond."}},{"@type":"Question","name":"If the law now says $20,000 applied to 2024 too, does that undo the 1099-K I already got for 2024?","acceptedAnswer":{"@type":"Answer","text":"No. The IRS confirmed that a platform that already issued a 2024 Form 1099-K under the real $5,000 rule that was in effect at the time did not have to withdraw or correct it, and a platform that did not issue one under that rule faces no penalty either way. The retroactive correction changes what the standing legal threshold is considered to have been; it does not reach back and cancel a form that already arrived in your mailbox."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem,5vw,2.6rem)/1.05 Georgia,serif; letter-spacing:-.04em; color: var(--ink); }
+    h2 { font: 700 1.2rem Georgia,serif; margin-top: 1.8em; }
+    a { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; margin: 1em 0; }
+    th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid var(--line); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/why-did-the-1099-k-threshold-keep-changing.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why did the 1099-K threshold keep changing? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../1099-k-threshold-checker/">1099-K Threshold Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why did the 1099-K threshold keep changing?</span></span></nav><main>
+  <p><a href="./">← 1099-K Threshold Checker</a></p>
+  <h1>Why did the 1099-K threshold keep changing?</h1>
+  <p>Four different numbers have governed Form 1099-K since 2022, and the platforms that follow them did not all move in lockstep. Here is the full timeline, in order, and why a form that already arrived for 2024 can look inconsistent with what the rule says today.</p>
+  <p><a class="cta" href="./">Open the free 1099-K threshold checker</a></p>
+
+  <h2>The timeline</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Tax year</th><th>Threshold platforms actually used</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>2011&ndash;2021</td><td>$20,000, more than 200 transactions</td><td>The original rule</td></tr>
+      <tr><td>2022</td><td>$20,000, more than 200 transactions</td><td>ARPA's $600 figure was delayed by IRS notice before it took effect</td></tr>
+      <tr><td>2023</td><td>$20,000, more than 200 transactions</td><td>Delayed again by a second IRS notice</td></tr>
+      <tr><td>2024</td><td>$5,000, no transaction-count minimum</td><td>A real transition threshold (Notice 2023-74), actually used to issue forms</td></tr>
+      <tr><td>2025 and later</td><td>$20,000, more than 200 transactions</td><td>OBBBA repealed ARPA's threshold before the planned $2,500-for-2025 step took effect</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>The 2024 wrinkle</h2>
+  <p>The IRS's October 2025 Fact Sheet 2025-08 confirmed that OBBBA's restoration of $20,000/200 applies retroactively back to the 2022 tax year — meaning the law now treats $20,000/200 as having technically applied even in 2024. But that retroactive correction did not undo what platforms had already done: a platform that issued a 2024 Form 1099-K under the real $5,000 threshold in effect at the time did not have to withdraw or correct it, and one that stayed silent under the old $600 assumption faced no penalty either way.</p>
+  <p>So if you received a 1099-K for 2024 on payments between $5,000 and $20,000, that form is not a mistake — it reflects the rule that was actually in force when it was issued, even though the standing rule today is higher. This checker asks for the platform's actual threshold for the year you are checking, rather than only the current legal figure, so a past-year question gets an answer that matches what really happened.</p>
+
+  <h2>What stayed the same throughout</h2>
+  <p>The threshold applies per platform, never combined across the different apps and marketplaces you use. And meeting or missing a threshold has never changed whether the underlying income is taxable — a 1099-K is paperwork about payments already received, not the event that makes them reportable.</p>
+
+  <h2>Common questions</h2>
+  <h3>What was the 1099-K threshold before 2022?</h3>
+  <p>$20,000 in gross payments and more than 200 transactions, both required, from 2011 through 2021. That is also the current threshold — the number spent three years lower and then came back.</p>
+  <h3>What changed in 2022?</h3>
+  <p>The American Rescue Plan Act (ARPA), passed in 2021, legislated a much lower $600 threshold with no transaction-count minimum, intended to take effect for the 2022 tax year. The IRS delayed enforcement of that lower figure by notice, first for 2022 and then again for 2023, so platforms kept using $20,000/200 in practice for both years even though the statute on the books said $600.</p>
+  <h3>What actually happened in 2024?</h3>
+  <p>The IRS announced a real transition threshold of $5,000, with no transaction-count minimum, as a step toward the eventual $600 figure (Notice 2023-74). This one was not delayed — platforms actually issued Form 1099-K under the $5,000 rule for payments made in 2024, filed in early 2025.</p>
+  <h3>What happened for 2025 and after?</h3>
+  <p>The next planned step was $2,500 for 2025, on the way down to $600 for 2026. Before that lower 2025 figure ever took effect, the One Big Beautiful Bill Act (OBBBA), signed 2025-07-04, repealed ARPA's threshold entirely and restored $20,000/200 transactions. The IRS's Fact Sheet 2025-08 (October 2025) confirmed this applies retroactively back to the 2022 tax year — so the $600 and $2,500 figures never actually took legal effect for any year, and $20,000/200 is the standing rule for 2025, 2026, and beyond.</p>
+  <h3>If the law now says $20,000 applied to 2024 too, does that undo the 1099-K I already got for 2024?</h3>
+  <p>No. The IRS confirmed that a platform that already issued a 2024 Form 1099-K under the real $5,000 rule that was in effect at the time did not have to withdraw or correct it, and a platform that did not issue one under that rule faces no penalty either way. The retroactive correction changes what the standing legal threshold is considered to have been; it does not reach back and cancel a form that already arrived in your mailbox.</p>
+
+  <footer><strong>No warranty.</strong> This page is not legal, financial, or tax advice. Verify the current figures against the IRS's own Form 1099-K FAQs or your tax preparer before relying on any number here.</footer>
+</main><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../1099-vendor-tracker/" data-pf-to="1099-vendor-tracker">1099-NEC Vendor Tracker</a></li>
+      <li><a href="../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099-k-threshold-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="1099-k-threshold-checker"></script>
+</body></html>

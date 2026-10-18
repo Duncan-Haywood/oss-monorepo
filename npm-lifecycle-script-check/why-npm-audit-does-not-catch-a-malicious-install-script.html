@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why npm audit Doesn't Catch a Malicious Install Script</title>
+  <meta name="description" content="Why npm audit's CVE database can't see a new postinstall script, four dated npm supply-chain attacks that used exactly this mechanism…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't --ignore-scripts just solve this?","acceptedAnswer":{"@type":"Answer","text":"It removes the risk, at a cost: some packages (native addons that compile on install, some CLI tools that fetch a platform-specific binary) genuinely need their install script to work at all, so blanket --ignore-scripts breaks them. This tool answers a narrower, always-safe question first — which packages have one, and did that just change — so you can decide where --ignore-scripts or a manual review is worth the friction, instead of applying it everywhere or nowhere."}},{"@type":"Question","name":"Does a risk flag mean a script is malicious?","acceptedAnswer":{"@type":"Answer","text":"No. The flags are a keyword match against patterns real attacks have used (piping a download into a shell, an obvious network call, obfuscated code) — not a determination. A legitimate installer can also download a prebuilt binary or a font file. A flag means read this one; it is not a verdict."}},{"@type":"Question","name":"Why compare two lockfiles instead of just scanning packages against a malware database?","acceptedAnswer":{"@type":"Answer","text":"A malware database needs someone to have found and reported the specific malicious version first — by which point it already ran on everyone who installed it in between. Comparing what a package declares now against what it declared before needs no database and no delay: a previously-clean package that suddenly carries an install script is worth a look regardless of whether anyone has flagged that exact version yet."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why npm audit Doesn't Catch a Malicious Install Script">
+<meta property="og:description" content="Why npm audit's CVE database can't see a new postinstall script, four dated npm supply-chain attacks that used exactly this mechanism…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why npm audit Doesn't Catch a Malicious Install Script — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../npm-lifecycle-script-check/">Did a dependency just start running code at install time?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why npm audit Doesn't Catch a Malicious Install Script</span></span></nav>
+  <p><a href="./">← Back to npm Lifecycle Script Check</a></p>
+  <h1>Why npm audit doesn't catch a malicious install script</h1>
+
+  <p><code>npm audit</code> compares the versions in your lockfile against a
+  database of known, reported vulnerabilities (CVEs and GitHub Security
+  Advisories). That is exactly the right tool for "is there a known bug in
+  this version" — and exactly the wrong shape for a lifecycle script, because
+  a script has no CVE to look up until someone has already found it, reported
+  it, and gotten it published. In every incident below, that gap was measured
+  in hours to days, and the script had already run on whoever installed the
+  package during that window.</p>
+
+  <h2>Four times this actually happened</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Package</th><th>Date</th><th>Script</th><th>What happened</th></tr></thead>
+    <tbody>
+      <tr><td>ua-parser-js</td><td>2021-10-22</td><td><code>preinstall</code></td><td>npm account hijacked; for about four hours, malicious versions installed an XMRig cryptominer and a Windows password-stealing trojan. ~8M weekly downloads.</td></tr>
+      <tr><td>coa &amp; rc</td><td>2021-11-04</td><td><code>postinstall</code></td><td>Two unrelated packages (8.8M and 14.2M weekly downloads) hijacked the same day, carrying an identical malicious postinstall payload.</td></tr>
+      <tr><td>Shai-Hulud</td><td>2025-09-15</td><td><code>postinstall</code></td><td>Self-propagating worm: harvested npm/GitHub credentials, then republished a trojanized version of every package the stolen token could reach.</td></tr>
+      <tr><td>Shai-Hulud 2.0</td><td>2025-11</td><td><code>preinstall</code></td><td>Second wave, moved to preinstall to run before scanners' own install-time checks. 700+ packages, 27,000+ malicious repos.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Each was a widely used or previously-trusted package, and in every case
+  the compromise arrived as a change to the package's declared lifecycle
+  scripts — not a new, obviously-suspicious dependency someone had to choose
+  to add.</p>
+
+  <h2>What --ignore-scripts trades away</h2>
+  <p>npm's own <code>--ignore-scripts</code> flag disables every lifecycle
+  script on install, which removes the risk outright. The cost: some packages
+  genuinely need their install script to function — compiling a native addon,
+  fetching a platform-specific prebuilt binary — so a blanket policy breaks
+  them, and figuring out which packages are in that set by hand is exactly
+  the tedious audit most teams skip. Knowing <em>which</em> packages have a
+  script, and whether that just changed, is what makes a scoped
+  <code>--ignore-scripts</code> or a manual review worth the friction on the
+  packages that actually need it, instead of an all-or-nothing call.</p>
+
+  <h2>Wiring it into CI as a gate</h2>
+  <p>Commit a reviewed baseline snapshot once, then compare against it on
+  every PR that touches the lockfile:</p>
+  <pre>- name: Check for newly added install-time scripts
+  run: |
+    npm ci
+    node ventures/npm-lifecycle-script-check/cli.mjs snapshot --out /tmp/current.json
+    node ventures/npm-lifecycle-script-check/cli.mjs diff script-baseline.json /tmp/current.json</pre>
+  <p>The command exits non-zero only when a package <strong>newly gained</strong>
+  an install-time script since the baseline — a script that was already there,
+  or one that disappeared, is reported but does not fail the build on its own.
+  Accept a specific package's script with <code>--ignore name</code> once
+  you've reviewed it, the same way <code>license-drift-check</code> handles an
+  accepted relicense.</p>
+
+  <h2>What a risk flag does and doesn't mean</h2>
+  <p>Each script is checked against three keyword patterns —
+  <strong>pipes a download to a shell</strong> (<code>curl ... | sh</code>),
+  <strong>makes a network call</strong>, and <strong>obfuscated or encoded</strong>
+  (base64, <code>eval</code>) — every one of them present in at least one
+  incident above. A flag is a reason to read the script, not a verdict: a
+  legitimate installer can fetch a prebuilt binary too. Only the CLI's
+  <code>snapshot</code> command sees the actual script text; a pasted
+  <code>package-lock.json</code> only records <em>that</em> a script exists,
+  because the lockfile format itself doesn't carry lifecycle-script contents.</p>
+
+  <h2>Common questions</h2>
+  <h3>Doesn't --ignore-scripts just solve this?</h3>
+  <p>It removes the risk, at a cost: some packages (native addons that compile on install, some CLI tools that fetch a platform-specific binary) genuinely need their install script to work at all, so blanket --ignore-scripts breaks them. This tool answers a narrower, always-safe question first — which packages have one, and did that just change — so you can decide where --ignore-scripts or a manual review is worth the friction, instead of applying it everywhere or nowhere.</p>
+  <h3>Does a risk flag mean a script is malicious?</h3>
+  <p>No. The flags are a keyword match against patterns real attacks have used (piping a download into a shell, an obvious network call, obfuscated code) — not a determination. A legitimate installer can also download a prebuilt binary or a font file. A flag means read this one; it is not a verdict.</p>
+  <h3>Why compare two lockfiles instead of just scanning packages against a malware database?</h3>
+  <p>A malware database needs someone to have found and reported the specific malicious version first — by which point it already ran on everyone who installed it in between. Comparing what a package declares now against what it declared before needs no database and no delay: a previously-clean package that suddenly carries an install script is worth a look regardless of whether anyone has flagged that exact version yet.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report
+    which packages declare an install-time script and flag a small set of
+    keyword patterns in that script's text. Nothing here is a malware scanner,
+    a security audit, or a guarantee about any specific package. Verify by
+    reading the script yourself before relying on it.
+    <a href="./">Back to the tool</a>, or see <a href="./vs-socket.html">how this compares to Socket</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=npm-lifecycle-script-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="npm-lifecycle-script-check"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat panel-upgrade price | Electrical Panel Upgrade Bid Calculator</title>
+<meta name="description" content="A flat &quot;panel upgrade costs $2,500&quot; quote, or a dollars-per-amp rule of thumb, cannot see feeder feet, circuits to land, AFCI count, grounding, or the utility.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/electrical-panel-upgrade-bid-calculator/vs-a-flat-panel-upgrade-price.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat panel-upgrade price | Electrical Panel Upgrade Bid Calculator">
+<meta property="og:description" content="A 100A garage swap and a 200A underground service with a forty-foot finished-space feeder are both &quot;a panel upgrade&quot;.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/electrical-panel-upgrade-bid-calculator/vs-a-flat-panel-upgrade-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat panel-upgrade price get the bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because almost none of the labour scales with the words “panel upgrade”. The hours come from feeder feet, how many circuits have to be landed, how many of those need AFCI or GFCI breakers, whether the path is overhead or underground, whether the panel sits in a garage or in finished living space, and whether the utility has to be coordinated with at all. A flat price was set on one job with one answer to each of those questions, and then quoted on jobs with different answers."}},{"@type":"Question","name":"Is a dollars-per-amp rate any better than a flat price?","acceptedAnswer":{"@type":"Answer","text":"No, and it can be worse, because it looks like it is adjusting for job size when it is not. Run this calculator’s own presets on its default rates: the 100A same-amp garage swap prices at $29.41 per amp of new service, while the 200A to 400A class change with a new meter-main prices at $27.63 per amp. The larger service is cheaper per amp, so a per-amp rate derived from a small job overcharges the large one and a rate derived from a large job undercharges the small one. The rate moves in the opposite direction from the cost."}},{"@type":"Question","name":"What does a flat price leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The line items that turn a one-day job into a two-day one: the feeder run and its cable, the per-circuit landing time, AFCI and GFCI breakers at both their hours and their material cost, a new meter socket, new grounding electrodes, temporary power, utility coordination hours, and the permit and utility fees themselves. Each is its own input here, because each is present on some panel jobs and absent on others."}},{"@type":"Question","name":"How far under water can a flat price actually put a job?","acceptedAnswer":{"@type":"Answer","text":"On this calculator’s defaults, a flat $2,500 panel-upgrade quote against its 100A to 200A underground preset - a forty-foot feeder through finished space, twenty AFCI circuits, temporary power and a utility disconnect - lands $5,612.83 below that job’s break-even price of $8,112.83. That is before any profit: the job loses more than twice the flat quote itself."}},{"@type":"Question","name":"Is a flat panel-upgrade price ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs it can land close - same amp rating, same path, same panel location, a similar circuit count and a similar answer on grounding and the utility. A shop that only does same-amp garage swaps in one neighbourhood may quote a flat price for years without being bitten. The risk is applying it outside that band without noticing, because nothing about a flat number tells you when the next job has stopped matching the one the number was built on."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It holds no data on local rates, competitors, or what a homeowner in your area expects to pay. It takes the wage, burden, overhead, travel, and target margin you enter and turns them into a break-even price and a bid price for the feeder, circuits, path, grounding, and utility work you describe. It replaces the arithmetic a flat rate skips, not your judgment about your own market."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1f2430;background:#e8edf4}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#ac4f09;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5568}section{background:#fff;border:1px solid #c9d2e0;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1420330d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c9d2e0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5568}.fine,.note{font-size:.88rem;color:#4a5568}footer{color:#4a5568;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/electrical-panel-upgrade-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat panel-upgrade price | Electrical Panel Upgrade Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../electrical-panel-upgrade-bid-calculator/">Electrical Panel Upgrade Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat panel-upgrade price | Electrical Panel Upgrade Bid Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Electrical Panel Upgrade Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat panel-upgrade price</h1>
+<p class="lede">&ldquo;A panel upgrade runs about $2,500&rdquo; is not a price for a panel upgrade &mdash; it is a price for one feeder length, one circuit count, one path, and one answer about the utility, quietly quoted on every job that calls in.</p>
+</header>
+
+<section>
+<h2>What a flat panel-upgrade price is</h2>
+<p>
+A flat price is the fastest way to answer the phone: one number for
+&ldquo;a panel upgrade&rdquo;, sometimes dressed up as a dollars-per-amp
+rate so it looks like it flexes with the job. Homeowners shop it because
+it is easy to compare between contractors, and it is the number a
+customer holding a neighbour&rsquo;s invoice or a competitor&rsquo;s quote
+will ask you to match.
+</p>
+<p>
+The number behind it was set on one job &mdash; one amp rating, one
+overhead mast, a short feeder in an unfinished garage, the existing
+grounding left alone, no meter socket, no temporary power, no utility
+coordination &mdash; and then reused on every panel afterward, whether or
+not the next one looks anything like it.
+</p>
+</section>
+
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+existing and new amp rating, whether the service is overhead or
+underground, whether the panel is a main-breaker can or a meter-main
+combo, whether it sits in a garage, a basement, or finished living
+space, how many feeder feet the run takes, how many circuits have to be
+landed and how many of those need AFCI or GFCI breakers, and whether the
+job includes a new meter socket, new grounding electrodes, temporary
+power, or utility coordination. Against your own loaded wage, overhead,
+travel, permit and utility fees, and target margin, it returns the bid
+price, the price per amp of new service, the effective hourly rate, and
+the break-even price below which the job loses money &mdash; for this
+panel, not a generic one.
+</p>
+</section>
+
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat panel-upgrade price does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same whether the feeder is eight feet across an open garage or forty feet through finished walls and ceilings.</td>
+<td>Prices feeder feet at their own hours-per-foot and cable cost, and adds finished-space access hours as a separate line.</td>
+</tr>
+<tr>
+<td>Treats &ldquo;landing the circuits&rdquo; as one lump, whether there are ten of them or twenty with AFCI on every one.</td>
+<td>Prices circuits and AFCI/GFCI breakers separately, at both their own labour hours and their own material cost per breaker.</td>
+</tr>
+<tr>
+<td>Prices an overhead mast swap and an underground service lateral as the same job.</td>
+<td>Carries a different cable cost per foot, a different mast kit, and separate underground path hours for each service type.</td>
+</tr>
+<tr>
+<td>Has no line for a new meter socket, new ground rods, temporary power, or the hours spent coordinating with the utility.</td>
+<td>Each is its own toggle with its own hours and material, because each is present on some panel jobs and absent on others.</td>
+</tr>
+<tr>
+<td>Gives the electrician a number to quote, not a number to check a quote against.</td>
+<td>Reports the break-even price and the effective hourly rate, so a shopped or matched price can be scored against real cost before anyone commits to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+
+<section>
+<h2>Three jobs, the same flat number</h2>
+<p>
+Using this calculator&rsquo;s own presets and its default crew rates, against
+a flat $2,500 panel-upgrade quote:
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">Break-even</th><th scope="col">Calculator&rsquo;s bid</th><th scope="col">Against a flat $2,500</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>100A same-amp garage swap, overhead, existing grounding kept, 10 circuits (the brochure special)</td>
+<td>$2,058.60</td>
+<td>$2,940.86</td>
+<td>The flat price clears cost by $441.40, and gives up $440.86 of the margin this job could carry.</td>
+</tr>
+<tr>
+<td>100A &rarr; 200A overhead garage, meter-main, new ground rods, 16 circuits, 8 AFCI</td>
+<td>$5,360.79</td>
+<td>$7,658.27</td>
+<td>The flat price is $2,860.79 below break-even &mdash; the job loses money before profit.</td>
+</tr>
+<tr>
+<td>100A &rarr; 200A underground, 40 ft feeder through finished space, 20 AFCI, temp power, utility disconnect</td>
+<td>$8,112.83</td>
+<td>$11,589.76</td>
+<td>The flat price is $5,612.83 below break-even &mdash; the job loses more than twice the quote itself.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">All three are &ldquo;a panel upgrade&rdquo;. The same flat number is generous on the first, loses money on the second, and is not close on the third. Run your own job in the calculator to see which side of that gap it falls on.</p>
+</section>
+
+<section>
+<h2>Why a per-amp rate does not fix it</h2>
+<p>
+The usual repair is to quote dollars per amp instead, so the number at
+least appears to scale with the service. On this calculator&rsquo;s own
+defaults it scales the wrong way. The 100A same-amp garage swap prices at
+<strong>$29.41 per amp</strong> of new service. The 200A &rarr; 400A class
+change with a new meter-main prices at <strong>$27.63 per amp</strong> &mdash;
+<em>less</em> per amp, on a far larger job, because the fixed work (getting
+there, the permit, coordinating the utility, landing what is already
+there) does not double when the amp rating does.
+</p>
+<p>
+So a per-amp rate derived from a small job overcharges every large one,
+and a rate derived from a large job undercharges every small one. Carry
+that per-amp rate onto the 200A underground job above and it quotes
+$5,881.71 &mdash; $2,231.12 under that job&rsquo;s break-even. The rate is not
+merely imprecise; it points away from the cost.
+</p>
+</section>
+
+<p>
+A flat rate is not wrong because it is simple &mdash; it is wrong when it
+is applied outside the one job it was built for, and nothing about a flat
+number or a per-amp rate tells you when that has happened. This
+calculator does not replace judgment about your market; it replaces the
+arithmetic a flat rate skips.
+</p>
+
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat panel-upgrade price get the bid wrong?</h3>
+<p>Because almost none of the labour scales with the words &ldquo;panel upgrade&rdquo;. The hours come from feeder feet, how many circuits have to be landed, how many of those need AFCI or GFCI breakers, whether the path is overhead or underground, whether the panel sits in a garage or in finished living space, and whether the utility has to be coordinated with at all. A flat price was set on one job with one answer to each of those questions, and then quoted on jobs with different answers.</p>
+<h3>Is a dollars-per-amp rate any better than a flat price?</h3>
+<p>No, and it can be worse, because it looks like it is adjusting for job size when it is not. Run this calculator&rsquo;s own presets on its default rates: the 100A same-amp garage swap prices at $29.41 per amp of new service, while the 200A to 400A class change with a new meter-main prices at $27.63 per amp. The larger service is cheaper per amp, so a per-amp rate derived from a small job overcharges the large one and a rate derived from a large job undercharges the small one. The rate moves in the opposite direction from the cost.</p>
+<h3>What does a flat price leave out entirely?</h3>
+<p>The line items that turn a one-day job into a two-day one: the feeder run and its cable, the per-circuit landing time, AFCI and GFCI breakers at both their hours and their material cost, a new meter socket, new grounding electrodes, temporary power, utility coordination hours, and the permit and utility fees themselves. Each is its own input here, because each is present on some panel jobs and absent on others.</p>
+<h3>How far under water can a flat price actually put a job?</h3>
+<p>On this calculator&rsquo;s defaults, a flat $2,500 panel-upgrade quote against its 100A to 200A underground preset - a forty-foot feeder through finished space, twenty AFCI circuits, temporary power and a utility disconnect - lands $5,612.83 below that job&rsquo;s break-even price of $8,112.83. That is before any profit: the job loses more than twice the flat quote itself.</p>
+<h3>Is a flat panel-upgrade price ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs it can land close - same amp rating, same path, same panel location, a similar circuit count and a similar answer on grounding and the utility. A shop that only does same-amp garage swaps in one neighbourhood may quote a flat price for years without being bitten. The risk is applying it outside that band without noticing, because nothing about a flat number tells you when the next job has stopped matching the one the number was built on.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It holds no data on local rates, competitors, or what a homeowner in your area expects to pay. It takes the wage, burden, overhead, travel, and target margin you enter and turns them into a break-even price and a bid price for the feeder, circuits, path, grounding, and utility work you describe. It replaces the arithmetic a flat rate skips, not your judgment about your own market.</p>
+<p class="fine">Nothing here says or implies that quoting a flat panel-upgrade price is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the one the number was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it. It names no company or product: the comparison is against a pricing method, not against a competitor.</p>
+</section>
+
+<p><a href="./">Open the Electrical Panel Upgrade Bid Calculator</a> and price your own job, or read <a href="how-much-to-charge-to-upgrade-an-electrical-panel.html">how much to charge to upgrade an electrical panel</a> for the walkthrough.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This is a pricing worksheet built from your own assumptions. It is not a load calculation, not a code compliance check, and not a substitute for a licensed electrician&rsquo;s judgment or the authority having jurisdiction.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device; the figures on this page come from this calculator&rsquo;s own presets and default rates, not from any market survey.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../standby-generator-bid-calculator/" data-pf-to="standby-generator-bid-calculator">Standby Generator Installation Bid Calculator</a></li>
+      <li><a href="../standby-generator-install-price-calculator/" data-pf-to="standby-generator-install-price-calculator">Standby Generator Install Price Calculator — free, private</a></li>
+      <li><a href="../sump-pump-bid-calculator/" data-pf-to="sump-pump-bid-calculator">Sump Pump Bid Calculator</a></li>
+      <li><a href="../toilet-replacement-bid-calculator/" data-pf-to="toilet-replacement-bid-calculator">Toilet Replacement Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=electrical-panel-upgrade-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="electrical-panel-upgrade-bid-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. Burp Suite | CORS Misconfiguration Checker</title>
+<meta name="description" content="Burp Suite is PortSwigger's interactive web security testing platform, driven through an intercepting proxy, with automated scanning in its paid editions.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/vs-burp-suite.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Burp Suite">
+<meta property="og:description" content="Two different jobs: Burp Suite is a full interactive web security testing platform you drive by hand.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Burp Suite?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They do different jobs, and most people testing an API seriously will end up wanting both. Burp Suite, from PortSwigger, is a general-purpose web security testing platform built around an intercepting proxy: you route a browser through it, explore the application, and replay or vary individual requests by hand with tools like Repeater and Intruder, with automated vulnerability scanning available in its paid editions. It covers a very broad catalogue of web vulnerability classes, of which CORS is one. This checker covers nothing but CORS. It is a single zero-dependency Node command that sends six GET requests with different Origin headers to one URL, classifies the responses into four named misconfiguration patterns plus two notices, names the exact response header behind each, and exits non-zero on a danger finding. Reach for Burp Suite when you are assessing a whole application, working through authenticated flows, or building a proof of concept. Reach for this when you want that one CORS question answered repeatably, in CI, on a machine with no GUI and no licence." }
+    },
+    {
+      "@type": "Question",
+      "name": "Burp Suite has a free edition. What does this add?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Being free is not the difference, and this page does not claim it is: PortSwigger publishes a free Community Edition of Burp Suite, and its Web Security Academy material on CORS attacks is free to read as well. The differences that matter here are shape and scope. Burp Suite is a desktop application you install, launch, and drive interactively through a proxy; automated and scheduled scanning is what its paid editions are for. This checker is one command with no install beyond Node, no licence key, no proxy configuration, and no interactive step, so it runs unattended on a CI runner and gates a deploy on its exit code. And it is deliberately narrow: it answers one question about one endpoint rather than surveying an application, which is why its output is short enough to read in full every time." }
+    },
+    {
+      "@type": "Question",
+      "name": "If a scanner already covers CORS, why run a CORS-only tool?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because the two are used at different moments. A full assessment happens occasionally, by a person, against a build of an application. A CORS misconfiguration is usually introduced by a one-line change to an allow-list months later, and the cheapest place to catch that is a check that runs on every deploy of your own staging environment and costs nothing to run again. That is what this tool is shaped for: six requests, a deterministic classification, an exit code. It does not replace an assessment, and a clean report from it is evidence about six specific requests, not a determination that the API is secure." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with PortSwigger or Burp Suite?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by PortSwigger, and Burp Suite is a trademark of its owner, named here only to describe what this checker is and is not. The description of Burp Suite on this page is drawn from PortSwigger's own public site; check it there for what any edition currently includes." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/vs-burp-suite.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Burp Suite — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Burp Suite</span></span></nav>
+<p><a href="index.html">&larr; CORS misconfiguration checker</a></p>
+
+<h1>This checker vs. Burp Suite</h1>
+
+<p>
+  <strong>Burp Suite</strong>, from
+  <a href="https://portswigger.net/burp" rel="nofollow noopener">PortSwigger</a>, is one of the
+  best-known tools in web application security. It is a testing <em>platform</em> built around an
+  intercepting proxy: you route a browser through it, watch and modify the traffic, and replay or
+  vary individual requests by hand with tools such as Repeater and Intruder. PortSwigger
+  distributes it in a free Community Edition and in paid editions that add automated vulnerability
+  scanning, and it publishes a large body of free learning material — including
+  <a href="https://portswigger.net/web-security/cors" rel="nofollow noopener">its Web Security
+  Academy topic on CORS</a>, which is where several of the attack shapes this checker probes for
+  are documented in the first place.
+</p>
+
+<p>
+  That is a much bigger job than the one this page does, and a different shape of job.
+  This checker is a single zero-dependency Node command. It sends
+  <strong>six ordinary GET requests</strong> to one URL you name, each with a different
+  <code>Origin</code> header, and classifies the responses into four named CORS misconfiguration
+  patterns — a reflected unrelated origin, an accepted <code>Origin: null</code>, and two
+  unanchored allow-list bypass shapes — plus notices for wildcard-with-credentials and a dynamic
+  <code>Access-Control-Allow-Origin</code> missing <code>Vary: Origin</code>. It names the exact
+  response header behind each finding and exits non-zero when a danger-severity finding is
+  produced. It has no proxy, no browser integration, no scanner, and no opinion about any
+  vulnerability class other than CORS.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Assess a whole web application, explore it interactively, work through authenticated flows, and chain findings together.</td>
+      <td>Burp Suite or a comparable web security testing platform — none of that is something this checker attempts.</td>
+    </tr>
+    <tr>
+      <td>Find out whether <em>this one endpoint</em> reflects an arbitrary origin, accepts <code>Origin: null</code>, or has an unanchored allow-list check.</td>
+      <td>This checker — one command, six requests, a report naming the header that proves it.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in CI on a CORS regression, unattended, on a runner with no GUI and no licence key.</td>
+      <td>This checker — zero dependencies, exit code <code>1</code> on a danger finding.</td>
+    </tr>
+    <tr>
+      <td>Build a working proof of concept for a bug report, or test how a finding behaves with real session credentials.</td>
+      <td>Burp Suite — this checker sends unauthenticated GETs only and produces no exploit.</td>
+    </tr>
+    <tr>
+      <td>Scan for the wide catalogue of web vulnerability classes that are not CORS at all.</td>
+      <td>Burp Suite's scanner, in the editions that include it, or another scanner — this checker looks at CORS and nothing else.</td>
+    </tr>
+    <tr>
+      <td>Understand the attack classes before testing for them.</td>
+      <td>PortSwigger's Web Security Academy CORS material is free and excellent; this checker's own <a href="reflected-origin-cors-vulnerability.html">background page</a> covers the same three patterns in short form.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These compose rather than compete. A reasonable setup is this checker wired into your own CI
+  against your own staging environment, so an allow-list change that reintroduces a reflected
+  origin turns a build red the day it lands, and a real assessment — with Burp Suite or with a
+  person you hire — for everything a six-request check cannot see. Neither one makes the other
+  redundant.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or Burp Suite?</h3>
+<p>They do different jobs, and most people testing an API seriously will end up wanting both. Burp Suite, from PortSwigger, is a general-purpose web security testing platform built around an intercepting proxy: you route a browser through it, explore the application, and replay or vary individual requests by hand with tools like Repeater and Intruder, with automated vulnerability scanning available in its paid editions. It covers a very broad catalogue of web vulnerability classes, of which CORS is one. This checker covers nothing but CORS. It is a single zero-dependency Node command that sends six GET requests with different Origin headers to one URL, classifies the responses into four named misconfiguration patterns plus two notices, names the exact response header behind each, and exits non-zero on a danger finding. Reach for Burp Suite when you are assessing a whole application, working through authenticated flows, or building a proof of concept. Reach for this when you want that one CORS question answered repeatably, in CI, on a machine with no GUI and no licence.</p>
+
+<h3>Burp Suite has a free edition. What does this add?</h3>
+<p>Being free is not the difference, and this page does not claim it is: PortSwigger publishes a free Community Edition of Burp Suite, and its Web Security Academy material on CORS attacks is free to read as well. The differences that matter here are shape and scope. Burp Suite is a desktop application you install, launch, and drive interactively through a proxy; automated and scheduled scanning is what its paid editions are for. This checker is one command with no install beyond Node, no licence key, no proxy configuration, and no interactive step, so it runs unattended on a CI runner and gates a deploy on its exit code. And it is deliberately narrow: it answers one question about one endpoint rather than surveying an application, which is why its output is short enough to read in full every time.</p>
+
+<h3>If a scanner already covers CORS, why run a CORS-only tool?</h3>
+<p>Because the two are used at different moments. A full assessment happens occasionally, by a person, against a build of an application. A CORS misconfiguration is usually introduced by a one-line change to an allow-list months later, and the cheapest place to catch that is a check that runs on every deploy of your own staging environment and costs nothing to run again. That is what this tool is shaped for: six requests, a deterministic classification, an exit code. It does not replace an assessment, and a clean report from it is evidence about six specific requests, not a determination that the API is secure.</p>
+
+<h3>Is this page affiliated with PortSwigger or Burp Suite?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by PortSwigger, and Burp Suite is a trademark of its owner, named here only to describe what this checker is and is not. The description of Burp Suite on this page is drawn from PortSwigger's own public site; check it there for what any edition currently includes.</p>
+
+<p>
+  <strong>Only point either tool at a system you own or are authorised to test.</strong> That rule
+  is unchanged by which one you pick.
+</p>
+
+<p><a href="index.html">&larr; Back to the CORS misconfiguration checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at four specific,
+  well-documented CORS misconfiguration patterns from six requests. It is not a full security
+  assessment, does not send real credentials or test authenticated behaviour, and cannot see a
+  pattern its probes don't happen to trigger.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cors-misconfig-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cors-misconfig-check"></script>
+</body>
+</html>

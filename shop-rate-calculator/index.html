@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop Rate Calculator | What One Crew Hour Really Costs You</title>
+  <meta name="description" content="Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles…">
+  <meta property="og:title" content="Shop Rate Calculator">
+  <meta property="og:description" content="Most contractors guess 20% burden and 10% overhead. Enter your own payroll, vehicles, office and billable hours and see the two numbers your bids should…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shop Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"True labor burden per billable hour, billable-hour utilization from paid time off and non-billable work, overhead rate as a percentage of direct cost, break-even crew hour, target-margin bill rate, annual revenue and profit at that margin, a comparison of the rate you charge today against the rate your own year requires (the net margin it actually earns, the annual size of the gap, and the billable hours it would take to make it work), and one-click carry of crew wage, burden, overhead and target margin into every trade bid calculator on this site"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does it say my payroll burden is 92% when everyone quotes 20–30%?","acceptedAnswer":{"@type":"Answer","text":"Because the usual figure answers a different question. “Taxes plus insurance as a percentage of wages” is the textbook definition, and on the worked example that really is about 20%. But you pay wages on every paid hour and you invoice only some of them — 15 paid days off, and a fifth of the hours you do work going to drive time, estimating, shop time and warranty callbacks. The example pays 2,080 hours and bills 1,568. Burden here is the percentage that recovers the whole annual cost of employing someone across only the hours that get sold, which is what every bid calculator on this site multiplies by job hours. Use 20% there and the unbilled hours are never recovered on any job."}},{"@type":"Question","name":"Isn’t overhead a percentage of revenue?","acceptedAnswer":{"@type":"Answer","text":"On a profit-and-loss statement, yes. Here it is deliberately a percentage of direct cost, because that is what the bid calculators do with it: they take a job’s labor plus materials and add the overhead rate on top. The denominator is annual direct cost — loaded field labor plus materials and subcontractors — so the number transfers cleanly. Mixing the two up is a quiet, consistent under-recovery on every job you price, because overhead-over-revenue is always the smaller number."}},{"@type":"Question","name":"What is the difference between the bill rate and the break-even rate?","acceptedAnswer":{"@type":"Answer","text":"The break-even rate is what an hour costs you once burden and overhead are both covered — $65.18 on the worked example. Bill at exactly that and you finish the year with zero profit, having worked all of it. The bill rate adds your target net margin on top: at 12% that is $74.07. The gap between the two is the entire profit of the business, which is why a “small” discount off the bill rate is a large fraction of the margin rather than a large fraction of the price."}},{"@type":"Question","name":"Why does the non-billable percentage move the rate so much?","acceptedAnswer":{"@type":"Answer","text":"Because it shrinks the denominator that everything else is divided by. It is the single most sensitive input on this page: the annual cost of employing someone does not change when utilization drops, so every unbilled hour has to be recovered by the hours that remain. The worked example bills 75% of its paid hours. If your crew is at 60% because of drive time or a long quoting cycle, the same wage and the same overheads need a materially higher rate to come out level. Be honest with this number rather than optimistic — it is the one most shops guess high on."}},{"@type":"Question","name":"What do I do with the burden and overhead numbers once I have them?","acceptedAnswer":{"@type":"Answer","text":"Carry them. Every trade bid calculator on this site asks for crew wage, payroll burden %, overhead on direct cost %, and target margin, and those four are exactly what this page computes. Saving them here fills them in on the other tools so you type them once and price every job from the same business figures, instead of reaching for “about 20%” from memory on each one. If a computed rate is too large for the receiving forms to accept, the result says so rather than silently carrying a number that would be dropped."}},{"@type":"Question","name":"Do I count the owner’s pay as overhead or as crew?","acceptedAnswer":{"@type":"Answer","text":"If the owner is working in the field on the jobs being priced, that time belongs in the crew wage and the crew count. If the owner is estimating, selling, and running the office, that pay is overhead — and leaving it out entirely, which is the common habit in an owner-operated shop, makes the overhead rate too low and the bill rate too low with it. Someone has to pay for the hours spent quoting the jobs you did not win, and this is the line where that happens."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your rates are saved in this browser’s local storage so the other tools on this site can use them and so they are still here next visit. The optional usage counter records only which features were used and the day, never your wages, overheads, or the rate it works out."}},{"@type":"Question","name":"Is this an accounting or tax opinion?","acceptedAnswer":{"@type":"Answer","text":"No. It is your own numbers, divided. It makes no determination about tax treatment, workers’ comp classification, or whether anyone is an employee or a contractor, and it does not tell you what to charge — the market and your own judgement do that. Check the figures against your payroll records, your insurance declarations, and a qualified professional before you price work with them."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e2eaf2; }
+    .primary { background: #2f5d50; border-color: #2f5d50; color: #f4f8f6; }
+    .primary:hover { background: #26493f; }
+    .result { position: sticky; top: 15px; background: #172b26; color: #eef5f2; border-color: #172b26; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .compare { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .compare h3 { margin: 0 0 8px; font-size: .95rem; }
+    .compare dl { margin-top: 12px; }
+    .compare .note-list { margin-top: 12px; }
+    .compare-hero { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+    .compare-hero.short { color: #ffb0a2; }
+    .compare-hero.ahead { color: #bfe3d4; }
+    .carry { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .carry h3 { margin: 0 0 6px; font-size: .95rem; }
+    .carry p { font-size: .83rem; margin: 0 0 10px; opacity: .88; }
+    .carry-list { list-style: none; margin: 0 0 12px; padding: 0; font-size: .86rem; }
+    .carry-list li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; font-variant-numeric: tabular-nums; }
+    .carry-status { font-size: .8rem; min-height: 1.2em; margin: 10px 0 0; color: #bfe3d4; }
+    .warn { margin-top: 12px; padding: 11px; border-radius: 9px; background: #7d3317; font-size: .84rem; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b6c; }
+    footer a { color: #2f5d50; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Shop Rate Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shop Rate Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Shop Rate Calculator</span></span></nav>
+  <header>
+    <p class="eyebrow">FOR TRADE CONTRACTORS AND SHOP OWNERS</p>
+    <h1>You do not charge what you think you charge.</h1>
+    <p>A $28 wage is not a $28 hour. By the time payroll taxes, workers&rsquo; comp, the truck, the phone, the paid holidays and every hour spent driving, estimating and fixing callbacks are in it, the hour you sell costs far more &mdash; and the overhead behind it still has to come out of somewhere. Put your own year in below and see the burden rate, the overhead rate, and the number a crew hour has to be sold at.</p>
+    <p class="seo-link"><a href="./what-should-i-charge-per-hour.html">What should I charge per hour as a contractor?</a></p>
+    <p class="seo-link"><a href="./vs-servicetitan.html">This calculator vs. ServiceTitan</a> &mdash; what a pricebook holds, and what has to decide the number first.</p>
+    <p class="seo-link"><a href="./vs-housecall-pro.html">This calculator vs. Housecall Pro</a> &mdash; what a Price Book holds, and what has to decide the number first.</p>
+    <p class="seo-link"><a href="./vs-guessing-your-burden-and-overhead.html">This calculator vs. guessing your burden and overhead</a> &mdash; the 20%/10% rule of thumb, and what it actually costs.</p>
+  </header>
+
+  <main class="layout">
+    <form id="rateForm">
+      <section>
+        <h2>The crew and the hours</h2>
+        <p class="hint">The hours are the part most shops get wrong. You pay for 2,080 hours a year and you sell far fewer, and the gap has to be recovered inside the ones you do sell.</p>
+        <div class="fields">
+          <label>Crew hourly wage ($/h) <input id="hourlyWage" type="number" min="0.01" step="0.01" value="28" inputmode="decimal"></label>
+          <label>Field crew size (people) <input id="fieldCrewCount" type="number" min="1" step="1" value="3" inputmode="numeric"></label>
+          <label>Paid hours a week <input id="paidHoursPerWeek" type="number" min="1" max="168" step="0.5" value="40" inputmode="decimal"></label>
+          <label>Paid weeks a year <input id="paidWeeksPerYear" type="number" min="1" max="52" step="1" value="52" inputmode="numeric"></label>
+          <label>Paid days off a year <input id="paidDaysOffPerYear" type="number" min="0" max="365" step="1" value="15" inputmode="numeric"></label>
+          <label>Non-billable share of worked hours (%) <input id="nonBillablePercent" type="number" min="0" max="99" step="1" value="20" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Paid days off means holidays, vacation and sick days &mdash; paid, and on nobody&rsquo;s invoice. The non-billable share is everything else that is worked but not sold: drive time between jobs, loading, estimating, shop and yard time, warranty callbacks and rework. Twenty per cent is a common figure for a small crew; measure yours if you can.</p>
+      </section>
+
+      <section>
+        <h2>What a person costs on top of the wage</h2>
+        <p class="hint">Per field employee, per year. These are the costs of employing somebody rather than the costs of a job.</p>
+        <div class="fields">
+          <label>Payroll taxes (% of wages) <input id="payrollTaxPercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Workers&rsquo; comp (% of wages) <input id="workersCompPercent" type="number" min="0" max="200" step="0.1" value="8" inputmode="decimal"></label>
+          <label>Liability insurance on payroll (%) <input id="liabilityInsurancePercent" type="number" min="0" max="100" step="0.1" value="2" inputmode="decimal"></label>
+          <label>Benefits per person ($/yr) <input id="benefitsPerYear" type="number" min="0" step="1" value="4800" inputmode="numeric"></label>
+          <label>Vehicle, fuel, phone, tools ($/yr) <input id="vehicleToolsPerYear" type="number" min="0" step="1" value="9600" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Workers&rsquo; comp varies more than any other figure here &mdash; a low-risk trade may be under 4% of payroll and a roofing classification many times that. Use your own declarations page, not a rule of thumb.</p>
+      </section>
+
+      <section>
+        <h2>Overhead: the business, not the job</h2>
+        <p class="hint">Annual, whole business. Anything you would still be paying in a month with no work booked.</p>
+        <div class="fields">
+          <label>Owner and office pay ($/yr) <input id="ownerAdminSalary" type="number" min="0" step="1" value="65000" inputmode="numeric"></label>
+          <label>Yard, office and utilities ($/yr) <input id="officeRentUtilities" type="number" min="0" step="1" value="9000" inputmode="numeric"></label>
+          <label>Software, accounting, legal ($/yr) <input id="softwareAccountingLegal" type="number" min="0" step="1" value="4800" inputmode="numeric"></label>
+          <label>Marketing and lead fees ($/yr) <input id="marketingAndLeads" type="number" min="0" step="1" value="7200" inputmode="numeric"></label>
+          <label>Business insurance, licences, other ($/yr) <input id="insuranceLicensesOther" type="number" min="0" step="1" value="6000" inputmode="numeric"></label>
+          <label>Materials and subs a year ($) <input id="annualMaterialAndSubCost" type="number" min="0" step="1" value="180000" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Owner pay belongs here for the hours you spend estimating, quoting and running the shop. If you also work on the tools, count those hours in the crew above instead &mdash; splitting your own pay between the two is the most common thing to get wrong on this page. Materials and subs is your annual spend on both; it is the rest of the direct cost the overhead rate is measured against.</p>
+      </section>
+
+      <section>
+        <h2>What you want to make</h2>
+        <div class="fields">
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.1" value="12" inputmode="decimal"></label>
+          <label>What you charge today ($/h, optional) <input id="currentRatePerHour" type="number" min="0.01" max="100000" step="0.01" value="70" inputmode="decimal"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Net margin is a share of the price, not a mark-up on cost. Ten per cent margin on a $10,000 job is $1,000 of profit; a 10% mark-up on $10,000 of cost is $909. The rate you charge today is optional and changes none of the arithmetic &mdash; leave it blank and the answer is the same; fill it in and the result also says what that rate is earning, and what would have to be true for it to work.</p>
+        <div class="actions">
+          <button type="submit" class="primary" id="calculate">Work out my shop rate</button>
+          <button type="button" id="saveScenario">Save this scenario on this device</button>
+          <button type="button" id="forgetScenario" hidden>Forget saved scenario</button>
+        </div>
+        <p class="hint" id="scenarioStatus" role="status" style="margin:8px 0 0"></p>
+      </section>
+    </form>
+
+    <section class="result" aria-live="polite">
+      <p class="hero-label" id="heroLabel">bill this per crew hour</p>
+      <p class="hero-number" id="billRate">&mdash;</p>
+      <div id="output" hidden>
+        <dl>
+          <dt class="group">One field employee</dt>
+          <dt>Hours you pay for</dt><dd id="paidHours"></dd>
+          <dt>Hours you can bill</dt><dd id="billableHours"></dd>
+          <dt>Billable share</dt><dd id="utilization"></dd>
+          <dt>Costs you a year</dt><dd id="annualCostPerPerson"></dd>
+          <dt>Cost per billable hour</dt><dd id="costPerBillableHour"></dd>
+
+          <dt class="group">The rates your bids should carry</dt>
+          <dt>Payroll burden on the wage</dt><dd id="burdenRate"></dd>
+          <dt>Overhead on direct cost</dt><dd id="overheadRate"></dd>
+
+          <dt class="group">The hour</dt>
+          <dt>Break-even crew hour</dt><dd id="breakEven"></dd>
+          <dt>At your target margin</dt><dd id="billRateRow"></dd>
+
+          <dt class="group">The year, at that rate</dt>
+          <dt>Direct cost</dt><dd id="annualDirectCost"></dd>
+          <dt>Overhead</dt><dd id="annualOverhead"></dd>
+          <dt>Revenue you need</dt><dd id="revenueNeeded"></dd>
+          <dt>Profit left over</dt><dd id="profitAtTarget"></dd>
+        </dl>
+
+        <div id="comparison" class="compare" hidden>
+          <h3>Against what you charge today</h3>
+          <p class="compare-hero" id="compareHeadline"></p>
+          <dl>
+            <dt>Your rate</dt><dd id="cmpRate"></dd>
+            <dt>The rate this year needs</dt><dd id="cmpNeeded"></dd>
+            <dt>Net margin your rate earns</dt><dd id="cmpMargin"></dd>
+            <dt>Billable hours it would need</dt><dd id="cmpRequiredHours"></dd>
+          </dl>
+          <ul class="note-list" id="cmpNotes"></ul>
+        </div>
+
+        <div id="warnings"></div>
+        <ul class="note-list" id="notes"></ul>
+
+        <div class="carry">
+          <h3>Use these on every bid calculator here</h3>
+          <p>These four are the fields every trade bid calculator on this site asks for. Save them once and each one opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+          <ul class="carry-list" id="carryList"></ul>
+          <div class="actions">
+            <button type="button" id="carryRates">Save these as my shop rates</button>
+            <button type="button" id="forgetRates" hidden>Forget my saved rates</button>
+          </div>
+          <p class="carry-status" id="carryStatus" role="status"></p>
+        </div>
+      </div>
+      <div id="problems" hidden>
+        <ul class="errors" id="errorList"></ul>
+      </div>
+      <p class="empty" id="empty">The form opens on a worked example for a three-person crew. Change what is different about your shop and press the button.</p>
+      <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Change what is different about your shop and press the button.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does it say my payroll burden is 92% when everyone quotes 20&ndash;30%?</h3>
+      <p>Because the usual figure answers a different question. &ldquo;Taxes plus insurance as a
+        percentage of wages&rdquo; is the textbook definition, and on the worked example that really is
+        about 20%. But you pay wages on every paid hour and you invoice only some of them &mdash; 15 paid
+        days off, and a fifth of the hours you do work going to drive time, estimating, shop time and
+        warranty callbacks. The example pays 2,080 hours and bills 1,568. Burden here is the percentage
+        that recovers the <em>whole</em> annual cost of employing someone across only the hours that get
+        sold, which is what every bid calculator on this site multiplies by job hours. Use 20% there and
+        the unbilled hours are never recovered on any job.</p>
+
+      <h3>Isn&rsquo;t overhead a percentage of revenue?</h3>
+      <p>On a profit-and-loss statement, yes. Here it is deliberately a percentage of <em>direct
+        cost</em>, because that is what the bid calculators do with it: they take a job&rsquo;s labor
+        plus materials and add the overhead rate on top. The denominator is annual direct cost &mdash;
+        loaded field labor plus materials and subcontractors &mdash; so the number transfers cleanly.
+        Mixing the two up is a quiet, consistent under-recovery on every job you price, because
+        overhead-over-revenue is always the smaller number.</p>
+
+      <h3>What is the difference between the bill rate and the break-even rate?</h3>
+      <p>The break-even rate is what an hour costs you once burden and overhead are both covered
+        &mdash; $65.18 on the worked example. Bill at exactly that and you finish the year with zero
+        profit, having worked all of it. The bill rate adds your target net margin on top: at 12% that
+        is $74.07. The gap between the two is the entire profit of the business, which is why a
+        &ldquo;small&rdquo; discount off the bill rate is a large fraction of the margin rather than a
+        large fraction of the price.</p>
+
+      <h3>Why does the non-billable percentage move the rate so much?</h3>
+      <p>Because it shrinks the denominator that everything else is divided by. It is the single most
+        sensitive input on this page: the annual cost of employing someone does not change when
+        utilization drops, so every unbilled hour has to be recovered by the hours that remain. The
+        worked example bills 75% of its paid hours. If your crew is at 60% because of drive time or a
+        long quoting cycle, the same wage and the same overheads need a materially higher rate to come
+        out level. Be honest with this number rather than optimistic &mdash; it is the one most shops
+        guess high on.</p>
+
+      <h3>What do I do with the burden and overhead numbers once I have them?</h3>
+      <p>Carry them. Every trade bid calculator on this site asks for crew wage, payroll burden %,
+        overhead on direct cost %, and target margin, and those four are exactly what this page
+        computes. Saving them here fills them in on the other tools so you type them once and price
+        every job from the same business figures, instead of reaching for &ldquo;about 20%&rdquo; from
+        memory on each one. If a computed rate is too large for the receiving forms to accept, the
+        result says so rather than silently carrying a number that would be dropped.</p>
+
+      <h3>Do I count the owner&rsquo;s pay as overhead or as crew?</h3>
+      <p>If the owner is working in the field on the jobs being priced, that time belongs in the crew
+        wage and the crew count. If the owner is estimating, selling, and running the office, that pay
+        is overhead &mdash; and leaving it out entirely, which is the common habit in an owner-operated
+        shop, makes the overhead rate too low and the bill rate too low with it. Someone has to pay for
+        the hours spent quoting the jobs you did not win, and this is the line where that happens.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your
+        rates are saved in this browser&rsquo;s local storage so the other tools on this site can use
+        them and so they are still here next visit. The optional usage counter records only which
+        features were used and the day, never your wages, overheads, or the rate it works out.</p>
+
+      <h3>Is this an accounting or tax opinion?</h3>
+      <p>No. It is your own numbers, divided. It makes no determination about tax treatment, workers&rsquo;
+        comp classification, or whether anyone is an employee or a contractor, and it does not tell you
+        what to charge &mdash; the market and your own judgement do that. Check the figures against your
+        payroll records, your insurance declarations, and a qualified professional before you price work
+        with them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or financial advice, and it does not tell you what to charge, what your workers&rsquo; comp classification is, or how anyone should be classified or paid. It is arithmetic on the numbers you type. Verify every figure against your own payroll records, insurance declarations, and accounts, and against a qualified professional, before relying on it or pricing work with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your wage, payroll costs, overhead and resulting rates are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. Saving your shop rates writes the four carried figures to this site&rsquo;s own browser storage so the bid calculators can read them; clearing your browser data clears them. &ldquo;Save this scenario on this device&rdquo; writes all eighteen figures the same way, so you are not retyping your whole payroll and overhead picture on your next visit &mdash; deliberately local storage only, with no shareable link: a shop&rsquo;s payroll and overhead are more than should ever ride in a URL you might paste into a chat app.</p>
+    <p>Pricing custom field work instead of shop labor? The <a href="../custom-farm-rate-calculator/">custom farm rate calculator</a> works out a per-acre rate from a machine's field capacity, fuel, repairs, and ownership cost &mdash; nothing uploaded.</p>
+    <p>Pricing small repair jobs rather than crew hours? The <a href="../handyman-minimum-job-calculator/">handyman minimum job calculator</a> adds drive, estimate and supply-run time to each call and shows the smallest job worth driving to and the minimum trip charge. To price a whole job in any trade from hours, materials, subs and a target margin, use <a href="../trade-bid-studio/">Trade Bid Studio</a>.</p>
+    <p>Running an auto repair shop and want to check the rate you are actually collecting rather than the one you should charge? The <a href="../auto-repair-effective-labor-rate/">effective labor rate calculator</a> takes a month you have already billed and shows what reached the invoice, split between customer-pay discounting, warranty and unbilled comebacks &mdash; the same question from the other end of the year.</p>
+    <p>Billing someone else&rsquo;s labor to a client rather than your own crew&rsquo;s? The <a href="../staffing-markup-calculator/">staffing markup calculator</a> prices a placement the way agencies quote it &mdash; a markup on the pay rate &mdash; and shows what that markup earns once capped unemployment taxes, the workers&rsquo; comp class code, and the wait to be paid are counted.</p>
+    <p>Buying leads from Thumbtack, Angi or Google Local Services? The <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a> reads your lead log and shows the cost per booked job for each source &mdash; nothing uploaded.</p>
+    <p>Towing or roadside and unsure whether a motor-club dispatch covers the truck-hour? The <a href="../tow-motor-club-call-calculator/">tow motor club call calculator</a> turns your truck cost, deadhead and wait into profit per truck-hour and a break-even payout &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If it changes what you bid, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateShopRate, ALL_INPUT_IDS } from './calc.mjs';
+    import { saveCarriedRates, readCarriedRates, SHOP_RATES_KEY } from './shop-rates.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    // The four rates above are what the *rest of the site* reads; nothing
+    // saved the other fourteen (crew size, hours, benefits, overhead line
+    // items, materials). A shop owner revisiting this calculator itself still
+    // retyped the whole form every time. This key holds the full scenario, on
+    // this device only — deliberately no shareable link and no URL encoding:
+    // a shop's payroll and overhead figures are more than should ever ride in
+    // a URL that could end up logged or pasted into a chat app. See the
+    // "does not read or write a saved bid or a shared link" test below, which
+    // this save/restore pair is written to keep true.
+    const SCENARIO_KEY = 'shop-rate-calculator-scenario';
+
+    const el = id => document.getElementById(id);
+    const money = (value) => {
+      const format = (value) => `$${Math.round(value).toLocaleString('en-US')}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money2 = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = value => `${value.toFixed(1)}%`;
+    const hours = value => `${Math.round(value).toLocaleString('en-US')} h`;
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, el(id).value]));
+    }
+
+    function writeInputs(values) {
+      for (const id of ALL_INPUT_IDS) {
+        if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+      }
+    }
+
+    // The last good result, so the carry button never writes rates that are not
+    // the ones on screen. Cleared whenever the form changes, because a figure
+    // half-edited is not a rate anybody checked.
+    let current = null;
+    // True while the screen shows the shipped example's answer rather than one
+    // the visitor asked for. It gates the carry button's wording, not the
+    // maths: `current` still governs what may actually be written.
+    let showingExample = false;
+
+    function markFields(errors) {
+      const bad = new Set(errors.map(e => e.id));
+      for (const id of ALL_INPUT_IDS) {
+        const node = el(id);
+        if (bad.has(id)) node.setAttribute('aria-invalid', 'true');
+        else node.removeAttribute('aria-invalid');
+      }
+    }
+
+    function showProblems(errors) {
+      current = null;
+      markFields(errors);
+      el('billRate').textContent = '—';
+      el('billRate').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted fields';
+      el('output').hidden = true;
+      el('empty').hidden = true;
+      el('problems').hidden = false;
+      el('errorList').replaceChildren(...errors.map(error => {
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        return li;
+      }));
+    }
+
+    function renderCarry(carry) {
+      const rows = [
+        ['Crew hourly wage', money2(carry.hourlyWage)],
+        ['Payroll burden', pct(carry.burdenRate)],
+        ['Overhead on direct cost', pct(carry.overheadRate)],
+        ['Target net margin', pct(carry.targetMargin)],
+      ];
+      el('carryList').replaceChildren(...rows.map(([label, value]) => {
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        name.textContent = label;
+        const amount = document.createElement('span');
+        amount.textContent = value;
+        li.append(name, amount);
+        return li;
+      }));
+    }
+
+    // The rate they already charge, beside the one their year requires. Hidden
+    // entirely when the field is blank: an empty comparison block reads as "no
+    // gap", which is the opposite of "you did not tell us".
+    function renderComparison(comparison) {
+      el('comparison').hidden = !comparison;
+      if (!comparison) return;
+
+      const short = comparison.gapPerHour < 0;
+      const headline = el('compareHeadline');
+      headline.className = `compare-hero ${short ? 'short' : 'ahead'}`;
+      headline.textContent = short
+        ? `${money2(-comparison.gapPerHour)} an hour short — about ${money(-comparison.annualGap)} a year`
+        : `${money2(comparison.gapPerHour)} an hour clear of the target rate`;
+
+      el('cmpRate').textContent = money2(comparison.currentRatePerHour);
+      el('cmpNeeded').textContent = money2(comparison.requiredRatePerHour);
+      el('cmpMargin').textContent = pct(comparison.marginAtCurrentRate);
+      el('cmpRequiredHours').textContent = comparison.reachable
+        ? `${hours(comparison.requiredBillableHours)} (${comparison.requiredUtilization.toFixed(0)}%)`
+        : `${hours(comparison.requiredBillableHours)} — more than you work`;
+
+      el('cmpNotes').replaceChildren(...comparison.messages.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+    }
+
+    function render(result) {
+      current = result;
+      markFields([]);
+      el('problems').hidden = true;
+      el('empty').hidden = true;
+      el('output').hidden = false;
+      el('heroLabel').textContent = 'bill this per crew hour';
+      el('billRate').className = 'hero-number';
+      el('billRate').textContent = money2(result.billRatePerHour);
+
+      el('paidHours').textContent = hours(result.paidHoursPerYear);
+      el('billableHours').textContent = hours(result.billableHoursPerYear);
+      el('utilization').textContent = pct(result.utilization);
+      el('annualCostPerPerson').textContent = money(result.annualCostPerPerson);
+      el('costPerBillableHour').textContent = money2(result.costPerBillableHour);
+      el('burdenRate').textContent = pct(result.burdenRate);
+      el('overheadRate').textContent = pct(result.overheadRate);
+      el('breakEven').textContent = money2(result.breakEvenRatePerHour);
+      el('billRateRow').textContent = money2(result.billRatePerHour);
+      el('annualDirectCost').textContent = money(result.annualDirectCost);
+      el('annualOverhead').textContent = money(result.annualOverhead);
+      el('revenueNeeded').textContent = money(result.revenueNeeded);
+      el('profitAtTarget').textContent = money(result.profitAtTarget);
+
+      renderComparison(result.comparison);
+
+      el('warnings').replaceChildren(...result.carryWarnings.map(text => {
+        const div = document.createElement('div');
+        div.className = 'warn';
+        div.textContent = text;
+        return div;
+      }));
+      el('notes').replaceChildren(...result.notes.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+
+      renderCarry(result.carry);
+      // A rate the receiving calculators would drop must not be offered as one
+      // they will open with.
+      el('carryRates').disabled = result.carryWarnings.length > 0;
+      refreshSavedState();
+    }
+
+    function refreshSavedState() {
+      const saved = readCarriedRates(localStorage);
+      el('forgetRates').hidden = !saved;
+    }
+
+    el('rateForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const result = calculateShopRate(readInput());
+      if (!result.ok) {
+        showProblems(result.errors);
+        return;
+      }
+      render(result);
+      showingExample = false;
+      el('exampleNote').hidden = true;
+      count('rate_calculated');
+      // Counted separately from the calculation so the share of visitors who
+      // actually type what they charge is readable — that ratio is what says
+      // whether the comparison earned its place on the form.
+      if (result.comparison) count('rate_compared');
+    });
+
+    // Any edit invalidates what is on screen, so the carry button cannot write a
+    // rate computed from numbers that have since changed.
+    el('rateForm').addEventListener('input', () => {
+      if (!current) return;
+      current = null;
+      el('carryStatus').textContent = '';
+    });
+
+    el('carryRates').addEventListener('click', () => {
+      if (!current) {
+        el('carryStatus').textContent = showingExample
+          ? 'Press “Work out my shop rate” first — these are still the example’s figures, and carrying them would price every bid from someone else’s shop.'
+          : 'Press “Work out my shop rate” first — the numbers on the form have changed.';
+        return;
+      }
+      const ok = saveCarriedRates(current.carry, localStorage);
+      el('carryStatus').textContent = ok
+        ? 'Saved. Every trade bid calculator on this site will now open with these four numbers.'
+        : 'This browser will not let the page save site data, so the rates could not be stored.';
+      if (ok) count('rates_carried');
+      refreshSavedState();
+    });
+
+    el('saveScenario').addEventListener('click', () => {
+      try {
+        localStorage.setItem(SCENARIO_KEY, JSON.stringify(readInput()));
+        el('scenarioStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+        count('scenario_saved');
+      } catch {
+        el('scenarioStatus').textContent = 'This browser will not let the page save site data, so the scenario could not be stored.';
+      }
+      refreshScenarioState();
+    });
+
+    el('forgetScenario').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(SCENARIO_KEY);
+        el('scenarioStatus').textContent = 'Saved scenario deleted from this browser.';
+        count('scenario_forgotten');
+      } catch {
+        el('scenarioStatus').textContent = 'This browser will not let the page change site data.';
+      }
+      refreshScenarioState();
+    });
+
+    function refreshScenarioState() {
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(SCENARIO_KEY) || 'null');
+      } catch {
+        // A blob written by a future version, or a browser refusing storage.
+      }
+      el('forgetScenario').hidden = !(saved && typeof saved === 'object');
+    }
+
+    // The page's own copy promises "the form opens on a worked example", and the
+    // eighteen defaults are that example -- but the answer stayed hidden behind
+    // the button, so a first visit showed an em-dash and the example's whole
+    // point (a $28 wage is $53.76 an hour sold, not the remembered 20% burden)
+    // was invisible. Every sibling bid calculator opens on its own worked
+    // result; this one now does too.
+    //
+    // A returning visitor who saved their own scenario gets their own figures
+    // here instead of the shipped example -- restored before this runs, so the
+    // first render is already theirs rather than a stranger's shop. `current`
+    // is set (not left null) in that case: it is a real result the visitor
+    // already confirmed once by saving it, not an unpressed example, so the
+    // carry button works immediately on a returning visit.
+    //
+    // Two things are deliberately *not* done for the shipped example itself.
+    // No `rate_calculated` count: that event is the denominator of this
+    // venture's carry-through ratio, and a page load is not a calculation.
+    // And `current` stays null for the example specifically, so the carry
+    // button still needs an explicit press -- carrying the example's figures
+    // would open all 103 bid calculators on someone else's shop, which is the
+    // exact error this venture exists to stop.
+    (() => {
+      let restoredOwnScenario = false;
+      try {
+        const savedScenario = JSON.parse(localStorage.getItem(SCENARIO_KEY) || 'null');
+        if (savedScenario && typeof savedScenario === 'object') {
+          writeInputs(savedScenario);
+          restoredOwnScenario = true;
+        }
+      } catch {
+        // A browser refusing storage, or a blob from a future version.
+      }
+
+      const example = calculateShopRate(readInput());
+      if (!example.ok) return;
+      render(example);
+      if (restoredOwnScenario) {
+        current = example;
+        showingExample = false;
+        el('exampleNote').hidden = true;
+        el('scenarioStatus').textContent = 'Opened your saved scenario. Review the numbers before you rely on them.';
+      } else {
+        current = null;
+        showingExample = true;
+        el('exampleNote').hidden = false;
+      }
+    })();
+
+    refreshScenarioState();
+
+    el('forgetRates').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(SHOP_RATES_KEY);
+        el('carryStatus').textContent = 'Forgotten. The bid calculators will open on their own example figures again.';
+        count('rates_forgotten');
+      } catch {
+        el('carryStatus').textContent = 'This browser will not let the page change site data.';
+      }
+      refreshSavedState();
+    });
+
+    // Open on the contractor's own wage and margin if they have already saved
+    // them elsewhere on the site. Burden and overhead are deliberately not
+    // restored: this page computes those, and prefilling them would show a
+    // previous answer beside inputs that no longer produce it.
+    const saved = readCarriedRates(localStorage);
+    if (saved) {
+      if (typeof saved.hourlyWage === 'number') el('hourlyWage').value = saved.hourlyWage;
+      if (typeof saved.targetMargin === 'number') el('targetMargin').value = saved.targetMargin;
+    }
+    refreshSavedState();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+      <li><a href="../invoice-aging-late-payer-analyzer/" data-pf-to="invoice-aging-late-payer-analyzer">Invoice Aging &amp; Late Payer Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../job-margin-variance/" data-pf-to="job-margin-variance">Job Cost Variance Calculator</a></li>
+      <li><a href="../land-survey-bid-calculator/" data-pf-to="land-survey-bid-calculator">Land Survey Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shop-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/?pfEmbed=1&quot; title=&quot;Shop Rate Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="shop-rate-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/" data-pf-embed-title="Shop Rate Calculator" data-pf-embed-slug="shop-rate-calculator"></script>
+</body>
+</html>

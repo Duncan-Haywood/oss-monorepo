@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. TurboTenant | Security Deposit Return Calculator</title>
+  <meta name="description" content="How this free, no-sign-up security deposit refund and prorated rent calculator differs from TurboTenant, the landlord property-management platform.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/vs-turbotenant.html">
+  <meta property="og:title" content="This calculator vs. TurboTenant | Security Deposit Return Calculator">
+  <meta property="og:description" content="TurboTenant is a landlord property-management platform: listings, applications, leases, rent collection.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or TurboTenant?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems, and a landlord who uses TurboTenant for everything else can still land here for one calculation. TurboTenant is a property-management platform: listings, tenant screening, e-signable leases, online rent collection, and (on its paid plans) security deposit tracking held alongside a specific lease record in its own system. This page is a single free form that does none of that. You type a deposit amount and list each deduction, or a monthly rent and a day count, and it does the arithmetic — refund or balance owed, or a prorated partial-month figure — with nothing signed up for and no lease on file anywhere."}},{"@type":"Question","name":"Do I need a property-management account just to work out a deposit refund?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the gap this page exists to close. A landlord managing one unit, or a tenant checking a landlord's math from the other side of the table, does not need an account, a listed property, or a stored lease to add up deductions against a deposit. This calculator runs the same subtraction TurboTenant's deposit tracking runs, without the account, the property record, or the plan tier deposit tracking sits behind."}},{"@type":"Question","name":"Does this replace TurboTenant's property management?","acceptedAnswer":{"@type":"Answer","text":"No. Listing a vacancy, screening applicants, signing a lease, and collecting rent every month are real, recurring jobs, and a platform built around a persistent record of the tenancy is the right tool for that. This page sells nothing, stores nothing, and has no concept of a property or a lease term. It answers one arithmetic question — what does this deposit settle to, or what does this partial month prorate to — the same question a landlord who already uses full property-management software still has to answer at move-out."}},{"@type":"Question","name":"Is this page affiliated with TurboTenant?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by TurboTenant, and this page is not a review of it. TurboTenant is a trademark of its owner, named here only to describe the category of software this calculator is and is not. Its plans, pricing, and features change; check TurboTenant's own site for current terms rather than relying on any description here."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #2a6b8e; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.02em; line-height: 1.1; color: #1f4a5d; }
+    h2 { color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5a68; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #2a6b8e; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .85rem; color: #4c5a68; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/vs-turbotenant.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. TurboTenant | Security Deposit Return Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-deposit-return-calculator/">Security Deposit Refund &amp; Prorated Rent Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. TurboTenant | Security Deposit Return Calculator</span></span></nav>
+  <p><a href="./">&larr; Security deposit refund &amp; prorated rent calculator</a></p>
+  <h1>This calculator vs. TurboTenant</h1>
+  <p>
+    <a href="https://www.turbotenant.com/" rel="nofollow noopener">TurboTenant</a>
+    is a landlord property-management platform: listing a vacancy,
+    screening applicants, signing an e-lease, collecting rent, and, on its
+    paid plans, tracking a security deposit against that lease record. It is
+    a system for running a rental end to end.
+  </p>
+  <p>
+    This page is not a property-management system and never will be. It
+    answers one narrower question, on the spot: <strong>what does this
+    deposit settle to, or what does this partial month prorate to</strong>
+    &mdash; typed in your browser, with no account, no property record, and
+    nothing saved anywhere.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I need to list a vacancy, screen an applicant, and get a lease signed.</td>
+        <td>TurboTenant &mdash; that's the workflow it's built for.</td>
+      </tr>
+      <tr>
+        <td>I want rent collected online every month without chasing a check.</td>
+        <td>TurboTenant &mdash; ongoing rent collection is a core feature.</td>
+      </tr>
+      <tr>
+        <td>A tenant is moving out. What's the refund once I list the deductions?</td>
+        <td>This calculator &mdash; enter the deposit and each deduction, get the number immediately.</td>
+      </tr>
+      <tr>
+        <td>The tenant moved in mid-month. What's the prorated rent for that first month?</td>
+        <td>This calculator &mdash; enter the monthly rent, days in the month, and days occupied.</td>
+      </tr>
+      <tr>
+        <td>I'm a tenant and want to check the landlord's deduction math myself.</td>
+        <td>This calculator &mdash; the same free form works from either side of the lease.</td>
+      </tr>
+      <tr>
+        <td>Can I see the refund figure without creating a property-management account?</td>
+        <td>This calculator &mdash; a static page, no account, nothing uploaded.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Calculate a refund or prorated rent now</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and the deposit amount, every
+    deduction, and every rent figure you enter stay on this device &mdash;
+    nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or TurboTenant?</h3>
+  <p>They solve different problems, and a landlord who uses TurboTenant for everything else can still land here for one calculation. TurboTenant is a property-management platform: listings, tenant screening, e-signable leases, online rent collection, and (on its paid plans) security deposit tracking held alongside a specific lease record in its own system. This page is a single free form that does none of that. You type a deposit amount and list each deduction, or a monthly rent and a day count, and it does the arithmetic &mdash; refund or balance owed, or a prorated partial-month figure &mdash; with nothing signed up for and no lease on file anywhere.</p>
+  <h3>Do I need a property-management account just to work out a deposit refund?</h3>
+  <p>No, and that is the gap this page exists to close. A landlord managing one unit, or a tenant checking a landlord's math from the other side of the table, does not need an account, a listed property, or a stored lease to add up deductions against a deposit. This calculator runs the same subtraction TurboTenant's deposit tracking runs, without the account, the property record, or the plan tier deposit tracking sits behind.</p>
+  <h3>Does this replace TurboTenant's property management?</h3>
+  <p>No. Listing a vacancy, screening applicants, signing a lease, and collecting rent every month are real, recurring jobs, and a platform built around a persistent record of the tenancy is the right tool for that. This page sells nothing, stores nothing, and has no concept of a property or a lease term. It answers one arithmetic question &mdash; what does this deposit settle to, or what does this partial month prorate to &mdash; the same question a landlord who already uses full property-management software still has to answer at move-out.</p>
+  <h3>Is this page affiliated with TurboTenant?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by TurboTenant, and this page is not a review of it. TurboTenant is a trademark of its owner, named here only to describe the category of software this calculator is and is not. Its plans, pricing, and features change; check TurboTenant's own site for current terms rather than relying on any description here.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it settled a deposit dispute, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ie-self-employed-tax-set-aside-calculator/" data-pf-to="ie-self-employed-tax-set-aside-calculator">Ireland Self-Employed Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../in-freelancer-advance-tax-set-aside-calculator/" data-pf-to="in-freelancer-advance-tax-set-aside-calculator">India Freelancer Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../inherited-ira-10-year-withdrawal-planner/" data-pf-to="inherited-ira-10-year-withdrawal-planner">Inherited IRA 10-Year Rule Calculator 2026 — withdrawal plan, free</a></li>
+      <li><a href="../insurance-agency-book-valuation-calculator/" data-pf-to="insurance-agency-book-valuation-calculator">Insurance Agency Book Valuation Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-deposit-return-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-deposit-return-calculator"></script>
+</body>
+</html>

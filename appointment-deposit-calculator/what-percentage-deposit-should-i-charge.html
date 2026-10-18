@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Percentage Deposit Should You Charge? A Worked Table</title>
+  <meta name="description" content="See exactly how much a 15%, 20%, 25%, 30%, or 40% deposit is in dollars on a $150 appointment, what balance is still due…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/what-percentage-deposit-should-i-charge.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="What percentage deposit should you charge?">
+  <meta property="og:description" content="A worked table: 15%–40% deposits on a $150 service, the balance still due, and the secured-cash spread across a year of bookings.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/what-percentage-deposit-should-i-charge.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What percentage deposit should I charge for an appointment?","acceptedAnswer":{"@type":"Answer","text":"There is no single correct percentage — 15% to 40% are all common in practice. The trade-off is mechanical: a higher percentage secures more cash per booking and covers more of your cost if someone no-shows, but it is also more money a new customer has to commit before they have used your service, which can lower how many people complete the booking. Pick a starting percentage, watch your actual completion rate for a few weeks, and adjust."}},{"@type":"Question","name":"Does a higher deposit percentage always secure more money over a year?","acceptedAnswer":{"@type":"Answer","text":"Only if your booking rate stays the same, and this calculator does not assume that for you. Raising the percentage from 25% to 40% on a $150 service raises the deposit from $37.50 to $60, which — at an unchanged 93% booking rate on 12 weekly bookings — raises secured cash from $21,762 to $34,819.20 a year. If a higher deposit actually turns away bookings, you have to lower the booking-rate assumption yourself to see the real comparison; the tool will not do that adjustment for you."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What percentage deposit should you charge? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appointment-deposit-calculator/">Appointment Deposit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What percentage deposit should you charge?</span></span></nav>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">&larr; Appointment deposit calculator</a></p>
+    <header>
+      <h1>What percentage deposit should you charge? Here is the arithmetic at five common rates.</h1>
+      <p class="intro">Every service business asks this before setting a policy. There is no universally correct percentage — the ones businesses actually charge range from about 15% up to 40% or more for high-cost or high-no-show services. What changes, predictably, is the dollar deposit, the balance still due, and how much cash a year of bookings secures. See the numbers first, then decide.</p>
+    </header>
+    <section class="card">
+      <h2>Five deposit percentages on a $150 service</h2>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table class="usage-table">
+        <caption>Same $150 service price and the calculator's default 12 bookings/week at a 93% booking rate. Arithmetic only — no recommendation.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Deposit %</th>
+            <th scope="col">Deposit due at booking</th>
+            <th scope="col">Balance due at service</th>
+            <th scope="col">Secured cash per year*</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>15%</td><td>$22.50</td><td>$127.50</td><td>$13,057.20</td></tr>
+          <tr><td>20%</td><td>$30.00</td><td>$120.00</td><td>$17,409.60</td></tr>
+          <tr><td>25%</td><td>$37.50</td><td>$112.50</td><td>$21,762.00</td></tr>
+          <tr><td>30%</td><td>$45.00</td><td>$105.00</td><td>$26,114.40</td></tr>
+          <tr><td>40%</td><td>$60.00</td><td>$90.00</td><td>$34,819.20</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">*At an unchanged 11.16 completed bookings a week (12 weekly bookings &times; 93% booking rate &times; 52 weeks). The calculator does not lower this rate automatically as the percentage rises — that assumption is yours to set, because only you can estimate how a bigger deposit changes who actually books.</p>
+      <p>Deposit and balance move in lockstep with the percentage: deposit is simply price &times; percent, and balance is whatever is left of the price. The number that is easy to miss is the last column — the spread between a 15% and a 40% deposit on secured cash is <strong>$21,762 a year</strong> on this one example, before any change in how many people book at all.</p>
+      <p>Two things push most small service businesses toward the low end of that range: a lower deposit is a smaller ask of someone who has not experienced the service yet, and it reads as less risky to a first-time customer deciding whether to commit. Two things push toward the high end: a service with expensive material or prep cost that is wasted on a no-show, and a customer base that already trusts the business enough that the percentage rarely changes their decision to book.</p>
+      <p><a href="./">Open the calculator</a>, put in your own service price, bookings per week, and booking-rate assumption, and read your own deposit, balance, and secured-cash figures before you write a policy. Nothing you enter is uploaded.</p>
+      <p class="note">This page is arithmetic, not legal, tax, or financial advice. It does not tell you what percentage to charge or claim a policy is compliant with your local rules or payment provider's terms.</p>
+    </section>
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What percentage deposit should I charge for an appointment?</h3>
+      <p>There is no single correct percentage — 15% to 40% are all common in practice. The trade-off is mechanical: a higher percentage secures more cash per booking and covers more of your cost if someone no-shows, but it is also more money a new customer has to commit before they have used your service, which can lower how many people complete the booking. Pick a starting percentage, watch your actual completion rate for a few weeks, and adjust.</p>
+      <h3>Does a higher deposit percentage always secure more money over a year?</h3>
+      <p>Only if your booking rate stays the same, and this calculator does not assume that for you. Raising the percentage from 25% to 40% on a $150 service raises the deposit from $37.50 to $60, which — at an unchanged 93% booking rate on 12 weekly bookings — raises secured cash from $21,762 to $34,819.20 a year. If a higher deposit actually turns away bookings, you have to lower the booking-rate assumption yourself to see the real comparison; the tool will not do that adjustment for you.</p>
+    </section>
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>Everything runs in your browser. Your data is never uploaded. We count only anonymous local feature events, never people, prices, or policy text, with an opt-out on the calculator page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+      <li><a href="../equipment-lease-buyout-calculator/" data-pf-to="equipment-lease-buyout-calculator">Equipment lease buyout calculator</a></li>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-deposit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appointment-deposit-calculator"></script>
+</body></html>

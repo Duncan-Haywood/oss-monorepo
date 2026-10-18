@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. Realized (realized1031.com) | Depreciation Recapture Calculator</title>
+<meta name="description" content="Realized is a 1031-exchange investment marketplace and advisory that matches sellers to replacement real estate…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/vs-realized1031.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Realized (realized1031.com) | Depreciation Recapture Calculator">
+<meta property="og:description" content="Realized is a 1031-exchange marketplace and advisory built around placing sellers into replacement real estate.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Realized?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems for a seller weighing a rental or investment property sale. Realized (realized1031.com) is a real estate investment marketplace and advisory built around Section 1031 exchanges: it connects sellers to replacement real estate — most often fractional interests in Delaware Statutory Trusts (DSTs) — through licensed representatives of an affiliated broker-dealer, and its deeper tools and property listings typically ask for your contact details so an advisor can follow up. Realized's own pricing and fee structure are not reachable from this session to confirm, so no dollar figure for its services appears on this page. This calculator does one narrower thing: from a purchase price, land value, improvements, depreciation claimed, and sale numbers you already have, it splits your gain into unrecaptured Section 1250 gain (taxed at your ordinary rate, capped at 25%) and the capital-gains remainder, optionally adds the 3.8% NIIT, and estimates the tax on a 1031 exchange's boot — with no account, no advisor contact, and nothing uploaded. A seller who is actively shopping for a DST or other replacement property and wants a licensed advisor's help executing an exchange is better served by Realized or a comparable 1031 marketplace; a seller who wants the tax math worked out privately first, before deciding whether to sell outright or exchange at all, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Realized?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Realized, Realized Holdings, Inc., or realized1031.com. Realized is a trademark of its owner, named here only to describe what this calculator is and is not."}},{"@type":"Question","name":"Does Realized break out depreciation recapture the same way this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Realized publishes general capital-gains and 1031 educational calculators aimed at estimating the tax cost of selling versus exchanging, which is a useful starting point. This calculator's job is narrower and more specific: it performs the exact split IRC Section 1250 requires — unrecaptured Section 1250 gain (capped at the smaller of depreciation taken or total gain, taxed at ordinary rates up to 25%) pulled out before the remainder gets your capital-gains rate — and applies that same recapture-then-remainder order to a partial 1031 exchange's boot. Whether Realized's own calculator shows that same split is not something this session can verify without an account, so compare the two directly on your own numbers before deciding which estimate to trust."}},{"@type":"Question","name":"Do I need to create an account or talk to an advisor to get an estimate here?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator runs entirely in your browser, keeps no account, and uploads nothing you type. Realized's model is built around eventually connecting a seller to a licensed advisor and a specific replacement property, which is the right path once you are ready to execute an exchange — but it is a different step than privately checking the tax math first."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1f5c35; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f5c35; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f5c35; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef2ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a58; }
+  .note, footer { font-size: .86rem; color: #4c5a58; }
+  footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/vs-realized1031.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Realized (realized1031.com) | Depreciation Recapture Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../depreciation-recapture-calculator/">Depreciation Recapture Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Realized (realized1031.com) | Depreciation Recapture Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. Realized (realized1031.com)</h1>
+<p class="lede">Realized is a 1031-exchange investment marketplace and advisory: it exists to place sellers into replacement real estate, most often a Delaware Statutory Trust (DST) interest, through a licensed representative of an affiliated broker-dealer. This calculator does not place you into anything. It is a free, private worksheet for one question &mdash; what does the recapture-then-capital-gains tax split actually come to on this sale, or on this 1031 exchange's boot &mdash; with no account and no advisor contact required to see the number.</p>
+
+<section class="card">
+<h2>What each tool is for</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I'm ready to do a 1031 exchange and need help identifying a DST or other replacement property, plus a licensed advisor to execute it.</td><td>Realized, or a comparable 1031 marketplace &mdash; sourcing and executing a replacement property is not something this calculator does.</td></tr>
+<tr><td>What is the recapture-then-capital-gains tax split on selling outright, before I decide whether to sell or exchange at all?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>If I only partially exchange, how much tax applies to the boot I actually take out?</td><td>This calculator's 1031-boot estimate, using the same recapture-then-remainder order as an outright sale.</td></tr>
+<tr><td>I want a licensed advisor's help finding and closing on a specific replacement property.</td><td>Realized, or a comparable 1031 marketplace and advisory.</td></tr>
+<tr><td>Is anything I enter here uploaded, or does a representative follow up?</td><td>No. This calculator runs entirely in your browser; nothing is sent to a server and no one contacts you.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Realized?</h3>
+<p>They solve different problems for a seller weighing a rental or investment property sale. Realized (realized1031.com) is a real estate investment marketplace and advisory built around Section 1031 exchanges: it connects sellers to replacement real estate &mdash; most often fractional interests in Delaware Statutory Trusts (DSTs) &mdash; through licensed representatives of an affiliated broker-dealer, and its deeper tools and property listings typically ask for your contact details so an advisor can follow up. Realized's own pricing and fee structure are not reachable from this session to confirm, so no dollar figure for its services appears on this page. This calculator does one narrower thing: from a purchase price, land value, improvements, depreciation claimed, and sale numbers you already have, it splits your gain into unrecaptured Section 1250 gain (taxed at your ordinary rate, capped at 25%) and the capital-gains remainder, optionally adds the 3.8% NIIT, and estimates the tax on a 1031 exchange's boot &mdash; with no account, no advisor contact, and nothing uploaded. A seller who is actively shopping for a DST or other replacement property and wants a licensed advisor's help executing an exchange is better served by Realized or a comparable 1031 marketplace; a seller who wants the tax math worked out privately first, before deciding whether to sell outright or exchange at all, is in the right place here.</p>
+<h3>Is this page affiliated with Realized?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Realized, Realized Holdings, Inc., or realized1031.com. Realized is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<h3>Does Realized break out depreciation recapture the same way this calculator does?</h3>
+<p>Realized publishes general capital-gains and 1031 educational calculators aimed at estimating the tax cost of selling versus exchanging, which is a useful starting point. This calculator's job is narrower and more specific: it performs the exact split IRC Section 1250 requires &mdash; unrecaptured Section 1250 gain (capped at the smaller of depreciation taken or total gain, taxed at ordinary rates up to 25%) pulled out before the remainder gets your capital-gains rate &mdash; and applies that same recapture-then-remainder order to a partial 1031 exchange's boot. Whether Realized's own calculator shows that same split is not something this session can verify without an account, so compare the two directly on your own numbers before deciding which estimate to trust.</p>
+<h3>Do I need to create an account or talk to an advisor to get an estimate here?</h3>
+<p>No. This calculator runs entirely in your browser, keeps no account, and uploads nothing you type. Realized's model is built around eventually connecting a seller to a licensed advisor and a specific replacement property, which is the right path once you are ready to execute an exchange &mdash; but it is a different step than privately checking the tax math first.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply IRC Section 1250's recapture rule and standard capital-gains brackets to numbers you supply. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional or a qualified intermediary. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your state's tax rules. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../fix-and-flip-deal-analyzer/" data-pf-to="fix-and-flip-deal-analyzer">Fix and Flip Deal Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fleet-repair-or-replace-planner/" data-pf-to="fleet-repair-or-replace-planner">Repair or replace your work truck? — free planner, no sign-up</a></li>
+      <li><a href="../form-5500-late-filing-calculator/" data-pf-to="form-5500-late-filing-calculator">Form 5500 Late Filing Calculator — free, private, in your browser</a></li>
+      <li><a href="../fractional-executive-rate-calculator/" data-pf-to="fractional-executive-rate-calculator">Fractional Executive Rate Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=depreciation-recapture-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="depreciation-recapture-calculator"></script>
+</body>
+</html>

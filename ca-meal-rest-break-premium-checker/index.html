@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>California Meal &amp; Rest Break Premium Checker — free timecard audit</title>
+  <meta name="description" content="Free California meal and rest break premium pay checker for restaurants, retail and any hourly employer.">
+  <meta property="og:title" content="California Meal &amp; Rest Break Premium Checker — free, private, in your browser">
+  <meta property="og:description" content="Find the meal and rest break premium pay your timecards already owe, before a claim does.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "California Meal and Rest Break Premium Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free California meal and rest break premium pay checker. Paste timecards and see late, short and missed meal periods, rest break shortfalls and the premium pay owed per workday. Runs in your browser; nothing is uploaded.", "featureList": "california meal break audit, rest break compliance check, labor code 226.7 premium pay calculator, timecard audit, waiver handling, csv export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a California meal and rest break premium?", "acceptedAnswer": {"@type": "Answer", "text": "When an employer does not provide a required meal period or rest break, California Labor Code section 226.7 requires it to pay the employee one additional hour of pay at the employee's regular rate of compensation for each workday on which a meal period was not provided, and one more hour for each workday on which a rest break was not provided. That is at most two premium hours per employee per workday."}}, {"@type": "Question", "name": "When must a California meal break start?", "acceptedAnswer": {"@type": "Answer", "text": "A 30-minute uninterrupted meal period must begin before the end of the fifth hour of work, and a second one before the end of the tenth hour. A shift of six hours or less can have the first meal waived by mutual consent, and a shift of twelve hours or less can have the second waived if the first was taken. A meal that starts late, runs short or is interrupted counts as a missed meal period."}}, {"@type": "Question", "name": "How many rest breaks does an employee get in California?", "acceptedAnswer": {"@type": "Answer", "text": "Ten paid minutes for every four hours worked or major fraction of four hours. In practice that is none under three and a half hours, one up to six hours, two over six and up to ten, and three over ten and up to fourteen. The page counts the rest breaks you record and flags a shortfall; if you leave the column blank it only notes what was owed."}}, {"@type": "Question", "name": "How do I audit timecards for meal break violations?", "acceptedAnswer": {"@type": "Answer", "text": "Paste one line per shift with the clock-in, clock-out, meal start and end, the rest breaks taken and the hourly rate. The page flags every late, short or missing meal, every rest break shortfall, and totals the premium pay owed with at most one meal premium and one rest premium per employee per workday."}}, {"@type": "Question", "name": "Is the premium calculated on the base wage or the regular rate?", "acceptedAnswer": {"@type": "Answer", "text": "The statute says regular rate of compensation, which can be higher than the base hourly wage when the employee also earns shift differentials or non-discretionary bonuses. The page uses the rate you type for each line, so enter the regular rate of compensation if it differs from base pay and confirm the figure with your payroll provider."}}, {"@type": "Question", "name": "Is my timecard data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .sum { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"California Meal \u0026 Rest Break Premium Checker — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="California Meal &amp; Rest Break Premium Checker — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">California Meal &amp; Rest Break Premium Checker — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CALIFORNIA MEAL &amp; REST BREAK PREMIUM CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do your timecards already owe for missed breaks?</h1>
+    <p>Paste a week of <strong>timecards</strong> with the meal period and rest breaks taken. The page finds <strong>late, short and missing meal periods</strong>, <strong>rest break shortfalls</strong>, handles <strong>signed waivers</strong>, and totals the <strong>one-hour premium</strong> owed per workday, per employee, with the rule behind each line. Export it for payroll.</p>
+    <p class="note">A California meal and rest break audit for restaurant, retail, healthcare and warehouse managers and the bookkeepers who run their payroll. New to the rules? Read <a href="./california-meal-break-premium-pay-explained.html">how meal and rest break premium pay works, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Rules</h2>
+    <div class="row4">
+      <div><label for="preset">Rule set</label><select id="preset"><option value="california">California</option><option value="custom">Custom numbers</option></select></div>
+      <div><label for="rate">Default hourly rate ($)</label><input id="rate" inputmode="decimal" value="16"></div>
+    </div>
+    <details style="margin-top:12px"><summary>The numbers behind the preset (edit any of them)</summary>
+    <div class="row4">
+      <div><label for="f-mealAfterHours">First meal required after this many hours of work</label><input id="f-mealAfterHours" inputmode="decimal"></div>
+      <div><label for="f-mealMaxStartHours">First meal must begin within (hours)</label><input id="f-mealMaxStartHours" inputmode="decimal"></div>
+      <div><label for="f-mealMinutes">Meal length (minutes)</label><input id="f-mealMinutes" inputmode="decimal"></div>
+      <div><label for="f-mealWaiverMaxHours">First meal waivable up to (hours)</label><input id="f-mealWaiverMaxHours" inputmode="decimal"></div>
+      <div><label for="f-meal2AfterHours">Second meal required after (hours)</label><input id="f-meal2AfterHours" inputmode="decimal"></div>
+      <div><label for="f-meal2MaxStartHours">Second meal must begin within (hours)</label><input id="f-meal2MaxStartHours" inputmode="decimal"></div>
+      <div><label for="f-meal2WaiverMaxHours">Second meal waivable up to (hours)</label><input id="f-meal2WaiverMaxHours" inputmode="decimal"></div>
+      <div><label for="f-restFirstAfterHours">First rest break owed from (hours)</label><input id="f-restFirstAfterHours" inputmode="decimal"></div>
+      <div><label for="f-restIntervalHours">Rest break per this many hours</label><input id="f-restIntervalHours" inputmode="decimal"></div>
+      <div><label for="f-restMajorFractionHours">...or a fraction over (hours)</label><input id="f-restMajorFractionHours" inputmode="decimal"></div>
+      <div><label for="f-mealPremiumHours">Meal premium (hours of pay per workday)</label><input id="f-mealPremiumHours" inputmode="decimal"></div>
+      <div><label for="f-restPremiumHours">Rest premium (hours of pay per workday)</label><input id="f-restPremiumHours" inputmode="decimal"></div>
+    </div></details>
+    <p class="note">The California preset summarises Labor Code 226.7 and the IWC wage orders. Industry wage orders, collective bargaining agreements and some occupations (for example commercial drivers and some healthcare roles) differ. Check the numbers against your wage order.</p>
+
+    <h2 style="margin-top:18px">2. Timecards</h2>
+    <label for="cards">One shift per line: <code>Name, date, in, out, meal, second meal, rest breaks taken, rate, waiver</code>. Meal is <code>12:45-13:10</code> or blank for none. Rest breaks and rate may be blank. Put <code>waiver</code> at the end if a signed meal waiver is on file. An out time before the in time means the next day.</label>
+    <textarea id="cards" rows="9" placeholder="Ana Reyes, 2026-10-20, 08:00, 16:30, 12:45-13:10, , 2, 20&#10;Dee Park, 2026-10-21, 10:00, 15:30, , , 1, 16, waiver"></textarea>
+
+    <button type="button" id="run">Audit the timecards</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste timecards, then click Audit.</p>
+  </section>
+
+  <section id="out" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Findings</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="findings"><thead><tr><th>Employee</th><th>Date</th><th>Issue</th><th>Detail</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Premium owed by workday</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="days"><thead><tr><th>Employee</th><th>Date</th><th class="n">Meal</th><th class="n">Rest</th><th class="n">Total</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>By employee</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="people"><thead><tr><th>Employee</th><th class="n">Workdays</th><th class="n">Days owed</th><th class="n">Premium</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Meals:</strong> a first meal is required when the employee works more than five hours and must begin before the end of the fifth hour of work; a second is required after ten hours and must begin before the end of the tenth. A meal under 30 minutes, a meal that starts late and a missing meal are each flagged. Time spent on meals is not counted as work.</p>
+    <p><strong>Waivers:</strong> mark a line <code>waiver</code> and a missing first meal on a shift of six hours or less, or a missing second meal on a shift of twelve hours or less where the first meal was taken, is listed as waived instead of a violation. Keep the signed waiver.</p>
+    <p><strong>Rest breaks:</strong> ten minutes per four hours or major fraction. If you record the number taken, a shortfall is flagged; if you leave it blank, the page tells you what was owed and counts no premium.</p>
+    <p><strong>Premium:</strong> one hour of pay at the rate on the line, for meals, and one more for rest, at most once each per employee per workday, however many violations that day had. A workday split across several lines is combined.</p>
+    <p><strong>Not modelled:</strong> on-duty meal agreements, industry wage-order exceptions, collective bargaining carve-outs, split shifts, daylight-saving changes, and whether a break was interrupted (record an interrupted meal as short or missing). Time rounding is not applied, since the punches you paste are taken as they are.</p>
+    <p>Related tools: the <a href="../overtime-pay-calculator/">overtime pay calculator</a> for the hours past eight in a California day, the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> for predictive scheduling pay, and the <a href="../flsa-regular-rate-overtime-audit/">FLSA regular-rate overtime audit</a> for overtime paid on the wrong rate.</p>
+    <p><strong>Checked:</strong> the test suite recomputes hand-worked cases at the exact boundaries: a meal beginning at 5:00 versus 5:01 into the shift, 29 versus 30 minutes, 5 versus 5.01 hours worked, and 10 versus 10.01 hours.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a California meal and rest break premium?</h3>
+    <p>When an employer does not provide a required meal period or rest break, California Labor Code section 226.7 requires it to pay the employee one additional hour of pay at the employee's regular rate of compensation for each workday on which a meal period was not provided, and one more hour for each workday on which a rest break was not provided. That is at most two premium hours per employee per workday.</p>
+    <h3>When must a California meal break start?</h3>
+    <p>A 30-minute uninterrupted meal period must begin before the end of the fifth hour of work, and a second one before the end of the tenth hour. A shift of six hours or less can have the first meal waived by mutual consent, and a shift of twelve hours or less can have the second waived if the first was taken. A meal that starts late, runs short or is interrupted counts as a missed meal period.</p>
+    <h3>How many rest breaks does an employee get in California?</h3>
+    <p>Ten paid minutes for every four hours worked or major fraction of four hours. In practice that is none under three and a half hours, one up to six hours, two over six and up to ten, and three over ten and up to fourteen. The page counts the rest breaks you record and flags a shortfall; if you leave the column blank it only notes what was owed.</p>
+    <h3>How do I audit timecards for meal break violations?</h3>
+    <p>Paste one line per shift with the clock-in, clock-out, meal start and end, the rest breaks taken and the hourly rate. The page flags every late, short or missing meal, every rest break shortfall, and totals the premium pay owed with at most one meal premium and one rest premium per employee per workday.</p>
+    <h3>Is the premium calculated on the base wage or the regular rate?</h3>
+    <p>The statute says regular rate of compensation, which can be higher than the base hourly wage when the employee also earns shift differentials or non-discretionary bonuses. The page uses the rate you type for each line, so enter the regular rate of compensation if it differs from base pay and confirm the figure with your payroll provider.</p>
+    <h3>Is my timecard data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice and does not replace the Labor Code, your wage order, your payroll provider or an employment attorney. <strong>You are responsible for verifying every figure and every rule</strong> before you pay, withhold or document anything. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. The preset summarises public law and may be wrong, incomplete or out of date.</p>
+    <p><strong>Independent.</strong> Not affiliated with any state agency, labour board, payroll or timekeeping software company, and none is named or ranked here. The example employees are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your timecards and names are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { RULE_PRESETS, fieldsToRules, analyze, toCsv, toText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = Object.keys(RULE_PRESETS.custom.fields);
+    const usd = (n) => (n ? "$" + n.toFixed(2) : "");
+    let last = null;
+
+    function loadPreset() {
+      const f = RULE_PRESETS[$("#preset").value].fields;
+      for (const k of KEYS) $("#f-" + k).value = f[k];
+    }
+    const fieldValues = () => Object.fromEntries(KEYS.map((k) => [k, $("#f-" + k).value]));
+
+    function run() {
+      if (!$("#cards").value.trim()) { status.textContent = "Paste at least one timecard line."; return false; }
+      last = analyze({ text: $("#cards").value, rules: fieldsToRules(fieldValues()), defaultRate: $("#rate").value });
+      $("#out").hidden = false;
+      $("#notices").innerHTML = last.errors.map((e) => `<div class="warn">${esc(e)}</div>`).join("");
+      const tiles = [[last.shiftCount, "shifts audited"], [Math.round(last.violationRate * 100) + "%", "shifts with a violation"], [last.premiumDays, "workdays owed premium"], ["$" + last.total.toFixed(2), "premium owed"]];
+      if (last.annualized != null) tiles.push(["$" + last.annualized.toFixed(0), "per year if every period looked like this"]);
+      $("#big").innerHTML = tiles.map(([x, y]) => `<div><strong>${esc(x)}</strong>${esc(y)}</div>`).join("");
+      const label = { "meal-late": "Late meal", "meal-short": "Short meal", "meal-missed": "Missed meal", "rest-short": "Rest shortfall", "rest-unrecorded": "Rest not recorded", waived: "Waived" };
+      $("#findings tbody").innerHTML = last.findings.length ? last.findings.map((f) => `<tr><td>${esc(f.name)}</td><td>${esc(f.date)}</td><td><span class="pill ${f.premiumType ? "tie" : "good"}">${label[f.kind]}</span></td><td>${esc(f.text)}</td></tr>`).join("") : '<tr><td colspan="4">No issues found under these numbers.</td></tr>';
+      $("#days tbody").innerHTML = last.rollup.length ? last.rollup.map((d) => `<tr><td>${esc(d.name)}</td><td>${esc(d.date)}</td><td class="n">${usd(d.mealPremium)}</td><td class="n">${usd(d.restPremium)}</td><td class="n">${usd(d.premium)}</td></tr>`).join("") : '<tr><td colspan="5">No premium owed.</td></tr>';
+      $("#people tbody").innerHTML = last.employees.map((e) => `<tr><td>${esc(e.name)}</td><td class="n">${e.days}</td><td class="n">${e.premiumDays}</td><td class="n">${usd(e.premium)}</td></tr>`).join("");
+      status.textContent = "Audited. Scroll down for the result.";
+      return true;
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#preset").addEventListener("change", loadPreset);
+    $("#run").addEventListener("click", () => { if (run()) record("check_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#preset").value = "california"; loadPreset();
+      $("#cards").value = "Ana Reyes, 2026-10-20, 08:00, 16:30, 12:45-13:10, , 2, 20\nBen Okoye, 2026-10-20, 09:00, 17:30, 13:30-14:00, , 2, 15\nCy Dahl, 2026-10-20, 06:00, 17:00, 10:30-11:00, , 2, 14\nDee Park, 2026-10-21, 10:00, 15:30, , , 1, 16, waiver\nDee Park, 2026-10-22, 10:00, 15:30, , , 1, 16";
+      status.textContent = "Example loaded. Click Audit the timecards.";
+      record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#cards").value = ""; $("#out").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("meal-rest-break-audit.csv", toCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("meal-rest-break-audit.txt", toText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(toText(last)); status.textContent = "Copied."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    loadPreset();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../boba-tea-shop-profit-calculator/" data-pf-to="boba-tea-shop-profit-calculator">Boba Tea Shop Profit Calculator — free, private</a></li>
+      <li><a href="../brewery-excise-tax-calculator/" data-pf-to="brewery-excise-tax-calculator">Brewery Excise Tax Calculator — free, private</a></li>
+      <li><a href="../brewery-tank-schedule-optimizer/" data-pf-to="brewery-tank-schedule-optimizer">Brewery tank schedule optimizer</a></li>
+      <li><a href="../cafe-drink-margin-calculator/" data-pf-to="cafe-drink-margin-calculator">Cafe drink margin calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ca-meal-rest-break-premium-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/?pfEmbed=1&quot; title=&quot;California Meal &amp; Rest Break Premium Checker — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ca-meal-rest-break-premium-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/" data-pf-embed-title="California Meal &amp; Rest Break Premium Checker — free, private, in your browser" data-pf-embed-slug="ca-meal-rest-break-premium-checker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ca-meal-rest-break-premium-checker" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ca-meal-rest-break-premium-checker" data-pf-link-amount=""></script>
+</body>
+</html>

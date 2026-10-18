@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to price a roof by the square (not house square footage)</title>
+  <meta name="description" content="A roofing square is 100 sq ft of roof surface, not house area. Pitch, waste, and tear-off layers are why two 1,800 sq ft houses do not cost the same to reroof.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/how-to-price-a-roof-by-the-square.html">
+  <meta property="og:title" content="How to price a roof by the square">
+  <meta property="og:description" content="House square footage is the floor plan. Roofers bid squares of surface — pitch, waste, and layers change the number.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a roofing square?","acceptedAnswer":{"@type":"Answer","text":"A roofing square is 100 square feet of roof surface. It is not 100 square feet of the house floor plan."}},{"@type":"Question","name":"Why is house square footage the wrong unit for a reroof bid?","acceptedAnswer":{"@type":"Answer","text":"Pitch turns footprint into more surface. A 6/12 roof is about 12% larger than its footprint; a 12/12 roof is about 41% larger. Waste and tear-off layers add more."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #241c16; background: #f3eee6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a3d14; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c5146; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/how-to-price-a-roof-by-the-square.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to price a roof by the square — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../roofing-bid-calculator/">Roofing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to price a roof by the square</span></span></nav>
+  <p><a href="./">← Roofing bid calculator</a></p>
+  <h1>How to price a roof by the square — not the house square footage</h1>
+  <p>
+    Homeowners and new crews search for “roofing cost calculator” and get a
+    number times the <em>house</em> square footage. That is the floor plan.
+    Roofers bid <strong>squares</strong>: 100 square feet of <em>roof
+    surface</em>. The two numbers are not the same job.
+  </p>
+  <p>
+    A 1,800 sq ft ranch on a 6/12 pitch is about <strong>20.1 squares</strong>
+    of surface (1,800 × 1.118 ÷ 100), not 18. Add 10% waste for cuts, starter,
+    and ridge and you are buying closer to <strong>22.1 squares</strong> of
+    covering. A 12/12 on the same footprint is about 25.5 squares before waste
+    — forty percent more material and a slower, steeper crew day.
+  </p>
+  <p>
+    Tear-off is a second multiplier. One layer coming off is one pass of dump
+    and labor on the existing surface. Two layers is twice the dump and twice
+    the tear-off hours, on the same house. A flat “price per house square foot”
+    cannot see any of that, which is how a bid that looked fine on a low-slope
+    one-layer ranch loses money on a cut-up two-layer 10/12.
+  </p>
+  <p>
+    The <a href="./">roofing bid calculator</a> does the arithmetic the trade
+    already uses: footprint × pitch factor → squares, plus waste, layers, dump,
+    loaded wage, overhead, and the margin you mean to keep. It also reports
+    price per square and the walk-away number so you can score a cheaper quote
+    against the same cost base.
+  </p>
+  <p>
+    Pitch factor is √(1 + (rise/12)²). Labor on 7/12–9/12 starts 25% slower,
+    10/12–12/12 50% slower, steeper than 12/12 twice as slow. Those steps are
+    starting points, not a safety rating or a code opinion. Replace every
+    default with your invoice and a rate timed from your crew.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is a roofing square?</h3>
+  <p>A roofing square is 100 square feet of roof surface. It is not 100 square feet of the house floor plan.</p>
+  <h3>Why is house square footage the wrong unit for a reroof bid?</h3>
+  <p>Pitch turns footprint into more surface. A 6/12 roof is about 12% larger than its footprint; a 12/12 roof is about 41% larger. Waste and tear-off layers add more.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This is not engineering, code, tax, financial, or business advice, and it does not tell anyone what to charge. Verify measurements and costs before bidding.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../metal-roof-bid-calculator/" data-pf-to="metal-roof-bid-calculator">Metal Roof Bid Calculator</a></li>
+      <li><a href="../roofing-insurance-supplement-finder/" data-pf-to="roofing-insurance-supplement-finder">What did the adjuster's roof estimate leave out? Free supplement finder</a></li>
+      <li><a href="../siding-bid-calculator/" data-pf-to="siding-bid-calculator">Siding Bid Calculator</a></li>
+      <li><a href="../skylight-install-bid-calculator/" data-pf-to="skylight-install-bid-calculator">Skylight Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=roofing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="roofing-bid-calculator"></script>
+</body>
+</html>

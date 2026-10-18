@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="com.acme.OrderServiceTest" time="12.5" tests="4" errors="0" skipped="0" failures="0">
+  <properties><property name="java.version" value="21"/></properties>
+  <testcase name="createsOrder()" classname="com.acme.OrderServiceTest" time="6.1"/>
+  <testcase name="cancelsOrder()" classname="com.acme.OrderServiceTest" time="4.4"/>
+  <testcase name="rejectsEmpty(String)[1]" classname="com.acme.OrderServiceTest" time="1.0"/>
+  <testcase name="rejectsEmpty(String)[2]" classname="com.acme.OrderServiceTest" time="1.0"/>
+</testsuite>

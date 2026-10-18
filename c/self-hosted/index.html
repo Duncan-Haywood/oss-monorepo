@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-hosted business apps | Open Tools and Research</title>
+  <meta name="description" content="Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Self-hosted business apps">
+  <meta property="og:description" content="Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-self-hosted.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Self-hosted business apps — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Self-hosted business apps","url":"https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/","description":"Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Self-hosted business apps","item":"https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":30,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/cancel-flow/","name":"Cancel Flow — save-offer cancellation flow for Stripe, self-hosted"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/changelog-keeper/","name":"Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/churn-radar/","name":"Churn Radar — see who is about to cancel before they do"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/","name":"Cron Heartbeat — dead man's switch for cron jobs, self-hosted"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/deal-keeper/","name":"Deal Keeper — which deals are really at risk, and what will actually close"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/drip-keeper/","name":"Drip Keeper — self-hosted lifecycle email"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/dunning-engine/","name":"Dunning Engine — failed payment recovery for Stripe, self-hosted"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/error-keeper/","name":"Error Keeper — know when your app breaks, on your own server"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/feedback-board/","name":"Feedback Board — a Canny alternative you host yourself"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/flag-keeper/","name":"Flag Keeper — self-hosted feature flags"},{"@type":"ListItem","position":11,"url":"https://duncan-haywood.github.io/monorepo-projects/form-inbox/","name":"Form Inbox — a Formspree alternative you host yourself"},{"@type":"ListItem","position":12,"url":"https://duncan-haywood.github.io/monorepo-projects/help-keeper/","name":"Help Keeper — a help center that tells you what to write next"},{"@type":"ListItem","position":13,"url":"https://duncan-haywood.github.io/monorepo-projects/license-keeper/","name":"License Keeper — license keys for Stripe sellers, self-hosted"},{"@type":"ListItem","position":14,"url":"https://duncan-haywood.github.io/monorepo-projects/link-keeper/","name":"Link Keeper — self-hosted link shortener with click stats"},{"@type":"ListItem","position":15,"url":"https://duncan-haywood.github.io/monorepo-projects/meter-keeper/","name":"Meter Keeper — self-hosted usage metering for Stripe"},{"@type":"ListItem","position":16,"url":"https://duncan-haywood.github.io/monorepo-projects/mrr-pulse/","name":"MRR Pulse — Stripe MRR and churn dashboard, self-hosted"},{"@type":"ListItem","position":17,"url":"https://duncan-haywood.github.io/monorepo-projects/pql-radar/","name":"PQL Radar — find the free signups about to become customers"},{"@type":"ListItem","position":18,"url":"https://duncan-haywood.github.io/monorepo-projects/referral-keeper/","name":"Referral Keeper — a self-hosted affiliate program for Stripe sellers"},{"@type":"ListItem","position":19,"url":"https://duncan-haywood.github.io/monorepo-projects/rev-rec/","name":"Rev Rec — Stripe deferred revenue schedule, self-hosted"},{"@type":"ListItem","position":20,"url":"https://duncan-haywood.github.io/monorepo-projects/self-hosted-saas-stack/","name":"Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout"},{"@type":"ListItem","position":21,"url":"https://duncan-haywood.github.io/monorepo-projects/sign-keeper/","name":"Sign Keeper — self-hosted e-signature with a verifiable certificate"},{"@type":"ListItem","position":22,"url":"https://duncan-haywood.github.io/monorepo-projects/slot-keeper/","name":"Slot Keeper — a booking page you host yourself"},{"@type":"ListItem","position":23,"url":"https://duncan-haywood.github.io/monorepo-projects/status-keeper/","name":"status-keeper — your own status page, free"},{"@type":"ListItem","position":24,"url":"https://duncan-haywood.github.io/monorepo-projects/support-desk/","name":"Support Desk — a help desk you host yourself"},{"@type":"ListItem","position":25,"url":"https://duncan-haywood.github.io/monorepo-projects/survey-keeper/","name":"Survey Keeper — an NPS survey that says why the score is what it is"},{"@type":"ListItem","position":26,"url":"https://duncan-haywood.github.io/monorepo-projects/testimonial-keeper/","name":"Testimonial Keeper — collect testimonials and show a wall of love, self-hosted"},{"@type":"ListItem","position":27,"url":"https://duncan-haywood.github.io/monorepo-projects/trial-converter/","name":"Trial Converter — trial-to-paid conversion for Stripe, self-hosted"},{"@type":"ListItem","position":28,"url":"https://duncan-haywood.github.io/monorepo-projects/visit-keeper/","name":"visit-keeper — web analytics you own, free"},{"@type":"ListItem","position":29,"url":"https://duncan-haywood.github.io/monorepo-projects/waitlist-keeper/","name":"Waitlist Keeper — a self-hosted referral waitlist"},{"@type":"ListItem","position":30,"url":"https://duncan-haywood.github.io/monorepo-projects/webhook-relay/","name":"webhook-relay — keep webhooks safe while your app is down"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Self-hosted business apps</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Self-hosted business apps</p>
+      <h1>Self-hosted business apps</h1>
+      <p class="lede">Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.</p>
+      <p class="count">30 free tools · no account · nothing you type is uploaded, except on Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, Drip Keeper, Dunning Engine, Error Keeper, Feedback Board, Form Inbox, License Keeper, Meter Keeper, MRR Pulse, PQL Radar, Rev Rec, Sign Keeper, Slot Keeper, status-keeper, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Waitlist Keeper, and webhook-relay</p>
+    </header>
+
+    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these 30 tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>
+
+    <main>
+      <ul class="cards">
+          <li class="card">
+            <a href="../../cancel-flow/" data-tool="cancel-flow" data-pf-to="cancel-flow">
+              <h3>Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</h3>
+            </a>
+            <p>Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../changelog-keeper/" data-tool="changelog-keeper" data-pf-to="changelog-keeper">
+              <h3>Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</h3>
+            </a>
+            <p>Publish product updates on a public changelog page with Atom and JSON feeds and an embeddable What's new bell with an unread badge. Scheduled posts, drafts, Slack webhook. Open…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../churn-radar/" data-tool="churn-radar" data-pf-to="churn-radar">
+              <h3>Churn Radar — see who is about to cancel before they do</h3>
+            </a>
+            <p>A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../cron-heartbeat/" data-tool="cron-heartbeat" data-pf-to="cron-heartbeat">
+              <h3>Cron Heartbeat — dead man's switch for cron jobs, self-hosted</h3>
+            </a>
+            <p>Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can self-host with zero…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../deal-keeper/" data-tool="deal-keeper" data-pf-to="deal-keeper">
+              <h3>Deal Keeper — which deals are really at risk, and what will actually close</h3>
+            </a>
+            <p>A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../drip-keeper/" data-tool="drip-keeper" data-pf-to="drip-keeper">
+              <h3>Drip Keeper — self-hosted lifecycle email</h3>
+            </a>
+            <p>A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dunning-engine/" data-tool="dunning-engine" data-pf-to="dunning-engine">
+              <h3>Dunning Engine — failed payment recovery for Stripe, self-hosted</h3>
+            </a>
+            <p>Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../error-keeper/" data-tool="error-keeper" data-pf-to="error-keeper">
+              <h3>Error Keeper — know when your app breaks, on your own server</h3>
+            </a>
+            <p>A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON…</p>
+            <p class="meta">2 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../feedback-board/" data-tool="feedback-board" data-pf-to="feedback-board">
+              <h3>Feedback Board — a Canny alternative you host yourself</h3>
+            </a>
+            <p>Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../flag-keeper/" data-tool="flag-keeper" data-pf-to="flag-keeper">
+              <h3>Flag Keeper — self-hosted feature flags</h3>
+            </a>
+            <p>A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../form-inbox/" data-tool="form-inbox" data-pf-to="form-inbox">
+              <h3>Form Inbox — a Formspree alternative you host yourself</h3>
+            </a>
+            <p>Point any HTML form at your own server: spam scoring with visible reasons, an inbox, CSV export and email or Slack notifications. Open source, MIT, no per-submission fee. Test the…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../help-keeper/" data-tool="help-keeper" data-pf-to="help-keeper">
+              <h3>Help Keeper — a help center that tells you what to write next</h3>
+            </a>
+            <p>A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../license-keeper/" data-tool="license-keeper" data-pf-to="license-keeper">
+              <h3>License Keeper — license keys for Stripe sellers, self-hosted</h3>
+            </a>
+            <p>Sell desktop apps, plugins and CLI tools with Stripe and issue signed license keys automatically. Generate a key pair, sign a test license and verify it right in your browser…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../link-keeper/" data-tool="link-keeper" data-pf-to="link-keeper">
+              <h3>Link Keeper — self-hosted link shortener with click stats</h3>
+            </a>
+            <p>A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../meter-keeper/" data-tool="meter-keeper" data-pf-to="meter-keeper">
+              <h3>Meter Keeper — self-hosted usage metering for Stripe</h3>
+            </a>
+            <p>A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage, tiered invoice previews, hard-limit…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../mrr-pulse/" data-tool="mrr-pulse" data-pf-to="mrr-pulse">
+              <h3>MRR Pulse — Stripe MRR and churn dashboard, self-hosted</h3>
+            </a>
+            <p>See MRR, ARR, net revenue retention, logo churn and quick ratio from your Stripe subscriptions without paying a metrics service a share of your revenue. Paste a subscription…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../pql-radar/" data-tool="pql-radar" data-pf-to="pql-radar">
+              <h3>PQL Radar — find the free signups about to become customers</h3>
+            </a>
+            <p>A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../referral-keeper/" data-tool="referral-keeper" data-pf-to="referral-keeper">
+              <h3>Referral Keeper — a self-hosted affiliate program for Stripe sellers</h3>
+            </a>
+            <p>Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../rev-rec/" data-tool="rev-rec" data-pf-to="rev-rec">
+              <h3>Rev Rec — Stripe deferred revenue schedule, self-hosted</h3>
+            </a>
+            <p>Turn Stripe invoices into a monthly revenue recognition schedule: billings, revenue recognised, deferred revenue and journal entries for your bookkeeper. Paste an invoice export…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../self-hosted-saas-stack/" data-tool="self-hosted-saas-stack" data-pf-to="self-hosted-saas-stack">
+              <h3>Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout</h3>
+            </a>
+            <p>28 open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../sign-keeper/" data-tool="sign-keeper" data-pf-to="sign-keeper">
+              <h3>Sign Keeper — self-hosted e-signature with a verifiable certificate</h3>
+            </a>
+            <p>Send a signing link, collect a typed signature with consent, and keep a certificate anyone can re-verify. A free, open-source, self-hosted alternative to per-envelope e-signature…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../slot-keeper/" data-tool="slot-keeper" data-pf-to="slot-keeper">
+              <h3>Slot Keeper — a booking page you host yourself</h3>
+            </a>
+            <p>A booking page you host yourself: weekly hours, buffers, notice, your calendar's busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../status-keeper/" data-tool="status-keeper" data-pf-to="status-keeper">
+              <h3>status-keeper — your own status page, free</h3>
+            </a>
+            <p>A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An open-source alternative to Statuspage, Instatus and Better…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../support-desk/" data-tool="support-desk" data-pf-to="support-desk">
+              <h3>Support Desk — a help desk you host yourself</h3>
+            </a>
+            <p>A shared support inbox you host yourself: email and contact-form tickets, saved replies with suggestions, first-reply targets and a customer portal. Open source, MIT, no per-agent…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../survey-keeper/" data-tool="survey-keeper" data-pf-to="survey-keeper">
+              <h3>Survey Keeper — an NPS survey that says why the score is what it is</h3>
+            </a>
+            <p>Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source, CSV export and an alert on every detractor. Open source…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../testimonial-keeper/" data-tool="testimonial-keeper" data-pf-to="testimonial-keeper">
+              <h3>Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</h3>
+            </a>
+            <p>Collect customer testimonials with a link, approve the ones you want, and show them on your site with one script tag. Consent stored with every entry. Open source, MIT, one-click…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../trial-converter/" data-tool="trial-converter" data-pf-to="trial-converter">
+              <h3>Trial Converter — trial-to-paid conversion for Stripe, self-hosted</h3>
+            </a>
+            <p>Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../visit-keeper/" data-tool="visit-keeper" data-pf-to="visit-keeper">
+              <h3>visit-keeper — web analytics you own, free</h3>
+            </a>
+            <p>Free, self-hosted, cookie-free web analytics: visitors, sources, UTM campaigns and goals with revenue by source. An open-source alternative to Plausible, Fathom and Simple…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../waitlist-keeper/" data-tool="waitlist-keeper" data-pf-to="waitlist-keeper">
+              <h3>Waitlist Keeper — a self-hosted referral waitlist</h3>
+            </a>
+            <p>A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../webhook-relay/" data-tool="webhook-relay" data-pf-to="webhook-relay">
+              <h3>webhook-relay — keep webhooks safe while your app is down</h3>
+            </a>
+            <p>Never lose a Stripe, GitHub or Shopify webhook because your app was down. Self-hosted relay that verifies signatures, saves events before answering, retries with backoff and…</p>
+            
+          </li>
+      </ul>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../../c/evidence/">Free compliance check and evidence record tools</a> <span>(116)</span></li>
+        <li><a href="../../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(54)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../../c/ci/">Free CI checks and developer gates</a> <span>(173)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/self-hosted" defer></script>
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>
+</body>
+</html>

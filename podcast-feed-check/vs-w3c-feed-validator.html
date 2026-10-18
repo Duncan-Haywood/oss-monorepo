@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Podcast Feed Validator vs. the W3C Feed Validator</title>
+  <meta name="description" content="The W3C Feed Validator checks that RSS/Atom XML is well-formed and spec-conformant as generic syndication feed…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/vs-w3c-feed-validator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Podcast Feed Validator vs. the W3C Feed Validator">
+  <meta property="og:description" content="One validates generic RSS/Atom well-formedness. The other checks the iTunes/Podcast-namespace requirements Apple Podcasts actually enforces -- category…">
+  <meta property="og:url" content="./vs-w3c-feed-validator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Podcast Feed Validator or the W3C Feed Validator?","acceptedAnswer":{"@type":"Answer","text":"Different jobs, and many podcasters need both at different times. The W3C Feed Validator, based on its own public description, checks that a feed is well-formed, spec-conformant XML against the general RSS/Atom syndication formats — it is the right first stop for a feed that won't parse at all. Podcast Feed Validator instead checks the iTunes/Podcast-namespace elements and podcast-app-specific rules the W3C tool has no knowledge of: itunes:category against Apple's own taxonomy, itunes:explicit's current boolean format, cover artwork, and the guid/pubDate bugs that cause an episode to disappear or reappear in a subscriber's app."}},{"@type":"Question","name":"Does the W3C Feed Validator check Apple Podcasts' requirements?","acceptedAnswer":{"@type":"Answer","text":"Based on its own public description, no — it validates against the general RSS 2.0 and Atom syndication-format specifications, which predate and do not include the iTunes/Podcast namespace Apple defines separately for podcast-specific metadata (category, explicit rating, episode type, artwork). A feed can pass general RSS well-formedness and still be missing every element Apple's Podcasts Connect actually requires."}},{"@type":"Question","name":"Is this page affiliated with the W3C?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the World Wide Web Consortium (W3C) or its Feed Validator. It is named here only to describe what that tool does and how it differs from this one, based on its own public description."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #5a2a7a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #3a1a4a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Podcast Feed Validator vs. the W3C Feed Validator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../podcast-feed-check/">Podcast Feed Validator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Podcast Feed Validator vs. the W3C Feed Validator</span></span></nav>
+  <p><a href="./">&larr; Podcast Feed Validator</a></p>
+  <h1>Podcast Feed Validator vs. the W3C Feed Validator</h1>
+  <p>
+    The <strong>W3C Feed Validator</strong> is a long-established, free, generic tool: point it at
+    a feed URL and it checks the XML is well-formed and conforms to the general RSS or Atom
+    syndication-format specifications. Based on its own public description, it is a solid,
+    established first stop for "is this even valid XML in a syndication format" — the same job for
+    RSS/Atom feeds that a markup validator does for HTML.
+  </p>
+  <p>
+    <strong>Podcast Feed Validator</strong> does a narrower, podcast-specific job. The iTunes and
+    Podcast namespace elements Apple Podcasts actually requires — <code>itunes:category</code>,
+    <code>itunes:explicit</code>, <code>itunes:image</code>, per-episode <code>itunes:episodeType</code>
+    — are a separate namespace layered on top of general RSS, defined after and outside the base
+    spec a general validator checks against. A feed can be perfectly well-formed, spec-conformant
+    RSS and still be missing every element Apple's Podcasts Connect requires for submission. This
+    tool checks those elements specifically, plus two podcast-app-specific failure modes a general
+    validator has no reason to look for: a <code>pubDate</code> not in the RFC 822 format podcast
+    apps expect, and a duplicate <code>guid</code> across episodes — the documented cause of an
+    episode disappearing or reappearing as new in a subscriber's app.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>My feed URL won't parse at all, or I'm not sure it's well-formed XML.</td>
+        <td>W3C Feed Validator — general well-formedness is its job.</td>
+      </tr>
+      <tr>
+        <td>My feed is valid RSS but Apple Podcasts rejected the submission, or an episode isn't showing up.</td>
+        <td>Podcast Feed Validator — checks the iTunes/Podcast-namespace elements a general validator doesn't know about.</td>
+      </tr>
+      <tr>
+        <td>An old episode reappeared as new, or a recent one vanished.</td>
+        <td>Podcast Feed Validator's duplicate-guid check — a general RSS validator has no reason to flag two valid, well-formed items sharing a guid value.</td>
+      </tr>
+      <tr>
+        <td>I want this checked automatically on every publish, with nothing sent to a third party.</td>
+        <td>Podcast Feed Validator's CLI — <code>node check.mjs &lt;feed-url&gt;</code> runs from your own machine and exits non-zero on a finding, wireable into any CI or publish script as an ordinary step.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither tool replaces the other. Run the W3C Feed Validator first if you're not sure the XML
+    itself is sound; run this one for the podcast-specific requirements that actually decide
+    whether Apple Podcasts, Spotify, and other podcast apps accept and correctly display your show.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Podcast Feed Validator or the W3C Feed Validator?</h3>
+  <p>Different jobs, and many podcasters need both at different times. The W3C Feed Validator, based on its own public description, checks that a feed is well-formed, spec-conformant XML against the general RSS/Atom syndication formats — it is the right first stop for a feed that won't parse at all. Podcast Feed Validator instead checks the iTunes/Podcast-namespace elements and podcast-app-specific rules the W3C tool has no knowledge of: itunes:category against Apple's own taxonomy, itunes:explicit's current boolean format, cover artwork, and the guid/pubDate bugs that cause an episode to disappear or reappear in a subscriber's app.</p>
+  <h3>Does the W3C Feed Validator check Apple Podcasts' requirements?</h3>
+  <p>Based on its own public description, no — it validates against the general RSS 2.0 and Atom syndication-format specifications, which predate and do not include the iTunes/Podcast namespace Apple defines separately for podcast-specific metadata (category, explicit rating, episode type, artwork). A feed can pass general RSS well-formedness and still be missing every element Apple's Podcasts Connect actually requires.</p>
+  <h3>Is this page affiliated with the W3C?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by the World Wide Web Consortium (W3C) or its Feed Validator. It is named here only to describe what that tool does and how it differs from this one, based on its own public description.</p>
+  <p class="note">More: <a href="why-podcast-feeds-fail-validation.html">why podcast feeds fail validation</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether the feed XML you provided satisfies specific, mechanically checkable rules, not a legal opinion or an acceptance guarantee from any podcast platform. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a feed issue before Apple's own review did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+      <li><a href="../card-bonus-planner/" data-pf-to="card-bonus-planner">Card Bonus Planner — schedule sign-up bonuses around your real spending</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=podcast-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="podcast-feed-check"></script>
+</body>
+</html>

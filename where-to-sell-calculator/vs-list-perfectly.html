@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. List Perfectly | Where to Sell Calculator</title>
+  <meta name="description" content="List Perfectly is a paid subscription that crosslists and manages inventory across ten-plus marketplaces at once.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/vs-list-perfectly.html">
+  <meta property="og:title" content="This tool vs. List Perfectly">
+  <meta property="og:description" content="Two different jobs: List Perfectly crosslists and manages inventory across the marketplaces you connect.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or List Perfectly?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and a high-volume reseller who uses one often wants the other too. List Perfectly is a paid subscription built for sellers running inventory across ten-plus marketplaces at once — bulk crosslisting, delisting and relisting, a shared catalog with pricing-research tools, and sell-through and profit analytics across the whole account. It assumes you already have (or are building) a multi-channel inventory and answers \"how do I run that at volume without retyping every listing\". This page assumes a single item you have not listed anywhere yet and answers \"which of eBay, Etsy, Amazon, my own store or a direct sale would actually net me the most on this one\", ranked by profit after fees and returns, and by profit per day once you count how long each channel takes to sell. It has no account, connects to no marketplace, and posts nothing anywhere."}},{"@type":"Question","name":"Can this page replace List Perfectly?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. This page never creates, crosslists, or manages a listing. It takes the price, cost and fee assumptions you type for one item and ranks the arithmetic across channels — it cannot maintain a shared catalog, bulk-edit hundreds of listings, or delist a sold item across nine other marketplaces, which is the job List Perfectly is built for. Once this page has told you which one or two channels are worth listing on, List Perfectly (or listing by hand) is how an ongoing inventory actually gets run there."}},{"@type":"Question","name":"Does List Perfectly tell me which marketplace is most profitable for a given item?","acceptedAnswer":{"@type":"Answer","text":"Not as its primary job. List Perfectly's own description centers on running an existing multi-channel inventory at volume — bulk crosslisting, delisting, relisting, and account-wide sell-through and profit reporting after the fact — rather than modelling one item's per-channel fee structure, return rate, and sell-through against its cost and price before it is listed anywhere. This page does only that one calculation, and does not create, edit, or manage a listing anywhere."}},{"@type":"Question","name":"Is this page affiliated with List Perfectly?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by List Perfectly. List Perfectly is a trademark of its owner, named here only to describe what this tool is and is not, based on List Perfectly's own public description of its product."}}]}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fbfbfa; --fg: #1a1a19; --muted: #5c5c58; --card: #fff;
+      --border: #e2e2dd; --accent: #4b32a8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17181a; --fg: #ececeb; --muted: #a3a39e; --card: #202124;
+        --border: #34353a; --accent: #b19cf2;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+    h1 { font-size: 1.8rem; line-height: 1.2; margin: 0 0 .5rem; max-width: 26ch; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 .6rem; }
+    h3 { font-size: 1rem; margin: 1.4rem 0 .4rem; }
+    p.lede { color: var(--muted); max-width: 44rem; font-size: 1.05rem; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    section { background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .93rem; }
+    th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border);
+      vertical-align: top; }
+    thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .fine { font-size: .87rem; color: var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/vs-list-perfectly.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. List Perfectly — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../where-to-sell-calculator/">Where to Sell Calculator — compare marketplace fees on one item</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. List Perfectly</span></span></nav>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Where to Sell Calculator</a></p>
+  <h1>This tool vs. List Perfectly</h1>
+  <p class="lede">Two different jobs in the same reseller's workflow. List Perfectly runs an existing multi-channel inventory at volume. This page decides which marketplace is worth listing an item on in the first place &mdash; free, in your browser, before anything gets posted anywhere.</p>
+
+  <section>
+    <h2>What each product is for</h2>
+    <p>
+      <strong>List Perfectly</strong> is a paid subscription crosslisting and
+      inventory-management platform for resellers, built around running an
+      account across ten-plus marketplaces at once. Its features center on
+      volume: bulk crosslisting, delisting and relisting, a shared catalog
+      with built-in pricing-research tools, custom fields and tags for
+      organizing stock, and reporting on sell-through rate and profit across
+      the whole account. It is built for a seller who already has (or is
+      building) a multi-channel inventory and wants running it to take
+      minutes instead of hours of repeated data entry per marketplace.
+    </p>
+    <p>
+      This page does none of that. It creates nothing, crosslists nothing,
+      and connects to no marketplace account. It takes <em>one</em> item you
+      are still deciding about &mdash; price, cost, expected volume, expected
+      days to sell, return rate &mdash; and ranks the net profit eBay, Etsy,
+      Amazon, your own store and a direct sale would each leave you, both per
+      sale and per day of waiting. Its subject matter is the decision that
+      comes <em>before</em> a listing exists: is this even worth posting on a
+      given channel, or would it just tie up shelf space and pay renewal fees
+      for nothing back.
+    </p>
+
+    <div class="scroll">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">What you want to know</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I run inventory across several marketplaces already &mdash; how do I bulk-list, delist and track sell-through without doing it once per marketplace?</td><td>List Perfectly or a comparable inventory-management crosslister &mdash; that is the job it is built for.</td></tr>
+          <tr><td>I am holding one item and have not listed it anywhere yet. Which channel actually nets me the most?</td><td>This tool &mdash; type it once, see every channel ranked by profit, free and instantly.</td></tr>
+          <tr><td>An item sold on one marketplace &mdash; can it be pulled from nine others automatically?</td><td>List Perfectly &mdash; delisting across a connected catalog is one of its features; this page has no connection to any marketplace to do that.</td></tr>
+          <tr><td>Is it worth listing this on every channel I have access to, or would some of them just tie up cash and pay renewal fees for nothing?</td><td>This tool &mdash; it ranks channels on expected keep after returns and value per month of shelf, so a channel not worth listing on shows up as one.</td></tr>
+          <tr><td>At what price does this item break even on each channel?</td><td>This tool &mdash; it prints a per-channel break-even price from the cost you typed.</td></tr>
+          <tr><td>Do I have to connect a marketplace account, or pay a subscription, to use it?</td><td>This tool: no, and never will. List Perfectly connects to your marketplace accounts by design, because running a shared catalog across them is the job it does.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <p>
+      A reseller can reasonably use both, in sequence: this page to decide
+      where a new item is worth listing, then List Perfectly (or another
+      crosslister, or listing by hand) to run it as part of an ongoing,
+      multi-channel inventory. They are not competing answers to one
+      question. This page makes no claim about List Perfectly's accuracy,
+      features, or current terms, and does not evaluate it &mdash; it
+      describes only the shape of the product, as List Perfectly describes it
+      publicly, and states what this tool does differently.
+    </p>
+    <p class="fine">No account and no sign-in: this is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+  </section>
+
+  <section>
+    <h2>What this tool cannot tell you</h2>
+    <p>
+      Worth being blunt about, because it is the honest half of the comparison
+      above. This page never touches a real marketplace account, so it cannot
+      do what List Perfectly does:
+    </p>
+    <ul>
+      <li><strong>It does not create, crosslist, or manage a listing anywhere.</strong> No shared catalog, no bulk edit, no publish button. It only ranks the arithmetic of channels for one item you have not listed on yet.</li>
+      <li><strong>It has no idea when an item sells.</strong> It cannot delist a sold item from other channels the way List Perfectly's connected catalog can &mdash; it has nothing connected to delist from.</li>
+      <li><strong>The fee rates are editable defaults, not a live fee schedule.</strong> They were current when the page was written. Marketplaces change them. Confirm against your own statement before pricing a catalogue.</li>
+      <li><strong>Days to sell and return rate are your estimates, not measurements.</strong> The page has no order history for any channel; replace the illustrative defaults with your own sold-listing history for a ranking worth trusting.</li>
+    </ul>
+    <p class="fine">
+      Those limits are the reason the comparison above is a comparison of
+      shapes rather than a claim that one product replaces the other.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Should I use this tool or List Perfectly?</h3>
+    <p>They answer different questions, and a high-volume reseller who uses one often wants the other too. List Perfectly is a paid subscription built for sellers running inventory across ten-plus marketplaces at once &mdash; bulk crosslisting, delisting and relisting, a shared catalog with pricing-research tools, and sell-through and profit analytics across the whole account. It assumes you already have (or are building) a multi-channel inventory and answers "how do I run that at volume without retyping every listing". This page assumes a single item you have not listed anywhere yet and answers "which of eBay, Etsy, Amazon, my own store or a direct sale would actually net me the most on this one", ranked by profit after fees and returns, and by profit per day once you count how long each channel takes to sell. It has no account, connects to no marketplace, and posts nothing anywhere.</p>
+    <h3>Can this page replace List Perfectly?</h3>
+    <p>No, and it is not trying to. This page never creates, crosslists, or manages a listing. It takes the price, cost and fee assumptions you type for one item and ranks the arithmetic across channels &mdash; it cannot maintain a shared catalog, bulk-edit hundreds of listings, or delist a sold item across nine other marketplaces, which is the job List Perfectly is built for. Once this page has told you which one or two channels are worth listing on, List Perfectly (or listing by hand) is how an ongoing inventory actually gets run there.</p>
+    <h3>Does List Perfectly tell me which marketplace is most profitable for a given item?</h3>
+    <p>Not as its primary job. List Perfectly's own description centers on running an existing multi-channel inventory at volume &mdash; bulk crosslisting, delisting, relisting, and account-wide sell-through and profit reporting after the fact &mdash; rather than modelling one item's per-channel fee structure, return rate, and sell-through against its cost and price before it is listed anywhere. This page does only that one calculation, and does not create, edit, or manage a listing anywhere.</p>
+    <h3>Is this page affiliated with List Perfectly?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by List Perfectly. List Perfectly is a trademark of its owner, named here only to describe what this tool is and is not, based on List Perfectly's own public description of its product.</p>
+    <p class="fine">Open the <a href="./">where to sell calculator</a> to rank your own item, or read <a href="./does-it-actually-sell-there.html">a worked example of margin vs. turnover</a> for the case where the two rankings disagree.</p>
+  </section>
+
+  <section>
+    <h2>Use it safely</h2>
+    <p class="fine">
+      <strong>Fee rates change.</strong> The defaults in the comparison tool were
+      current when it was written and are inputs, not a fee schedule. Confirm
+      against your own statement before pricing a catalogue against them.
+    </p>
+    <p class="fine">
+      <strong>No warranty.</strong> This tool is provided free and as-is, without
+      warranty of any kind, express or implied. It is not tax, financial, or
+      business advice, and it does not replace a qualified professional.
+      <strong>You are responsible for reviewing and verifying its output before
+      relying on it</strong>, and for meeting any obligation it helps you prepare
+      for. To the maximum extent permitted by law, the authors accept no
+      liability for any loss or damage arising from its use.
+    </p>
+    <p class="fine">
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice. We do not promise uptime, backups of anything you type, or that a
+      URL will keep working. Do not use this as a system of record.
+    </p>
+    <p class="fine">
+      Local-only privacy: nothing you type is uploaded. This page is static and
+      makes no live comparison against List Perfectly &mdash; it describes
+      publicly documented product shapes. <a href="LICENSE">License</a>
+    </p>
+    <p class="fine">
+      Free and open source. If it helped you pick the right channel for an item,
+      the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+      &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a>
+      is entirely optional and never changes what the tool does.
+    </p>
+  </section>
+</div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+      <li><a href="../clearance-markdown-planner/" data-pf-to="clearance-markdown-planner">Clearance Markdown Planner — free, private, in your browser</a></li>
+      <li><a href="../commercial-lease-abstract-reader/" data-pf-to="commercial-lease-abstract-reader">Commercial lease abstract in seconds — dates, rent schedule, red flags. Free, private</a></li>
+      <li><a href="../course-launch-revenue-calculator/" data-pf-to="course-launch-revenue-calculator">Course Launch Revenue Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=where-to-sell-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="where-to-sell-calculator"></script>
+</body>
+</html>

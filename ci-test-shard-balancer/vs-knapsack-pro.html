@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CI Test Shard Balancer vs. Knapsack Pro | CI Test Shard Balancer</title>
+<meta name="description" content="Knapsack Pro is a paid service that splits tests across parallel CI nodes, including dynamically while the run is in progress.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/vs-knapsack-pro.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CI Test Shard Balancer vs. Knapsack Pro">
+<meta property="og:description" content="A free offline JUnit-timings shard calculator next to a paid dynamic test-splitting service: what each does and when to pick which.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is CI Test Shard Balancer a replacement for Knapsack Pro?", "acceptedAnswer": {"@type": "Answer", "text": "For one narrow job, yes: if you can live with a fixed split that you recompute from fresh JUnit XML every few weeks, this tool gives you balanced file lists and a GitHub Actions matrix for free, with no account. It is not a replacement if you want splitting that adapts on every run."}}, {"@type": "Question", "name": "Where does Knapsack Pro do better?", "acceptedAnswer": {"@type": "Answer", "text": "Knapsack Pro describes a dynamic queue mode in which tests are handed to CI nodes as they become free, so a slow node or an unexpected slow test is absorbed during that very run, and it records timing data from your runs automatically. A fixed split computed beforehand cannot react to variation inside a run, and this tool keeps no history. If run-to-run variation is large, or you do not want to maintain a split, the paid service is the better fit."}}, {"@type": "Question", "name": "Why would I use the free tool instead?", "acceptedAnswer": {"@type": "Answer", "text": "When you want a split now, from reports you already have, without signing up or sending test names and timings to a third party; when your timings are stable enough that a fixed split holds; or when you want a CI gate that tells you the current split has drifted. It also answers how many shards are worth paying for, given your setup time."}}, {"@type": "Question", "name": "Is this page affiliated with Knapsack Pro?", "acceptedAnswer": {"@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Knapsack Pro. Knapsack Pro is named here only to describe what this tool is and is not, based on Knapsack Pro's own public documentation."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#17604a;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#17604a;margin:0 0 6px}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:30ch;letter-spacing:-.02em;color:#17324a}
+.lede{font-size:1.05rem;max-width:66ch;color:#55606f}
+p{line-height:1.6}
+section.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324a10;margin:1rem 0}
+h2{margin-top:0;color:#17324a}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}
+.fine,.note{font-size:.88rem;color:#55606f}
+footer{color:#55606f;font-size:.86rem;margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/vs-knapsack-pro.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CI Test Shard Balancer vs. Knapsack Pro — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ci-test-shard-balancer/">Split your CI tests into evenly timed shards</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CI Test Shard Balancer vs. Knapsack Pro</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; CI Test Shard Balancer</a></p>
+<header>
+<h1>This tool vs. Knapsack Pro</h1>
+<p class="lede">Different jobs. Knapsack Pro is a paid service that keeps splitting your tests for you on every run. This is a free calculator that gives you one balanced split, today, from timing reports you already have.</p>
+</header>
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Knapsack Pro</strong> is a commercial service for splitting a test suite across parallel CI nodes. Its public documentation describes recording timing data from your CI runs and a dynamic &ldquo;queue mode&rdquo; that gives tests to nodes as they become free, with libraries for several test frameworks. It is a subscription product; see its own pricing page for current plans.</p>
+<p><strong>This tool</strong> reads JUnit XML you already have (pytest, Jest, Go, Maven/Gradle, RSpec), computes a fixed split into N shards, and prints the files for each shard, a GitHub Actions matrix, and a sweep of shard counts priced against your setup time. It keeps no history, has no account, and sends nothing anywhere.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">This tool</th><th scope="col">Knapsack Pro</th></tr></thead>
+<tbody>
+<tr><td>Cost</td><td>Free, MIT licence</td><td>Paid subscription; check its pricing page</td></tr>
+<tr><td>Account or signup</td><td>None</td><td>Required, with an API token in your CI</td></tr>
+<tr><td>Where your test names and timings go</td><td>Nowhere; processed in your browser or on your machine</td><td>Sent to its service so it can record timings (per its documentation)</td></tr>
+<tr><td>Split adapts during a run</td><td>No. A fixed split; recompute it when timings change</td><td>Yes, in queue mode, tests are handed out as nodes free up</td></tr>
+<tr><td>Timing history</td><td>None. You supply a recent JUnit report</td><td>Recorded automatically from your runs</td></tr>
+<tr><td>Absorbs a slow node or a one-off slow test</td><td>No</td><td>Largely yes, because work is assigned late</td></tr>
+<tr><td>How many shards are worth paying for</td><td>Yes: a sweep priced with your setup seconds and an optional wall-clock target</td><td>Not its stated focus</td></tr>
+<tr><td>Flags a test longer than an even shard</td><td>Yes</td><td>Check its documentation</td></tr>
+<tr><td>CI gate when a split has drifted</td><td>Yes: <code>--max-imbalance-pct</code> exits 1</td><td>Not applicable; it re-splits on its own</td></tr>
+<tr><td>Frameworks</td><td>Anything that writes JUnit XML; shard commands for pytest, Jest, Go, Maven/Gradle, RSpec</td><td>Its own integrations for specific frameworks; check its documentation</td></tr>
+</tbody>
+</table></div>
+</div>
+<p><strong>Use this tool when</strong> you want a good split now without an account, your timings are stable enough that a split holds for a few weeks, you cannot send test data to a third party, or you first want to know whether more shards would even help. <strong>Use Knapsack Pro when</strong> run-to-run variation is large, you do not want to maintain a split, or you want splitting that adapts during a run. Plenty of teams could start with the free calculation and move to a service if variation proves to be the problem.</p>
+<p class="fine">Statements about Knapsack Pro summarise its public documentation as best understood when this page was written and may be out of date. Check its documentation for the current feature set and pricing.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Is CI Test Shard Balancer a replacement for Knapsack Pro?</h3>
+<p>For one narrow job, yes: if you can live with a fixed split that you recompute from fresh JUnit XML every few weeks, this tool gives you balanced file lists and a GitHub Actions matrix for free, with no account. It is not a replacement if you want splitting that adapts on every run.</p>
+<h3>Where does Knapsack Pro do better?</h3>
+<p>Knapsack Pro describes a dynamic queue mode in which tests are handed to CI nodes as they become free, so a slow node or an unexpected slow test is absorbed during that very run, and it records timing data from your runs automatically. A fixed split computed beforehand cannot react to variation inside a run, and this tool keeps no history. If run-to-run variation is large, or you do not want to maintain a split, the paid service is the better fit.</p>
+<h3>Why would I use the free tool instead?</h3>
+<p>When you want a split now, from reports you already have, without signing up or sending test names and timings to a third party; when your timings are stable enough that a fixed split holds; or when you want a CI gate that tells you the current split has drifted. It also answers how many shards are worth paying for, given your setup time.</p>
+<h3>Is this page affiliated with Knapsack Pro?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Knapsack Pro. Knapsack Pro is named here only to describe what this tool is and is not, based on Knapsack Pro's own public documentation.</p>
+<p class="note">Open the <a href="./">CI Test Shard Balancer</a> with your own report, or read <a href="how-to-split-tests-across-ci-shards.html">how to split tests across CI shards</a> first.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is informational only. It is not engineering, financial or other professional advice. It is a heuristic over the timings you give it; test timings vary from run to run, so its predictions are not a guarantee. You are responsible for verifying its output before relying on it.</p>
+<p>Not affiliated with, endorsed by, or sponsored by <strong>Knapsack Pro</strong>. Knapsack Pro is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+<p><strong>Nothing leaves your browser.</strong> The browser page and the CLI read your reports locally and make no network call.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ci-test-shard-balancer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ci-test-shard-balancer"></script>
+</body></html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. VibeAppScanner | Supabase RLS Exposure Checker</title>
+<meta name="description" content="VibeAppScanner is a hosted third-party service that scans Supabase (and other backend) projects for security issues.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/vs-vibeappscanner.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. VibeAppScanner">
+<meta property="og:description" content="A hosted scanning service vs. an open-source tool you can read line by line and run entirely in your own browser.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or VibeAppScanner?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They serve overlapping but differently-shaped needs. VibeAppScanner is a hosted, broader security-scanning service covering more than RLS exposure across Supabase and other AI-app-builder backends, aimed at a developer who wants a fuller report without reading any code. This checker does one thing -- reads your project's own schema listing and tests whether the anon key can read real rows from each table -- with source code you (or anyone) can read in full before trusting it, runs entirely in your own browser with nothing sent to a third party, and has a CLI you can wire into your own CI. Reach for a hosted scanner when you want a broader audit and are comfortable with a third-party service seeing your project URL and key; reach for this when you want the narrower RLS-read check with the smallest possible trust surface." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would the trust surface matter if the anon key is public anyway?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The anon key is meant to be public, but that does not make every use of it equally low-risk to hand to a third party: a hosted scanner still becomes a service that has your project URL and key on its own servers, logs, and infrastructure, subject to its own security and retention practices. This tool never receives either -- every request goes directly from your browser to your project's own REST endpoint, the same way your app's client already talks to it, and nothing about the run is sent to us or stored anywhere but your browser's local storage as an anonymous usage count." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with VibeAppScanner?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by VibeAppScanner, and VibeAppScanner is a trademark of its owner, named here only to describe what this checker is and is not. The description of VibeAppScanner on this page is drawn from its own public site; check it there for what its current scan covers." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/vs-vibeappscanner.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. VibeAppScanner — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../supabase-rls-check/">Supabase RLS Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. VibeAppScanner</span></span></nav>
+<p><a href="index.html">&larr; Supabase RLS exposure checker</a></p>
+
+<h1>This checker vs. VibeAppScanner</h1>
+
+<p>
+  <strong>VibeAppScanner</strong> is a hosted third-party service that scans Supabase and other
+  AI-app-builder backends for security issues, including missing-RLS exposure, and returns a
+  report. It is one of several services and write-ups that emerged from the same 2025-2026 wave of
+  reporting on CVE-2025-48757 and the "170+ Lovable apps" incident this checker's own
+  <a href="why-does-disabling-rls-expose-my-supabase-data.html">background page</a> describes.
+</p>
+
+<p>
+  This checker does one narrower thing, differently. It reads your project's own PostgREST schema
+  listing (an <code>OpenAPI</code> document the anon key can already see), then sends one capped,
+  read-only GET per table it finds and reports which ones return real rows to that unauthenticated
+  request. The code is <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/supabase-rls-check" rel="nofollow noopener">open source and readable in full</a> before you trust it,
+  it runs entirely in your own browser tab (or as a Node CLI you can wire into CI), and it never
+  sends your project URL, anon key, or anything it reads back to any server of ours.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Get a broader security report across more than RLS exposure, without reading any code yourself.</td>
+      <td>VibeAppScanner or a comparable hosted scanning service.</td>
+    </tr>
+    <tr>
+      <td>Check specifically whether the anon key can read real rows from any table, with the smallest possible trust surface (nothing sent to a third party, code you can read line by line).</td>
+      <td>This checker -- runs in your own browser, or as a CLI you control.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in CI the moment a new table lands without RLS, unattended, on a runner where you would rather not hold a third-party API credential.</td>
+      <td>This checker's CLI -- exit code <code>1</code> on any exposed table.</td>
+    </tr>
+    <tr>
+      <td>Audit a client's or a third party's project where you are only comfortable running something you can fully inspect first.</td>
+      <td>This checker -- open source, no account, no hosted service seeing the key.</td>
+    </tr>
+    <tr>
+      <td>Want a managed dashboard, scheduled scanning, or support from a vendor.</td>
+      <td>VibeAppScanner or a comparable paid/hosted service -- this checker is a free, unattended, no-account tool with no dashboard.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These are not mutually exclusive. A reasonable setup pairs a broader hosted scan run occasionally
+  with this checker wired into CI as a tight, zero-trust-surface regression gate against the one
+  exposure that has actually cost real incidents in 2025-2026: a newly created table with RLS left
+  off.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or VibeAppScanner?</h3>
+<p>They serve overlapping but differently-shaped needs. VibeAppScanner is a hosted, broader security-scanning service covering more than RLS exposure across Supabase and other AI-app-builder backends, aimed at a developer who wants a fuller report without reading any code. This checker does one thing -- reads your project's own schema listing and tests whether the anon key can read real rows from each table -- with source code you (or anyone) can read in full before trusting it, runs entirely in your own browser with nothing sent to a third party, and has a CLI you can wire into your own CI. Reach for a hosted scanner when you want a broader audit and are comfortable with a third-party service seeing your project URL and key; reach for this when you want the narrower RLS-read check with the smallest possible trust surface.</p>
+
+<h3>Why would the trust surface matter if the anon key is public anyway?</h3>
+<p>The anon key is meant to be public, but that does not make every use of it equally low-risk to hand to a third party: a hosted scanner still becomes a service that has your project URL and key on its own servers, logs, and infrastructure, subject to its own security and retention practices. This tool never receives either -- every request goes directly from your browser to your project's own REST endpoint, the same way your app's client already talks to it, and nothing about the run is sent to us or stored anywhere but your browser's local storage as an anonymous usage count.</p>
+
+<h3>Is this page affiliated with VibeAppScanner?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by VibeAppScanner, and VibeAppScanner is a trademark of its owner, named here only to describe what this checker is and is not. The description of VibeAppScanner on this page is drawn from its own public site; check it there for what its current scan covers.</p>
+
+<p>
+  <strong>Only point either tool at a project you own or are authorised to test.</strong> That rule
+  is unchanged by which one you pick.
+</p>
+
+<p><a href="index.html">&larr; Back to the Supabase RLS exposure checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at one specific,
+  well-documented exposure -- can the anon key read real rows from a table -- using a capped,
+  read-only request per table. It is not a full security assessment and cannot see an exposure
+  outside what the anon key's own schema listing reveals.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any project you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=supabase-rls-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="supabase-rls-check"></script>
+</body>
+</html>

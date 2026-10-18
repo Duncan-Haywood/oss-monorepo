@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. the flat "8-10%" rule of thumb | Kickstarter Fee Calculator</title>
+<meta name="description" content="Most guides say Kickstarter takes "8-10%" and stop there. That single number hides that the per-pledge processing fee is flat per pledge, not per dollar -- so the real rate depends on average pledge size. Free, private, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/vs-the-flat-8-10-percent-rule-of-thumb.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. the flat &quot;8-10%&quot; rule of thumb">
+<meta property="og:description" content="A flat 8-10% guess applies the same rate whether a campaign raises its total from 150 backers or 1,250.">
+<meta property="og:url" content="./vs-the-flat-8-10-percent-rule-of-thumb.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the flat “8-10%” rule of thumb this page compares against?","acceptedAnswer":{"@type":"Answer","text":"Picking one number in the 8-10% range that guides quote for Kickstarter's combined fees, and multiplying the whole campaign total by it. It is a one-line estimate that treats the fee as a flat percentage of the raise, with no line for how many backers it came from."}},{"@type":"Question","name":"How much can the flat rule of thumb get a real campaign wrong?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default example -- a $10,000 campaign -- a flat 9% guess (the midpoint of “8-10%”) prices the fee at $900.00 and the net payout at $9,100.00 no matter how many backers it came from. At the calculator's shipped default of 150 backers ($66.67 average pledge), the real fee is $830.00 and the real net payout is $9,170.00 -- the guess overstated the fee by $70.00. Spread across 1,250 backers instead ($8.00 average pledge, the micro-pledge tier), the real fee is $1,062.50 and the real net payout is $8,937.50 -- the same guess now understated the fee by $162.50. Same $10,000 raised, same flat guess, a $232.50 swing in which direction it is wrong."}},{"@type":"Question","name":"Why does average pledge size change the effective rate at all?","acceptedAnswer":{"@type":"Answer","text":"Because Kickstarter's payment-processing fee has a flat per-pledge component ($0.20, or $0.05 under $10) on top of its percentage -- charged once per pledge, not once per dollar. More, smaller pledges spread that flat charge across more transactions, so the same total raised pays more in processing the more backers it took to raise it. A flat percentage guess has no way to see that, because it only ever looks at the total."}},{"@type":"Question","name":"Does the real rate ever fall outside the quoted “8-10%” range entirely?","acceptedAnswer":{"@type":"Answer","text":"Yes. The calculator's own micro-pledge example above -- 1,250 backers averaging $8.00 each -- lands at a 10.625% effective rate, past the top of the range most summaries quote. A campaign built on very small pledges is not a rare edge case for something like a sticker tier or a $5 digital thank-you, and “8-10%” undersells its real cost."}},{"@type":"Question","name":"Does this page assert Kickstarter's current fee schedule?","acceptedAnswer":{"@type":"Answer","text":"The 5% platform fee and the per-pledge processing rates (3% + $0.20 standard, 5% + $0.05 under $10) are constants lifted from Kickstarter's own published US fee schedule, not a live fetch. Confirm the current schedule at kickstarter.com/help/fees before relying on either this calculator or any rule of thumb for a real campaign."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#131a2b;background:#eef1fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#4d5975}section{background:#fff;border:1px solid #d7ddf3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e1e6f5;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4d5975}.fine,.note{font-size:.88rem;color:#4d5975}footer{color:#4d5975;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. the flat &quot;8-10%&quot; rule of thumb — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../kickstarter-fee-calculator/">Kickstarter Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. the flat &quot;8-10%&quot; rule of thumb</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Kickstarter Fee Calculator</a></p>
+<header>
+<h1>This calculator vs. the flat &ldquo;8-10%&rdquo; rule of thumb</h1>
+<p class="lede">&ldquo;Kickstarter takes 8-10%&rdquo; is the number every guide repeats. It is also a single percentage applied to the whole raise, with no line for how many backers it came from &mdash; which is exactly what changes the real number.</p>
+</header>
+<section>
+<h2>What each approach actually involves</h2>
+<p>
+<strong>The flat rule of thumb</strong> takes one number from the 8-10%
+range and multiplies the whole campaign total by it. One number, one
+multiplication, done &mdash; and the same guess for a campaign funded by
+150 backers or by 1,250.
+</p>
+<p>
+<strong>This calculator</strong> prices Kickstarter's two real fees
+separately: a 5% platform fee on the total, and a per-pledge processing
+fee that is 3% + $0.20 for pledges of $10 or more, or 5% + $0.05 for
+pledges under $10. Because the flat component is charged per pledge, not
+per dollar, the calculator asks for the total raised and the number of
+backers, so the average pledge size &mdash; and its effect on the real
+rate &mdash; is part of the answer instead of invisible.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">$10,000 raised, by backer count</th><th scope="col">Flat 9% guess (the &ldquo;8-10%&rdquo; midpoint)</th><th scope="col">This calculator (priced separately)</th></tr></thead>
+<tbody>
+<tr><td>150 backers, $66.67 average pledge (this calculator's shipped default)</td><td><strong>$9,100.00</strong> net &mdash; $900.00 fee</td><td><strong>$9,170.00</strong> net &mdash; $830.00 fee (8.30% effective)</td></tr>
+<tr><td>1,250 backers, $8.00 average pledge (micro-pledge tier)</td><td><strong>$9,100.00</strong> net &mdash; $900.00 fee</td><td><strong>$8,937.50</strong> net &mdash; $1,062.50 fee (10.625% effective)</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+Same $10,000 raised, same flat 9% guess both times. Against the
+150-backer campaign the guess overstates the fee by $70.00. Against the
+1,250-backer campaign &mdash; same total, smaller average pledge &mdash;
+the identical guess understates the fee by $162.50, and the real
+effective rate, 10.625%, is past the top of the &ldquo;8-10%&rdquo; range
+most guides quote. A single flat number cannot be wrong in only one
+direction here; which way it misses depends on a figure it never asked
+for.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I just want a rough ceiling before I even have reward tiers sketched out.</td><td>A flat 8-10% guess is fine as a rough ceiling &mdash; just know it can land on either side of the real number.</td></tr>
+<tr><td>I'm setting reward tiers and want to know what a given total actually nets, or whether more, smaller tiers cost me more than fewer, larger ones.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>I want Kickstarter's current published fee schedule.</td><td><a href="https://www.kickstarter.com/help/fees" rel="noopener">kickstarter.com/help/fees</a> &mdash; this calculator's constants, not a live fetch.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the flat &ldquo;8-10%&rdquo; rule of thumb this page compares against?</h3>
+<p>Picking one number in the 8-10% range that guides quote for Kickstarter's combined fees, and multiplying the whole campaign total by it. It is a one-line estimate that treats the fee as a flat percentage of the raise, with no line for how many backers it came from.</p>
+<h3>How much can the flat rule of thumb get a real campaign wrong?</h3>
+<p>On this calculator's own default example -- a $10,000 campaign -- a flat 9% guess (the midpoint of &ldquo;8-10%&rdquo;) prices the fee at $900.00 and the net payout at $9,100.00 no matter how many backers it came from. At the calculator's shipped default of 150 backers ($66.67 average pledge), the real fee is $830.00 and the real net payout is $9,170.00 -- the guess overstated the fee by $70.00. Spread across 1,250 backers instead ($8.00 average pledge, the micro-pledge tier), the real fee is $1,062.50 and the real net payout is $8,937.50 -- the same guess now understated the fee by $162.50. Same $10,000 raised, same flat guess, a $232.50 swing in which direction it is wrong.</p>
+<h3>Why does average pledge size change the effective rate at all?</h3>
+<p>Because Kickstarter's payment-processing fee has a flat per-pledge component ($0.20, or $0.05 under $10) on top of its percentage -- charged once per pledge, not once per dollar. More, smaller pledges spread that flat charge across more transactions, so the same total raised pays more in processing the more backers it took to raise it. A flat percentage guess has no way to see that, because it only ever looks at the total.</p>
+<h3>Does the real rate ever fall outside the quoted &ldquo;8-10%&rdquo; range entirely?</h3>
+<p>Yes. The calculator's own micro-pledge example above -- 1,250 backers averaging $8.00 each -- lands at a 10.625% effective rate, past the top of the range most summaries quote. A campaign built on very small pledges is not a rare edge case for something like a sticker tier or a $5 digital thank-you, and &ldquo;8-10%&rdquo; undersells its real cost.</p>
+<h3>Does this page assert Kickstarter's current fee schedule?</h3>
+<p>The 5% platform fee and the per-pledge processing rates (3% + $0.20 standard, 5% + $0.05 under $10) are constants lifted from Kickstarter's own published US fee schedule, not a live fetch. Confirm the current schedule at kickstarter.com/help/fees before relying on either this calculator or any rule of thumb for a real campaign.</p>
+<p class="note">
+Open the <a href="./">Kickstarter Fee Calculator</a> to price your own campaign or reward tier.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or crowdfunding advice, and it is not affiliated with, endorsed by, or sponsored by Kickstarter, PBC. Every rate is a constant lifted from Kickstarter's published fee schedule, not a live fetch -- verify the current schedule at kickstarter.com/help/fees before relying on this for a real campaign. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+      <li><a href="../faire-wholesale-calculator/" data-pf-to="faire-wholesale-calculator">Faire Seller Fee Calculator</a></li>
+      <li><a href="../fba-aged-inventory-fee-analyzer/" data-pf-to="fba-aged-inventory-fee-analyzer">FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fba-reimbursement-claim-finder/" data-pf-to="fba-reimbursement-claim-finder">FBA Reimbursement Claim Finder — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kickstarter-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="kickstarter-fee-calculator"></script>
+</body></html>

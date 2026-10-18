@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
+  <meta name="description" content="Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this…">
+  <meta property="og:title" content="Tax-Loss Harvesting Calculator — free, private, in your browser">
+  <meta property="og:description" content="See what selling losing positions saves in tax this year, with a wash-sale check and carryforward.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tax-Loss Harvesting Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Nets your realized capital gains and losses, adds candidate losses with a wash-sale check, and estimates this year's tax saved, the ordinary-income deduction and the carryforward. Runs in your browser.", "featureList": "capital gain and loss netting, wash-sale flag, $3,000 ordinary deduction, loss carryforward, deferral warning, CSV download, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does tax-loss harvesting work?", "acceptedAnswer": {"@type": "Answer", "text": "You sell investments that are worth less than you paid, which realizes a capital loss. That loss first cancels capital gains you realized in the same year, short-term against short-term and long-term against long-term, then the two totals offset each other. If losses are still left, up to $3,000 a year ($1,500 if married filing separately) reduces ordinary income and the rest carries forward."}}, {"@type": "Question", "name": "How much can tax-loss harvesting save me?", "acceptedAnswer": {"@type": "Answer", "text": "The saving is the tax you would have paid on the gains the losses cancel, plus the ordinary-income deduction times your bracket. Short-term gains are taxed at ordinary rates, so cancelling them saves the most. This tool prices it with the flat rates you enter."}}, {"@type": "Question", "name": "What is the wash-sale rule?", "acceptedAnswer": {"@type": "Answer", "text": "If you buy the same or a substantially identical security within 30 days before or after selling it at a loss, the loss is disallowed for now and added to the basis of the new shares. Mark a position as wash-sale risk and this tool leaves its loss out."}}, {"@type": "Question", "name": "Does harvesting erase the tax?", "acceptedAnswer": {"@type": "Answer", "text": "No, it defers it. Your lower basis means a bigger gain when you eventually sell the replacement. It pays off if you hold long enough, get a step-up in basis, donate the shares, or sell in a lower bracket, and the tool shows the deferred amount."}}, {"@type": "Question", "name": "What happens to losses I cannot use this year?", "acceptedAnswer": {"@type": "Answer", "text": "They carry forward indefinitely and keep their short-term or long-term character. Enter last year's carryforward in the form so it is netted first."}}, {"@type": "Question", "name": "Are short-term or long-term losses better to harvest?", "acceptedAnswer": {"@type": "Answer", "text": "A short-term loss first cancels short-term gains, which are taxed at higher ordinary rates, so it is usually worth more when you have those. Compare both in the tool by changing each position's term."}}, {"@type": "Question", "name": "Does this include state tax and the net investment income tax?", "acceptedAnswer": {"@type": "Answer", "text": "Only as flat percentages you type in. The state rate is added to every rate and the 3.8 percent net investment income tax, if you enter it, is added to gains. Real state rules and thresholds vary."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; border-bottom: 1px solid #ece7f2; padding-bottom: 8px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tax-Loss Harvesting Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tax-Loss Harvesting Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tax-Loss Harvesting Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">TAX-LOSS HARVESTING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What would selling your losers save in tax?</h1>
+    <p>Enter the gains you have already realized and the positions sitting at a loss. You get the <strong>tax saved this year</strong>, the <strong>$3,000 ordinary-income deduction</strong>, the <strong>loss carried forward</strong>, and a <strong>wash-sale check</strong> that leaves out any loss the IRS would disallow.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your year so far</h2>
+    <div class="grid">
+      <div><label for="filing">Filing status</label><select id="filing"><option value="single">Single, married filing jointly or head of household ($3,000 limit)</option><option value="mfs">Married filing separately ($1,500 limit)</option></select></div>
+      <div><label for="stGain">Realized short-term gains this year (net)</label><input type="text" id="stGain" inputmode="decimal" placeholder="6000" autocomplete="off"></div><div><label for="ltGain">Realized long-term gains this year (net)</label><input type="text" id="ltGain" inputmode="decimal" placeholder="18000" autocomplete="off"></div><div><label for="stCarry">Short-term loss carried from last year</label><input type="text" id="stCarry" inputmode="decimal" placeholder="0" autocomplete="off"></div><div><label for="ltCarry">Long-term loss carried from last year</label><input type="text" id="ltCarry" inputmode="decimal" placeholder="0" autocomplete="off"></div><div><label for="ordRate">Federal ordinary rate, percent</label><input type="text" id="ordRate" inputmode="decimal" placeholder="24" autocomplete="off"></div><div><label for="ltRate">Federal long-term gains rate, percent</label><input type="text" id="ltRate" inputmode="decimal" placeholder="15" autocomplete="off"></div><div><label for="stateRate">State income tax rate, percent</label><input type="text" id="stateRate" inputmode="decimal" placeholder="0" autocomplete="off"></div><div><label for="niitRate">Net investment income tax, percent (0 or 3.8)</label><input type="text" id="niitRate" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Positions you could sell at a loss</h2>
+    <p class="note">Enter each loss as a positive number. Leave unused rows blank.</p>
+    <div class="grid">
+      <div><label for="p1_name">Position 1 name</label><input type="text" id="p1_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p1_loss">Position 1 unrealized loss</label><input type="text" id="p1_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p1_term">Position 1 holding period</label><select id="p1_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p1_wash">Position 1 bought back within 30 days?</label><select id="p1_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+<div class="grid">
+      <div><label for="p2_name">Position 2 name</label><input type="text" id="p2_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p2_loss">Position 2 unrealized loss</label><input type="text" id="p2_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p2_term">Position 2 holding period</label><select id="p2_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p2_wash">Position 2 bought back within 30 days?</label><select id="p2_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+<div class="grid">
+      <div><label for="p3_name">Position 3 name</label><input type="text" id="p3_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p3_loss">Position 3 unrealized loss</label><input type="text" id="p3_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p3_term">Position 3 holding period</label><select id="p3_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p3_wash">Position 3 bought back within 30 days?</label><select id="p3_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+<div class="grid">
+      <div><label for="p4_name">Position 4 name</label><input type="text" id="p4_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p4_loss">Position 4 unrealized loss</label><input type="text" id="p4_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p4_term">Position 4 holding period</label><select id="p4_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p4_wash">Position 4 bought back within 30 days?</label><select id="p4_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+<div class="grid">
+      <div><label for="p5_name">Position 5 name</label><input type="text" id="p5_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p5_loss">Position 5 unrealized loss</label><input type="text" id="p5_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p5_term">Position 5 holding period</label><select id="p5_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p5_wash">Position 5 bought back within 30 days?</label><select id="p5_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+<div class="grid">
+      <div><label for="p6_name">Position 6 name</label><input type="text" id="p6_name" inputmode="decimal" placeholder="Growth ETF" autocomplete="off"></div>
+      <div><label for="p6_loss">Position 6 unrealized loss</label><input type="text" id="p6_loss" inputmode="decimal" placeholder="5000" autocomplete="off"></div>
+      <div><label for="p6_term">Position 6 holding period</label><select id="p6_term"><option value="short">Short-term (a year or less)</option><option value="long">Long-term (over a year)</option></select></div>
+      <div><label for="p6_wash">Position 6 bought back within 30 days?</label><select id="p6_wash"><option value="no">No</option><option value="yes">Yes (wash-sale risk)</option></select></div>
+    </div>
+
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Estimate savings</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your gains and at least one position, then click Estimate savings.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Before and after harvesting</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="size-table"><thead><tr><th></th><th class="n">No harvest</th><th class="n">With harvest</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Short-term gains less short-term losses, and long-term gains less long-term losses, give two nets. If one is a gain and the other a loss they offset each other. A remaining net loss reduces ordinary income by up to $3,000 ($1,500 if married filing separately), using short-term losses first, and the rest carries forward. Tax is the taxable short-term amount at your ordinary rate plus the taxable long-term amount at your long-term rate, each plus your state rate and any net investment income tax you enter; the deduction is worth ordinary plus state rate. Savings is tax with no harvest minus tax with the eligible losses. Positions marked as bought back within 30 days are excluded as possible wash sales.</p>
+    <p><strong>Not modelled:</strong> tax brackets that shift as income changes, the actual net investment income tax threshold, state rules that differ from federal, the 61-day wash-sale window across accounts and spouses, wash sales triggered by dividend reinvestment, crypto and other special rules, alternative minimum tax. <strong>Unverified:</strong> checked by hand calculation and unit tests only.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How does tax-loss harvesting work?</h3>
+    <p>You sell investments that are worth less than you paid, which realizes a capital loss. That loss first cancels capital gains you realized in the same year, short-term against short-term and long-term against long-term, then the two totals offset each other. If losses are still left, up to $3,000 a year ($1,500 if married filing separately) reduces ordinary income and the rest carries forward.</p>
+    <h3>How much can tax-loss harvesting save me?</h3>
+    <p>The saving is the tax you would have paid on the gains the losses cancel, plus the ordinary-income deduction times your bracket. Short-term gains are taxed at ordinary rates, so cancelling them saves the most. This tool prices it with the flat rates you enter.</p>
+    <h3>What is the wash-sale rule?</h3>
+    <p>If you buy the same or a substantially identical security within 30 days before or after selling it at a loss, the loss is disallowed for now and added to the basis of the new shares. Mark a position as wash-sale risk and this tool leaves its loss out.</p>
+    <h3>Does harvesting erase the tax?</h3>
+    <p>No, it defers it. Your lower basis means a bigger gain when you eventually sell the replacement. It pays off if you hold long enough, get a step-up in basis, donate the shares, or sell in a lower bracket, and the tool shows the deferred amount.</p>
+    <h3>What happens to losses I cannot use this year?</h3>
+    <p>They carry forward indefinitely and keep their short-term or long-term character. Enter last year's carryforward in the form so it is netted first.</p>
+    <h3>Are short-term or long-term losses better to harvest?</h3>
+    <p>A short-term loss first cancels short-term gains, which are taxed at higher ordinary rates, so it is usually worth more when you have those. Compare both in the tool by changing each position's term.</p>
+    <h3>Does this include state tax and the net investment income tax?</h3>
+    <p>Only as flat percentages you type in. The state rate is added to every rate and the 3.8 percent net investment income tax, if you enter it, is added to gains. Real state rules and thresholds vary.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the values you enter and on tax rules that change. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before selling any investment.</p>
+    <p><strong>Independent.</strong> Not affiliated with any broker, robo-advisor or tax authority.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>harvest_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../niit-calculator/">NIIT calculator</a> (does the 3.8% surtax apply to the gains you realize?), the <a href="../espp-tax-calculator/">ESPP tax calculator</a> the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a> and the <a href="../crypto-cost-basis-calculator/">crypto cost basis calculator</a> for matching crypto sales to lots, and the <a href="../tax-lot-sale-optimizer/">tax lot sale optimizer</a> for choosing which lots to sell.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Selling at a loss? The <a href="../wash-sale-checker/">wash sale checker</a> finds losses disallowed across all your accounts &mdash; nothing uploaded.</p>
+</footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => "$" + money(n);
+    const ROWS = [1, 2, 3, 4, 5, 6];
+    const TOP = ["stGain", "ltGain", "stCarry", "ltCarry", "ordRate", "ltRate", "stateRate", "niitRate"];
+    const PKEYS = ["name", "loss", "term", "wash"];
+    let last = null;
+
+    function read() {
+      const o = { filing: $("#filing").value, positions: ROWS.map((i) => Object.fromEntries(PKEYS.map((k) => [k, $("#p" + i + "_" + k).value]))) };
+      TOP.forEach((k) => { o[k] = $("#" + k).value; });
+      return o;
+    }
+    function fill(x) {
+      $("#filing").value = x.filing || "single";
+      TOP.forEach((k) => { $("#" + k).value = x[k] ?? ""; });
+      ROWS.forEach((i, n) => PKEYS.forEach((k) => { const v = x.positions && x.positions[n] && x.positions[n][k]; $("#p" + i + "_" + k).value = v ?? (k === "term" ? "short" : k === "wash" ? "no" : ""); }));
+    }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[usd(a.savings), "estimated tax saved this year"], [usd(a.harvested), "eligible losses harvested"], [usd(a.after.ded), "ordinary income deduction"], [usd(a.after.carryST + a.after.carryLT), "loss carried forward"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const line = (label, f) => `<tr><td>${esc(label)}</td><td class="n">${f(a.before)}</td><td class="n">${f(a.after)}</td></tr>`;
+      $("#size-table tbody").innerHTML = [line("Taxable short-term gain", (x) => usd(x.stTax)), line("Taxable long-term gain", (x) => usd(x.ltTax)), line("Ordinary deduction used", (x) => usd(x.ded)), line("Estimated tax cost", (x) => usd(x.cost)), line("Short-term carryforward", (x) => usd(x.carryST)), line("Long-term carryforward", (x) => usd(x.carryLT))].join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("harvest_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented figures, not a real portfolio."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your gains and at least one position, then click Estimate savings."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "tax-loss-harvesting-estimate.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../booking-request-chooser/" data-pf-to="booking-request-chooser">Which booking requests should you accept?</a></li>
+      <li><a href="../bookkeeping-client-fee-calculator/" data-pf-to="bookkeeping-client-fee-calculator">What should you charge a new bookkeeping client each month?</a></li>
+      <li><a href="../brrrr-calculator/" data-pf-to="brrrr-calculator">BRRRR Calculator — free, private, in your browser</a></li>
+      <li><a href="../business-loan-offer-comparator/" data-pf-to="business-loan-offer-comparator">Business Loan Offer Comparator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tax-loss-harvesting-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/?pfEmbed=1&quot; title=&quot;Tax-Loss Harvesting Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tax-loss-harvesting-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/" data-pf-embed-title="Tax-Loss Harvesting Calculator — free, private, in your browser" data-pf-embed-slug="tax-loss-harvesting-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tax-loss-harvesting-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tax-loss-harvesting-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

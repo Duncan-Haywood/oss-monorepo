@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why .env.example Files Drift From the Code That Reads Them</title>
+  <meta name="description" content="Why .env.example files fall out of date, why that specific bug is unusually visible to a new contributor…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't this just a linter rule?","acceptedAnswer":{"@type":"Answer","text":"ESLint and similar tools can flag process.env usage inside one language's own files, but none of the common ones diff those reads against a separate .env.example file's declared names, and none work across JavaScript, Python, Ruby, and Java in one pass. This tool is narrower and more specific than a general linter rule: it answers exactly one question, does the example file's variable list match what the code actually reads, for a repo that may mix languages."}},{"@type":"Question","name":"Does this replace dotenv-linter or similar tools?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. Tools like dotenv-linter check an .env file's own internal formatting (duplicate keys, inconsistent quoting, unordered keys). This tool checks a different pair entirely: the example file's declared names against the source code's actual reads. They compose -- run both."}},{"@type":"Question","name":"What about variables read from a config object instead of process.env directly?","acceptedAnswer":{"@type":"Answer","text":"Not scanned in v0. A codebase that centralizes all environment reads into one config module (a common and good pattern) means most of the actual process.env.FOO calls live in one or two files, which is exactly where pointing the CLI at that module still works well; a config object built dynamically from a list of names, rather than named process.env.FOO calls, is outside what a deterministic text scan can see."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why .env.example Files Drift From the Code That Reads Them">
+<meta property="og:description" content="Why .env.example files fall out of date, why that specific bug is unusually visible to a new contributor…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why .env.example Files Drift From the Code That Reads Them — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../env-example-drift-check/">Does your .env.example still match what the code actually reads?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why .env.example Files Drift From the Code That Reads Them</span></span></nav>
+  <p><a href="./">← Back to .env.example Drift Check</a></p>
+  <h1>Why .env.example files drift from the code that reads them</h1>
+
+  <p><code>.env.example</code> (or <code>.env.sample</code>) exists to be a
+  contract: clone the repo, copy it to <code>.env</code>, fill in real values,
+  and the app has everything it needs. That contract only holds while the
+  file's declared names exactly match the environment variables the code
+  actually reads — and nothing about how most repos are built keeps that true
+  on its own.</p>
+
+  <h2>Why it happens: one file, edited on a different schedule than the code</h2>
+  <p>A pull request adds a new integration and a new
+  <code>process.env.STRIPE_WEBHOOK_SECRET</code> read somewhere deep in a
+  route handler. The change works, the tests pass (test environments often
+  stub the value directly), and the PR merges. Updating
+  <code>.env.example</code> in the same diff is a manual, easy-to-forget step
+  that no build or type check enforces — a variable read and a variable
+  declared are two separate authored artifacts with no mechanical link
+  between them, the same shape as a changelog that quietly stops matching the
+  commits it describes.</p>
+
+  <h2>Why this bug is unusually visible, and unusually annoying</h2>
+  <p>Most documentation drift is invisible until someone happens to read the
+  stale section. This one is different: it fails the very first command a new
+  contributor, a new environment, or a CI runner executes after cloning —
+  <code>cp .env.example .env</code> followed by starting the app — with a
+  crash or a confusing default that has nothing to do with what the person
+  actually did wrong. It reads as "this project is broken" rather than as
+  what it is, a doc that fell one pull request behind, and it costs exactly
+  the person least equipped to debug it (someone new to the codebase) the
+  most time figuring out.</p>
+
+  <h2>What this tool checks, and what it deliberately doesn't</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Language</th><th>Patterns matched</th></tr></thead>
+    <tbody>
+      <tr><td>JavaScript / TypeScript</td><td><code>process.env.FOO</code>, <code>process.env["FOO"]</code></td></tr>
+      <tr><td>Python</td><td><code>os.getenv("FOO")</code>, <code>os.environ["FOO"]</code>, <code>os.environ.get("FOO")</code></td></tr>
+      <tr><td>Ruby</td><td><code>ENV["FOO"]</code>, <code>ENV.fetch("FOO")</code></td></tr>
+      <tr><td>Java</td><td><code>System.getenv("FOO")</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>Deliberately excluded from v0: shell scripts, YAML/Compose files, and any
+  environment read built dynamically rather than as a literal name in one of
+  the patterns above. Matched one line at a time by design, so it is
+  trivially explainable and does not need a language parser — the tradeoff is
+  that a read split unusually across multiple lines will not be seen, which
+  in practice is rare for this specific call shape.</p>
+
+  <h2>Wiring it into CI as a gate</h2>
+  <p>Run it on every pull request, pointed at the directory (or directories)
+  that actually read environment variables:</p>
+  <pre>- name: Check .env.example against actual env reads
+  run: node ventures/env-example-drift-check/cli.mjs check --example .env.example src</pre>
+  <p>The command exits non-zero if any variable is read in code but missing
+  from the example file. Add <code>--strict</code> to also fail when the
+  example file declares a variable nothing reads anymore — a softer signal
+  (stale documentation, not a crash) worth a separate, less urgent gate.</p>
+
+  <h2>Common questions</h2>
+  <h3>Isn't this just a linter rule?</h3>
+  <p>ESLint and similar tools can flag <code>process.env</code> usage inside one language's own files, but none of the common ones diff those reads against a separate <code>.env.example</code> file's declared names, and none work across JavaScript, Python, Ruby, and Java in one pass. This tool is narrower and more specific than a general linter rule: it answers exactly one question, does the example file's variable list match what the code actually reads, for a repo that may mix languages.</p>
+  <h3>Does this replace dotenv-linter or similar tools?</h3>
+  <p>No, and it is not trying to. Tools like dotenv-linter check an <code>.env</code> file's own internal formatting (duplicate keys, inconsistent quoting, unordered keys). This tool checks a different pair entirely: the example file's declared names against the source code's actual reads. They compose -- run both.</p>
+  <h3>What about variables read from a config object instead of process.env directly?</h3>
+  <p>Not scanned in v0. A codebase that centralizes all environment reads into one config module (a common and good pattern) means most of the actual <code>process.env.FOO</code> calls live in one or two files, which is exactly where pointing the CLI at that module still works well; a config object built dynamically from a list of names, rather than named <code>process.env.FOO</code> calls, is outside what a deterministic text scan can see.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report whether a variable name appears on both sides of a text diff between an example file and scanned source code — nothing more. It is not security, legal, or engineering advice, and it is not a secrets scanner or a guarantee that your configuration is complete or safe. Verify by reading the actual files before relying on it.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+      <li><a href="../actions-cache-poisoning-check/" data-pf-to="actions-cache-poisoning-check">Can a fork PR poison your GitHub Actions cache?</a></li>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=env-example-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="env-example-drift-check"></script>
+</body>
+</html>

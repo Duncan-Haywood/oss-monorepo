@@ -1,0 +1,12 @@
+name,from,to,rate,miles,pickup_open,pickup_close,deliver_by,extra,note
+Dallas to Atlanta dry van,Dallas TX,Atlanta GA,2350,,0,10,,25,posted $2.20 a mile; early pickup only
+Fort Worth to Houston reefer,Fort Worth TX,Houston TX,650,,0,30,40,0,short and quick
+Houston to New Orleans,Houston TX,New Orleans LA,780,,6,40,,15,
+New Orleans to Atlanta,New Orleans LA,Atlanta GA,1050,,12,70,90,0,
+Dallas to Oklahoma City,Dallas TX,Oklahoma City OK,420,,0,24,,0,
+Oklahoma City to Kansas City,Oklahoma City OK,Kansas City MO,720,,4,40,,0,
+Kansas City to Chicago,Kansas City MO,Chicago IL,980,,12,60,,30,
+Atlanta to Charlotte,Atlanta GA,Charlotte NC,720,,24,100,,0,
+Houston to Memphis,Houston TX,Memphis TN,1300,,0,48,,20,
+Memphis to Chicago,Memphis TN,Chicago IL,1180,,24,80,,0,
+Chicago to Dallas,Chicago IL,Dallas TX,2100,,30,100,125,40,

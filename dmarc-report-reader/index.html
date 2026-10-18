@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DMARC Report Reader — Free, Private DMARC XML Analyzer</title>
+  <meta name="description" content="Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why…">
+  <meta property="og:title" content="DMARC Report Reader — read rua reports without a SaaS">
+  <meta property="og:description" content="Per-sender alignment, plain-English fixes and a safe-to-enforce verdict from the reports your inbox already collects. Private and free.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DMARC Report Reader", "applicationCategory": "SecurityApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Parses DMARC aggregate (rua) XML reports locally, groups mail by sending IP, shows SPF and DKIM alignment per source, explains each failure and recommends whether to tighten the DMARC policy."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I read a DMARC aggregate report?", "acceptedAnswer": {"@type": "Answer", "text": "Each report is XML sent by a mailbox provider listing, per sending IP, how many messages it saw and whether SPF and DKIM passed and aligned with your From domain. Drop the files here and the tool groups them by sender and flags the ones that fail."}}, {"@type": "Question", "name": "When is it safe to move from p=none to p=quarantine?", "acceptedAnswer": {"@type": "Answer", "text": "When your legitimate senders (your mail provider, your newsletter tool, your CRM, your invoicing system) all show as aligned across a couple of weeks of reports. Start with quarantine at pct=10 and raise it. The tool reports the aligned share and lists every failing source so you can check each one."}}, {"@type": "Question", "name": "Why does a sender pass SPF or DKIM but still fail DMARC?", "acceptedAnswer": {"@type": "Answer", "text": "DMARC needs alignment: the domain that passed must match your From domain. Third-party senders usually pass SPF for their own bounce domain and sign DKIM with their own domain, so neither aligns until you set up a custom return-path and custom DKIM key for your domain."}}, {"@type": "Question", "name": "Are my reports uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Files are read and decompressed in your browser and the page makes no network requests. Reports contain your sending IPs and volumes, which is why a local tool is useful."}}, {"@type": "Question", "name": "Which file types work?", "acceptedAnswer": {"@type": "Answer", "text": "Plain .xml, gzip (.xml.gz, what Google and others send) and single-file .zip (what Microsoft and Yahoo send). Drop many at once to merge them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f9a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17335c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17335c; }
+    p, li { line-height: 1.55; }
+    footer { font-size: .86rem; color: #46505e; }
+    .card { background: #fff; border: 1px solid #d8dde6; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=file] { width: 100%; box-sizing: border-box; padding: 18px; border: 2px dashed #8fa6c9; border-radius: 10px; background: #f7f9fc; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f9a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eaf5; color: #17335c; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    .stats { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; }
+    .stat { background: #eef3fb; border-radius: 10px; padding: 10px 16px; }
+    .stat b { display: block; font-size: 1.5rem; color: #17335c; }
+    .aligned { color: #17623a; font-weight: 700; }
+    .partial { color: #8a5a00; font-weight: 700; }
+    .failing { color: #a02525; font-weight: 700; }
+    .verdict { border-left: 4px solid #1d4f9a; padding: 8px 14px; background: #f1f5fb; }
+    .err { color: #a02525; font-weight: 600; }
+    .hint { font-size: .86rem; color: #38414f; margin: 2px 0 0; }
+    .tablewrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"DMARC Report Reader — read rua reports without a SaaS","item":"https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DMARC Report Reader — read rua reports without a SaaS — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">DMARC Report Reader — read rua reports without a SaaS</span></span></nav>
+  <main>
+  <h1>Read your DMARC reports without paying for a dashboard</h1>
+  <p>Your <code>rua=</code> address collects XML from Google, Microsoft, Yahoo and others that nobody reads. Drop the files here to see <strong>which senders pass alignment, which fail and exactly why</strong>, and whether it is safe to tighten from <code>p=none</code>. Everything is processed in your browser. Need the DNS side? Try the <a href="../email-auth-check/">Email Auth Check</a>.</p>
+
+  <section class="card" aria-labelledby="in">
+    <h2 id="in">Your reports</h2>
+    <label for="files">Choose .xml, .xml.gz or .zip aggregate reports (many at once is fine)</label>
+    <input id="files" type="file" accept=".xml,.gz,.zip,application/xml,text/xml,application/gzip,application/zip" multiple>
+    <button id="example" class="secondary" type="button">Try an example</button>
+    <p id="msg" class="err" role="alert"></p>
+  </section>
+
+  <section class="card" id="out" aria-live="polite" hidden>
+    <h2 id="title">Summary</h2>
+    <div class="stats" id="stats"></div>
+    <p class="verdict" id="verdict"></p>
+    <h2>Senders</h2>
+    <div class="tablewrap"><div class="pf-table-scroll"><table><thead><tr><th>Source IP</th><th>Messages</th><th>Aligned</th><th>Failing</th><th>Status</th><th>What to do</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <button id="csv" class="secondary" type="button">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How do I read a DMARC aggregate report?</h3>
+    <p>Each report is XML sent by a mailbox provider listing, per sending IP, how many messages it saw and whether SPF and DKIM passed and aligned with your From domain. Drop the files here and the tool groups them by sender and flags the ones that fail.</p>
+    <h3>When is it safe to move from p=none to p=quarantine?</h3>
+    <p>When your legitimate senders (your mail provider, your newsletter tool, your CRM, your invoicing system) all show as aligned across a couple of weeks of reports. Start with quarantine at pct=10 and raise it. The tool reports the aligned share and lists every failing source so you can check each one.</p>
+    <h3>Why does a sender pass SPF or DKIM but still fail DMARC?</h3>
+    <p>DMARC needs alignment: the domain that passed must match your From domain. Third-party senders usually pass SPF for their own bounce domain and sign DKIM with their own domain, so neither aligns until you set up a custom return-path and custom DKIM key for your domain.</p>
+    <h3>Are my reports uploaded anywhere?</h3>
+    <p>No. Files are read and decompressed in your browser and the page makes no network requests. Reports contain your sending IPs and volumes, which is why a local tool is useful.</p>
+    <h3>Which file types work?</h3>
+    <p>Plain .xml, gzip (.xml.gz, what Google and others send) and single-file .zip (what Microsoft and Yahoo send). Drop many at once to merge them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied, and with no uptime or accuracy guarantee. Its recommendations are heuristics from the reports you supply, not legal, tax, or financial advice; enforcing DMARC can cause legitimate mail to be rejected, so verify each sender yourself. Everything on this page runs in your browser: your reports are never uploaded and the page makes no network requests. Hosted on a free static site with no SLA. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { parseReport, summarize, bytesToXml, toCsv } from "./analyze.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    let last = null;
+    const EXAMPLE = `<feedback><report_metadata><org_name>google.com</org_name><report_id>demo</report_id><date_range><begin>1760000000</begin><end>1760086400</end></date_range></report_metadata><policy_published><domain>example.com</domain><p>none</p><pct>100</pct></policy_published>
+<record><row><source_ip>203.0.113.10</source_ip><count>940</count><policy_evaluated><disposition>none</disposition><dkim>pass</dkim><spf>pass</spf></policy_evaluated></row><identifiers><header_from>example.com</header_from></identifiers><auth_results><dkim><domain>example.com</domain><selector>s1</selector><result>pass</result></dkim><spf><domain>example.com</domain><result>pass</result></spf></auth_results></record>
+<record><row><source_ip>198.51.100.7</source_ip><count>130</count><policy_evaluated><disposition>none</disposition><dkim>fail</dkim><spf>fail</spf></policy_evaluated></row><identifiers><header_from>example.com</header_from></identifiers><auth_results><dkim><domain>newsletter-tool.net</domain><selector>k1</selector><result>pass</result></dkim><spf><domain>bounce.newsletter-tool.net</domain><result>pass</result></spf></auth_results></record>
+<record><row><source_ip>192.0.2.99</source_ip><count>25</count><policy_evaluated><disposition>none</disposition><dkim>fail</dkim><spf>fail</spf></policy_evaluated></row><identifiers><header_from>example.com</header_from></identifiers><auth_results><spf><domain>example.com</domain><result>fail</result></spf></auth_results></record></feedback>`;
+    function show(reports) {
+      const s = summarize(reports); last = s;
+      $("title").textContent = `${s.domain || "Domain"}: ${s.reports} report${s.reports === 1 ? "" : "s"}, ${s.total.toLocaleString()} messages`;
+      $("stats").innerHTML = [["Aligned", (s.passRate * 100).toFixed(1) + "%"], ["Failing messages", s.failVolume.toLocaleString()], ["Failing senders", s.failingSources.length], ["Policy", esc(s.policies.join(", "))]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
+      $("verdict").textContent = s.recommendation;
+      $("rows").innerHTML = s.sources.map((x) => `<tr><td><code>${esc(x.ip)}</code></td><td>${x.count.toLocaleString()}</td><td>${x.pass.toLocaleString()}</td><td>${x.fail.toLocaleString()}</td><td class="${x.status}">${x.status}</td><td>${[...x.hints, x.fragile].filter(Boolean).map((h) => `<p class="hint">${esc(h)}</p>`).join("")}</td></tr>`).join("");
+      $("out").hidden = false;
+    }
+    async function load(items) {
+      $("msg").textContent = "";
+      try {
+        const reports = [];
+        for (const it of items) reports.push(parseReport(typeof it === "string" ? it : await bytesToXml(new Uint8Array(await it.arrayBuffer()))));
+        if (!reports.length) return;
+        show(reports); record("reports_analyzed");
+      } catch (e) { $("msg").textContent = e.message; }
+    }
+    $("files").addEventListener("change", (e) => load([...e.target.files]));
+    $("example").addEventListener("click", () => { load([EXAMPLE]); record("example_loaded"); });
+    $("csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "dmarc-senders.csv"; a.click(); record("csv_downloaded");
+    });
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../postgres-index-auditor/" data-pf-to="postgres-index-auditor">Postgres Index Auditor — free, private, paste-the-output</a></li>
+      <li><a href="../ppp-pricing-table-generator/" data-pf-to="ppp-pricing-table-generator">PPP pricing table generator for apps and SaaS</a></li>
+      <li><a href="../product-analytics-pricing-calculator/" data-pf-to="product-analytics-pricing-calculator">What will product analytics cost at your event volume, and who is cheapest?</a></li>
+      <li><a href="../prometheus-cardinality-cost/" data-pf-to="prometheus-cardinality-cost">Which labels are inflating your Prometheus metrics bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dmarc-report-reader">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/?pfEmbed=1&quot; title=&quot;DMARC Report Reader — read rua reports without a SaaS — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="dmarc-report-reader"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/" data-pf-embed-title="DMARC Report Reader — read rua reports without a SaaS" data-pf-embed-slug="dmarc-report-reader"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Many Extinguishers Make a Site Worth Servicing? | Route Margin Guide</title>
+<meta name="description" content="A small fire-extinguisher inspection site can clear $90 on the day you service it and still lose money every month.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="How Many Extinguishers Make a Site Worth Servicing?">
+<meta property="og:description" content="A six-extinguisher stop that earns $89.93 on visit day loses $0.51 a month once the once-a-year cadence meets a monthly recordkeeping cost.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/how-many-extinguishers-make-a-site-worth-servicing.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many extinguishers does a site need before it is worth servicing?","acceptedAnswer":{"@type":"Answer","text":"At typical route pricing — a $9 inspection fee and $2.50 tag fee per unit, one certified visit a year, a 24-minute round trip, and $8 a month in recordkeeping for that customer — break-even lands at 7 extinguishers. A 6-unit site loses about $0.51 a month; a 7-unit site clears about $1.00. The exact number moves with your own fees, drive time, and recordkeeping cost, which is what the calculator is for."}},{"@type":"Question","name":"Why does a site that earns $90 on visit day still lose money?","acceptedAnswer":{"@type":"Answer","text":"Because NFPA 10 certified maintenance is an annual visit, so that profit is earned once and then spread across twelve months — about $7.49 a month from an $89.93 visit. Recordkeeping for that customer's inspection history bills every month whether you visit or not. At $8 a month, the monthly cost is larger than the monthly share of the visit, and the site is underwater despite a healthy-looking service ticket."}},{"@type":"Question","name":"Does a longer drive change which small sites are worth keeping?","acceptedAnswer":{"@type":"Answer","text":"Yes, and faster than most operators expect on a small site, because the drive is a fixed cost spread over very few billable units. Moving the same 6-extinguisher site from a 24-minute, 9-mile round trip to a 40-minute, 22-mile one drops visit profit from $89.93 to $72.69 and takes the monthly figure from −$0.51 to −$1.94. The unit count did not change; only the trip did."}},{"@type":"Question","name":"What actually fixes an unprofitable small site?","acceptedAnswer":{"@type":"Answer","text":"Three levers, in rough order of effect. Add units — a 7th extinguisher turns the example positive on its own. Cut the per-customer recordkeeping share: at $3 a month instead of $8, the same 6-unit site clears $4.49 a month. Or stop making it a special trip, so its drive time is shared with a neighbouring stop rather than charged against six units alone. Raising the inspection fee works too, but on six units each extra dollar per unit moves the monthly figure by only about fifty cents."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#241210;background:#fbeeea}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#8a2410}
+h2{color:#8a2410;font-size:1.15rem;margin-top:1.7em}
+h3{margin-bottom:.3rem}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #e3c3ba}
+td:nth-child(2),td:nth-child(3){font-variant-numeric:tabular-nums}
+a{color:#8a2410}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#8a2410;color:#fff;text-decoration:none;font-weight:700}
+.wrap{overflow-x:auto}
+footer{border-top:1px solid #e3c3ba;padding-top:18px;margin-top:2em;font-size:.85rem;color:#6a4a43}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/how-many-extinguishers-make-a-site-worth-servicing.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Many Extinguishers Make a Site Worth Servicing? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fire-extinguisher-inspection-route-margin/">Fire Extinguisher Inspection Route Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Many Extinguishers Make a Site Worth Servicing?</span></span></nav>
+<p><a href="./">← Fire extinguisher inspection route margin calculator</a></p>
+<h1>How many extinguishers make a site worth servicing?</h1>
+<p>Most route operators judge a small account by the service ticket: the visit took an hour, it billed ninety dollars, it was fine. That reading is right about the day and wrong about the year. Certified fire-extinguisher maintenance under NFPA 10 is an <strong>annual</strong> visit — you earn that ticket once — while the recordkeeping you carry for that customer's inspection history bills <strong>every month</strong>. Those two clocks are what decide whether a small site is worth keeping, and a service ticket cannot show them.</p>
+<p><a class="cta" href="./">Open the free route margin calculator</a></p>
+
+<h2>The six-extinguisher site that loses money</h2>
+<p>Take a small office with 6 extinguishers, priced the way a typical route prices them: a $9 inspection fee and a $2.50 tag fee per unit, 20% of units needing a recharge, 8% due for hydrostatic testing, 4% replaced outright, 4 minutes on-site per unit, a 24-minute round trip covering 9 miles at $0.67 a mile, your own time valued at $32 an hour, and $8 a month to keep that customer's inspection records.</p>
+<div class="wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Visit revenue</td><td>$165.24</td></tr>
+<tr><td>Materials (tags, recharge, hydro, replacement)</td><td>$43.68</td></tr>
+<tr><td>Mileage</td><td>$6.03</td></tr>
+<tr><td>Your labor (0.80 hrs at $32/hr)</td><td>$25.60</td></tr>
+<tr><td><strong>Profit on the visit</strong></td><td><strong>$89.93</strong></td></tr>
+<tr><td>Monthly share of that visit (÷ 12)</td><td>$7.49</td></tr>
+<tr><td>Recordkeeping, every month</td><td>$8.00</td></tr>
+<tr><td><strong>Net monthly profit</strong></td><td><strong>&minus;$0.51</strong> (&minus;3.67% margin)</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>The ticket says $89.93 and the year says minus six dollars. Nothing about the visit went wrong — the arithmetic simply never had enough units to carry a fixed monthly cost across twelve months of nothing happening.</p>
+
+<h2>Where break-even actually falls</h2>
+<p>Holding every other figure above constant and moving only the unit count, the line is crossed at <strong>7 extinguishers</strong>:</p>
+<div class="wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Extinguishers</th><th>Profit on the visit</th><th>Net monthly profit</th></tr></thead>
+<tbody>
+<tr><td>4</td><td>$53.68</td><td>&minus;$3.53</td></tr>
+<tr><td>5</td><td>$71.80</td><td>&minus;$2.02</td></tr>
+<tr><td>6</td><td>$89.93</td><td>&minus;$0.51</td></tr>
+<tr><td>7</td><td>$108.06</td><td>$1.00</td></tr>
+<tr><td>8</td><td>$126.18</td><td>$2.52</td></tr>
+<tr><td>10</td><td>$162.44</td><td>$5.54</td></tr>
+<tr><td>12</td><td>$198.69</td><td>$8.56</td></tr>
+<tr><td>18</td><td>$307.45</td><td>$17.62</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Every one of those visits looks profitable on the day. Four of them lose money over the year. That is the gap this calculator exists to close — and note how flat the monthly column is: each additional extinguisher is worth only about $1.51 a month, so a small site does not climb out gradually. It needs either more units or a lower fixed cost.</p>
+<p><strong>Seven is not your number.</strong> It is the break-even for the pricing above. Lower your inspection fee, drive farther, or carry a heavier recordkeeping cost and the line moves up; the point is that the line exists and that it is well above the unit count most operators would think twice about.</p>
+
+<h2>The drive is a bigger lever than it looks</h2>
+<p>A small site punishes a long trip, because the trip is a fixed cost divided by very few billable units. The same 6-extinguisher account, moved from a 24-minute, 9-mile round trip to a 40-minute, 22-mile one:</p>
+<div class="wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Same site, different trip</th><th>Profit on the visit</th><th>Net monthly profit</th></tr></thead>
+<tbody>
+<tr><td>24 min, 9 miles</td><td>$89.93</td><td>&minus;$0.51</td></tr>
+<tr><td>40 min, 22 miles</td><td>$72.69</td><td>&minus;$1.94</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>Nothing about the work changed — same units, same fees, same materials. Only the trip did, and it nearly quadrupled the monthly loss. This is the arithmetic behind the old route-operator instinct that a distant small account is worse than no account: it is not superstition, it is a fixed cost with almost nothing to spread across.</p>
+
+<h2>What to do with a site below the line</h2>
+<p><strong>Add units.</strong> The most direct fix and often the easiest conversation — a building with six serviced extinguishers frequently has more that nobody has put on the schedule. One more unit turns the example positive.</p>
+<p><strong>Cut the per-customer recordkeeping share.</strong> This is the cost doing the damage, because it is the only one that bills in months a site with an annual cadence never sees. At $3 a month instead of $8, the same 6-unit site clears <strong>$4.49 a month</strong> at a 32.64% margin — a bigger swing than adding three extinguishers.</p>
+<p><strong>Stop making it a special trip.</strong> If the site can be serviced on the way to a larger neighbouring account, its drive time and mileage stop being charged against six units alone.</p>
+<p><strong>Re-price, but know the leverage is weak.</strong> On six units, an extra dollar per unit on the inspection fee moves the monthly figure by only about fifty cents. Re-pricing works on a big site; on a small one the fixed costs are the story.</p>
+<p>And if none of those apply, that is a real answer too. A site that cannot clear its own recordkeeping cost is one you are subsidising — worth knowing before renewal, not after.</p>
+
+<h2>Common questions</h2>
+<h3>How many extinguishers does a site need before it is worth servicing?</h3>
+<p>At typical route pricing — a $9 inspection fee and $2.50 tag fee per unit, one certified visit a year, a 24-minute round trip, and $8 a month in recordkeeping for that customer — break-even lands at 7 extinguishers. A 6-unit site loses about $0.51 a month; a 7-unit site clears about $1.00. The exact number moves with your own fees, drive time, and recordkeeping cost, which is what the calculator is for.</p>
+<h3>Why does a site that earns $90 on visit day still lose money?</h3>
+<p>Because NFPA 10 certified maintenance is an annual visit, so that profit is earned once and then spread across twelve months — about $7.49 a month from an $89.93 visit. Recordkeeping for that customer's inspection history bills every month whether you visit or not. At $8 a month, the monthly cost is larger than the monthly share of the visit, and the site is underwater despite a healthy-looking service ticket.</p>
+<h3>Does a longer drive change which small sites are worth keeping?</h3>
+<p>Yes, and faster than most operators expect on a small site, because the drive is a fixed cost spread over very few billable units. Moving the same 6-extinguisher site from a 24-minute, 9-mile round trip to a 40-minute, 22-mile one drops visit profit from $89.93 to $72.69 and takes the monthly figure from &minus;$0.51 to &minus;$1.94. The unit count did not change; only the trip did.</p>
+<h3>What actually fixes an unprofitable small site?</h3>
+<p>Three levers, in rough order of effect. Add units — a 7th extinguisher turns the example positive on its own. Cut the per-customer recordkeeping share: at $3 a month instead of $8, the same 6-unit site clears $4.49 a month. Or stop making it a special trip, so its drive time is shared with a neighbouring stop rather than charged against six units alone. Raising the inspection fee works too, but on six units each extra dollar per unit moves the monthly figure by only about fifty cents.</p>
+
+<p><a class="cta" href="./">Price your own sites — free, in your browser</a></p>
+
+<footer>
+<h2>Disclaimer</h2>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This calculator produces arithmetic observations from numbers you supply. It does not perform, certify, or replace a professional fire-extinguisher or life-safety-equipment inspection, and it does not determine or record NFPA 10 (or any other) fire-code compliance status. It does not audit your books, verify a service contract, or replace your own insurance, licensing, or accountant. Every figure on this page is an illustration computed from the example inputs shown, not a benchmark of what any business charges or earns.</p>
+<p>Everything runs in your browser; no data is uploaded. MIT licensed. <a href="LICENSE">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../capex-budget-prioritizer/" data-pf-to="capex-budget-prioritizer">Capex budget prioritizer</a></li>
+      <li><a href="../car-wash-membership-calculator/" data-pf-to="car-wash-membership-calculator">Car Wash Membership Calculator — free, private, in your browser</a></li>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fire-extinguisher-inspection-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fire-extinguisher-inspection-route-margin"></script>
+</body>
+</html>

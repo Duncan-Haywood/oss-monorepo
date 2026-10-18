@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Cantaloupe Seed — pricing a location, not running your telemetry</title>
+  <meta name="description" content="How this free per-location profit calculator differs from Cantaloupe's Seed vending management software, and when to use each one.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/vs-cantaloupe.html">
+  <meta property="og:title" content="This calculator vs. Cantaloupe Seed">
+  <meta property="og:description" content="Cantaloupe's Seed software runs cashless payments, telemetry, and route scheduling across a fleet.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Cantaloupe Seed?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems at different scales. Cantaloupe's Seed products (Seed Cashless+ and Seed Pro) are a vending management platform: cashless card readers with built-in telemetry, remote price changes, inventory and restock-prediction alerts, and route-scheduling tools, sold as an ongoing software subscription on top of hardware you buy or lease. This calculator has no hardware, no telemetry, and no account at all -- it is a free one-page arithmetic check for whether a single location's numbers, that you type in yourself, actually add up to a profit once commission, card fees, shrink, drive time, and the machine's own cost are counted."}},{"@type":"Question","name":"How much does Cantaloupe's software cost?","acceptedAnswer":{"@type":"Answer","text":"Per Cantaloupe's own published pricing page for Cantaloupe One, base subscription plans start around $18.95/month, and operators should plan for roughly $8-12 per machine per month in telemetry and software fees on top of that, plus the cashless reader hardware itself. Seed Cashless+ is described as a paid software subscription layered on top; Cantaloupe does not publish a flat price for it or for Seed Pro, both of which are quoted per fleet. This calculator has no subscription, no hardware requirement, and no per-machine fee -- it is a free static page."}},{"@type":"Question","name":"Does this replace Cantaloupe's telemetry or cashless payment hardware?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. This tool cannot read a machine's actual sales, cannot take a cashless payment, and cannot alert you when a slot is empty -- all of that requires the sensors and card readers Cantaloupe's hardware provides. This calculator only takes the numbers you already have (from a DEX report, a cashless dashboard, or your own count) and turns them into a profit-per-visit and a monthly route rollup. Plenty of operators running Cantaloupe or a competing telemetry platform still do this specific gut-check by hand or in a spreadsheet; this replaces the spreadsheet, not the telemetry."}},{"@type":"Question","name":"Is this page affiliated with Cantaloupe?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Cantaloupe, Inc. Cantaloupe, Seed, Seed Pro, Seed Cashless+, and Cantaloupe One are trademarks of Cantaloupe, Inc., named here only to describe what this calculator is for and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2b1d12; background: #fdf3e7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a3d1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #edd9bb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #8a5a20; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #8a3d1f; color: #fdf3e7; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #6b563f; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #6b563f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/vs-cantaloupe.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Cantaloupe Seed — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vending-machine-route-margin/">Vending Machine Route Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Cantaloupe Seed</span></span></nav>
+  <p><a href="./">← Vending machine route profit calculator</a></p>
+  <h1>This calculator vs. Cantaloupe Seed</h1>
+  <p>
+    <a href="https://www.cantaloupe.com/products/software/seed-pro/" rel="nofollow noopener">Cantaloupe's Seed</a>
+    products are a full vending management platform built around its own
+    cashless card-reader hardware: real-time telemetry from every machine,
+    remote price changes, inventory and depletion alerts, restock
+    predictions, and route-scheduling tools across a whole fleet. Per
+    Cantaloupe's own
+    <a href="https://www.cantaloupe.com/pricing/cantaloupe-one/" rel="nofollow noopener">published pricing page</a>,
+    base subscription plans start around $18.95/month, with operators
+    typically budgeting roughly $8-12 per machine per month in telemetry and
+    software fees on top of the hardware itself. Seed Cashless+ and Seed Pro
+    are paid software tiers quoted per fleet on top of that. This calculator
+    charges nothing, needs no hardware, and reads no machine directly -- it
+    is a static page you type numbers into.
+  </p>
+  <p>
+    That makes Cantaloupe's Seed the right tool for
+    <strong>running cashless payments and telemetry across a fleet of
+    machines</strong>. This calculator answers a narrower question, for an
+    operator who already has sales and cost figures for a location (from a
+    DEX report, a cashless dashboard, or a manual count):
+    <strong>is this specific location actually profitable, and does the
+    whole route add up to my income goal</strong>?
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Take cashless payments and get real-time sales telemetry from a machine?</td>
+        <td>Cantaloupe's cashless readers and Seed software, or a similar VMS.</td>
+      </tr>
+      <tr>
+        <td>Get alerted when a slot is running low, or auto-generate restock pick lists?</td>
+        <td>Seed Cashless+ / Seed Pro's inventory and restock-prediction tools.</td>
+      </tr>
+      <tr>
+        <td>How much does Cantaloupe's own software and telemetry cost per machine?</td>
+        <td>Cantaloupe's <a href="https://www.cantaloupe.com/pricing/cantaloupe-one/" rel="nofollow noopener">published pricing page</a> -- this calculator charges no subscription or per-machine fee of its own.</td>
+      </tr>
+      <tr>
+        <td>Is this one location actually profitable once commission, card fees, shrink, drive time, and machine cost are counted?</td>
+        <td>This calculator's <a href="./#profit">per-visit profit</a>.</td>
+      </tr>
+      <tr>
+        <td>Does my whole list of locations add up to my monthly income goal?</td>
+        <td>This calculator's <a href="./#routeTotal">route rollup</a>.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price your own location and route</a>
+  <p>
+    This tool needs no account, no hardware, and no telemetry: it is a
+    static page, the arithmetic runs in your browser, and the location
+    figures you type in stay on your device -- nothing is uploaded
+    anywhere, and refreshing the page clears the route table on purpose.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Cantaloupe Seed?</h3>
+  <p>They solve different problems at different scales. Cantaloupe's Seed products (Seed Cashless+ and Seed Pro) are a vending management platform: cashless card readers with built-in telemetry, remote price changes, inventory and restock-prediction alerts, and route-scheduling tools, sold as an ongoing software subscription on top of hardware you buy or lease. This calculator has no hardware, no telemetry, and no account at all -- it is a free one-page arithmetic check for whether a single location's numbers, that you type in yourself, actually add up to a profit once commission, card fees, shrink, drive time, and the machine's own cost are counted.</p>
+  <h3>How much does Cantaloupe's software cost?</h3>
+  <p>Per Cantaloupe's own <a href="https://www.cantaloupe.com/pricing/cantaloupe-one/" rel="nofollow noopener">published pricing page</a> for Cantaloupe One, base subscription plans start around $18.95/month, and operators should plan for roughly $8-12 per machine per month in telemetry and software fees on top of that, plus the cashless reader hardware itself. Seed Cashless+ is described as a paid software subscription layered on top; Cantaloupe does not publish a flat price for it or for Seed Pro, both of which are quoted per fleet. This calculator has no subscription, no hardware requirement, and no per-machine fee -- it is a free static page.</p>
+  <h3>Does this replace Cantaloupe's telemetry or cashless payment hardware?</h3>
+  <p>No, and it is not trying to. This tool cannot read a machine's actual sales, cannot take a cashless payment, and cannot alert you when a slot is empty -- all of that requires the sensors and card readers Cantaloupe's hardware provides. This calculator only takes the numbers you already have (from a DEX report, a cashless dashboard, or your own count) and turns them into a profit-per-visit and a monthly route rollup. Plenty of operators running Cantaloupe or a competing telemetry platform still do this specific gut-check by hand or in a spreadsheet; this replaces the spreadsheet, not the telemetry.</p>
+  <h3>Is this page affiliated with Cantaloupe?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Cantaloupe, Inc. Cantaloupe, Seed, Seed Pro, Seed Cashless+, and Cantaloupe One are trademarks of Cantaloupe, Inc., named here only to describe what this calculator is for and is not.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice, and it is not a quote from Cantaloupe or any other platform. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>MIT licensed. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cnc-machining-quote-calculator/" data-pf-to="cnc-machining-quote-calculator">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</a></li>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vending-machine-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vending-machine-route-margin"></script>
+</body>
+</html>

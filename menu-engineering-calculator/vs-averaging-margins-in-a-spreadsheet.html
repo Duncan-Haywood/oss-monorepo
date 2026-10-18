@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. averaging margins in a spreadsheet | Menu Engineering Calculator</title>
+  <meta name="description" content="A spreadsheet menu-engineering worksheet usually bars every dish against a plain =AVERAGE() of the margin column — not weighted by how many of each dish sold.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. averaging margins in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet's =AVERAGE() of the margin column treats a $30 special sold ten times the same as a $10 dish sold three hundred times.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a spreadsheet menu-engineering worksheet usually get wrong?","acceptedAnswer":{"@type":"Answer","text":"Its “menu average” bar is usually built as =AVERAGE() across the contribution-margin column — one row per dish, unweighted. That treats a dish sold ten times over the period the same as a dish sold three hundred times: each row counts once in the average regardless of how many actually went out the door. The bar is supposed to represent what the menu earns per cover, and an unweighted mean of the rows does not measure that — it measures the average dish, not the average plate served."}},{"@type":"Question","name":"Can you show a real example of the misclassification?","acceptedAnswer":{"@type":"Answer","text":"A three-dish menu: a Chef's Tasting Plate at $30.00 margin, ten sold; a House Burger at $10.00 margin, three hundred sold; and Fish Tacos at $5.00 margin, ninety sold — four hundred covers total. A spreadsheet's =AVERAGE(30, 10, 5) bar is $15.00, so the $10.00 House Burger falls below it and reads as a plowhorse needing a price move. Weighted by covers — total margin divided by total covers, $3,750 over 400 — the bar is $9.38, so that same $10.00 burger, three quarters of every plate that left the kitchen, clears the bar and is a star. The ten-cover special is what pulled the unweighted average above the burger's margin in the first place."}},{"@type":"Question","name":"Why does an unweighted average distort the bar so much?","acceptedAnswer":{"@type":"Answer","text":"Because a menu is rarely evenly ordered, and the distortion gets worse the more lopsided the covers are. A low-volume special with a high per-plate margin pulls an unweighted average up without contributing much to the menu's actual dollars, while the dish carrying most of the covers is judged against a number its own sales never produced. Weighting by covers — total contribution margin divided by total units sold — fixes that by construction: it is the bar the menu's real mix actually clears, not the bar a row-by-row average happens to land on."}},{"@type":"Question","name":"Does this replace building a menu-engineering spreadsheet entirely?","acceptedAnswer":{"@type":"Answer","text":"For getting the weighted bar and the classification right, yes — that is the one job this calculator does, for free, with nothing uploaded. It keeps no history across periods and no year-over-year trend the way a spreadsheet an operator maintains themselves can. An operator who wants to track how a dish's classification moves month to month still has reasons to keep a sheet alongside it — as long as its average is weighted by covers, not by rows."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1ec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 24px; font-size: 1.02rem; }
+    p, li { line-height: 1.6; }
+    .eyebrow { font-size: .85rem; margin: 0 0 18px; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; background: #fbfdfa; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #d8e2db; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55645c; }
+    caption { text-align: left; font-size: .82rem; color: #55645c; padding-bottom: 8px; }
+    .cta { display: inline-block; margin: 8px 0 0; background: #1f6b47; color: #f2f8f4; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    .cta:hover { background: #175538; }
+    .card { background: #fbfdfa; border: 1px solid #c9d6cd; border-radius: 12px; padding: 16px 18px; margin: 20px 0; }
+    .note { font-size: .85rem; color: #55645c; }
+    footer { margin-top: 34px; font-size: .82rem; color: #55645c; border-top: 1px solid #d8e2db; padding-top: 16px; }
+    footer a, main a { color: #1a5c3d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. averaging margins in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../menu-engineering-calculator/">Menu Engineering Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. averaging margins in a spreadsheet</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Menu engineering calculator</a></p>
+    <h1>This calculator vs. averaging margins in a spreadsheet</h1>
+    <p class="lede">A menu-engineering spreadsheet built by hand usually bars every dish against
+      <code>=AVERAGE()</code> of the contribution-margin column &mdash; one row per dish, not weighted by how many
+      of each actually sold. That single formula choice can flip a menu&rsquo;s best seller into a dish flagged for
+      a price increase.</p>
+
+    <section class="card">
+      <h2>What the formula gets wrong</h2>
+      <p>
+        The matrix classifies a dish by comparing its contribution margin &mdash; menu price minus plate food
+        cost &mdash; against the menu&rsquo;s own average. The bar is supposed to represent what the menu actually
+        earns per cover. An unweighted <code>=AVERAGE()</code> across the margin column does not measure that: it
+        measures the average <em>dish</em>, counting a special that sold ten times exactly as heavily as a dish
+        that sold three hundred times. A menu is rarely ordered evenly, so that difference is not a rounding error
+        &mdash; it can move a dish across the classification line entirely.
+      </p>
+      <p>
+        This calculator weights the bar by covers instead: total contribution margin across every dish, divided
+        by total units sold. That is the average a plate leaving the kitchen actually clears, not the average a
+        spreadsheet row happens to land on.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption>A three-dish worked example, four hundred covers total.</caption>
+        <thead><tr><th scope="col">Dish</th><th scope="col">Margin</th><th scope="col">Units sold</th></tr></thead>
+        <tbody>
+          <tr><td>Chef&rsquo;s Tasting Plate</td><td>$30.00</td><td>10</td></tr>
+          <tr><td>House Burger</td><td>$10.00</td><td>300</td></tr>
+          <tr><td>Fish Tacos</td><td>$5.00</td><td>90</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p>
+        A spreadsheet&rsquo;s <code>=AVERAGE(30, 10, 5)</code> bar is <strong>$15.00</strong>. Against that bar the
+        House Burger&rsquo;s $10.00 margin falls short, and popular plus below-average reads as a
+        <strong>plowhorse</strong> &mdash; a candidate for a price increase. Weighted by covers, the bar is total
+        margin ($3,750) divided by total units (400): <strong>$9.38</strong>. Against that bar the same $10.00
+        burger clears it, and popular plus above-average reads as a <strong>star</strong> &mdash; the dish carrying
+        three quarters of every cover the menu served, correctly read as the one already earning its keep. The
+        ten-cover special is what pulled the unweighted average above the burger&rsquo;s own margin in the first
+        place; it barely moves the weighted one.
+      </p>
+      <p class="note">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your
+        browser, and once it has loaded it keeps working with the connection off.</p>
+      <p><a class="cta" href="./">Open the free menu engineering calculator</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does a spreadsheet menu-engineering worksheet usually get wrong?</h3>
+      <p>Its “menu average” bar is usually built as =AVERAGE() across the contribution-margin column — one row per dish, unweighted. That treats a dish sold ten times over the period the same as a dish sold three hundred times: each row counts once in the average regardless of how many actually went out the door. The bar is supposed to represent what the menu earns per cover, and an unweighted mean of the rows does not measure that — it measures the average dish, not the average plate served.</p>
+      <h3>Can you show a real example of the misclassification?</h3>
+      <p>A three-dish menu: a Chef's Tasting Plate at $30.00 margin, ten sold; a House Burger at $10.00 margin, three hundred sold; and Fish Tacos at $5.00 margin, ninety sold — four hundred covers total. A spreadsheet's =AVERAGE(30, 10, 5) bar is $15.00, so the $10.00 House Burger falls below it and reads as a plowhorse needing a price move. Weighted by covers — total margin divided by total covers, $3,750 over 400 — the bar is $9.38, so that same $10.00 burger, three quarters of every plate that left the kitchen, clears the bar and is a star. The ten-cover special is what pulled the unweighted average above the burger's margin in the first place.</p>
+      <h3>Why does an unweighted average distort the bar so much?</h3>
+      <p>Because a menu is rarely evenly ordered, and the distortion gets worse the more lopsided the covers are. A low-volume special with a high per-plate margin pulls an unweighted average up without contributing much to the menu's actual dollars, while the dish carrying most of the covers is judged against a number its own sales never produced. Weighting by covers — total contribution margin divided by total units sold — fixes that by construction: it is the bar the menu's real mix actually clears, not the bar a row-by-row average happens to land on.</p>
+      <h3>Does this replace building a menu-engineering spreadsheet entirely?</h3>
+      <p>For getting the weighted bar and the classification right, yes — that is the one job this calculator does, for free, with nothing uploaded. It keeps no history across periods and no year-over-year trend the way a spreadsheet an operator maintains themselves can. An operator who wants to track how a dish's classification moves month to month still has reasons to keep a sheet alongside it — as long as its average is weighted by covers, not by rows.</p>
+      <p class="note">Nothing here says or implies that keeping a menu-engineering spreadsheet is a mistake &mdash;
+        it is how most independent operators already do this, and the arithmetic only breaks down at the one
+        formula choice described above. The Chef&rsquo;s Tasting Plate / House Burger / Fish Tacos example is a
+        worked illustration built for this page, not a claim about any specific restaurant&rsquo;s real menu.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against any spreadsheet product &mdash; it is a static page working through the arithmetic of an unweighted vs. weighted average. We count only anonymous local feature events, never people, prices, or menu text, with an opt-out on the calculator page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pour-cost-calculator/" data-pf-to="pour-cost-calculator">Pour Cost Calculator</a></li>
+      <li><a href="../production-mix-optimizer/" data-pf-to="production-mix-optimizer">Weekly Production Mix Optimizer — free, private, in your browser</a></li>
+      <li><a href="../restaurant-labor-cost-daypart-analyzer/" data-pf-to="restaurant-labor-cost-daypart-analyzer">Restaurant Labor Cost Analyzer — free, private, in your browser</a></li>
+      <li><a href="../restaurant-pos-menu-mix-analyzer/" data-pf-to="restaurant-pos-menu-mix-analyzer">Restaurant POS Menu Mix Analyzer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=menu-engineering-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="menu-engineering-calculator"></script>
+</body></html>

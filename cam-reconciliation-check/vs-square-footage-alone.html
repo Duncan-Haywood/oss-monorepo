@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This worksheet vs. reconciling CAM by square footage alone</title>
+<meta name="description" content="Square footage share alone misses a gross-up clause. On a 1,000 sq ft suite in a 10,000 sq ft building at 75% occupancy against a 95% gross-up target…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cam-reconciliation-check/vs-square-footage-alone.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This worksheet vs. reconciling CAM by square footage alone">
+<meta property="og:description" content="Area share alone is right only when the building was fully occupied or the lease has no gross-up clause. This worksheet checks both.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cam-reconciliation-check/vs-square-footage-alone.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just using square footage share alone?","acceptedAnswer":{"@type":"Answer","text":"Nothing, if the building ran at or above the lease's gross-up target occupancy, or the lease has no gross-up clause at all -- area share times annual expenses is the whole calculation in that case. It goes wrong when the lease lets the landlord gross up the occupancy-sensitive share of expenses (utilities, janitorial -- costs that track how many suites are occupied) to what they would have cost at a stated target occupancy, usually 95%, and the building actually ran below that. Area share alone applies the ratio to the expenses as billed and never adjusts for the shortfall, which understates the modeled amount for a fully-tenanted year."}},{"@type":"Question","name":"How much difference can the gross-up make in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this worksheet's own defaults -- a 1,000 sq ft suite in a 10,000 sq ft building, $120,000 in annual CAM expenses -- square footage alone models the tenant's share at $12,000 a year, $1,000 a month. Add a gross-up clause with 60% of expenses classed as variable, the building running at 75% actual occupancy against a 95% target, and the modeled share rises to $13,920 a year, $1,160 a month -- $1,920 a year more, 16% above the area-only figure, from the same square footage and the same expense total."}},{"@type":"Question","name":"How do I know if my lease has a gross-up clause?","acceptedAnswer":{"@type":"Answer","text":"Check the CAM or operating-expense reconciliation section of the lease itself for language about adjusting or grossing up expenses to a stated occupancy percentage. If that language is absent, area share alone is the correct calculation and this worksheet's optional gross-up fields should stay blank -- they default to a complete no-op (0% variable, 100% actual and target occupancy) so leaving them empty reproduces the area-only figure exactly."}},{"@type":"Question","name":"Do I need my accountant's numbers to use this?","acceptedAnswer":{"@type":"Answer","text":"No. Five numbers already on the statement -- annual expenses, total rentable area, your tenant area, the billed amount, and any credits -- plus three optional gross-up fields if the lease has that clause. The worksheet does the area-share and gross-up arithmetic; nothing is uploaded, and a share link carries only the numbers you entered."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#17251f;background:#e9efe9}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#173d35;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#536258}section{background:#fff;border:1px solid #c9d7cc;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #cbd8cd;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #dce6dc;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#536258}.fine,.note{font-size:.88rem;color:#536258}footer{color:#536258;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cam-reconciliation-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This worksheet vs. reconciling CAM by square footage alone — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cam-reconciliation-check/">CAM Reconciliation Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This worksheet vs. reconciling CAM by square footage alone</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; CAM Reconciliation Check</a></p>
+<header>
+<h1>This worksheet vs. reconciling CAM by square footage alone</h1>
+<p class="lede">Tenant square footage divided by the building's total, times annual expenses, is the whole calculation &mdash; unless the lease lets the landlord gross up the occupancy-sensitive share of expenses to a stated target occupancy. Skip that clause and an under-occupied building's CAM bill comes out understated.</p>
+</header>
+
+<section>
+<h2>What square footage alone gets you</h2>
+<p>
+Area share times annual expenses is correct, exactly, whenever the building
+ran at or above the lease's gross-up target occupancy for the statement
+period, or the lease carries no gross-up clause at all. Most of the CAM
+math genuinely is that simple: one ratio, one multiplication, done.
+</p>
+<p>
+It stops being the whole answer the moment both of two things are true:
+the lease has a gross-up clause, and the building ran under the target
+occupancy that clause names &mdash; typically 95%. In that case, only the
+occupancy-sensitive share of expenses (utilities, janitorial, and similar
+costs that track how full the building is) gets adjusted upward to what
+it would have cost at full target occupancy; fixed costs like a management
+fee or a roof reserve are never touched. Area share alone has no way to
+apply that adjustment, so it reconciles against the expenses as billed
+and quietly leaves the gross-up out.
+</p>
+</section>
+
+<section>
+<h2>What this worksheet adds</h2>
+<p>
+It takes the same five statement figures &mdash; annual expenses, total
+rentable area, tenant area, billed amount, and credits &mdash; and three
+optional gross-up fields: what share of expenses is variable, the
+building's actual occupancy for the period, and the lease's target
+occupancy. Leave the three blank and it reproduces the area-only figure
+exactly. Fill them in and it grosses up the variable share before applying
+the area ratio, and shows the dollar amount that adjustment added.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Square footage alone</th><th scope="col">This worksheet</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Applies the area ratio to expenses exactly as billed, with no way to account for a gross-up clause.</td>
+<td>Grosses up the variable share of expenses to the lease's target occupancy before applying the area ratio, when the fields are filled in.</td>
+</tr>
+<tr>
+<td>Gives one number regardless of how full the building actually was during the statement period.</td>
+<td>Reports the dollar adjustment the gross-up added, so it can be checked against what the lease's own clause allows.</td>
+</tr>
+<tr>
+<td>Has no way to flag that an under-occupied building understates the modeled share without the clause applied.</td>
+<td>Shows the modeled share both ways, on request, from the same five base inputs.</td>
+</tr>
+<tr>
+<td>Compares against a single billed figure with no record of the comparison.</td>
+<td>Computes a variance against net billed and a share link that hands the same numbers to a landlord, tenant, or accountant.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it runs entirely in your browser, and a share link carries only the numbers in the form &mdash; nothing is uploaded.</p>
+</section>
+
+<section>
+<h2>Same suite, one clause changes the number</h2>
+<p>
+Take this worksheet's own defaults: a <strong>1,000 sq ft</strong> suite in
+a <strong>10,000 sq ft</strong> building, <strong>$120,000</strong> in
+annual CAM expenses. Read as pure square footage &mdash; 10.00% of the
+building &mdash; the modeled share is <strong>$12,000 a year</strong>,
+<strong>$1,000 a month</strong>. That is the whole answer if the building
+ran at or above target occupancy, or the lease has no gross-up clause.
+</p>
+<p>
+Add a gross-up clause: <strong>60%</strong> of expenses classed as
+variable, the building running at <strong>75%</strong> actual occupancy
+against a <strong>95%</strong> target. The variable share
+($72,000) grosses up by a factor of 95 &divide; 75, adding
+<strong>$19,200</strong> to the expense pool before the area ratio is
+applied. Effective annual expenses become $139,200, and the modeled
+tenant share rises to <strong>$13,920 a year</strong>,
+<strong>$1,160 a month</strong> &mdash; <strong>$1,920 a year
+more</strong>, 16% above the square-footage-only figure. Same suite, same
+total expenses, same area ratio. Only the occupancy clause changed the
+number.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What's wrong with just using square footage share alone?</h3>
+<p>Nothing, if the building ran at or above the lease's gross-up target occupancy, or the lease has no gross-up clause at all -- area share times annual expenses is the whole calculation in that case. It goes wrong when the lease lets the landlord gross up the occupancy-sensitive share of expenses (utilities, janitorial -- costs that track how many suites are occupied) to what they would have cost at a stated target occupancy, usually 95%, and the building actually ran below that. Area share alone applies the ratio to the expenses as billed and never adjusts for the shortfall, which understates the modeled amount for a fully-tenanted year.</p>
+<h3>How much difference can the gross-up make in practice?</h3>
+<p>Using this worksheet's own defaults -- a 1,000 sq ft suite in a 10,000 sq ft building, $120,000 in annual CAM expenses -- square footage alone models the tenant's share at $12,000 a year, $1,000 a month. Add a gross-up clause with 60% of expenses classed as variable, the building running at 75% actual occupancy against a 95% target, and the modeled share rises to $13,920 a year, $1,160 a month -- $1,920 a year more, 16% above the area-only figure, from the same square footage and the same expense total.</p>
+<h3>How do I know if my lease has a gross-up clause?</h3>
+<p>Check the CAM or operating-expense reconciliation section of the lease itself for language about adjusting or grossing up expenses to a stated occupancy percentage. If that language is absent, area share alone is the correct calculation and this worksheet's optional gross-up fields should stay blank -- they default to a complete no-op (0% variable, 100% actual and target occupancy) so leaving them empty reproduces the area-only figure exactly.</p>
+<h3>Do I need my accountant's numbers to use this?</h3>
+<p>No. Five numbers already on the statement -- annual expenses, total rentable area, your tenant area, the billed amount, and any credits -- plus three optional gross-up fields if the lease has that clause. The worksheet does the area-share and gross-up arithmetic; nothing is uploaded, and a share link carries only the numbers you entered.</p>
+<p class="note">
+Open the <a href="./">CAM Reconciliation Check</a>, or read <a href="./how-much-cam-do-i-owe-based-on-square-footage.html">how much CAM do you owe based on square footage?</a> for the area-only arithmetic on its own.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your data is never uploaded. This page compares against a generic calculation habit, not a named vendor or product.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../saas-annual-plan-discount-calculator/" data-pf-to="saas-annual-plan-discount-calculator">SaaS Annual Plan Discount Calculator — break-even prepay discount, free</a></li>
+      <li><a href="../saas-cac-payback-calculator/" data-pf-to="saas-cac-payback-calculator">SaaS CAC Payback Calculator — churn-adjusted payback and LTV:CAC, free</a></li>
+      <li><a href="../saas-efficiency-metrics-calculator/" data-pf-to="saas-efficiency-metrics-calculator">SaaS burn multiple, magic number and Rule of 40 calculator, free</a></li>
+      <li><a href="../saas-renewal-planner/" data-pf-to="saas-renewal-planner">Which SaaS renewals should you negotiate first, and by when?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cam-reconciliation-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cam-reconciliation-check"></script>
+</body></html>

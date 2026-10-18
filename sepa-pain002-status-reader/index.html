@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SEPA pain.002 Status Reader</title>
+  <meta name="description" content="Free SEPA pain.002 reader: which payments your bank rejected, what each code (AC04, AM04, MD01) means, what to fix. In your browser.">
+  <meta property="og:title" content="SEPA pain.002 Status Reader — free, private, in your browser">
+  <meta property="og:description" content="Turn a bank's pain.002 rejection report into plain language, one line per payment, with the fix. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SEPA pain.002 Status Reader", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Reads a SEPA payment status report (pain.002) from your bank in the browser: file, block and payment status, every rejection reason code in plain language with what to do, the rejected amount, and a downloadable list of rejected payments. The file is never uploaded.", "featureList": "SEPA pain.002 reader, payment status report viewer, rejection reason code lookup, AC04 AM04 MD01 AM10 explained, rejected payments CSV, IBAN masking"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I read a SEPA pain.002 status report?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the XML the bank returned or drop the file onto this page. It shows the status of the whole file, of each payment block and of each payment, turns every reason code into plain language with what to do about it, totals the rejected amount, and builds a list of the rejected payments you can download."}}, {"@type": "Question", "name": "What does a pain.002 status like ACTC, ACCP, PART or RJCT mean?", "acceptedAnswer": {"@type": "Answer", "text": "ACTC means the bank can read the file and its technical checks passed. ACCP means it was accepted for processing, ACSP that settlement is in progress and ACSC that settlement is complete. PART means only some payments in the file were accepted, PDNG that the bank has not decided yet, and RJCT that the file, block or payment was rejected."}}, {"@type": "Question", "name": "What do the rejection codes AC04, AM04, MD01 and AM10 mean?", "acceptedAnswer": {"@type": "Answer", "text": "AC04 is a closed account, so ask the payee for new account details. AM04 is insufficient funds on the account you pay from. MD01 is a direct debit without a valid mandate. AM10 is an invalid control sum, so the total in the file did not match the payments. This page explains about forty codes; a code it does not know is shown as unknown rather than guessed."}}, {"@type": "Question", "name": "Why does my bank report only some of my payments?", "acceptedAnswer": {"@type": "Answer", "text": "Many banks list only the payments that need attention, so the report can be shorter than the file you sent. This page says so when the counts differ, and warns if the report lists more payments than your file had, which suggests it belongs to a different file."}}, {"@type": "Question", "name": "Can I resend the rejected payments straight from this page?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page never sends or edits anything. It gives you a list of the rejected payments with the reason, the category of fix and the action, as a CSV, so you can correct the data in your own system and generate a new file. Check first whether a rejected payment was in fact paid some other way, to avoid paying twice."}}, {"@type": "Question", "name": "Is it safe to put a bank status report into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. IBANs are masked in the report and the download. Names and references are shown as they appear in your file. Your own policies decide whether you may open a bank file in a browser."}}, {"@type": "Question", "name": "What does this not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not know your bank's private reason codes, it does not check the report against the payment file you sent, it does not read camt.053 or camt.054 statements, and it covers pain.002.001.03 and later versions by namespace on a best-effort basis. A code table from memory is not your bank's documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .path { font: 12px ui-monospace, monospace; color: #4c5a68; word-break: break-all; }
+    .fix { color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"SEPA pain.002 Status Reader — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SEPA pain.002 Status Reader — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SEPA pain.002 Status Reader — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">SEPA PAIN.002 STATUS READER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did your bank reject these SEPA payments?</h1>
+    <p>Paste or drop the <strong>pain.002 status report</strong> your bank sent back after you uploaded a SEPA credit transfer or direct debit file. You get the status of the file, of each payment block and of <strong>each payment</strong>, every reason code (AC04, AM04, MD01, AM10 …) in <strong>plain language with what to do</strong>, the <strong>rejected total</strong>, and a list of the rejected payments to fix and resend.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. IBANs are masked in the report. Independent of the EPC and of every bank. The reason-code table is read from memory of public ISO 20022 code lists; no bank documentation was available when this was built, and banks add private codes.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The bank's status report</h2>
+    <p class="note">A <code>.xml</code> file from your online banking or bank interface, starting with <code>&lt;Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03"&gt;</code>. It is the answer to the file you sent, not the file you sent.</p>
+    <label for="file">Choose an XML file</label>
+    <input type="file" id="file" accept=".xml,text/xml,application/xml,text/plain">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;Document xmlns=&quot;urn:iso:std:iso:20022:tech:xsd:pain.002.001.03&quot;&gt; ..."></textarea>
+    <p>
+      <button type="button" id="read">Read the report</button>
+      <button type="button" class="secondary" id="load-example">Load a partly rejected example</button>
+      <button type="button" class="secondary" id="load-file-rejected">Load a rejected-file example</button>
+      <button type="button" class="secondary" id="load-accepted">Load an accepted example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read the report.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>What to fix, by kind of problem</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Kind of problem</th><th class="n" scope="col">Payments</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="cats"></tbody></table></div></div>
+    <h3>Rejections by reason code</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th class="n" scope="col">Payments</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="reasons"></tbody></table></div></div>
+    <h3>Payments (IBANs masked)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">EndToEndId</th><th scope="col">Status</th><th scope="col">Reason</th><th scope="col">Payee</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="txs"></tbody></table></div></div>
+    <p class="note" id="tx-more"></p>
+    <p><button type="button" id="download-worksheet">Download rejected payments as CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Versions:</strong> any <code>pain.002.001.xx</code> namespace is read by the same element names (<code>OrgnlGrpInfAndSts</code>, <code>OrgnlPmtInfAndSts</code>, <code>TxInfAndSts</code>, <code>StsRsnInf</code>); <code>.03</code> is the one it was written against and the others are best effort.</li>
+      <li><strong>Status:</strong> ACTC, ACCP, ACSP, ACSC, ACCR, ACWC, ACWP, PART, PDNG, RCVD and RJCT, at file, block and payment level. A rejection is an error, a partial or pending status a warning.</li>
+      <li><strong>Reasons:</strong> about forty ISO external reason codes with a meaning, a kind of fix and an action. A code outside the table is shown as unknown, never guessed.</li>
+      <li><strong>Totals:</strong> rejected amounts are summed as exact decimals from the amounts the bank repeats in <code>OrgnlTxRef</code>. If the bank does not repeat them the total is a lower bound and the page says so.</li>
+      <li><strong>Counts:</strong> the number of payments listed is compared with the original file's count and with each block's own status counts. A shorter list is normal because banks often report only exceptions.</li>
+      <li><strong>Not done:</strong> matching the report to the file you sent, camt.053 and camt.054 statements, your bank's private codes, and resending or editing anything. A DTD is refused and never expanded.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I read a SEPA pain.002 status report?</h3>
+    <p>Paste the XML the bank returned or drop the file onto this page. It shows the status of the whole file, of each payment block and of each payment, turns every reason code into plain language with what to do about it, totals the rejected amount, and builds a list of the rejected payments you can download.</p>
+    <h3>What does a pain.002 status like ACTC, ACCP, PART or RJCT mean?</h3>
+    <p>ACTC means the bank can read the file and its technical checks passed. ACCP means it was accepted for processing, ACSP that settlement is in progress and ACSC that settlement is complete. PART means only some payments in the file were accepted, PDNG that the bank has not decided yet, and RJCT that the file, block or payment was rejected.</p>
+    <h3>What do the rejection codes AC04, AM04, MD01 and AM10 mean?</h3>
+    <p>AC04 is a closed account, so ask the payee for new account details. AM04 is insufficient funds on the account you pay from. MD01 is a direct debit without a valid mandate. AM10 is an invalid control sum, so the total in the file did not match the payments. This page explains about forty codes; a code it does not know is shown as unknown rather than guessed.</p>
+    <h3>Why does my bank report only some of my payments?</h3>
+    <p>Many banks list only the payments that need attention, so the report can be shorter than the file you sent. This page says so when the counts differ, and warns if the report lists more payments than your file had, which suggests it belongs to a different file.</p>
+    <h3>Can I resend the rejected payments straight from this page?</h3>
+    <p>No. The page never sends or edits anything. It gives you a list of the rejected payments with the reason, the category of fix and the action, as a CSV, so you can correct the data in your own system and generate a new file. Check first whether a rejected payment was in fact paid some other way, to avoid paying twice.</p>
+    <h3>Is it safe to put a bank status report into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. IBANs are masked in the report and the download. Names and references are shown as they appear in your file. Your own policies decide whether you may open a bank file in a browser.</p>
+    <h3>What does this not do?</h3>
+    <p>It does not know your bank's private reason codes, it does not check the report against the payment file you sent, it does not read camt.053 or camt.054 statements, and it covers pain.002.001.03 and later versions by namespace on a best-effort basis. A code table from memory is not your bank's documentation.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, payments, compliance, or financial advice, and it does not replace a qualified professional or your bank's own explanation of a rejection. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming with your bank whether a payment was in fact made before you send it again.</p>
+    <p><strong>Not affiliated with the EPC or any bank.</strong> SEPA, ISO 20022 and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to the European Payments Council, the ECB, ISO, or any bank or payment processor. The code table is read from memory of public documents and may not match every bank's variant.</p>
+    <p><strong>Payment data.</strong> Status reports contain IBANs and the names of the people or companies you pay. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. IBANs are masked in the report and the downloads. Whether you may open a bank file in a browser tool is a question for your own security policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>report_read</code>, <code>example_loaded</code>, <code>worksheet_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../sepa-pain001-validator/">SEPA pain.001 validator</a> checks the payment file before you send it and recomputes its control totals, the <a href="../sepa-payment-file-validator/">SEPA payment file validator</a> is a second checker for the same file, the <a href="../eu-bank-statement-reader/">EU bank statement reader</a> reads the camt.053 statement that follows, and the <a href="../nacha-file-validator/">NACHA file validator</a> does the US ACH equivalent.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { readReport, resubmissionCsv, findingsCsv, sampleRejectedReport, sampleAcceptedReport, sampleFileRejectedReport, decodeBufferInfo, formatScaled } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = readReport(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = s.errors, warns = s.warnings;
+      const counts = Object.entries(s.counts).map(([k, v]) => `${esc(k)} ${v}`).join(", ");
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.version ? esc(s.version) : "not a pain.002 report"}${s.groupStatus ? ` · file status ${esc(s.groupStatus)}` : ""}${s.originalMsgId ? ` · answers ${esc(s.originalMsgId)}` : ""} · ${s.txs.length} payment${s.txs.length === 1 ? "" : "s"} listed${counts ? ` (${counts})` : ""}${s.rejectedCount ? ` · rejected ${formatScaled(s.rejectedTotal)} EUR${s.rejectedUnreadable ? " or more" : ""}` : ""}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4>${f.path ? `<p class="path">${esc(f.path)}</p>` : ""}${f.cause ? `<p><strong>Cause:</strong> ${esc(f.cause)}</p>` : ""}${f.fix ? `<p class="fix"><strong>What to do:</strong> ${esc(f.fix)}</p>` : ""}</div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#cats").innerHTML = s.byCategory.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${c.count}</td><td class="n">${formatScaled(c.total)}</td></tr>`).join("") || `<tr><td colspan="3">No rejected payments listed.</td></tr>`;
+      $("#reasons").innerHTML = s.byReason.map((c) => `<tr><td>${esc(c.code || "-")}</td><td>${esc(c.name)}</td><td class="n">${c.count}</td><td class="n">${formatScaled(c.total)}</td></tr>`).join("") || `<tr><td colspan="4">No rejected payments listed.</td></tr>`;
+      const shown = s.txs.slice(0, 200);
+      $("#txs").innerHTML = shown.map((t) => `<tr><td>${t.line}</td><td>${esc(t.e2e)}</td><td>${esc(t.status)}</td><td>${esc(t.reasons.map((x) => (x.code || x.prop || "?") + " " + x.name).join("; "))}</td><td>${esc(t.creditor || t.debtor)}<br><span class="path">${esc(t.creditorIban || t.debtorIban)}</span></td><td class="n">${esc(t.amountText)} ${esc(t.ccy)}</td></tr>`).join("") || `<tr><td colspan="6">No payments listed in this report.</td></tr>`;
+      $("#tx-more").textContent = s.txs.length > shown.length ? `Showing the first ${shown.length} of ${s.txs.length} payments.` : "";
+      $("#download-worksheet").hidden = !s.rejectedCount;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) or rejection(s).` : `No rejections found.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#read").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      let text;
+      if (f) { text = decodeBufferInfo(await f.arrayBuffer()).text; } else text = $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("report_read");
+    });
+    const example = (fn, note) => () => {
+      $("#paste").value = fn(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = note; }
+    };
+    $("#load-example").addEventListener("click", example(sampleRejectedReport, "Worked example: a synthetic report where three of five payments were rejected, one with a code this page does not know."));
+    $("#load-file-rejected").addEventListener("click", example(sampleFileRejectedReport, "Worked example: a synthetic report rejecting the whole file for a wrong control sum."));
+    $("#load-accepted").addEventListener("click", example(sampleAcceptedReport, "Worked example: a synthetic report accepting the whole file."));
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; status.textContent = "Choose a file or paste the text, then click Read the report."; });
+    $("#download-worksheet").addEventListener("click", () => { if (lastResult) { record("worksheet_downloaded"); download("rejected-payments.csv", resubmissionCsv(lastResult), "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("pain002-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+      <li><a href="../medical-bill-error-checker/" data-pf-to="medical-bill-error-checker">Medical Bill Error Checker — free, private, in your browser</a></li>
+      <li><a href="../medicare-irmaa-cliff-calculator/" data-pf-to="medicare-irmaa-cliff-calculator">Medicare IRMAA Cliff Calculator — free, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sepa-pain002-status-reader">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/?pfEmbed=1&quot; title=&quot;SEPA pain.002 Status Reader — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sepa-pain002-status-reader"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/" data-pf-embed-title="SEPA pain.002 Status Reader — free, private, in your browser" data-pf-embed-slug="sepa-pain002-status-reader"></script>
+</body>
+</html>

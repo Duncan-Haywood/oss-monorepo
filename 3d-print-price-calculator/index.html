@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Print Price Calculator — Price a Print for Etsy or Shopify</title>
+<meta name="description" content="Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="3D Print Price Calculator">
+<meta property="og:description" content="A print priced at '3x the filament cost' skips electricity, printer wear, failed attempts, and the marketplace fee taken out of the price you charge.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3D Print Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a 3D-printed part from filament cost, electricity, printer depreciation, failed-print rate, and post-processing labor, solves for a marketplace-fee-and-margin-clearing selling price, and checks a real listed price against the break-even."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?","acceptedAnswer":{"@type":"Answer","text":"Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess."}},{"@type":"Question","name":"Why is the marketplace fee subtracted from the price instead of added to the cost?","acceptedAnswer":{"@type":"Answer","text":"Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin."}},{"@type":"Question","name":"Does post-processing labor or packaging get inflated by the failure rate too?","acceptedAnswer":{"@type":"Answer","text":"No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#151a24;background:#eef1f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a1a3a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe4f0;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f5ab8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7e0;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0e2a5c;color:#fff;border-color:#0e2a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5468}.result .note{color:#c9d7ee}.err{color:#ffd0a6;font-weight:700}.warn{background:#fff0e0;border:1px solid #f0b987;color:#7a3f06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3a1f08;border-color:#c9843b;color:#ffdcb0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7e0;background:#fff;cursor:pointer;color:#151a24}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"3D Print Price Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3D Print Price Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">3D Print Price Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR MAKERS SELLING 3D-PRINTED PARTS ON ETSY, SHOPIFY, OR AT A CRAFT TABLE</p><h1>"3x the filament cost" isn't a price. It's a guess.</h1><p class="lede">Filament is rarely the biggest cost in a print — electricity, printer wear, failed attempts, post-processing time, and the marketplace's own cut out of your listed price all add up quietly. This free calculator prices one print from all of them, solves for what to charge so the fee and your target margin both clear, and lets you check a price you're already charging against the real break-even.</p><p class="note"><a href="./vs-slicer-cost-estimate.html">Already have a cost figure from your slicer? Here's what it does and doesn't cover.</a></p><p class="note"><a href="./vs-the-3x-filament-rule.html">Still pricing by "filament cost times three"? Here's what that rule can't see.</a></p><p class="note"><a href="./how-much-does-a-failed-print-cost-you.html">Wondering what a scrapped print actually costs you? Worked example: 5% vs. 25% failure rate.</a></p></header>
+
+<main class="layout">
+<section><h2>Price one print</h2>
+<fieldset><legend>Print</legend>
+<p class="note"><label>Import grams and print time from your sliced G-code (optional)<input id="gcodeFile" type="file" accept=".gcode,.gco,.g,.txt"></label>
+Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D) in this browser; the file is never uploaded.</p>
+<p id="gcodeStatus" class="note" role="status" aria-live="polite"></p>
+<div class="fields">
+<label>Filament used (grams)<input id="filamentUsedGrams" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+<label>Filament cost ($/kg)<input id="filamentCostPerKg" type="number" min="0" step="0.5" value="22" inputmode="decimal"></label>
+<label>Print time (hours)<input id="printTimeHours" type="number" min="0.1" step="0.1" value="3" inputmode="decimal"></label>
+<label>Printer wattage (W)<input id="printerWattage" type="number" min="0" step="5" value="120" inputmode="numeric"></label>
+<label>Electricity cost ($/kWh)<input id="electricityCostPerKwh" type="number" min="0" step="0.01" value="0.16" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Printer &amp; failure rate</legend><div class="fields">
+<label>Printer cost ($)<input id="printerCost" type="number" min="0" step="1" value="250" inputmode="numeric"></label>
+<label>Printer lifetime (hours)<input id="printerLifetimeHours" type="number" min="1" step="any" value="3000" inputmode="decimal"></label>
+<label>Failed-print rate (%)<input id="failureRatePercent" type="number" min="0" max="99" step="1" value="8" inputmode="numeric"></label>
+</div></fieldset>
+<fieldset><legend>Labor &amp; packaging</legend><div class="fields">
+<label>Post-processing time (minutes)<input id="postProcessingMinutes" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Labor rate ($/hr)<input id="laborRatePerHour" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+<label>Packaging cost ($)<input id="packagingCost" type="number" min="0" step="0.05" value="0.75" inputmode="decimal"></label>
+<label>Other flat cost ($)<input id="otherFixedCost" type="number" min="0" step="0.05" value="0" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Selling</legend><div class="fields">
+<label>Marketplace + payment fee (%)<input id="marketplaceFeePercent" type="number" min="0" max="99" step="0.1" value="8.5" inputmode="decimal"></label>
+<label>Target margin (%)<input id="targetMarginPercent" type="number" min="0" max="99" step="1" value="35" inputmode="numeric"></label>
+</div></fieldset>
+<p class="note">
+<button type="button" id="save">Save this scenario on this device</button>
+<button type="button" id="forget">Forget my saved scenario</button>
+<button type="button" id="copyLink">Copy shareable link</button>
+</p>
+<span id="linkStatus" class="note" role="status" aria-live="polite"></span>
+</section>
+
+<section class="result" aria-live="polite"><h2>Price to charge</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p class="note">Clears the marketplace fee and lands on your target margin</p>
+<dl>
+<dt>Material</dt><dd id="materialOut"></dd>
+<dt>Electricity</dt><dd id="electricityOut"></dd>
+<dt>Printer depreciation</dt><dd id="depreciationOut"></dd>
+<dt>Failed-print buffer</dt><dd id="failureBufferOut"></dd>
+<dt>Labor</dt><dd id="laborOut"></dd>
+<dt>Packaging + other</dt><dd id="packagingOut"></dd>
+<dt>Total cost</dt><dd id="totalCostOut"></dd>
+<dt>Marketplace fee at this price</dt><dd id="feeOut"></dd>
+<dt>Profit at this price</dt><dd id="profitOut"></dd>
+<dt>Break-even price</dt><dd id="breakEvenOut"></dd>
+</dl>
+<p class="note">This is a planning number from what you typed, not an audited cost. It does not add sales tax, shipping charged to the buyer, or a listing fee unless you fold those into other cost yourself.</p>
+</section>
+</main>
+
+<section><h2>Check a price you're actually charging</h2><p class="note">Already listed at a price, or matching a competitor? Enter it to see the real profit and margin it leaves after the marketplace fee, instead of the suggested price.</p>
+<div class="fields">
+<label>Selling price ($)<input id="actualSellingPrice" type="number" min="0" step="0.5" value="" inputmode="decimal"></label>
+</div>
+<p id="actualErrors" class="err" role="alert" hidden></p>
+<dl id="actualResult" hidden>
+<dt>Marketplace fee</dt><dd id="actualFeeOut"></dd>
+<dt>Net revenue</dt><dd id="actualNetOut"></dd>
+<dt>Profit</dt><dd id="actualProfitOut"></dd>
+<dt>Margin</dt><dd id="actualMarginOut"></dd>
+<dt>Below break-even?</dt><dd id="actualBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>, <code>gcode_imported</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?</h3><p>Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess.</p>
+<h3>Why is the marketplace fee subtracted from the price instead of added to the cost?</h3><p>Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin.</p>
+<h3>Does post-processing labor or packaging get inflated by the failure rate too?</h3><p>No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends.</p>
+<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p>
+</section>
+
+<p>Cutting sheet goods or boards instead of printing? See the <a href="../cut-list-optimizer/">Cut List Optimizer</a>, which prices a cutting plan from sheet and board cost the same way this tool prices a print from filament, electricity, and printer wear.</p>
+
+<p>Taking your prints to a craft fair or maker market? The <a href="../craft-fair-booth-calculator/">craft fair booth calculator</a> works out what one booth has to sell to cover its fee, mileage, and your own hours — it takes the materials percentage this tool derives and turns it into a go/no-go on the show.</p>
+<p>Decorating garments rather than printing parts? The <a href="../apparel-decoration-price-calculator/">screen printing and embroidery price calculator</a> costs a job the same way — a one-off setup spread over the run, plus machine time and material per piece — for screens, stitches, or DTF transfers.</p>
+<p>Building the electronics that go inside the print? The <a href="../ai-engineering-academy/">AI Engineering Academy's free electronics calculators</a> size an LED's series resistor, a voltage divider, an RC filter, and a 555 timer — browser-local, nothing uploaded.</p>
+<p>Running a fitness or dance studio and pricing your own hours? The <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> shows which timetable slots pay for their instructor — browser-local, nothing uploaded.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, measure your printer's actual power draw, predict actual failure rates, or replace your own pricing judgment, accountant, or marketplace's fee schedule.</p><p>MIT licensed. If it helped you price a print, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculatePrice } from './calc.mjs';
+import { parseGcode } from './gcode.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
+const DRAFT_KEY = '3d-print-price-calculator-draft';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = REQUIRED_FIELD_IDS;
+let counted = false;
+let actualCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function writeInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+  }
+}
+
+function updatePrice(count = false) {
+  try {
+    const r = calculatePrice(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.suggestedPrice);
+    el('materialOut').textContent = money(r.materialCost);
+    el('electricityOut').textContent = money(r.electricityCost);
+    el('depreciationOut').textContent = money(r.depreciationCost);
+    el('failureBufferOut').textContent = money(r.failureBufferCost);
+    el('laborOut').textContent = money(r.laborCost);
+    el('packagingOut').textContent = money(r.packagingCost + r.otherFixedCost);
+    el('totalCostOut').textContent = money(r.totalCost);
+    el('feeOut').textContent = money(r.suggestedFeeAmount);
+    el('profitOut').textContent = money(r.suggestedProfit);
+    el('breakEvenOut').textContent = money(r.breakEvenPrice);
+    if (count && !counted) { recordEvent('price-calculated'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    for (const id of ['materialOut', 'electricityOut', 'depreciationOut', 'failureBufferOut', 'laborOut', 'packagingOut', 'totalCostOut', 'feeOut', 'profitOut', 'breakEvenOut']) el(id).textContent = '';
+  }
+}
+
+function updateActual(count = false) {
+  const raw = el('actualSellingPrice').value;
+  if (raw === '') {
+    el('actualResult').hidden = true;
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculatePrice({ ...fieldInputs(), actualSellingPrice: raw });
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    el('actualResult').hidden = false;
+    el('actualFeeOut').textContent = money(r.actual.feeAmount);
+    el('actualNetOut').textContent = money(r.actual.netRevenue);
+    el('actualProfitOut').textContent = money(r.actual.profit);
+    el('actualMarginOut').textContent = r.actual.marginPct === null ? '—' : `${r.actual.marginPct.toFixed(1)}%`;
+    el('actualBelowOut').textContent = r.actual.belowBreakEven ? 'Yes — below break-even' : 'No';
+    if (count && !actualCounted) { recordEvent('price-checked'); actualCounted = true; }
+  } catch (e) {
+    el('actualErrors').textContent = e.message; el('actualErrors').hidden = false;
+    el('actualResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updatePrice(true); updateActual(false); }));
+el('actualSellingPrice').addEventListener('input', () => updateActual(true));
+// Slicers write their summary at the head (Bambu, Cura) or the tail (Prusa,
+// Orca) of a file that can be hundreds of MB, so only both ends are read.
+el('gcodeFile').addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const CHUNK = 262144;
+  try {
+    const [head, tail] = await Promise.all([file.slice(0, CHUNK).text(), file.slice(Math.max(0, file.size - CHUNK)).text()]);
+    const r = parseGcode(`${head}\n${tail}`);
+    if (!r.ok) {
+      el('gcodeStatus').textContent = `Could not find ${r.missing.join(' or ')} in this file. Type the figures from your slicer instead.`;
+      return;
+    }
+    el('filamentUsedGrams').value = r.grams;
+    el('printTimeHours').value = r.hours;
+    el('gcodeStatus').textContent = `Read ${r.grams} g and ${r.hours} h (${r.slicer}). ${r.derived.join(' ')} Check them against your slicer before relying on the price.`;
+    updatePrice(true); updateActual(false);
+    recordEvent('gcode_imported');
+  } catch {
+    el('gcodeStatus').textContent = 'This browser could not read that file. Type the figures from your slicer instead.';
+  }
+});
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('save').addEventListener('click', () => {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(fieldInputs()));
+    el('linkStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+    recordEvent('scenario_saved');
+  } catch {
+    el('linkStatus').textContent = 'This browser refused to save (private mode or blocked storage) — your numbers are still on screen.';
+  }
+});
+
+el('forget').addEventListener('click', () => {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch { /* storage is optional */ }
+  el('linkStatus').textContent = 'Saved scenario deleted from this browser.';
+});
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs({ ...fieldInputs(), actualSellingPrice: el('actualSellingPrice').value });
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = 'Link copied. Nothing was uploaded to make it.';
+  } catch {
+    el('linkStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A shared link wins over a saved draft, which wins over the form's own
+// shipped defaults -- and `formValues` writes every field the form owns
+// rather than only the ones present, so a link opened over a saved draft
+// (or mid-edit values) cannot leave a stranger's number sitting in a field
+// the link did not carry. See share.mjs for the full reasoning.
+try {
+  const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+  if (saved && typeof saved === 'object') writeInputs(saved);
+} catch { /* storage is optional */ }
+
+const fromLink = decodeInputs(location.hash || location.search);
+if (Object.keys(fromLink).length > 0) {
+  const shared = formValues(fromLink);
+  writeInputs(shared);
+  // formValues clears actualSellingPrice too when the link didn't carry one,
+  // the same reasoning as writeInputs above -- see share.mjs.
+  el('actualSellingPrice').value = shared.actualSellingPrice;
+  el('linkStatus').textContent = 'Opened a shared scenario. Review the numbers before you use them.';
+}
+
+updatePrice(false);
+updateActual(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bandcamp-sales-report-analyzer/" data-pf-to="bandcamp-sales-report-analyzer">Bandcamp Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3d-print-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/?pfEmbed=1&quot; title=&quot;3D Print Price Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="3d-print-price-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/" data-pf-embed-title="3D Print Price Calculator" data-pf-embed-slug="3d-print-price-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="3d-print-price-calculator" data-pf-jobs-amount=""></script>
+</body></html>

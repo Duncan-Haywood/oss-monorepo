@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. looking up the 1099-K threshold yourself</title>
+<meta name="description" content="The federal 1099-K threshold has changed four times since 2022, and four states set their own stricter figure on top of it.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. looking up the 1099-K threshold yourself">
+<meta property="og:description" content="Looking up the 1099-K threshold yourself has four common failure points: an outdated year's figure, a missed state override…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the most common mistake when looking up the 1099-K threshold yourself?","acceptedAnswer":{"@type":"Answer","text":"Using last year's figure. The federal threshold has changed four times since 2022: $20,000/200 transactions through 2023, $5,000 with no transaction minimum for 2024 only, then back to $20,000/200 from 2025 on. A search result, a news article, or even an old bookmark can easily be reporting a figure that applied to a different tax year than the one you're checking."}},{"@type":"Question","name":"Why does it matter whether the threshold is \"at least\" or \"exceeds\"?","acceptedAnswer":{"@type":"Answer","text":"Because they produce opposite answers at the boundary. The IRS's own wording is \"exceeds $20,000\" and \"exceeds 200 transactions\" — strictly greater than, not \"at least.\" A seller paid exactly $20,000 across exactly 200 transactions has not crossed the federal threshold under either condition. A quick mental check that rounds \"exceeds\" up to \"at least\" gets this specific case wrong."}},{"@type":"Question","name":"Do I need to add up what every platform paid me before checking the threshold?","acceptedAnswer":{"@type":"Answer","text":"No — and this is the mistake most likely to produce a wrong answer for someone selling on several platforms. The threshold applies separately to each Third Party Settlement Organization (TPSO). $15,000 from eBay and $15,000 from Etsy in the same year does not combine into $30,000 for either platform's own reporting decision; each platform checks only what it itself paid you."}},{"@type":"Question","name":"How would I know if my state has a stricter threshold than the federal one?","acceptedAnswer":{"@type":"Answer","text":"Only four states currently do: Maryland, Massachusetts, Vermont, and Virginia, each at $600 with no transaction-count minimum, independent of whichever federal figure applies that year. That is not the kind of fact most people carry into a manual check, and a state's own department-of-revenue page is easy to overlook if you're only checking the federal rule."}},{"@type":"Question","name":"If I check by hand and land on the wrong side of the threshold, what actually happens?","acceptedAnswer":{"@type":"Answer","text":"Nothing about the actual law changes either way — a platform still applies its own reporting obligation regardless of what you calculated. What changes is whether you're caught off guard: expecting no form and getting one in January, or assuming a form means taxable income was newly created when it was always reportable. Getting the estimate right ahead of time is about avoiding the surprise, not the obligation."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #17251f; background: #f5f1e8; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #b44f2f; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #b44f2f; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #b44f2f; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fffdf8; border: 1px solid #d9d2c4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3c2e1812; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef2ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5b6b63; }
+  .note, footer { font-size: .86rem; color: #5b6b63; }
+  footer { margin-top: 28px; border-top: 1px solid #d9d2c4; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. looking up the 1099-K threshold yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../1099-k-threshold-checker/">1099-K Threshold Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. looking up the 1099-K threshold yourself</span></span></nav>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. looking up the 1099-K threshold yourself</h1>
+<p class="lede">Figuring out whether a marketplace or payment app is likely to send you a Form 1099-K is arithmetic anyone can do &mdash; if they have the right figure. The problem is that the right figure depends on the tax year, sometimes on your state, and always on treating each platform separately, and a quick manual check often misses one of those without any sign that something was skipped.</p>
+
+<section class="card">
+<h2>Where a manual check usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake looking it up yourself</th><th scope="col">What this checker does</th></tr></thead>
+<tbody>
+<tr><td>Picking the right year's figure</td><td>Using whatever number a search result or old bookmark shows, which may be last year's transition-relief figure ($5,000 for 2024 only) instead of the current $20,000/200 standing rule, or vice versa.</td><td>Applies the correct federal figure for the exact tax year you enter, and shows a note when that year had a one-off wrinkle (2024).</td></tr>
+<tr><td>Reading "exceeds" vs. "at least"</td><td>Rounding "exceeds $20,000 and exceeds 200 transactions" up to "at least," which gets a seller sitting at exactly $20,000 across exactly 200 transactions the wrong answer.</td><td>Applies the IRS's own strictly-greater-than wording every time, with no rounding.</td></tr>
+<tr><td>Combining platforms</td><td>Adding up what every platform paid you before comparing to the threshold, when the rule applies per platform, not to your total marketplace income.</td><td>Checks each platform you enter on its own, against its own total.</td></tr>
+<tr><td>Checking for a state override</td><td>Not knowing that Maryland, Massachusetts, Vermont, and Virginia each set their own $600 threshold, independent of the federal figure and easy to miss if you only check the federal rule.</td><td>Applies each of those four states' own stricter threshold automatically when you select your state, on top of the federal check.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The checker runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the most common mistake when looking up the 1099-K threshold yourself?</h3>
+<p>Using last year's figure. The federal threshold has changed four times since 2022: $20,000/200 transactions through 2023, $5,000 with no transaction minimum for 2024 only, then back to $20,000/200 from 2025 on. A search result, a news article, or even an old bookmark can easily be reporting a figure that applied to a different tax year than the one you're checking.</p>
+<h3>Why does it matter whether the threshold is "at least" or "exceeds"?</h3>
+<p>Because they produce opposite answers at the boundary. The IRS's own wording is "exceeds $20,000" and "exceeds 200 transactions" — strictly greater than, not "at least." A seller paid exactly $20,000 across exactly 200 transactions has not crossed the federal threshold under either condition. A quick mental check that rounds "exceeds" up to "at least" gets this specific case wrong.</p>
+<h3>Do I need to add up what every platform paid me before checking the threshold?</h3>
+<p>No — and this is the mistake most likely to produce a wrong answer for someone selling on several platforms. The threshold applies separately to each Third Party Settlement Organization (TPSO). $15,000 from eBay and $15,000 from Etsy in the same year does not combine into $30,000 for either platform's own reporting decision; each platform checks only what it itself paid you.</p>
+<h3>How would I know if my state has a stricter threshold than the federal one?</h3>
+<p>Only four states currently do: Maryland, Massachusetts, Vermont, and Virginia, each at $600 with no transaction-count minimum, independent of whichever federal figure applies that year. That is not the kind of fact most people carry into a manual check, and a state's own department-of-revenue page is easy to overlook if you're only checking the federal rule.</p>
+<h3>If I check by hand and land on the wrong side of the threshold, what actually happens?</h3>
+<p>Nothing about the actual law changes either way — a platform still applies its own reporting obligation regardless of what you calculated. What changes is whether you're caught off guard: expecting no form and getting one in January, or assuming a form means taxable income was newly created when it was always reportable. Getting the estimate right ahead of time is about avoiding the surprise, not the obligation.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker apply the federal and four state 1099-K thresholds to numbers you supply. It is not tax, legal, or financial advice, is not the IRS TIN Matching program, and does not know what any specific platform actually did or will do. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../1099-vendor-tracker/" data-pf-to="1099-vendor-tracker">1099-NEC Vendor Tracker</a></li>
+      <li><a href="../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=1099-k-threshold-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="1099-k-threshold-checker"></script>
+</body>
+</html>

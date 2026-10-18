@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a blended per-token estimate | LLM API Pricing Calculator</title>
+<meta name="description" content="Multiplying total monthly tokens by one headline $/M rate ignores that cached input is billed far below fresh input.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/vs-a-blended-per-token-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a blended per-token estimate | LLM API Pricing Calculator">
+<meta property="og:description" content="One blended $/M-token rate applied to a whole month's tokens skips the fresh/cached split entirely.">
+<meta property="og:url" content="./vs-a-blended-per-token-rate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the blended-per-token shortcut this page compares against?","acceptedAnswer":{"@type":"Answer","text":"Taking a provider's headline $/million-token rate -- almost always the fresh-input rate, since that is the number a pricing page leads with -- and multiplying it by the month's total input tokens, cached and fresh together, then adding output cost on top. It is a one-line estimate: no separate cache rate, no split, one multiplication."}},{"@type":"Question","name":"How much can a blended estimate overstate the bill?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default example workload (5,000,000 fresh input, 45,000,000 cached input, 2,000,000 output tokens per month) at Anthropic's example rates ($3/M fresh input, $0.30/M cached input, $15/M output), the split calculation totals $58.50/month. Blending -- billing all 50,000,000 input tokens at the $3 fresh rate -- totals $180.00/month, about 3.1x the real figure and $121.50/month higher, entirely from treating cached tokens as if they were fresh."}},{"@type":"Question","name":"Does a blended rate always overstate cost, or can it understate it too?","acceptedAnswer":{"@type":"Answer","text":"It depends which single rate gets picked, and a headline rate is the fresh-input rate far more often than not, so overstating is the common direction. Picking the cached rate instead and applying it to fresh tokens too would understate the bill -- but that requires already knowing the cached rate exists and choosing to (wrongly) apply it everywhere, which is not the shortcut anyone reaches for by habit. Either way, the fix is the same: stop picking one rate and use each token class's own rate."}},{"@type":"Question","name":"Does this page assert any provider's actual cache discount?","acceptedAnswer":{"@type":"Answer","text":"No. The $3.00 / $0.30 / $15.00 example rates above are the same illustrative placeholders preloaded on the calculator page, not a claim about Anthropic's or any provider's current pricing. Paste in each provider's own current rates from its pricing page before relying on either number."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4e9f0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#e7ebf0;padding:.1em .3em;border-radius:4px;font-size:.9em}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a blended per-token estimate | LLM API Pricing Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a blended per-token estimate | LLM API Pricing Calculator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; LLM API Pricing Calculator</a></p>
+<header>
+<h1>This calculator vs. a blended per-token estimate</h1>
+<p class="lede">"Multiply my monthly tokens by the $/M rate on the pricing page" is a one-line estimate. It also assumes every input token is billed the same, which is the assumption cached-token pricing exists to break.</p>
+</header>
+<section>
+<h2>What each approach actually involves</h2>
+<p>
+  <strong>The blended estimate</strong> takes one rate -- almost always the
+  fresh-input rate, since that is the number a pricing page leads with -- and
+  multiplies it by the whole month's input tokens, cached and fresh lumped
+  together, then adds output cost. One rate, one multiplication, done.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same fresh-input, cached-input,
+  and output rates a pricing-page lookup gives you and asks for the month's
+  fresh input, cached input, and output tokens as three separate figures, then
+  prices each token class at its own rate for up to four providers at once.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Worked example</th><th scope="col">Blended (fresh rate on everything)</th><th scope="col">This calculator (split by token class)</th></tr></thead>
+<tbody>
+<tr><td>5,000,000 fresh input + 45,000,000 cached input + 2,000,000 output tokens/month, at $3.00 / $0.30 / $15.00 per million</td><td><strong>$180.00/month</strong> &mdash; 50,000,000 input tokens &times; $3.00, plus $30.00 output</td><td><strong>$58.50/month</strong> &mdash; $15.00 fresh input + $13.50 cached input + $30.00 output</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  These are the calculator's own default inputs and the Anthropic (Claude)
+  example row preloaded on the <a href="./">calculator page</a>, so you can
+  load them there and check the arithmetic yourself. Blending overstates this
+  workload by $121.50/month -- about 3.1x the real total -- entirely from
+  billing 45,000,000 cached tokens at the fresh rate instead of the cached
+  rate. That gap tracks the workload's cached share directly: at 90% cached
+  input (this example's share), most of the bill is the rate the blended
+  estimate got wrong. See <a href="why-prompt-caching-changes-the-math.html">why
+  prompt caching changes the math</a> for why that share runs high on
+  agentic and long-context workloads specifically.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want a provider's current fresh-input, cached-input, or output rate.</td><td>The provider's own pricing page &mdash; this calculator never fetches or asserts that for you.</td></tr>
+<tr><td>I just want a rough monthly ceiling and don't know or care about my cache share.</td><td>A blended estimate is fine as a ceiling &mdash; it is usually an overstatement, not an understatement, of the split total.</td></tr>
+<tr><td>I want to compare providers, or know what caching is actually worth on my workload.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the blended-per-token shortcut this page compares against?</h3>
+<p>Taking a provider's headline $/million-token rate -- almost always the fresh-input rate, since that is the number a pricing page leads with -- and multiplying it by the month's total input tokens, cached and fresh together, then adding output cost on top. It is a one-line estimate: no separate cache rate, no split, one multiplication.</p>
+<h3>How much can a blended estimate overstate the bill?</h3>
+<p>On this calculator's own default example workload (5,000,000 fresh input, 45,000,000 cached input, 2,000,000 output tokens per month) at Anthropic's example rates ($3/M fresh input, $0.30/M cached input, $15/M output), the split calculation totals $58.50/month. Blending -- billing all 50,000,000 input tokens at the $3 fresh rate -- totals $180.00/month, about 3.1x the real figure and $121.50/month higher, entirely from treating cached tokens as if they were fresh.</p>
+<h3>Does a blended rate always overstate cost, or can it understate it too?</h3>
+<p>It depends which single rate gets picked, and a headline rate is the fresh-input rate far more often than not, so overstating is the common direction. Picking the cached rate instead and applying it to fresh tokens too would understate the bill -- but that requires already knowing the cached rate exists and choosing to (wrongly) apply it everywhere, which is not the shortcut anyone reaches for by habit. Either way, the fix is the same: stop picking one rate and use each token class's own rate.</p>
+<h3>Does this page assert any provider's actual cache discount?</h3>
+<p>No. The $3.00 / $0.30 / $15.00 example rates above are the same illustrative placeholders preloaded on the calculator page, not a claim about Anthropic's or any provider's current pricing. Paste in each provider's own current rates from its pricing page before relying on either number.</p>
+<p class="note">
+  Open the <a href="./">LLM API Pricing Calculator</a> to split your own workload, or read <a href="why-prompt-caching-changes-the-math.html">why prompt caching changes the math</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, procurement, or vendor-pricing advice, and does not replace verifying current rates directly with each provider. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../obsidian-plugin-review-check/" data-pf-to="obsidian-plugin-review-check">Obsidian Plugin Review Checker</a></li>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llm-api-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="llm-api-pricing-calculator"></script>
+</body></html>

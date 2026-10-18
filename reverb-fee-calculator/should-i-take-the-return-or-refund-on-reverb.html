@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I take the return or refund part of it on Reverb? | Worked example</title>
+  <meta name="description" content="A buyer wants to send an $800 Reverb guitar back. Taking the return costs $250.42 — three legs of freight, unrefunded processing, and the relist haircut.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/should-i-take-the-return-or-refund-on-reverb.html">
+  <meta property="og:title" content="Should I take the return or refund part of it on Reverb?">
+  <meta property="og:description" content="A buyer wants to send an $800 Reverb guitar back. Taking the return costs $250.42 — three legs of freight, unrefunded processing, and the relist haircut.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I take the return or refund part of it on Reverb?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — $800 sale, $75 shipping charged, $65 outbound label, $75 return label, $450 item cost, $10 prep, 5% marketplace, 3.19%+$0.49 payment, 61% of fees credited on a refund, $720 relist — letting the sale stand leaves $281.60 and taking the return leaves $31.17. The return costs $250.42: $205.00 of freight over three legs, $26.98 of processing no refund gives back, and $73.45 given up on the relist. Any partial refund up to $262.87 — 32.9% of the sale price — leaves more than shipping it back. None of that is advice to refuse a return, and it does not change what Reverb's policies or your local law require."}},{"@type":"Question","name":"Why is a Reverb return worse than a return on a marketplace of commodity goods?","acceptedAnswer":{"@type":"Answer","text":"Three reasons, and all three are specific to used gear. The freight runs three legs rather than one — out, back, and out again on the relist — and each leg on a combo amp or a hardshell case is real money. The piece is one of one, so there is no second unit on the shelf: the cash you recover is whatever the relist fetches, and something that has shipped twice with a claim opened rarely fetches the first price. And Reverb credits the selling fee on a refund while the card processor generally keeps its cut, so a residue is charged whether the buyer keeps the item or ships it back."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; margin-top: 28px; }
+    table { width: 100%; border-collapse: collapse; background: #fffef8; } th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #d8d2c4; } th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #5c554d; } footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/should-i-take-the-return-or-refund-on-reverb.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I take the return or refund part of it on Reverb? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../reverb-fee-calculator/">Reverb Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I take the return or refund part of it on Reverb?</span></span></nav>
+  <p><a href="./">← Reverb fee calculator</a></p>
+  <h1>Should I take the return or refund part of it on Reverb?</h1>
+  <p>A guitar sold for $800. Shipping charged was $75 and the outbound label cost $65. You paid $450 for it and $10 to set it up. Now the buyer says the finish has a check you did not photograph, and asks to send it back. The return label would be $75. If it comes back you would relist it at $720, because a piece that has shipped twice with a claim opened does not fetch the first price. Overwrite any of that on <a href="./#return-compare">the calculator</a>.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Path</th><th>Cash back to buyer</th><th>Fees credited</th><th>Item back?</th><th>Where you end up</th><th>vs the return</th></tr></thead>
+    <tbody>
+      <tr><td>Sale stands, no adjustment</td><td>$0.00</td><td>$0.00</td><td>no</td><td>$281.60</td><td>+$250.42</td></tr>
+      <tr><td>Partial refund, they keep it</td><td>$150.00</td><td>$7.10</td><td>no</td><td>$138.70</td><td>+$107.53</td></tr>
+      <tr><td>Take the return, relist it</td><td>$875.00</td><td>$41.43</td><td>yes</td><td>$31.17</td><td>+$0.00</td></tr>
+      <tr><td>Full refund, they keep it</td><td>$875.00</td><td>$41.43</td><td>no</td><td>−$551.98</td><td>−$583.15</td></tr>
+    </tbody>
+  </table></div>
+  <p>Taking the return leaves <strong>$31.17</strong> against <strong>$281.60</strong> if the sale stands. The return costs <strong>$250.42</strong>, and the three pieces of that are worth naming separately, because a fee schedule shows you none of them:</p>
+  <ul>
+    <li><strong>$205.00 of freight over three legs.</strong> $65 out, $75 back, $65 out again on the relist. On a Strat in a gig bag this is annoying; on a 2×12 combo it is most of the decision.</li>
+    <li><strong>$26.98 of fees no refund gives back.</strong> Reverb credits the selling fee on the percentage lines only; the fixed $0.49 per-order payment fee is never refund-linked, and the card processor generally keeps its variable cut too. On these rates that is $26.98 of the $68.40 charged, and it is charged whether the guitar comes back or not.</li>
+    <li><strong>$73.45 given up on the relist.</strong> The piece is one of one. There is no second unit on the shelf, so the cash you recover is whatever the relist fetches — $208.15 net at $720, against the $281.60 the original sale would have left.</li>
+  </ul>
+  <h2>The number that actually decides it</h2>
+  <p>So the useful question is almost never "return or no return". It is <em>how big a concession is still cheaper than the return</em>. Every dollar you refund costs a dollar less the fee credit it earns back, so the break-even is grossed up by that keep rate. On these inputs it is <strong>$262.87</strong> — <strong>32.9%</strong> of the sale price.</p>
+  <p>Read that plainly: you could knock $263 off an $800 guitar, let the buyer keep it, and still end up ahead of taking it back. The $150 you were thinking of offering leaves <strong>$107.53</strong> more than the return. A full refund with the buyer keeping the guitar does not — that is $583.15 worse, because you are out the cash and the instrument both.</p>
+  <h2>When the arithmetic flips</h2>
+  <p>Two inputs move this more than the fee rates do. <strong>Relist price</strong> is the first: set it to $0 for a piece that comes back unsellable, and the return costs $908.57 rather than $250.42 — at that point even refunding the whole order and letting them keep it beats shipping it back. <strong>Return shipping</strong> is the second: if the buyer pays it, drop it to $0 and the return costs $75 less. Which of those applies depends on why the case was opened, and that is a fact about your order, not something a calculator can know.</p>
+  <p>None of these sentences is advice to refuse a return, to make an offer, or to argue a case. They are the arithmetic on the inputs above. What Reverb's policies and your local consumer law require of you is a separate question, and it is not one this tool answers — a return you are obliged to accept is not made optional by being expensive. The number is useful for the case where you have a choice: what to offer, and how far you can go before shipping it back is genuinely cheaper.</p>
+  <p class="note">Marketplace and Reverb Gives apply to the item. Payment processing applies to item plus shipping charged, and its fixed per-order line is never refunded. The 61% fee-credit default is the selling fee's share of total fees on this example — read your own payout statement and overwrite it, along with every other rate. Your numbers stay in the browser. A different question — whether a buyer's offer is worth taking in the first place — is on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>, and whether to buy the insured label that prevents some of these cases is on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. Comparing this guitar to eBay, Etsy, Amazon, or your own store? The <a href="../where-to-sell-calculator/#c=%7B%22shared%22%3A%7B%22price%22%3A800%2C%22shippingCharged%22%3A75%2C%22shippingCost%22%3A65%2C%22itemCost%22%3A450%2C%22otherCost%22%3A10%7D%2C%22channels%22%3A%5B%7B%22id%22%3A%22reverb%22%2C%22enabled%22%3Atrue%2C%22values%22%3A%7B%7D%7D%5D%7D">where-to-sell calculator</a> ranks Reverb against them with this item's price, shipping, and cost already filled in.</p>
+  <h2>Common questions</h2>
+  <h3>Should I take the return or refund part of it on Reverb?</h3>
+  <p>On the worked example — $800 sale, $75 shipping charged, $65 outbound label, $75 return label, $450 item cost, $10 prep, 5% marketplace, 3.19%+$0.49 payment, 61% of fees credited on a refund, $720 relist — letting the sale stand leaves $281.60 and taking the return leaves $31.17. The return costs $250.42: $205.00 of freight over three legs, $26.98 of processing no refund gives back, and $73.45 given up on the relist. Any partial refund up to $262.87 — 32.9% of the sale price — leaves more than shipping it back. None of that is advice to refuse a return, and it does not change what Reverb's policies or your local law require.</p>
+  <h3>Why is a Reverb return worse than a return on a marketplace of commodity goods?</h3>
+  <p>Three reasons, and all three are specific to used gear. The freight runs three legs rather than one — out, back, and out again on the relist — and each leg on a combo amp or a hardshell case is real money. The piece is one of one, so there is no second unit on the shelf: the cash you recover is whatever the relist fetches, and something that has shipped twice with a claim opened rarely fetches the first price. And Reverb credits the selling fee on a refund while the card processor generally keeps its cut, so a residue is charged whether the buyer keeps the item or ships it back.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../whatnot-sales-report-analyzer/" data-pf-to="whatnot-sales-report-analyzer">Whatnot Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../whatnot-seller-payout/" data-pf-to="whatnot-seller-payout">Whatnot Seller Payout Calculator</a></li>
+      <li><a href="../where-to-sell-calculator/" data-pf-to="where-to-sell-calculator">Where to Sell Calculator — compare marketplace fees on one item</a></li>
+      <li><a href="../wholesale-line-sheet-maker/" data-pf-to="wholesale-line-sheet-maker">Wholesale Line Sheet Maker — free, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=reverb-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="reverb-fee-calculator"></script>
+</body>
+</html>

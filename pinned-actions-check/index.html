@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA.">
+  <meta property="og:title" content="Are your GitHub Actions pinned to a commit SHA?">
+  <meta property="og:description" content="A tag like @v4 can be repointed at different code by its owner at any time. Paste your workflow YAML and get every unpinned third-party action…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pinned Actions Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans GitHub Actions workflow YAML for third-party actions referenced by a mutable tag or branch instead of a pinned 40-character commit SHA. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is pinning a GitHub Action to a tag like @v4 a risk?","acceptedAnswer":{"@type":"Answer","text":"A tag or branch name is mutable: the action's owner — or an attacker who compromises their account — can repoint it at a different commit at any time. The next time your workflow runs, it runs whatever code that tag now points to, with whatever permissions and secrets your workflow has. A full 40-character commit SHA cannot be silently repointed, which is why GitHub's own hardening guidance recommends it."}},{"@type":"Question","name":"Has this actually happened?","acceptedAnswer":{"@type":"Answer","text":"Yes. In March 2025 the widely used tj-actions/changed-files action had its version tags repointed at a malicious commit that dumped CI secrets into logs in any workflow that referenced it by tag. Workflows that had pinned it to a commit SHA were unaffected by the retag."}},{"@type":"Question","name":"Does this tool fetch anything from GitHub for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all — nothing here can, because nothing here talks to a server. For every mutable reference it finds, it prints the exact git ls-remote command you can run yourself to look up what that ref currently resolves to. The lookup, and the decision to pin, stay entirely yours."}},{"@type":"Question","name":"Does a clean scan mean my repository is secure?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific, well-documented thing: whether third-party uses: references are pinned to a commit SHA. It is not a security audit, and it makes no claim about your repository's overall security or compliance posture."}},{"@type":"Question","name":"What about actions in my own repository?","acceptedAnswer":{"@type":"Answer","text":"References starting with ./ (a local composite or JavaScript action in the same repository) and docker:// (a container image reference) are skipped — neither is the third-party supply-chain risk this tool exists to catch."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.mutable { background: #fde8e8; color: #9a3412; }
+    .pill.pinned { background: #dcefe4; color: #14532d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .copy-cmd { display: flex; gap: 8px; align-items: baseline; }
+    .copy-cmd code { flex: 1; background: #f7f9fb; padding: 4px 6px; border-radius: 6px; font-size: .82rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Are your GitHub Actions pinned to a commit SHA?","item":"https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Are your GitHub Actions pinned to a commit SHA? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Are your GitHub Actions pinned to a commit SHA?</span></span></nav>
+  <header>
+    <p class="note">PINNED ACTIONS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Are your GitHub Actions pinned to a commit SHA?</h1>
+    <p>A third-party action referenced by a tag (<code>@v4</code>) or branch (<code>@main</code>) trusts whatever code that ref points to <em>right now</em> — and its owner can repoint it at different code tomorrow. Paste your workflow YAML below and this page finds every <code>uses:</code> line that isn't pinned to a full 40-character commit SHA, with the exact command to look up the SHA yourself.</p>
+    <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — not even to look up the SHA for you.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> you want checked. Add more blocks for more files — nothing here reads your repository, so pasting is how it sees anything.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another workflow file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Action</th><th>Ref</th><th>Status</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan .github/workflows under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) action is found</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added unpinned action before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is pinning a GitHub Action to a tag like <code>@v4</code> a risk?</h3>
+    <p>A tag or branch name is mutable: the action's owner — or an attacker who compromises their account — can repoint it at a different commit at any time. The next time your workflow runs, it runs whatever code that tag now points to, with whatever permissions and secrets your workflow has. A full 40-character commit SHA cannot be silently repointed, which is why GitHub's own hardening guidance recommends it.</p>
+    <h3>Has this actually happened?</h3>
+    <p>Yes. In March 2025 the widely used <code>tj-actions/changed-files</code> action had its version tags repointed at a malicious commit that dumped CI secrets into logs in any workflow that referenced it by tag. Workflows that had pinned it to a commit SHA were unaffected by the retag.</p>
+    <h3>Does this tool fetch anything from GitHub for me?</h3>
+    <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. For every mutable reference it finds, it prints the exact <code>git ls-remote</code> command you can run yourself to look up what that ref currently resolves to. The lookup, and the decision to pin, stay entirely yours.</p>
+    <h3>Does a clean scan mean my repository is secure?</h3>
+    <p>No. This checks one specific, well-documented thing: whether third-party <code>uses:</code> references are pinned to a commit SHA. It is not a security audit, and it makes no claim about your repository's overall security or compliance posture.</p>
+    <h3>What about actions in my own repository?</h3>
+    <p>References starting with <code>./</code> (a local composite or JavaScript action in the same repository) and <code>docker://</code> (a container image reference) are skipped — neither is the third-party supply-chain risk this tool exists to catch.</p>
+    <p>More: <a href="how-to-pin-a-github-action-to-a-commit-sha.html">how to pin a GitHub Action to a commit SHA</a>. Already run <a href="vs-openssf-scorecard.html">OpenSSF Scorecard</a>? See <a href="vs-openssf-scorecard.html">how this checker compares</a> for the pinning question specifically.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming any commit SHA yourself before pinning to it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pinned SHAs stop a mutable tag from being swapped out from under you, but they don't catch every risk in a workflow: <a href="../actions-injection-check/">Actions Injection Check</a> flags pwn-request checkouts and script-injection from untrusted <code>${{ github.event }}</code> expressions, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows and jobs with no explicit <code>permissions:</code> grant or with <code>write-all</code>, <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> flags an <code>actions/cache</code> write reachable from a fork trigger or an unscoped <code>restore-keys</code> fallback, and <a href="../actions-secret-leak-check/">Actions Secret Leak Check</a> flags a step that transforms a secret before it can be masked, or exports one to <code>$GITHUB_ENV</code>/<code>$GITHUB_OUTPUT</code> without <code>::add-mask::</code> — four more slices of a hardened CI setup. The same mutable-tag-vs-pinned-reference question applies past CI, too: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks it of a Dockerfile's <code>FROM</code> line instead of a workflow's <code>uses:</code> line. A pinned, permission-scoped workflow can still leave branch protection stuck: <a href="../required-checks-drift-check/">Required Checks Drift Check</a> flags a required status check name a renamed job, a removed job, or a dropped <code>pull_request</code> trigger has left nothing can ever satisfy again. And a workflow that is pinned, permission-scoped and green can still put the <em>wrong revision</em> live: <a href="../deploy-concurrency-check/">Deploy Concurrency Check</a> flags the ways two runs of a deploy workflow are allowed to overlap, so the one that finishes last -- not the newer one -- is what is deployed. A reference this tool marks <code>pinned</code> is pinned only at that one hop — <a href="../actions-transitive-pin-check/">Actions Transitive Pin Check</a> fetches what a pinned reusable workflow or composite action itself loads and flags it if that is unpinned underneath, a gap this tool's own "no network calls" design cannot see into. To run all of these as one GitHub Action on every pull request, add <a href="../workflow-audit/">Workflow Audit</a>.</p>
+    <p>Want this check and 21 others in one pass? <a href="../devsec-toolkit/">devsec-toolkit</a> runs it alongside the rest of the portfolio's devsec checks (GitHub Actions, Docker, Compose, Kubernetes, supply chain, code, AI-agent configs) over a whole repository, with one report, SARIF for code scanning and a baseline so CI fails only on new findings.</p>
+    <p class="support">Free and open source. If this saved you from shipping a supply-chain gap, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasUnresolvedRisk, summaryLine, PINNED, MUTABLE } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: ".github/workflows/ci.yml",
+        text: `name: ci
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
+      - uses: some-org/deploy-action@main
+      - run: npm test
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        const cmd = f.remediation
+          ? `<div class="copy-cmd"><code>${escapeHtml(f.remediation)}</code><button type="button" class="secondary small copy-btn" data-cmd="${escapeHtml(f.remediation)}">Copy</button></div>`
+          : "<span class=\"note\">already pinned</span>";
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><code>${escapeHtml(f.action)}</code></td>
+          <td><code>${escapeHtml(f.ref ?? "(none)")}</code></td>
+          <td><span class="pill ${f.classification}">${f.classification}</span></td>
+          <td>${cmd}</td>
+        </tr>`;
+      }).join("");
+
+      els.rows.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(btn.dataset.cmd);
+            btn.textContent = "Copied";
+            setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+          } catch {
+            /* clipboard API unavailable; the command is still selectable text */
+          }
+        });
+      });
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasUnresolvedRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: one pinned action, one already-safe SHA, and one unpinned deploy action on a branch name.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../llm-api-pricing-calculator/" data-pf-to="llm-api-pricing-calculator">LLM API Pricing Calculator</a></li>
+      <li><a href="../llm-call-cost-scan/" data-pf-to="llm-call-cost-scan">Which LLM calls in your code are quietly costing you money?</a></li>
+      <li><a href="../llm-output-regression-diff/" data-pf-to="llm-output-regression-diff">Did the new model break your prompts?</a></li>
+      <li><a href="../llm-spend-guard/" data-pf-to="llm-spend-guard">Would a spend cap have stopped your runaway LLM bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pinned-actions-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/?pfEmbed=1&quot; title=&quot;Are your GitHub Actions pinned to a commit SHA? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pinned-actions-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/" data-pf-embed-title="Are your GitHub Actions pinned to a commit SHA?" data-pf-embed-slug="pinned-actions-check"></script>
+</body>
+</html>

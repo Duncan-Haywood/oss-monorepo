@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does this fuel surcharge match the contract?</title>
+  <meta name="description" content="Compare a billed LTL fuel surcharge to the contract percent of linehaul, and to a typed DOE or carrier-bulletin index. Free and private.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/does-this-fuel-surcharge-match-the-contract.html">
+  <meta property="og:title" content="Does this fuel surcharge match the contract?">
+  <meta property="og:description" content="Linehaul times the contract fuel percent versus the billed FSC line. Arithmetic, not a determination.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight fuel surcharge review","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Contract percent of linehaul versus billed FSC, implied billed percent, optional DOE or bulletin index plus adder, observational review note, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this fuel surcharge match the contract?","acceptedAnswer":{"@type":"Answer","text":"Multiply linehaul by the contract fuel percent and compare that to the billed FSC line. On a $1,200.00 linehaul at 28%, the contract expects $336.00. A $412.00 billed line is 34.33% of linehaul — $76.00 above the contract. That is a review of the line, not a determination that the charge is wrong."}},{"@type":"Question","name":"How do I check a fuel surcharge against the DOE or carrier bulletin?","acceptedAnswer":{"@type":"Answer","text":"Type the index percent from the bulletin you actually use and any points the contract adds. 26% plus 2 points is 28% and expects the same $336.00 on a $1,200.00 linehaul. The page does not fetch an index. Leave the index blank if the confirmation states a fixed percent."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9a092; border-radius: 7px; padding: 10px; font: inherit; }
+    input:focus { outline: 3px solid #f0c19a; outline-offset: 2px; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d0c2; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #445064; }
+    .error { color: #9a3412; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/does-this-fuel-surcharge-match-the-contract.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does this fuel surcharge match the contract? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../freight-accessorial-auditor/">Freight Accessorial Invoice Auditor</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does this fuel surcharge match the contract?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Freight accessorial invoice auditor</a></p>
+  <h1>Does this fuel surcharge match the contract?</h1>
+  <p>
+    Fuel is billed as a percent of linehaul. The invoice often shows a
+    dollar amount and no rate. A flat rate card skips FUEL because the
+    base is the linehaul line, not a code. This page multiplies linehaul
+    by the percent on the confirmation and compares that to the billed
+    FSC line.
+  </p>
+  <p>
+    On the default <strong>$1,200.00 linehaul</strong> at
+    <strong>28%</strong>, the contract expects <strong>$336.00</strong>.
+    A <strong>$412.00</strong> billed line is <strong>34.33% of
+    linehaul</strong> — <strong>$76.00 above the contract</strong>. A
+    typed bulletin of <strong>26% plus 2 points</strong> is the same
+    28% and expects the same $336.00. Paste the confirmation percent.
+    This page does not fetch DOE, EIA, or a carrier portal.
+  </p>
+  <form id="fuelForm" class="fields">
+    <label>Linehaul ($) <input id="linehaul" type="number" min="0" step="0.01" value="1200" inputmode="decimal"></label>
+    <label>Contract fuel percent <input id="contractPercent" type="number" min="0" max="100" step="0.01" value="28" inputmode="decimal"></label>
+    <label>Billed fuel surcharge ($) <input id="billedAmount" type="number" min="0" step="0.01" value="412" inputmode="decimal"></label>
+    <label>Index / bulletin percent <input id="indexPercent" type="number" min="0" max="100" step="0.01" value="26" inputmode="decimal"></label>
+    <label>Index adder (points) <input id="indexAdder" type="number" min="0" step="0.01" value="2" inputmode="decimal"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <p id="formError" class="error" hidden></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Percent of linehaul</th>
+        <th scope="col">Amount</th>
+        <th scope="col">vs billed</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Complementary to the
+    <a href="./">multi-line accessorial auditor</a>
+    (every billed extra), the
+    <a href="should-i-dispute-this-detention-charge.html">detention clock</a>,
+    and
+    <a href="should-i-bill-this-accessorial-to-the-customer.html">who holds the cash</a>
+    after you pay the carrier. This page is only the fuel percent on one
+    line. The calculator is arithmetic, not advice. It does not claim
+    the index you typed is the one the carrier used.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Does this fuel surcharge match the contract?</h3>
+  <p>Multiply linehaul by the contract fuel percent and compare that to the billed FSC line. On a $1,200.00 linehaul at 28%, the contract expects $336.00. A $412.00 billed line is 34.33% of linehaul — $76.00 above the contract. That is a review of the line, not a determination that the charge is wrong.</p>
+  <h3>How do I check a fuel surcharge against the DOE or carrier bulletin?</h3>
+  <p>Type the index percent from the bulletin you actually use and any points the contract adds. 26% plus 2 points is 28% and expects the same $336.00 on a $1,200.00 linehaul. The page does not fetch an index. Leave the index blank if the confirmation states a fixed percent.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { reviewFuelSurcharge, fuelSurchargeNote } from "./audit.mjs";
+    import { countUsage } from "./usage.mjs";
+
+    const ids = ["linehaul", "contractPercent", "billedAmount", "indexPercent", "indexAdder"];
+
+    function money(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+    }
+
+    function percent(value) {
+      return value == null ? "—" : `${value.toFixed(2)}%`;
+    }
+
+    function update() {
+      const error = document.getElementById("formError");
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = reviewFuelSurcharge(raw);
+        error.hidden = true;
+        error.textContent = "";
+        document.getElementById("summary").textContent = fuelSurchargeNote(result);
+        document.getElementById("verdict").textContent = result.varianceVsContract === 0
+          ? "The billed line matches the contract percent"
+          : result.varianceVsContract > 0
+            ? `The billed line is ${money(result.varianceVsContract)} above the contract (${money(result.recoverable)} recoverable on these inputs)`
+            : `The billed line is ${money(-result.varianceVsContract)} under the contract`;
+        const rows = [
+          ["Contract percent", result.contractPercent, result.expectedFromContract],
+          ["Billed line", result.billedPercent, result.billedAmount],
+        ];
+        if (result.indexAppliedPercent != null) {
+          rows.splice(1, 0, ["Index plus adder", result.indexAppliedPercent, result.expectedFromIndex]);
+        }
+        document.getElementById("compare").innerHTML = rows.map(([label, pct, amount]) => (
+          `<tr><th scope="row">${label}</th><td>${percent(pct)}</td><td>${money(amount)}</td><td>${money(result.billedAmount - amount)}</td></tr>`
+        )).join("");
+      } catch (err) {
+        error.hidden = false;
+        error.textContent = err.message;
+        document.getElementById("summary").textContent = "";
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        countUsage("fuel_surcharge_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cloud-egress-calculator/" data-pf-to="cloud-egress-calculator">Cloud Egress Cost Calculator</a></li>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freight-accessorial-auditor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="freight-accessorial-auditor"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="freight-accessorial-auditor" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="freight-accessorial-auditor" data-pf-link-amount=""></script>
+</body>
+</html>

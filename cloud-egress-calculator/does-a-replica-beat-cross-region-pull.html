@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does a replica still beat a cross-region pull?</title>
+  <meta name="description" content="Compare keeping a monthly cross-region S3 pull against copying the dataset once and paying replica storage.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/does-a-replica-beat-cross-region-pull.html">
+  <meta property="og:title" content="Does a replica still beat a cross-region pull?">
+  <meta property="og:description" content="Re-reading a dataset from another region every month is a transfer bill. A replica is a seed plus storage. Compare them on the rates you were quoted.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Replica vs cross-region pull",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Keep-pulling vs replica monthly bill, seed payback months, horizon total including seed, break-even monthly pull, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does S3 cross-region replication cost less than pulling the data every month?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only when the monthly pull is large enough to cover replica storage and change-sync. On a 500 GB dataset pulled 800 GB a month at $0.02/GB, keep-pulling is $16.00. A replica at $0.023/GB-month plus 20 GB of monthly changes is $11.90 after a $10.00 seed. The replica path is $4.10 cheaper this month. The seed pays back in about 2.4 months. Over 12 months including the seed the replica path is $39.20 cheaper ($152.80 vs $192.00). The paths match at 595 GB of monthly pull. Paste your quoted rates; this page does not fetch provider prices."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does keeping the cross-region pull stay cheaper?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When monthly pull volume sits below replica storage plus change-sync, divided by the cross-region rate. On these defaults that floor is 595 GB/month. At 400 GB of pull, keep-pulling is $8.00 and the replica path is $11.90, so keep-pulling is $3.90 cheaper this month. The page solves that volume from the rates you enter. It does not recommend turning replication on or off."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/does-a-replica-beat-cross-region-pull.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does a replica still beat a cross-region pull? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cloud-egress-calculator/">Cloud Egress Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does a replica still beat a cross-region pull?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Cloud egress cost calculator</a></p>
+  <h1>Does a replica still beat a cross-region pull?</h1>
+  <p>
+    Teams search for “S3 cross-region replication cost” after a job in
+    another region re-reads the same bucket every month. Keep-pulling
+    pays <strong>cross-region transfer</strong> on every gigabyte that
+    leaves. A replica pays a <strong>one-time seed</strong>, then
+    <strong>storage</strong> and any <strong>change-sync</strong>.
+    Internet/CDN egress is a different page; this one is only
+    region-to-region.
+  </p>
+  <p>
+    On the default 500 GB dataset — 800 GB pulled a month at $0.02/GB,
+    replica storage $0.023/GB-month, 20 GB of monthly changes — keep-pulling
+    is $16.00. The replica path is $11.50 of storage plus $0.40 of
+    change-sync, $11.90, after a $10.00 seed. The replica path is $4.10
+    cheaper this month. The seed pays back in about 2.4 months. Over 12
+    months including the seed the replica path is $152.80 versus $192.00,
+    $39.20 cheaper. The paths match at 595 GB of monthly pull. At 400 GB
+    of pull, keep-pulling is $8.00 and the replica path stays $11.90.
+    Paste the rates on your current price sheet. This page does not fetch
+    provider prices.
+  </p>
+  <form id="replicaForm" class="fields">
+    <label>Replica size (GB) <input id="replicaGb" type="number" min="0" step="any" value="500" inputmode="decimal"></label>
+    <label>Monthly pull (GB) <input id="pullGbPerMonth" type="number" min="0" step="any" value="800" inputmode="decimal"></label>
+    <label>Cross-region $/GB <input id="crossRegionRate" type="number" min="0" step="any" value="0.02" inputmode="decimal"></label>
+    <label>Replica storage $/GB-month <input id="storageRate" type="number" min="0" step="any" value="0.023" inputmode="decimal"></label>
+    <label>Seed size (GB) <input id="seedGb" type="number" min="0" step="any" value="500" inputmode="decimal"></label>
+    <label>Seed $/GB <input id="seedRate" type="number" min="0" step="any" value="0.02" inputmode="decimal"></label>
+    <label>Monthly change (GB) <input id="changeGbPerMonth" type="number" min="0" step="any" value="20" inputmode="decimal"></label>
+    <label>Change-sync $/GB <input id="changeRate" type="number" min="0" step="any" value="0.02" inputmode="decimal"></label>
+    <label>Horizon (months) <input id="horizonMonths" type="number" min="1" max="120" step="1" value="12" inputmode="numeric"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Seed</th>
+        <th scope="col">Storage</th>
+        <th scope="col">Change-sync</th>
+        <th scope="col">Monthly total</th>
+        <th scope="col">Horizon total</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Complementary to the
+    <a href="./">two-provider monthly comparison</a>
+    (which object store),
+    <a href="does-a-cdn-cut-s3-egress.html">CDN vs origin</a>
+    (internet downloads), and
+    <a href="does-infrequent-access-still-beat-standard.html">infrequent access vs standard</a>
+    (retrieve fees after a class change). This page is only a second-region
+    copy versus pulling the same bytes again. The calculator is arithmetic,
+    not advice. It does not claim a replica will stay in sync at the change
+    volume you typed.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Does S3 cross-region replication cost less than pulling the data every month?</h3>
+  <p>Only when the monthly pull is large enough to cover replica storage and change-sync. On a 500 GB dataset pulled 800 GB a month at $0.02/GB, keep-pulling is $16.00. A replica at $0.023/GB-month plus 20 GB of monthly changes is $11.90 after a $10.00 seed. The replica path is $4.10 cheaper this month. The seed pays back in about 2.4 months. Over 12 months including the seed the replica path is $39.20 cheaper ($152.80 vs $192.00). The paths match at 595 GB of monthly pull. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>When does keeping the cross-region pull stay cheaper?</h3>
+  <p>When monthly pull volume sits below replica storage plus change-sync, divided by the cross-region rate. On these defaults that floor is 595 GB/month. At 400 GB of pull, keep-pulling is $8.00 and the replica path is $11.90, so keep-pulling is $3.90 cheaper this month. The page solves that volume from the rates you enter. It does not recommend turning replication on or off.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareReplica, replicaNote } from "./calc.mjs";
+    import { countUsage } from "./usage.mjs";
+
+    const ids = [
+      "replicaGb", "pullGbPerMonth", "crossRegionRate", "storageRate",
+      "seedGb", "seedRate", "changeGbPerMonth", "changeRate", "horizonMonths",
+    ];
+
+    function money(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+    }
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareReplica(raw);
+        document.getElementById("summary").textContent = replicaNote(result);
+        document.getElementById("verdict").textContent = result.cheaperHorizon === "tie"
+          ? `These paths bill the same over ${result.horizonMonths} months`
+          : result.cheaperHorizon === "pull"
+            ? `Keep-pulling is ${money(result.horizonSavings)} cheaper over ${result.horizonMonths} months including the seed`
+            : `The replica path is ${money(result.horizonSavings)} cheaper over ${result.horizonMonths} months including the seed`;
+        const rows = [result.pull, result.replica];
+        document.getElementById("compare").innerHTML = rows.map((row) => {
+          const winner = result.cheaperHorizon !== "tie" && result.cheaperHorizon === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${money(row.seed)}</td><td>${money(row.storage)}</td><td>${money(row.change)}</td><td>${money(row.monthly)}</td><td>${money(row.horizon)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        countUsage("replica_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../container-demurrage-detention-calculator/" data-pf-to="container-demurrage-detention-calculator">Demurrage and detention calculator — price a late container before it is late</a></li>
+      <li><a href="../container-load-planner/" data-pf-to="container-load-planner">Container Load Planner — free, private, in your browser</a></li>
+      <li><a href="../equipment-auction-buyer-premium-calculator/" data-pf-to="equipment-auction-buyer-premium-calculator">Equipment Auction Buyer's Premium Calculator — free, no sign-up</a></li>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cloud-egress-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cloud-egress-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cloud-egress-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="cloud-egress-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

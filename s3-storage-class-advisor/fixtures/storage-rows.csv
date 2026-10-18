@@ -1,0 +1,6 @@
+name,size_gb,objects,read_gb_per_month,gets_per_month,avg_life_days
+app-uploads/originals,52000,26000000,2600,4200000,
+logs-archive,48000,900000000,300,120000,
+thumbnails,1800,90000000,1400,310000000,
+ml-datasets,22000,4400000,16000,900000,
+tmp-exports,900,1800000,850,2200000,7

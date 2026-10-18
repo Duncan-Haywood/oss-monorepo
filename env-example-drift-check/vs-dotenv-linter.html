@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. dotenv-linter | .env.example Drift Check</title>
+<meta name="description" content="dotenv-linter checks a single .env file's own formatting -- duplicate keys, ordering, quoting. This tool checks a different pair entirely…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-dotenv-linter.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. dotenv-linter | .env.example Drift Check">
+<meta property="og:description" content="Two different diffs: dotenv-linter checks one .env file against its own formatting rules. This tool checks an .env.example file's declared names against what…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or dotenv-linter?","acceptedAnswer":{"@type":"Answer","text":"Most repos that care about this will want both, because they check different things. dotenv-linter is a fast, dependency-free command-line tool, written in Rust, that lints one .env file against 14 formatting rules -- duplicate keys, unordered keys, inconsistent quoting, trailing whitespace, a key without a value, and similar -- and can auto-fix many of them. It never looks at your application code. This tool does the opposite: it never checks an .env file's formatting at all, and instead diffs the variable names declared in .env.example against the process.env.FOO / os.getenv / ENV[] / System.getenv reads actually found in your source code across JavaScript, Python, Ruby, and Java, naming every variable the code reads that the example file never mentions. Run dotenv-linter to keep one file's syntax clean. Run this tool to catch the example file quietly falling behind the code that reads it -- the bug that crashes a new contributor's first cp .env.example .env."}},{"@type":"Question","name":"Does this replace dotenv-linter?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. dotenv-linter's 14 checks (duplicated key, unordered key, quote character, trailing whitespace, key without value, and so on) all look inward at one file's own formatting; none of them read your application source code or know whether a declared variable is used anywhere. This tool never checks formatting at all -- a perfectly tidy .env.example, sorted and quoted exactly right, can still be missing three variables the code reads, and this tool is the one that would catch that. They compose: a repo can run both in the same CI job and get two independent, non-overlapping checks for the price of two free tools."}},{"@type":"Question","name":"Is this page affiliated with dotenv-linter?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the dotenv-linter project or its maintainers. dotenv-linter is named here only to describe what this tool is and is not, based on dotenv-linter's own public documentation; check its repository for what it currently supports."}}]}</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; color: #1b1f2a; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-dotenv-linter.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. dotenv-linter | .env.example Drift Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../env-example-drift-check/">Does your .env.example still match what the code actually reads?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. dotenv-linter | .env.example Drift Check</span></span></nav>
+<p><a href="./">&larr; .env.example Drift Check</a></p>
+
+<h1>This tool vs. dotenv-linter</h1>
+
+<p>
+  <strong>dotenv-linter</strong> is a free, open-source command-line tool, written in Rust, that
+  checks a single <code>.env</code> file against its own formatting rules. Its documentation lists
+  14 checks -- duplicated key, ending blank line, extra blank line, incorrect delimiter, key
+  without value, leading character, lowercase key, quote character, schema violation, space
+  character, substitution key, trailing whitespace, unordered key, and value without quotes -- and
+  it can automatically fix many of them. Every one of those checks looks inward, at the file's own
+  internal consistency. None of them open a source file, and none of them know whether a declared
+  variable is read by any code anywhere.
+</p>
+
+<p>
+  This tool checks a different pair of things entirely, and never looks at a file's own
+  formatting. It parses an <code>.env.example</code> file's declared variable names, scans source
+  code for <code>process.env.FOO</code> (JavaScript/TypeScript), <code>os.getenv</code> /
+  <code>os.environ</code> (Python), <code>ENV[]</code> (Ruby), and <code>System.getenv</code>
+  (Java) reads, and diffs the two lists -- naming every variable the code reads that the example
+  file never mentions, and, in <code>--strict</code> mode, every variable the example file
+  declares that nothing reads anymore. A perfectly tidy, alphabetised, consistently-quoted
+  <code>.env.example</code> that dotenv-linter would pass cleanly can still be missing three
+  variables the code reads; that gap is exactly what this tool is built to catch.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Catch duplicate keys, inconsistent quoting, unordered keys, or a key with no value in one <code>.env</code> file.</td>
+      <td>dotenv-linter -- that is exactly its 14-check list, and it can auto-fix most of them.</td>
+    </tr>
+    <tr>
+      <td>Find out whether <code>.env.example</code>'s declared names actually match what the code reads.</td>
+      <td>This tool -- dotenv-linter's checks never open a source file, so it cannot see this at all.</td>
+    </tr>
+    <tr>
+      <td>Stop a new contributor's <code>cp .env.example .env &amp;&amp; npm start</code> from crashing on a variable the example file forgot.</td>
+      <td>This tool, wired into CI as a gate on the same PR that adds the read.</td>
+    </tr>
+    <tr>
+      <td>Work across JavaScript, Python, Ruby, and Java in one repo.</td>
+      <td>This tool's source scan covers all four; dotenv-linter's checks are language-agnostic because they never read source code in the first place.</td>
+    </tr>
+    <tr>
+      <td>Keep an <code>.env</code> or <code>.env.example</code> file's own syntax clean before committing it.</td>
+      <td>dotenv-linter -- this tool never checks formatting and would not notice a duplicate key.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These compose rather than compete, and cost nothing to run together: dotenv-linter as a fast
+  pre-commit or CI step for the example file's own hygiene, and this tool's <code>cli.mjs</code>
+  in the same CI job checking that the file's contents still match the code. Neither one makes the
+  other redundant, and a repo that only runs one is only checking half the problem.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this tool or dotenv-linter?</h3>
+<p>Most repos that care about this will want both, because they check different things. dotenv-linter is a fast, dependency-free command-line tool, written in Rust, that lints one .env file against 14 formatting rules -- duplicate keys, unordered keys, inconsistent quoting, trailing whitespace, a key without a value, and similar -- and can auto-fix many of them. It never looks at your application code. This tool does the opposite: it never checks an .env file's formatting at all, and instead diffs the variable names declared in .env.example against the process.env.FOO / os.getenv / ENV[] / System.getenv reads actually found in your source code across JavaScript, Python, Ruby, and Java, naming every variable the code reads that the example file never mentions. Run dotenv-linter to keep one file's syntax clean. Run this tool to catch the example file quietly falling behind the code that reads it -- the bug that crashes a new contributor's first cp .env.example .env.</p>
+
+<h3>Does this replace dotenv-linter?</h3>
+<p>No, and it is not trying to. dotenv-linter's 14 checks (duplicated key, unordered key, quote character, trailing whitespace, key without value, and so on) all look inward at one file's own formatting; none of them read your application source code or know whether a declared variable is used anywhere. This tool never checks formatting at all -- a perfectly tidy .env.example, sorted and quoted exactly right, can still be missing three variables the code reads, and this tool is the one that would catch that. They compose: a repo can run both in the same CI job and get two independent, non-overlapping checks for the price of two free tools.</p>
+
+<h3>Is this page affiliated with dotenv-linter?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by the dotenv-linter project or its maintainers. dotenv-linter is named here only to describe what this tool is and is not, based on dotenv-linter's own public documentation; check its repository for what it currently supports.</p>
+
+<p><a href="./">&larr; Back to .env.example Drift Check</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security, legal, or engineering advice, and it does not
+  replace a qualified professional or a real secrets scanner. It reports whether a variable name
+  appears on both sides of a text diff -- nothing more, and it is not a guarantee that your
+  configuration is complete or safe. <strong>You are responsible for reviewing and verifying its
+  output before relying on it.</strong> To the maximum extent permitted by law, the authors accept
+  no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+      <li><a href="../actions-cache-poisoning-check/" data-pf-to="actions-cache-poisoning-check">Can a fork PR poison your GitHub Actions cache?</a></li>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=env-example-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="env-example-drift-check"></script>
+</body>
+</html>

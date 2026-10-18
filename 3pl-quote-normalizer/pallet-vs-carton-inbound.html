@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why pallet inbound usually beats carton inbound at a 3PL</title>
+  <meta name="description" content="3PL pallet inbound, carton inbound, and loose piece-in are not the same fee. See how the same inbound volume changes the receiving line before you sign.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/pallet-vs-carton-inbound.html">
+  <meta property="og:title" content="Why pallet inbound usually beats carton inbound">
+  <meta property="og:description" content="A warehouse that quotes $10 a pallet and $0.40 a unit is not offering the same receiving price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is pallet inbound cheaper than carton inbound at a 3PL?","acceptedAnswer":{"@type":"Answer","text":"Usually, because the fee is divided by the units in the container. A $10 pallet that holds 60 units is $0.17 per unit. A $1.50 carton that holds 6 units is $0.25 per unit. Loose receiving at $0.40 per unit is $0.40. On 480 inbound units that is $80 versus $120 versus $192."}},{"@type":"Question","name":"Can a monthly minimum hide the inbound difference?","acceptedAnswer":{"@type":"Answer","text":"Yes. When the rest of the quote already sits under a monthly minimum, a cheaper receiving line does not change the normalized total. The inbound calculator shows that case instead of pretending the receiving line disappeared."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #12241c; background: #f4f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #123b36; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; color: #123b36; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #52605d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/pallet-vs-carton-inbound.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why pallet inbound usually beats carton inbound — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3pl-quote-normalizer/">3PL Quote Normalizer</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why pallet inbound usually beats carton inbound</span></span></nav>
+  <p><a href="./inbound.html">← 3PL inbound method calculator</a></p>
+  <h1>Why pallet inbound usually beats carton inbound on the same 3PL quote</h1>
+  <p>
+    Brands search for “3PL inbound fee” or “pallet inbound vs carton inbound”
+    after a warehouse sends a rate card with three receiving lines. The card
+    looks complete. The decision is still missing: at <em>your</em> units per
+    pallet and units per carton, which line is the cheap one?
+  </p>
+  <p>
+    The arithmetic is the fee divided by the units in the container. A $10
+    pallet that holds 60 units is $0.17 per unit. A $1.50 carton that holds 6
+    units is $0.25 per unit. Loose / floor-unload receiving at $0.40 per unit
+    is $0.40. On 480 inbound units that is $80 versus $120 versus $192 — a
+    $112 monthly gap — before storage, pick, or shipping move at all.
+  </p>
+  <p>
+    Warehouses like loose receiving because it is easy to quote and hard to
+    compare. You can often ship the same goods palletized, or ask the 3PL to
+    receive against the pallet line, and keep the rest of the quote. A monthly
+    minimum can still swallow the difference; the calculator shows that case
+    instead of pretending the receiving line disappeared.
+  </p>
+  <p>
+    This is a different question from leftover pallets already on the floor,
+    from restocking a return, and from paying the 3PL to kit. Those extras
+    live on
+    <a href="./does-long-term-storage-flip-a-3pl-quote.html">long-term storage</a>,
+    <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">restock vs keep</a>,
+    and
+    <a href="./should-i-pay-the-3pl-to-kit.html">kitting</a>.
+  </p>
+  <p>
+    Rates change by building, freight class, and appointment type. This page
+    does not publish anyone’s live schedule. Open the
+    <a href="./inbound.html">inbound method calculator</a>, type the three
+    lines from your rate card, and see which method wins at your volume.
+  </p>
+  <p>
+    The result is arithmetic, not advice. It does not say you should palletize,
+    change carriers, or sign a warehouse.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is pallet inbound cheaper than carton inbound at a 3PL?</h3>
+  <p>Usually, because the fee is divided by the units in the container. A $10 pallet that holds 60 units is $0.17 per unit. A $1.50 carton that holds 6 units is $0.25 per unit. Loose receiving at $0.40 per unit is $0.40. On 480 inbound units that is $80 versus $120 versus $192.</p>
+  <h3>Can a monthly minimum hide the inbound difference?</h3>
+  <p>Yes. When the rest of the quote already sits under a monthly minimum, a cheaper receiving line does not change the normalized total. The inbound calculator shows that case instead of pretending the receiving line disappeared.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your data is never uploaded.</p>
+    <p>Free to use. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> if you want — refusing does not change the calculator.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-quote-normalizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3pl-quote-normalizer"></script>
+</body>
+</html>

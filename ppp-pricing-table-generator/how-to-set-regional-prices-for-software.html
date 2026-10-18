@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Set Regional Prices for Software Without Losing Money</title>
+  <meta name="description" content="Purchasing-power pricing for apps and SaaS in plain words: when a country discount earns more, how to damp it, why you need a floor…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/how-to-set-regional-prices-for-software.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to set regional prices for software without losing money","about":"purchasing-power pricing","author":{"@type":"Organization","name":"PPP Pricing Table Generator"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/how-to-set-regional-prices-for-software.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Set Regional Prices for Software Without Losing Money">
+<meta property="og:description" content="Purchasing-power pricing for apps and SaaS in plain words: when a country discount earns more, how to damp it, why you need a floor…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Set Regional Prices for Software Without Losing Money — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ppp-pricing-table-generator/">PPP pricing table generator for apps and SaaS</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Set Regional Prices for Software Without Losing Money</span></span></nav>
+  <p><a href="./">← PPP Pricing Table Generator</a></p>
+  <h1>How to set regional prices for software without losing money</h1>
+  <p>If you sell software worldwide at one dollar price, you are priced out of every market where that dollar is a week of wages. Regional (purchasing-power, or PPP) pricing lets a developer in Lagos or Pune pay something that feels proportionate. Done carelessly it also gives away margin. This is how to do it carefully.</p>
+
+  <h2>Why a discount can earn more</h2>
+  <p>A copy of your software costs almost nothing to deliver. If a visitor would not buy at full price, any price above your support cost is extra revenue. The risk is the visitors who <em>would</em> have paid full price and now pay less. So the question is never "is it fair?" but "does it bring in enough extra buyers?"</p>
+
+  <h2>The break-even rule</h2>
+  <p>A discount of <em>d</em> only pays for itself if conversion rises by 1 ÷ (1 − <em>d</em>) − 1.</p>
+  <div class="tableWrap"><div class="pf-table-scroll"><table>
+    <thead><tr><th>Discount</th><th>Extra conversion needed to break even</th></tr></thead>
+    <tbody>
+      <tr><td>20%</td><td>+25%</td></tr>
+      <tr><td>40%</td><td>+67%</td></tr>
+      <tr><td>50%</td><td>+100% (conversion doubles)</td></tr>
+      <tr><td>70%</td><td>+233%</td></tr>
+    </tbody>
+  </table></div></div>
+  <p>That is why deep discounts are a bet. They pay off where your current conversion in that country is close to zero because of price, and not where you already sell reasonably well.</p>
+
+  <h2>Damp it, and set a floor</h2>
+  <p>A country with a quarter of the US price level should not pay a quarter of the US price: local buyers are often professionals paid in dollars or employed by international companies. The <strong>strength</strong> setting raises the price level to a power below 1, so the discount is shallower than the raw gap. The <strong>floor</strong> keeps any price above a share of your base so support and payment fees still leave you something.</p>
+
+  <h2>Keep the table small</h2>
+  <p>Fifty different prices are hard to explain and easy to get wrong. Collapsing countries into three or four tiers gives you a table you can read at a glance and a handful of discount codes to maintain. The generator groups them by band and prints the countries for each discount.</p>
+
+  <h2>Limit the abuse</h2>
+  <ul>
+    <li>Decide the price from the card's billing country or the store's storefront, not from an IP address.</li>
+    <li>Keep the gap between tiers modest, and the floor above what a VPN subscription is worth.</li>
+    <li>Do not advertise the cheap price on the full-price page.</li>
+    <li>Watch refunds and chargebacks by country before deepening a discount.</li>
+  </ul>
+
+  <h2>Taxes and currency</h2>
+  <p>Tax is added on top of your price in many countries. Currency conversion and local price endings are best done by your payment processor or app store, so use the table for the dollar-equivalent target and let them localise it.</p>
+
+  <h2>Try it</h2>
+  <p>Put your base price into <a href="./">the generator</a>, adjust strength and floor, and paste your own traffic mix to see the break-even conversion and a revenue what-if. It runs entirely in your browser.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. General information about pricing strategy, not financial, tax or legal advice. The price levels used are rounded estimates and your own sales data should decide your prices. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Optional support</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pg-stat-statements-analyzer/" data-pf-to="pg-stat-statements-analyzer">pg_stat_statements Analyzer — free, private, paste-the-output</a></li>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+      <li><a href="../pip-audit-triage/" data-pf-to="pip-audit-triage">Which pip-audit findings actually matter?</a></li>
+      <li><a href="../postgres-explain-analyzer/" data-pf-to="postgres-explain-analyzer">Why is my Postgres query slow? Paste the plan.</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ppp-pricing-table-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ppp-pricing-table-generator"></script>
+</body>
+</html>

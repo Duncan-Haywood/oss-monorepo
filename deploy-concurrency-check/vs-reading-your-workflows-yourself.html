@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. reading your workflows yourself | Deploy Concurrency Check</title>
+<meta name="description" content="You can read your own deploy workflows and find these races by eye. The question is not whether you could — it is whether anyone will…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/vs-reading-your-workflows-yourself.html">
+<meta property="og:title" content="This tool vs. reading your workflows yourself">
+<meta property="og:description" content="Reading the file finds four of the five. The fifth lives in the relationship between two files, and no amount of reading either one shows it.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read the workflow myself?","acceptedAnswer":{"@type":"Answer","text":"For a single file you should, and you will find most of this. The two places reading breaks down are scale and recurrence. Scale: a repository with a dozen workflow files has to be read as a set, because one of these defects — two workflows deploying the same environment under different concurrency group names — is not present in either file. Recurrence: the reading is only true for the day it was done, and a workflow that gains a second deploy job six months later reintroduces the defect against a review that already happened."}},{"@type":"Question","name":"What does a checker see that a careful reader does not?","acceptedAnswer":{"@type":"Answer","text":"Nothing, on one file, read carefully, by someone who already knows all five patterns. That last clause is where the value is: the pattern that costs the most — a concurrency group keyed on something that changes every run — looks correct to a reader who has not been caught by it before, because the block is present and correctly spelled. A checker does not have to have been caught by it before, and it reads the twelfth file as carefully as the first."}},{"@type":"Question","name":"Can I run the check automatically instead of visiting a page?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is the point of the CLI. check.py takes a directory of workflows and --fail-on-risk exits 1 on a high-risk finding, so it can run in the same pull request that changes a workflow. That converts the reading from something someone has to remember to do into something that happens on the diff that would have introduced the problem. It is Python standard library only, with no network access and no GitHub token."}},{"@type":"Question","name":"Does the checker replace understanding the problem?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. Every finding names the line, explains what goes wrong in terms of what a user would see, and prints the fix, because a finding you do not understand is one you will either apply wrongly or suppress. The explainer page is there for the same reason. A team that reads the findings and then decides a given race is acceptable for their target has used this correctly."}}]}</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
+    --border: #e2e2dd; --accent: #1f5f3f; --code: #f2f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
+      --border: #34353a; --accent: #7fd0a4; --code: #26272b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 54rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+  h1 { font-size: 1.8rem; line-height: 1.22; margin: 0 0 .5rem; max-width: 26ch; }
+  h2 { font-size: 1.12rem; margin: 2rem 0 .55rem; }
+  h3 { font-size: 1rem; margin: 1.4rem 0 .35rem; }
+  p.lede { color: var(--muted); font-size: 1.05rem; max-width: 44rem; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  section { background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .93rem; }
+  th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border);
+    vertical-align: top; }
+  thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); }
+  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
+  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
+    padding: .65rem .75rem; overflow-x: auto; font-size: .85rem; }
+  .fine { font-size: .87rem; color: var(--muted); }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/vs-reading-your-workflows-yourself.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. reading your workflows yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../deploy-concurrency-check/">Deploy Concurrency Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. reading your workflows yourself</span></span></nav>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Deploy Concurrency Check</a></p>
+  <h1>This tool vs. reading your workflows yourself</h1>
+  <p class="lede">
+    You can find all of this by opening the files. The honest question is not
+    whether you <em>could</em> &mdash; it is whether anyone will, on the day a
+    workflow changes, across every file that writes to the same target, while
+    already knowing which five patterns to look for. That is the gap this page
+    is about.
+  </p>
+
+  <section>
+    <h2>Where reading it yourself is better</h2>
+    <p>
+      For one file, once, by someone who knows the failure modes, reading is
+      strictly better and this tool adds nothing. You are not limited to five
+      patterns. You know whether your deploy step is idempotent, whether the
+      target has its own locking, and whether your team has already decided a
+      particular race is acceptable &mdash; three things a scanner cannot know
+      and will not ask. It will also miss anything outside its five checks and
+      say nothing about it, which is the failure mode of every checker.
+    </p>
+    <p>
+      So this is not a replacement for reading your pipeline. It is a floor
+      underneath it.
+    </p>
+  </section>
+
+  <section>
+    <h2>Where it stops working</h2>
+
+    <h3>One of the five is not in any file</h3>
+    <p>
+      Two workflows deploying the same environment under different concurrency
+      group names is a defect in the <em>relationship</em> between two files.
+      Each file is internally consistent and reviews clean. You only see it by
+      holding both at once and comparing one string in each &mdash; which is a
+      thing a person does badly and a scan does perfectly.
+    </p>
+
+    <h3>A reading is true for one day</h3>
+    <p>
+      The review happened. Then someone added a second deploy job, or copied the
+      workflow for staging, or changed the group key while fixing something else.
+      None of those diffs looks like &ldquo;reintroduce a deployment race&rdquo;,
+      and none of them triggers another read of the whole set. Wiring the check
+      into the pull request is what makes the answer current rather than
+      historical:
+    </p>
+<pre><code>python3 check.py .github/workflows/ --fail-on-risk</code></pre>
+
+    <h3>The worst pattern looks correct</h3>
+    <p>
+      <code>group: deploy-${{ github.sha }}</code> is the expensive one, and it
+      is expensive precisely because reading finds it only if you already know.
+      The block is there, the syntax is right, and the intent is obvious and
+      good. A reader who has not previously lost an afternoon to it ticks the
+      line off. A check does not need to have lost the afternoon.
+    </p>
+  </section>
+
+  <section>
+    <h2>Which to use when</h2>
+    <div class="scroll">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Situation</th><th scope="col">What to do</th></tr></thead>
+        <tbody>
+          <tr><td>One deploy workflow, and you are already reading it</td><td>Read it. Use the <a href="./how-a-deploy-ships-an-older-commit.html">five patterns</a> as a checklist; you do not need this tool.</td></tr>
+          <tr><td>A dozen workflow files, several of which deploy something</td><td>Scan the directory &mdash; the cross-file finding is the one reading reliably misses.</td></tr>
+          <tr><td>You want the answer to stay true</td><td><code>check.py --fail-on-risk</code> in the pull request that changes a workflow.</td></tr>
+          <tr><td>Someone reports &ldquo;my fix isn&rsquo;t live&rdquo; and the check is green</td><td>Scan first. It takes seconds and rules this class out or in before you start reading logs.</td></tr>
+          <tr><td>You need to know if the deploy step itself is safe to interrupt</td><td>Neither. That is a property of your deploy script, and no workflow scan can see it.</td></tr>
+          <tr><td>You want a compliance artifact or an audit</td><td>Neither. This is evidence for an engineer, not a control or an attestation.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Why not just read the workflow myself?</h3>
+    <p>For a single file you should, and you will find most of this. The two places reading breaks down are scale and recurrence. Scale: a repository with a dozen workflow files has to be read as a set, because one of these defects — two workflows deploying the same environment under different concurrency group names — is not present in either file. Recurrence: the reading is only true for the day it was done, and a workflow that gains a second deploy job six months later reintroduces the defect against a review that already happened.</p>
+    <h3>What does a checker see that a careful reader does not?</h3>
+    <p>Nothing, on one file, read carefully, by someone who already knows all five patterns. That last clause is where the value is: the pattern that costs the most — a concurrency group keyed on something that changes every run — looks correct to a reader who has not been caught by it before, because the block is present and correctly spelled. A checker does not have to have been caught by it before, and it reads the twelfth file as carefully as the first.</p>
+    <h3>Can I run the check automatically instead of visiting a page?</h3>
+    <p>Yes, and that is the point of the CLI. check.py takes a directory of workflows and --fail-on-risk exits 1 on a high-risk finding, so it can run in the same pull request that changes a workflow. That converts the reading from something someone has to remember to do into something that happens on the diff that would have introduced the problem. It is Python standard library only, with no network access and no GitHub token.</p>
+    <h3>Does the checker replace understanding the problem?</h3>
+    <p>No, and it is not built to. Every finding names the line, explains what goes wrong in terms of what a user would see, and prints the fix, because a finding you do not understand is one you will either apply wrongly or suppress. The explainer page is there for the same reason. A team that reads the findings and then decides a given race is acceptable for their target has used this correctly.</p>
+  </section>
+
+  <section>
+    <h2>What it costs you either way</h2>
+    <p>
+      Nothing, in both directions. This page is free, has no sign-in, no account
+      and no usage limit, and it uploads nothing &mdash; the scan runs in your
+      browser and this page makes no network request once loaded. The CLI is MIT
+      licensed, depends on the Python standard library alone, and never calls the
+      GitHub API or reads a token. If you would rather not paste a workflow into
+      any web page at all, use the CLI; the two are held to identical output by a
+      test that runs both over the same files.
+    </p>
+    <p>
+      <a href="./">Check a workflow</a>, or read
+      <a href="./how-a-deploy-ships-an-older-commit.html">how a deploy ships an
+      older commit</a>.
+    </p>
+    <p class="fine">
+      <strong>Not affiliated with, endorsed by, or sponsored by GitHub.</strong>
+      &ldquo;GitHub&rdquo; and &ldquo;GitHub Actions&rdquo; are used only to name
+      the system whose workflow files this tool reads, and no GitHub product is
+      reproduced or evaluated here. Free and provided as is, with
+      <strong>no warranty</strong> of any kind; this page is not professional
+      advice and no liability is accepted for any deployment made after reading
+      it. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring is
+      optional</a> and changes nothing about the tool.
+    </p>
+  </section>
+</div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+      <li><a href="../package-exports-drift-check/" data-pf-to="package-exports-drift-check">Does your package.json &quot;exports&quot; map point at files that actually exist?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=deploy-concurrency-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="deploy-concurrency-check"></script>
+</body>
+</html>

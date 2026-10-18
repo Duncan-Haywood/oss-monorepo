@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a spreadsheet — HOA Reserve Fund Calculator</title>
+<meta name="description" content="Many boards track their reserve fund in a spreadsheet that only compounds a single balance. This free calculator schedules every component's own replacement…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/vs-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet can track a reserve balance. Modeling per-component replacement cycles, the two special-assessment triggers…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a typical board spreadsheet actually track?","acceptedAnswer":{"@type":"Answer","text":"Usually one running balance: last year's number, plus this year's contribution and interest, minus whatever got spent. That answers \"how much do we have\" but not \"is that enough\", because it has no model of which components are due for replacement in which year or how their costs inflate between now and then."}},{"@type":"Question","name":"Why is modeling each component separately harder than it looks?","acceptedAnswer":{"@type":"Answer","text":"Each component has its own remaining life, its own full replacement cycle, and its own cost that inflates independently until the year it is replaced — and then resets to a fresh cycle. A roof due in 8 years and a repaving due in 4 years are not the same formula extended by a different number of rows; get the reset wrong for even one component and every later year's percent-funded figure is off, silently."}},{"@type":"Question","name":"What is the \"percent funded\" trap in a hand-built sheet?","acceptedAnswer":{"@type":"Answer","text":"Percent funded is a prorated, wear-based obligation — what the fund should hold today given each component's age relative to its life — not the fund balance divided by the sum of replacement costs. A sheet that divides balance by total future cost reads as far healthier than the fund actually is, because it never asks whether the money on hand matches what today's wear has already obligated."}},{"@type":"Question","name":"Can a spreadsheet solve for the minimum contribution that avoids a shortfall?","acceptedAnswer":{"@type":"Answer","text":"Only by guessing a number, rerunning the whole schedule, and repeating until the shortfall year disappears — a manual binary search most boards do not have the formula patience for. This calculator runs that search the moment you enter your numbers and reports both the level annual contribution and the equivalent one-time special assessment and phased monthly increase per unit."}},{"@type":"Question","name":"Is this calculator a substitute for a state-mandated reserve study?","acceptedAnswer":{"@type":"Answer","text":"No, and neither is a spreadsheet. Both are planning estimates from assumptions you supply. A reserve study such as Florida's SB 4-D / SIRS requires a site inspection and a credentialed preparer; this tool and any spreadsheet are useful for interim planning between studies, or for sanity-checking one, not for satisfying the mandate itself."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #0f2a24; background: #eef7f2; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1c6e4e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #0f2a24; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f2a24; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #bfe0cf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0f2a2410; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #3f6656; }
+  .note, footer { font-size: .86rem; color: #3f6656; }
+  footer { margin-top: 28px; border-top: 1px solid #bfe0cf; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/vs-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hoa-reserve-fund-calculator/">HOA Reserve Fund Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A lot of boards already track the reserve fund in a spreadsheet: one column for the year, one for the balance, a formula that adds the contribution and interest and subtracts whatever got spent. That tells you how much money is in the account. It does not tell you whether that amount matches what the roof, the elevator, and the repaving job due over the next few years actually require.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A running-balance spreadsheet</strong> is easy to build and keeps the board honest about cash in and cash out. What it usually skips is a per-component model: each component's own remaining life, its own replacement cycle, and its own cost inflating independently until the year it is replaced and its cycle resets. Extending that correctly by hand, for six or eight components over a 30-year horizon, is a lot of interlocking formulas to get right and keep right as inputs change.</p>
+<p><strong>This calculator</strong> schedules every component on its own cycle, applies both special-assessment triggers boards actually use &mdash; a negative balance, and falling under a target percent-funded threshold &mdash; and solves for the minimum contribution that avoids the first shortfall, reporting it as a level annual figure, a one-time per-unit assessment, and a phased monthly per-unit increase.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>How much cash do we have right now?</td><td>Either one &mdash; a running balance answers this fine.</td></tr>
+<tr><td>Does that balance match what today's component wear actually obligates?</td><td>This calculator's percent-funded figure, prorated per component rather than balance-over-total-cost.</td></tr>
+<tr><td>What year does the fund fall short, given the real replacement schedule?</td><td>This calculator &mdash; each component modeled on its own life and reset cycle, not one aggregate line.</td></tr>
+<tr><td>What contribution avoids that shortfall?</td><td>This calculator's solved minimum, instead of a manual guess-and-rerun loop.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does a typical board spreadsheet actually track?</h3>
+<p>Usually one running balance: last year's number, plus this year's contribution and interest, minus whatever got spent. That answers "how much do we have" but not "is that enough", because it has no model of which components are due for replacement in which year or how their costs inflate between now and then.</p>
+<h3>Why is modeling each component separately harder than it looks?</h3>
+<p>Each component has its own remaining life, its own full replacement cycle, and its own cost that inflates independently until the year it is replaced &mdash; and then resets to a fresh cycle. A roof due in 8 years and a repaving due in 4 years are not the same formula extended by a different number of rows; get the reset wrong for even one component and every later year's percent-funded figure is off, silently.</p>
+<h3>What is the "percent funded" trap in a hand-built sheet?</h3>
+<p>Percent funded is a prorated, wear-based obligation &mdash; what the fund should hold today given each component's age relative to its life &mdash; not the fund balance divided by the sum of replacement costs. A sheet that divides balance by total future cost reads as far healthier than the fund actually is, because it never asks whether the money on hand matches what today's wear has already obligated.</p>
+<h3>Can a spreadsheet solve for the minimum contribution that avoids a shortfall?</h3>
+<p>Only by guessing a number, rerunning the whole schedule, and repeating until the shortfall year disappears &mdash; a manual binary search most boards do not have the formula patience for. This calculator runs that search the moment you enter your numbers and reports both the level annual contribution and the equivalent one-time special assessment and phased monthly increase per unit.</p>
+<h3>Is this calculator a substitute for a state-mandated reserve study?</h3>
+<p>No, and neither is a spreadsheet. Both are planning estimates from assumptions you supply. A reserve study such as Florida's SB 4-D / SIRS requires a site inspection and a credentialed preparer; this tool and any spreadsheet are useful for interim planning between studies, or for sanity-checking one, not for satisfying the mandate itself.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator produce planning estimates from numbers you supply, not audited figures or a state-mandated reserve study. <strong>You are responsible for verifying anything here against your own records and, where required, a licensed reserve specialist.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+      <li><a href="../pool-opening-closing-price-calculator/" data-pf-to="pool-opening-closing-price-calculator">Pool Opening and Closing Price Calculator — free, private</a></li>
+      <li><a href="../pool-route-pricing/" data-pf-to="pool-route-pricing">Pool Service Route Pricing Calculator</a></li>
+      <li><a href="../pool-service-route-calculator/" data-pf-to="pool-service-route-calculator">Which pool service accounts are worth the drive? True hourly per account, reprice or drop, and route density</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hoa-reserve-fund-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hoa-reserve-fund-calculator"></script>
+</body>
+</html>

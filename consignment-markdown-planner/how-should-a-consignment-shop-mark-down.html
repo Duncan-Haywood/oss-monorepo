@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Should a Consignment Shop Mark Down? 30/60/90-Day Schedule Math</title>
+  <meta name="description" content="How to decide when a consignment or resale shop should mark an item down: expected profit per week on the floor, shelf cost…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/how-should-a-consignment-shop-mark-down.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long should a consignment shop wait before marking an item down?", "acceptedAnswer": {"@type": "Answer", "text": "There is no fixed answer; it depends on how fast items like it sell and what a week of shelf space costs you. Items that sell quickly at full price can hold their tag longer. Items on a costly slot or with a slow sell rate pay to start marking down early. The planner finds the best start week for each item from your own numbers."}}, {"@type": "Question", "name": "Is a 30/60/90-day markdown schedule good enough?", "acceptedAnswer": {"@type": "Answer", "text": "It is a sensible default and rarely a disaster, but it treats every item the same. The planner compares it with the best schedule for each item and prints the dollars the fixed rule leaves behind."}}, {"@type": "Question", "name": "Which items should a consignment shop refuse?", "acceptedAnswer": {"@type": "Answer", "text": "Items whose expected shop cut, over the weeks they are likely to sit, does not cover shelf space and handling. Low-ticket items on a costly shelf are the usual losers. The planner names the price or shop share at which each declined item would pay."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/how-should-a-consignment-shop-mark-down.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How Should a Consignment Shop Mark Down? 30/60/90-Day Schedule Math">
+<meta property="og:description" content="How to decide when a consignment or resale shop should mark an item down: expected profit per week on the floor, shelf cost…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Should a Consignment Shop Mark Down? 30/60/90-Day Schedule Math — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../consignment-markdown-planner/">When should a consignment shop mark things down?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Should a Consignment Shop Mark Down? 30/60/90-Day Schedule Math</span></span></nav>
+  <p class="note"><a href="./">Consignment Markdown Planner</a> · guide</p>
+  <h1>How should a consignment shop mark down? 30/60/90-day schedule math</h1>
+  <p>Short answer: <strong>mark an item down when the extra chance of selling it this week is worth more than the cut you give up and the shelf week you save</strong>. A fixed schedule gets close; working it per item gets closer, and also tells you which items were never worth the slot.</p>
+
+  <h2>A worked example</h2>
+  <p>A designer silk blazer is tagged at $120. It sells about 8% of weeks at full price, you keep 40% of the sale, a rack slot costs $0.60 a week, handling is $2, and the item stays 12 weeks. Each 10% off lifts the weekly sell chance by 35% of its base rate.</p>
+  <ul>
+    <li>Never marking down: the blazer sells 63% of the time and nets the shop <strong>$23.61</strong>.</li>
+    <li>A fixed 25% off at week 5 and 50% off at week 9: <strong>$25.45</strong>.</li>
+    <li>The best schedule, 10% off from week 1, 25% off in weeks 8-11 and 40% off in week 12: <strong>$26.76</strong>, selling 81% of the time, with the consignor paid about $49.23 on average.</li>
+  </ul>
+  <p>The gain per item is small; across a floor of hundreds of items it is the difference between a rack that turns and one that fills with last season.</p>
+
+  <h2>Which items to decline</h2>
+  <p>A $12 graphic tee that sells 10% of weeks, with a 40% shop share and the same $0.60 slot, nets <strong>-$1.63</strong> even on its best schedule (25% off from week 1, 40% off from week 6). It would only pay at a price of about $17.93 or a shop share near 59.8%. Tell consignors that items under that price are not accepted, or take them at a higher split.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Weekly sell rate from your own history: items of that kind sold per week they were on the floor.</li>
+    <li>Shelf cost per week: rent and floor staff time for the area, divided by item slots.</li>
+    <li>Lift: compare sell-through in the weeks before and after your last markdowns.</li>
+  </ol>
+  <p>Check the consignment agreement first: some promise consignors a markdown schedule or price floor, and those terms come before any optimum.</p>
+
+  <h2>Questions</h2>
+  <h3>How long should a consignment shop wait before marking an item down?</h3>
+  <p>There is no fixed answer; it depends on how fast items like it sell and what a week of shelf space costs you. Items that sell quickly at full price can hold their tag longer. Items on a costly slot or with a slow sell rate pay to start marking down early. The planner finds the best start week for each item from your own numbers.</p>
+  <h3>Is a 30/60/90-day markdown schedule good enough?</h3>
+  <p>It is a sensible default and rarely a disaster, but it treats every item the same. The planner compares it with the best schedule for each item and prints the dollars the fixed rule leaves behind.</p>
+  <h3>Which items should a consignment shop refuse?</h3>
+  <p>Items whose expected shop cut, over the weeks they are likely to sit, does not cover shelf space and handling. Low-ticket items on a costly shelf are the usual losers. The planner names the price or shop share at which each declined item would pay.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for the terms of your consignment agreements. The worked example is illustrative arithmetic, not a forecast of what will sell.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bookkeeping-client-fee-calculator/" data-pf-to="bookkeeping-client-fee-calculator">What should you charge a new bookkeeping client each month?</a></li>
+      <li><a href="../brrrr-calculator/" data-pf-to="brrrr-calculator">BRRRR Calculator — free, private, in your browser</a></li>
+      <li><a href="../business-loan-offer-comparator/" data-pf-to="business-loan-offer-comparator">Business Loan Offer Comparator — free, private, in your browser</a></li>
+      <li><a href="../business-vehicle-depreciation-calculator/" data-pf-to="business-vehicle-depreciation-calculator">How much of your business vehicle can you deduct this year?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=consignment-markdown-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="consignment-markdown-planner"></script>
+</body>
+</html>

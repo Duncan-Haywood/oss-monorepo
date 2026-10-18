@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. hiring a PPO fee negotiator | Dental PPO Write-Off Calculator</title>
+<meta name="description" content="A PPO fee-schedule negotiation service renegotiates your contracted rates with carriers, usually for a flat fee per payer or a cut of the increase.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. hiring a PPO fee negotiator">
+<meta property="og:description" content="A negotiator renegotiates contracted rates for a flat fee or a cut of the increase. This free calculator does not negotiate…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or hire a PPO fee-schedule negotiation service?","acceptedAnswer":{"@type":"Answer","text":"Both, in that order. A fee-schedule negotiation service does something this calculator cannot: it contacts carriers and actually renegotiates a contracted rate, usually charging a flat fee per payer or a percentage of the increase it wins. This calculator does not negotiate anything and cannot promise any carrier will move. What it does first, for free, from one month of your own production and adjustment numbers, is tell you which of your contracts is actually costing the most in dollars — not which has the worst rate, which is often a different plan — so that a flat per-payer fee or a percentage cut goes toward the contract that is genuinely worth pursuing rather than the one that merely looks worst on paper."}},{"@type":"Question","name":"How do PPO fee-schedule negotiation services usually charge?","acceptedAnswer":{"@type":"Answer","text":"Typically one of two ways: a flat fee per payer contract, or a percentage of the reimbursement increase the service secures, sometimes billed as an ongoing share of the higher collections. Either way you are paying for the negotiation itself, not for knowing which contract to negotiate first — and concentrating that spend on the plan with the largest write-off in dollars is what this calculator's ranking is for."}},{"@type":"Question","name":"If I raise my own fee schedule, is that the same as negotiating a better contracted rate?","acceptedAnswer":{"@type":"Answer","text":"No, and conflating the two is the single most common reason a practice thinks it fixed a write-off and did not. A PPO's allowed fee is a contracted dollar amount, not a percentage of whatever the practice charges. Raising your own posted fee schedule on a procedure that is already contracted raises the gross production figure and the write-off by exactly the same amount, and collects nothing. It only moves money on production that is not covered by a plan. A negotiator changes the contracted allowed fee itself, which is the only lever that touches money already locked in by a PPO agreement. This calculator prints both figures side by side so the difference is visible before either is attempted."}},{"@type":"Question","name":"Does this calculator negotiate with insurance carriers?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on numbers you already have — one month of production and contractual adjustments, per plan, from a report your practice management system already produces. It has no contact with any carrier and cannot promise any contract will change. That work, if you want it done, is what a fee-schedule negotiation service is hired to do."}},{"@type":"Question","name":"Is a bad reimbursement rate the same problem as a big write-off?","acceptedAnswer":{"@type":"Answer","text":"Often not, which is exactly where a flat per-payer negotiation fee can be spent on the wrong contract. A low-volume plan can carry a terrible rate and still take a small number of dollars out of the practice each month, while a high-volume plan with a middling rate can be the one actually costing the most. This calculator ranks every plan by write-off dollars, with its rate printed alongside, so the two questions — which rate is worst, and which contract is worth paying to fix — are answered separately rather than assumed to be the same plan."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1f5c35; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f5c35; margin: 0 0 6px; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4d5b6c; }
+  p { line-height: 1.5; }
+  section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dde4ed; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b6c; }
+  .fine, .note { font-size: .88rem; color: #4d5b6c; }
+  footer { color: #4d5b6c; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+  @media (max-width: 820px) { body { padding: 20px 14px 40px; } }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. hiring a PPO fee negotiator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dental-ppo-writeoff-calculator/">Dental PPO Write-Off Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. hiring a PPO fee negotiator</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Dental PPO Write-Off Calculator</a></p>
+<header>
+<h1>This calculator vs. hiring a PPO fee negotiator</h1>
+<p class="lede">Different jobs. A fee-schedule negotiation service renegotiates a contracted rate with a carrier, usually for a flat fee per payer or a cut of the increase. This free calculator does not negotiate anything &mdash; it tells you, from your own numbers, which contract is worth paying someone to negotiate.</p>
+</header>
+<section>
+<h2>What each one is for</h2>
+<p>
+  <strong>A PPO fee-schedule negotiation service</strong> does the part this
+  calculator cannot: it contacts a carrier and actually negotiates a higher
+  contracted allowed fee. These services generally charge one of two ways
+  &mdash; a flat fee per payer contract, or a percentage of the reimbursement
+  increase they secure, sometimes continuing as a share of the higher
+  collections going forward. That is real, billable work, and if a contract
+  is worth renegotiating, a service that does this full time is better placed
+  to do it than a practice owner between patients.
+</p>
+<p>
+  <strong>This calculator</strong> does the part that comes before paying
+  anyone. It takes one month of production and contractual write-offs, split
+  by carrier &mdash; a report every practice management system already
+  produces &mdash; and ranks every plan by the <em>dollars</em> its write-off
+  takes, with the effective reimbursement rate printed alongside. Those are
+  frequently not the same plan: a low-volume plan can carry the worst rate in
+  the practice and still cost the least in dollars, while a middling-rate,
+  high-volume plan quietly takes the most. Paying a flat per-payer fee, or a
+  cut of the increase, on the wrong contract is money spent on the plan that
+  looked worst rather than the one that actually mattered.
+</p>
+<p>
+  It also answers a question worth settling before any negotiation begins:
+  <strong>whether raising your own posted fee schedule would collect
+  anything at all.</strong> A PPO's allowed fee is a contracted dollar
+  amount, not a percentage of whatever the practice charges, so raising your
+  own fee schedule on already-contracted procedures raises the write-off by
+  the same amount it raises gross production and collects nothing. Only a
+  changed <em>contracted</em> rate &mdash; the thing a negotiator is hired to
+  get &mdash; touches money a PPO agreement has already locked in. This
+  calculator prints both figures side by side so that difference is visible
+  before a fee schedule change or a negotiation engagement is chosen.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which of my contracts is actually costing the most, in dollars?</td><td>This calculator's per-plan ranking &mdash; free, private, no account, and different from ranking by rate alone.</td></tr>
+<tr><td>Would raising my own fee schedule collect more from my PPO plans?</td><td>This calculator's fee-increase model &mdash; on contracted procedures, usually close to nothing.</td></tr>
+<tr><td>Can I actually get a carrier to pay a higher contracted rate?</td><td>A PPO fee-schedule negotiation service. This calculator cannot contact a carrier or negotiate anything.</td></tr>
+<tr><td>Is a per-payer fee or a percentage-of-increase engagement worth it for a given plan?</td><td>Start with this calculator's ranking, then take the plan(s) with the largest dollar write-off to a negotiator.</td></tr>
+<tr><td>What is my break-even reimbursement rate, so I can tell if a plan pays less than the chair costs?</td><td>This calculator &mdash; from your own cost and production per chair hour.</td></tr>
+<tr><td>Do I need an account or a sign-in?</td><td>This calculator: no. A negotiation service is a paid engagement with a signed agreement.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  The two are sequential, not competing: this calculator to find and size the
+  problem for free, a negotiation service to actually fix the contract if the
+  dollars justify the fee. This page is arithmetic on numbers you provide,
+  not a negotiation, a guarantee of any carrier response, or advice about
+  which service to hire.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or hire a PPO fee-schedule negotiation service?</h3>
+<p>Both, in that order. A fee-schedule negotiation service does something this calculator cannot: it contacts carriers and actually renegotiates a contracted rate, usually charging a flat fee per payer or a percentage of the increase it wins. This calculator does not negotiate anything and cannot promise any carrier will move. What it does first, for free, from one month of your own production and adjustment numbers, is tell you which of your contracts is actually costing the most in dollars &mdash; not which has the worst rate, which is often a different plan &mdash; so that a flat per-payer fee or a percentage cut goes toward the contract that is genuinely worth pursuing rather than the one that merely looks worst on paper.</p>
+<h3>How do PPO fee-schedule negotiation services usually charge?</h3>
+<p>Typically one of two ways: a flat fee per payer contract, or a percentage of the reimbursement increase the service secures, sometimes billed as an ongoing share of the higher collections. Either way you are paying for the negotiation itself, not for knowing which contract to negotiate first &mdash; and concentrating that spend on the plan with the largest write-off in dollars is what this calculator's ranking is for.</p>
+<h3>If I raise my own fee schedule, is that the same as negotiating a better contracted rate?</h3>
+<p>No, and conflating the two is the single most common reason a practice thinks it fixed a write-off and did not. A PPO's allowed fee is a contracted dollar amount, not a percentage of whatever the practice charges. Raising your own posted fee schedule on a procedure that is already contracted raises the gross production figure and the write-off by exactly the same amount, and collects nothing. It only moves money on production that is not covered by a plan. A negotiator changes the contracted allowed fee itself, which is the only lever that touches money already locked in by a PPO agreement. This calculator prints both figures side by side so the difference is visible before either is attempted.</p>
+<h3>Does this calculator negotiate with insurance carriers?</h3>
+<p>No. It is arithmetic on numbers you already have &mdash; one month of production and contractual adjustments, per plan, from a report your practice management system already produces. It has no contact with any carrier and cannot promise any contract will change. That work, if you want it done, is what a fee-schedule negotiation service is hired to do.</p>
+<h3>Is a bad reimbursement rate the same problem as a big write-off?</h3>
+<p>Often not, which is exactly where a flat per-payer negotiation fee can be spent on the wrong contract. A low-volume plan can carry a terrible rate and still take a small number of dollars out of the practice each month, while a high-volume plan with a middling rate can be the one actually costing the most. This calculator ranks every plan by write-off dollars, with its rate printed alongside, so the two questions &mdash; which rate is worst, and which contract is worth paying to fix &mdash; are answered separately rather than assumed to be the same plan.</p>
+<p class="note">
+  Open the <a href="./">Dental PPO Write-Off Calculator</a> to run your own numbers.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, employment, or contract advice, and it does not replace a qualified professional. It does not negotiate with, contact, or represent you to any carrier, and it cannot predict or guarantee the outcome of any negotiation. Verify every figure against your own practice management system before relying on it or acting on a contract with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This page describes PPO fee-schedule negotiation services in general terms; it does not name, endorse, or compare against any specific negotiation company.</p>
+<p class="support">Free and open source. If it helps you decide where to spend a negotiation budget, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../eu-bank-statement-reader/" data-pf-to="eu-bank-statement-reader">EU Bank Statement Reader — free, private, in your browser</a></li>
+      <li><a href="../eu-vat-oss-calculator/" data-pf-to="eu-vat-oss-calculator">EU VAT OSS Calculator — free, private, in your browser</a></li>
+      <li><a href="../excess-business-loss-calculator/" data-pf-to="excess-business-loss-calculator">Excess Business Loss Calculator — free, 2025-2026</a></li>
+      <li><a href="../exempt-salary-threshold-checker/" data-pf-to="exempt-salary-threshold-checker">Exempt Salary Threshold Checker — free, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dental-ppo-writeoff-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dental-ppo-writeoff-calculator"></script>
+</body></html>

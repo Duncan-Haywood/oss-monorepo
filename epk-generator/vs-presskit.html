@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EPK Generator vs. Presskit.to</title>
+  <meta name="description" content="Presskit.to is an account-based press-kit hosting service with a free tier and paid plans for a custom domain and extra pages.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/epk-generator/vs-presskit.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="EPK Generator vs. Presskit.to">
+  <meta property="og:description" content="Two different jobs: Presskit.to hosts your press kit as a page on its own domain, behind an account.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/epk-generator/vs-presskit.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this generator or Presskit.to?","acceptedAnswer":{"@type":"Answer","text":"They solve different halves of the same problem. Presskit.to's core mechanism, per its own public positioning, is hosting: you create an account, build a page on its platform, and it stays live at a Presskit.to (or, on a paid plan, custom) URL that you keep updating over time -- useful if you want one evolving link to hand out for months or years. This generator's only job is building the file: fill in a form once, and get a self-contained HTML press kit and a plain-text one-sheet to download immediately, with no account and no ongoing host. If you want a single link you maintain long-term, an account-based host like Presskit.to is the right tool. If you want a press kit to email or attach to a festival submission form right now, without creating an account, this generator does that and nothing more."}},{"@type":"Question","name":"Does the downloaded file work the same as a hosted page?","acceptedAnswer":{"@type":"Answer","text":"It is a single, self-contained HTML file with your bio, links, tour dates, press quotes, and photo (linked, not embedded) baked in -- open it in any browser, attach it to an email, or upload it to any host you already have (your own site, GitHub Pages, cloud storage). What it will not do on its own is give you a stable public URL: that needs you to host the file somewhere, which is exactly the service an account-based tool like Presskit.to sells as its core feature. This generator's plain-text one-sheet exists for the common case where a submission form or email doesn't want an attached file at all."}},{"@type":"Question","name":"Is this page affiliated with Presskit.to?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Presskit.to. Presskit.to is a trademark of its owner, named here only to describe what this generator is and is not. No price, plan name, or exact feature claim for Presskit.to is asserted as verified fact on this page, because Presskit.to's own material was not reachable from the session that generated it -- these are the categories of difference both tools' own public positioning agrees on, not a line-by-line feature audit."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; letter-spacing: -.02em; margin: 0 0 14px; color: #17324a; }
+    h2 { margin-top: 30px; font-size: 1.15rem; color: #17324a; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    p, li { line-height: 1.6; }
+    .eyebrow { font-size: .85rem; margin: 0 0 18px; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; background: #fff; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #d5dbe3; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    caption { text-align: left; font-size: .82rem; color: #55606f; padding-bottom: 8px; }
+    .cta { display: inline-block; margin: 8px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .cta:hover { background: #114a39; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 18px 20px; box-shadow: 0 8px 24px #17324a10; margin: 20px 0; }
+    .note { font-size: .85rem; color: #55606f; }
+    footer { margin-top: 34px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/epk-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="EPK Generator vs. Presskit.to — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../epk-generator/">Build a free electronic press kit (EPK) in minutes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">EPK Generator vs. Presskit.to</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; EPK generator</a></p>
+    <h1>EPK Generator vs. Presskit.to</h1>
+    <p class="lede">Two different jobs. Presskit.to's own public positioning centers on hosting: create an
+      account, build a page on its platform, and keep one evolving link live over time. This tool builds
+      the file &mdash; fill in a form once and download a self-contained press kit in one sitting, no account,
+      no hosting, nothing uploaded.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>Presskit.to</strong> is an account-based press-kit hosting service. Per its own public
+        positioning, you sign up, build a page on its platform from your bio, music, photos, and shows, and
+        it stays live at a URL on its domain (or, on a paid plan, your own custom domain) that you keep
+        editing as your bio, tour dates, or links change &mdash; useful if you want one link you hand out for
+        months or years without rebuilding it. It has a free tier and paid plans for a custom domain and
+        additional pages, based on its own public marketing (Presskit.to's site was not reachable to confirm
+        current limits or pricing from the session that generated this page, so no dollar figure or feature
+        count is stated here as verified fact).
+      </p>
+      <p>
+        This generator does a narrower, one-time job. It needs no account and hosts nothing. You fill in a
+        form &mdash; bio, streaming and social links, tour dates, press quotes, a linked photo &mdash; and it
+        builds a self-contained HTML press kit and a plain-text one-sheet, both ready to download immediately.
+        Nothing you type is uploaded anywhere; the file is yours to attach to an email, paste into a
+        submission form, or host wherever you already host things.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption>Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want one stable link I keep updating for months or years.</td><td>Presskit.to, or a comparable hosted press-kit service &mdash; this generator produces a file, not a maintained page.</td></tr>
+          <tr><td>I need a press kit to email or attach to a submission form right now.</td><td>This generator &mdash; free, instant, no account, downloads immediately.</td></tr>
+          <tr><td>I want a plain-text version for a form that rejects attachments.</td><td>This generator &mdash; every build includes a copy-ready plain-text one-sheet alongside the HTML file.</td></tr>
+          <tr><td>Do I need to sign up or pay to build one press kit?</td><td>This generator: no, ever. Presskit.to: free tier exists; a custom domain and extra pages are on a paid plan.</td></tr>
+          <tr><td>What belongs in a press kit in the first place?</td><td>This generator's own <a href="what-is-an-epk.html">explanation of what an EPK is and isn't</a>.</td></tr>
+          <tr><td>Why not just skip both and build one in a document editor?</td><td>See <a href="vs-assembling-one-by-hand.html">this generator vs. assembling one by hand</a>.</td></tr>
+          <tr><td>Where does the photo in my press kit come from?</td><td>Either tool: a link you already host. This generator never accepts a file upload.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p>
+        The two are more sequential than rival for some artists: build a file here for an immediate
+        submission deadline, and separately decide later whether a maintained hosted page is worth an
+        account. For a one-off booking email or festival form tonight, downloading a file needs neither a
+        signup nor a plan.
+      </p>
+      <p class="note">This tool needs no account and no sign-in: it is a static page, the generator runs in your browser, and it keeps working with the connection off once loaded.</p>
+      <p><a class="cta" href="./">Build your free press kit</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this generator or Presskit.to?</h3>
+      <p>They solve different halves of the same problem. Presskit.to's core mechanism, per its own public positioning, is hosting: you create an account, build a page on its platform, and it stays live at a Presskit.to (or, on a paid plan, custom) URL that you keep updating over time -- useful if you want one evolving link to hand out for months or years. This generator's only job is building the file: fill in a form once, and get a self-contained HTML press kit and a plain-text one-sheet to download immediately, with no account and no ongoing host. If you want a single link you maintain long-term, an account-based host like Presskit.to is the right tool. If you want a press kit to email or attach to a festival submission form right now, without creating an account, this generator does that and nothing more.</p>
+      <h3>Does the downloaded file work the same as a hosted page?</h3>
+      <p>It is a single, self-contained HTML file with your bio, links, tour dates, press quotes, and photo (linked, not embedded) baked in -- open it in any browser, attach it to an email, or upload it to any host you already have (your own site, GitHub Pages, cloud storage). What it will not do on its own is give you a stable public URL: that needs you to host the file somewhere, which is exactly the service an account-based tool like Presskit.to sells as its core feature. This generator's plain-text one-sheet exists for the common case where a submission form or email doesn't want an attached file at all.</p>
+      <h3>Is this page affiliated with Presskit.to?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by Presskit.to. Presskit.to is a trademark of its owner, named here only to describe what this generator is and is not. No price, plan name, or exact feature claim for Presskit.to is asserted as verified fact on this page, because Presskit.to's own material was not reachable from the session that generated it -- these are the categories of difference both tools' own public positioning agrees on, not a line-by-line feature audit.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not booking, publicity, legal, or career advice, and it does not replace a manager, publicist, or lawyer. <strong>You are responsible for reviewing and verifying everything in the generated press kit before sending it anywhere</strong> -- including that any photo link you provide is one you have the right to use. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+      <p>Everything runs in your browser. This page makes no live comparison against Presskit.to -- it is a static page describing category facts, hedged where they could not be verified against the vendor's own material. We count only anonymous local feature events, never people or press-kit content, with an opt-out on the generator page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the generator.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../voiceover-project-rate-calculator/" data-pf-to="voiceover-project-rate-calculator">Voice-Over Project Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=epk-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="epk-generator"></script>
+</body></html>

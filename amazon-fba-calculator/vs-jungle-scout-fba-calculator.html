@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This FBA vs FBM calculator vs. Jungle Scout's FBA Calculator</title>
+  <meta name="description" content="How this free, no-signup FBA vs FBM calculator differs from Jungle Scout's FBA Calculator, and when to use each one. Not affiliated with Jungle Scout.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/vs-jungle-scout-fba-calculator.html">
+  <meta property="og:title" content="This calculator vs. Jungle Scout's FBA Calculator">
+  <meta property="og:description" content="Jungle Scout's calculator is a pre-launch cost estimator tied to its product-research suite. This one is a no-signup FBA-vs-FBM decision…">
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d3e2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #445064; }
+    .note { font-size: .85rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Jungle Scout's FBA Calculator?","acceptedAnswer":{"@type":"Answer","text":"Jungle Scout's FBA Calculator is built for the pre-launch question -- roughly what a new product idea will cost across upfront, variable, and marketing spend once FBA fees are in -- and it sits inside Jungle Scout's wider product-research suite (Chrome extension, product database) for sellers already sourcing there. This page does not try to replace that estimate. What it adds is a listing you already sell or are about to list: FBA and FBM side by side from your own cost of goods and shipping, the maximum you can pay a supplier before the unit loses money, and a dozen linked follow-on decisions on that same listing -- coupons, Subscribe & Save, a supplier MOQ, Vine, aged inventory, AWD, Remote Fulfillment, peak-season timing -- none of which a single profit estimate covers."}},{"@type":"Question","name":"Is this page affiliated with Jungle Scout?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Jungle Scout. Jungle Scout is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/vs-jungle-scout-fba-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Jungle Scout's FBA Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Jungle Scout's FBA Calculator</span></span></nav>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>This calculator vs. Jungle Scout's FBA Calculator</h1>
+  <p>
+    Jungle Scout publishes its own free <strong>FBA Calculator</strong>,
+    reachable at
+    <a href="https://www.junglescout.com/fba-calculator/" rel="nofollow noopener">junglescout.com/fba-calculator</a>,
+    and the same estimate lives inside the paid Jungle Scout suite (Chrome
+    extension, product database) for sellers already sourcing there. It is
+    built around a <strong>pre-launch</strong> question: given a product idea
+    and its FBA fees, what do upfront costs, variable costs, and marketing
+    spend leave once it is selling.
+  </p>
+  <p>
+    That makes it the right tool for one job: <strong>sizing a new product
+    idea before you commit to it</strong>, especially if you are already
+    using Jungle Scout to source and validate that idea. It is not built
+    around a listing you already sell, and it does not compare fulfillment
+    paths on that listing.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Roughly what will a new product idea cost once FBA fees, upfront spend, and marketing are in?</td>
+        <td>Jungle Scout's FBA Calculator — built for sizing an idea before launch.</td>
+      </tr>
+      <tr>
+        <td>On a listing I already sell, does FBA or FBM leave more from my own cost of goods and shipping?</td>
+        <td>This calculator — both paths on one screen, no account needed.</td>
+      </tr>
+      <tr>
+        <td>What is the most I can pay a supplier before this unit loses money?</td>
+        <td>This calculator's max buy cost, next to both fulfillment paths.</td>
+      </tr>
+      <tr>
+        <td>Does a coupon, Subscribe &amp; Save, a supplier MOQ, Vine, aged
+          inventory, AWD, Remote Fulfillment, or peak-season timing still pay
+          on this same listing?</td>
+        <td>This calculator's linked follow-on pages — see
+          <a href="./#faq-heading">what this checks</a> below.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    This tool needs no Jungle Scout account, no Chrome extension, and no
+    product database lookup: it is a static page, the arithmetic runs in
+    your browser, and once it has loaded it keeps working with the
+    connection off. It also keeps named sourcing scenarios in your own
+    browser and a <strong>shareable link</strong> that carries your inputs
+    after the <code>#</code> in the URL — never uploaded anywhere. Nothing
+    you type is uploaded anywhere, and nothing here is tied to a
+    subscription.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Jungle Scout's FBA Calculator?</h3>
+  <p>Jungle Scout's FBA Calculator is built for the pre-launch question -- roughly what a new product idea will cost across upfront, variable, and marketing spend once FBA fees are in -- and it sits inside Jungle Scout's wider product-research suite (Chrome extension, product database) for sellers already sourcing there. This page does not try to replace that estimate. What it adds is a listing you already sell or are about to list: FBA and FBM side by side from your own cost of goods and shipping, the maximum you can pay a supplier before the unit loses money, and a dozen linked follow-on decisions on that same listing -- coupons, Subscribe &amp; Save, a supplier MOQ, Vine, aged inventory, AWD, Remote Fulfillment, peak-season timing -- none of which a single profit estimate covers.</p>
+  <h3>Is this page affiliated with Jungle Scout?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Jungle Scout. Jungle Scout is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+  <p class="note">
+    Open the <a href="./">Amazon FBA vs FBM calculator</a> to run the
+    comparison on your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against Amazon's own current fee schedule before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kdp-royalty-to-journal/" data-pf-to="kdp-royalty-to-journal">KDP royalty report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-fba-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amazon-fba-calculator"></script>
+</body>
+</html>

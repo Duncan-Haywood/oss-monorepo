@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Base Image EOL Check — Is Your FROM Line Still Supported?</title>
+  <meta name="description" content="Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Is your Dockerfile's base image still supported?">
+  <meta property="og:description" content="A pinned base image can still be unsupported. Paste your Dockerfile and get every FROM line past its publisher's own end-of-life date…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Docker Base Image EOL Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans a Dockerfile for FROM lines referencing a base image release line that has passed its publisher's own end-of-life date, using a curated, dated table checked into the tool. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a pinned base image already safe?","acceptedAnswer":{"@type":"Answer","text":"Pinning (to a tag or a content digest) only stops the reference from being silently repointed to different bytes. It says nothing about whether the release line those bytes belong to is still receiving security patches from its publisher. A FROM line can be pinned to an exact digest and still be building on a Node, Python, or distro release that stopped getting fixes months ago -- pinning and end-of-life are independent questions."}},{"@type":"Question","name":"Where does the end-of-life data come from?","acceptedAnswer":{"@type":"Answer","text":"A small, curated table checked into this tool, not a live lookup -- the page and the CLI make no network calls of their own. Each entry names the project whose own release schedule or stated support-length policy it was read from, and whether that date is the project's own published end date (confirmed) or inferred from its policy (estimated). Re-verify any finding against the upstream project's own page before relying on it, especially an estimated one, and especially long after the dataset's own snapshot date shown in the results."}},{"@type":"Question","name":"Does a clean scan mean my image has no vulnerabilities?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific thing: whether the base image's release line, as named by its tag, has passed its publisher's own end-of-life date. It is not a vulnerability scan, does not inspect installed packages, and makes no claim about CVEs present in a supported image."}},{"@type":"Question","name":"What if my tag is latest, or I use a private registry image?","acceptedAnswer":{"@type":"Answer","text":"A tag of latest (or no tag at all, which resolves to latest) names no fixed release line, so it cannot be checked against a dated table -- it is reported as unknown-tag rather than guessed at. The same applies to any image outside this tool's curated table, including private-registry and custom images: reported as unknown-image, which is not evidence of anything either way."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text], input[type=number] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    input[type=number] { width: 90px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.eol, .pill.deprecated-image { background: #fde8e8; color: #9a3412; }
+    .pill.eol-soon { background: #fef3c7; color: #92400e; }
+    .pill.supported { background: #dcefe4; color: #14532d; }
+    .pill.unknown-tag, .pill.unknown-image { background: #e3e9ef; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .warn-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is your Dockerfile's base image still supported?","item":"https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is your Dockerfile's base image still supported? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is your Dockerfile's base image still supported?</span></span></nav>
+  <header>
+    <p class="note">DOCKER BASE IMAGE EOL CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your Dockerfile's base image still supported?</h1>
+    <p>A base image reference can be pinned to an exact content digest and still start from a release line — <code>node:18</code>, <code>python:3.9</code>, <code>ubuntu:20.04</code> — that its own publisher stopped patching months ago. Pinning stops the reference from being silently repointed; it says nothing about whether anyone is still shipping security fixes for what it points to. Paste your Dockerfile below and this page checks every <code>FROM</code> line's release line against a small, dated end-of-life table.</p>
+    <p class="note">Nothing is uploaded. The Dockerfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — the end-of-life data is a checked-in snapshot, not a live lookup.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more Dockerfiles</h2>
+    <p class="note">Copy the contents of each <code>Dockerfile</code> (or <code>Dockerfile.*</code> / <code>*.dockerfile</code>) you want checked.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another Dockerfile</button>
+    </p>
+    <div class="warn-row">
+      <label for="warn-days" class="note">Warn this many days before end-of-life:</label>
+      <input type="number" id="warn-days" value="90" min="0" max="3650" inputmode="decimal">
+    </div>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one Dockerfile above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Image : Tag</th><th>Status</th><th>End-of-life</th><th>Source</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="snapshot-note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan every Dockerfile under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any base image is eol or deprecated-image
+python3 check.py --warn-days 30   # narrow the eol-soon warning window</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a base image whose release line has already gone end-of-life.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Isn't a pinned base image already safe?</h3>
+    <p>Pinning (to a tag or a content digest) only stops the reference from being silently repointed to different bytes. It says nothing about whether the release line those bytes belong to is still receiving security patches from its publisher. A <code>FROM</code> line can be pinned to an exact digest and still be building on a Node, Python, or distro release that stopped getting fixes months ago -- pinning and end-of-life are independent questions.</p>
+    <p class="note">See <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> for the pinning question specifically.</p>
+    <h3>Where does the end-of-life data come from?</h3>
+    <p>A small, curated table checked into this tool, not a live lookup -- the page and the CLI make no network calls of their own. Each entry names the project whose own release schedule or stated support-length policy it was read from, and whether that date is the project's own published end date (confirmed) or inferred from its policy (estimated). Re-verify any finding against the upstream project's own page before relying on it, especially an estimated one, and especially long after the dataset's own snapshot date shown in the results.</p>
+    <h3>Does a clean scan mean my image has no vulnerabilities?</h3>
+    <p>No. This checks one specific thing: whether the base image's release line, as named by its tag, has passed its publisher's own end-of-life date. It is not a vulnerability scan, does not inspect installed packages, and makes no claim about CVEs present in a supported image.</p>
+    <h3>What if my tag is <code>latest</code>, or I use a private registry image?</h3>
+    <p>A tag of latest (or no tag at all, which resolves to latest) names no fixed release line, so it cannot be checked against a dated table -- it is reported as unknown-tag rather than guessed at. The same applies to any image outside this tool's curated table, including private-registry and custom images: reported as unknown-image, which is not evidence of anything either way.</p>
+    <p>More: <a href="vs-a-vulnerability-scanner.html">how this compares to a vulnerability scanner</a>, <a href="vs-checking-eol-dates-by-hand.html">how it compares to checking end-of-life dates by hand</a>, or <a href="what-to-do-when-a-base-image-is-eol.html">what to do once a finding comes back end-of-life</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including re-checking any end-of-life date against the upstream project's own page. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The Dockerfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Knowing a release line is still supported doesn't tell you it's pinned against being silently repointed: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks that question of the same <code>FROM</code> line. Once the image itself is sound, <a href="../docker-cache-order-check/">Docker Cache Order Check</a> asks whether the same Dockerfile's instruction order busts the build cache, and <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> asks whether deploying the built image drops live requests.</p>
+    <p class="support">Free and open source. If this saved you from shipping on an unsupported base image, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasUnresolvedRisk, summaryLine, DATASET_AS_OF, DEFAULT_WARN_DAYS } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"), warnDays: $("#warn-days"),
+      snapshotNote: $("#snapshot-note"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "Dockerfile",
+        text: `FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM python:3.9-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+CMD ["python3", "serve.py"]
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder="Dockerfile" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the Dockerfile here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) {
+          wrap.remove();
+          updateRemoveButtons();
+        }
+      });
+      return wrap;
+    }
+
+    // With one Dockerfile block on the page, "Remove" has nothing to do and
+    // the click handler above silently no-ops -- a button that looks
+    // actionable and isn't. Disabled until a second block exists to remove.
+    function updateRemoveButtons() {
+      const buttons = els.files.querySelectorAll(".remove-file");
+      const disable = buttons.length <= 1;
+      for (const button of buttons) button.disabled = disable;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+      updateRemoveButtons();
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `Dockerfile.${i + 1}`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function eolDisplay(f) {
+      if (f.classification === "eol") return `${f.eol} (${f.daysPastEol}d ago)`;
+      if (f.classification === "eol-soon") return `${f.eol} (in ${f.daysUntilEol}d)`;
+      if (f.classification === "supported") return f.eol;
+      return "—";
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        const ref = f.tag ? `${f.image}:${f.tag}` : f.image;
+        const sourceCell = f.classification === "deprecated-image"
+          ? escapeHtml(f.note)
+          : (f.source ? `${escapeHtml(f.source)} (${f.confidence})` : "<span class=\"note\">not in the curated table</span>");
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><code>${escapeHtml(ref)}</code></td>
+          <td><span class="pill ${f.classification}">${f.classification}</span></td>
+          <td>${escapeHtml(eolDisplay(f))}</td>
+          <td class="note">${sourceCell}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one Dockerfile first.</span>`;
+        return;
+      }
+      const warnDays = Math.max(0, parseInt(els.warnDays.value, 10) || DEFAULT_WARN_DAYS);
+      let findings;
+      try {
+        findings = scanFiles(files, new Date(), warnDays);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasUnresolvedRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.snapshotNote.textContent = `Dataset snapshot as of ${DATASET_AS_OF} — verify a finding against the upstream project's own EOL page before relying on it, especially any row marked "estimated".`;
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a builder stage on Node 18 (past end-of-life) and a runtime stage on Python 3.9.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one Dockerfile above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../product-analytics-pricing-calculator/" data-pf-to="product-analytics-pricing-calculator">What will product analytics cost at your event volume, and who is cheapest?</a></li>
+      <li><a href="../prometheus-cardinality-cost/" data-pf-to="prometheus-cardinality-cost">Which labels are inflating your Prometheus metrics bill?</a></li>
+      <li><a href="../pwa-installability-check/" data-pf-to="pwa-installability-check">PWA Installability Checker</a></li>
+      <li><a href="../pypi-provenance-check/" data-pf-to="pypi-provenance-check">Which of your PyPI dependencies lack a provenance attestation?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=docker-base-image-eol-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/?pfEmbed=1&quot; title=&quot;Is your Dockerfile's base image still supported? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="docker-base-image-eol-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/" data-pf-embed-title="Is your Dockerfile's base image still supported?" data-pf-embed-slug="docker-base-image-eol-check"></script>
+</body>
+</html>

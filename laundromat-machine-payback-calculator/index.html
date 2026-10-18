@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laundromat Machine Payback Calculator — payback and profit by washer and dryer line</title>
+  <meta name="description" content="Laundromat machine payback calculator for owners and buyers. Enter washers and dryers with price per cycle, turns per day…">
+  <meta property="og:title" content="Laundromat Machine Payback Calculator — free, private, in your browser">
+  <meta property="og:description" content="Which machines pay back, and how fast? Payback by line, turns needed, store net and price-rise break-even. No account, nothing uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Laundromat Machine Payback Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your laundromat machine lines with count, price per cycle, turns per day, utility cost per cycle and installed cost. See payback months and monthly profit by line, the turns per day each line needs for your target payback, store net after overhead, and how many cycles you can lose before a price rise costs money. Runs entirely in your browser; nothing is uploaded.", "featureList": "payback by machine line, turns per day needed for a target payback, store net and break-even volume, price-rise break-even, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a laundromat washer take to pay back?", "acceptedAnswer": {"@type": "Answer", "text": "Divide what the machines cost installed by their monthly contribution. Contribution is the price of each cycle, less the card fee and the water, gas or electricity and detergent it uses, times the cycles it runs a month. A machine that runs a few turns a day at a modest price can take years; a busy one in a good location can take far less. Enter your own turns and prices and the table shows each line."}}, {"@type": "Question", "name": "What are turns per day and why do they matter most?", "acceptedAnswer": {"@type": "Answer", "text": "A turn is one paid cycle on one machine. Revenue, utilities and wear all scale with turns, while rent, insurance and labor do not. The table also shows the turns per machine per day each line needs to hit your target payback, so you can compare it with what your store really does."}}, {"@type": "Question", "name": "Does overhead count toward payback?", "acceptedAnswer": {"@type": "Answer", "text": "No. Payback treats each machine line as an addition to a store whose rent and labor are already paid, which is how an owner decides whether to add or replace machines. Overhead is used in the store result, where it shows monthly net income and the share of your current volume you need just to break even."}}, {"@type": "Question", "name": "Is a price rise worth the customers I might lose?", "acceptedAnswer": {"@type": "Answer", "text": "The raise table shows the share of cycles you could lose before a price rise leaves you worse off. Utilities fall with the cycles that leave, so the break-even loss is the extra contribution divided by the new contribution. Price sensitivity near a competitor can be far higher than near no one, so check your own numbers."}}, {"@type": "Question", "name": "Which numbers should I use for utilities per cycle?", "acceptedAnswer": {"@type": "Answer", "text": "Add your water and sewer, gas or electric, and any detergent you vend, per cycle, from your own bills divided by cycles run. The tool does not know your local rates and does not assume any."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Financing and interest, taxes and depreciation, repairs and downtime, coin and card-system fees beyond the percentage you enter, wash-dry-fold labor, attendant wages, lease terms, and the value of the location. It is arithmetic on your figures, not a valuation of a laundromat."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Laundromat Machine Payback Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Laundromat Machine Payback Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Laundromat Machine Payback Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">LAUNDROMAT MACHINE PAYBACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your machines actually pay back?</h1>
+    <p>List your <strong>machine lines</strong> with count, price per cycle, turns per day, utility cost and installed cost, plus your <strong>overhead</strong>. The tool shows <strong>payback months</strong> and monthly contribution for each line, the <strong>turns per day each line needs</strong> for your target, <strong>store net</strong> after overhead, and how many cycles you can lose before a <strong>price rise</strong> costs you money.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your machine lines</h2>
+    <label for="machines">Line, count, price per cycle, turns per machine per day, utility cost per cycle, installed cost per machine (one per line)</label>
+    <textarea id="machines" spellcheck="false" placeholder="Washer 20 lb,8,4.25,4.5,0.95,4800&#10;Dryer 30 lb stack,16,0.25,6,0.14,3600"></textarea>
+    <h2 style="margin-top:18px">Your store</h2>
+    <div class="row3">
+      <div><label for="overheadMonthly">Monthly overhead: rent, labor, insurance, other ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="daysPerMonth">Days open per month</label><input id="daysPerMonth" inputmode="decimal" value="30"></div>
+      <div><label for="cardFeePct">Payment fee (% of revenue)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="targetPaybackMonths">Target payback (months)</label><input id="targetPaybackMonths" inputmode="decimal" value="60"></div>
+      <div><label for="retentionIfRaised">Cycles kept after a raise (%)</label><input id="retentionIfRaised" inputmode="decimal" value="97"></div>
+    </div>
+    <p class="note">Payback treats each line as an addition to a store whose overhead is already paid. Overhead is used in the store result only.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your machine lines, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Payback by machine line</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="lt"><thead><tr><th>Line</th><th class="n">Machines</th><th class="n">Contribution / month</th><th class="n">Payback months</th><th class="n">Turns / day for target</th><th>Vs target</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Store per month</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="st"><thead><tr><th>Item</th><th class="n">Per month</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>What a price raise can cost</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="rt"><thead><tr><th class="n">Raise</th><th class="n">Extra per month</th><th class="n">Cycles you can lose first</th><th class="n">Monthly change at your retention</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Cycles per month:</strong> machines × turns per day × days open. <strong>Contribution:</strong> cycles × price × (1 − payment fee) − cycles × utility cost per cycle. <strong>Payback months:</strong> machines × installed cost ÷ contribution. <strong>Turns per day for target:</strong> installed cost ÷ target months ÷ (price × (1 − fee) − utilities) ÷ days open. <strong>Store net:</strong> total contribution − monthly overhead; break-even volume is overhead ÷ contribution. <strong>Raise break-even:</strong> (new contribution − current) ÷ new contribution, where new contribution uses the higher price, less utilities on the cycles that remain.</p>
+    <p><strong>Not modelled:</strong> financing and interest, taxes and depreciation, repairs and downtime, attendant and wash-dry-fold labor, lease terms, and local market prices. Unverified: tested on hand-calculated examples, not on a real store's books. It computes arithmetic; it does not value a laundromat or tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How long does a laundromat washer take to pay back?</h3>
+    <p>Divide what the machines cost installed by their monthly contribution. Contribution is the price of each cycle, less the card fee and the water, gas or electricity and detergent it uses, times the cycles it runs a month. A machine that runs a few turns a day at a modest price can take years; a busy one in a good location can take far less. Enter your own turns and prices and the table shows each line.</p>
+    <h3>What are turns per day and why do they matter most?</h3>
+    <p>A turn is one paid cycle on one machine. Revenue, utilities and wear all scale with turns, while rent, insurance and labor do not. The table also shows the turns per machine per day each line needs to hit your target payback, so you can compare it with what your store really does.</p>
+    <h3>Does overhead count toward payback?</h3>
+    <p>No. Payback treats each machine line as an addition to a store whose rent and labor are already paid, which is how an owner decides whether to add or replace machines. Overhead is used in the store result, where it shows monthly net income and the share of your current volume you need just to break even.</p>
+    <h3>Is a price rise worth the customers I might lose?</h3>
+    <p>The raise table shows the share of cycles you could lose before a price rise leaves you worse off. Utilities fall with the cycles that leave, so the break-even loss is the extra contribution divided by the new contribution. Price sensitivity near a competitor can be far higher than near no one, so check your own numbers.</p>
+    <h3>Which numbers should I use for utilities per cycle?</h3>
+    <p>Add your water and sewer, gas or electric, and any detergent you vend, per cycle, from your own bills divided by cycles run. The tool does not know your local rates and does not assume any.</p>
+    <h3>What does this leave out?</h3>
+    <p>Financing and interest, taxes and depreciation, repairs and downtime, coin and card-system fees beyond the percentage you enter, wash-dry-fold labor, attendant wages, lease terms, and the value of the location. It is arithmetic on your figures, not a valuation of a laundromat.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any laundry equipment maker, distributor, payment processor or trade association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../laundromat-acquisition-offer-calculator/">laundromat acquisition offer calculator</a> for pricing a store you are buying, the <a href="../ski-snowboard-tune-shop-profit-calculator/">ski and snowboard tune shop profit calculator</a>, the <a href="../capex-budget-prioritizer/">capex budget prioritizer</a>, the <a href="../ev-charging-site-roi-calculator/">EV charging site ROI calculator</a>, the <a href="../vending-machine-route-margin/">vending machine route margin calculator</a>, the <a href="../self-storage-rate-increase-calculator/">self-storage rate increase calculator</a>, the <a href="../fleet-repair-or-replace-planner/">fleet repair or replace planner</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseMachines, analyze, reportCsv, sampleMachines, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["overheadMonthly", "daysPerMonth", "cardFeePct", "targetPaybackMonths", "retentionIfRaised"];
+    let last = null;
+
+    function run() {
+      const mp = parseMachines($("#machines").value);
+      if (mp.error) { status.textContent = mp.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(mp.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...mp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const s = r.store;
+      const big = [
+        [money(s.revenue), "Revenue per month"],
+        [money(s.contribution), "Contribution before overhead"],
+        [money(s.net), "Net per month after overhead"],
+        [s.breakEvenVolume === null ? "n/a" : pct(s.breakEvenVolume, 0), "Of current volume to cover overhead"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${l.count}</td><td class="n">${money(l.contribution)}</td><td class="n">${l.paybackMonths === null ? "never" : l.paybackMonths.toFixed(0)}</td><td class="n">${l.neededTurns === null ? "n/a" : l.neededTurns.toFixed(1)}</td><td><span class="pill ${l.meetsPayback ? "good" : "high"}">${l.meetsPayback ? "meets" : "misses"}</span></td></tr>`).join("");
+      $("#st tbody").innerHTML = [["Revenue", s.revenue], ["Payment fees", -s.feeCost], ["Utilities", -s.utilCost], ["Overhead", -s.overhead], ["Net", s.net], ["Net per year", s.annual]].map(([k, v]) => `<tr><td>${k}</td><td class="n">${money(v)}</td></tr>`).join("");
+      $("#rt tbody").innerHTML = r.raises.map((x) => `<tr><td class="n">+${x.pct}%</td><td class="n">${money(x.extraPerMonth)}</td><td class="n">${pct(x.breakEvenLoss)}</td><td class="n">${money(x.atRetention)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#machines").value = sampleMachines();
+      $("#overheadMonthly").value = "9000";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented store, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#machines").value = ""; report.hidden = true; last = null; status.textContent = "Add your machine lines, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "laundromat-payback-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+      <li><a href="../childcare-enrollment-mix-optimizer/" data-pf-to="childcare-enrollment-mix-optimizer">Childcare enrollment mix optimizer</a></li>
+      <li><a href="../childcare-tuition-calculator/" data-pf-to="childcare-tuition-calculator">Daycare Tuition Calculator</a></li>
+      <li><a href="../client-rebooking-predictor/" data-pf-to="client-rebooking-predictor">Client Rebooking Predictor — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=laundromat-machine-payback-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/?pfEmbed=1&quot; title=&quot;Laundromat Machine Payback Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="laundromat-machine-payback-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/" data-pf-embed-title="Laundromat Machine Payback Calculator — free, private, in your browser" data-pf-embed-slug="laundromat-machine-payback-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="laundromat-machine-payback-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="laundromat-machine-payback-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

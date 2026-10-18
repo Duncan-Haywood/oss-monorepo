@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Subpath Robots Check — Is Your GitHub Pages Sitemap Ever Read?</title>
+  <meta name="description" content="A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt…">
+  <meta property="og:title" content="Your GitHub Pages sitemap is probably never read">
+  <meta property="og:description" content="Crawlers only fetch robots.txt from the origin root. A project site under /repo/ publishes a robots.txt nothing requests, so the Sitemap…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Subpath Robots Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks whether a site published at a URL subpath can govern its own robots.txt, and reports the sitemap auto-discovery gap that follows when it cannot. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and the page makes no network calls."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my GitHub Pages sitemap never read?","acceptedAnswer":{"@type":"Answer","text":"Crawlers fetch robots.txt from one fixed place: the origin root. A project site at user.github.io/repo/ publishes its robots.txt at user.github.io/repo/robots.txt, which nothing ever requests, so the Sitemap: line inside it is never seen and the sitemap is never fetched."}},{"@type":"Question","name":"Does this mean my pages are not indexed at all?","acceptedAnswer":{"@type":"Answer","text":"No. Crawling by following links is unaffected — any page linked from a page a crawler already knows can still be found and indexed. What breaks is enumeration: pages that only appear in the sitemap and are not linked from a crawled page are never discovered. That is why the failure is silent, since some pages do get indexed."}},{"@type":"Question","name":"Whose robots.txt actually governs a GitHub Pages project site?","acceptedAnswer":{"@type":"Answer","text":"The one served by the repository named <user>.github.io — the account's user or organization site. If that repository does not exist, GitHub returns 404 for the file, which crawlers treat as no restrictions. Either way, a project site cannot put a Sitemap: line anywhere a crawler will read it."}},{"@type":"Question","name":"Can I at least block a crawler from my subpath site?","acceptedAnswer":{"@type":"Answer","text":"Not with robots.txt. A Disallow: you write in a subpath robots.txt is as inert as the Sitemap: line. Use a per-page <meta name=\"robots\" content=\"noindex\"> tag or an X-Robots-Tag header instead — those need no origin-root file."}},{"@type":"Question","name":"Does a clean result mean my site's SEO is fine?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific, mechanical thing: whether the robots.txt a crawler reads is the one your site publishes, and what follows for sitemap discovery. It is not an SEO audit and says nothing about your content, your links, or whether any search engine has chosen to index you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 5px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    .urlrow { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: .88rem; margin-bottom: 4px; }
+    .urlrow code { overflow-wrap: anywhere; word-break: break-word; }
+    .urlrow .tag { color: #55606f; font-size: .78rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.critical { background: #fde8e8; color: #9a3412; }
+    .pill.warning { background: #fff4d6; color: #7a5b00; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    .pill.pass { background: #dcefe4; color: #14532d; }
+    .finding { border-bottom: 1px solid #e6eaf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 6px 0 4px; }
+    .finding .fix { font-size: .88rem; color: #17324a; background: #f7f9fb; border-left: 3px solid #17604a; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-top: 8px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #17324a; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Your GitHub Pages sitemap is probably never read","item":"https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Your GitHub Pages sitemap is probably never read — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Your GitHub Pages sitemap is probably never read</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SUBPATH ROBOTS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your sitemap ever actually read?</h1>
+    <p>A crawler fetches <code>robots.txt</code> from exactly one place: the <strong>origin root</strong>. If your site lives under a path prefix — <code>user.github.io/repo/</code>, <code>group.gitlab.io/project/</code>, a CDN subdirectory — then the <code>robots.txt</code> you publish is at an address nothing ever requests, and the <code>Sitemap:</code> line inside it is never seen. Your pages are never enumerated. <strong>Nothing errors when this happens</strong>, which is why it usually goes unnoticed for years.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls — not even to fetch the robots.txt it tells you about.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Where is your site published?</h2>
+    <label for="siteUrl">The URL people visit</label>
+    <input type="text" id="siteUrl" spellcheck="false" autocomplete="off" placeholder="https://your-name.github.io/your-repo/">
+    <p class="note">Paste the address of your site's home page. A trailing <code>index.html</code> is fine — it is read as the directory it sits in.</p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter a URL above and click Check.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Optional: paste the robots.txt files</h2>
+    <p class="note">The check above works from the URL alone. These two make the report more specific, and the second one is the only way to find out whether a file you do not control is blocking you outright.</p>
+    <details>
+      <summary>Add robots.txt contents</summary>
+      <p style="margin-top:12px">
+        <label for="published">The robots.txt <em>your site</em> publishes</label>
+        <textarea id="published" spellcheck="false" placeholder="User-agent: *&#10;Allow: /&#10;&#10;Sitemap: https://your-name.github.io/your-repo/sitemap.xml"></textarea>
+        <span class="note">Reports which of its directives are inert.</span>
+      </p>
+      <p>
+        <label for="governing">The robots.txt at the <em>origin root</em></label>
+        <textarea id="governing" spellcheck="false" placeholder="Paste what you get from https://your-name.github.io/robots.txt"></textarea>
+        <span class="note">Open the origin-root URL the report names, copy what is there, and paste it here. A 404 means no file exists, which crawlers read as no restrictions — leave this blank in that case.</span>
+      </p>
+    </details>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="urls"></div>
+    <div id="findings"></div>
+    <div id="remedies"></div>
+  </section>
+
+  <section class="card">
+    <h2>Run it in CI instead</h2>
+    <p class="note">Zero dependencies, Node 18+. It opens no sockets at all unless you pass <code>--fetch</code>.</p>
+    <pre class="cmd">node cli.mjs check https://your-name.github.io/your-repo/
+node cli.mjs check https://your-name.github.io/your-repo/ --fetch --fail-on-critical
+node cli.mjs explain</pre>
+    <p class="note"><code>--fail-on-critical</code> exits 1 when the governing file is not yours, so a deploy pipeline can refuse to ship a site whose pages will never be enumerated.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions people actually ask</h2>
+
+    <h3>Why is my GitHub Pages sitemap never read?</h3>
+    <p>Crawlers fetch <code>robots.txt</code> from one fixed place: the origin root. A project site at <code>user.github.io/repo/</code> publishes its <code>robots.txt</code> at <code>user.github.io/repo/robots.txt</code>, which nothing ever requests, so the <code>Sitemap:</code> line inside it is never seen and the sitemap is never fetched.</p>
+
+    <h3>Does this mean my pages are not indexed at all?</h3>
+    <p>No. Crawling by following links is unaffected — any page linked from a page a crawler already knows can still be found and indexed. What breaks is enumeration: pages that only appear in the sitemap and are not linked from a crawled page are never discovered. That is why the failure is silent, since some pages do get indexed.</p>
+
+    <h3>Whose robots.txt actually governs a GitHub Pages project site?</h3>
+    <p>The one served by the repository named <code>&lt;user&gt;.github.io</code> — the account's user or organization site. If that repository does not exist, GitHub returns 404 for the file, which crawlers treat as no restrictions. Either way, a project site cannot put a <code>Sitemap:</code> line anywhere a crawler will read it.</p>
+
+    <h3>Can I at least block a crawler from my subpath site?</h3>
+    <p>Not with robots.txt. A <code>Disallow:</code> you write in a subpath robots.txt is as inert as the <code>Sitemap:</code> line. Use a per-page <code>&lt;meta name="robots" content="noindex"&gt;</code> tag or an <code>X-Robots-Tag</code> header instead — those need no origin-root file.</p>
+
+    <h3>Does a clean result mean my site's SEO is fine?</h3>
+    <p>No. This checks one specific, mechanical thing: whether the robots.txt a crawler reads is the one your site publishes, and what follows for sitemap discovery. It is not an SEO audit and says nothing about your content, your links, or whether any search engine has chosen to index you.</p>
+
+    <p class="note">More on the mechanism, and the full list of what this cannot tell you: <a href="why-a-subpath-site-cannot-govern-its-robots-txt.html">why a subpath site cannot govern its robots.txt</a>, or <a href="vs-checking-robots-txt-by-eye.html">how this compares to just opening robots.txt and reading it</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your site's search visibility, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming what each search engine reports for your own site. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A sitemap nothing reads is one way a published site quietly fails to reach anyone. <a href="../sitemap-lastmod-freshness-check/">Sitemap Lastmod Freshness Check</a> flags a build step that stamps every URL with today's date, which teaches crawlers to ignore your dates; <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> reports which named AI crawlers a robots.txt actually allows; and <a href="../canonical-tag-check/">Canonical Tag Check</a> flags a <code>rel=canonical</code> that points somewhere it should not — three more slices of a site that looks published until you check.</p>
+    <p class="support">Free and open source. If this explained why your pages were never picked up, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { assess } from "./analyze.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    const siteUrl = $("siteUrl");
+    const published = $("published");
+    const governing = $("governing");
+    const results = $("results");
+    const status = $("status");
+
+    // Text nodes only -- nothing a user pastes is ever interpolated as markup.
+    const el = (tag, className, text) => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    };
+
+    // The engine writes `backticks` around identifiers, which is right for the
+    // CLI and for the JSON. On the page they become real <code> elements.
+    function prose(text) {
+      const fragment = document.createDocumentFragment();
+      String(text).split(/`([^`]+)`/).forEach((part, index) => {
+        if (index % 2 === 1) fragment.appendChild(el("code", null, part));
+        else if (part) fragment.appendChild(document.createTextNode(part));
+      });
+      return fragment;
+    }
+
+    function urlRow(label, url, tag) {
+      const row = el("p", "urlrow");
+      row.appendChild(el("strong", null, label));
+      row.appendChild(el("code", null, url));
+      if (tag) row.appendChild(el("span", "tag", tag));
+      return row;
+    }
+
+    function render(report) {
+      results.hidden = false;
+      const verdict = $("verdict");
+      verdict.textContent = report.governs
+        ? "This site governs its own robots.txt."
+        : "This site does not govern its own robots.txt.";
+      verdict.className = report.governs ? "verdict" : "verdict risk";
+
+      const urls = $("urls");
+      urls.replaceChildren();
+      urls.appendChild(
+        urlRow("Governing file", report.site.governingRobotsUrl, "the only one crawlers read"),
+      );
+      if (report.site.isSubpath) {
+        urls.appendChild(
+          urlRow("Published file", report.site.publishedRobotsUrl, "fetched by nothing"),
+        );
+      }
+
+      const findings = $("findings");
+      findings.replaceChildren();
+      for (const finding of report.findings) {
+        const block = el("div", "finding");
+        const head = el("p");
+        head.style.margin = "0";
+        head.appendChild(el("span", `pill ${finding.severity}`, finding.severity));
+        block.appendChild(head);
+        block.appendChild(el("h3", null, finding.title));
+        const detail = el("p");
+        detail.appendChild(prose(finding.detail));
+        block.appendChild(detail);
+        if (finding.remedy) {
+          const fix = el("p", "fix");
+          fix.appendChild(el("strong", null, "Fix: "));
+          fix.appendChild(prose(finding.remedy));
+          block.appendChild(fix);
+        }
+        findings.appendChild(block);
+      }
+
+      const remedies = $("remedies");
+      remedies.replaceChildren();
+      if (report.remedies.length) {
+        remedies.appendChild(el("h3", null, "What to do, most complete first"));
+        const wrap = el("div", "tableWrap");
+        const table = el("table");
+        const thead = el("thead");
+        const headRow = el("tr");
+        ["Option", "How completely it fixes it", "What it costs"].forEach((h) =>
+          headRow.appendChild(el("th", null, h)),
+        );
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+        const tbody = el("tbody");
+        for (const remedy of report.remedies) {
+          const row = el("tr");
+          const first = el("td");
+          first.appendChild(el("strong", null, remedy.title));
+          const detail = el("p", "note");
+          detail.style.margin = "4px 0 0";
+          detail.appendChild(prose(remedy.detail));
+          first.appendChild(detail);
+          row.appendChild(first);
+          row.appendChild(el("td", null, remedy.effect));
+          row.appendChild(el("td", null, remedy.cost));
+          tbody.appendChild(row);
+        }
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+        remedies.appendChild(wrap);
+      }
+
+      status.textContent = `${report.counts.critical} critical, ${report.counts.warnings} warning(s). Not an SEO audit — this checks one specific thing.`;
+      status.className = report.counts.critical ? "error" : "note";
+    }
+
+    function runCheck() {
+      const report = assess({
+        siteUrl: siteUrl.value,
+        publishedRobots: published.value,
+        governingRobots: governing.value,
+      });
+      if (!report.ok) {
+        results.hidden = true;
+        status.textContent = report.error;
+        status.className = "error";
+        return;
+      }
+      record("check_run");
+      render(report);
+    }
+
+    $("check").addEventListener("click", runCheck);
+    siteUrl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") runCheck();
+    });
+
+    $("load-example").addEventListener("click", () => {
+      // A real, checkable instance rather than a constructed one: this
+      // portfolio's own catalogue has exactly this defect, and says so in its
+      // own repository.
+      siteUrl.value = "https://duncan-haywood.github.io/monorepo-projects/";
+      published.value = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml",
+      ].join("\n");
+      governing.value = "";
+      record("example_loaded");
+      runCheck();
+    });
+
+    $("clear").addEventListener("click", () => {
+      siteUrl.value = "";
+      published.value = "";
+      governing.value = "";
+      results.hidden = true;
+      status.textContent = "Enter a URL above and click Check.";
+      status.className = "note";
+    });
+
+    const optout = $("optout");
+    function paintOptOut() {
+      optout.textContent = usageOptedOut()
+        ? "Usage counting is off — turn it back on"
+        : "Turn usage counting off";
+    }
+    optout.addEventListener("click", () => {
+      setUsageOptOut(!usageOptedOut());
+      paintOptOut();
+    });
+    paintOptOut();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+      <li><a href="../canonical-tag-check/" data-pf-to="canonical-tag-check">Canonical Tag Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=subpath-robots-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/?pfEmbed=1&quot; title=&quot;Your GitHub Pages sitemap is probably never read — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="subpath-robots-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/" data-pf-embed-title="Your GitHub Pages sitemap is probably never read" data-pf-embed-slug="subpath-robots-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="subpath-robots-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="subpath-robots-check" data-pf-link-amount=""></script>
+</body>
+</html>

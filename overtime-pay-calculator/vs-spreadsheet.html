@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a spreadsheet — Overtime Pay Calculator</title>
+<meta name="description" content="Many payroll admins compute blended-rate overtime in a spreadsheet formula written once and reused.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/vs-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet formula can compute blended-rate overtime, if every cell reference and the half-time premium are right.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet calculate blended-rate overtime?","acceptedAnswer":{"@type":"Answer","text":"Yes, with the right formula: total straight-time earnings divided by total hours gives the regular rate, and the overtime premium is half that regular rate for each overtime hour. The arithmetic itself is not hard — getting every cell reference right, and remembering it is half the rate rather than the full 1.5x, is where a hand-built sheet most often goes wrong."}},{"@type":"Question","name":"Why do people apply the full overtime rate to the blended calculation by mistake?","acceptedAnswer":{"@type":"Answer","text":"Because that is the right move for a single hourly rate, and the blended-rate case looks similar. It isn't: straight-time pay for every hour worked, including the overtime hours, is already counted once in the total straight-time earnings. Adding the full 1.5x rate on top double-counts that first 1x — only the extra half-time premium is owed."}},{"@type":"Question","name":"What does a spreadsheet formula not check for you?","acceptedAnswer":{"@type":"Answer","text":"Whether the formula was copied correctly to every row, whether a rate or hours cell was left pointing at last week's numbers, and whether the result actually equals time-and-a-half in total once the premium is added. A calculator built for this one purpose runs the same formula every time and shows the full breakdown so the total is checkable by eye."}},{"@type":"Question","name":"Does either one know my state's overtime rules?","acceptedAnswer":{"@type":"Answer","text":"No. Both this calculator and a spreadsheet apply only the rules you configure — the federal FLSA 40-hour threshold and 1.5x multiplier by default. Several states require more: daily overtime, a double-time threshold, or a higher minimum multiplier. Check your state's rules and your own pay policy before relying on either total."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f4f2f7}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#2a6b8e;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#1f4a5d}
+h2{font-size:1.15rem;margin:0 0 10px;color:#1f4a5d}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#3c3644}
+.card{background:#fff;border:1px solid #d6e0e6;border-radius:14px;padding:22px;box-shadow:0 8px 24px #1f4a5d10;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e6e0ee;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#4c5a68}
+.note,footer{font-size:.86rem;color:#4c5a68}
+footer{margin-top:28px;border-top:1px solid #d6e0e6;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/vs-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../overtime-pay-calculator/">Overtime Pay Calculator — blended rate for two pay rates, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A payroll admin who handles blended-rate overtime more than once usually ends up with a spreadsheet formula for it: sum the straight-time pay, divide by total hours for the regular rate, then add half that rate for each overtime hour. That formula is correct if every cell reference is right and the "half, not the full rate" rule is remembered every time it is copied to a new row.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A spreadsheet</strong> can compute this correctly, and many payroll admins already have a formula for it. What it does not do on its own is show the full breakdown for a specific week in a form you can hand to someone else, or stop a copied formula from silently pointing at the wrong row after rates or hours change.</p>
+<p><strong>This calculator</strong> applies the FLSA weighted-average method (29 CFR 778.115) to the rates and hours you enter, shows the regular rate, the straight-time total, and the overtime premium as separate lines, and lets you copy the full breakdown as a plain-text record -- no formula to write or re-check.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Can I compute blended-rate overtime in a spreadsheet?</td><td>Yes -- if the formula is right and stays right as rows are added.</td></tr>
+<tr><td>Is the overtime premium the full rate or half the rate?</td><td>Half the blended rate -- the mistake this calculator's FAQ and this page both call out.</td></tr>
+<tr><td>Can I hand someone the full breakdown without re-deriving it?</td><td>This calculator's copy-breakdown output, not a screenshot of a formula bar.</td></tr>
+<tr><td>Does either one know my state's overtime rules?</td><td>Neither -- both apply only the federal threshold and multiplier you configure.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Can a spreadsheet calculate blended-rate overtime?</h3>
+<p>Yes, with the right formula: total straight-time earnings divided by total hours gives the regular rate, and the overtime premium is half that regular rate for each overtime hour. The arithmetic itself is not hard &mdash; getting every cell reference right, and remembering it is half the rate rather than the full 1.5x, is where a hand-built sheet most often goes wrong.</p>
+<h3>Why do people apply the full overtime rate to the blended calculation by mistake?</h3>
+<p>Because that is the right move for a single hourly rate, and the blended-rate case looks similar. It isn't: straight-time pay for every hour worked, including the overtime hours, is already counted once in the total straight-time earnings. Adding the full 1.5x rate on top double-counts that first 1x &mdash; only the extra half-time premium is owed.</p>
+<h3>What does a spreadsheet formula not check for you?</h3>
+<p>Whether the formula was copied correctly to every row, whether a rate or hours cell was left pointing at last week's numbers, and whether the result actually equals time-and-a-half in total once the premium is added. A calculator built for this one purpose runs the same formula every time and shows the full breakdown so the total is checkable by eye.</p>
+<h3>Does either one know my state's overtime rules?</h3>
+<p>No. Both this calculator and a spreadsheet apply only the rules you configure &mdash; the federal FLSA 40-hour threshold and 1.5x multiplier by default. Several states require more: daily overtime, a double-time threshold, or a higher minimum multiplier. Check your state's rules and your own pay policy before relying on either total.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply a published federal formula to numbers you supply; they are not legal, tax, or payroll advice. <strong>You are responsible for verifying anything here against your own pay policy and applicable state law.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>Nothing here says or implies that a spreadsheet is a bad way to compute overtime &mdash; it is a different job: a formula you maintain yourself where this calculator applies the same method for you and shows the breakdown.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../heloc-vs-cash-out-refinance-calculator/" data-pf-to="heloc-vs-cash-out-refinance-calculator">HELOC or cash-out refinance? Free calculator</a></li>
+      <li><a href="../home-sale-net-proceeds-calculator/" data-pf-to="home-sale-net-proceeds-calculator">Home Sale Net Proceeds Calculator — what you really walk away with</a></li>
+      <li><a href="../house-hack-calculator/" data-pf-to="house-hack-calculator">House Hack Calculator — free, private</a></li>
+      <li><a href="../hsa-shoebox-reimbursement-planner/" data-pf-to="hsa-shoebox-reimbursement-planner">HSA shoebox planner: what are your unreimbursed receipts worth?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=overtime-pay-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="overtime-pay-calculator"></script>
+</body>
+</html>

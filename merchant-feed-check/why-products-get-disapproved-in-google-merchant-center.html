@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Products Get Disapproved in Google Merchant Center — and What a Feed Checker Can't See</title>
+  <meta name="description" content="The documented reasons Google Merchant Center and Meta Commerce Manager disapprove product-feed items…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/why-products-get-disapproved-in-google-merchant-center.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the single most common Merchant Center disapproval reason?","acceptedAnswer":{"@type":"Answer","text":"Missing or invalid unique product identifiers — a missing GTIN, MPN, or brand where the product category requires one — is consistently named as the most common data-quality disapproval across Google's own Merchant Center help content and seller community threads. A feed checker can verify the identifier is present and, for GTIN, that the check digit is mathematically valid; it cannot verify the GTIN is the correct one for that specific product."}},{"@type":"Question","name":"Can a feed checker guarantee my products will be approved?","acceptedAnswer":{"@type":"Answer","text":"No. Disapprovals fall into two categories: data-specification problems, which a feed checker can catch, and account/policy problems — misrepresentation, prohibited products, insufficient trust signals, a landing page that does not match the feed — which require Google's or Meta's own crawl and account review and are invisible to a tool that only reads a feed file."}},{"@type":"Question","name":"Why doesn't Dependabot-style automation exist for this already?","acceptedAnswer":{"@type":"Answer","text":"Google and Meta each publish a free, web-form feed validator, but neither ships a scriptable, zero-account CLI a merchant can wire into their own deploy pipeline the way a linter runs in CI, so a broken feed is caught only when a human remembers to paste it into a web form, or after the crawler already rejected it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 800px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { background: #f7f9fb; padding: 1px 5px; border-radius: 4px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/why-products-get-disapproved-in-google-merchant-center.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Products Get Disapproved in Google Merchant Center — and What a Feed Checker Can't See">
+<meta property="og:description" content="The documented reasons Google Merchant Center and Meta Commerce Manager disapprove product-feed items…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Products Get Disapproved in Google Merchant Center — and What a Feed Checker Can't See — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../merchant-feed-check/">Will this product feed get items disapproved?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Products Get Disapproved in Google Merchant Center — and What a Feed Checker Can't See</span></span></nav>
+  <p><a href="./">← Back to Merchant Feed Check</a></p>
+  <h1>Why products get disapproved in Google Merchant Center — and what a feed checker can't see</h1>
+
+  <p>Google Merchant Center and Meta Commerce Manager both reject individual product-feed items for reasons that fall into two very different categories, and conflating them is how a merchant ends up trusting a tool that cannot actually tell them what they need to know.</p>
+
+  <div class="card">
+    <h2>Category 1: data-specification problems — checkable from the feed alone</h2>
+    <p>These are objective, deterministic checks against the published product-data specification. A feed file either conforms or it doesn't, with no need to know anything about the merchant's account, website, or business.</p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Reason</th><th>Why it's common</th></tr></thead>
+      <tbody>
+        <tr><td>Missing unique product identifier (GTIN/MPN + brand)</td><td>Most product categories require it; sellers of handmade, refurbished, or private-label goods often have neither a real GTIN nor a way to get one, and skip the explicit <code>identifier_exists: false</code> opt-out that would make the omission valid.</td></tr>
+        <tr><td>Malformed price or availability field</td><td>A bare number without a currency code, a currency symbol instead of an ISO code, or a free-text availability value ("Ships in 3 days" instead of <code>in stock</code>) is a common export-tool mistake.</td></tr>
+        <tr><td>Promotional or price text in the title or description</td><td>Copy written for a storefront ("50% off today only!") is reused verbatim in the feed without editing it for Shopping's stricter title/description rules.</td></tr>
+        <tr><td>Missing required attribute</td><td>A CMS export that drops a field for any item missing a value (many plugins omit empty columns entirely) silently produces an incomplete row.</td></tr>
+        <tr><td>Duplicate item IDs</td><td>A feed regenerated from two overlapping data sources, or a variant-handling bug, produces the same ID twice — the platform typically keeps only one and silently drops the other.</td></tr>
+      </tbody>
+    </table></div>
+    <p><a href="./">Merchant Feed Check</a> checks every row in this table deterministically — see its own report for exactly which rule fired and why.</p>
+  </div>
+
+  <div class="card">
+    <h2>Category 2: account and policy problems — invisible to any feed checker</h2>
+    <p>These require Google's or Meta's own crawl of the merchant's actual website, or a human policy reviewer, and no tool that only reads a feed file can evaluate them:</p>
+    <ul>
+      <li><strong>Misrepresentation / insufficient trust signals</strong> — missing business verification, no visible contact information, thin or templated site content. This is an assessment of the whole website, not the feed.</li>
+      <li><strong>Prohibited or restricted products</strong> — category-specific policy, decided against the product itself, not its feed formatting.</li>
+      <li><strong>Landing page mismatch</strong> — the feed's price or availability must match what a shopper actually sees on the linked page at crawl time. A feed checker can confirm the <em>format</em> is valid; it cannot fetch and compare the live page.</li>
+      <li><strong>Account-level suspension</strong> — a policy violation found anywhere in the account, applied to the whole feed regardless of any individual item's quality.</li>
+    </ul>
+    <p>If a feed passes every check here and items are still disapproved, the cause is almost always in this second category — read the specific disapproval reason Merchant Center or Commerce Manager gives in your dashboard, since that is the only place these are visible.</p>
+  </div>
+
+  <div class="card">
+    <h2>Wiring the CLI into a deploy pipeline</h2>
+    <p>Run it as a step right before whatever job uploads or syncs your feed — a scheduled GitHub Action, a cron job, or a step in the same pipeline that regenerates the feed from your product database:</p>
+    <pre><code>- name: Check product feed
+  run: node cli.mjs check feed.csv</code></pre>
+    <p>Exit code 1 fails the job on any data-specification error, so a broken feed never reaches the sync step. Ecosystem note: this reads the feed file itself, so it works the same whether that file came from Shopify's native feed app, a WooCommerce plugin export, or a hand-rolled script — nothing here depends on which platform generated it.</p>
+  </div>
+
+  <div class="card">
+    <h2>Common questions</h2>
+    <h3>What is the single most common Merchant Center disapproval reason?</h3>
+    <p>Missing or invalid unique product identifiers — a missing GTIN, MPN, or brand where the product category requires one — is consistently named as the most common data-quality disapproval across Google's own Merchant Center help content and seller community threads. A feed checker can verify the identifier is present and, for GTIN, that the check digit is mathematically valid; it cannot verify the GTIN is the correct one for that specific product.</p>
+    <h3>Can a feed checker guarantee my products will be approved?</h3>
+    <p>No. Disapprovals fall into two categories: data-specification problems, which a feed checker can catch, and account/policy problems — misrepresentation, prohibited products, insufficient trust signals, a landing page that does not match the feed — which require Google's or Meta's own crawl and account review and are invisible to a tool that only reads a feed file.</p>
+    <h3>Why doesn't Dependabot-style automation exist for this already?</h3>
+    <p>Google and Meta each publish a free, web-form feed validator, but neither ships a scriptable, zero-account CLI a merchant can wire into their own deploy pipeline the way a linter runs in CI, so a broken feed is caught only when a human remembers to paste it into a web form, or after the crawler already rejected it.</p>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational commentary on publicly documented Merchant Center and Commerce Manager policy categories, not legal or compliance advice, and not a guarantee of approval outcomes. Policies change; verify current requirements against Google's and Meta's own published help documentation before relying on anything here.</p>
+    <p>Also see <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, which catches a product page's own JSON-LD drifting from its visible copy — a different input Google's Shopping features can also read.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support this project</a> — optional, never required.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=merchant-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="merchant-feed-check"></script>
+</body>
+</html>

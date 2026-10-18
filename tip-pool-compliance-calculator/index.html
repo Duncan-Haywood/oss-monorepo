@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tip Pool Compliance Calculator | Who Can Legally Be in a Mandatory Tip Pool</title>
+  <meta name="description" content="Check a mandatory tip pool against federal FLSA rules: managers and supervisors are never eligible…">
+  <meta property="og:title" content="Tip Pool Compliance Calculator">
+  <meta property="og:description" content="Two federal rules govern who can be in a mandatory tip pool, not one. Check your roster against both, and see the dollar exposure a violation creates.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tip Pool Compliance Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Checks up to six roster roles against the two federal FLSA tip-pooling rules: managers and supervisors are never eligible for tip-pool money regardless of tip-credit status, and back-of-house roles are eligible only when the employer takes no tip credit; computes the weekly and cumulative tip-credit back-wage exposure a non-compliant pool creates from the front-of-house hours actually pooled; names each violating role and which rule it breaks; and saves a roster automatically to this browser plus a link that reopens the exact roster, so a manager or bookkeeper sees the same numbers, with nothing uploaded, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I ever put a manager or shift lead in the tip pool?","acceptedAnswer":{"@type":"Answer","text":"No, never, regardless of whether you take a tip credit. Congress amended the FLSA in 2018 (Consolidated Appropriations Act, 2018, amending 29 U.S.C. 203(m)) to say an employer may not keep tips received by its employees for any purpose, including allowing managers or supervisors to keep any portion of them. That rule does not bend for a manager who also waits tables during a rush — if their job is classified as a manager or supervisor, tip-pool money reaching them is a violation on its own, separate from the back-of-house rule below."}},{"@type":"Question","name":"Can dishwashers or cooks be in the tip pool?","acceptedAnswer":{"@type":"Answer","text":"Only if you take no tip credit at all — pay the full minimum wage in cash to your tipped staff. The Department of Labor's 2021 rule (29 CFR 531.54) calls this a nontraditional tip pool, and it is the one case federal law allows back-of-house staff to share in tips. The moment you take a tip credit, the older, narrower rule applies: the pool is limited to employees who customarily and regularly receive tips — front-of-house only."}},{"@type":"Question","name":"What happens if my tip pool does not comply?","acceptedAnswer":{"@type":"Answer","text":"If you take a tip credit and the pool is later found invalid, DOL and the courts that have ruled on this treat the tip credit as forfeited for every front-of-house employee it was taken against, for the whole period the pool ran — not just for the employee wrongly included. On the worked example below, 230 hours a week of front-of-house time at a $5.12 tip credit is $1,177.60 a week, and $4,710.40 across the four weeks entered. That is back wages owed, and liquidated damages can double it."}},{"@type":"Question","name":"What counts as a tip credit?","acceptedAnswer":{"@type":"Answer","text":"The gap between the full minimum wage and the lower cash wage you actually pay a tipped employee, which federal law lets you close with the tips they keep — up to $5.12 an hour under the federal floor. Several states (California, Nevada, Washington, Oregon, Montana, Alaska, Minnesota, and others) do not allow a tip credit at all, so if your state is one of those, the tip credit taken is $0 and back-of-house staff can be pooled regardless of what this calculator's federal-only exposure figure shows. This calculator ships no rate table — enter the tip credit your own pay stubs actually reflect."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your roster, wages, and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Can I save this roster or send it to someone else?","acceptedAnswer":{"@type":"Answer","text":"Yes. Your roster is saved to this browser automatically, so it is still here on your next visit. The copy-link button puts the same figures into the page's own address after the #, which is never sent to a server or logged anywhere, so sending it to a manager or bookkeeper uploads nothing."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic and a rule lookup against the roster you type, using the federal FLSA rule as of the Department of Labor's 2021 final rule. It does not check state law — several states set stricter tip-pooling or tip-credit rules of their own — and it makes no determination about your specific restaurant's classification of any role. Verify every role's classification and every figure against DOL Fact Sheet #15, your state's wage-hour agency, and a qualified employment attorney before you rely on it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241b1b; background: #f2eeec; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 820px; margin-bottom: 26px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #5e2313; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #fffbf9; border: 1px solid #ddceca; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #33121210; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c4f4b; margin: -6px 0 14px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b9a8a2; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    input[type="checkbox"] { width: auto; }
+    input[aria-invalid="true"] { border-color: #8c2318; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b9a8a2; background: #eee3df; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e1d2cc; }
+    .primary { background: #5e2313; border-color: #5e2313; color: #f9f2ef; }
+    .primary:hover { background: #491a0d; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .share-status { font-size: .83rem; color: #14603f; }
+    .restore-note { font-size: .85rem; color: #5e2313; background: #f3e5de; border-radius: 8px; padding: 8px 10px; margin: 10px 0 0; }
+    .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .grid-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .87rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 6px 7px; border-bottom: 1px solid #e2d5d0; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .74rem; letter-spacing: .03em; text-transform: uppercase; color: #5c4f4b; font-weight: 700; vertical-align: bottom; }
+    #entry input, #entry select { padding: 7px; min-width: 84px; }
+    #entry td:first-child input { min-width: 130px; }
+    #entry td.checkbox-cell { text-align: center; }
+    .result { position: sticky; top: 15px; background: #241109; color: #f6efeb; border-color: #241109; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .85rem; opacity: .85; margin: 4px 0 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .83rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    #breakdown tbody td.status-ok { color: #14603f; font-weight: 650; }
+    #breakdown tbody td.status-bad { color: #8c2318; font-weight: 650; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c4f4b; }
+    footer a { color: #5e2313; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #5e2313; }
+    #faq h3 { margin-bottom: 4px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .grid-two, .grid-three { grid-template-columns: 1fr; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tip Pool Compliance Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tip Pool Compliance Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tip Pool Compliance Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR RESTAURANT &amp; BAR OWNERS RUNNING A MANDATORY TIP POOL</p>
+    <h1>A tip pool has two federal rules, not one.</h1>
+    <p>Managers and supervisors can never receive tip-pool money — that rule does not care whether you take a tip credit. Back-of-house staff can only be pooled if you take <em>no</em> tip credit at all. On the roster loaded below, a shift manager and the dishwashers are both in the pool while a tip credit is taken, which puts <strong>$4,710.40</strong> of back wages at risk over four weeks.</p>
+    <p>Put your own roster and your own wages in. Everything runs in this browser; nothing is uploaded.</p>
+    <p class="seo-link"><a href="./vs-guessing-from-a-staff-meeting.html">This calculator vs. deciding tip-pool eligibility in a staff meeting</a> — the rule a verbal policy is most likely to get backwards.</p>
+    <p class="seo-link"><a href="./can-managers-be-in-a-tip-pool.html">Can managers be in a tip pool?</a> — the flat 2018 federal prohibition, on its own, and the myth that breaks it most often.</p>
+  </header>
+
+  <main class="layout">
+    <form id="poolForm">
+      <section>
+        <h2>Your tip credit</h2>
+        <label style="display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650">
+          <input id="tipCreditTaken" type="checkbox" checked> I take a tip credit (pay tipped staff less than full minimum wage in cash)
+        </label>
+        <p class="hint">Unchecked means you pay full minimum wage or more in cash to every tipped role — several states (CA, NV, WA, OR, MT, AK, MN, and others) require this regardless of what you'd prefer.</p>
+        <div class="grid-two">
+          <label>Tip credit per hour ($) <input id="tipCreditPerHour" type="number" min="0" max="20" step="0.01" value="5.12" inputmode="decimal"></label>
+          <label>Weeks this pool has run <input id="weeksExposed" type="number" min="0" max="260" step="1" value="4" inputmode="numeric"></label>
+        </div>
+        <p class="hint">The federal maximum tip credit is $5.12/hour (full minimum wage $7.25 minus the federal tipped cash wage floor $2.13). This tool ships no wage table — enter what your own pay stubs actually reflect.</p>
+      </section>
+
+      <section>
+        <h2>Roster</h2>
+        <p class="hint">One row per role. <strong>Category</strong> decides eligibility: front-of-house is always eligible, back-of-house only with no tip credit taken, and a manager or supervisor is never eligible. Leave a row's name blank to skip it.</p>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table id="entry">
+            <thead>
+              <tr>
+                <th scope="col">Role</th>
+                <th scope="col">Category</th>
+                <th scope="col">In pool?</th>
+                <th scope="col">Hrs/wk</th>
+                <th scope="col">Headcount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="name" data-row="1" aria-label="Row 1 role name" type="text" maxlength="40" value="Servers"></td>
+                <td><select class="category" data-row="1" aria-label="Row 1 category"><option value="front" selected>Front-of-house</option><option value="back">Back-of-house</option><option value="manager">Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="1" aria-label="Row 1 in pool" type="checkbox" checked></td>
+                <td><input class="hoursPerWeek" data-row="1" aria-label="Row 1 hours per week" type="number" min="0" max="168" step="1" value="30" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="1" aria-label="Row 1 headcount" type="number" min="0" max="500" step="1" value="6" inputmode="numeric"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="2" aria-label="Row 2 role name" type="text" maxlength="40" value="Bartenders"></td>
+                <td><select class="category" data-row="2" aria-label="Row 2 category"><option value="front" selected>Front-of-house</option><option value="back">Back-of-house</option><option value="manager">Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="2" aria-label="Row 2 in pool" type="checkbox" checked></td>
+                <td><input class="hoursPerWeek" data-row="2" aria-label="Row 2 hours per week" type="number" min="0" max="168" step="1" value="25" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="2" aria-label="Row 2 headcount" type="number" min="0" max="500" step="1" value="2" inputmode="numeric"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="3" aria-label="Row 3 role name" type="text" maxlength="40" value="Dishwashers"></td>
+                <td><select class="category" data-row="3" aria-label="Row 3 category"><option value="front">Front-of-house</option><option value="back" selected>Back-of-house</option><option value="manager">Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="3" aria-label="Row 3 in pool" type="checkbox" checked></td>
+                <td><input class="hoursPerWeek" data-row="3" aria-label="Row 3 hours per week" type="number" min="0" max="168" step="1" value="35" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="3" aria-label="Row 3 headcount" type="number" min="0" max="500" step="1" value="2" inputmode="numeric"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="4" aria-label="Row 4 role name" type="text" maxlength="40" value="Shift manager"></td>
+                <td><select class="category" data-row="4" aria-label="Row 4 category"><option value="front">Front-of-house</option><option value="back">Back-of-house</option><option value="manager" selected>Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="4" aria-label="Row 4 in pool" type="checkbox" checked></td>
+                <td><input class="hoursPerWeek" data-row="4" aria-label="Row 4 hours per week" type="number" min="0" max="168" step="1" value="40" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="4" aria-label="Row 4 headcount" type="number" min="0" max="500" step="1" value="1" inputmode="numeric"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="5" aria-label="Row 5 role name" type="text" maxlength="40" value=""></td>
+                <td><select class="category" data-row="5" aria-label="Row 5 category"><option value="front" selected>Front-of-house</option><option value="back">Back-of-house</option><option value="manager">Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="5" aria-label="Row 5 in pool" type="checkbox"></td>
+                <td><input class="hoursPerWeek" data-row="5" aria-label="Row 5 hours per week" type="number" min="0" max="168" step="1" value="" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="5" aria-label="Row 5 headcount" type="number" min="0" max="500" step="1" value="" inputmode="numeric"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="6" aria-label="Row 6 role name" type="text" maxlength="40" value=""></td>
+                <td><select class="category" data-row="6" aria-label="Row 6 category"><option value="front" selected>Front-of-house</option><option value="back">Back-of-house</option><option value="manager">Manager/supervisor</option></select></td>
+                <td class="checkbox-cell"><input class="inPool" data-row="6" aria-label="Row 6 in pool" type="checkbox"></td>
+                <td><input class="hoursPerWeek" data-row="6" aria-label="Row 6 hours per week" type="number" min="0" max="168" step="1" value="" inputmode="numeric"></td>
+                <td><input class="headcount" data-row="6" aria-label="Row 6 headcount" type="number" min="0" max="500" step="1" value="" inputmode="numeric"></td>
+              </tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Check the pool</button>
+          <button type="button" id="clearRows">Clear the example</button>
+          <button type="button" id="copyLink">Copy a link to this roster</button>
+          <span id="shareStatus" class="share-status" role="status" aria-live="polite"></span>
+        </div>
+        <p id="restoreNote" class="restore-note" role="status" aria-live="polite" hidden></p>
+        <p class="hint">This roster is saved automatically to this browser, so it is still here on your next visit — "Clear the example" erases both the fields and the saved copy. "Copy a link" puts every field into the URL after the <code>#</code>, which is never sent to a server or logged anywhere.</p>
+      </section>
+
+      <section>
+        <h2>Role by role</h2>
+        <div class="table-wrap">
+          <div class="pf-table-scroll"><table id="breakdown">
+            <thead>
+              <tr>
+                <th scope="col">Role</th>
+                <th scope="col">Category</th>
+                <th scope="col">In pool?</th>
+                <th scope="col">Eligible?</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+          </table></div>
+        </div>
+        <p class="hint" id="breakdownEmpty">Press "Check the pool" and every role fills in.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Back-wage exposure if this pool is found non-compliant</p>
+      <p class="hero-number" id="heroNumber">—</p>
+      <p class="hero-sub" id="heroSub"></p>
+      <p class="empty" id="emptyState">Press "Check the pool" to see the split.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What this roster gets wrong</h3>
+          <p class="gap" id="violationGap">—</p>
+          <p id="violationText"></p>
+        </div>
+        <dl>
+          <dt class="group">This week</dt>
+          <dt>Front-of-house hours pooled</dt><dd id="outFrontHours">—</dd>
+          <dt>Weekly exposure</dt><dd id="outWeeklyExposure">—</dd>
+
+          <dt class="group">Cumulative</dt>
+          <dt>Weeks entered</dt><dd id="outWeeks">—</dd>
+          <dt>Total exposure</dt><dd id="outTotalExposure">—</dd>
+        </dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Can I ever put a manager or shift lead in the tip pool?</h3>
+    <p>No, never, regardless of whether you take a tip credit. Congress amended the FLSA in 2018 (Consolidated Appropriations Act, 2018, amending 29 U.S.C. 203(m)) to say an employer may not keep tips received by its employees for any purpose, including allowing managers or supervisors to keep any portion of them. That rule does not bend for a manager who also waits tables during a rush — if their job is classified as a manager or supervisor, tip-pool money reaching them is a violation on its own, separate from the back-of-house rule below.</p>
+
+    <h3>Can dishwashers or cooks be in the tip pool?</h3>
+    <p>Only if you take no tip credit at all — pay the full minimum wage in cash to your tipped staff. The Department of Labor's 2021 rule (29 CFR 531.54) calls this a nontraditional tip pool, and it is the one case federal law allows back-of-house staff to share in tips. The moment you take a tip credit, the older, narrower rule applies: the pool is limited to employees who customarily and regularly receive tips — front-of-house only.</p>
+
+    <h3>What happens if my tip pool does not comply?</h3>
+    <p>If you take a tip credit and the pool is later found invalid, DOL and the courts that have ruled on this treat the tip credit as forfeited for every front-of-house employee it was taken against, for the whole period the pool ran — not just for the employee wrongly included. On the worked example below, 230 hours a week of front-of-house time at a $5.12 tip credit is $1,177.60 a week, and $4,710.40 across the four weeks entered. That is back wages owed, and liquidated damages can double it.</p>
+
+    <h3>What counts as a tip credit?</h3>
+    <p>The gap between the full minimum wage and the lower cash wage you actually pay a tipped employee, which federal law lets you close with the tips they keep — up to $5.12 an hour under the federal floor. Several states (California, Nevada, Washington, Oregon, Montana, Alaska, Minnesota, and others) do not allow a tip credit at all, so if your state is one of those, the tip credit taken is $0 and back-of-house staff can be pooled regardless of what this calculator's federal-only exposure figure shows. This calculator ships no rate table — enter the tip credit your own pay stubs actually reflect.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests — it runs entirely in your browser. Your roster, wages, and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Can I save this roster or send it to someone else?</h3>
+    <p>Yes. Your roster is saved to this browser automatically, so it is still here on your next visit. The copy-link button puts the same figures into the page's own address after the #, which is never sent to a server or logged anywhere, so sending it to a manager or bookkeeper uploads nothing.</p>
+
+    <h3>Is this legal advice?</h3>
+    <p>No. It is arithmetic and a rule lookup against the roster you type, using the federal FLSA rule as of the Department of Labor's 2021 final rule. It does not check state law — several states set stricter tip-pooling or tip-credit rules of their own — and it makes no determination about your specific restaurant's classification of any role. Verify every role's classification and every figure against DOL Fact Sheet #15, your state's wage-hour agency, and a qualified employment attorney before you rely on it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it makes no determination about your restaurant's classification of any role, or about any state law beyond the federal FLSA baseline. It is arithmetic and a rule lookup on the roster you type. Verify every role's classification against DOL Fact Sheet #15, your state's wage-hour agency, and a qualified employment attorney before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your roster, wages, and the figures worked out here are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. This roster is saved to this browser's own storage so it is here next visit, and "Copy a link to this roster" carries the same figures in the page's own address after the <code>#</code> — never a query string a server would log, never uploaded, and readable only by whoever you send it to.</p>
+    <p>Once the pool is lawful, the <a href="../restaurant-tip-pool-calculator/">restaurant tip pool calculator</a> splits it between staff by hours, role points or server tip-out. Checking whether the tip income this pool distributes qualifies for the federal "no tax on tips" deduction? The <a href="../no-tax-on-tips-overtime-calculator/">no tax on tips &amp; overtime calculator</a> is the one for that — an unrelated question about the same tipped-wage workforce. Classifying a salaried role as exempt from overtime instead? See the <a href="../exempt-salary-threshold-checker/">exempt salary threshold checker</a> — a different FLSA wage-and-hour figure, the federal-or-state salary minimum rather than tip credit eligibility.</p>
+    <p class="support">Free and open source. If it saved you a wage claim, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkPool, ROLE_COUNT, ROLE_FIELDS, GLOBAL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 ? `-${text}` : text;
+    };
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    const cell = (row, field) => document.querySelector(`.${field}[data-row="${row}"]`);
+
+    function readCellValue(row, field) {
+      const node = cell(row, field);
+      if (field === 'inPool') return node.checked;
+      return node.value;
+    }
+
+    function writeCellValue(row, field, value) {
+      const node = cell(row, field);
+      if (field === 'inPool') { node.checked = value === true || value === 'true'; return; }
+      node.value = value;
+    }
+
+    function readRows() {
+      const rows = [];
+      for (let r = 1; r <= ROLE_COUNT; r += 1) {
+        const row = {};
+        for (const field of ROLE_FIELDS) row[field] = readCellValue(r, field);
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function readGlobal(id) {
+      if (id === 'tipCreditTaken') return el(id).checked;
+      return el(id).value;
+    }
+
+    function readValues() {
+      const values = { rows: readRows() };
+      for (const id of GLOBAL_INPUT_IDS) values[id] = readGlobal(id);
+      return values;
+    }
+
+    // Blanks every cell first, so a restored roster -- from a link or from
+    // this browser's own storage -- never blends with the shipped example
+    // rows still sitting in the markup. Only fields the source actually
+    // carries are then written back in.
+    function applyValues(values) {
+      for (let r = 1; r <= ROLE_COUNT; r += 1) {
+        writeCellValue(r, 'name', '');
+        writeCellValue(r, 'category', 'front');
+        writeCellValue(r, 'inPool', false);
+        writeCellValue(r, 'hoursPerWeek', '');
+        writeCellValue(r, 'headcount', '');
+      }
+      el('tipCreditTaken').checked = true;
+      el('tipCreditPerHour').value = '0';
+      el('weeksExposed').value = '0';
+      if (Array.isArray(values.rows)) {
+        values.rows.forEach((row, index) => {
+          const r = index + 1;
+          if (r > ROLE_COUNT) return;
+          for (const field of ROLE_FIELDS) {
+            if (Object.prototype.hasOwnProperty.call(row, field)) writeCellValue(r, field, row[field]);
+          }
+        });
+      }
+      for (const id of GLOBAL_INPUT_IDS) {
+        if (!Object.prototype.hasOwnProperty.call(values, id)) continue;
+        if (id === 'tipCreditTaken') el(id).checked = values[id] === true || values[id] === 'true';
+        else el(id).value = values[id];
+      }
+    }
+
+    // Saves whatever is currently typed, not only the last submitted figures.
+    // Wrapped because a browser with site data blocked throws on access
+    // rather than returning null, and an owner mid-roster should not lose
+    // the page over a storage setting.
+    function persist() {
+      try { saveBid(localStorage, readValues()); } catch { /* storage blocked */ }
+    }
+
+    function clearInvalid() {
+      for (const input of document.querySelectorAll('#entry input, #poolForm input[type="number"]')) {
+        input.removeAttribute('aria-invalid');
+      }
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before the pool can be checked.';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('breakdownBody').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      el('errors').replaceChildren(...errors.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+    }
+
+    function td(text, className) {
+      const cellEl = document.createElement('td');
+      cellEl.textContent = text;
+      if (className) cellEl.className = className;
+      return cellEl;
+    }
+
+    const CATEGORY_LABEL = { front: 'Front-of-house', back: 'Back-of-house', manager: 'Manager/supervisor' };
+
+    function renderBreakdown(result) {
+      const body = el('breakdownBody');
+      const rows = result.roles.map((role) => {
+        const tr = document.createElement('tr');
+        tr.append(
+          td(role.label),
+          td(CATEGORY_LABEL[role.category] ?? role.category),
+          td(role.inPool ? 'Yes' : 'No'),
+          td(role.inPool ? (role.eligible ? 'Eligible' : 'Not eligible') : 'n/a', role.inPool ? (role.eligible ? 'status-ok' : 'status-bad') : ''),
+        );
+        return tr;
+      });
+      body.replaceChildren(...rows);
+      el('breakdownEmpty').hidden = true;
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').replaceChildren();
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+
+      el('heroNumber').textContent = result.clawbackApplies ? money(result.totalExposure) : money(0);
+      el('heroSub').textContent = result.clawbackApplies
+        ? `${money(result.weeklyExposure)}/week × ${result.weeksExposed} week(s), from ${result.frontHoursPerWeek} front-of-house hour(s)/week pooled while a tip credit is taken.`
+        : (result.violations.length ? 'No tip-credit clawback applies, but at least one role is still an FLSA violation.' : 'No exposure — this roster has no violation.');
+
+      if (result.violations.length === 0) {
+        el('violationGap').textContent = 'Nothing wrong found';
+        el('violationText').textContent = 'Every role marked as in the pool is one federal law allows for the tip-credit election you entered.';
+      } else {
+        el('violationGap').textContent = `${result.violations.length} role(s) improperly pooled`;
+        el('violationText').textContent = result.violations.map((r) => r.label).join(', ') + ' should not be receiving tip-pool money under the rule(s) noted below.';
+      }
+
+      el('outFrontHours').textContent = `${result.frontHoursPerWeek} hrs/wk`;
+      el('outWeeklyExposure').textContent = money(result.weeklyExposure);
+      el('outWeeks').textContent = String(result.weeksExposed);
+      el('outTotalExposure').textContent = money(result.totalExposure);
+
+      el('notes').replaceChildren(...result.warnings.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+
+      renderBreakdown(result);
+    }
+
+    // `track` is false only for the one call this page makes on load when a
+    // link or a saved roster is restored: a page load is not a check, and
+    // counting it would tally "pool_checked" for every visitor who did
+    // nothing but open a link somebody sent them.
+    function checkPoolAndRender({ track = true } = {}) {
+      const result = checkPool(readValues());
+      if (!result.ok) {
+        renderErrors(result.errors);
+        if (track) count('pool_rejected');
+        return null;
+      }
+      render(result);
+      if (track) count('pool_checked');
+      return result;
+    }
+
+    el('poolForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      checkPoolAndRender();
+    });
+
+    el('clearRows').addEventListener('click', () => {
+      applyValues({});
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Enter your own roster and press "Check the pool".';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('errors').replaceChildren();
+      el('breakdownBody').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      el('restoreNote').hidden = true;
+      cell(1, 'name').focus();
+      try { clearBid(localStorage); } catch { /* storage blocked; the reload still clears the form */ }
+      count('example_cleared');
+    });
+
+    async function copyLink() {
+      const query = encodeBid(readValues());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('shareStatus').textContent = query
+        ? 'Link copied — it reopens this roster, every role included.'
+        : 'Nothing entered yet — the link would open blank.';
+      setTimeout(() => { el('shareStatus').textContent = ''; }, 3000);
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('shareStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    // Recompute and save on every keystroke, not only on the form's own
+    // submit button. Never counted here: only an explicit "Check the pool"
+    // counts as a check actually worked.
+    document.addEventListener('input', () => { persist(); checkPoolAndRender({ track: false }); });
+    document.addEventListener('change', () => { persist(); checkPoolAndRender({ track: false }); });
+
+    // A link wins over a saved roster, and either wins over the shipped example.
+    const restored = restoreBid({
+      hash: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    if (restored.source !== 'none') {
+      applyValues(restored.values);
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a shared link — these are the sender’s figures, not the shipped example.'
+        : 'Picked up your last saved roster from this browser. "Clear the example" starts fresh.';
+    }
+
+    // Open on a computed result rather than an em-dash: the defaults above
+    // (or a restored roster) are a real check, and the page's own point --
+    // the exposure a non-compliant pool creates -- is invisible until
+    // something is on screen. No count recorded: a page load is not a check.
+    checkPoolAndRender({ track: false });
+    persist();
+
+    // Remember the visitor's usage-counting choice between visits.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cottage-food-pricing-calculator/" data-pf-to="cottage-food-pricing-calculator">Cottage Food Pricing Calculator — free, private, in your browser</a></li>
+      <li><a href="../crypto-cost-basis-calculator/" data-pf-to="crypto-cost-basis-calculator">Crypto Cost Basis Calculator — free, private, in your browser</a></li>
+      <li><a href="../csa-share-pricing-calculator/" data-pf-to="csa-share-pricing-calculator">What should a CSA share cost?</a></li>
+      <li><a href="../customer-lifetime-value-predictor/" data-pf-to="customer-lifetime-value-predictor">Customer Lifetime Value Predictor — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tip-pool-compliance-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/?pfEmbed=1&quot; title=&quot;Tip Pool Compliance Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tip-pool-compliance-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/" data-pf-embed-title="Tip Pool Compliance Calculator" data-pf-embed-slug="tip-pool-compliance-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tip-pool-compliance-calculator" data-pf-jobs-amount="#heroNumber"></script>
+</body>
+</html>

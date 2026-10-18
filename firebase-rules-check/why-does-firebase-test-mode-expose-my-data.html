@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Firebase test mode exposes your data</title>
+<meta name="description" content="Why a Firebase Realtime Database or Firestore project left in test mode (or with a hand-written 'allow if true' rule) is readable by anyone with no login…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/why-does-firebase-test-mode-expose-my-data.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether your Firebase project exposes data with open security rules",
+  "step": [
+    { "@type": "HowToStep", "name": "Find your project ID and database URL", "text": "Both are already in your app's client-side bundle -- open your deployed site's network tab or search its JavaScript for 'firebaseio.com' or 'firebasedatabase.app', or look at your app's own firebaseConfig object." },
+    { "@type": "HowToStep", "name": "Read the Realtime Database root with shallow=true", "text": "A GET request to <databaseURL>/.json?shallow=true, with no auth token at all, returns just the immediate child key names if the root is readable -- Firebase's own REST API documents shallow=true as the mode that returns key names without downloading field values." },
+    { "@type": "HowToStep", "name": "Request one document from each Firestore collection you use", "text": "A GET to https://firestore.googleapis.com/v1/projects/<project-id>/databases/(default)/documents/<collection>?pageSize=1, again with no auth token, either returns a real document (rules allow it) or is rejected with 403 PERMISSION_DENIED (rules are enforcing)." },
+    { "@type": "HowToStep", "name": "Automate it, or use a free tool", "text": "A free browser tool and CLI that runs exactly this check against the paths and collections you name, and names which ones are exposed, is at ../firebase-rules-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/why-does-firebase-test-mode-expose-my-data.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Firebase test mode exposes your data">
+<meta property="og:description" content="Why a Firebase Realtime Database or Firestore project left in test mode (or with a hand-written 'allow if true' rule) is readable by anyone with no login…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Firebase test mode exposes your data — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../firebase-rules-check/">Firebase Security Rules Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Firebase test mode exposes your data</span></span></nav>
+<p><a href="index.html">&larr; Firebase security rules exposure checker</a></p>
+
+<h1>Why Firebase test mode exposes your data</h1>
+
+<p>
+  Both Firebase products -- the Realtime Database and Firestore -- let you start a new project in
+  <strong>test mode</strong>: a security rule that reads, in effect, "allow any read and write, no
+  authentication required," so a team can build against real data before writing real rules.
+  Firebase's own console warns that test mode expires after 30 days and reverts to fully closed --
+  but the warning is easy to miss, easy to dismiss, and easy to work around by simply extending the
+  rule by hand once it expires, which converts a temporary convenience into a permanent, silent
+  exposure.
+</p>
+
+<h2>What "open" actually means over the wire</h2>
+<p>
+  Firebase's client config -- <code>apiKey</code>, <code>projectId</code>, <code>databaseURL</code>,
+  and the rest -- is meant to be public; it identifies your project the same way a URL does, not a
+  credential. The <em>only</em> thing standing between that public config and your actual data is
+  the Security Rules attached to the Realtime Database and to Firestore. With a rule that allows
+  read (and often write) to anyone, a plain unauthenticated <code>GET</code> to
+  <code>&lt;databaseURL&gt;/.json</code> or to a Firestore collection's REST endpoint returns real
+  data -- not a subset scoped to "your own" anything, to any visitor, including one who never
+  logged in.
+</p>
+
+<h2>This is not hypothetical -- and it keeps recurring</h2>
+<p>
+  Appthority's 2018 research, one of the first large-scale looks at this exposure class, found
+  more than <strong>2,300 mobile apps</strong> leaving a Firebase backend open this way, exposing
+  tens of millions of records including passwords, health information, and financial data. That
+  report is not a closed incident: the same underlying shape -- a database left in test mode, or a
+  hand-written rule broader than intended -- keeps showing up in security research, bug-bounty
+  write-ups, and breach disclosures in the years since, because the failure mode is structural
+  rather than a one-time bug. Nothing in the SDK or the client stops a developer from shipping
+  against an open database; only the rules do, and rules are opt-in.
+</p>
+
+<h2>Why this stays easy to reintroduce</h2>
+<p>
+  A project can have correct, carefully written rules on 30 collections and a 31st, added in a
+  later feature, that nobody wrote a rule for -- Firestore and the Realtime Database do not require
+  every path to have an explicit rule before it can be read; an absent or overly broad rule simply
+  falls through to whatever the closest matching rule allows. The Firebase console's own Rules
+  Playground can catch this, but only for someone logged in as a project member who thinks to run
+  it against the new path -- which is exactly the moment a live check from the outside, using only
+  the project ID and database URL any visitor's browser already has, earns its keep.
+</p>
+
+<h2>Check your own project</h2>
+<p>
+  A free tool that runs exactly the check above -- a shallow, read-only request to your Realtime
+  Database root, and one capped request per Firestore collection you name -- is at
+  <a href="index.html">the Firebase security rules exposure checker</a>. It runs entirely in your
+  browser for the Realtime Database half (or as a CLI for CI, and for Firestore if your browser
+  blocks the cross-origin request), and never sends your project ID, database URL, or anything it
+  reads back to any server of ours. As with any tool that sends requests to a project you name,
+  only run it against one you own or are authorised to test.
+</p>
+
+<p><a href="index.html">&larr; Back to the Firebase security rules exposure checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page and the tool it describes are
+  provided free and as-is, without warranty of any kind, express or implied. It is not security
+  advice, and it does not replace a qualified security review. You are responsible for reviewing and verifying its
+  output before relying on it, and for having authorisation to test any project you point it at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=firebase-rules-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="firebase-rules-check"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Is This ATM Placement Worth It? | Route Margin Guide</title>
+<meta name="description" content="How to tell whether a new ATM placement offer will actually turn a profit: the location's commission split, processor fees, and vault cash cost of capital…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Is This ATM Placement Worth It?">
+<meta property="og:description" content="A store owner's placement offer does not say whether it covers the surcharge split, processor fees, and the cost of the cash you load into the machine.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/atm-route-margin/is-this-atm-placement-worth-it.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I know if an ATM placement offer will actually turn a profit?","acceptedAnswer":{"@type":"Answer","text":"Subtract the location's commission or flat fee, the per-transaction processor fee, the vault cash cost of capital, refill labor and travel, and the machine's own monthly cost from the surcharge revenue the estimated withdrawal count would bring in. A store offering 90 withdrawals a month at a $2.50 surcharge, split 50/50, looks like it should clear over $100 — after the real costs it loses about $67.61 a month instead."}},{"@type":"Question","name":"Why would a placement with 90 withdrawals a month still lose money?","acceptedAnswer":{"@type":"Answer","text":"Because the surcharge is not the only line moving. Half of it goes to the store, the processor takes a fixed fee on every withdrawal regardless of the surcharge, the cash sitting in the machine has a cost of capital whether or not it is used, and refill visits cost drive time and mileage on top of the machine's own monthly cost. A withdrawal count that sounds busy can still leave nothing once all five come out."}},{"@type":"Question","name":"Does raising the surcharge fee always fix a losing placement?","acceptedAnswer":{"@type":"Answer","text":"Only if the commission split does not eat the increase. A 50% commission means half of every extra dollar of surcharge goes straight to the store, so raising the fee closes the gap more slowly than it looks. A lower commission percentage or a flat placement fee instead of a percentage split often moves the number more than the surcharge fee itself."}},{"@type":"Question","name":"What is vault cash cost of capital and why does it matter for a placement decision?","acceptedAnswer":{"@type":"Answer","text":"It is the return that cash could earn sitting somewhere else, or the fee a cash-servicing company charges to hold it — either way it is a real monthly cost of the cash loaded into the machine, not free money because it is technically still yours. Skipping it makes every placement look more profitable than it is, worst on low-volume machines where it is a larger share of a smaller surcharge."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#12241f;background:#eef6f2}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#0f5c3c}
+h2{color:#0f5c3c;font-size:1.15rem;margin-top:1.7em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #bfe0d1}
+a{color:#0f5c3c}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#0f5c3c;color:#fff;text-decoration:none;font-weight:700}
+footer{border-top:1px solid #bfe0d1;padding-top:18px;margin-top:2em;font-size:.85rem;color:#3d5347}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/atm-route-margin/is-this-atm-placement-worth-it.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/atm-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is This ATM Placement Worth It? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../atm-route-margin/">ATM Route Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is This ATM Placement Worth It?</span></span></nav>
+<p><a href="./">← ATM route margin calculator</a></p>
+<h1>Is this ATM placement worth it?</h1>
+<p>A store owner's placement offer usually comes as an estimated withdrawal count and a proposed commission split — not a monthly profit figure. That estimate does not say whether the placement covers the location's cut, the processor fee, the cost of the cash sitting in the machine, and your own refill time. Two offers with the same "withdrawals a month" pitch can land on opposite sides of zero once those come out.</p>
+<p><a class="cta" href="./">Open the free route margin calculator</a></p>
+
+<h2>What a withdrawal-count pitch hides</h2>
+<p><strong>The commission split, before you see a dollar.</strong> Nearly every placement agreement pays the location a percentage of the surcharge, a flat monthly fee, or both — off the top, regardless of your costs. A 50% split means half of every surcharge dollar was never yours to begin with.</p>
+<p><strong>A flat per-transaction processor fee.</strong> Routing and settling a withdrawal costs the same fixed amount whichever way the surcharge is set, so it eats a bigger share of a low surcharge than a high one.</p>
+<p><strong>Vault cash cost of capital.</strong> The cash loaded into the machine either could be earning a return elsewhere or costs a cash-servicing company to hold — either way it is a real monthly cost, and it is the line most often left out of a back-of-envelope estimate because it is "your own money."</p>
+<p><strong>Refill labor, drive time, and the machine itself.</strong> A location across town costs more per visit than one on your existing loop, and the machine's lease or amortized cost runs whether the location is busy or slow.</p>
+
+<h2>Worked example</h2>
+<p>A convenience-store owner offers a placement estimated at 90 withdrawals a month, a $2.50 surcharge, a 50% commission split, no flat fee, a $0.30 processor fee, 8% annual cost of capital on a $2,000 average cash load, 4 refill visits a month at 15 minutes on-site and 20 minutes round-trip drive over 8 miles, a $0.67/mile rate, a $25/hour target rate for your own time, and a $60/month machine cost:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Gross surcharge revenue</td><td>$225.00 (90 × $2.50)</td></tr>
+<tr><td>Location commission (50%)</td><td>$112.50</td></tr>
+<tr><td>Processor fees</td><td>$27.00 (90 × $0.30)</td></tr>
+<tr><td>Vault cash cost of capital</td><td>$13.33 ($2,000 at 8%/yr)</td></tr>
+<tr><td>Mileage</td><td>$21.44 (8 miles × $0.67 × 4 visits)</td></tr>
+<tr><td>Your labor</td><td>$58.33 (2.33 hrs at $25/hr)</td></tr>
+<tr><td>Machine cost</td><td>$60.00</td></tr>
+<tr><td>Total cost</td><td>$292.60</td></tr>
+<tr><td>Net profit</td><td>&minus;$67.61 (&minus;30.0% of surcharge revenue)</td></tr>
+<tr><td>Profit per withdrawal</td><td>&minus;$0.75</td></tr>
+</tbody>
+</table></div>
+<p>A "90 withdrawals a month" pitch that sounds like it should clear over $100 instead loses money every month it runs — before counting anything the calculator does not model, like a slow season or a shortage on a refill. Negotiating a lower commission split or a flat placement fee instead of a percentage, or finding a location on an existing refill loop instead of a special trip, are the levers that actually move this number; raising the surcharge alone hands half of any increase straight back to the location.</p>
+
+<h2>Common questions</h2>
+<h3>How do I know if an ATM placement offer will actually turn a profit?</h3>
+<p>Subtract the location's commission or flat fee, the per-transaction processor fee, the vault cash cost of capital, refill labor and travel, and the machine's own monthly cost from the surcharge revenue the estimated withdrawal count would bring in. A store offering 90 withdrawals a month at a $2.50 surcharge, split 50/50, looks like it should clear over $100 — after the real costs it loses about $67.61 a month instead.</p>
+<h3>Why would a placement with 90 withdrawals a month still lose money?</h3>
+<p>Because the surcharge is not the only line moving. Half of it goes to the store, the processor takes a fixed fee on every withdrawal regardless of the surcharge, the cash sitting in the machine has a cost of capital whether or not it is used, and refill visits cost drive time and mileage on top of the machine's own monthly cost. A withdrawal count that sounds busy can still leave nothing once all five come out.</p>
+<h3>Does raising the surcharge fee always fix a losing placement?</h3>
+<p>Only if the commission split does not eat the increase. A 50% commission means half of every extra dollar of surcharge goes straight to the store, so raising the fee closes the gap more slowly than it looks. A lower commission percentage or a flat placement fee instead of a percentage split often moves the number more than the surcharge fee itself.</p>
+<h3>What is vault cash cost of capital and why does it matter for a placement decision?</h3>
+<p>It is the return that cash could earn sitting somewhere else, or the fee a cash-servicing company charges to hold it — either way it is a real monthly cost of the cash loaded into the machine, not free money because it is technically still yours. Skipping it makes every placement look more profitable than it is, worst on low-volume machines where it is a larger share of a smaller surcharge.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. This calculator produces arithmetic observations from numbers you supply; it does not audit your books, verify a placement agreement, or replace your own contract, insurance, or accountant. Everything runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../grape-grower-sell-vs-bottle-calculator/" data-pf-to="grape-grower-sell-vs-bottle-calculator">Sell grapes or bottle wine? A calculator for vineyard owners</a></li>
+      <li><a href="../grease-trap-pumping-price-calculator/" data-pf-to="grease-trap-pumping-price-calculator">Grease Trap Pumping Price Calculator — free, private</a></li>
+      <li><a href="../h1b-weighted-lottery-odds-calculator/" data-pf-to="h1b-weighted-lottery-odds-calculator">H-1B weighted lottery odds by wage level — free, private</a></li>
+      <li><a href="../hearing-aid-dispensing-margin-calculator/" data-pf-to="hearing-aid-dispensing-margin-calculator">Hearing aid dispensing margin calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=atm-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="atm-route-margin"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Surety Bond Premium and Bonding Capacity Calculator for Contractors — Free</title>
+  <meta name="description" content="Free bid bond and performance bond cost calculator for contractors: price the premium into your bid…">
+  <meta property="og:title" content="Surety bond premium and bonding capacity calculator">
+  <meta property="og:description" content="What does the bond cost, will your surety limit allow the job, and which bids should you submit? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M16 6 25 10v7c0 5-4 8-9 10-5-2-9-5-9-10v-7z' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Surety Bond Capacity Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price performance and payment bond premiums into a contractor's bid, check bonding capacity from working capital and current backlog, and pick the bids to submit. Runs in your browser.", "featureList": "Tiered bond premium, bond-inclusive bid price, single and aggregate bonding limits, backlog burn-down, best set of bids by expected profit and overcommit risk, working capital needed, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is a performance and payment bond priced?", "acceptedAnswer": {"@type": "Answer", "text": "Sureties charge a rate per $1,000 of contract price that falls as the contract grows: for example $25 per $1,000 on the first $100,000, $15 on the next $400,000, $12 on the next $2,000,000, $10 on the next $2,500,000 and $7.50 above $5,000,000. Your own rate depends on your credit, financial statements and experience, so type the schedule your agent quotes. The tool charges each slice of the price at its own rate."}}, {"@type": "Question", "name": "Why price the bond into the bid instead of adding it afterwards?", "acceptedAnswer": {"@type": "Answer", "text": "The premium is a share of the contract price, and the price includes the premium. Adding a flat percentage to your cost undercounts it. The tool finds the price at which, after paying the bond, you keep exactly the margin you asked for on the final price."}}, {"@type": "Question", "name": "What do the single-job and aggregate limits mean?", "acceptedAnswer": {"@type": "Answer", "text": "A surety caps the largest single bonded job and the total of all uncompleted bonded work, often as a multiple of your working capital. Multiples such as 10 times for a single job and 20 times for the aggregate are widely quoted rules of thumb, not anyone's actual limits. Enter the multiples your surety gives you."}}, {"@type": "Question", "name": "Which bids should I submit when I cannot afford to win them all?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tries every combination of your bids. For each it adds up the expected profit (win chance times profit) and the chance that the jobs you win would together push your uncompleted work past the aggregate limit. It shows the best combination that can never overcommit, and the best one within the risk you accept."}}, {"@type": "Question", "name": "When will a job that does not fit today fit?", "acceptedAnswer": {"@type": "Answer", "text": "Your current jobs burn down as they are built. The tool assumes each is finished in a straight line over the months you give and shows the first month a bid fits if you win nothing else. A bid larger than the single-job limit never fits until your working capital grows."}}, {"@type": "Question", "name": "Is this bonding or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Sureties decide on credit, character, capacity and the job itself, and may use limits and rates that look nothing like these. Ask a surety agent for a real quote and a real limit."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Surety bond premium and bonding capacity calculator","item":"https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Surety bond premium and bonding capacity calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Surety bond premium and bonding capacity calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">SURETY BOND CAPACITY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will the bond cost, does the job fit my bonding capacity, and which bids should I submit?</h1>
+    <p>Enter your working capital, the rate schedule from your surety quote, your current bonded jobs and up to six bids. The tool prices each bid so the performance and payment bond premium is recovered and your margin is real, checks the single-job and aggregate limits, shows the first month each job fits as current work burns down, and picks the set of bids with the most expected profit that will not overcommit you.</p>
+    <p class="note">Arithmetic on figures you type. Not bonding, financial or legal advice; a surety decides your real rates and limits. The example figures are placeholders, not any contractor's financials or any surety's rates.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s"><h2 id="h-s">Your surety</h2><div class="grid"><div><label for="workingCapital">Working capital ($)</label><input id="workingCapital" type="number" step="any" value="0" inputmode="decimal"><p class="note">Current assets minus current liabilities, from your latest financial statement. The limits below are built on it.</p></div><div><label for="singleMultiple">Single-job limit, times working capital</label><input id="singleMultiple" type="number" step="any" value="10" inputmode="decimal"><p class="note">Largest single bonded job. 10 is a common rule of thumb; use your surety&#x27;s figure.</p></div><div><label for="aggregateMultiple">Aggregate limit, times working capital</label><input id="aggregateMultiple" type="number" step="any" value="20" inputmode="decimal"><p class="note">All uncompleted bonded work together. 20 is a common rule of thumb.</p></div><div><label for="rateAdjustPct">Rate adjustment for your credit (%)</label><input id="rateAdjustPct" type="number" step="any" value="0" inputmode="decimal"><p class="note">Plus or minus on the schedule: a preferred risk might be -20, a stretched one +50.</p></div><div><label for="minPremium">Minimum premium ($)</label><input id="minPremium" type="number" step="any" value="0" inputmode="decimal"><p class="note">Some sureties charge at least this per bond. Zero means none.</p></div><div><label for="riskTolerancePct">Chance of winning past the aggregate limit you accept (%)</label><input id="riskTolerancePct" type="number" step="any" value="10" inputmode="decimal"><p class="note">Used to choose which bids to submit. Zero means the set must fit even if you win every bid.</p></div></div></section>
+    <section class="card" aria-labelledby="h-r"><h2 id="h-r">Bond rate schedule</h2><p class="note">Dollars of premium per $1,000 of contract price, charged slice by slice. The values below are placeholders, not your surety's rates: replace them with the schedule on your quote.</p><div class="grid"><div><label for="upTo1">Tier 1 ends at ($)</label><input id="upTo1" type="number" step="any" value="100000" inputmode="decimal"></div><div><label for="upTo2">Tier 2 ends at ($)</label><input id="upTo2" type="number" step="any" value="500000" inputmode="decimal"></div><div><label for="upTo3">Tier 3 ends at ($)</label><input id="upTo3" type="number" step="any" value="2500000" inputmode="decimal"></div><div><label for="upTo4">Tier 4 ends at ($)</label><input id="upTo4" type="number" step="any" value="5000000" inputmode="decimal"></div><div><label for="rate1">Tier 1 rate ($ per $1,000)</label><input id="rate1" type="number" step="any" value="25" inputmode="decimal"></div><div><label for="rate2">Tier 2 rate ($ per $1,000)</label><input id="rate2" type="number" step="any" value="15" inputmode="decimal"></div><div><label for="rate3">Tier 3 rate ($ per $1,000)</label><input id="rate3" type="number" step="any" value="12" inputmode="decimal"></div><div><label for="rate4">Tier 4 rate ($ per $1,000)</label><input id="rate4" type="number" step="any" value="10" inputmode="decimal"></div><div><label for="rate5">Tier 5 rate, above tier 4 ($ per $1,000)</label><input id="rate5" type="number" step="any" value="7.5" inputmode="decimal"></div></div></section>
+    <section class="card" aria-labelledby="h-j0"><h2 id="h-j0">Current bonded job 1</h2><div class="grid"><div><label for="j0_name">Job name</label><input id="j0_name" type="text" value=""></div><div><label for="j0_contract">Contract amount ($)</label><input id="j0_contract" type="number" step="any" value="0" inputmode="decimal"><p class="note">Full contract price including approved changes.</p></div><div><label for="j0_pctComplete">Percent complete</label><input id="j0_pctComplete" type="number" step="any" value="0" inputmode="decimal"><p class="note">Work finished so far. The rest is your uncompleted backlog.</p></div><div><label for="j0_monthsLeft">Months until it is finished</label><input id="j0_monthsLeft" type="number" step="any" value="6" inputmode="decimal"><p class="note">Used to free up capacity over time, in a straight line.</p></div></div></section>
+    <section class="card" aria-labelledby="h-j1"><h2 id="h-j1">Current bonded job 2</h2><div class="grid"><div><label for="j1_name">Job name</label><input id="j1_name" type="text" value=""></div><div><label for="j1_contract">Contract amount ($)</label><input id="j1_contract" type="number" step="any" value="0" inputmode="decimal"><p class="note">Full contract price including approved changes.</p></div><div><label for="j1_pctComplete">Percent complete</label><input id="j1_pctComplete" type="number" step="any" value="0" inputmode="decimal"><p class="note">Work finished so far. The rest is your uncompleted backlog.</p></div><div><label for="j1_monthsLeft">Months until it is finished</label><input id="j1_monthsLeft" type="number" step="any" value="6" inputmode="decimal"><p class="note">Used to free up capacity over time, in a straight line.</p></div></div></section>
+    <section class="card" aria-labelledby="h-j2"><h2 id="h-j2">Current bonded job 3</h2><div class="grid"><div><label for="j2_name">Job name</label><input id="j2_name" type="text" value=""></div><div><label for="j2_contract">Contract amount ($)</label><input id="j2_contract" type="number" step="any" value="0" inputmode="decimal"><p class="note">Full contract price including approved changes.</p></div><div><label for="j2_pctComplete">Percent complete</label><input id="j2_pctComplete" type="number" step="any" value="0" inputmode="decimal"><p class="note">Work finished so far. The rest is your uncompleted backlog.</p></div><div><label for="j2_monthsLeft">Months until it is finished</label><input id="j2_monthsLeft" type="number" step="any" value="6" inputmode="decimal"><p class="note">Used to free up capacity over time, in a straight line.</p></div></div></section>
+    <section class="card" aria-labelledby="h-j3"><h2 id="h-j3">Current bonded job 4</h2><div class="grid"><div><label for="j3_name">Job name</label><input id="j3_name" type="text" value=""></div><div><label for="j3_contract">Contract amount ($)</label><input id="j3_contract" type="number" step="any" value="0" inputmode="decimal"><p class="note">Full contract price including approved changes.</p></div><div><label for="j3_pctComplete">Percent complete</label><input id="j3_pctComplete" type="number" step="any" value="0" inputmode="decimal"><p class="note">Work finished so far. The rest is your uncompleted backlog.</p></div><div><label for="j3_monthsLeft">Months until it is finished</label><input id="j3_monthsLeft" type="number" step="any" value="6" inputmode="decimal"><p class="note">Used to free up capacity over time, in a straight line.</p></div></div></section>
+    <section class="card" aria-labelledby="h-j4"><h2 id="h-j4">Current bonded job 5</h2><div class="grid"><div><label for="j4_name">Job name</label><input id="j4_name" type="text" value=""></div><div><label for="j4_contract">Contract amount ($)</label><input id="j4_contract" type="number" step="any" value="0" inputmode="decimal"><p class="note">Full contract price including approved changes.</p></div><div><label for="j4_pctComplete">Percent complete</label><input id="j4_pctComplete" type="number" step="any" value="0" inputmode="decimal"><p class="note">Work finished so far. The rest is your uncompleted backlog.</p></div><div><label for="j4_monthsLeft">Months until it is finished</label><input id="j4_monthsLeft" type="number" step="any" value="6" inputmode="decimal"><p class="note">Used to free up capacity over time, in a straight line.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b0"><h2 id="h-b0">Bid 1</h2><div class="grid"><div><label for="b0_name">Bid name</label><input id="b0_name" type="text" value=""></div><div><label for="b0_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b0_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b0_marginPct">Margin you want on the final price (%)</label><input id="b0_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b0_winPct">Chance you win it (%)</label><input id="b0_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b0_bonded">Does it need a bond?</label><select id="b0_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b1"><h2 id="h-b1">Bid 2</h2><div class="grid"><div><label for="b1_name">Bid name</label><input id="b1_name" type="text" value=""></div><div><label for="b1_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b1_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b1_marginPct">Margin you want on the final price (%)</label><input id="b1_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b1_winPct">Chance you win it (%)</label><input id="b1_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b1_bonded">Does it need a bond?</label><select id="b1_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b2"><h2 id="h-b2">Bid 3</h2><div class="grid"><div><label for="b2_name">Bid name</label><input id="b2_name" type="text" value=""></div><div><label for="b2_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b2_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b2_marginPct">Margin you want on the final price (%)</label><input id="b2_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b2_winPct">Chance you win it (%)</label><input id="b2_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b2_bonded">Does it need a bond?</label><select id="b2_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b3"><h2 id="h-b3">Bid 4</h2><div class="grid"><div><label for="b3_name">Bid name</label><input id="b3_name" type="text" value=""></div><div><label for="b3_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b3_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b3_marginPct">Margin you want on the final price (%)</label><input id="b3_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b3_winPct">Chance you win it (%)</label><input id="b3_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b3_bonded">Does it need a bond?</label><select id="b3_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b4"><h2 id="h-b4">Bid 5</h2><div class="grid"><div><label for="b4_name">Bid name</label><input id="b4_name" type="text" value=""></div><div><label for="b4_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b4_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b4_marginPct">Margin you want on the final price (%)</label><input id="b4_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b4_winPct">Chance you win it (%)</label><input id="b4_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b4_bonded">Does it need a bond?</label><select id="b4_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card" aria-labelledby="h-b5"><h2 id="h-b5">Bid 6</h2><div class="grid"><div><label for="b5_name">Bid name</label><input id="b5_name" type="text" value=""></div><div><label for="b5_directCost">Direct cost to build it, before profit and bond ($)</label><input id="b5_directCost" type="number" step="any" value="0" inputmode="decimal"><p class="note">Your estimate: labor, materials, subs and overhead you must cover.</p></div><div><label for="b5_marginPct">Margin you want on the final price (%)</label><input id="b5_marginPct" type="number" step="any" value="8" inputmode="decimal"><p class="note">Profit as a share of the price you bid, after paying the bond.</p></div><div><label for="b5_winPct">Chance you win it (%)</label><input id="b5_winPct" type="number" step="any" value="30" inputmode="decimal"><p class="note">Your honest estimate from past bids at this size.</p></div><div><label for="b5_bonded">Does it need a bond?</label><select id="b5_bonded"><option value="yes">Yes</option><option value="no">No</option></select><p class="note">A job with no bond uses none of your capacity and pays no premium.</p></div></div></section>
+    <section class="card">
+      <button type="button" id="run">Check my bids</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Needs working capital and at least one bid with a direct cost. Leave a job or bid blank to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions contractors ask</h2>
+      <h3>How is a performance and payment bond priced?</h3>
+      <p>Sureties charge a rate per $1,000 of contract price that falls as the contract grows: for example $25 per $1,000 on the first $100,000, $15 on the next $400,000, $12 on the next $2,000,000, $10 on the next $2,500,000 and $7.50 above $5,000,000. Your own rate depends on your credit, financial statements and experience, so type the schedule your agent quotes. The tool charges each slice of the price at its own rate.</p>
+      <h3>Why price the bond into the bid instead of adding it afterwards?</h3>
+      <p>The premium is a share of the contract price, and the price includes the premium. Adding a flat percentage to your cost undercounts it. The tool finds the price at which, after paying the bond, you keep exactly the margin you asked for on the final price.</p>
+      <h3>What do the single-job and aggregate limits mean?</h3>
+      <p>A surety caps the largest single bonded job and the total of all uncompleted bonded work, often as a multiple of your working capital. Multiples such as 10 times for a single job and 20 times for the aggregate are widely quoted rules of thumb, not anyone&#x27;s actual limits. Enter the multiples your surety gives you.</p>
+      <h3>Which bids should I submit when I cannot afford to win them all?</h3>
+      <p>The tool tries every combination of your bids. For each it adds up the expected profit (win chance times profit) and the chance that the jobs you win would together push your uncompleted work past the aggregate limit. It shows the best combination that can never overcommit, and the best one within the risk you accept.</p>
+      <h3>When will a job that does not fit today fit?</h3>
+      <p>Your current jobs burn down as they are built. The tool assumes each is finished in a straight line over the months you give and shows the first month a bid fits if you win nothing else. A bid larger than the single-job limit never fits until your working capital grows.</p>
+      <h3>Is this bonding or financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Sureties decide on credit, character, capacity and the job itself, and may use limits and rates that look nothing like these. Ask a surety agent for a real quote and a real limit.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a surety will approve you at all, your actual rates and limits, collateral or indemnity terms, bid bonds and their conditions, retainage and cash flow on the job, how fast each job really finishes, and whether to bid. Capacity is modelled as a multiple of working capital and a straight-line burn-down of current jobs; real underwriting looks at much more.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../contractor-wip-schedule/">contractor WIP schedule</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, JOB_DEFAULTS, BID_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_JOBS, EXAMPLE_BIDS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const NJ = 5, NB = 6, SK = Object.keys(SHARED_DEFAULTS), JK = Object.keys(JOB_DEFAULTS), BK = Object.keys(BID_DEFAULTS);
+    const fill = () => {
+      for (const k of SK) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < NJ; i++) for (const k of JK) $("j" + i + "_" + k).value = (EXAMPLE_JOBS[i] || JOB_DEFAULTS)[k];
+      for (let i = 0; i < NB; i++) for (const k of BK) $("b" + i + "_" + k).value = (EXAMPLE_BIDS[i] || BID_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SK) shared[k] = $(k).value;
+      const jobs = [], bids = [];
+      for (let i = 0; i < NJ; i++) { const t = {}; for (const k of JK) t[k] = $("j" + i + "_" + k).value; jobs.push(t); }
+      for (let i = 0; i < NB; i++) { const t = {}; for (const k of BK) t[k] = $("b" + i + "_" + k).value; bids.push(t); }
+      return { shared, jobs, bids };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const pct = (x) => (x * 100).toFixed(x < 0.1 ? 1 : 0) + "%";
+    const names = (a, idx) => idx.length ? idx.map((i) => esc(a.priced[i].name)).join(", ") : "none";
+    let last = null;
+    function run() {
+      const { shared, jobs, bids } = readAll();
+      const a = analyze(shared, jobs, bids);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const L = a.lim;
+      h += `<div class="finding"><h4>Your limits</h4><p>Single job: ${money(L.single)}. Aggregate: ${money(L.aggregate)}. Uncompleted bonded work: ${money(L.backlog)}. Room for new bonded work today: ${money(L.headroom)}, so the biggest job you can take now is ${money(L.maxJob)}.</p></div>`;
+      h += `<div class="finding"><h4>Each bid, with the bond priced in</h4>${table(["Bid", "Bid price", "Bond premium", "Premium % of price", "Profit if won", "Fits today", "First month it fits", "Working capital it needs"], a.priced.map((b) => [esc(b.name) + (b.bonded ? "" : " <small>(no bond)</small>"), money(b.price), b.bonded ? money(b.premium) : "-", b.bonded ? pct(b.premiumPct) : "-", money(b.profit), !b.bonded ? "no bond" : b.fitsNow ? "yes" : b.fitsSingle ? "not yet" : "over single limit", !b.bonded ? "-" : b.month === null ? "not at this working capital" : b.month === 0 ? "now" : "month " + b.month, b.bonded ? money(b.wcNeeded) : "-"]))}</div>`;
+      const S = a.sets;
+      h += `<div class="finding"><h4>Which bids to submit</h4>${table(["Plan", "Bids", "Expected profit", "Chance of winning past your aggregate limit"], [
+        ["Bid on everything that fits one at a time", names(a, S.all.idx), money(S.all.profit), pct(S.all.risk)],
+        ["Never overcommit, even if you win all", names(a, S.safe.idx), money(S.safe.profit), pct(S.safe.risk)],
+        ["Within your " + (a.shared.riskTolerance * 100).toFixed(0) + "% risk limit", names(a, S.tolerant.idx), money(S.tolerant.profit), pct(S.tolerant.risk)],
+      ])}<p class="note">Expected profit is the win chance times the profit, added across bids. Bids over the single-job limit are left out of every plan.</p></div>`;
+      if (a.wcAll > a.shared.workingCapital) h += `<div class="finding"><h4>To bid on all of them safely</h4><p>Winning every bonded bid at once needs about ${money(a.wcAll)} of working capital under your multiples; the largest single bid needs ${money(a.wcLargest)}. You have ${money(a.shared.workingCapital)}.</p></div>`;
+      h += `<div class="finding"><h4>Room over the next year, if you win nothing else</h4>${table(["Months from now", "Uncompleted work", "Room for new bonded work"], a.horizon.map((r) => ["" + r.t, money(r.backlog), money(r.headroom)]))}</div>`;
+      h += `<div class="finding"><h4>If your working capital grew</h4>${table(["Working capital", "Single-job limit", "Aggregate limit", "Biggest job now", "Bids that fit"], a.sens.map((r) => [money(r.wc) + (r.pct ? " (+" + r.pct + "%)" : ""), money(r.single), money(r.aggregate), money(r.maxJob), r.fits + " of " + a.priced.length]))}<p class="note">Leaving profit in the business, paying down short-term debt or an owner loan counted as long-term all raise working capital. Ask your accountant and surety agent what they will count.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "bid-bond-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+      <li><a href="../cow-calf-breakeven-calculator/" data-pf-to="cow-calf-breakeven-calculator">What calf price do you need to break even on a cow?</a></li>
+      <li><a href="../crew-dispatch-optimizer/" data-pf-to="crew-dispatch-optimizer">Crew Dispatch Optimizer — free, private, in your browser</a></li>
+      <li><a href="../custom-farm-rate-calculator/" data-pf-to="custom-farm-rate-calculator">Custom Farm Rate Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=surety-bond-capacity-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/?pfEmbed=1&quot; title=&quot;Surety bond premium and bonding capacity calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="surety-bond-capacity-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/" data-pf-embed-title="Surety bond premium and bonding capacity calculator" data-pf-embed-slug="surety-bond-capacity-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="surety-bond-capacity-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="surety-bond-capacity-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

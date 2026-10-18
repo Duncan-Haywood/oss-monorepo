@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Import a CSV into PostgreSQL, MySQL, SQLite and BigQuery</title>
+  <meta name="description" content="INSERT statements vs COPY vs LOAD DATA vs sqlite3 .import vs bq load: which way to load a CSV into each database, the traps (encoding, dates, leading zeros…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/how-to-import-a-csv-into-a-database.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to import a CSV into PostgreSQL, MySQL, SQLite and BigQuery","about":"loading CSV files into SQL databases","author":{"@type":"Organization","name":"CSV to SQL Generator"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .88rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/how-to-import-a-csv-into-a-database.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Import a CSV into PostgreSQL, MySQL, SQLite and BigQuery">
+<meta property="og:description" content="INSERT statements vs COPY vs LOAD DATA vs sqlite3 .import vs bq load: which way to load a CSV into each database, the traps (encoding, dates, leading zeros…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Import a CSV into PostgreSQL, MySQL, SQLite and BigQuery — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../csv-to-sql-generator/">CSV to SQL, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Import a CSV into PostgreSQL, MySQL, SQLite and BigQuery</span></span></nav>
+  <p><a href="./">← CSV to SQL Generator</a></p>
+  <h1>How to import a CSV into a database</h1>
+  <p>There are two jobs hiding in “import a CSV”: <strong>make a table whose column types fit the data</strong>, and <strong>load the rows</strong>. Bulk loaders do the second well and the first badly. INSERT scripts do both, slowly. Use the right one for the size.</p>
+
+  <h2>Which route for which size</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Rows</th><th>Use</th></tr>
+    <tr><td>Up to ~100,000</td><td>A generated script of CREATE TABLE and batched INSERTs. Readable, reviewable, repeatable, works in any client.</td></tr>
+    <tr><td>Hundreds of thousands and up</td><td>The database’s bulk loader. Generate only the CREATE TABLE (or write it from the column report), then load.</td></tr>
+  </table></div>
+
+  <h2>The bulk loaders</h2>
+  <pre>-- PostgreSQL (client-side file, from psql)
+\copy imported_data FROM 'data.csv' WITH (FORMAT csv, HEADER true)
+
+-- MySQL (needs local_infile enabled)
+LOAD DATA LOCAL INFILE 'data.csv' INTO TABLE imported_data
+  FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+
+# SQLite (shell)
+sqlite3 app.db ".mode csv" ".import --skip 1 data.csv imported_data"
+
+# BigQuery
+bq load --source_format=CSV --skip_leading_rows=1 mydataset.imported_data data.csv</pre>
+  <p>PostgreSQL’s server-side <code>COPY</code> reads a file on the database server, not your laptop; <code>\copy</code> in psql reads from your machine. In SQLite, <code>.import</code> into a table that does not exist creates one with every column as text, which is why creating the table first matters.</p>
+
+  <h2>The traps that bite every time</h2>
+  <ul>
+    <li><strong>Leading zeros.</strong> ZIP codes, account numbers and phone numbers stored as integers lose their zeros. Keep them as text.</li>
+    <li><strong>Ambiguous dates.</strong> 03/04/2024 is 3 April or 4 March depending on who exported it. Decide, then convert to ISO <code>YYYY-MM-DD</code>. Mixed formats in one column must be cleaned first.</li>
+    <li><strong>Empty string vs NULL.</strong> A blank cell is not automatically NULL to a loader. Decide which you mean, especially for numeric and date columns, where an empty string is an error.</li>
+    <li><strong>Encoding.</strong> Excel often exports Windows-1252 or UTF-8 with a BOM. A garbled <code>é</code> means the encoding is wrong, not the data.</li>
+    <li><strong>Column widths from a sample.</strong> A VARCHAR(32) sized from the first rows rejects the 40-character name in row 90,000. When in doubt, use TEXT (PostgreSQL, SQLite) or a generous width.</li>
+    <li><strong>Money.</strong> Use NUMERIC/DECIMAL, never floating point, for amounts you will add up.</li>
+  </ul>
+
+  <h2>Using the generator</h2>
+  <p>Paste the CSV into <a href="./">the tool</a>, pick your database, read the notes it prints about anything it had to guess, and run the script against a copy first. From a terminal: <code>node cli.mjs data.csv --dialect mysql</code>.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general technical information, not professional advice; test on a copy of your data. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Convert a CSV to SQL</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../llm-api-pricing-calculator/" data-pf-to="llm-api-pricing-calculator">LLM API Pricing Calculator</a></li>
+      <li><a href="../llm-call-cost-scan/" data-pf-to="llm-call-cost-scan">Which LLM calls in your code are quietly costing you money?</a></li>
+      <li><a href="../llm-output-regression-diff/" data-pf-to="llm-output-regression-diff">Did the new model break your prompts?</a></li>
+      <li><a href="../llm-spend-guard/" data-pf-to="llm-spend-guard">Would a spend cap have stopped your runaway LLM bill?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=csv-to-sql-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="csv-to-sql-generator"></script>
+</body>
+</html>

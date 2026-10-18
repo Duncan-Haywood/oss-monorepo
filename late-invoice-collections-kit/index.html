@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Late Invoice Collections Kit — Late Fee Calculator and Overdue Invoice Letters</title>
+  <meta name="description" content="Free tool for freelancers and small agencies with an overdue invoice: late fee and interest today and on later dates, four ready-to-copy letters (reminder…">
+  <meta property="og:title" content="Late Invoice Collections Kit — free, private, in your browser">
+  <meta property="og:description" content="Overdue invoice to a dated collection plan: late fees and interest, four letters, is-it-worth-suing math, calendar reminders. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Late Invoice Collections Kit", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an overdue invoice into late fee and interest figures for today and later dates, a four-step escalation schedule with copy-ready reminder, notice and final-demand letters, a small-claims break-even, and an .ics download of the reminders. Runs entirely in your browser; nothing is uploaded.", "featureList": "Late fee and interest accrual by date, state statutory rate reference to verify, four-step letter schedule, small-claims versus collections break-even, .ics reminders, copyable plan text, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much late fee or interest can I charge on an overdue invoice?", "acceptedAnswer": {"@type": "Answer", "text": "Only what the client agreed to before the work, in a contract, quote or invoice terms, and within your state's limits. If nothing was agreed, most states still allow interest at a statutory rate from the due date; some states fix that rate and some tie it to a benchmark. The tool computes simple interest at a contract rate you type or at a state rate you can check, and shows the balance today and on later dates. Verify the rate with your state statute."}}, {"@type": "Question", "name": "What should a late invoice reminder say?", "acceptedAnswer": {"@type": "Answer", "text": "Name the invoice, the amount and the original due date, state how many days it is past due, ask for a payment date or the reason for a dispute, and say how to pay. The first message should be friendly; later ones set a specific pay-by date. The tool writes all four messages with your numbers filled in and ready to copy."}}, {"@type": "Question", "name": "When should I send a final demand letter?", "acceptedAnswer": {"@type": "Answer", "text": "A common rhythm is a reminder a few days after the due date, a firm notice around two weeks, and a final demand around thirty days, giving ten days to pay before you file or refer the account. The day offsets are editable, and each step lands on a calendar date you can download as reminders."}}, {"@type": "Question", "name": "Is it worth taking a client to small claims court?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the balance against your filing fee, service cost and time, and on your chance of winning and of actually collecting. The tool estimates expected net and the break-even claim from fee, time and odds you can change, and compares it with a collections agency that keeps a share. Filing fees and small-claims limits vary by court, so both are fields you set."}}, {"@type": "Question", "name": "Does this tool give legal advice or send anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic and fills templates in your browser. Nothing is sent or stored on a server, and it is not legal advice. Interest, late fees and collection practices are regulated differently by state and for consumers, so check your own rules or ask a lawyer before relying on a figure."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 150px; font: 13px ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .stats { font-size: 1.05rem; color: #333c46; }
+    .warn { background: #fdf0d5; color: #5c4508; border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: .9rem; }
+    .verdict { white-space: pre-line; background: #eef4f7; border-radius: 8px; padding: 12px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Late Invoice Collections Kit — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Late Invoice Collections Kit — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Late Invoice Collections Kit — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">LATE INVOICE COLLECTIONS KIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>An overdue invoice, turned into a dated plan to get paid.</h1>
+    <p>Type the invoice amount and due date. You get the <strong>late fee and interest owed today and on later dates</strong>, a <strong>four-step schedule</strong> (friendly reminder, firm notice, final demand, small-claims or collections referral) with <strong>letters filled in with your numbers</strong>, an <strong>is-it-worth-suing</strong> break-even, and <strong>calendar reminders</strong> you can download. Chasing many invoices at once? See the <a href="../invoice-aging-late-payer-analyzer/">invoice aging and late payer analyzer</a>. Setting terms before you invoice? See the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>.</p>
+    <p class="note">Everything is computed in this browser tab; nothing is sent anywhere. Independent of every court, state agency, collections agency and accounting app. This is not legal advice.</p>
+  </header>
+
+  <section class="card" id="from-im" hidden>
+    <h2>Overdue in Invoice Maker</h2>
+    <p class="note">Found on this device. Pick one to fill in the amount still unpaid, due date, client, invoice number, your name, how to pay, and the late fee and monthly rate printed on that invoice. Nothing leaves the page.</p>
+    <div id="im-list"></div>
+  </section>
+
+  <section class="card">
+    <h2>1. The invoice</h2>
+    <div class="grid">
+      <div><label for="amount">Invoice amount, $ still unpaid</label><input type="number" id="amount" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="due">Due date</label><input type="date" id="due"></div>
+      <div><label for="today">Today</label><input type="date" id="today"></div>
+      <div><label for="ctype">Client is a</label><select id="ctype"><option value="business">Business</option><option value="consumer">Consumer (an individual)</option></select></div>
+      <div><label for="state">US state</label><select id="state"><option value="other">Other or not listed</option><option value="AZ">Arizona</option><option value="CA">California</option><option value="CO">Colorado</option><option value="IL">Illinois</option><option value="MA">Massachusetts</option><option value="NC">North Carolina</option><option value="NY">New York</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="VA">Virginia</option><option value="WA">Washington</option></select></div>
+    </div>
+    <h2 style="margin-top:22px">2. Late fee and interest</h2>
+    <p class="note">Only charge what the client agreed to in advance. Pick how interest is worked out; it is simple (not compounding) interest from the due date.</p>
+    <div class="grid">
+      <div><label for="basis">Interest basis</label><select id="basis"><option value="contract">My contract or invoice terms</option><option value="state">State statutory rate (typed or prefilled)</option><option value="none">No interest, flat fee only</option></select></div>
+      <div><label for="cmonthly">Contract rate, % per month</label><input type="number" id="cmonthly" value="1.5" min="0" step="0.1" inputmode="decimal"></div>
+      <div><label for="annual">Statutory rate, % per year</label><input type="number" id="annual" value="" min="0" step="0.1" inputmode="decimal"></div>
+      <div><label for="flat">Flat late fee, $ (0 for none)</label><input type="number" id="flat" value="0" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="grace">Grace days before charges start</label><input type="number" id="grace" value="0" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <p class="note" id="state-note">Pick a state to see a reference rate. Rates shown are legal (default) rates as of 2026-09-29 for states with one fixed figure; states whose rate floats are left for you to type. <strong>Verify with your state statute</strong> before you rely on any of them.</p>
+    <h2 style="margin-top:22px">3. Your letters</h2>
+    <div class="grid">
+      <div><label for="cname">Client contact name, optional</label><input type="text" id="cname" autocomplete="off"></div>
+      <div><label for="inv">Invoice number, optional</label><input type="text" id="inv" autocomplete="off"></div>
+      <div><label for="you">Your name or business</label><input type="text" id="you" autocomplete="off"></div>
+      <div><label for="pay">How to pay, optional (added to every letter)</label><input type="text" id="pay" autocomplete="off"></div>
+    </div>
+    <p class="note">Days after the due date for each step (editable):</p>
+    <div class="grid">
+      <div><label for="o1">1. Friendly reminder</label><input type="number" id="o1" value="3" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="o2">2. Firm notice</label><input type="number" id="o2" value="14" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="o3">3. Final demand</label><input type="number" id="o3" value="30" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="o4">4. Referral</label><input type="number" id="o4" value="45" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Is it worth suing? Your assumptions</h2>
+    <p class="note">Defaults are placeholders, not facts. Small-claims limits and filing fees differ by state and court: look yours up and type them.</p>
+    <div class="grid">
+      <div><label for="limit">Small-claims limit, $</label><input type="number" id="limit" value="10000" min="0" step="500" inputmode="numeric"></div>
+      <div><label for="fee">Filing fee, $</label><input type="number" id="fee" value="75" min="0" step="5" inputmode="numeric"></div>
+      <div><label for="svc">Service of papers, $</label><input type="number" id="svc" value="20" min="0" step="5" inputmode="numeric"></div>
+      <div><label for="hours">Your hours (filing, court day)</label><input type="number" id="hours" value="8" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="rate">Value of your hour, $</label><input type="number" id="rate" value="50" min="0" step="5" inputmode="numeric"></div>
+      <div><label for="win">Chance you win, %</label><input type="number" id="win" value="70" min="0" max="100" step="5" inputmode="numeric"></div>
+      <div><label for="coll">Chance you collect a judgment, %</label><input type="number" id="coll" value="60" min="0" max="100" step="5" inputmode="numeric"></div>
+      <div><label for="afee">Collections agency fee, % kept</label><input type="number" id="afee" value="30" min="0" max="100" step="5" inputmode="numeric"></div>
+      <div><label for="arec">Agency recovery rate, %</label><input type="number" id="arec" value="30" min="0" max="100" step="5" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="build">Build my plan</button>
+      <button type="button" class="secondary" id="load-example">Load sample invoice</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter the invoice amount and due date, then click Build my plan.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Your plan</h2>
+    <p class="stats" id="stats"></p>
+    <div id="warnings"></div>
+    <h3>Balance by date</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Days late</th><th class="n" scope="col">Interest</th><th class="n" scope="col">Late fee</th><th class="n" scope="col">Total owed</th></tr></thead><tbody id="table"></tbody></table></div></div>
+    <h3>Escalation schedule and letters</h3>
+    <div id="steps"></div>
+    <h3>Is it worth suing?</h3>
+    <p class="verdict" id="verdict"></p>
+    <label for="summary">Copyable plan (all letters and the verdict)</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy plan</button> <button type="button" class="secondary" id="download-ics">Download reminders (.ics)</button> <button type="button" class="secondary" id="download-txt">Download plan (.txt)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Interest:</strong> simple interest, rate times balance times days over 365, from the due date, only after any grace period. A monthly contract rate is treated as twelve times that per year. The flat fee is charged once.</li>
+      <li><strong>Reference rates:</strong> the state list holds the legal (default) annual rate for states where it is a single fixed figure, as of 2026-09-29, with the statute. Judgment interest can differ, rates change, and floating-rate states are left for you to type. <strong>Verify with your state statute.</strong></li>
+      <li><strong>Letters:</strong> plain templates filled with your figures. They do not assert facts you did not give and leave out threats of anything but a small-claims claim or referral. Consumer clients get softer wording; you are still responsible for what you send.</li>
+      <li><strong>Break-even:</strong> expected net = (claim, capped at the limit, plus filing and service costs you would ask back) x chance of winning x chance of collecting, minus filing, service and the value of your time. The odds and the agency terms are your assumptions, not data.</li>
+      <li><strong>Not modelled:</strong> caps on late fees and interest, notice requirements, licensing rules for collectors, attorney fees, court-specific rules and deadlines, statutes of limitations, disputes over the work, and bankruptcy.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much late fee or interest can I charge on an overdue invoice?</h3>
+    <p>Only what the client agreed to before the work, in a contract, quote or invoice terms, and within your state's limits. If nothing was agreed, most states still allow interest at a statutory rate from the due date; some states fix that rate and some tie it to a benchmark. The tool computes simple interest at a contract rate you type or at a state rate you can check, and shows the balance today and on later dates. Verify the rate with your state statute.</p>
+    <h3>What should a late invoice reminder say?</h3>
+    <p>Name the invoice, the amount and the original due date, state how many days it is past due, ask for a payment date or the reason for a dispute, and say how to pay. The first message should be friendly; later ones set a specific pay-by date. The tool writes all four messages with your numbers filled in and ready to copy.</p>
+    <h3>When should I send a final demand letter?</h3>
+    <p>A common rhythm is a reminder a few days after the due date, a firm notice around two weeks, and a final demand around thirty days, giving ten days to pay before you file or refer the account. The day offsets are editable, and each step lands on a calendar date you can download as reminders.</p>
+    <h3>Is it worth taking a client to small claims court?</h3>
+    <p>It depends on the balance against your filing fee, service cost and time, and on your chance of winning and of actually collecting. The tool estimates expected net and the break-even claim from fee, time and odds you can change, and compares it with a collections agency that keeps a share. Filing fees and small-claims limits vary by court, so both are fields you set.</p>
+    <h3>Does this tool give legal advice or send anything?</h3>
+    <p>No. It does arithmetic and fills templates in your browser. Nothing is sent or stored on a server, and it is not legal advice. Interest, late fees and collection practices are regulated differently by state and for consumers, so check your own rules or ask a lawyer before relying on a figure.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers and assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> or sending anything to a client.</p>
+    <p><strong>Not affiliated with any court or agency.</strong> Small-claims courts, state statutes, collections agencies and invoicing or accounting products are named only to describe how they work; their names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Laws and fees change and differ by state; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>ics_downloaded</code>, <code>invoice_maker_plan</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../invoice-aging-late-payer-analyzer/">invoice aging and late payer analyzer</a>, <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>, <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>, <a href="../client-profitability-time-analyzer/">client profitability time analyzer</a>.</p>
+    <p>Unpaid on a construction job? The <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> shows the preliminary-notice and lien-filing dates a subcontractor or supplier may still have open.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { overdueFromInvoiceMaker, INVOICE_MAKER_KEY, buildPlan, planText, icsText, sampleInputs, STATE_RATES, RATES_AS_OF, verdictText, prettyDate, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+    const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+    let last = null;
+    $("#today").value = localToday();
+
+    function stateNote() {
+      const s = STATE_RATES[$("#state").value];
+      if (s) {
+        $("#annual").value = s.pct;
+        $("#state-note").innerHTML = `${esc(s.name)}: ${s.pct}% a year legal rate (${esc(s.cite)}), as of ${RATES_AS_OF}. <strong>Verify with your state statute</strong>; the rate for a judgment or for consumer debt can differ.`;
+      } else {
+        $("#annual").value = "";
+        $("#state-note").innerHTML = "No fixed rate is stored for this choice. Type the statutory rate you verified in the box above if you want to use the state basis. <strong>Verify with your state statute.</strong>";
+      }
+    }
+    $("#state").addEventListener("change", stateNote);
+
+    function inputs() {
+      return {
+        amount: num("#amount", NaN), dueDate: $("#due").value, today: $("#today").value, clientType: $("#ctype").value, state: $("#state").value,
+        basis: $("#basis").value, contractMonthlyPct: num("#cmonthly", 0), annualPct: num("#annual", 0), flatFee: num("#flat", 0), graceDays: num("#grace", 0),
+        clientName: $("#cname").value.trim(), invoiceNo: $("#inv").value.trim(), yourName: $("#you").value.trim(), paymentInfo: $("#pay").value.trim(),
+        offsets: [num("#o1", 3), num("#o2", 14), num("#o3", 30), num("#o4", 45)],
+        suit: { limit: num("#limit", 10000), filingFee: num("#fee", 75), serviceCost: num("#svc", 20), hours: num("#hours", 8), hourlyValue: num("#rate", 50), winPct: num("#win", 70), collectPct: num("#coll", 60), agencyFeePct: num("#afee", 30), agencyRecoverPct: num("#arec", 30) },
+      };
+    }
+
+    function run() {
+      const i = inputs();
+      const p = buildPlan(i);
+      if (p.steps === undefined) { status.textContent = p.errors.join(" "); report.hidden = true; return false; }
+      last = { i, p };
+      $("#stats").innerHTML = `Owed today: <strong>$${money(p.now.total)}</strong> (${p.now.daysLate} days late; $${money(i.amount)} invoice + $${money(p.now.interest)} interest + $${money(p.now.flatFee)} fee).`;
+      const w = p.warnings.concat(p.errors);
+      $("#warnings").innerHTML = w.map((x) => `<div class="warn">${esc(x)}</div>`).join("");
+      $("#table").innerHTML = p.table.map((r) => `<tr><th scope="row">${esc(prettyDate(r.asOf))}</th><td class="n">${r.daysLate}</td><td class="n">${money(r.interest)}</td><td class="n">${money(r.flatFee)}</td><td class="n">${money(r.total)}</td></tr>`).join("");
+      $("#steps").innerHTML = p.steps.map((s, k) => `<h4>Step ${k + 1}: ${esc(s.title)} — send ${esc(prettyDate(s.date))} (day ${s.offset})${s.missed ? " — already due, send now" : ""}</h4><textarea readonly spellcheck="false" aria-label="Step ${k + 1} letter">Subject: ${esc(s.subject)}\n\n${esc(s.body)}</textarea><p><button type="button" class="secondary copy-step" data-k="${k}">Copy step ${k + 1}</button></p>`).join("");
+      $("#verdict").textContent = verdictText(p.suit);
+      $("#summary").value = planText(i, p);
+      report.hidden = false;
+      status.textContent = "Plan built. Nothing left this page.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function imRead() { try { return localStorage.getItem(INVOICE_MAKER_KEY); } catch { return null; } }
+    const imRows = overdueFromInvoiceMaker(imRead(), localToday());
+    function imFill(r) {
+      $("#amount").value = r.amount.toFixed(2); $("#due").value = r.due; $("#today").value = localToday();
+      $("#cname").value = r.client; $("#inv").value = r.number; $("#you").value = r.fromName; $("#pay").value = r.payInstructions;
+      $("#flat").value = r.lateFlat; $("#basis").value = "contract"; $("#cmonthly").value = r.lateMonthlyPct;
+    }
+    if (imRows.length) {
+      $("#from-im").hidden = false;
+      $("#im-list").innerHTML = '<div class="scroll"><table><thead><tr><th scope="col">Invoice</th><th scope="col">Client</th><th class="n" scope="col">Unpaid</th><th class="n" scope="col">Days late</th><th scope="col"></th></tr></thead><tbody>' +
+        imRows.map((r, k) => `<tr><th scope="row">${esc(r.number || "(no number)")}</th><td>${esc(r.client)}</td><td class="n">${esc(r.amount.toLocaleString("en-US", { style: "currency", currency: /^[A-Z]{3}$/.test(r.currency) ? r.currency : "USD" }))}</td><td class="n">${r.daysLate}</td><td><button type="button" class="secondary im-pick" data-k="${k}">Build plan</button></td></tr>`).join("") + "</tbody></table></div>";
+      $("#im-list").addEventListener("click", (e) => {
+        const b = e.target.closest(".im-pick"); if (!b) return;
+        imFill(imRows[+b.dataset.k]);
+        if (run()) { record("invoice_maker_plan"); status.textContent = "Plan built from your Invoice Maker invoice. Nothing left this page."; }
+      });
+      const want = new URLSearchParams(location.search).get("invoice");
+      const hit = want && imRows.find((r) => r.id === want);
+      if (hit) { imFill(hit); if (run()) record("invoice_maker_plan"); }
+    }
+
+    $("#build").addEventListener("click", () => { if (run()) record("plan_built"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInputs(localToday());
+      $("#amount").value = s.amount; $("#due").value = s.dueDate; $("#today").value = s.today; $("#flat").value = 25;
+      $("#cname").value = "Sam"; $("#inv").value = "1042"; $("#you").value = "Alex Rivera";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented invoice, not a real client."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#amount", "#due", "#cname", "#inv", "#you", "#pay", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Enter the invoice amount and due date, then click Build my plan."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Plan copied."; }
+      catch { box.select(); status.textContent = "Select the plan text and copy it."; }
+    });
+    $("#steps").addEventListener("click", async (event) => {
+      const b = event.target.closest(".copy-step");
+      if (!b || !last) return;
+      const s = last.p.steps[+b.dataset.k];
+      try { await navigator.clipboard.writeText(`Subject: ${s.subject}\n\n${s.body}`); status.textContent = `Step ${+b.dataset.k + 1} copied.`; }
+      catch { b.closest("p").previousElementSibling.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    function save(name, type, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+    }
+    $("#download-ics").addEventListener("click", () => { if (!last) return; save("collections-plan.ics", "text/calendar", icsText(last.i, last.p, last.i.today)); record("ics_downloaded"); });
+    $("#download-txt").addEventListener("click", () => { if (last) save("collections-plan.txt", "text/plain", planText(last.i, last.p)); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../timber-sale-offer-checker/" data-pf-to="timber-sale-offer-checker">Timber Sale Offer Checker — free, private</a></li>
+      <li><a href="../tire-shop-ticket-margin-calculator/" data-pf-to="tire-shop-ticket-margin-calculator">Tire Shop Ticket Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../trade-bid-studio/" data-pf-to="trade-bid-studio">Trade Bid Studio</a></li>
+      <li><a href="../vineyard-grape-vs-wine-calculator/" data-pf-to="vineyard-grape-vs-wine-calculator">Sell Grapes or Make Wine Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=late-invoice-collections-kit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/?pfEmbed=1&quot; title=&quot;Late Invoice Collections Kit — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="late-invoice-collections-kit"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/" data-pf-embed-title="Late Invoice Collections Kit — free, private, in your browser" data-pf-embed-slug="late-invoice-collections-kit"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="late-invoice-collections-kit" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="late-invoice-collections-kit" data-pf-link-amount=""></script>
+</body>
+</html>

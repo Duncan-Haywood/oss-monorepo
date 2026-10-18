@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affiliate Disclosure Checker vs. checking a post by eye</title>
+<meta name="description" content="Re-reading your own post catches an obviously missing disclosure at the top. It reliably misses an affiliate link disguised behind ordinary anchor text…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/vs-checking-a-post-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Affiliate Disclosure Checker vs. checking a post by eye">
+<meta property="og:description" content="Reading a post yourself catches a disclosure that is obviously missing. It cannot reliably catch a tracking link hidden behind ordinary anchor text…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/vs-checking-a-post-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just re-read my post and check for the disclosure myself?","acceptedAnswer":{"@type":"Answer","text":"For a post with one affiliate link and a disclosure sentence right above it, yes -- that case is obvious on a single read. What re-reading does not reliably catch is a disclosure that is present but appears after the first affiliate link rather than before it, an affiliate link whose href carries a tracking domain or parameter you did not recognise while skimming the rendered text, or a rel=\"sponsored\" attribute that has no visible marker at all. Those need the actual markup checked in the order a reader encounters it, not remembered while reading the words."}},{"@type":"Question","name":"Why is spotting an affiliate link harder than it looks?","acceptedAnswer":{"@type":"Answer","text":"Because the signal that makes a link an affiliate link lives in the href, not in the anchor text you actually read. \"Buy it here\" gives no clue whether the underlying URL carries an Amazon tag= parameter, routes through a shortener like amzn.to, or goes through a tracking domain such as shareasale.com, cj.com, impact.com, or skimlinks.com -- and rel=\"sponsored\" is an attribute on the tag, never rendered as visible text at all. Confirming any of that means opening view-source and checking every link's markup by hand, one link at a time, which is exactly the comparison a skim of the rendered page does not do."}},{"@type":"Question","name":"Doesn't having a disclosure somewhere on the page cover it?","acceptedAnswer":{"@type":"Answer","text":"No -- the FTC's guidance is specifically about a disclosure appearing before the first affiliate link a reader would encounter, not merely existing on the page. In a short post with one link near the top, eyeballing that order is easy. In a longer post with several affiliate links scattered across multiple paragraphs, correctly judging whether your disclosure sentence's position precedes every one of them means holding both positions in mind at once and comparing them -- which is a character-by-character ordering question, not a skim."}},{"@type":"Question","name":"Is a generic \"affiliate links\" note enough for an Amazon link?","acceptedAnswer":{"@type":"Answer","text":"Not for Amazon specifically, and this is the mistake reading a post yourself is most likely to miss: a generic disclosure phrase reads as sufficient at a glance, so nothing about re-reading a post prompts you to check for Amazon's separate, exact required wording (\"As an Amazon Associate I earn from qualifying purchases\"). The two are easy to conflate on sight because both are disclosure-shaped sentences; only checking for the exact phrase, not just the presence of some phrase, tells them apart."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit every blogger already has -- re-reading a published post and checking it by eye for a disclosure. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted HTML in your own browser, and the CLI reads only local files."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#4a1f5c;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:30ch;letter-spacing:-.03em;color:#4a1f5c}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#4a1f5c}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Affiliate Disclosure Checker vs. checking a post by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../affiliate-disclosure-checker/">Is your affiliate disclosure missing, or just too late?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Affiliate Disclosure Checker vs. checking a post by eye</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Affiliate Disclosure Checker</a></p>
+<header>
+<h1>Affiliate Disclosure Checker vs. checking a post by eye</h1>
+<p class="lede">Re-reading a post you already published catches an obviously missing disclosure. It reliably misses an affiliate link hidden behind ordinary anchor text, a <code>rel="sponsored"</code> attribute with no visible marker at all, and whether the disclosure actually sits before the first affiliate link once a post has more than one &mdash; which is what this free, no-upload checker computes exactly, in one pass.</p>
+</header>
+<section>
+<h2>Where re-reading it yourself stops being enough</h2>
+<p>
+  Every blogger who has ever added an affiliate link already does this: publish the post, then
+  read it back and check whether the disclosure is there. For the obvious case &mdash; no
+  disclosure sentence anywhere on the page &mdash; that read-back is enough on its own. The
+  problem is the other three things a real disclosure check needs are not visible from reading
+  the rendered words at all.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Reading the post yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>No disclosure sentence anywhere on the page.</td><td>Works. This is the one case a plain read-back reliably catches.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>An affiliate link disguised behind ordinary anchor text ("click here", "this gadget") &mdash; the tracking signal is in the <code>href</code>, not the words you read.</td><td>Invisible while skimming rendered text. Confirming it means opening view-source and checking every link's underlying URL by hand, one at a time.</td><td>Classified automatically from the href against known Amazon, ShareASale, CJ, Impact, Skimlinks, AWIN, and similar tracking patterns.</td></tr>
+<tr><td>A <code>rel="sponsored"</code> attribute with no visible marker on the page at all.</td><td>Cannot be seen by reading the page; it exists only in markup a reader never renders.</td><td>Read directly from the anchor's <code>rel</code> attribute.</td></tr>
+<tr><td>Whether the disclosure genuinely appears <em>before</em> the first affiliate link, once a post has several links spread across multiple paragraphs.</td><td>Requires holding your reading position and every link's position in mind at once and comparing them &mdash; easy to misjudge in a longer post.</td><td>Computed as an exact character-offset comparison between the disclosure and every recognised link.</td></tr>
+<tr><td>Whether an Amazon link specifically carries Amazon's own required exact statement, as distinct from a generic "affiliate links" note.</td><td>Easy to assume a generic disclosure covers it &mdash; both read as disclosure-shaped sentences.</td><td>Checked as a separate condition from the generic disclosure match.</td></tr>
+<tr><td>Re-checking an entire blog's back catalogue after adding a new affiliate link somewhere.</td><td>One post at a time, remembered by hand, every time something changes.</td><td>One CLI command against a whole build-output directory.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A quick read-back is still the fastest way to catch a post with no disclosure at all, and this
+  checker is not doing anything a careful line-by-line audit couldn't &mdash; it is reading the
+  same markup a careful audit would, just checking every link's href and every character
+  position automatically instead of leaving the comparison to be remembered by hand.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses HTML you paste entirely in your own browser, and the CLI reads only local files. Neither ever sends your content anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just re-read my post and check for the disclosure myself?</h3>
+<p>For a post with one affiliate link and a disclosure sentence right above it, yes -- that case is obvious on a single read. What re-reading does not reliably catch is a disclosure that is present but appears after the first affiliate link rather than before it, an affiliate link whose href carries a tracking domain or parameter you did not recognise while skimming the rendered text, or a rel="sponsored" attribute that has no visible marker at all. Those need the actual markup checked in the order a reader encounters it, not remembered while reading the words.</p>
+<h3>Why is spotting an affiliate link harder than it looks?</h3>
+<p>Because the signal that makes a link an affiliate link lives in the href, not in the anchor text you actually read. "Buy it here" gives no clue whether the underlying URL carries an Amazon tag= parameter, routes through a shortener like amzn.to, or goes through a tracking domain such as shareasale.com, cj.com, impact.com, or skimlinks.com -- and rel="sponsored" is an attribute on the tag, never rendered as visible text at all. Confirming any of that means opening view-source and checking every link's markup by hand, one link at a time, which is exactly the comparison a skim of the rendered page does not do.</p>
+<h3>Doesn't having a disclosure somewhere on the page cover it?</h3>
+<p>No -- the FTC's guidance is specifically about a disclosure appearing before the first affiliate link a reader would encounter, not merely existing on the page. In a short post with one link near the top, eyeballing that order is easy. In a longer post with several affiliate links scattered across multiple paragraphs, correctly judging whether your disclosure sentence's position precedes every one of them means holding both positions in mind at once and comparing them -- which is a character-by-character ordering question, not a skim.</p>
+<h3>Is a generic "affiliate links" note enough for an Amazon link?</h3>
+<p>Not for Amazon specifically, and this is the mistake reading a post yourself is most likely to miss: a generic disclosure phrase reads as sufficient at a glance, so nothing about re-reading a post prompts you to check for Amazon's separate, exact required wording ("As an Amazon Associate I earn from qualifying purchases"). The two are easy to conflate on sight because both are disclosure-shaped sentences; only checking for the exact phrase, not just the presence of some phrase, tells them apart.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit every blogger already has -- re-reading a published post and checking it by eye for a disclosure. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted HTML in your own browser, and the CLI reads only local files.</p>
+<p class="note">
+  Never written a disclosure yet? See <a href="./vs-post-affiliate-pro.html">this checker vs. Post Affiliate Pro's Disclosure Generator</a>, or read <a href="./what-disclosure-does-amazon-associates-and-the-ftc-require.html">what disclosure Amazon Associates and the FTC actually require</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a legal or compliance determination, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any disclosure obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p>Everything runs in your browser. Your content is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../heloc-vs-cash-out-refinance-calculator/" data-pf-to="heloc-vs-cash-out-refinance-calculator">HELOC or cash-out refinance? Free calculator</a></li>
+      <li><a href="../home-sale-net-proceeds-calculator/" data-pf-to="home-sale-net-proceeds-calculator">Home Sale Net Proceeds Calculator — what you really walk away with</a></li>
+      <li><a href="../house-hack-calculator/" data-pf-to="house-hack-calculator">House Hack Calculator — free, private</a></li>
+      <li><a href="../hsa-shoebox-reimbursement-planner/" data-pf-to="hsa-shoebox-reimbursement-planner">HSA shoebox planner: what are your unreimbursed receipts worth?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=affiliate-disclosure-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="affiliate-disclosure-checker"></script>
+</body></html>

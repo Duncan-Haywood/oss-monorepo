@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Many Tiles Do I Need? A Worked Example With Cuts And Waste</title>
+  <meta name="description" content="Floor area over tile area is only a start. A worked example of a 3.58 by 2.42 m room with 30 by 60 cm tiles: 12 slivers from a corner start…">
+  <meta property="og:title" content="How Many Tiles Do I Need? A Worked Example">
+  <meta property="og:description" content="The same room and tile gives 12 sliver cuts one way and none the other. Here is how to check your own layout.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/how-many-tiles-do-i-need.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is area divided by tile area enough?", "acceptedAnswer": {"@type": "Answer", "text": "It is a start, and the guide's room shows its limit: 8.66 square metres over a 30 by 60 cm tile with a 3 mm joint is about 48 tiles, and the real count with a good layout is also 48, but a layout that starts badly needs 60 with no reuse, or leaves twelve slivers. The count depends on where you start, and the slivers depend on which way the tile runs."}}, {"@type": "Question", "name": "Which way should the tile run?", "acceptedAnswer": {"@type": "Answer", "text": "Whichever leaves fewer thin cuts and fewer tiles. In the worked example, running 30 by 60 cm tiles 60 cm along the short side gives twelve cuts thinner than 5 cm when laid from a corner, and turning them gives none. The planner tries both directions."}}, {"@type": "Question", "name": "Do I need to reuse offcuts to hit the number?", "acceptedAnswer": {"@type": "Answer", "text": "In the example the full-room count is the same either way only because leftover pieces are reused: with no reuse the corner start would need 60 tiles instead of 48. If you cannot reuse pieces, for example with a one-way pattern, untick the reuse option and order from the no-reuse figure."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1b5e7a; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ddd8cc; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1b5e7a; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #54503f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/how-many-tiles-do-i-need.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Many Tiles Do I Need? A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tile-layout-planner/">Tile Layout Planner — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Many Tiles Do I Need? A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Tile layout planner</a></p>
+  <h1>How many tiles do I need? A worked example</h1>
+  <p>The usual answer is the floor area divided by the area of one tile, plus ten percent. It is a fair first figure, and it misses the two things that cost money on the day: tiles you have to cut, and cuts so thin that they break or look wrong. Both depend on where the first tile goes and which way the tile runs.</p>
+  <p><a class="cta" href="./">Open the free tile layout planner</a></p>
+
+  <h2>The method</h2>
+  <p><strong>1. Lay out the real tiles.</strong> Put the grid on the floor with the joint between tiles, clip every tile to the room and around any cut-out, and count whole tiles and cut tiles.</p>
+  <p><strong>2. Reuse what you cut off.</strong> A 10 cm strip cut from a 30 cm tile leaves 20 cm, enough for two more strips of the same width, so three strips cost one tile, not three.</p>
+  <p><strong>3. Try other starts.</strong> Start from a corner, centre a tile, centre a joint, line up with a cut-out, turn the tile 90 degrees, and keep the layout with the fewest cuts thinner than your limit, then the fewest tiles.</p>
+  <p><strong>4. Add overage.</strong> Breakage, bad tiles and spares: ten percent is a common figure for straight layouts.</p>
+
+  <h2>A worked example</h2>
+  <p>An invented room is 3.58 by 2.42 metres, with 30 by 60 cm tiles, a 3 mm joint, a straight grid and no cut-outs. Floor area over tile area is 8.66 square metres over 0.18, about 48 tiles. With 10 percent extra and six tiles to a box, that is 53 tiles and 9 boxes. The planner agrees on the total, and shows what the total hides:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Layout</th><th class="n">Full tiles</th><th class="n">Cut tiles</th><th class="n">Tiles, no reuse</th><th class="n">Tiles, reuse</th><th class="n">Cuts under 5 cm</th></tr></thead>
+    <tbody>
+      <tr><td>Top-left corner, as entered</td><td class="n">44</td><td class="n">16</td><td class="n">60</td><td class="n">48</td><td class="n">12</td></tr>
+      <tr><td>Centre a tile</td><td class="n">33</td><td class="n">32</td><td class="n">65</td><td class="n">60</td><td class="n">0</td></tr>
+      <tr><td>Best found, tile turned 90&deg;</td><td class="n">35</td><td class="n">13</td><td class="n">48</td><td class="n">48</td><td class="n">0</td></tr>
+    </tbody>
+  </table></div>
+  <p>Starting at the wall as entered, twelve tiles end in a strip as thin as 8 mm, and the layout depends on reusing pieces to stay at 48: with no reuse it needs 60. Centring avoids the slivers but cuts 32 tiles and needs 60. Turning the tile a quarter turn and starting at the wall gives 35 whole tiles, 13 cuts, the thinnest 29.9 cm, no slivers, and 48 tiles whether you reuse pieces or not. Same room, same tile, same count, and a far better floor.</p>
+  <p>Order 53 for the best layout: 48 plus 10 percent, in 9 boxes of six, and keep spares from the same lot.</p>
+
+  <h2>What the figure leaves out</h2>
+  <p>The planner counts tiles and cuts on the figures you type. It does not allow for the blade width, breakage beyond your overage, tile warp, shade matching, or trims, and it is not installation advice. Check the count with your installer or supplier before ordering.</p>
+
+  <h2>Questions</h2>
+  <h3>Is area divided by tile area enough?</h3>
+  <p>It is a start, and the guide's room shows its limit: 8.66 square metres over a 30 by 60 cm tile with a 3 mm joint is about 48 tiles, and the real count with a good layout is also 48, but a layout that starts badly needs 60 with no reuse, or leaves twelve slivers. The count depends on where you start, and the slivers depend on which way the tile runs.</p>
+  <h3>Which way should the tile run?</h3>
+  <p>Whichever leaves fewer thin cuts and fewer tiles. In the worked example, running 30 by 60 cm tiles 60 cm along the short side gives twelve cuts thinner than 5 cm when laid from a corner, and turning them gives none. The planner tries both directions.</p>
+  <h3>Do I need to reuse offcuts to hit the number?</h3>
+  <p>In the example the full-room count is the same either way only because leftover pieces are reused: with no reuse the corner start would need 60 tiles instead of 48. If you cannot reuse pieces, for example with a one-way pattern, untick the reuse option and order from the no-reuse figure.</p>
+
+  <p><a class="cta" href="./">Plan your own room</a></p>
+  <p>Related: the <a href="../flooring-bid-calculator/">flooring bid calculator</a> and the <a href="../kitchen-tile-backsplash-bid-calculator/">tile backsplash bid calculator</a>.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. It is not legal, tax, financial or construction advice, is not installation instructions or a material guarantee, and does not replace your installer or supplier. The example room is invented and no tile price is stated or implied.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tile maker, retailer or installer, and none is named here.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cabinet-refinishing-bid-calculator/" data-pf-to="cabinet-refinishing-bid-calculator">Cabinet Refinishing Bid Calculator</a></li>
+      <li><a href="../carpet-install-bid-calculator/" data-pf-to="carpet-install-bid-calculator">Carpet Installation Bid Calculator</a></li>
+      <li><a href="../countertop-bid-calculator/" data-pf-to="countertop-bid-calculator">Quartz &amp; Granite Countertop Bid Calculator</a></li>
+      <li><a href="../crown-molding-bid-calculator/" data-pf-to="crown-molding-bid-calculator">Crown Molding Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tile-layout-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tile-layout-planner"></script>
+</body>
+</html>

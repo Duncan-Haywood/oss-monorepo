@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CNC Quote Calculator vs. Quoting in a Spreadsheet</title>
+  <meta name="description" content="A CNC job shop's quoting spreadsheet holds the history, the customers and the estimates you built over years.">
+  <meta property="og:title" content="CNC quote calculator vs. quoting in a spreadsheet">
+  <meta property="og:description" content="The same $38 part price earns 57.4% margin at 50 pieces and loses 19.3% at 10. What a spreadsheet is better at, and the four errors it makes easy.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I stop using my quoting spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No, and this page is not an argument that you should. A spreadsheet is the better tool for everything this calculator deliberately does not do: keeping a quote history, holding customer and part numbers, tracking which quotes were won and at what price, feeding a purchase order or a job traveller, and carrying the estimates you built up over years of running this shop. What a spreadsheet is not good at is being re-derived correctly at a new quantity under time pressure. The honest division is that the spreadsheet is your record and this is your arithmetic check: cost the part here, then put the figures into the sheet that holds the job."}},{"@type":"Question","name":"What does the calculator do that a spreadsheet formula usually does not?","acceptedAnswer":{"@type":"Answer","text":"Four things, all of them structural rather than clever. It re-derives the whole cost at each quantity in the break table instead of scaling one computed row. It rounds scrap up to whole parts, because you cannot start a third of a part. It buys material in whole stock units, so cost per part is a step function rather than a rate. And it applies outside-process lot minimums, which behave like a second setup on a short run. Each of the four moves the cost in the same direction on short runs, against the shop, which is why leaving them out is expensive rather than merely imprecise."}},{"@type":"Question","name":"Why would a spreadsheet get the price breaks wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the usual way to build a price-break row in a sheet is to take the per-part price you already computed and adjust it — a few per cent off for the bigger lot, or a setup-divided-by-quantity term copied sideways across the columns. That is an approximation of re-deriving the cost, and it drifts, because the amortisation is not the only thing that changes with the quantity. The scrap round-up steps to whole parts, the material steps to whole bars or sheets, and an outside-process minimum stops applying somewhere along the row. A copied formula draws a smooth curve where the real cost has corners in it."}},{"@type":"Question","name":"Is my data safer in the spreadsheet or in this page?","acceptedAnswer":{"@type":"Answer","text":"Both stay on your own machine, so neither is a disclosure risk by itself. This page and the calculator run entirely in your browser: nothing is uploaded, there are no accounts, cookies, or analytics vendors, and anything the calculator saves is written to your own browser's local storage. A spreadsheet file is equally local until you email it. The practical difference is not privacy but durability — a spreadsheet is a record you keep, and this is a calculation you run and close, which is the division the first answer above describes."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f24; background: #f2f4f6; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #1d3a5c; }
+    h2 { font-size: 1.1rem; margin: 26px 0 8px; color: #1d3a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; color: #1d3a5c; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #4e545c; }
+    .card { background: #fff; border: 1px solid #d5dbe1; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e7ebef; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #454b53; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroller { overflow-x: auto; }
+    a { color: #1a4f7a; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe1; padding-top: 16px; }
+    .cta { background: #1d3a5c; color: #fff; display: inline-block; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    .loss { color: #8a2a00; font-weight: 700; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CNC quote calculator vs. quoting in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cnc-machining-quote-calculator/">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CNC quote calculator vs. quoting in a spreadsheet</span></span></nav>
+<h1>This calculator vs. quoting in a spreadsheet</h1>
+
+<p>Almost every small job shop quotes out of a spreadsheet, and that is a reasonable thing to do. This page is not an argument that you should stop. It is an account of which job each tool is better at, and of four specific costing errors a quoting sheet makes easy — because all four move the cost the same way on short runs, against the shop.</p>
+
+<p><a class="cta" href="./index.html">Open the calculator</a></p>
+
+<h2>One price list, two very different jobs</h2>
+
+<p>Here is the whole argument in one row of arithmetic. Take the calculator's own default job — a turned part off 12&nbsp;ft bar, 4.2&nbsp;min cycle, 2.5&nbsp;h setup, 3&nbsp;h programming, 1.25&nbsp;h first article, 3% scrap — and quote it at a flat <strong>$38 a part</strong>, the kind of number a shop carries in its head or in the top row of a sheet:</p>
+
+<div class="scroller">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Lot size</th><th class="num" scope="col">Parts started</th><th class="num" scope="col">Cost / part</th><th class="num" scope="col">Margin at $38</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="num">2</td><td class="num">$374.80</td><td class="num loss">&minus;886.3%</td></tr>
+<tr><td>5</td><td class="num">6</td><td class="num">$81.94</td><td class="num loss">&minus;115.6%</td></tr>
+<tr><td>10</td><td class="num">11</td><td class="num">$45.34</td><td class="num loss">&minus;19.3%</td></tr>
+<tr><td>25</td><td class="num">26</td><td class="num">$23.37</td><td class="num">38.5%</td></tr>
+<tr><td>50</td><td class="num">52</td><td class="num">$16.17</td><td class="num">57.4%</td></tr>
+<tr><td>100</td><td class="num">104</td><td class="num">$12.71</td><td class="num">66.6%</td></tr>
+<tr><td>250</td><td class="num">258</td><td class="num">$10.59</td><td class="num">72.1%</td></tr>
+<tr><td>500</td><td class="num">516</td><td class="num">$9.90</td><td class="num">73.9%</td></tr>
+</tbody>
+</table></div>
+</div>
+
+<p>The same part price is a healthy 57.4% margin at 50 pieces and a <strong>19.3% loss</strong> at 10. Between one piece and five hundred the cost per part moves by a factor of nearly thirty-eight. None of that is a discount; it is the same costs divided differently. A price carried across lot sizes is wrong in both directions at once — it loses money on the short run and it is uncompetitive on the long one.</p>
+
+<h2>What each one is for</h2>
+
+<div class="scroller">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Your quoting spreadsheet</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr><td>Holds the quote history, the customer, the part number, and which quotes you won and at what price</td><td>Holds nothing. It costs one job and forgets it.</td></tr>
+<tr><td>Carries years of your own estimates for similar parts</td><td>Has no history and cannot estimate a cycle time for you</td></tr>
+<tr><td>Feeds a purchase order, a traveller, or a job packet</td><td>Feeds your clipboard</td></tr>
+<tr><td>Formulas you wrote, which you can audit and change</td><td>One fixed cost model, shown line by line so you can check it</td></tr>
+<tr><td>Break rows usually built by adjusting one computed row</td><td>Every break row is the whole cost re-derived at that quantity</td></tr>
+<tr><td>Scrap, stock yield and lot minimums are in there if you remembered to put them in</td><td>All three are applied every time, whatever the quantity</td></tr>
+</tbody>
+</table></div>
+</div>
+
+<p>Read that as a division of labour rather than a scoreboard. The spreadsheet is your record; this is the arithmetic check you run before a number goes into it.</p>
+
+<h2>The four errors a quoting sheet makes easy</h2>
+
+<h3>1. Break rows scaled instead of re-derived</h3>
+<p>The common pattern is to compute one per-part price and adjust it for the other quantities — a few per cent off for the bigger lot, or a setup-over-quantity term copied sideways. That is an approximation of re-deriving the cost, and it drifts, because the cost curve has corners in it. In the table above the per-lot share of cost falls from $189.42 a part at one piece to $0.59 a part at five hundred, and it does not fall smoothly: the other three errors below are exactly the corners a copied formula cannot see.</p>
+
+<h3>2. Scrap treated as a percentage</h3>
+<p>Scrap is an integer. To ship 10 good parts at 3% fallout you do not start 10.3 — you start 11, which is a 10% hit on material and machine time, not 3%. At 50 pieces the same 3% means starting 52, an effective 4%. The rate you typed is never the rate you pay on a short run, and the gap is invisible in a percentage.</p>
+
+<h3>3. Material divided as a rate instead of stepped</h3>
+<p>Material is bought in whole stock units. At the default figures a 12&nbsp;ft bar yields 53 parts, so a 50-piece order buys one bar and a 100-piece order buys two — the 54th part costs a whole new bar, and the 53rd costs nothing extra. A sheet that divides a bar price by an ideal parts-per-bar figure misses both edges: it over-charges the part that rides on stock you already own, and under-charges the one that forces another bar.</p>
+
+<h3>4. Outside-process lot minimums ignored</h3>
+<p>Anodising, heat treat, plating and passivation are quoted per part and billed against a lot minimum, so on a short run the minimum is what you actually pay. At $2.10 a part with a $75 lot minimum, a 5-piece run costs $15.00 a part and a 100-piece run costs $2.10 — the minimum, not the rate, prices the short run. A sheet that multiplies the per-part rate by the quantity is short by $64.50 on that 5-piece job, and it is short by most on exactly the runs where the margin is thinnest.</p>
+
+<h2>The practical suggestion</h2>
+<p>Keep the spreadsheet. Cost the next few jobs in both and compare at the <em>smallest</em> quantity on the enquiry — that is where all four errors are largest and where a difference will show up first. If the numbers agree, your sheet is sound and you have learned something worth knowing. If they do not, the line-by-line breakdown in the calculator will show you which of the four it is.</p>
+
+<p><a class="cta" href="./index.html">Cost a job both ways</a></p>
+<p class="note">On whether that setup cost should be its own line on the quote or buried in the part price, see <a href="./setup-fee-or-in-the-part-price.html">should a CNC shop charge setup separately or build it into the part price?</a></p>
+
+<h2>Common questions</h2>
+
+<h3>Should I stop using my quoting spreadsheet?</h3>
+<p>No, and this page is not an argument that you should. A spreadsheet is the better tool for everything this calculator deliberately does not do: keeping a quote history, holding customer and part numbers, tracking which quotes were won and at what price, feeding a purchase order or a job traveller, and carrying the estimates you built up over years of running this shop. What a spreadsheet is not good at is being re-derived correctly at a new quantity under time pressure. The honest division is that the spreadsheet is your record and this is your arithmetic check: cost the part here, then put the figures into the sheet that holds the job.</p>
+
+<h3>What does the calculator do that a spreadsheet formula usually does not?</h3>
+<p>Four things, all of them structural rather than clever. It re-derives the whole cost at each quantity in the break table instead of scaling one computed row. It rounds scrap up to whole parts, because you cannot start a third of a part. It buys material in whole stock units, so cost per part is a step function rather than a rate. And it applies outside-process lot minimums, which behave like a second setup on a short run. Each of the four moves the cost in the same direction on short runs, against the shop, which is why leaving them out is expensive rather than merely imprecise.</p>
+
+<h3>Why would a spreadsheet get the price breaks wrong?</h3>
+<p>Because the usual way to build a price-break row in a sheet is to take the per-part price you already computed and adjust it &mdash; a few per cent off for the bigger lot, or a setup-divided-by-quantity term copied sideways across the columns. That is an approximation of re-deriving the cost, and it drifts, because the amortisation is not the only thing that changes with the quantity. The scrap round-up steps to whole parts, the material steps to whole bars or sheets, and an outside-process minimum stops applying somewhere along the row. A copied formula draws a smooth curve where the real cost has corners in it.</p>
+
+<h3>Is my data safer in the spreadsheet or in this page?</h3>
+<p>Both stay on your own machine, so neither is a disclosure risk by itself. This page and the calculator run entirely in your browser: nothing is uploaded, there are no accounts, cookies, or analytics vendors, and anything the calculator saves is written to your own browser's local storage. A spreadsheet file is equally local until you email it. The practical difference is not privacy but durability &mdash; a spreadsheet is a record you keep, and this is a calculation you run and close, which is the division the first answer above describes.</p>
+
+<footer>
+  <h2>Disclaimer</h2>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, engineering, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Every figure on this page is a worked example from the calculator's own
+  default inputs. None of them is a survey of what shops charge, a benchmark, or
+  a recommendation about what to bill. Shop rates, material prices, cycle times,
+  tooling life and outside-processing charges vary by region, machine, material,
+  tolerance and vendor, and nothing here reads a live source.</p>
+  <p>This page compares against the general practice of quoting in a
+  spreadsheet &mdash; a method, not a product. It names no spreadsheet
+  application and makes no claim about any specific software.</p>
+  <p>Free and open source &mdash; <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../boutique-fitness-studio-pricing-planner/" data-pf-to="boutique-fitness-studio-pricing-planner">Is my studio's unlimited membership priced right? Free pricing planner</a></li>
+      <li><a href="../bowling-center-profit-calculator/" data-pf-to="bowling-center-profit-calculator">Bowling center calculator: what utilization do you need to break even? Free, private</a></li>
+      <li><a href="../bridal-hair-makeup-pricing-calculator/" data-pf-to="bridal-hair-makeup-pricing-calculator">Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</a></li>
+      <li><a href="../campground-site-profit-calculator/" data-pf-to="campground-site-profit-calculator">Campground profit calculator: does your park pay? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cnc-machining-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cnc-machining-quote-calculator"></script>
+</body>
+</html>

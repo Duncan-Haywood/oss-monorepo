@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Is It Worth Grading a Card? The Break-Even Chance of a 10</title>
+  <meta name="description" content="How to decide whether a Pokemon, baseball, basketball or MTG card is worth sending to PSA, BGS, CGC or SGC: expected net from grading versus selling raw…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/is-it-worth-grading-a-card.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it worth grading a card?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the expected sale price of the slab, after the grading fee, shipping, marketplace fees and the wait, beats what the raw card would net today. That depends on your own chances of each grade, so the useful question is how likely a high grade has to be before grading wins. The picker solves that exactly for each card."}}, {"@type": "Question", "name": "What chance of a PSA 10 do I need for grading to pay?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the gap between the 10 price and the 9 and below, and on the fee tier. On the worked list, a $260 raw card whose 10 is worth $900 and 9 is worth $420 needs about a 5.4 percent chance of a 10 once fees, shipping and the wait are included. A card whose 10 is only a little more than raw needs a chance you cannot honestly claim."}}, {"@type": "Question", "name": "Which grading tier should I pick?", "acceptedAnswer": {"@type": "Answer", "text": "The cheapest tier whose declared-value limit covers the card's best case. Declared value limits and fees change, so the picker ships a labelled example table that you replace with the grader's current price list."}}, {"@type": "Question", "name": "Why does a budget make the answer different?", "acceptedAnswer": {"@type": "Answer", "text": "Because ranking by gain and cutting off is not the same as the best use of a fixed budget. A single expensive tier can displace two cards that together gain more. With a budget or a card limit the picker searches subsets exactly."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/is-it-worth-grading-a-card.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Is It Worth Grading a Card? The Break-Even Chance of a 10">
+<meta property="og:description" content="How to decide whether a Pokemon, baseball, basketball or MTG card is worth sending to PSA, BGS, CGC or SGC: expected net from grading versus selling raw…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is It Worth Grading a Card? The Break-Even Chance of a 10 — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../card-grading-submission-picker/">Which cards are worth sending to a grader, and which should you sell raw?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is It Worth Grading a Card? The Break-Even Chance of a 10</span></span></nav>
+  <p class="note"><a href="./">Card Grading Submission Picker</a> · guide</p>
+  <h1>Is it worth grading a card? The break-even chance of a 10</h1>
+  <p>Short answer: <strong>grade a card when your own chance of a high grade is above the break-even chance for that card</strong>, which you can work out exactly from what the card sells for raw and at each grade, the grading fee, shipping, the marketplace fee and the wait. The picker does that for a whole list, and finds the best set when you have a budget or a limit on cards per submission.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> The values, grade chances and fee tiers are illustrative, not prices, not a price guide and not a forecast. Replace them with your own.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li>Selling raw nets the raw price less the marketplace fee, today.</li>
+    <li>Grading nets, for each grade, the slab's sale price less the marketplace fee, discounted for the weeks it took, less the grading fee and shipping and insurance. Weight each grade by your chance of it. Whatever your chances of 10, 9 and 8 do not use up is grade 7 or lower.</li>
+    <li>The uplift is the second number minus the first. Grade the card if it is positive.</li>
+    <li>The break-even chance of a 10 is the chance at which the uplift is exactly zero with your other chances held fixed. It is linear in the chance of a 10, so it has a closed form.</li>
+  </ol>
+
+  <h2>A worked list</h2>
+  <p>Thirteen cards across Pokemon, baseball, basketball, football and Magic, with example fee tiers (a $25 economy tier up to $500 declared, up to a $600 elite tier up to $20,000), $8 shipping and insurance a card, a 13 percent marketplace fee plus $0.30, and a 10 percent annual discount rate for the wait. Every figure is invented.</p>
+  <ul>
+    <li>With no budget the picker sends 8 of 13 cards for $1,189.00 in fees and shipping, expected $2,405.21 above selling them raw. Four cards lose to raw (a common holo and a whitened rookie by the most, a vintage card narrowly), and one card is worth $24,000 at best, above every tier in the table, so it is flagged rather than guessed at.</li>
+    <li>A $260 raw card whose 10 is worth $900 and 9 is worth $420, rated at a 5 percent chance of a 10, needs about <strong>5.4 percent</strong>. Expected gain from grading is -$2.03, so it stays raw. At a 7 percent chance it would go.</li>
+    <li>With a <strong>$400 budget</strong> the exact best subset is 3 cards for $374.00, expected <strong>$1,512.77</strong> above raw. Sending the highest-value cards first within the same budget gives $1,360.88, so the best subset is <strong>$151.89</strong> better.</li>
+    <li>The elite-tier card has the biggest single gain, but the $608.00 in fees and shipping does not fit a $400 budget at all, and the picker says so.</li>
+  </ul>
+
+  <h2>Reading the downside</h2>
+  <p>An expected gain hides the bad outcomes. For every card the picker also prints the chance, on your own odds, of ending below selling raw, and the worst case against raw. The Charizard-style card in the example has a 15 percent chance of ending worse than raw and, at a grade 7 or lower, would come out $302.87 behind selling raw.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Raw value and the value at each grade from sold listings you trust, not asking prices.</li>
+    <li>Your honest chance of each grade, from looking at corners, edges, surface and centering. Be conservative: the picker multiplies exactly what you give it.</li>
+    <li>The fee tiers, declared-value limits and turnaround from the grader's current price list, plus your shipping and insurance per card.</li>
+  </ol>
+  <p>A grader's own rules about accepted cards, declared value and turnaround come first.</p>
+
+  <h2>Questions</h2>
+  <h3>Is it worth grading a card?</h3>
+  <p>Only if the expected sale price of the slab, after the grading fee, shipping, marketplace fees and the wait, beats what the raw card would net today. That depends on your own chances of each grade, so the useful question is how likely a high grade has to be before grading wins. The picker solves that exactly for each card.</p>
+  <h3>What chance of a PSA 10 do I need for grading to pay?</h3>
+  <p>It depends on the gap between the 10 price and the 9 and below, and on the fee tier. On the worked list, a $260 raw card whose 10 is worth $900 and 9 is worth $420 needs about a 5.4 percent chance of a 10 once fees, shipping and the wait are included. A card whose 10 is only a little more than raw needs a chance you cannot honestly claim.</p>
+  <h3>Which grading tier should I pick?</h3>
+  <p>The cheapest tier whose declared-value limit covers the card's best case. Declared value limits and fees change, so the picker ships a labelled example table that you replace with the grader's current price list.</p>
+  <h3>Why does a budget make the answer different?</h3>
+  <p>Because ranking by gain and cutting off is not the same as the best use of a fixed budget. A single expensive tier can displace two cards that together gain more. With a budget or a card limit the picker searches subsets exactly.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal, investment or authentication advice, and it is not a price guide or a grade prediction. You are responsible for verifying its output, for the numbers you enter, and for any loss or damage to cards sent in the mail. The worked example is illustrative arithmetic on invented numbers, not a forecast.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../payment-processor-fee-comparison-calculator/" data-pf-to="payment-processor-fee-comparison-calculator">Payment Processor Fee Comparison Calculator — free, private</a></li>
+      <li><a href="../percentage-rent-audit-checker/" data-pf-to="percentage-rent-audit-checker">Percentage Rent Audit Checker — free</a></li>
+      <li><a href="../phone-repair-shop-profit-calculator/" data-pf-to="phone-repair-shop-profit-calculator">Phone Repair Shop Profit Calculator — free, private</a></li>
+      <li><a href="../poshmark-fee-calculator/" data-pf-to="poshmark-fee-calculator">Poshmark Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=card-grading-submission-picker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="card-grading-submission-picker"></script>
+</body>
+</html>

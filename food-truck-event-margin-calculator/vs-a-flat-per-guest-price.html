@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a flat per-guest price | Food Truck Event &amp; Catering Margin Calculator</title>
+<meta name="description" content="A flat 'per-guest' price is really one booking's price divided by its own headcount. This free, private browser calculator prices commissary prep, travel…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="This calculator vs. a flat per-guest price">
+<meta property="og:description" content="A per-guest rate set from a close, guaranteed-headcount booking and reused on a smaller, farther…">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/vs-a-flat-per-guest-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a flat price per guest the wrong way to quote a food truck booking?","acceptedAnswer":{"@type":"Answer","text":"Because it is not actually a rate for a guest — it is one booking's total price divided by that booking's own headcount, then reused on a different booking as if it were a market rate. Commissary prep, travel time, truck and equipment amortization, and the one-off special-event permit fee do not scale with guest count, so a per-guest number set from one booking silently drops all of them when applied to a smaller or farther one."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own defaults, a 100-guest booking 15 minutes from the commissary prices at $1,509.29, or $15.09 a guest. Apply that same $15.09 a guest to a 40-guest private booking 1 hour 15 minutes away that needs its own $75 event permit, and the flat rate quotes $603.72 — $464.26 below that smaller booking's own $1,067.97 break-even cost, before a dollar of profit, and $921.96 below the calculator's own $1,525.67 price."}},{"@type":"Question","name":"Why does the smaller booking cost more per guest, not less?","acceptedAnswer":{"@type":"Answer","text":"Because most of a booking's cost does not depend on the guest count at all. Commissary prep and breakdown, the drive, the commissary fee, truck and equipment amortization, and the permit fee are paid once per booking whichever way the headcount falls, so a booking with fewer guests spreads that same fixed cost over fewer heads — and a farther venue and its own permit requirement add to that fixed cost rather than shrinking it."}},{"@type":"Question","name":"Is a per-guest rate ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For quickly comparing two bookings of similar size, similar distance, and similar scope, a per-guest figure can be close enough to sanity-check against. The risk is carrying that number to a booking that differs on drive time, headcount, or permit needs without re-deriving it — at which point it is no longer describing the booking in front of you, only the one it was set from."}},{"@type":"Question","name":"Does this calculator know what a per-guest rate should be in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on what other trucks charge and makes no claim about local pricing norms. It takes your own prep, service, and breakdown hours, drive time and mileage, staffing, food cost, fuel, commissary fee, equipment amortization, and permit fee, and turns them into a price for the booking you describe — the arithmetic a flat per-guest rate skips, not a market survey."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#241a0e;background:#fbf3e8;--accent:#a24d0a;--line:#ecd7b8}
+body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.04em;margin:.2em 0;color:var(--accent)}
+h2{color:var(--accent);font-size:1.15rem;margin-top:1.7em}
+h3{font-size:1rem;margin-top:1.4em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--line)}
+th{color:var(--accent)}
+a{color:var(--accent)}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700}
+.key{border-left:4px solid var(--accent);background:#f3e6cc;padding:12px 15px;margin:1.2em 0}
+footer{border-top:1px solid var(--line);padding-top:18px;margin-top:2em;font-size:.85rem;color:#6a5642}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/vs-a-flat-per-guest-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat per-guest price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../food-truck-event-margin-calculator/">Food Truck Event &amp; Catering Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat per-guest price</span></span></nav>
+<p><a href="./">&larr; Food truck event &amp; catering margin calculator</a></p>
+<h1>This calculator vs. a flat per-guest price</h1>
+<p>&ldquo;$15 a guest&rdquo; sounds like a rate. It is really one booking's price, divided by that booking's own headcount, offered up as if it applied to the next one too.</p>
+<p><a class="cta" href="./">Open the free quote calculator</a></p>
+
+<h2>What a flat per-guest price is</h2>
+<p>Dividing a quote by its guest count is the fastest way to compare two bookings, and the fastest way to quote a new one: take the figure that worked last time and multiply by the new headcount. It travels well &mdash; a client can repeat a $/guest number back to you from a competitor's flyer &mdash; which is exactly why it gets applied to bookings it was never built for.</p>
+<p>The number was set for one booking's own prep time, drive, and permit requirements, and then reused for every booking after, whether or not the next one shares any of them.</p>
+
+<h2>What this calculator is</h2>
+<p>This page keeps no account and sends nothing to a server. You enter each booking's own commissary prep, service, and breakdown hours, round-trip drive time and mileage, staffing, food cost per guest, fuel, commissary fee, amortized truck and equipment cost, and the special-event permit fee &mdash; then it returns the break-even cost and a bid price above your target margin for <em>this</em> booking, not a rate carried over from the last one.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What a flat per-guest price does</th><th scope="col">What this calculator does instead</th></tr></thead>
+<tbody>
+<tr><td>Charges the same $/guest whether the venue is 15 minutes away or over an hour, even though every extra mile and minute is committed staff time a headcount never counts.</td><td>Prices round-trip drive time as committed labor for every staff member on the job, so a farther venue costs more than a close one of the same size.</td></tr>
+<tr><td>Has no line for a booking's own special-event permit, whether it needs the truck's standing license alone or its own added fee on top.</td><td>Prices the permit fee per booking, so a job that needs its own permit costs more than one that doesn't.</td></tr>
+<tr><td>Divides the same fixed commissary prep, breakdown, commissary fee, and equipment amortization by whatever headcount a booking happens to have, so a small booking is charged as if those costs shrank with it.</td><td>Charges commissary prep, breakdown, the commissary fee, and equipment amortization once per booking regardless of headcount, so a small booking isn't quietly undercharged for them.</td></tr>
+<tr><td>Gives the estimator a number to quote, not a number to check a quote against.</td><td>Reports the break-even cost and the dollar gap against a flat per-guest rate, so a shopped price can be scored against real cost before you commit to it.</td></tr>
+</tbody>
+</table></div>
+
+<h2>Two bookings, the same headcount-blind rate</h2>
+<p>Using this calculator's own defaults for the first booking ($22/hr staff wage, $0.67/mile, $4.50 food cost per guest, $25 propane and generator fuel, a $30 commissary fee, $40 of amortized truck and equipment cost, a $25 permit fee, a 10% peak-day premium, 8% overhead, a 30% target margin):</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Booking</th><th scope="col">This calculator's price</th><th scope="col">The flat $15.09/guest rate</th><th scope="col">Gap</th></tr></thead>
+<tbody>
+<tr><td>100 guests, 40-minute round trip, 30 miles, $25 permit &mdash; the booking the rate is set from</td><td>$1,509.29 bid price; $1,056.50 break-even cost</td><td>$1,509.29 (exactly $15.09/guest &mdash; this rate is fit to this booking)</td><td>No gap on the booking the rate was built on.</td></tr>
+<tr><td>40 guests, 2-hour-30-minute round trip, 120 miles, $6.00 food cost per guest, its own $75 event permit</td><td>$1,525.67 bid price; $1,067.97 break-even cost</td><td>$603.72</td><td>The rate quotes $464.26 <strong>below</strong> this booking's own break-even cost &mdash; before a dollar of profit &mdash; and $921.96 below the calculator's own bid price.</td></tr>
+</tbody>
+</table></div>
+<p class="key"><strong>Fewer guests, further from break-even.</strong> The second booking has less than half the headcount of the first, yet costs more to run: labor rises from $381.33 to $462.00 (10 hours 30 minutes committed per staff member instead of 8 hours 40 minutes), mileage rises from $20.10 to $80.40, and the permit fee triples from $25 to $75. None of that shows up in a rate measured only in dollars per guest.</p>
+
+<h2>Common questions</h2>
+<h3>Why is a flat price per guest the wrong way to quote a food truck booking?</h3>
+<p>Because it is not actually a rate for a guest — it is one booking's total price divided by that booking's own headcount, then reused on a different booking as if it were a market rate. Commissary prep, travel time, truck and equipment amortization, and the one-off special-event permit fee do not scale with guest count, so a per-guest number set from one booking silently drops all of them when applied to a smaller or farther one.</p>
+<h3>How big is the gap in practice?</h3>
+<p>On this calculator's own defaults, a 100-guest booking 15 minutes from the commissary prices at $1,509.29, or $15.09 a guest. Apply that same $15.09 a guest to a 40-guest private booking 1 hour 15 minutes away that needs its own $75 event permit, and the flat rate quotes $603.72 — $464.26 below that smaller booking's own $1,067.97 break-even cost, before a dollar of profit, and $921.96 below the calculator's own $1,525.67 price.</p>
+<h3>Why does the smaller booking cost more per guest, not less?</h3>
+<p>Because most of a booking's cost does not depend on the guest count at all. Commissary prep and breakdown, the drive, the commissary fee, truck and equipment amortization, and the permit fee are paid once per booking whichever way the headcount falls, so a booking with fewer guests spreads that same fixed cost over fewer heads — and a farther venue and its own permit requirement add to that fixed cost rather than shrinking it.</p>
+<h3>Is a per-guest rate ever a reasonable shorthand?</h3>
+<p>For quickly comparing two bookings of similar size, similar distance, and similar scope, a per-guest figure can be close enough to sanity-check against. The risk is carrying that number to a booking that differs on drive time, headcount, or permit needs without re-deriving it — at which point it is no longer describing the booking in front of you, only the one it was set from.</p>
+<h3>Does this calculator know what a per-guest rate should be in my market?</h3>
+<p>No. It has no data on what other trucks charge and makes no claim about local pricing norms. It takes your own prep, service, and breakdown hours, drive time and mileage, staffing, food cost, fuel, commissary fee, equipment amortization, and permit fee, and turns them into a price for the booking you describe — the arithmetic a flat per-guest rate skips, not a market survey.</p>
+
+<h2>Run it on your own booking</h2>
+<p>The calculator takes every figure used above, reports your break-even and target price, and flags the turnout risk before you send the quote. It runs entirely in your browser.</p>
+<p><a class="cta" href="./">Open the free quote calculator</a></p>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the calculator it describes are provided free and as-is, without warranty of any kind, express or implied. They are not financial, tax, accounting, or legal advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. This page names no company, product, or service, and every figure above is an input, not a market rate: your own commissary invoice, fuel receipts, and food cost sheet are what make the result true for your booking. Everything runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../farm-crop-mix-optimizer/" data-pf-to="farm-crop-mix-optimizer">Farm crop mix optimizer</a></li>
+      <li><a href="../farmers-market-booth-calculator/" data-pf-to="farmers-market-booth-calculator">Which farmers market is actually worth your Saturday?</a></li>
+      <li><a href="../farmland-lease-cash-rent-vs-crop-share-calculator/" data-pf-to="farmland-lease-cash-rent-vs-crop-share-calculator">Cash rent or crop share? Free farmland lease calculator</a></li>
+      <li><a href="../fertilizer-blend-optimizer/" data-pf-to="fertilizer-blend-optimizer">Fertilizer Blend Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=food-truck-event-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="food-truck-event-margin-calculator"></script>
+</body>
+</html>

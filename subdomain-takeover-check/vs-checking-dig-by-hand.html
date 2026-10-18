@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subdomain Takeover Checker vs. Checking With Dig By Hand</title>
+<meta name="description" content="Running dig CNAME on a hostname shows you the target. It doesn't tell you whether that target is actually a known takeover-prone provider…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/vs-checking-dig-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does running dig CNAME by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "dig CNAME blog.example.com shows you the CNAME target — a real, fast way to see where a hostname points. It does not tell you whether that target is one of the roughly two dozen hosting providers known to let an unclaimed name be claimed by anyone, and it does not tell you whether the target is actually unclaimed right now versus in active, legitimate use." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick dig lookup misses: (1) recognising which of dozens of possible CNAME target patterns actually belongs to a takeover-prone provider — a hostname like old-app.herokuapp.com means nothing to dig, which just prints the string. (2) Following a multi-hop CNAME chain to its real end rather than stopping at the first hop. (3) Confirming the target is genuinely unclaimed with a live HTTP request checked against that specific provider's own \"nothing is claimed at this name\" page — a CNAME pointing at a provider is not proof of anything on its own; plenty of CNAMEs to Heroku or S3 are perfectly legitimate and in active use." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for a DNS-zone review, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A manual dig is a point-in-time look at one hostname you already thought to check. A decommissioned service, a provider migration, or a sunset campaign page can leave a new dangling record behind at any point. The CLI here returns a real exit code across as many hostnames as you give it in one run, so it can gate a periodic DNS-zone audit the same way a linter gates a deploy." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/vs-checking-dig-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Subdomain Takeover Checker vs. Checking With Dig By Hand">
+<meta property="og:description" content="Running dig CNAME on a hostname shows you the target. It doesn't tell you whether that target is actually a known takeover-prone provider…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Subdomain Takeover Checker vs. Checking With Dig By Hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Subdomain Takeover Checker vs. Checking With Dig By Hand</span></span></nav>
+<p><a href="index.html">← Back to the Subdomain Takeover Checker</a></p>
+<h1>Subdomain Takeover Checker vs. checking with dig by hand</h1>
+<p>
+  Running <code>dig CNAME blog.example.com</code> is a real, fast way to see where a hostname
+  points. It is also the method most developers already reach for first, and it genuinely shows
+  you the target.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Check</th><th><code>dig</code> by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Seeing the CNAME target</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>Recognising the target as one of ~25 known takeover-prone providers</td><td>You have to already know the pattern (which of dozens of hostnames like *.herokuapp.com, *.s3.amazonaws.com, *.azurewebsites.net actually matter)</td><td>Matched against a maintained provider table automatically</td></tr>
+    <tr><td>Following a multi-hop CNAME chain to its real end</td><td>Manual, one <code>dig</code> per hop</td><td>Followed automatically, up to 8 hops</td></tr>
+    <tr><td>Confirming the target is actually unclaimed right now, not just provider-shaped</td><td>Requires a second manual step: opening the URL and reading the response</td><td>One live GET request, checked against that specific provider's own "unclaimed" fingerprint page</td></tr>
+    <tr><td>Checking a whole list of hostnames in one run, repeatable in CI</td><td>Manual, one at a time</td><td>CLI accepts multiple hostnames and returns a real exit code</td></tr>
+  </tbody>
+</table></div>
+
+<h2>When to still just use dig</h2>
+<p>
+  If you only need to see where one hostname currently points, <code>dig</code> is fine — it's
+  already on your machine and you're already there. The gap this tool closes is recognition and
+  confirmation: knowing which of the target's dozens of possible shapes actually matters, and
+  proving the name is genuinely unclaimed with a live fingerprint match rather than assuming risk
+  from the DNS target's shape alone.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does running dig CNAME by hand actually show you?</h3>
+<p><code>dig CNAME blog.example.com</code> shows you the CNAME target — a real, fast way to see where a hostname points. It does not tell you whether that target is one of the roughly two dozen hosting providers known to let an unclaimed name be claimed by anyone, and it does not tell you whether the target is actually unclaimed right now versus in active, legitimate use.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a quick dig lookup misses: (1) recognising which of dozens of possible CNAME target patterns actually belongs to a takeover-prone provider — a hostname like <code>old-app.herokuapp.com</code> means nothing to dig, which just prints the string. (2) Following a multi-hop CNAME chain to its real end rather than stopping at the first hop. (3) Confirming the target is genuinely unclaimed with a live HTTP request checked against that specific provider's own "nothing is claimed at this name" page — a CNAME pointing at a provider is not proof of anything on its own; plenty of CNAMEs to Heroku or S3 are perfectly legitimate and in active use.</p>
+<h3>Why does this matter for a DNS-zone review, not just a one-time check?</h3>
+<p>A manual dig is a point-in-time look at one hostname you already thought to check. A decommissioned service, a provider migration, or a sunset campaign page can leave a new dangling record behind at any point. The CLI here returns a real exit code across as many hostnames as you give it in one run, so it can gate a periodic DNS-zone audit the same way a linter gates a deploy.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any hostname you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to cloudflare-dns.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=subdomain-takeover-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="subdomain-takeover-check"></script>
+</body>
+</html>

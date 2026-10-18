@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. checking CORS by hand with curl</title>
+<meta name="description" content="curl -H &quot;Origin: https://evil.example&quot; against your own API finds an obviously wide-open allow-list in one look.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/vs-checking-cors-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking CORS by hand with curl">
+<meta property="og:description" content="One curl request with an attacker-shaped Origin header finds a server that reflects anything. It cannot by itself tell an anchored allow-list from an…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/vs-checking-cors-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just run curl with a fake Origin header myself?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the most obvious case: curl -H \"Origin: https://evil.example\" -I https://api.example.com/endpoint and reading Access-Control-Allow-Origin back will catch a server that reflects any origin at all. What one request cannot show you is a comparison -- an unanchored allow-list bug only reveals itself when you compare how the server responds to several differently-crafted origins side by side, which is six requests and six diffs done by hand, every time you want to re-check."}},{"@type":"Question","name":"What does comparing several requests catch that one curl call does not?","acceptedAnswer":{"@type":"Answer","text":"An allow-list built on startsWith or endsWith string matching instead of an exact host comparison. A single request with an obviously fake origin like https://evil.example is correctly rejected by this exact bug, so it looks safe. The bug only surfaces against a crafted origin such as https://api.example.com.attacker-controlled.invalid (passes a naive startsWith check) or https://evil-api.example.com (passes a naive endsWith check) -- and confirming it is a real bug rather than a coincidence means sending both shapes plus a same-origin control and comparing all three responses, not reading any one of them alone."}},{"@type":"Question","name":"Is Origin: null something I would remember to test by hand?","acceptedAnswer":{"@type":"Answer","text":"It is easy to skip, because it is not a real website's origin -- it is the literal string \"null\", which browsers send from a sandboxed iframe, a redirected request, or a file:// page, and which a security-minded allow-list might accept by mistake precisely because it looks like the absence of an origin rather than an attacker-controlled one. Nothing about testing the obvious reflected-origin case prompts you to also try this one; it has to be a request you remember to craft separately."}},{"@type":"Question","name":"How would I notice a missing Vary: Origin header just by eyeballing responses?","acceptedAnswer":{"@type":"Answer","text":"You would not, from a single request -- a missing Vary: Origin looks identical to a present one until you send two requests with different Origin headers and diff the two response header sets for whether Access-Control-Allow-Origin actually changed. Noticing that a shared cache in front of the API could now serve one visitor's allowed origin back to a different visitor requires holding both responses in view at once, which is exactly the kind of side-by-side comparison a single manual curl call does not produce."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual method every developer already has -- sending a request with curl (or Postman, or a browser devtools replay) and reading the response headers by eye. It names no competing product or company. The checker's own CLI requests go straight from your machine to the URL you name, never through this site."}}]}</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. checking CORS by hand with curl — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. checking CORS by hand with curl</span></span></nav>
+<p><a href="index.html">&larr; CORS misconfiguration checker</a></p>
+
+<h1>This checker vs. checking CORS by hand with curl</h1>
+
+<p>
+  Every developer testing CORS already has this move: send one request with an
+  attacker-shaped <code>Origin</code> header and read what comes back.
+</p>
+
+<pre><code>curl -sI -H "Origin: https://evil.example" https://api.example.com/v1/account</code></pre>
+
+<p>
+  If <code>Access-Control-Allow-Origin</code> comes back as <code>https://evil.example</code>,
+  that one request already proved the server reflects an arbitrary origin. For that specific,
+  most-obvious bug, a single manual request is enough. The problem is the other three patterns
+  this checker looks for are not visible in any single response -- they only show up when you
+  compare how the server answers <em>several</em> differently-crafted requests against each
+  other, which is where a one-off curl call stops being enough evidence.
+</p>
+
+<h2>Where one request stops being enough</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you're trying to catch</th><th scope="col">One curl request by hand</th><th scope="col">This checker's CLI</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A server that reflects any origin at all, with no allow-list logic.</td>
+      <td>Works. This is the one pattern a single crafted request reliably shows.</td>
+      <td>Also finds it, in the same run as the three below.</td>
+    </tr>
+    <tr>
+      <td>An allow-list built on unanchored <code>startsWith</code>/<code>endsWith</code> string matching.</td>
+      <td>Invisible to the obvious test -- an origin like <code>https://evil.example</code> is correctly rejected by this exact bug. Confirming it needs two specifically-crafted origins (<code>https://api.example.com.attacker-controlled.invalid</code> and <code>https://evil-api.example.com</code>) plus a same-origin control, compared side by side.</td>
+      <td>Sends both bypass shapes and the control automatically, and diffs the three responses for you.</td>
+    </tr>
+    <tr>
+      <td>The literal origin <code>Origin: null</code> being accepted, exploitable from a sandboxed iframe.</td>
+      <td>Easy to forget -- it is not a URL, so it does not occur to most people testing the reflected-origin case to also send it.</td>
+      <td>Sent on every run, whether or not you thought to ask for it.</td>
+    </tr>
+    <tr>
+      <td>A dynamic <code>Access-Control-Allow-Origin</code> missing <code>Vary: Origin</code>, a shared-cache cross-visitor leak risk.</td>
+      <td>Requires sending two requests with different origins and diffing both full header sets -- not something a single <code>curl -I</code> shows.</td>
+      <td>Compares the baseline and same-origin probes automatically and flags the gap as a notice.</td>
+    </tr>
+    <tr>
+      <td>Re-running the same six-request comparison after every deploy.</td>
+      <td>Six separate curl calls, six read-backs, every time -- not something most people repeat unprompted.</td>
+      <td>One command, exit-code gateable in CI.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  A single well-aimed <code>curl</code> request is still the fastest way to confirm the obvious
+  reflected-origin case, and this checker's own CLI is not doing anything a request tool
+  couldn't -- it is sending the same kind of requests <code>curl</code> would, just six of them
+  in the specific shapes that expose the other three patterns, and comparing the results for
+  you instead of leaving the comparison to be done, and remembered, by hand.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Can't I just run curl with a fake Origin header myself?</h3>
+<p>Yes, for the most obvious case: curl -H "Origin: https://evil.example" -I https://api.example.com/endpoint and reading Access-Control-Allow-Origin back will catch a server that reflects any origin at all. What one request cannot show you is a comparison -- an unanchored allow-list bug only reveals itself when you compare how the server responds to several differently-crafted origins side by side, which is six requests and six diffs done by hand, every time you want to re-check.</p>
+
+<h3>What does comparing several requests catch that one curl call does not?</h3>
+<p>An allow-list built on startsWith or endsWith string matching instead of an exact host comparison. A single request with an obviously fake origin like https://evil.example is correctly rejected by this exact bug, so it looks safe. The bug only surfaces against a crafted origin such as https://api.example.com.attacker-controlled.invalid (passes a naive startsWith check) or https://evil-api.example.com (passes a naive endsWith check) -- and confirming it is a real bug rather than a coincidence means sending both shapes plus a same-origin control and comparing all three responses, not reading any one of them alone.</p>
+
+<h3>Is Origin: null something I would remember to test by hand?</h3>
+<p>It is easy to skip, because it is not a real website's origin -- it is the literal string "null", which browsers send from a sandboxed iframe, a redirected request, or a file:// page, and which a security-minded allow-list might accept by mistake precisely because it looks like the absence of an origin rather than an attacker-controlled one. Nothing about testing the obvious reflected-origin case prompts you to also try this one; it has to be a request you remember to craft separately.</p>
+
+<h3>How would I notice a missing Vary: Origin header just by eyeballing responses?</h3>
+<p>You would not, from a single request -- a missing Vary: Origin looks identical to a present one until you send two requests with different Origin headers and diff the two response header sets for whether Access-Control-Allow-Origin actually changed. Noticing that a shared cache in front of the API could now serve one visitor's allowed origin back to a different visitor requires holding both responses in view at once, which is exactly the kind of side-by-side comparison a single manual curl call does not produce.</p>
+
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual method every developer already has -- sending a request with curl (or Postman, or a browser devtools replay) and reading the response headers by eye. It names no competing product or company. The checker's own CLI requests go straight from your machine to the URL you name, never through this site.</p>
+
+<p>
+  Already testing with a full web security platform instead of raw curl? See
+  <a href="vs-burp-suite.html">how this checker compares to Burp Suite</a>. More background:
+  <a href="reflected-origin-cors-vulnerability.html">what a reflected-origin CORS misconfiguration
+  actually lets an attacker do</a>.
+</p>
+
+<p><strong>Only point either method at a system you own or are authorised to test.</strong></p>
+
+<p><a href="index.html">&larr; Back to the CORS misconfiguration checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at four specific,
+  well-documented CORS misconfiguration patterns from six requests. It is not a full security
+  assessment, does not send real credentials or test authenticated behaviour, and cannot see a
+  pattern its probes don't happen to trigger.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against
+  anything and no network request of any kind -- it is a static page describing a manual method.
+  The checker's own CLI requests go straight from your machine to the URL you name, never
+  through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cors-misconfig-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cors-misconfig-check"></script>
+</body>
+</html>

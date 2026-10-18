@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $45-a-square-foot special | Pergola Bid Calculator</title>
+<meta name="description" content="A flat '$45 a square foot' pergola special is priced for a 10x10 open freestanding frame. It cannot see that a 12x16 attached cover with 10-foot posts…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat $45-a-square-foot special">
+<meta property="og:description" content="A 10x10 open freestanding frame and a 12x16 attached cover with 10-foot posts, louvered shade, and a fan circuit are not the same job per square foot.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat $45-a-square-foot pergola special get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because footprint square feet is only the floor a homeowner can measure. Posts, shade, height, and an attached ledger do not scale with that number the way a per-square-foot rate assumes. A 10x10 open freestanding frame is four posts and no shade layer; a 12x16 attached cover with 10-foot posts, louvered shade, and a fan circuit is a heavier frame, a shade layer that adds material and labor across the whole footprint, taller posts that cost more and take longer to set, a ledger and flashing, and an electrical run. A flat rate charges all of that the same as the easiest frame it was set on."}},{"@type":"Question","name":"What job is the $45-a-square-foot number actually built around?","acceptedAnswer":{"@type":"Answer","text":"One specific job, usually the easiest configuration a company is willing to advertise: a 10x10 freestanding frame, 8-foot posts, open rafters with no shade layer, no knee braces, no fan circuit, no permit line, and no demo. It is a marketing price meant to get the phone to ring, not a number derived from any particular pergola's posts, shade, or height."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped job presets, at a $32 crew wage, 30% payroll burden, 15% overhead, and a 25% target margin: the 10x10 open freestanding frame the $45 rate is named for costs $2,813.18 to run and this calculator prices it at $3,750.90, so the flat $4,500.00 special actually clears a 37.5% margin on it -- more than the shop's own 25% target. A 12x16 attached cover with 8-foot posts and shade slats is similarly generous: the flat $8,640.00 clears a 44.0% margin against this calculator's $6,454.54 price. But the same $45/sf on a 12x16 attached cover with 10-foot posts, louvered shade, and a fan circuit reproduces $8,640.00 against a $8,210.93 break-even cost -- a 5.0% margin, not 25%, a difference of $2,307.91 from this calculator's own $10,947.91 price. And on a 16x20 freestanding frame with 12-foot posts, a polycarbonate roof, demo, and a permit, the flat $14,400.00 nets an 18.1% margin against this calculator's $15,723.06 price -- short by $1,323.06."}},{"@type":"Question","name":"Is a flat rate per square foot ever the right way to quote a pergola?","acceptedAnswer":{"@type":"Answer","text":"For the open freestanding frames close to the one the special was priced on, a flat rate can be generous rather than wrong -- this calculator's own numbers show $45/sf clearing well over target margin on both of the easiest presets. The risk is quoting a taller-post, shaded, attached, or permitted job at the same rate sight unseen, because the rate does not know the post height, the shade layer, the ledger, or the extras until the takeoff is actually done, and that is exactly where the margin quietly collapses."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material or labor rates, and it is not a building-code opinion, a permit, or an engineering stamp. It takes the footprint, post spacing, attachment, shade layer, post height, and extras you enter, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-square-foot special skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #6a4a1a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .thin { color: #6c5318; font-weight: 700; }
+  .healthy { color: #1d6b3a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pergola-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $45-a-square-foot special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pergola-bid-calculator/">Pergola Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $45-a-square-foot special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Pergola Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $45-a-square-foot special</h1>
+<p class="lede">"$45 a square foot" is not a price for a pergola &mdash; it is a price for a 10x10 open freestanding frame, quietly applied to every post height, shade layer, and ledger the truck pulls up to.</p>
+</header>
+<section>
+<h2>What a flat $45-a-square-foot special is</h2>
+<p>
+A flat rate per square foot is the fastest thing a company can put on a
+postcard or a Facebook ad: one number, times the frame's footprint, read
+back as a total. It is also the unit homeowners already compare between
+competing bids, since length times width is the one measurement anyone can
+take with a tape measure.
+</p>
+<p>
+The number behind it was set for one job &mdash; usually the easiest
+configuration a company is willing to advertise: a 10x10 freestanding
+frame, 8-foot posts, open rafters with no shade layer, no knee braces, no
+fan circuit, no permit line, and no demo &mdash; and then reused for every
+pergola afterward, whether or not the next one looks anything like that
+frame.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+footprint, post spacing, whether the cover is freestanding or attached
+with a ledger, the shade layer, the post height, and extras such as knee
+braces, a fan circuit, a permit line, or demo of an existing structure,
+plus your loaded labor and overhead. It prices the posts, the shade, the
+height, and the extras separately, and returns a walk-away price for the
+job you describe &mdash; for this pergola, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$45/sq ft special</th><th class="num" scope="col">Break-even cost</th><th class="num" scope="col">Walk-away price</th><th scope="col">Actual margin</th></tr>
+</thead>
+<tbody>
+<tr><td>The rate's own job: 10&times;10 freestanding, 8 ft, open cedar</td><td class="num">$4,500.00</td><td class="num">$2,813.18</td><td class="num">$3,750.90</td><td class="healthy">37.5%, over the 25% target</td></tr>
+<tr><td>12&times;16 attached, 8 ft, shade slats</td><td class="num">$8,640.00</td><td class="num">$4,840.90</td><td class="num">$6,454.54</td><td class="healthy">44.0%, over the 25% target</td></tr>
+<tr><td>12&times;16 attached, 10 ft, louvered, fan circuit</td><td class="num">$8,640.00</td><td class="num">$8,210.93</td><td class="num">$10,947.91</td><td class="thin">5.0%, $2,307.91 short of target</td></tr>
+<tr><td>16&times;20 freestanding, 12 ft, polycarbonate, demo, permit</td><td class="num">$14,400.00</td><td class="num">$11,792.29</td><td class="num">$15,723.06</td><td class="thin">18.1%, $1,323.06 short of target</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own shipped job presets at a $32 crew wage, 30% payroll burden, 15% overhead on direct cost, and a 25% target margin &mdash; the form's own defaults, not a number invented for this page. Open the calculator's job presets to check any row yourself.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat rate per square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a bare open frame and a louvered shade roof, even though a shade layer adds material and labor across the whole footprint that an open rafter frame never sees.</td>
+<td>Prices the shade layer's own hours-per-100-sf and material-per-sf from the entered shade type, so a heavier shade roof costs more than open rafters.</td>
+</tr>
+<tr>
+<td>Prices "a pergola" at one post height, so 12-foot posts are quoted the same per square foot as 8-foot posts, even though taller posts cost more each and take longer to set safely.</td>
+<td>Applies the post height's own per-post cost and extra setting hours, so a taller post shows up as more material and more labor.</td>
+</tr>
+<tr>
+<td>Has no separate line for an attached ledger, ignoring the flashing and ledger-attachment hours a freestanding frame never needs.</td>
+<td>Prices ledger lineal feet and ledger hours only when the job is attached, and drops the house-side post row that a ledger replaces.</td>
+</tr>
+<tr>
+<td>Bakes payroll burden into a round per-foot number nobody re-derives, so the rate quietly drifts from the crew's real loaded cost.</td>
+<td>Loads the entered hourly wage by the entered payroll-burden percentage every time, so labor cost tracks the actual burden rather than a memorized rate.</td>
+</tr>
+<tr>
+<td>Gives the crew a rate to quote, not a number to check a quote against when a homeowner asks to match a cheaper flat rate on a harder job.</td>
+<td>Reports a walk-away price built from the entered scope, so a shopped price can be scored against real cost and target margin before the crew commits to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat rate per square foot is not wrong because it is simple &mdash; it is
+wrong when it is applied outside the one job it was built for, and nothing
+about a postcard rate tells you when that has happened. This calculator
+does not replace judgment about your market; it replaces the arithmetic a
+flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat $45-a-square-foot pergola special get the price wrong?</h3>
+<p>Because footprint square feet is only the floor a homeowner can measure. Posts, shade, height, and an attached ledger do not scale with that number the way a per-square-foot rate assumes. A 10x10 open freestanding frame is four posts and no shade layer; a 12x16 attached cover with 10-foot posts, louvered shade, and a fan circuit is a heavier frame, a shade layer that adds material and labor across the whole footprint, taller posts that cost more and take longer to set, a ledger and flashing, and an electrical run. A flat rate charges all of that the same as the easiest frame it was set on.</p>
+<h3>What job is the $45-a-square-foot number actually built around?</h3>
+<p>One specific job, usually the easiest configuration a company is willing to advertise: a 10x10 freestanding frame, 8-foot posts, open rafters with no shade layer, no knee braces, no fan circuit, no permit line, and no demo. It is a marketing price meant to get the phone to ring, not a number derived from any particular pergola's posts, shade, or height.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped job presets, at a $32 crew wage, 30% payroll burden, 15% overhead, and a 25% target margin: the 10x10 open freestanding frame the $45 rate is named for costs $2,813.18 to run and this calculator prices it at $3,750.90, so the flat $4,500.00 special actually clears a 37.5% margin on it -- more than the shop's own 25% target. A 12x16 attached cover with 8-foot posts and shade slats is similarly generous: the flat $8,640.00 clears a 44.0% margin against this calculator's $6,454.54 price. But the same $45/sf on a 12x16 attached cover with 10-foot posts, louvered shade, and a fan circuit reproduces $8,640.00 against a $8,210.93 break-even cost -- a 5.0% margin, not 25%, a difference of $2,307.91 from this calculator's own $10,947.91 price. And on a 16x20 freestanding frame with 12-foot posts, a polycarbonate roof, demo, and a permit, the flat $14,400.00 nets an 18.1% margin against this calculator's $15,723.06 price -- short by $1,323.06.</p>
+<h3>Is a flat rate per square foot ever the right way to quote a pergola?</h3>
+<p>For the open freestanding frames close to the one the special was priced on, a flat rate can be generous rather than wrong -- this calculator's own numbers show $45/sf clearing well over target margin on both of the easiest presets. The risk is quoting a taller-post, shaded, attached, or permitted job at the same rate sight unseen, because the rate does not know the post height, the shade layer, the ledger, or the extras until the takeoff is actually done, and that is exactly where the margin quietly collapses.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local material or labor rates, and it is not a building-code opinion, a permit, or an engineering stamp. It takes the footprint, post spacing, attachment, shade layer, post height, and extras you enter, plus your own wage, payroll burden, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat per-square-foot special skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat per-square-foot rate is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Pergola Bid Calculator</a> and price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../hot-tub-bid-calculator/" data-pf-to="hot-tub-bid-calculator">Hot Tub Bid Calculator</a></li>
+      <li><a href="../irrigation-install-bid-calculator/" data-pf-to="irrigation-install-bid-calculator">Irrigation Install Bid Calculator</a></li>
+      <li><a href="../irrigation-winterization-bid-calculator/" data-pf-to="irrigation-winterization-bid-calculator">Irrigation Winterization Bid Calculator</a></li>
+      <li><a href="../landscape-lighting-bid-calculator/" data-pf-to="landscape-lighting-bid-calculator">Landscape Lighting Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pergola-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pergola-bid-calculator"></script>
+</body></html>

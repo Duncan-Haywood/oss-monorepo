@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This Estimator vs. Doing the Math Yourself</title>
+  <meta name="description" content="Eyeballing a workflow file and multiplying minutes by runs looks like enough arithmetic to know what Actions will cost.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/vs-doing-the-math-yourself.html">
+  <meta property="og:title" content="This estimator vs. doing the math yourself">
+  <meta property="og:description" content="Three billing rules a back-of-envelope estimate usually misses, each worked through with real numbers: the OS multiplier, per-job rounding on a matrix…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is eyeballing a workflow file really that unreliable?","acceptedAnswer":{"@type":"Answer","text":"For a single small job on a Linux runner, hand math gets close enough. It stops working the moment any of three things are true: a job runs on macOS or Windows, a job is part of a matrix, or a job uses a larger runner -- each of those changes the arithmetic in a way that is easy to apply backwards from memory, and this tool exists because getting any one of them wrong understates the real bill by a wide margin."}},{"@type":"Question","name":"What is the single easiest mistake to make by hand?","acceptedAnswer":{"@type":"Answer","text":"Treating a larger runner's minutes as if they draw from the same included allowance as a standard runner. They do not -- a larger runner is billed per minute from the first minute, outside the free allowance entirely, which is the opposite of how a standard macOS or Windows job behaves. Getting this backwards is the single easiest way to project a cost of zero for a job that is actually the most expensive one in the file."}},{"@type":"Question","name":"Why does a matrix of short jobs cost more than the wall-clock time suggests?","acceptedAnswer":{"@type":"Answer","text":"GitHub rounds each job's duration up to the next whole minute, and it does that per job, not per workflow run. A matrix of twelve 30-second jobs is 6 minutes of wall-clock work, but it is twelve separate roundings to a full minute each -- 12 billed minutes, double the wall-clock figure. Multiplying total wall-clock time by a single per-minute rate misses this because it rounds once instead of twelve times."}},{"@type":"Question","name":"Do I need to know the billing rules myself to use this tool?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the point of it. The OS multipliers, the per-job rounding, and the larger-runner allowance rule are exactly the arithmetic this tool applies to your pasted YAML, so a number it prints has already accounted for the three mistakes on this page without you having to re-derive them by hand."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; color: #17324a; margin: 0 0 16px; }
+    h2 { font-size: 1.18rem; margin: 30px 0 8px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; margin: 20px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+    th { color: #55606f; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+    code { background: #eef1f5; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 11px 16px; border-radius: 8px; text-decoration: none; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/vs-doing-the-math-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This estimator vs. doing the math yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-minutes-estimator/">What will this GitHub Actions workflow cost you a month?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This estimator vs. doing the math yourself</span></span></nav>
+  <p class="note"><a href="./">&larr; GitHub Actions Minutes Estimator</a></p>
+  <h1>This tool vs. doing the math yourself</h1>
+
+  <p><strong>Doing the math yourself</strong> usually means multiplying a job's wall-clock minutes by how often it runs, and stopping there. That gets close on a single small Linux job. It goes wrong in three specific, easy-to-miss ways once a workflow uses a different runner class, a matrix, or a larger runner -- each below with the real arithmetic and a number worked through this tool's own code, not hand-computed.</p>
+
+  <p><strong>This tool</strong> reads the workflow YAML and applies the same three rules automatically, per job and per matrix leg, so a number it prints has already accounted for all three.</p>
+
+  <div class="card">
+    <h2>Mistake 1: forgetting the OS multiplier</h2>
+    <p>A minute on a macOS runner does not draw one minute from your included allowance -- it draws <strong>10</strong> (Windows draws 2; Linux draws 1). Hand math that just adds up wall-clock minutes treats every runner the same.</p>
+    <p><strong>Worked example:</strong> a macOS job that runs 15 wall-clock minutes a month. Naive math: 15 minutes against the allowance. What actually happens, run through <code>estimate()</code>:</p>
+    <ul>
+      <li>Wall-clock minutes: <strong>15</strong></li>
+      <li>Included-allowance minutes actually drawn: <strong>150</strong> -- ten times the naive figure, because <code>RUNNER_CLASSES.macos.multiplier</code> is 10.</li>
+    </ul>
+    <p class="note">On a Free plan's 2,000-minute allowance, that one job alone is 7.5% of the month's included minutes -- from something hand math would have logged as a rounding error.</p>
+  </div>
+
+  <div class="card">
+    <h2>Mistake 2: rounding a matrix once instead of per job</h2>
+    <p>GitHub rounds each job's duration up to the next whole minute, and it does that <em>per job</em>, not per workflow run. Hand math that multiplies total wall-clock time by a rate rounds once, at the end -- which is the wrong place to round when a matrix is involved.</p>
+    <p><strong>Worked example:</strong> a 12-shard test matrix, each shard finishing in 30 seconds. Naive math: 12 &times; 0.5 = 6 minutes billed. Run through the same <code>estimate()</code> call:</p>
+    <ul>
+      <li>Wall-clock minutes: <strong>6</strong></li>
+      <li>Billed minutes: <strong>12</strong> -- exactly double, because each of the 12 legs rounds its 0.5 minutes up to a full minute on its own before anything is summed.</li>
+    </ul>
+    <p class="note">The gap grows with the matrix, not with the job: a 40-shard matrix at 15 seconds each is 10 wall-clock minutes and 40 billed minutes, a 4x gap from the same rounding rule.</p>
+  </div>
+
+  <div class="card">
+    <h2>Mistake 3: larger runners drawn from the wrong pool</h2>
+    <p>A larger GitHub-hosted runner (an <code>-8-cores</code> label, for instance) is billed per minute from the <em>first</em> minute, priced per core, and does <strong>not</strong> draw from your included allowance at all. Hand math tends to either fold it into the same allowance a standard runner uses, or skip it because "it's free minutes like the rest" -- both read the rule backwards.</p>
+    <p><strong>Worked example:</strong> an 8-core Linux runner, 6 wall-clock minutes per run, 120 runs a month (roughly one push an hour during a working day). Run through <code>estimate()</code>:</p>
+    <ul>
+      <li>Total wall-clock minutes: <strong>720</strong></li>
+      <li>Included-allowance minutes drawn: <strong>0</strong> -- none of this comes out of the free allowance</li>
+      <li>Direct cost: <strong>$23.04</strong> a month, billed separately, at $0.004 per core-minute across 8 cores</li>
+    </ul>
+    <p class="note">A workflow using this runner can look free in a spreadsheet that only tracks "minutes against the allowance" -- the allowance column reads zero while the account is actually being charged.</p>
+  </div>
+
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">What hand math usually assumes</th><th scope="col">What actually happens</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>A minute is a minute, whatever the runner</td>
+        <td>macOS draws 10x, Windows 2x, against the included allowance</td>
+      </tr>
+      <tr>
+        <td>Round the total once, at the end</td>
+        <td>Every job rounds up to a whole minute on its own, before the matrix is summed</td>
+      </tr>
+      <tr>
+        <td>A larger runner's minutes count the same as a standard runner's</td>
+        <td>Larger runners bill per core-minute from minute one, outside the included allowance entirely</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="card">
+    <h2>Try it</h2>
+    <p>Paste a workflow file and get the same three rules applied automatically, per job and per matrix leg, instead of re-deriving them by hand each time.</p>
+    <p><a class="cta" href="./">Estimate a workflow's cost</a></p>
+    <p class="note">Free, runs entirely in your browser, nothing is uploaded. Want the arithmetic itself rather than the tool's output? See <a href="how-github-actions-minutes-are-billed.html">how GitHub Actions minutes are billed</a>. Already reading your billing page too? See <a href="vs-billing-page.html">this estimator vs. your billing page</a>.</p>
+  </div>
+
+  <h2>Questions</h2>
+
+  <h3>Is eyeballing a workflow file really that unreliable?</h3>
+  <p>For a single small job on a Linux runner, hand math gets close enough. It stops working the moment any of three things are true: a job runs on macOS or Windows, a job is part of a matrix, or a job uses a larger runner -- each of those changes the arithmetic in a way that is easy to apply backwards from memory, and this tool exists because getting any one of them wrong understates the real bill by a wide margin.</p>
+
+  <h3>What is the single easiest mistake to make by hand?</h3>
+  <p>Treating a larger runner's minutes as if they draw from the same included allowance as a standard runner. They do not -- a larger runner is billed per minute from the first minute, outside the free allowance entirely, which is the opposite of how a standard macOS or Windows job behaves. Getting this backwards is the single easiest way to project a cost of zero for a job that is actually the most expensive one in the file.</p>
+
+  <h3>Why does a matrix of short jobs cost more than the wall-clock time suggests?</h3>
+  <p>GitHub rounds each job's duration up to the next whole minute, and it does that per job, not per workflow run. A matrix of twelve 30-second jobs is 6 minutes of wall-clock work, but it is twelve separate roundings to a full minute each -- 12 billed minutes, double the wall-clock figure. Multiplying total wall-clock time by a single per-minute rate misses this because it rounds once instead of twelve times.</p>
+
+  <h3>Do I need to know the billing rules myself to use this tool?</h3>
+  <p>No, and that is the point of it. The OS multipliers, the per-job rounding, and the larger-runner allowance rule are exactly the arithmetic this tool applies to your pasted YAML, so a number it prints has already accounted for the three mistakes on this page without you having to re-derive them by hand.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em>, not a billing statement, and is not financial, accounting, or tax advice. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p class="note"><a href="./">Back to the estimator</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support this work</a> (entirely optional)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-minutes-estimator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-minutes-estimator"></script>
+</body>
+</html>

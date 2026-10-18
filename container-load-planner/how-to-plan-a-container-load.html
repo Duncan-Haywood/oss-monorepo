@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Plan A Container Load: A Worked Example</title>
+  <meta name="description" content="How many pallets or cartons fit in a 20 ft, 40 ft or 40 ft high cube container? Floor area, layers, weight limit and stacking rules, with a worked example…">
+  <meta property="og:title" content="How To Plan A Container Load: A Worked Example">
+  <meta property="og:description" content="150 low pallets need 3 standard 40 ft containers but 2 high cubes, because the extra 30 cm lets a third layer in. Here is how to check your own load.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/how-to-plan-a-container-load.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many pallets fit in a 20 ft container?", "acceptedAnswer": {"@type": "Answer", "text": "A nominal 20 ft container is about 5.9 m long and 2.35 m wide, so its floor holds about 11 Euro pallets or 10 of the 48 x 40 inch size, and a second layer doubles that if the pallets are low and strong enough to stack. The planner packs your own pallet size and weight rather than quoting a number."}}, {"@type": "Question", "name": "Does a high cube container always hold more?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds about 30 cm of height, which helps only when a whole extra layer fits. Three layers of 85 cm pallets fit a high cube but not a standard container; three layers of 110 cm fit neither."}}, {"@type": "Question", "name": "Why does weight sometimes decide the count?", "acceptedAnswer": {"@type": "Answer", "text": "A container has a payload limit. Dense goods such as 600 kg pallets reach it long before the space is used, so the number per container is the payload divided by the weight per unit, rounded down."}}, {"@type": "Question", "name": "Should I palletise or load cartons loose?", "acceptedAnswer": {"@type": "Answer", "text": "Pallets are faster to load and handle, but each deck takes height and the pallet footprint can waste floor. Compare both on your own cargo; the planner's comparison table shows containers and fill for each."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #0f5a6e; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dce5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5563; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/how-to-plan-a-container-load.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/container-load-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Plan A Container Load: A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../container-load-planner/">Container Load Planner — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Plan A Container Load: A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Container load planner</a></p>
+  <h1>How to plan a container load, with a worked example</h1>
+  <p>Before you book space, you want to know how many cartons or pallets go in a container, and how many containers the whole load needs. The answer is set by four things: the floor area, how many layers fit under the roof, what you may stack on what, and the payload limit. Whichever runs out first sets the count.</p>
+  <p><a class="cta" href="./">Open the free container load planner</a></p>
+
+  <h2>The four limits</h2>
+  <p><strong>Floor.</strong> Count how many footprints fit across the width and along the length, trying both ways round. Odd widths waste floor: two 120 cm Euro pallets side by side do not fit a 235 cm interior, so loaders mix pallet directions, and that is what a packer has to search for.</p>
+  <p><strong>Layers.</strong> Divide the inside height by the unit height, rounded down. A 110 cm pallet gets two layers under a 239 cm roof and wastes 19 cm; an 85 cm pallet gets two layers in a standard 40 ft and three in a high cube, because three times 85 is 255 and the high cube is about 270 cm tall.</p>
+  <p><strong>Stacking.</strong> Cartons marked fragile or pallets of soft goods may not be stacked, so the layer count becomes one. The planner takes a highest layer and a weight allowed on top for each line.</p>
+  <p><strong>Payload.</strong> A dense load fills the payload before the space. A 600 kg pallet in a 26,500 kg container stops at 44 pallets however much air is left.</p>
+
+  <h2>A worked example</h2>
+  <p>An invented exporter has 150 Euro pallets, each 120 &times; 80 &times; 85 cm and 250 kg, which may be stacked. The planner uses nominal inside sizes of 12,032 &times; 2,352 &times; 2,393 mm for a 40 ft container and 2,698 mm high for the high cube, both with a 26,500 kg payload. These are commonly quoted figures, not a certificate for your equipment.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Container</th><th class="n">Pallets in the first</th><th class="n">Layers</th><th class="n">Containers for 150</th></tr></thead>
+    <tbody>
+      <tr><td>40 ft</td><td class="n">50</td><td class="n">2</td><td class="n">3</td></tr>
+      <tr><td>40 ft high cube</td><td class="n">75</td><td class="n">3</td><td class="n">2</td></tr>
+    </tbody>
+  </table></div>
+  <p>The floor takes 25 pallets in both, in a mixed arrangement of lengthwise and crosswise rows. The standard container stops at two layers, 50 pallets, so 150 pallets need three of them. The high cube takes a third layer, 75 pallets, so two of them carry everything, at 18,750 kg each, well inside the payload.</p>
+  <p>Change the pallet height to 110 cm and the extra height buys nothing: three layers need 330 cm, so a high cube still holds two layers and 50 pallets. Whether a high cube pays depends on the cargo, not on the container alone.</p>
+  <p>Now make the pallets 600 kg and 110 cm tall, 70 of them, in a standard 40 ft. The floor and the two layers would take 50, but the payload stops the first container at 44 pallets (26,400 kg); the remaining 26 pallets go in a second container, 15,600 kg. Two containers, and the lower bound from weight is also two.</p>
+
+  <h2>What the planner does that a rule of thumb does not</h2>
+  <ol>
+    <li>It packs mixed lines, so a pallet and four sizes of carton share one container and fill each other's gaps.</li>
+    <li>It respects rotation: upright only, any orientation, or fixed as entered.</li>
+    <li>It reports what is left over, how many containers the whole load needs, a lower bound from volume and weight, and a to-scale top and side view with a loading list.</li>
+    <li>It compares every standard size, loose and on pallets, so the high cube and the pallet question get an answer for your own cargo.</li>
+  </ol>
+  <p>It is a heuristic: it tries many orderings and keeps the best, which is not a proof that nothing better exists. A person who knows the cargo may find another fit, so keep a margin.</p>
+
+  <h2>Common questions</h2>
+    <h3>How many pallets fit in a 20 ft container?</h3>
+  <p>A nominal 20 ft container is about 5.9 m long and 2.35 m wide, so its floor holds about 11 Euro pallets or 10 of the 48 x 40 inch size, and a second layer doubles that if the pallets are low and strong enough to stack. The planner packs your own pallet size and weight rather than quoting a number.</p>
+  <h3>Does a high cube container always hold more?</h3>
+  <p>No. It adds about 30 cm of height, which helps only when a whole extra layer fits. Three layers of 85 cm pallets fit a high cube but not a standard container; three layers of 110 cm fit neither.</p>
+  <h3>Why does weight sometimes decide the count?</h3>
+  <p>A container has a payload limit. Dense goods such as 600 kg pallets reach it long before the space is used, so the number per container is the payload divided by the weight per unit, rounded down.</p>
+  <h3>Should I palletise or load cartons loose?</h3>
+  <p>Pallets are faster to load and handle, but each deck takes height and the pallet footprint can waste floor. Compare both on your own cargo; the planner's comparison table shows containers and fill for each.</p>
+  <p>Choosing carton sizes before you pack? The <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a> picks which sizes to stock. Shipping a single pallet by LTL? The <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> works out the class.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, safety or shipping advice, and not a load-securing, axle-weight or compliance certificate. The example exporter, cargo and container figures are invented or nominal and may differ from your equipment; carrier and forwarder rules change. Verify the output with your carrier, forwarder or a qualified loading supervisor; you remain responsible for decisions made from it. No data is uploaded.</p>
+    <p><a href="./">Use the planner</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=container-load-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="container-load-planner"></script>
+</body>
+</html>

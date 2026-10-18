@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. RCReports and a paid reasonable-compensation report | S-Corp Reasonable Compensation Calculator</title>
+<meta name="description" content="RCReports and similar paid services sell CPAs a formal reasonable-compensation report, typically $200-900, built on licensed wage-survey data.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/vs-rcreports-and-a-paid-valuation-report.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. RCReports and a paid reasonable-compensation report | S-Corp Reasonable Compensation Calculator">
+<meta property="og:description" content="A free, instant self-check vs. a formal, licensed-data reasonable-compensation report -- what each one actually is, and when you need which.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a paid reasonable-compensation report like RCReports actually provide that this free calculator doesn't?","acceptedAnswer":{"@type":"Answer","text":"A formal report is built on licensed occupational wage-survey data (matched to your specific job duties, location, and hours), produced under a named methodology, and typically delivered as a citable document a CPA can put in a client's file or produce in an IRS examination as evidence the salary figure was researched rather than guessed. This calculator does none of that -- it takes a comparable-wage figure you supply yourself and runs the arithmetic and factor checklist around it instantly, for free."}},{"@type":"Question","name":"When is a free self-check enough, and when do I need a formal paid report?","acceptedAnswer":{"@type":"Answer","text":"A free self-check is enough for an owner who wants a first read on where they stand, wants to see the FICA cost of different salary levels before deciding, or is nowhere close to a risky pattern (salary already close to or above a reasonable estimate, or no meaningful distribution being taken). A formal report earns its cost when the stakes are higher: a large distribution alongside a low salary, a pending or active IRS examination, or a CPA who wants a citable, licensed-data document in the client file rather than a number the client estimated themselves."}},{"@type":"Question","name":"Does this calculator replace an accountant's judgment or a formal report?","acceptedAnswer":{"@type":"Answer","text":"No. It is a self-check and a documentation aid -- a place to see the arithmetic and record your own answers to the nine factors courts weigh. It does not access any wage-survey database, does not certify a figure, and is not something you would hand an examiner as evidence in place of your own preparer's work."}},{"@type":"Question","name":"Is my financial data safer in this calculator than in a paid report service?","acceptedAnswer":{"@type":"Answer","text":"This calculator never uploads anything -- every number you enter stays in your browser's local storage and is never sent to a server. A paid report service necessarily collects your business and compensation details to produce and store the report; that's a reasonable tradeoff for the document you're paying for, but it's a tradeoff this calculator doesn't ask you to make."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f0e9; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2f5d50; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #2f5d50; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2f5d50; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fffdf9; border: 1px solid #dbd4c4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a231010; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef1ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a6472; }
+  .note, footer { font-size: .86rem; color: #5a6472; }
+  footer { margin-top: 28px; border-top: 1px solid #dbd4c4; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/vs-rcreports-and-a-paid-valuation-report.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. RCReports and a paid reasonable-compensation report | S-Corp Reasonable Compensation Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s-corp-reasonable-compensation-calculator/">S-Corp Reasonable Compensation Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. RCReports and a paid reasonable-compensation report | S-Corp Reasonable Compensation Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. RCReports and a paid reasonable-compensation report</h1>
+<p class="lede">RCReports is the name most CPAs hear for a formal, purchasable reasonable-compensation report, and it does a genuinely different job from this page. This free calculator answers the question you have right now -- am I in a defensible range, and what would closing the gap cost in FICA tax -- with numbers you already have, no account and no fee. Here is exactly where each one fits.</p>
+
+<section class="card">
+<h2>What each one actually does</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Job</th><th scope="col">This calculator</th><th scope="col">RCReports (paid, per report)</th></tr></thead>
+<tbody>
+<tr><td>How the comparable-wage figure is sourced</td><td>You supply it yourself -- from BLS OEWS, a trade salary survey, or your own judgment.</td><td>Matched from a licensed occupational wage-survey database against your stated job duties, location, and hours.</td></tr>
+<tr><td>Output</td><td>An instant on-screen estimate, plus a nine-factor documentation checklist you fill in yourself.</td><td>A formal, citable written report under a named methodology, typically produced by or for your CPA.</td></tr>
+<tr><td>Where it's most useful</td><td>A first read on where you stand, or comparing the FICA cost of different salary levels before deciding.</td><td>Documentation to keep in the client file, or evidence to produce if the IRS actually examines the return.</td></tr>
+<tr><td>Cost</td><td>Free.</td><td>Typically in the low hundreds of dollars per report.</td></tr>
+<tr><td>Where your data goes</td><td>Nowhere -- stays in your browser's local storage, never uploaded.</td><td>Collected and stored by the report service to produce and retain the document.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does a paid reasonable-compensation report like RCReports actually provide that this free calculator doesn't?</h3>
+<p>A formal report is built on licensed occupational wage-survey data (matched to your specific job duties, location, and hours), produced under a named methodology, and typically delivered as a citable document a CPA can put in a client's file or produce in an IRS examination as evidence the salary figure was researched rather than guessed. This calculator does none of that -- it takes a comparable-wage figure you supply yourself and runs the arithmetic and factor checklist around it instantly, for free.</p>
+<h3>When is a free self-check enough, and when do I need a formal paid report?</h3>
+<p>A free self-check is enough for an owner who wants a first read on where they stand, wants to see the FICA cost of different salary levels before deciding, or is nowhere close to a risky pattern (salary already close to or above a reasonable estimate, or no meaningful distribution being taken). A formal report earns its cost when the stakes are higher: a large distribution alongside a low salary, a pending or active IRS examination, or a CPA who wants a citable, licensed-data document in the client file rather than a number the client estimated themselves.</p>
+<h3>Does this calculator replace an accountant's judgment or a formal report?</h3>
+<p>No. It is a self-check and a documentation aid -- a place to see the arithmetic and record your own answers to the nine factors courts weigh. It does not access any wage-survey database, does not certify a figure, and is not something you would hand an examiner as evidence in place of your own preparer's work.</p>
+<h3>Is my financial data safer in this calculator than in a paid report service?</h3>
+<p>This calculator never uploads anything -- every number you enter stays in your browser's local storage and is never sent to a server. A paid report service necessarily collects your business and compensation details to produce and store the report; that's a reasonable tradeoff for the document you're paying for, but it's a tradeoff this calculator doesn't ask you to make.</p>
+</section>
+
+<footer>
+<p><strong>Not affiliated with, endorsed by, or sponsored by RCReports.</strong> RCReports is a trademark of its owner, named here only to describe what this free calculator is and is not. Its features are described from its own public marketing as of this writing and may have changed since.</p>
+<p><strong>No warranty.</strong> This page and the linked calculator are not legal, tax, or financial advice and do not replace a qualified CPA or tax attorney. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../donor-acknowledgment-letter-generator/" data-pf-to="donor-acknowledgment-letter-generator">Year-end donor acknowledgment letters from a gift list — free, private</a></li>
+      <li><a href="../donor-retention-analyzer/" data-pf-to="donor-retention-analyzer">Donor Retention Analyzer — free, private, in your browser</a></li>
+      <li><a href="../duplicate-payment-audit/" data-pf-to="duplicate-payment-audit">Duplicate Payment Audit</a></li>
+      <li><a href="../early-pay-discount-picker/" data-pf-to="early-pay-discount-picker">Early pay discount picker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s-corp-reasonable-compensation-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s-corp-reasonable-compensation-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QBI Deduction Calculator — Section 199A, 2025 &amp; 2026, Free</title>
+  <meta name="description" content="Free calculator for the Section 199A qualified business income (QBI) deduction: applies the 20% deduction…">
+  <meta property="og:title" content="QBI Deduction Calculator — free Section 199A estimator, 2025 & 2026">
+  <meta property="og:description" content="Estimate the 20% qualified business income deduction, including the SSTB phase-out and the W-2 wage / UBIA limit for a single qualified trade or business.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"QBI Deduction Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the federal Section 199A qualified business income (QBI) deduction for one qualified trade or business, for tax years 2025 and 2026: the 20%-of-QBI deduction, the taxable-income threshold and phase-in range (widened by the One Big Beautiful Bill Act starting 2026, which also added a $400 minimum deduction), the specified-service-trade-or-business (SSTB) phase-out, the W-2 wage / UBIA-of-qualified-property limitation, and the overall 20%-of-(taxable income minus net capital gain) cap. Entirely client-side; nothing is uploaded.","featureList":"20% QBI deduction with taxable-income phase-in, SSTB applicable-percentage reduction, W-2 wage / UBIA limitation, REIT dividend and PTP income component, overall taxable-income cap, 2026 minimum deduction, rough tax-savings estimate at a chosen marginal rate, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the QBI deduction?","acceptedAnswer":{"@type":"Answer","text":"The Section 199A qualified business income deduction lets eligible owners of a sole proprietorship, partnership, S corporation, trust, or estate deduct up to 20% of their qualified business income (QBI) from that trade or business, plus 20% of qualified REIT dividends and publicly traded partnership (PTP) income. It does not apply to C corporations, and it is a deduction from taxable income, not a credit."}},{"@type":"Question","name":"What is the taxable-income threshold, and what happens above it?","acceptedAnswer":{"@type":"Answer","text":"For 2025, the threshold is $191,950 (single, head of household, or married filing separately) or $383,900 (married filing jointly), with a phase-in range of $50,000 / $100,000 above that. For 2026, the One Big Beautiful Bill Act raised the threshold to $201,750 / $403,500 and widened the range to $75,000 / $150,000. Below the threshold, the deduction is simply 20% of QBI. Within the range, a specified service business's deduction phases toward $0 and a non-specified business's deduction phases toward the W-2 wage / UBIA limit. Above the top of the range, those limits apply in full."}},{"@type":"Question","name":"What is a specified service trade or business (SSTB)?","acceptedAnswer":{"@type":"Answer","text":"Fields specifically listed in the statute and regulations: health, law, accounting, actuarial science, performing arts, consulting, athletics, financial services, brokerage services, investing and investment management, trading, dealing in securities/partnership interests/commodities, or any business where the principal asset is the reputation or skill of one or more employees or owners. Above the top of the phase-in range, an SSTB's QBI deduction from that business is $0 -- other qualified trades or businesses are unaffected."}},{"@type":"Question","name":"What is the W-2 wage / UBIA limit?","acceptedAnswer":{"@type":"Answer","text":"Above the phase-in range, a non-SSTB's QBI deduction from a business is capped at the greater of 50% of the W-2 wages that business paid, or 25% of W-2 wages plus 2.5% of the unadjusted basis immediately after acquisition (UBIA) of its qualified depreciable property. Within the phase-in range, the cap blends proportionally between no limit at all and this full limit."}},{"@type":"Question","name":"What is the $400 minimum deduction, and when does it apply?","acceptedAnswer":{"@type":"Answer","text":"Starting tax year 2026 under the One Big Beautiful Bill Act, a filer with at least $1,000 of qualified business income from an active qualified trade or business can claim at least a $400 QBI deduction, even if the phase-out or wage/UBIA formula would otherwise produce less. It does not apply for tax year 2025."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory formula for ONE qualified trade or business to the numbers you enter. It does not model combining multiple businesses (including netting a loss from one against QBI from another), REIT/PTP income aside, and it is not a full tax return. Verify against the IRS's own guidance (Form 8995-A instructions) or a qualified tax professional before filing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b5a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4d3f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4d3f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a54; }
+    .card { background: #fff; border: 1px solid #d8e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4d3f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c6ba; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0; }
+    .checkrow input { width: auto; margin-top: 4px; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edea; color: #1f4d3f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a54; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4d3f; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d8e0da; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"QBI Deduction Calculator — free Section 199A estimator, 2025 \u0026 2026","item":"https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="QBI Deduction Calculator — free Section 199A estimator, 2025 &amp; 2026 — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">QBI Deduction Calculator — free Section 199A estimator, 2025 &amp; 2026</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">QBI DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's your Section 199A qualified business income deduction worth?</h1>
+    <p>Eligible owners of a sole proprietorship, partnership, S corporation,
+    trust, or estate can deduct up to <strong>20% of qualified business
+    income (QBI)</strong> — but above a taxable-income threshold, a
+    <strong>specified service business</strong> phases toward $0 and any
+    other business is capped by its <strong>W-2 wages and UBIA of qualified
+    property</strong>. This estimates the deduction for one qualified trade
+    or business, including the 2026 rule changes.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Running an S-corp and setting your own W-2 salary? A
+    lower salary raises this deduction (wages reduce QBI) but can also raise
+    your audit risk — see the
+    <a href="../s-corp-reasonable-compensation-calculator/">S-corp reasonable
+    compensation calculator</a> for that side of the same pass-through
+    income.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Tax year, filing status &amp; income</h2>
+    <div class="grid">
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="marginal-rate">Your marginal federal tax rate</label>
+        <select id="marginal-rate">
+          <option value="10">10%</option>
+          <option value="12" selected>12%</option>
+          <option value="22">22%</option>
+          <option value="24">24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="taxable-income">Taxable income before the QBI deduction ($)</label>
+        <input type="number" id="taxable-income" min="0" step="1000" placeholder="e.g. 160000" inputmode="numeric">
+      </div>
+      <div>
+        <label for="net-capital-gain">Net capital gain + qualified dividends ($)</label>
+        <input type="number" id="net-capital-gain" min="0" step="100" placeholder="e.g. 0" inputmode="numeric">
+      </div>
+    </div>
+    <p class="note">"Taxable income" here is your Form 1040 taxable income
+    <em>before</em> this deduction is subtracted — the threshold test and the
+    overall cap both use that figure. Net capital gain is net long-term
+    capital gain plus qualified dividends; it reduces the amount the overall
+    20% cap is measured against, so leave it at $0 if you have neither.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your qualified trade or business</h2>
+    <p class="note">One business. If you have QBI from more than one trade
+    or business, or any of them reports a loss, see "What this does not
+    cover" below before combining them here.</p>
+    <div class="grid">
+      <div>
+        <label for="qbi">Qualified business income this year ($)</label>
+        <input type="number" id="qbi" step="1" placeholder="e.g. 120000" inputmode="numeric">
+      </div>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="is-sstb">
+      <label for="is-sstb">This is a specified service trade or business
+      (SSTB) — health, law, accounting, consulting, financial services,
+      performing arts, athletics, or a business whose principal asset is an
+      owner's or employee's reputation or skill</label>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="w2-wages">W-2 wages this business paid this year ($)</label>
+        <input type="number" id="w2-wages" min="0" step="100" placeholder="e.g. 40000" inputmode="numeric">
+      </div>
+      <div>
+        <label for="ubia">UBIA of qualified property ($)</label>
+        <input type="number" id="ubia" min="0" step="100" placeholder="e.g. 0" inputmode="numeric">
+      </div>
+    </div>
+    <p class="note">UBIA is the unadjusted basis immediately after
+    acquisition of tangible depreciable property still within its
+    depreciable period — usually equipment, machinery, or real property, not
+    accumulated depreciation. Leave W-2 wages and UBIA at $0 if your taxable
+    income is below the threshold above: neither field affects the
+    deduction there.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. REIT dividends &amp; PTP income (optional)</h2>
+    <div class="grid">
+      <div>
+        <label for="reit-ptp">Qualified REIT dividends + publicly traded partnership income ($)</label>
+        <input type="number" id="reit-ptp" min="0" step="100" placeholder="e.g. 0" inputmode="numeric">
+      </div>
+    </div>
+    <p class="note">This component gets 20% with no wage/UBIA limit and no
+    SSTB reduction, ever — leave it at $0 if it doesn't apply to you.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in your income and business details above, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Component</th><th>Amount</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table></div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>One business only.</strong> Combining QBI, W-2 wages, and
+      UBIA across more than one qualified trade or business — including
+      netting a loss from one business against QBI from another, which the
+      regulations require before applying the wage/UBIA limit — is not
+      modeled here. Treat this as a single-business estimate.</li>
+      <li><strong>Not a full tax return.</strong> This estimates one
+      deduction only — not your total tax liability, self-employment tax,
+      other deductions or credits, or state tax (most states either do not
+      conform to this deduction or apply their own rules).</li>
+      <li><strong>SSTB classification</strong> is confirmed by you, not
+      verified against the statute and regulations here — check IRS Form
+      8995-A instructions and Treas. Reg. 1.199A-5 before relying on it.</li>
+      <li><strong>The $400 minimum deduction (2026+)</strong> is modeled as
+      a floor on the QBI-based amount before the overall taxable-income cap
+      — a simplification for an edge case the statute's interaction with
+      that cap does not fully spell out in plain guidance yet.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the QBI deduction?</h3>
+    <p>The Section 199A qualified business income deduction lets eligible owners of a sole proprietorship, partnership, S corporation, trust, or estate deduct up to 20% of their qualified business income (QBI) from that trade or business, plus 20% of qualified REIT dividends and publicly traded partnership (PTP) income. It does not apply to C corporations, and it is a deduction from taxable income, not a credit.</p>
+    <h3>What is the taxable-income threshold, and what happens above it?</h3>
+    <p>For 2025, the threshold is $191,950 (single, head of household, or married filing separately) or $383,900 (married filing jointly), with a phase-in range of $50,000 / $100,000 above that. For 2026, the One Big Beautiful Bill Act raised the threshold to $201,750 / $403,500 and widened the range to $75,000 / $150,000. Below the threshold, the deduction is simply 20% of QBI. Within the range, a specified service business's deduction phases toward $0 and a non-specified business's deduction phases toward the W-2 wage / UBIA limit. Above the top of the range, those limits apply in full.</p>
+    <h3>What is a specified service trade or business (SSTB)?</h3>
+    <p>Fields specifically listed in the statute and regulations: health, law, accounting, actuarial science, performing arts, consulting, athletics, financial services, brokerage services, investing and investment management, trading, dealing in securities/partnership interests/commodities, or any business where the principal asset is the reputation or skill of one or more employees or owners. Above the top of the phase-in range, an SSTB's QBI deduction from that business is $0 -- other qualified trades or businesses are unaffected.</p>
+    <h3>What is the W-2 wage / UBIA limit?</h3>
+    <p>Above the phase-in range, a non-SSTB's QBI deduction from a business is capped at the greater of 50% of the W-2 wages that business paid, or 25% of W-2 wages plus 2.5% of the unadjusted basis immediately after acquisition (UBIA) of its qualified depreciable property. Within the phase-in range, the cap blends proportionally between no limit at all and this full limit.</p>
+    <h3>What is the $400 minimum deduction, and when does it apply?</h3>
+    <p>Starting tax year 2026 under the One Big Beautiful Bill Act, a filer with at least $1,000 of qualified business income from an active qualified trade or business can claim at least a $400 QBI deduction, even if the phase-out or wage/UBIA formula would otherwise produce less. It does not apply for tax year 2025.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory formula for ONE qualified trade or business to the numbers you enter. It does not model combining multiple businesses (including netting a loss from one against QBI from another), REIT/PTP income aside, and it is not a full tax return. Verify against the IRS's own guidance (Form 8995-A instructions) or a qualified tax professional before filing.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your business's SSTB status and your own taxable income before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deduction_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Paying quarterly on this income? The <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> turns this deduction and the rest of your numbers into a payment schedule.</p>
+    <p>Already reconciled a marketplace 1099-K down to net profit? The <a href="../1099k-reconciliation-worksheet/">1099-K reconciliation worksheet</a> is the other end of that same number.</p>
+    <p>Have a 401(k) plan that allows after-tax contributions? The <a href="../mega-backdoor-roth-calculator/">mega-backdoor Roth calculator</a> figures out how much after-tax headroom you have left under the IRS 415(c) limit. Running a business loss this year instead of income? The <a href="../excess-business-loss-calculator/">excess business loss calculator</a> checks the separate 461(l) threshold that can limit how much of it offsets your other income.</p>
+    <p>Working out the QBI worksheet by hand? See <a href="./vs-doing-the-worksheet-by-hand.html">where a hand calculation of this deduction usually goes wrong</a>.</p>
+    <p>Deduction come out to $0, or far less than 20%? See <a href="./why-is-my-qbi-deduction-0.html">the three real reasons that happens</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeQbiDeduction, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      taxYear: $("#tax-year"), filingStatus: $("#filing-status"), marginalRate: $("#marginal-rate"),
+      taxableIncome: $("#taxable-income"), netCapitalGain: $("#net-capital-gain"),
+      qbi: $("#qbi"), isSstb: $("#is-sstb"), w2Wages: $("#w2-wages"), ubia: $("#ubia"),
+      reitPtp: $("#reit-ptp"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), body: $("#report-body"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = computeQbiDeduction({
+        taxYear: Number(els.taxYear.value),
+        filingStatus: els.filingStatus.value,
+        taxableIncome: Number(els.taxableIncome.value) || 0,
+        netCapitalGain: Number(els.netCapitalGain.value) || 0,
+        qbi: Number(els.qbi.value) || 0,
+        isSstb: els.isSstb.checked,
+        w2Wages: Number(els.w2Wages.value) || 0,
+        ubia: Number(els.ubia.value) || 0,
+        reitPtpIncome: Number(els.reitPtp.value) || 0,
+        marginalRatePercent: Number(els.marginalRate.value),
+      });
+
+      els.stats.innerHTML = `Estimated QBI deduction: <strong><span class="price">${money(result.deduction)}</span></strong> — roughly <strong>${money(result.estimatedSavings)}</strong> less federal income tax at your selected marginal rate.`;
+      els.body.innerHTML = `
+        <tr><td>QBI component (this business)</td><td>${money(result.businessComponent)}</td></tr>
+        <tr><td>REIT dividend / PTP component</td><td>${money(result.reitPtpComponent)}</td></tr>
+        <tr><td>Combined, before the overall cap</td><td>${money(result.combinedBeforeCap)}</td></tr>
+        <tr><td>Overall cap (20% of taxable income minus net capital gain)</td><td>${money(result.overallLimit)}</td></tr>
+        <tr><td><strong>Deduction</strong></td><td><strong>${money(result.deduction)}</strong></td></tr>`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("deduction_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.taxYear.value = "2026";
+      els.filingStatus.value = "single";
+      els.marginalRate.value = "24";
+      els.taxableIncome.value = "230000";
+      els.netCapitalGain.value = "0";
+      els.qbi.value = "150000";
+      els.isSstb.checked = false;
+      els.w2Wages.value = "40000";
+      els.ubia.value = "0";
+      els.reitPtp.value = "0";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a single filer, 2026, $230,000 taxable income, $150,000 QBI, $40,000 of W-2 wages, inside the phase-in range.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.taxableIncome.value = "";
+      els.netCapitalGain.value = "";
+      els.qbi.value = "";
+      els.isSstb.checked = false;
+      els.w2Wages.value = "";
+      els.ubia.value = "";
+      els.reitPtp.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in your income and business details above, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../van-westendorp-pricing-analyzer/" data-pf-to="van-westendorp-pricing-analyzer">Van Westendorp Pricing Analyzer — free, private, in your browser</a></li>
+      <li><a href="../vendor-rate-break-even/" data-pf-to="vendor-rate-break-even">Vendor Rate Break-Even Calculator</a></li>
+      <li><a href="../veterinarian-associate-pay-calculator/" data-pf-to="veterinarian-associate-pay-calculator">Veterinarian Associate Pay Calculator — free, private, in your browser</a></li>
+      <li><a href="../w2-efw2-file-validator/" data-pf-to="w2-efw2-file-validator">W-2 EFW2 File Validator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=qbi-deduction-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/?pfEmbed=1&quot; title=&quot;QBI Deduction Calculator — free Section 199A estimator, 2025 &amp; 2026 — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="qbi-deduction-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/" data-pf-embed-title="QBI Deduction Calculator — free Section 199A estimator, 2025 &amp; 2026" data-pf-embed-slug="qbi-deduction-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="qbi-deduction-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="qbi-deduction-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

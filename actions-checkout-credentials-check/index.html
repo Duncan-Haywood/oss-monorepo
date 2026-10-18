@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>persist-credentials Check for actions/checkout — Find the Artipacked Pattern</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false…">
+  <meta property="og:title" content="Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?">
+  <meta property="og:description" content="Paste your workflow YAML and get every actions/checkout without persist-credentials: false, with the exact fix.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Actions Checkout Credentials Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans GitHub Actions workflow YAML for actions/checkout steps without persist-credentials: false, ranking jobs that also upload artifacts or caches first. Runs in the browser or as a zero-dependency CLI; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does persist-credentials: false do in actions/checkout?","acceptedAnswer":{"@type":"Answer","text":"By default actions/checkout writes the job's GITHUB_TOKEN into .git/config so later git commands can authenticate. Setting persist-credentials: false stops that, so the token is not left on disk for the rest of the job."}},{"@type":"Question","name":"What is the artipacked pattern?","acceptedAnswer":{"@type":"Answer","text":"A job checks out the repository with the default settings and then uploads the workspace (including the .git directory) with actions/upload-artifact. The token in .git/config travels inside the artifact, which anyone who can read the run may download. This tool lists those jobs first."}},{"@type":"Question","name":"What if my job needs to git push?","acceptedAnswer":{"@type":"Answer","text":"Then pass the token to that one step only, for example through an environment variable, instead of leaving it in .git/config for every later step. If you deliberately set persist-credentials: true, this tool still flags the job so you can confirm it is intended."}},{"@type":"Question","name":"Does this tool fetch anything from GitHub for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. Paste your workflow YAML and the scan runs entirely in this page."}},{"@type":"Question","name":"Does a clean scan mean my workflows are safe?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific pattern with a line-oriented scan, not a YAML parser. It is not a security audit and it does not look at any other workflow risk."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.checkout-persists-credentials-with-upload { background: #fde8e8; color: #9a3412; }
+    .pill.checkout-persists-credentials { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?","item":"https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which of your Actions jobs leave the GITHUB_TOKEN in .git/config? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</span></span></nav>
+  <header>
+    <p class="note">ACTIONS CHECKOUT CREDENTIALS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Which of your Actions jobs leave the token in <code>.git/config</code>?</h1>
+    <p><code>actions/checkout</code> writes the job's <code>GITHUB_TOKEN</code> into <code>.git/config</code> unless the step sets <code>persist-credentials: false</code>. If the same job then uploads the workspace as an artifact, the token can travel with it (the "artipacked" pattern). Paste your workflow YAML below to list every checkout step that leaves the token on disk, the risky ones first, each with the one-line fix.</p>
+    <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> you want checked. Add more blocks for more files.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">+ Add another workflow file</button></p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Detail</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan .github/workflows under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does persist-credentials: false do in actions/checkout?</h3>
+    <p>By default actions/checkout writes the job's GITHUB_TOKEN into .git/config so later git commands can authenticate. Setting persist-credentials: false stops that, so the token is not left on disk for the rest of the job.</p>
+    <h3>What is the artipacked pattern?</h3>
+    <p>A job checks out the repository with the default settings and then uploads the workspace (including the .git directory) with actions/upload-artifact. The token in .git/config travels inside the artifact, which anyone who can read the run may download. This tool lists those jobs first.</p>
+    <h3>What if my job needs to git push?</h3>
+    <p>Then pass the token to that one step only, for example through an environment variable, instead of leaving it in .git/config for every later step. If you deliberately set persist-credentials: true, this tool still flags the job so you can confirm it is intended.</p>
+    <h3>Does this tool fetch anything from GitHub for me?</h3>
+    <p>No. It makes no network calls at all. Paste your workflow YAML and the scan runs entirely in this page.</p>
+    <h3>Does a clean scan mean my workflows are safe?</h3>
+    <p>No. This checks one specific pattern with a line-oriented scan, not a YAML parser. It is not a security audit and it does not look at any other workflow risk.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your workflows: <a href="../actions-secret-leak-check/">Actions Secret Leak Check</a>, <a href="../pinned-actions-check/">Pinned Actions Check</a>, <a href="../actions-permissions-check/">Actions Permissions Check</a> and <a href="../actions-timeout-check/">Actions Timeout Check</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./check.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { files: $("#files"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    const EXAMPLE = [{
+      name: ".github/workflows/ci.yml",
+      text: `name: ci
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make
+      - uses: actions/upload-artifact@v4
+        with:
+          path: .
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: make lint
+`,
+    }];
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function addFile(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>`;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => { if (els.files.children.length > 1) wrap.remove(); });
+      els.files.appendChild(wrap);
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((b, i) => ({ name: b.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`, text: b.querySelector(".ftext").value }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      const findings = scanFiles(files).sort((a, b) => (b.type.endsWith("upload") ? 1 : 0) - (a.type.endsWith("upload") ? 1 : 0));
+      els.verdict.className = `verdict ${hasRisk(findings) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.type}">${f.type}</span></td>
+          <td><code>${escapeHtml(f.detail)}</code></td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a build job that uploads the workspace, a test job that just keeps the token, and a lint job that is not flagged.";
+    });
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+    function markOptedOut() {
+      const b = $("#optout");
+      b.textContent = "Usage counting is off";
+      b.disabled = true;
+    }
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); markOptedOut(); });
+    addFile();
+    if (usageOptedOut()) markOptedOut();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+      <li><a href="../app-listing-metadata-check/" data-pf-to="app-listing-metadata-check">App Store &amp; Google Play Listing Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-checkout-credentials-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/?pfEmbed=1&quot; title=&quot;Which of your Actions jobs leave the GITHUB_TOKEN in .git/config? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="actions-checkout-credentials-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/" data-pf-embed-title="Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?" data-pf-embed-slug="actions-checkout-credentials-check"></script>
+</body>
+</html>

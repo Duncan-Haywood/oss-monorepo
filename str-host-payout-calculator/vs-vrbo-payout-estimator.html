@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Vrbo's own earnings estimator | Airbnb vs Vrbo Host Payout Calculator</title>
+  <meta name="description" content="How this free Airbnb/Vrbo host payout calculator differs from Vrbo's own owner earnings estimate tool, and when to use each one.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/vs-vrbo-payout-estimator.html">
+  <meta property="og:title" content="This calculator vs. Vrbo's own earnings estimator | Airbnb vs Vrbo Host Payout Calculator">
+  <meta property="og:description" content="Vrbo's own tool predicts a future nightly rate on Vrbo alone. This one runs an actual stay through Airbnb, Vrbo, and direct booking side by side.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Vrbo's own earnings estimator?","acceptedAnswer":{"@type":"Answer","text":"Both, for different questions. Vrbo's own estimator, offered when you start listing a property on vrbo.com, predicts a nightly price and seasonal income for a property on Vrbo alone. This calculator instead takes a stay you already have numbers for — nightly rate, nights, cleaning fee, occupancy tax, deposit — and runs it through Airbnb's 15.5% host-only fee, the retired 3% split, Vrbo's pay-per-booking and legacy annual plans, and direct booking, side by side, plus the listed-price raise needed to restore an old 3% payout and the occupancy you can afford to lose going direct. Vrbo's tool cannot do any of that: it has no Airbnb or direct-booking leg and no way to enter an actual booked stay."}},{"@type":"Question","name":"Does Vrbo's estimator account for Airbnb or direct booking?","acceptedAnswer":{"@type":"Answer","text":"No. It is single-channel by design — it forecasts what Vrbo itself would pay for a listing on Vrbo. It has no field for Airbnb's host-only fee, Airbnb's retired 3% split, or a direct-booking site's processing fee, so it cannot answer which channel actually pays best on a given stay."}},{"@type":"Question","name":"Is this page affiliated with Vrbo?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Vrbo or Expedia Group, Inc. Vrbo is a trademark of Expedia Group, Inc., named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241812; background: #f3ebe3; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #7a2e1b; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddccbc; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4a3d; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #3b2418; color: #f7efe6; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5c4a3d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c4a3d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/vs-vrbo-payout-estimator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Vrbo's own earnings estimator | Airbnb vs Vrbo Host Payout Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../str-host-payout-calculator/">Airbnb vs Vrbo host payout calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Vrbo's own earnings estimator | Airbnb vs Vrbo Host Payout Calculator</span></span></nav>
+  <p><a href="./">← Airbnb/Vrbo host payout calculator</a></p>
+  <h1>This calculator vs. Vrbo's own earnings estimator</h1>
+  <p>
+    Vrbo offers a free earnings estimate for people considering listing a
+    property: type an address and a few details, and it predicts a nightly
+    price and seasonal income on Vrbo. It is forward-looking and
+    single-channel — a forecast for a listing that may not exist yet, with
+    no way to add an Airbnb or direct-booking leg and no field for a stay
+    you have already booked or priced.
+  </p>
+  <p>
+    That makes Vrbo's tool the right choice for <strong>"what might this
+    property earn on Vrbo"</strong> before you list. This calculator
+    answers a different question: <strong>for a stay you already have real
+    numbers for, which channel actually pays the most</strong> — Airbnb,
+    Vrbo, or direct — and what it would take to do better.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What might a new listing earn on Vrbo, before it exists?</td>
+        <td>Vrbo's own earnings estimator.</td>
+      </tr>
+      <tr>
+        <td>For this exact stay, does Airbnb, Vrbo, or direct booking pay the most?</td>
+        <td>This calculator's side-by-side channel comparison.</td>
+      </tr>
+      <tr>
+        <td>What listed-price raise restores an old 3% Airbnb payout under the new 15.5% host-only fee?</td>
+        <td>This calculator's <a href="./#restore">restore-payout figure</a> — Vrbo's tool has no equivalent.</td>
+      </tr>
+      <tr>
+        <td>How many occupied nights can I afford to lose by going direct and still come out ahead?</td>
+        <td>This calculator's <a href="./#breakEven">direct-booking break-even</a>.</td>
+      </tr>
+      <tr>
+        <td>Does a Vrbo pay-per-booking fee or the legacy annual subscription pay more on this exact stay?</td>
+        <td>This calculator — Vrbo's own estimator does not compare its two fee plans against each other on one stay.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Run your own stay through all three channels</a>
+  <p>
+    This tool needs no Vrbo account and no live listing: it is a static
+    page, the arithmetic runs in your browser, and your numbers stay on your
+    device — nothing is uploaded anywhere, and a shareable link carries your
+    inputs after the <code>#</code> in the URL rather than on a server.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Vrbo's own earnings estimator?</h3>
+  <p>Both, for different questions. Vrbo's own estimator, offered when you start listing a property on vrbo.com, predicts a nightly price and seasonal income for a property on Vrbo alone. This calculator instead takes a stay you already have numbers for — nightly rate, nights, cleaning fee, occupancy tax, deposit — and runs it through Airbnb's 15.5% host-only fee, the retired 3% split, Vrbo's pay-per-booking and legacy annual plans, and direct booking, side by side, plus the listed-price raise needed to restore an old 3% payout and the occupancy you can afford to lose going direct. Vrbo's tool cannot do any of that: it has no Airbnb or direct-booking leg and no way to enter an actual booked stay.</p>
+  <h3>Does Vrbo's estimator account for Airbnb or direct booking?</h3>
+  <p>No. It is single-channel by design — it forecasts what Vrbo itself would pay for a listing on Vrbo. It has no field for Airbnb's host-only fee, Airbnb's retired 3% split, or a direct-booking site's processing fee, so it cannot answer which channel actually pays best on a given stay.</p>
+  <h3>Is this page affiliated with Vrbo?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Vrbo or Expedia Group, Inc. Vrbo is a trademark of Expedia Group, Inc., named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./vs-airbnb-earnings-estimator.html">This calculator vs. Airbnb's own Estimate Your Earnings tool</a> ·
+    <a href="./airbnb-vs-vrbo-host-fees.html">Airbnb vs Vrbo host fees, compared on the same stay</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not legal, tax, financial, or business advice, and it is not a quote from Airbnb, Vrbo, or any other platform. Verify every rate against your own payout statements before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+      <li><a href="../faire-wholesale-calculator/" data-pf-to="faire-wholesale-calculator">Faire Seller Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=str-host-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="str-host-payout-calculator"></script>
+</body>
+</html>

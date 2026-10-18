@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This planner vs. comparing the repair bill to a new price | Fleet Repair-or-Replace Planner</title>
+<meta name="description" content="The default way owners make this call is holding this year's repair invoice up against the price of a new one.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This planner vs. comparing the repair bill to a new price">
+<meta property="og:description" content="Holding a repair invoice up against a new price leaves out downtime, resale value, and how several assets rank against one budget.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just comparing the repair bill to a new price?","acceptedAnswer":{"@type":"Answer","text":"Nothing is wrong with looking at both numbers — the problem is what that comparison leaves out. The repair invoice is the visible cost, but a vehicle in the shop is also billable days your crew could not work, and that downtime is frequently the larger number. It leaves out resale value, since a trade-in offsets the new price. And it leaves out spreading the purchase over the years of service it buys, so a $42,000 truck and a $68,000 excavator are not directly comparable on price alone. This planner adds all three to the same comparison, per asset."}},{"@type":"Question","name":"Why not just eyeball it — if the repairs are getting expensive, replace it?","acceptedAnswer":{"@type":"Answer","text":"Because 'getting expensive' has no threshold, and the two numbers that actually decide the answer — downtime cost and the replacement's equivalent annual cost — are not the ones a repair invoice shows. An owner going on the invoice alone can keep the wrong asset (heavy downtime, cheap repairs) and replace the wrong one (expensive repairs, but rarely down) in the same year. The arithmetic takes the same two minutes as eyeballing it once the figures are in front of you."}},{"@type":"Question","name":"I only have one truck to decide about — do I still need a tool for this?","acceptedAnswer":{"@type":"Answer","text":"The single-asset arithmetic is short enough to run on paper once you know it — see the worked example on the explainer page. Where a tool earns its keep is a fleet of several vehicles and machines and one capital budget: ranking which ones actually pay to replace, and in what order, is not something a repair-bill-vs-new-price comparison can do at all, because it never puts the assets on the same footing."}},{"@type":"Question","name":"Does this planner tell me the right answer?","acceptedAnswer":{"@type":"Answer","text":"No — it runs arithmetic on the figures you enter and shows its work. It does not appraise your equipment, know your financing terms, or decide anything for you. It replaces a comparison that leaves out downtime and resale, not your judgment about the quotes and trade-in values you confirm before committing capital."}}]}</script>
+<style>
+:root { font: 16px system-ui, sans-serif; color: #1b2320; background: #f1f4f2; }
+body { max-width: 820px; margin: auto; padding: 28px; }
+a { color: #0f5132; overflow-wrap: anywhere; }
+h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #14452f; }
+h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14452f; }
+h3 { font-size: 1rem; margin: 18px 0 4px; }
+p, li { line-height: 1.6; }
+.lede { font-size: 1.05rem; color: #2c3630; }
+.card { background: #fff; border: 1px solid #d6e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14452f10; margin: 18px 0; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eaefec; vertical-align: top; }
+th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #47524c; }
+.note, footer { font-size: .86rem; color: #47524c; }
+footer { margin-top: 28px; border-top: 1px solid #d6e0da; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This planner vs. comparing the repair bill to a new price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fleet-repair-or-replace-planner/">Repair or replace your work truck? — free planner, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This planner vs. comparing the repair bill to a new price</span></span></nav>
+<main>
+<p class="note"><a href="./">&larr; Fleet repair-or-replace planner</a></p>
+<header>
+<h1>This planner vs. comparing the repair bill to a new price</h1>
+<p class="lede">The default way owners make this call is holding this year's repair invoice up against the price of a new one. That comparison is not wrong, exactly -- it is incomplete. It leaves out downtime, the resale value a trade-in would return, and how several assets stack against one capital budget. This free planner adds all three, per asset, in the same worksheet.</p>
+</header>
+
+<section class="card">
+<h2>What each one leaves in, and out</h2>
+<p><strong>Repair bill vs. new price</strong> is the comparison most owners already run in their head, and it costs nothing: this year's invoices against a dealer quote. What it cannot see is the vehicle sitting in the shop while the crew works around it -- days that are billable revenue lost, not a repair line item -- and it treats the new price as the whole cost, ignoring what a trade-in would return and that the purchase buys several years of service, not one.</p>
+<p><strong>This planner</strong> runs the same comparison with those three pieces added: downtime valued at what you say a day off the road costs you, the new asset's price netted against its resale value and spread over its expected service life, and -- once you have more than one asset -- a ranking of which ones actually pay to replace against a fixed capital budget. See <a href="./is-it-cheaper-to-repair-or-replace-a-work-truck.html">why downtime decides this</a> for the arithmetic worked through on a real fleet.</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is the repair bill bigger than a new price, roughly?</td><td>The comparison every owner already runs -- free, but leaves out downtime and resale.</td></tr>
+<tr><td>What does keeping this asset really cost once downtime is counted?</td><td>This planner's per-asset arithmetic.</td></tr>
+<tr><td>Which of several assets actually pay to replace against one budget?</td><td>This planner -- a repair-bill comparison cannot rank a fleet at all.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No. Everything stays in this browser tab; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>A repair-bill comparison is a reasonable first filter for one vehicle you are not seriously considering replacing -- if the invoice is small, there is often no need to run the arithmetic at all. It stops being enough the moment downtime is significant, a trade-in is on the table, or there is more than one asset competing for the same capital.</p>
+<p class="note">This planner needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's wrong with just comparing the repair bill to a new price?</h3>
+<p>Nothing is wrong with looking at both numbers &mdash; the problem is what that comparison leaves out. The repair invoice is the visible cost, but a vehicle in the shop is also billable days your crew could not work, and that downtime is frequently the larger number. It leaves out resale value, since a trade-in offsets the new price. And it leaves out spreading the purchase over the years of service it buys, so a $42,000 truck and a $68,000 excavator are not directly comparable on price alone. This planner adds all three to the same comparison, per asset.</p>
+<h3>Why not just eyeball it &mdash; if the repairs are getting expensive, replace it?</h3>
+<p>Because 'getting expensive' has no threshold, and the two numbers that actually decide the answer &mdash; downtime cost and the replacement's equivalent annual cost &mdash; are not the ones a repair invoice shows. An owner going on the invoice alone can keep the wrong asset (heavy downtime, cheap repairs) and replace the wrong one (expensive repairs, but rarely down) in the same year. The arithmetic takes the same two minutes as eyeballing it once the figures are in front of you.</p>
+<h3>I only have one truck to decide about &mdash; do I still need a tool for this?</h3>
+<p>The single-asset arithmetic is short enough to run on paper once you know it &mdash; see the worked example on the explainer page. Where a tool earns its keep is a fleet of several vehicles and machines and one capital budget: ranking which ones actually pay to replace, and in what order, is not something a repair-bill-vs-new-price comparison can do at all, because it never puts the assets on the same footing.</p>
+<h3>Does this planner tell me the right answer?</h3>
+<p>No &mdash; it runs arithmetic on the figures you enter and shows its work. It does not appraise your equipment, know your financing terms, or decide anything for you. It replaces a comparison that leaves out downtime and resale, not your judgment about the quotes and trade-in values you confirm before committing capital.</p>
+<p class="note">Open the <a href="./">repair-or-replace planner</a>, or read <a href="./is-it-cheaper-to-repair-or-replace-a-work-truck.html">why downtime decides this</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying anything here before relying on it</strong>, and for any capital commitment it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> This page names no specific vehicle, equipment, or software vendor.</p>
+<p class="support">Free and open source &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tools do.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../agent-brokerage-split-calculator/" data-pf-to="agent-brokerage-split-calculator">Real Estate Brokerage Split Calculator — free, private, in your browser</a></li>
+      <li><a href="../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../app-store-sales-report-analyzer/" data-pf-to="app-store-sales-report-analyzer">App Store Sales Report Analyzer — free, private, in your browser</a></li>
+      <li><a href="../appointment-deposit-calculator/" data-pf-to="appointment-deposit-calculator">Appointment Deposit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fleet-repair-or-replace-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fleet-repair-or-replace-planner"></script>
+</body>
+</html>

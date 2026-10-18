@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. guessing your burden and overhead | Shop Rate Calculator</title>
+<meta name="description" content="Most contractors price a crew hour off two numbers pulled from memory -- roughly 20% payroll burden…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/vs-guessing-your-burden-and-overhead.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. guessing your burden and overhead">
+<meta property="og:description" content="Two ways to price a crew hour: a burden and overhead figure recalled from memory, or the same two numbers computed from your own payroll and cost records.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just use 20% burden and 10% overhead like everyone says?","acceptedAnswer":{"@type":"Answer","text":"Because those two figures answer different questions than the ones a bid calculator needs. The textbook 20% payroll burden is employer taxes, workers' comp, and liability as a percentage of wages, and it assumes every paid hour is billed. A field employee is paid for roughly 2,080 hours a year; holidays and vacation come off that, and of the hours actually worked, drive time, loading, estimating, shop time, and warranty callbacks are on nobody's invoice. Once burden is expressed per billable hour instead of per paid hour, the same payroll can come out to 60%, 90%, or more. The textbook 10% overhead is usually a share of revenue, borrowed from a profit-and-loss statement, while bidding arithmetic applies overhead to a job's direct cost -- a smaller number, so the same dollars of rent, software, and owner pay come out to a higher percentage against it. Both guesses are round numbers pulled from habit rather than computed from either business's own records, and on the shipped example they under-price an hour by $32.07."}},{"@type":"Question","name":"How much difference does it actually make?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped example -- a $28 wage, three-person crew, 75% billable share, and a 12% target margin -- the 20%/10% guess prices the hour at $42.00. The same year's own numbers, run through this calculator, need $74.07: a 92% payroll burden once unbillable paid hours are counted, and a 21.3% overhead rate once it is measured against direct cost rather than revenue. That is $32.07 an hour short, or roughly $150,000 a year across a three-person crew before any of it shows up as a missed number on a P&L -- it shows up as work that was always going to lose money, priced as though it would not."}},{"@type":"Question","name":"Where would I get the real numbers instead of guessing?","acceptedAnswer":{"@type":"Answer","text":"From records most shops already keep: last year's payroll (wages, employer payroll taxes, workers' comp premium, liability insurance, benefits), what was paid for vehicles, fuel, phones, and tools, and the fixed cost of running the business for a year -- owner and office pay, rent and utilities, software, marketing, and other insurance and licenses -- plus what was spent on materials and subcontractors. This calculator turns those into the payroll burden per billable hour and the overhead rate on direct cost automatically; nothing has to be looked up or estimated once the underlying figures are in hand, and nothing is uploaded anywhere to get the answer."}},{"@type":"Question","name":"What if I don't know my exact billable-hours percentage?","acceptedAnswer":{"@type":"Answer","text":"A rough estimate is still far better than skipping the input, because it is the single figure this arithmetic is most sensitive to: on the shipped example, moving the billable share by ten points changes the required rate by more than the entire target margin does. A shop with no time-tracking can start from paid hours minus holidays, vacation, and a rough guess at drive time and shop time, see the rate that guess implies, and tighten the estimate later -- which is still a computed number checked against a business's own year, not a round figure recalled from habit."}},{"@type":"Question","name":"Is this the same as reading a P&L or asking a bookkeeper?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not replace either. A profit-and-loss statement reports what already happened, expressed as percentages of revenue; a bookkeeper or accountant can confirm the underlying payroll and cost figures are correct. This calculator does the one piece neither of those hands over on its own: converting a year of payroll and overhead into a burden rate per billable hour and an overhead rate on direct cost, in the form a bid calculator actually consumes. It is arithmetic on numbers a contractor supplies, not an accounting or tax determination."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #2f5d50; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4d5b6c; }
+  section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4e0; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b6c; }
+  .fine, .note { font-size: .88rem; color: #4d5b6c; }
+  footer { color: #4d5b6c; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/vs-guessing-your-burden-and-overhead.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. guessing your burden and overhead — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shop-rate-calculator/">Shop Rate Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. guessing your burden and overhead</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Shop Rate Calculator</a></p>
+<header>
+<h1>This calculator vs. guessing your burden and overhead</h1>
+<p class="lede">Most bid calculators ask for a payroll burden and an overhead rate, and most contractors answer from memory &mdash; "about 20%" and "about 10%" are the two figures that come up most. This page is about what changes when those two numbers come from your own payroll and cost records instead.</p>
+</header>
+<section>
+<h2>What each approach is</h2>
+<p>
+  <strong>Guessing from memory</strong> means typing "20%" for payroll burden
+  and "10%" for overhead into a bid calculator because those are the round
+  numbers that circulate among contractors, without checking either against
+  an actual year of payroll and cost records. It costs nothing and takes no
+  time, and it is the default nearly everyone starts from &mdash; not because
+  it is wrong on purpose, but because working out the real numbers looks like
+  an accounting exercise most people would rather not do between bids.
+</p>
+<p>
+  <strong>This calculator</strong> takes the records a shop already keeps
+  &mdash; wages, payroll taxes, workers' comp, liability insurance, benefits,
+  vehicles and tools, paid and billable hours, and the fixed cost of running
+  the business for a year &mdash; and computes the same two numbers instead of
+  recalling them. It runs once, in the browser, on nothing that leaves the
+  device, and it produces a break-even hourly rate and the rate a target
+  margin actually requires, built from that shop's own year rather than a
+  number that circulates.
+</p>
+<p>
+  The gap between the two is not rounding error. On this calculator's own
+  shipped example &mdash; a $28 wage, three-person crew, 75% of paid hours
+  actually billed, and a 12% target margin &mdash; the 20%/10% guess prices an
+  hour at <strong>$42.00</strong>. The same year, run through this calculator,
+  needs <strong>$74.07</strong>: a 92% payroll burden once the paid hours that
+  are never billed are counted, and a 21.3% overhead rate once it is measured
+  against direct cost the way bidding arithmetic actually uses it rather than
+  against revenue the way a P&L states it. That is <strong>$32.07 an
+  hour</strong> short, or roughly <strong>$150,000 a year</strong> across a
+  three-person crew &mdash; not a number that shows up as a line on a
+  statement, but as jobs that were priced to lose money from the day they were
+  bid.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want an answer in ten seconds and I am not touching my payroll records right now.</td><td>The 20%/10% guess &mdash; free, but built from habit, not this business's own year.</td></tr>
+<tr><td>What does my payroll burden and overhead actually come out to, from my own numbers?</td><td>This calculator &mdash; free, instant, private, no account, no upload.</td></tr>
+<tr><td>Is a rate built on the 20%/10% guess actually covering my costs?</td><td>Run the same year through this calculator and compare the two rates directly.</td></tr>
+<tr><td>Which of my numbers moves the answer the most?</td><td>This calculator's notes &mdash; on the shipped example it is the billable-hours share, not either guessed percentage.</td></tr>
+<tr><td>How does the math behind a shop rate actually work?</td><td>This calculator's own <a href="what-should-i-charge-per-hour.html">hourly-rate walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account, upload payroll data, or sign up?</td><td>No, for either approach &mdash; the guess needs nothing and neither does this calculator.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  The guess is not a bad habit so much as a shortcut with a real cost that
+  stays invisible until a slow quarter or a lost bid makes it obvious. This
+  calculator does not remove the shortcut's convenience &mdash; it is still
+  one page, still free, still nothing to sign into &mdash; it just replaces
+  the two recalled numbers with the two computed ones.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just use 20% burden and 10% overhead like everyone says?</h3>
+<p>Because those two figures answer different questions than the ones a bid calculator needs. The textbook 20% payroll burden is employer taxes, workers' comp, and liability as a percentage of wages, and it assumes every paid hour is billed. A field employee is paid for roughly 2,080 hours a year; holidays and vacation come off that, and of the hours actually worked, drive time, loading, estimating, shop time, and warranty callbacks are on nobody's invoice. Once burden is expressed per billable hour instead of per paid hour, the same payroll can come out to 60%, 90%, or more. The textbook 10% overhead is usually a share of revenue, borrowed from a profit-and-loss statement, while bidding arithmetic applies overhead to a job's direct cost -- a smaller number, so the same dollars of rent, software, and owner pay come out to a higher percentage against it. Both guesses are round numbers pulled from habit rather than computed from either business's own records, and on the shipped example they under-price an hour by $32.07.</p>
+<h3>How much difference does it actually make?</h3>
+<p>On this calculator's own shipped example -- a $28 wage, three-person crew, 75% billable share, and a 12% target margin -- the 20%/10% guess prices the hour at $42.00. The same year's own numbers, run through this calculator, need $74.07: a 92% payroll burden once unbillable paid hours are counted, and a 21.3% overhead rate once it is measured against direct cost rather than revenue. That is $32.07 an hour short, or roughly $150,000 a year across a three-person crew before any of it shows up as a missed number on a P&L -- it shows up as work that was always going to lose money, priced as though it would not.</p>
+<h3>Where would I get the real numbers instead of guessing?</h3>
+<p>From records most shops already keep: last year's payroll (wages, employer payroll taxes, workers' comp premium, liability insurance, benefits), what was paid for vehicles, fuel, phones, and tools, and the fixed cost of running the business for a year -- owner and office pay, rent and utilities, software, marketing, and other insurance and licenses -- plus what was spent on materials and subcontractors. This calculator turns those into the payroll burden per billable hour and the overhead rate on direct cost automatically; nothing has to be looked up or estimated once the underlying figures are in hand, and nothing is uploaded anywhere to get the answer.</p>
+<h3>What if I don't know my exact billable-hours percentage?</h3>
+<p>A rough estimate is still far better than skipping the input, because it is the single figure this arithmetic is most sensitive to: on the shipped example, moving the billable share by ten points changes the required rate by more than the entire target margin does. A shop with no time-tracking can start from paid hours minus holidays, vacation, and a rough guess at drive time and shop time, see the rate that guess implies, and tighten the estimate later -- which is still a computed number checked against a business's own year, not a round figure recalled from habit.</p>
+<h3>Is this the same as reading a P&L or asking a bookkeeper?</h3>
+<p>No, and it does not replace either. A profit-and-loss statement reports what already happened, expressed as percentages of revenue; a bookkeeper or accountant can confirm the underlying payroll and cost figures are correct. This calculator does the one piece neither of those hands over on its own: converting a year of payroll and overhead into a burden rate per billable hour and an overhead rate on direct cost, in the form a bid calculator actually consumes. It is arithmetic on numbers a contractor supplies, not an accounting or tax determination.</p>
+<p class="note">
+  Open the <a href="index.html">Shop Rate Calculator</a> to work out your own rate.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or fire-safety advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device; this page names no company and compares against a generic pricing habit, not a product.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+      <li><a href="../invoice-aging-late-payer-analyzer/" data-pf-to="invoice-aging-late-payer-analyzer">Invoice Aging &amp; Late Payer Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../job-margin-variance/" data-pf-to="job-margin-variance">Job Cost Variance Calculator</a></li>
+      <li><a href="../land-survey-bid-calculator/" data-pf-to="land-survey-bid-calculator">Land Survey Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shop-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shop-rate-calculator"></script>
+</body></html>

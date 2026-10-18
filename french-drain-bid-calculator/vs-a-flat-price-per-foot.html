@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per foot | French Drain Bid Calculator</title>
+<meta name="description" content="French-drain contractors are shopped by a flat price per foot. That rate cannot see the job: depth, pipe size, soil, the outlet, catch basins…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/french-drain-bid-calculator/vs-a-flat-price-per-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per foot">
+<meta property="og:description" content="A 40-foot shallow daylight trench in dirt is not the same job as an 80-foot deep drywell run in clay with catch basins and a driveway crossing.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per foot get a French-drain bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because linear footage only measures how long the trench is, not what it takes to dig and finish it. A 40-foot shallow daylight trench in dirt takes about 9.3 crew-hours. An 80-foot deep drywell run in clay with two catch basins, three downspout ties, and a 15-foot driveway crossing takes about 45.3 crew-hours -- twice the footage, roughly five times the labor, because depth, soil, the outlet, and the extras do not scale with linear feet."}},{"@type":"Question","name":"What does a flat per-foot rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"Trench depth, pipe size, soil type, the outlet, catch basins, downspout ties, and a driveway crossing. A flat rate has no line for the difference between an 18-inch trench in loam and a 36-to-48-inch trench in clay or rock, no line for daylighting to grade versus a drywell pit or a permitted storm tie-in, and no line for catch basins, downspout ties, extra solid pipe, or cutting and patching a driveway at all."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs: a 40-foot shallow daylight trench in dirt takes 9.3 crew-hours and prices at $1,862.64 -- $46.57 per foot. An 80-foot deep drywell run in clay, with two catch basins, three downspout ties, and a 15-foot driveway crossing, takes 45.3 crew-hours, costs $6,177.40 to run before a dollar of profit, and this calculator prices it at $8,824.85 -- $110.31 per foot. Quoting the deep job at the shallow job's learned rate of $46.57 per foot gives $3,725.28 for eighty feet, which is $2,452.12 below the deep job's own break-even cost -- before counting the $5,099.58 it falls short of this calculator's price at a 30% target margin."}},{"@type":"Question","name":"Is a flat price per foot ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar jobs -- the same depth, soil, and outlet as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a deeper trench, harder soil, a drywell or storm tie-in, or basins and a driveway crossing the same way sight unseen, because the rate does not know the depth, the soil, or the outlet until the trencher is in the ground, and by then the per-foot number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or material costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's pipe, gravel, or fabric pricing. It takes linear feet, depth, pipe size, soil, the outlet, catch basins, downspout ties, a driveway crossing, and extra solid pipe, plus your own wage, payroll burden, travel, overhead, and target margin, and turns that into crew-hours and a price for this job -- the arithmetic a flat per-foot rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #243028; background: #e6ebe4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #3a6a48; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5c4e; }
+  section { background: #fff; border: 1px solid #c5d0c4; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2430280d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c5d0c4; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5c4e; }
+  .fine, .note { font-size: .88rem; color: #4a5c4e; }
+  footer { color: #4a5c4e; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/french-drain-bid-calculator/vs-a-flat-price-per-foot.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/french-drain-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../french-drain-bid-calculator/">French Drain Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; French Drain Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per foot</h1>
+<p class="lede">French-drain contractors are shopped by a flat price per foot. That rate cannot see the job &mdash; depth, pipe size, soil, the outlet, catch basins, and a driveway crossing do not scale with linear footage, and an 80-foot run can take five times the labor of a 40-foot run.</p>
+</header>
+<section>
+<h2>What a flat price per foot is</h2>
+<p>
+A price per foot is the fastest number to quote over the phone: pace off
+the run, multiply by a rate, read back a total. It is also the unit
+homeowners already compare between competing bids.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given depth,
+soil, and outlet &mdash; and then reused for the next linear footage that
+calls in, whether or not that next job shares any of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter
+linear feet, trench depth, pipe size, soil, the outlet (daylight, drywell,
+or storm tie-in), catch basins, downspout ties, a driveway crossing, and
+extra solid pipe to the outlet, plus your own wage, payroll burden,
+material rates, travel, overhead, and target margin. It prices the
+trench, the outlet, and every extra as their own hours and cost lines
+&mdash; for this job, not a rate carried over from the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-foot rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for an 18-inch trench in loam and a 36-to-48-inch trench in clay or rock, even though depth and soil are most of the labor.</td>
+<td>Prices trench hours from depth and a soil hour factor, so a deep clay run costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for the outlet &mdash; daylighting to grade, a drywell pit, and a permitted storm tie-in get the same rate.</td>
+<td>Prices outlet hours and kit cost separately by outlet type.</td>
+</tr>
+<tr>
+<td>Has no line for catch basins, downspout ties, extra solid pipe, or a driveway crossing at all.</td>
+<td>Prices each of those as its own hours and material, on top of linear footage.</td>
+</tr>
+<tr>
+<td>Bills pipe size inside the same blended per-foot number, if at all.</td>
+<td>Prices a 6-inch pipe's extra material cost and hour premium separately from a 4-inch run.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per foot and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same trade, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $42 hourly wage,
+30% burden, $95 travel and equipment, 15% overhead, 30% target margin:
+</p>
+<p>
+A <strong>40-foot</strong> shallow daylight trench in <strong>dirt</strong>,
+with a lawn restore, takes <strong>9.3 crew-hours</strong> and prices at
+<strong>$1,862.64</strong> for the job &mdash; <strong>$46.57</strong> per
+foot.
+</p>
+<p>
+An <strong>80-foot deep</strong> drywell run in <strong>clay</strong>
+&mdash; twice the footage &mdash; with <strong>two catch basins</strong>,
+<strong>three downspout ties</strong>, and a
+<strong>15-foot driveway crossing</strong> takes
+<strong>45.3 crew-hours</strong>, costs <strong>$6,177.40</strong> to run
+before a dollar of profit, and this calculator prices it at
+<strong>$8,824.85</strong> &mdash; <strong>$110.31</strong> per foot.
+Quoting the deep job at the shallow job's learned rate of $46.57 per foot
+gives <strong>$3,725.28</strong> for eighty feet, which is
+<strong>$2,452.12 below the deep job's own break-even cost</strong>
+&mdash; before counting the <strong>$5,099.58</strong> it falls short of
+this calculator's own price at a 30% target margin. Twice the footage,
+roughly five times the labor, and a rate learned on the shallow job loses
+money the moment the trencher hits clay.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per foot get a French-drain bid wrong?</h3>
+<p>Because linear footage only measures how long the trench is, not what it takes to dig and finish it. A 40-foot shallow daylight trench in dirt takes about 9.3 crew-hours. An 80-foot deep drywell run in clay with two catch basins, three downspout ties, and a 15-foot driveway crossing takes about 45.3 crew-hours -- twice the footage, roughly five times the labor, because depth, soil, the outlet, and the extras do not scale with linear feet.</p>
+<h3>What does a flat per-foot rate usually miss entirely?</h3>
+<p>Trench depth, pipe size, soil type, the outlet, catch basins, downspout ties, and a driveway crossing. A flat rate has no line for the difference between an 18-inch trench in loam and a 36-to-48-inch trench in clay or rock, no line for daylighting to grade versus a drywell pit or a permitted storm tie-in, and no line for catch basins, downspout ties, extra solid pipe, or cutting and patching a driveway at all.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs: a 40-foot shallow daylight trench in dirt takes 9.3 crew-hours and prices at $1,862.64 -- $46.57 per foot. An 80-foot deep drywell run in clay, with two catch basins, three downspout ties, and a 15-foot driveway crossing, takes 45.3 crew-hours, costs $6,177.40 to run before a dollar of profit, and this calculator prices it at $8,824.85 -- $110.31 per foot. Quoting the deep job at the shallow job's learned rate of $46.57 per foot gives $3,725.28 for eighty feet, which is $2,452.12 below the deep job's own break-even cost -- before counting the $5,099.58 it falls short of this calculator's price at a 30% target margin.</p>
+<h3>Is a flat price per foot ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar jobs -- the same depth, soil, and outlet as the job the rate was learned on -- a per-foot number can land close. The risk is quoting a deeper trench, harder soil, a drywell or storm tie-in, or basins and a driveway crossing the same way sight unseen, because the rate does not know the depth, the soil, or the outlet until the trencher is in the ground, and by then the per-foot number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or material costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's pipe, gravel, or fabric pricing. It takes linear feet, depth, pipe size, soil, the outlet, catch basins, downspout ties, a driveway crossing, and extra solid pipe, plus your own wage, payroll burden, travel, overhead, and target margin, and turns that into crew-hours and a price for this job -- the arithmetic a flat per-foot rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">French Drain Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-for-a-french-drain.html">how much to charge for a French drain</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether an installation is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../epoxy-garage-floor-bid-calculator/" data-pf-to="epoxy-garage-floor-bid-calculator">Epoxy Garage Floor Bid Calculator</a></li>
+      <li><a href="../foundation-repair-bid-calculator/" data-pf-to="foundation-repair-bid-calculator">Foundation Repair Bid Calculator</a></li>
+      <li><a href="../gravel-driveway-bid-calculator/" data-pf-to="gravel-driveway-bid-calculator">Gravel Driveway Bid Calculator</a></li>
+      <li><a href="../parking-lot-striping-bid-calculator/" data-pf-to="parking-lot-striping-bid-calculator">Parking Lot Striping Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=french-drain-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="french-drain-bid-calculator"></script>
+</body></html>

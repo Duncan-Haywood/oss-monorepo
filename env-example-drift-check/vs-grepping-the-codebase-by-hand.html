@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>.env.example Drift Check vs. grepping the codebase by hand</title>
+<meta name="description" content="Grepping for process.env catches the obvious JavaScript reads. It misses bracket-notation access the same grep pattern doesn't match…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-grepping-the-codebase-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content=".env.example Drift Check vs. grepping the codebase by hand">
+<meta property="og:description" content="A quick grep for process.env catches the obvious case. It misses bracket-notation reads, every other language's read syntax…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/vs-grepping-the-codebase-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does grepping for process.env actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "grep -rn \"process\\.env\\.\" src/ finds every dot-notation read in one pass and is genuinely fast for a single-language JavaScript codebase. That case is real and this tool's engine.mjs matches it the same way, as one of its LANGUAGE_PATTERNS entries." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a grep for process.env miss bracket-notation reads?",
+      "acceptedAnswer": { "@type": "Answer", "text": "process.env[\"AWS_REGION\"] and process.env['AWS_REGION'] both read the variable, but neither contains the literal substring process.env. followed directly by a bare name -- the dot-then-identifier pattern most people type into grep. A grep tuned for the dot-notation case does not match the bracket case at all, and it never announces the miss; the line simply never appears in the results." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a grep audit not scale past one language?",
+      "acceptedAnswer": { "@type": "Answer", "text": "process.env, os.getenv, os.environ[], ENV[], and System.getenv are five different call shapes across four languages. A repo with a JavaScript frontend and a Python worker needs two separate, correctly-written greps run every time, and it is easy to run the one for the language you are staring at and skip the other -- especially in a service you did not personally write." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is eyeballing grep hits against .env.example error-prone?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A real codebase's process.env reads run into the dozens once every file that touches configuration is counted, most of them already declared. The task is a manual set-difference: read down a list of hits, hold the .env.example file's declared names in your head, and notice the one name that is not on both sides. That kind of exhaustive comparison against a mental list is exactly the class of check people get wrong under time pressure, and a clean-looking grep pass gives no signal about whether it was done right." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool replace checking the codebase by hand entirely?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It scans for a fixed list of call-shape patterns in text and knows nothing about shell scripts, YAML, or Docker Compose files reading a variable through some other mechanism, and it never evaluates code -- a name built dynamically at runtime (process.env[someVariable]) is invisible to it the same as it would be to a grep. Confirming a variable name it did not catch, or one read through a mechanism outside its pattern list, is still a job for reading the code yourself." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content=".env.example Drift Check vs. grepping the codebase by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../env-example-drift-check/">Does your .env.example still match what the code actually reads?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">.env.example Drift Check vs. grepping the codebase by hand</span></span></nav>
+<p><a href="./">← Back to .env.example Drift Check</a></p>
+<h1>.env.example Drift Check vs. grepping the codebase by hand</h1>
+<p>
+  <code>grep -rn "process\.env\." src/</code> genuinely works for the case it is written for, and it is
+  the method most people already reach for. This page names no product or company being compared
+  against: grepping is a generic manual habit, not a competing tool.
+</p>
+
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Case</th><th>Grepping by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>A dot-notation read, <code>process.env.API_KEY</code></td><td>Correctly caught by a grep written for the dot pattern</td><td>Correctly caught the same way, as one of the JavaScript/TypeScript patterns</td></tr>
+    <tr><td>A bracket-notation read, <code>process.env["AWS_REGION"]</code></td><td>Invisible to a grep tuned for <code>process\.env\.</code> -- no match, no warning that anything was skipped</td><td>Matched by a separate bracket-notation pattern, checked every time regardless of which notation a file uses</td></tr>
+    <tr><td>A polyglot repo with a JavaScript frontend and a Python or Ruby service</td><td>Needs a second, correctly-written grep per language, run every time -- easy to run only the one for the file you are already looking at</td><td>Scans for all four languages' read patterns in the same pass, whether or not the repo mixes them</td></tr>
+    <tr><td>Cross-referencing 40 grep hits against 15 names in <code>.env.example</code></td><td>A manual set-difference held in your head -- the kind of exhaustive comparison people get wrong under time pressure, with no signal when they do</td><td>A deterministic Map diff: exactly the names read in code but absent from the example file, every time</td></tr>
+    <tr><td>A variable declared in <code>.env.example</code> that nothing reads anymore</td><td>Nobody checks this direction unless someone thinks to -- it produces no crash, just silently stale docs</td><td><code>--strict</code> flags every declared-but-unread name the same way, every run</td></tr>
+    <tr><td>Catching drift a PR introduces next month</td><td>A one-time audit answers for today; nothing re-runs it on the next commit</td><td><code>cli.mjs</code> wired into CI re-checks every PR that touches source or the example file</td></tr>
+  </tbody>
+</table></div>
+
+<h2>The gap that matters most: bracket notation has no shared substring with the dot pattern</h2>
+<p>
+  <code>process.env["AWS_REGION"]</code> and <code>process.env.AWS_REGION</code> read the identical
+  variable, but a grep pattern written to catch the second -- typically <code>process\.env\.[A-Z_]+</code>
+  or similar -- does not match the first at all. There is no partial hit, no warning line, nothing to
+  notice: the bracket-notation read simply does not appear in the grep's output, and a review that trusts
+  a clean grep pass has no way to tell the difference between "no missing variables" and "a whole
+  notation this grep can't see." This tool's <code>scanSource</code> matches both notations as separate,
+  always-checked patterns, so which style a given file happens to use does not change the result.
+</p>
+
+<h2>The gap that matters second: one grep per language, applied inconsistently</h2>
+<p>
+  <code>os.getenv("FOO")</code>, <code>os.environ["FOO"]</code>, <code>ENV["FOO"]</code>, and
+  <code>System.getenv("FOO")</code> are four more call shapes across three more languages, each needing
+  its own grep pattern to catch. A repo that mixes a JavaScript frontend with a Python worker or a Ruby
+  background service needs someone to remember, and correctly write, a separate grep for each one --
+  and it is the service nobody is currently staring at that a quick audit skips. This tool checks all of
+  them in the same pass over whatever text it is handed, so the check does not depend on which language
+  the person running it happens to be thinking about.
+</p>
+
+<h2>When to still check the codebase yourself</h2>
+<p>
+  This is a fixed set of text patterns, not code evaluation -- it cannot see a variable name assembled at
+  runtime (<code>process.env[someVariable]</code>), and it does not read shell scripts, YAML, or Docker
+  Compose files at all, so a variable read only through one of those is invisible to it the same as it
+  would be to a grep. Confirming a name outside its pattern list, and understanding a dynamically-built
+  variable name, is still a job for reading the code yourself.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does grepping for process.env actually catch?</h3>
+<p><code>grep -rn "process\.env\." src/</code> finds every dot-notation read in one pass and is genuinely fast for a single-language JavaScript codebase. That case is real and this tool's engine.mjs matches it the same way, as one of its LANGUAGE_PATTERNS entries.</p>
+<h3>Why does a grep for process.env miss bracket-notation reads?</h3>
+<p>process.env["AWS_REGION"] and process.env['AWS_REGION'] both read the variable, but neither contains the literal substring process.env. followed directly by a bare name -- the dot-then-identifier pattern most people type into grep. A grep tuned for the dot-notation case does not match the bracket case at all, and it never announces the miss; the line simply never appears in the results.</p>
+<h3>Why does a grep audit not scale past one language?</h3>
+<p>process.env, os.getenv, os.environ[], ENV[], and System.getenv are five different call shapes across four languages. A repo with a JavaScript frontend and a Python worker needs two separate, correctly-written greps run every time, and it is easy to run the one for the language you are staring at and skip the other -- especially in a service you did not personally write.</p>
+<h3>Why is eyeballing grep hits against .env.example error-prone?</h3>
+<p>A real codebase's process.env reads run into the dozens once every file that touches configuration is counted, most of them already declared. The task is a manual set-difference: read down a list of hits, hold the .env.example file's declared names in your head, and notice the one name that is not on both sides. That kind of exhaustive comparison against a mental list is exactly the class of check people get wrong under time pressure, and a clean-looking grep pass gives no signal about whether it was done right.</p>
+<h3>Does this tool replace checking the codebase by hand entirely?</h3>
+<p>No. It scans for a fixed list of call-shape patterns in text and knows nothing about shell scripts, YAML, or Docker Compose files reading a variable through some other mechanism, and it never evaluates code -- a name built dynamically at runtime (process.env[someVariable]) is invisible to it the same as it would be to a grep. Confirming a variable name it did not catch, or one read through a mechanism outside its pattern list, is still a job for reading the code yourself.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security, legal, or engineering advice, and it does not
+  replace a qualified professional or a real secrets scanner. It reports whether a variable name
+  appears on both sides of a text diff -- nothing more, and it is not a guarantee that your
+  configuration is complete or safe. You are responsible for reviewing and verifying its
+  output before relying on it. To the maximum extent permitted by law, the authors accept
+  no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+      <li><a href="../actions-cache-poisoning-check/" data-pf-to="actions-cache-poisoning-check">Can a fork PR poison your GitHub Actions cache?</a></li>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=env-example-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="env-example-drift-check"></script>
+</body>
+</html>

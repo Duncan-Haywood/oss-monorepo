@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Childcare Center Break-Even Calculator — Free</title>
+  <meta name="description" content="Free break-even calculator for childcare centers and daycares: enter classrooms, licensing ratios, tuition, wages and rent to see monthly profit…">
+  <meta property="og:title" content="Childcare Center Break-Even Calculator — free">
+  <meta property="og:description" content="Find the enrollment where your daycare breaks even, and the ratio cliffs where one more child costs a teacher. Runs in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Childcare Center Break-Even Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free break-even calculator for childcare centers and daycares: enter classrooms, licensing ratios, tuition, wages and rent to see monthly profit, break-even enrollment, the ratio cliffs where one more child costs a teacher, and the tuition increase needed. Runs in your browser, nothing uploaded.", "featureList": "Break-even enrollment, staffing by ratio, ratio cliff alerts, occupancy ladder, tuition increase needed, monthly profit, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many children does a childcare center need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your ratios, wages and rent, which is why a rule of thumb fails. Most centers land between 65% and 85% of licensed capacity. Because teachers are hired in whole rooms, the break-even point is a staircase, not a line: enter your own numbers and this tool finds the first fill level where monthly profit is zero or better."}}, {"@type": "Question", "name": "Why does the next child sometimes cost so much?", "acceptedAnswer": {"@type": "Answer", "text": "Licensing sets a maximum number of children per teacher. When a room is exactly at that ratio, child number one over it needs another teacher on the floor. The tuition for one child rarely covers a teacher, so profit drops until enough new children fill the new block."}}, {"@type": "Question", "name": "What staff-to-child ratio should I enter?", "acceptedAnswer": {"@type": "Answer", "text": "The ratio your state licensing agency requires for that age group, or your own tighter ratio if you staff to one. Ratios differ by state and age. This tool does not look them up; check your licensing rules."}}, {"@type": "Question", "name": "What share of tuition should go to staff?", "acceptedAnswer": {"@type": "Answer", "text": "Many operators aim for roughly 50-60% of tuition on classroom staff and 25-30% or less on rent and fixed costs, leaving a thin margin. Those are rules of thumb, not standards. The result panel shows your own staff and fixed shares."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you enter. It does not know your licensing rules, subsidy contracts or payroll law, and it does not replace an accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>.stop { border-top: 1px solid #ece7f2; margin-top: 10px; } textarea { width: 100%; box-sizing: border-box; min-height: 110px; font: 14px ui-monospace, monospace; padding: 10px; border: 1px solid #adc3cc; border-radius: 7px; }</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Childcare Center Break-Even Calculator — free","item":"https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Childcare Center Break-Even Calculator — free — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Childcare Center Break-Even Calculator — free</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CHILDCARE CENTER BREAK-EVEN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many children does your center need to break even?</h1>
+    <p>Enter your classrooms, licensing ratios, tuition, wages and rent. You get monthly profit, the enrollment where you break even,
+    the <strong>ratio cliffs</strong> where one more child forces another teacher, and the tuition increase that would close a gap.
+    Childcare margins are thin and staffing moves in whole-room steps, so a spreadsheet average hides the decisions that matter.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device. The ratios and figures pre-filled below are examples, not your state's rules.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Classroom groups</h2>
+      <div class="stop" data-group>
+        <h3><input type="text" id="gn1" value="Infants" aria-label="Group 1 name" style="max-width:240px"></h3>
+        <div class="grid">
+          <div><label for="gr1">Children per teacher (ratio)</label><input type="number" id="gr1" min="1" step="1" value="4" inputmode="numeric"></div>
+          <div><label for="gc1">Licensed capacity</label><input type="number" id="gc1" min="0" step="1" value="8" inputmode="numeric"></div>
+          <div><label for="ge1">Enrolled now</label><input type="number" id="ge1" min="0" step="1" value="6" inputmode="numeric"></div>
+          <div><label for="gt1">Tuition per child per week ($)</label><input type="number" id="gt1" min="0" step="5" value="350" inputmode="numeric"></div>
+        </div>
+      </div>
+      <div class="stop" data-group>
+        <h3><input type="text" id="gn2" value="Toddlers" aria-label="Group 2 name" style="max-width:240px"></h3>
+        <div class="grid">
+          <div><label for="gr2">Children per teacher (ratio)</label><input type="number" id="gr2" min="1" step="1" value="6" inputmode="numeric"></div>
+          <div><label for="gc2">Licensed capacity</label><input type="number" id="gc2" min="0" step="1" value="12" inputmode="numeric"></div>
+          <div><label for="ge2">Enrolled now</label><input type="number" id="ge2" min="0" step="1" value="9" inputmode="numeric"></div>
+          <div><label for="gt2">Tuition per child per week ($)</label><input type="number" id="gt2" min="0" step="5" value="300" inputmode="numeric"></div>
+        </div>
+      </div>
+      <div class="stop" data-group>
+        <h3><input type="text" id="gn3" value="Preschool" aria-label="Group 3 name" style="max-width:240px"></h3>
+        <div class="grid">
+          <div><label for="gr3">Children per teacher (ratio)</label><input type="number" id="gr3" min="1" step="1" value="10" inputmode="numeric"></div>
+          <div><label for="gc3">Licensed capacity</label><input type="number" id="gc3" min="0" step="1" value="20" inputmode="numeric"></div>
+          <div><label for="ge3">Enrolled now</label><input type="number" id="ge3" min="0" step="1" value="16" inputmode="numeric"></div>
+          <div><label for="gt3">Tuition per child per week ($)</label><input type="number" id="gt3" min="0" step="5" value="250" inputmode="numeric"></div>
+        </div>
+      </div>
+    <p class="note">Leave capacity and enrollment at 0 for a group you do not run. Use the ratio your licensing agency requires for that age.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Staffing and costs</h2>
+    <div class="grid">
+      <div><label for="wage">Teacher hourly wage ($)</label><input type="number" id="wage" min="0" step="0.5" value="16" inputmode="decimal"></div>
+      <div><label for="burden">Payroll taxes and benefits (% on top)</label><input type="number" id="burden" min="0" step="1" value="12" inputmode="numeric"></div>
+      <div><label for="hours">Hours open per day</label><input type="number" id="hours" min="1" step="0.5" value="10" inputmode="decimal"></div>
+      <div><label for="shift">Teacher shift length (hours)</label><input type="number" id="shift" min="1" step="0.5" value="8" inputmode="decimal"></div>
+      <div><label for="absence">Extra cover for sick days and breaks (%)</label><input type="number" id="absence" min="0" step="1" value="8" inputmode="numeric"></div>
+      <div><label for="collect">Tuition actually collected (%)</label><input type="number" id="collect" min="1" max="100" step="1" value="96" inputmode="numeric"></div>
+      <div><label for="fixed">Rent, utilities, insurance, other fixed ($ per month)</label><input type="number" id="fixed" min="0" step="100" value="9500" inputmode="numeric"></div>
+      <div><label for="director">Director / admin salary ($ per month)</label><input type="number" id="director" min="0" step="100" value="5500" inputmode="numeric"></div>
+      <div><label for="variable">Food and supplies per enrolled child ($ per month)</label><input type="number" id="variable" min="0" step="5" value="90" inputmode="numeric"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate break-even</button>
+    <button type="button" class="secondary" id="load-example">Reset to example</button>
+  </p>
+  <p class="note" id="form-status">Adjust the numbers to match your center, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Group</th><th scope="col">Children</th><th scope="col">Teachers</th><th scope="col">Tuition / mo</th><th scope="col">Staff / mo</th></tr></thead>
+      <tbody id="result-table"></tbody>
+    </table></div>
+    <h3>Profit by occupancy</h3>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Filled</th><th scope="col">Children</th><th scope="col">Profit / month</th></tr></thead>
+      <tbody id="ladder-table"></tbody>
+    </table></div>
+    <div id="report-findings"></div>
+    <h2 style="margin-top:22px">Summary to share</h2>
+    <textarea id="summary" readonly aria-label="Summary text"></textarea>
+    <button type="button" id="copy-summary">Copy summary</button>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Your licensing rules decide the ratios.</strong> The defaults are examples. Group size limits, director-to-child rules and floater requirements are not modelled.</li>
+      <li><strong>Subsidy and grant timing.</strong> Enter an average collected percentage; payment delays and state reimbursement schedules are not modelled.</li>
+      <li><strong>Seasonality and turnover.</strong> One month at the enrollment you enter, not a year.</li>
+      <li><strong>Taxes and non-profit accounting</strong> are not calculated.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many children does a childcare center need to break even?</h3>
+    <p>It depends on your ratios, wages and rent, which is why a rule of thumb fails. Most centers land between 65% and 85% of licensed capacity. Because teachers are hired in whole rooms, the break-even point is a staircase, not a line: enter your own numbers and this tool finds the first fill level where monthly profit is zero or better.</p>
+    <h3>Why does the next child sometimes cost so much?</h3>
+    <p>Licensing sets a maximum number of children per teacher. When a room is exactly at that ratio, child number one over it needs another teacher on the floor. The tuition for one child rarely covers a teacher, so profit drops until enough new children fill the new block.</p>
+    <h3>What staff-to-child ratio should I enter?</h3>
+    <p>The ratio your state licensing agency requires for that age group, or your own tighter ratio if you staff to one. Ratios differ by state and age. This tool does not look them up; check your licensing rules.</p>
+    <h3>What share of tuition should go to staff?</h3>
+    <p>Many operators aim for roughly 50-60% of tuition on classroom staff and 25-30% or less on rent and fixed costs, leaving a thin margin. Those are rules of thumb, not standards. The result panel shows your own staff and fixed shares.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It does arithmetic on the numbers you enter. It does not know your licensing rules, subsidy contracts or payroll law, and it does not replace an accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own licensing requirements. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>center_calculated</code>, <code>example_loaded</code>, <code>summary_copied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a different small service business? The <a href="../dog-boarding-daycare-pricing/">dog boarding and daycare pricing tool</a> and the <a href="../workers-comp-premium-calculator/">workers' comp premium calculator</a> may help.</p>
+    <p>Deciding how many children of each age to enrol? The <a href="../childcare-enrollment-mix-optimizer/">childcare enrollment mix optimizer</a> picks the most profitable mix for your floor space and ratios.</p>
+    <p>Pricing a single family's tuition instead? The <a href="../childcare-tuition-calculator/">childcare tuition calculator</a> works the per-child side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateCenter, summaryText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["gn1", "gr1", "gc1", "ge1", "gt1", "gn2", "gr2", "gc2", "ge2", "gt2", "gn3", "gr3", "gc3", "ge3", "gt3", "wage", "burden", "hours", "shift", "absence", "collect", "fixed", "director", "variable"];
+    const el = Object.fromEntries(ids.map((i) => [i, document.getElementById(i)]));
+    const defaults = Object.fromEntries(ids.map((i) => [i, el[i].value]));
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function runCalculate() {
+      const r = calculateCenter({
+        hourlyWage: el.wage.value, burdenPct: el.burden.value, hoursOpenPerDay: el.hours.value, teacherShiftHours: el.shift.value,
+        absencePct: el.absence.value, collectionPct: el.collect.value, fixedMonthly: el.fixed.value, directorMonthly: el.director.value,
+        variablePerChildMonth: el.variable.value,
+        groups: [1, 2, 3].map((i) => ({ name: el["gn" + i].value, ratio: el["gr" + i].value, capacity: el["gc" + i].value, enrolled: el["ge" + i].value, weeklyTuition: el["gt" + i].value })),
+      });
+      if (r.error) { report.hidden = true; status.textContent = r.error; return; }
+      let stats = `Monthly profit: <strong>${money(r.profit)}</strong>${r.margin === null ? "" : ` (${r.margin}% margin)`} at <strong>${r.enrolledTotal}</strong> of ${r.capacityTotal} seats (${r.occupancyPct}%).`;
+      stats += r.breakEvenChildren === null ? " This setup does not break even even when full." : ` Break-even is about <strong>${r.breakEvenChildren} children</strong> (${r.breakEvenPct}% of capacity). Full: ${money(r.fullProfit)}/month.`;
+      if (r.staffShare !== null) stats += ` Staff are ${r.staffShare}% of tuition.`;
+      $("#report-stats").innerHTML = stats;
+      $("#result-table").innerHTML = r.groups.map((g) =>
+        `<tr><th scope="row">${esc(g.name)}</th><td>${g.enrolled} / ${g.capacity}</td><td>${g.teachers}</td><td>${money(g.revenue)}</td><td>${money(g.staff)}</td></tr>`).join("");
+      $("#ladder-table").innerHTML = r.ladder.map((l) => `<tr><th scope="row">${l.pct}%</th><td>${l.children}</td><td>${money(l.profit)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) =>
+        `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = "";
+      record("center_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+    $("#load-example").addEventListener("click", () => {
+      for (const id of ids) el[id].value = defaults[id];
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Example center: 3 rooms, 40 seats, $16/h teachers. Replace every number with your own.";
+    });
+    $("#copy-summary").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); } catch { box.select(); document.execCommand("copy"); }
+      record("summary_copied");
+      $("#copy-summary").textContent = "Copied";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wedding-photographer-profit-calculator/" data-pf-to="wedding-photographer-profit-calculator">Wedding Photographer Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../wedding-venue-date-pricing-optimizer/" data-pf-to="wedding-venue-date-pricing-optimizer">Wedding venue date pricing optimizer</a></li>
+      <li><a href="../wedding-videographer-profit-calculator/" data-pf-to="wedding-videographer-profit-calculator">Wedding Videographer Profit Calculator — free</a></li>
+      <li><a href="../worker-classification-checker/" data-pf-to="worker-classification-checker">Is your 1099 contractor really an employee? Free checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=childcare-center-break-even-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/?pfEmbed=1&quot; title=&quot;Childcare Center Break-Even Calculator — free — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="childcare-center-break-even-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/" data-pf-embed-title="Childcare Center Break-Even Calculator — free" data-pf-embed-slug="childcare-center-break-even-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="childcare-center-break-even-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="childcare-center-break-even-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

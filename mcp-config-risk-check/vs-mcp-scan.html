@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MCP Config Risk Check vs. MCP-Scan</title>
+  <meta name="description" content="MCP-Scan connects to your configured MCP servers, retrieves their live tool descriptions, and judges them for poisoning and rug pulls using local checks plus a…">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/vs-mcp-scan.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="MCP Config Risk Check vs. MCP-Scan">
+  <meta property="og:description" content="MCP-Scan judges what a connected server's tools say about themselves. This tool judges what your config lets that server do before it connects at all -- broad…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/vs-mcp-scan.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or MCP-Scan?","acceptedAnswer":{"@type":"Answer","text":"Different layers of the same problem. MCP-Scan (uvx mcp-scan@latest, from Invariant Labs) connects to each server named in your MCP client configuration, retrieves its live tool descriptions, and judges them for tool poisoning, prompt injection, cross-origin tool shadowing, and rug pulls -- combining local checks with a call to Invariant's own Guardrailing API. This tool never connects to anything: it reads the launch config itself and flags structural risk in what you are about to grant -- broad filesystem or shell access, an API key or token hardcoded instead of referenced from the environment, a package or image with no version pin, and a tool name that shadows another server's. If you want to know what a server's tools actually say once it is running, MCP-Scan is built for exactly that. If you want to know what your config is about to hand that server before it ever starts, this is the narrower, offline question this tool answers."}},{"@type":"Question","name":"Isn't a launch config already covered by scanning the connected server?","acceptedAnswer":{"@type":"Answer","text":"Not the same information. A live tool-description scan sees what a server says about its tools after you have already launched it with whatever access the config granted. This checker looks at the grant itself, before that: the command, args, and env block that decide whether the server can read your filesystem, run a shell, or hold a secret in plain text in a file your client reads on every launch. A server can pass every tool-description check and still be launched with broader filesystem access, a less pinned version, or a hardcoded token than the config needed to grant."}},{"@type":"Question","name":"Why would I need a config checker if MCP-Scan already exists?","acceptedAnswer":{"@type":"Answer","text":"Two reasons. First, what each one can see: MCP-Scan needs the server actually running and reachable, plus a call to an external API, to judge its tool descriptions; this tool needs only the config text you already have, checked entirely offline, before you decide whether to launch anything. Second, scope: this tool is not a tool-poisoning detector at all -- it never reads a tool description -- it is a structural audit of the launch grant itself, a question MCP-Scan's own documented scope does not cover."}},{"@type":"Question","name":"Is this page affiliated with MCP-Scan or Invariant Labs?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Invariant Labs or the MCP-Scan project. MCP-Scan is an open-source security scanner, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/invariantlabs-ai/mcp-scan."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #172033; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #172033; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #58657a; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d9e0eb; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17203310; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #58657a; }
+    code { background: #eef2fa; padding: 0 4px; border-radius: 4px; overflow-wrap: anywhere; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #2457d6; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d9e0eb; padding-top: 16px; }
+    footer a, main a { color: #2457d6; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MCP Config Risk Check vs. MCP-Scan — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../mcp-config-risk-check/">MCP Config Risk Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">MCP Config Risk Check vs. MCP-Scan</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; MCP Config Risk Check</a></p>
+    <h1>MCP Config Risk Check vs. MCP-Scan</h1>
+    <p class="lede">Related tools, different layers. MCP-Scan connects to the servers in your MCP client configuration and judges their live tool descriptions for poisoning, shadowing, and rug pulls. This tool never connects to anything -- it reads the launch config itself and flags what you are about to grant a server before it ever starts.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>MCP-Scan</strong> (<code>github.com/invariantlabs-ai/mcp-scan</code>, run with
+        <code>uvx mcp-scan@latest</code>) is an open-source security scanner from Invariant Labs. Per its own
+        documentation, it reads your MCP client configuration to find configured servers, connects to each one,
+        retrieves its live tool descriptions, and scans them &mdash; combining local checks with a call to
+        Invariant's own Guardrailing API &mdash; for tool poisoning, prompt injection in tool descriptions,
+        cross-origin tool-shadowing attacks, and rug pulls (a tool's description changing after you already
+        approved it). Its proxy mode can also monitor live MCP traffic.
+      </p>
+      <p>
+        <strong>This checker</strong> reads the same kind of config file but never connects to a server at all: it
+        parses the <code>command</code>, <code>args</code>, and <code>env</code> block for each entry and flags
+        structural risk in the grant itself &mdash; broad filesystem or shell access, an API key or token hardcoded
+        in the config instead of referenced from the environment, a launched package or image with no version pin,
+        and a tool name that shadows another server's when a tool list is present. It runs entirely in your
+        browser: no install, no account, and no network call of its own.
+      </p>
+      <div class="table-wrap">
+        <div class="pf-table-scroll"><table>
+          <tr><th>Question</th><th>MCP-Scan</th><th>MCP Config Risk Check</th></tr>
+          <tr><td>What it reads</td><td>Live tool descriptions, retrieved by connecting to each configured server</td><td>The launch config itself &mdash; command, args, env &mdash; nothing is run or connected to</td></tr>
+          <tr><td>Network calls</td><td>Connects to each MCP server, plus a call to Invariant's Guardrailing API</td><td>None. Everything runs client-side in your browser</td></tr>
+          <tr><td>Install</td><td><code>uvx mcp-scan@latest</code> or an npx equivalent</td><td>None &mdash; a web page</td></tr>
+          <tr><td>What a finding means</td><td>A tool's description looks like poisoning, shadowing, or a post-approval rug pull</td><td>The config grants broad access, hardcodes a secret, skips a version pin, or shadows a tool name</td></tr>
+          <tr><td>When it can run</td><td>After the server is reachable and running</td><td>Before you ever launch anything &mdash; on the config text alone</td></tr>
+        </table></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Why the launch grant is a different question from the tool description</h2>
+      <p>
+        A tool-description scan judges what a server says about itself once it is already running with whatever
+        access the config gave it. That access is decided earlier, in the same config file MCP-Scan reads to find
+        the server in the first place &mdash; and nothing about a clean tool-description scan tells you whether
+        that grant was broader than the job needed, whether a token is sitting in the file in plain text, or
+        whether the launched package is pinned to a version at all. A server can pass every tool-poisoning check
+        and still have been launched with filesystem access it never uses, a hardcoded key that a version-controlled
+        copy of the config would leak, or no pin on a package that could change under it on the next install.
+      </p>
+      <p>
+        Neither question replaces the other. A perfectly scoped, pinned, secret-free launch grant says nothing
+        about whether the tools that server exposes are honestly described, and a clean tool-poisoning scan says
+        nothing about whether the grant itself was tighter than it needed to be.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>When to reach for MCP-Scan instead</h2>
+      <p>
+        If you want to know whether a server's tool descriptions are trying something &mdash; injected instructions,
+        a description that silently changed since you approved it, a name that shadows another server's tool once
+        both are connected &mdash; that is what MCP-Scan is built to answer, and it needs to actually connect to
+        find out. This tool does not attempt that: it never reads a tool description and has no opinion on whether
+        one is honest.
+      </p>
+    </section>
+
+    <h2>Common questions</h2>
+    <h3>Should I use this checker or MCP-Scan?</h3>
+    <p>Different layers of the same problem. MCP-Scan (<code>uvx mcp-scan@latest</code>, from Invariant Labs) connects to each server named in your MCP client configuration, retrieves its live tool descriptions, and judges them for tool poisoning, prompt injection, cross-origin tool shadowing, and rug pulls -- combining local checks with a call to Invariant's own Guardrailing API. This tool never connects to anything: it reads the launch config itself and flags structural risk in what you are about to grant -- broad filesystem or shell access, an API key or token hardcoded instead of referenced from the environment, a package or image with no version pin, and a tool name that shadows another server's. If you want to know what a server's tools actually say once it is running, MCP-Scan is built for exactly that. If you want to know what your config is about to hand that server before it ever starts, this is the narrower, offline question this tool answers.</p>
+    <h3>Isn't a launch config already covered by scanning the connected server?</h3>
+    <p>Not the same information. A live tool-description scan sees what a server says about its tools after you have already launched it with whatever access the config granted. This checker looks at the grant itself, before that: the command, args, and env block that decide whether the server can read your filesystem, run a shell, or hold a secret in plain text in a file your client reads on every launch. A server can pass every tool-description check and still be launched with broader filesystem access, a less pinned version, or a hardcoded token than the config needed to grant.</p>
+    <h3>Why would I need a config checker if MCP-Scan already exists?</h3>
+    <p>Two reasons. First, what each one can see: MCP-Scan needs the server actually running and reachable, plus a call to an external API, to judge its tool descriptions; this tool needs only the config text you already have, checked entirely offline, before you decide whether to launch anything. Second, scope: this tool is not a tool-poisoning detector at all -- it never reads a tool description -- it is a structural audit of the launch grant itself, a question MCP-Scan's own documented scope does not cover.</p>
+    <h3>Is this page affiliated with MCP-Scan or Invariant Labs?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by Invariant Labs or the MCP-Scan project. MCP-Scan is an open-source security scanner, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/invariantlabs-ai/mcp-scan.</p>
+
+    <p><a class="cta" href="./">Check a config</a></p>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own config and each server's source before trusting it. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Privacy.</strong> Everything runs client-side in your browser. The config you paste, and every finding this tool produces, never leaves your device -- there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+      <p><strong>Not affiliated.</strong> This site and tool are not affiliated with, endorsed by, or sponsored by Invariant Labs or the MCP-Scan project. MCP-Scan is named here only to describe what it does and how this tool differs, using facts from its own public documentation.</p>
+      <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+      <li><a href="../release-notes-generator/" data-pf-to="release-notes-generator">Changelog from git commits, in your browser</a></li>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=mcp-config-risk-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="mcp-config-risk-check"></script>
+</body>
+</html>

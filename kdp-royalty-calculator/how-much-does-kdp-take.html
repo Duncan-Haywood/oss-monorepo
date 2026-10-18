@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much Does Amazon KDP Take From Author Royalties?</title>
+  <meta name="description" content="Worked KDP royalty examples: a $4.99 ebook on the 70% plan nets $3.193 after the delivery fee, but a $2.00 ebook falls below the $2.99 floor and is forced onto…">
+  <meta property="og:title" content="How Much Does Amazon KDP Take From Author Royalties?">
+  <meta property="og:description" content="The 70%/35% royalty split, the $2.99-$9.99 eligibility window for 70%, the per-MB delivery fee, and paperback print cost -- worked through with real numbers.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/how-much-does-kdp-take.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much royalty does KDP pay on a $4.99 ebook?","acceptedAnswer":{"@type":"Answer","text":"On the 70% royalty plan (list price $2.99-$9.99), KDP pays 70% of the list price minus a delivery fee based on file size -- $0.15 per MB. A $4.99 ebook with a 2 MB file nets $4.99 x 0.7 - 2 x $0.15 = $3.193 per sale."}},{"@type":"Question","name":"Why does a $2.00 ebook pay so much less than a $4.99 one?","acceptedAnswer":{"@type":"Answer","text":"It is not a smaller slice of the same 70% rate -- it is a different plan entirely. The 70% plan only applies to list prices from $2.99 to $9.99. A $2.00 ebook falls below that floor and is automatically paid on the 35% plan instead, with no delivery fee deducted: $2.00 x 0.35 = $0.70. That is less than a quarter of what the same book would net at $4.99 on the 70% plan ($3.193), for a book that costs only $2.99 less."}},{"@type":"Question","name":"How much does KDP take on a paperback?","acceptedAnswer":{"@type":"Answer","text":"Paperback royalty is list price times a royalty rate (60% for Amazon.com sales) minus KDP's own print cost, which is a fixed charge plus a per-page charge. A $14.99, 280-page black-and-white paperback has a print cost of $0.85 + 280 x $0.012 = $4.21, so the royalty is $14.99 x 0.6 - $4.21 = $4.784 per copy."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #d8d3c5; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .callout { background: #eae6d9; border: 1px solid #d8d3c5; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    .note { font-size: .85rem; color: #5c554d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/how-much-does-kdp-take.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Amazon KDP Take From Author Royalties? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../kdp-royalty-calculator/">KDP royalty calculator: KU vs going wide</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Amazon KDP Take From Author Royalties?</span></span></nav>
+  <p><a href="./">&larr; KDP royalty calculator</a></p>
+  <h1>How much does Amazon KDP take from author royalties?</h1>
+  <p>
+    KDP does not take one flat cut. An ebook's royalty depends on which of two
+    plans it falls into by list price, and a paperback's royalty depends on a
+    per-page print cost KDP deducts before you see a dollar. Neither is a
+    single percentage a reader can quote from memory.
+  </p>
+
+  <h2>The 70% plan, and the delivery fee it carries</h2>
+  <p>A list price from <strong>$2.99 to $9.99</strong> qualifies for the 70% royalty plan. KDP pays 70% of the list price, then subtracts a delivery fee of <strong>$0.15 per MB</strong> of the file you uploaded.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>List price</td><td>$4.99</td></tr>
+      <tr><td>70% of list price</td><td>$3.493</td></tr>
+      <tr><td>Delivery fee (2 MB x $0.15)</td><td>-$0.30</td></tr>
+      <tr><td>Royalty per sale</td><td>$3.193</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The $2.99 cliff: the 35% plan is not a smaller slice of 70%</h2>
+    <p>A list price under $2.99 does not get a reduced version of the 70% plan -- it drops onto the separate <strong>35% plan</strong> entirely, and the delivery fee no longer applies. A $2.00 ebook nets just $2.00 x 0.35 = <strong>$0.70</strong>. Compare that to $3.193 on the $4.99 example above: pricing $2.99 lower does not cost 42% of the royalty, it costs 78% of it, because the plan itself changed underneath the price.</p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>List price</td><td>$2.00</td></tr>
+        <tr><td>Plan</td><td>35% (below $2.99 floor)</td></tr>
+        <tr><td>35% of list price</td><td>$0.70</td></tr>
+        <tr><td>Delivery fee</td><td>$0.00 (35% plan has none)</td></tr>
+        <tr><td>Royalty per sale</td><td>$0.70</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>Paperback: a per-page print cost comes out first</h2>
+  <p>Paperback royalty is list price times a royalty rate (60% for sales on Amazon.com) minus KDP's own print cost -- a fixed charge plus a per-page charge that scales with the book, not a flat fee.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>List price</td><td>$14.99</td></tr>
+      <tr><td>60% of list price</td><td>$8.994</td></tr>
+      <tr><td>Print cost ($0.85 + 280pg x $0.012)</td><td>-$4.210</td></tr>
+      <tr><td>Royalty per copy</td><td>$4.784</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">A color-interior book uses a higher fixed charge and per-page rate than black-and-white, and Amazon's own printing terms can change either constant -- verify against a current KDP print-cost report before pricing a new title.</p>
+
+  <h2>Do this with your own numbers</h2>
+  <p>The <a href="./">KDP royalty calculator</a> runs this same arithmetic on your own list price, file size, page count, and sales volume, and compares staying KDP-exclusive against going wide to other stores and Ingram over the same 90-day window. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much royalty does KDP pay on a $4.99 ebook?</h3>
+  <p>On the 70% royalty plan (list price $2.99-$9.99), KDP pays 70% of the list price minus a delivery fee based on file size -- $0.15 per MB. A $4.99 ebook with a 2 MB file nets $4.99 x 0.7 - 2 x $0.15 = $3.193 per sale.</p>
+  <h3>Why does a $2.00 ebook pay so much less than a $4.99 one?</h3>
+  <p>It is not a smaller slice of the same 70% rate -- it is a different plan entirely. The 70% plan only applies to list prices from $2.99 to $9.99. A $2.00 ebook falls below that floor and is automatically paid on the 35% plan instead, with no delivery fee deducted: $2.00 x 0.35 = $0.70. That is less than a quarter of what the same book would net at $4.99 on the 70% plan ($3.193), for a book that costs only $2.99 less.</p>
+  <h3>How much does KDP take on a paperback?</h3>
+  <p>Paperback royalty is list price times a royalty rate (60% for Amazon.com sales) minus KDP's own print cost, which is a fixed charge plus a per-page charge. A $14.99, 280-page black-and-white paperback has a print cost of $0.85 + 280 x $0.012 = $4.21, so the royalty is $14.99 x 0.6 - $4.21 = $4.784 per copy.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../etsy-profit-calculator/" data-pf-to="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+      <li><a href="../etsy-statement-profit-analyzer/" data-pf-to="etsy-statement-profit-analyzer">Etsy Statement Profit Analyzer — free, private, CSVs in your browser</a></li>
+      <li><a href="../etsy-statement-to-journal/" data-pf-to="etsy-statement-to-journal">Etsy statement to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kdp-royalty-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="kdp-royalty-calculator"></script>
+</body>
+</html>

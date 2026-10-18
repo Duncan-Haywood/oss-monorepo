@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an Interior Design Fee Structure</title>
+  <meta name="description" content="How to compare interior design fee structures: count your hours, price in scope creep, and see what hourly, flat, percent-of-cost, per-square-foot…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/how-to-choose-an-interior-design-fee-structure.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I choose an interior design fee structure?", "acceptedAnswer": {"@type": "Answer", "text": "Count the hours the project takes you, add the overrun you expect, and divide what each fee model would bill by those hours. On the worked project, with 81 baseline hours and 25 percent overrun, the hourly model earns $112.50 an hour and a $8,500.00 flat fee earns $83.95."}}, {"@type": "Question", "name": "Why does a flat or percentage fee lose money on scope creep?", "acceptedAnswer": {"@type": "Answer", "text": "Because the fee stays fixed while your hours grow. The $8,500.00 flat fee on the worked project can absorb only 4.9 percent overrun before it drops under a $100.00 target; at 50 percent overrun it earns $69.96 an hour."}}, {"@type": "Question", "name": "How do I know which fee model has paid me best?", "acceptedAnswer": {"@type": "Answer", "text": "Divide each past project's fee by the hours you really spent and group by fee model. On the worked history of eight projects, hybrid fees earned $118.18 an hour and product-margin-only earned $59.62."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/how-to-choose-an-interior-design-fee-structure.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose an Interior Design Fee Structure">
+<meta property="og:description" content="How to compare interior design fee structures: count your hours, price in scope creep, and see what hourly, flat, percent-of-cost, per-square-foot…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose an Interior Design Fee Structure — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../interior-design-fee-calculator/">Which interior design fee model actually pays you the most per hour?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose an Interior Design Fee Structure</span></span></nav>
+  <p class="note"><a href="./">Interior Design Fee Calculator</a> · guide</p>
+  <h1>How to choose an interior design fee structure</h1>
+  <p>Short answer: <strong>every fee model is a bet on your hours</strong>. Hourly bills the hours you work; flat, percent of cost, per square foot and product margin all fix the fee up front and leave scope creep with you. Count the hours, price in the overrun you expect, and compare what each model earns per hour. The <a href="./">calculator</a> does it for a project and for your past work.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> The hours, rates and budgets are illustrative, not market rates, not a fee survey and not advice. Replace them with your own tracked numbers.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li>Baseline hours: design hours + site visits x hours each + items to source x minutes each + meetings x hours each.</li>
+    <li>Expected hours: baseline x (1 + overrun). Overrun is the part nobody quotes: revisions, delayed deliveries, a client who changes the sofa.</li>
+    <li>Effective hourly = what the fee model bills / expected hours. Hourly bills your rate x hours less any write-off, so overrun does not lower it.</li>
+    <li>The fee you need for a target is expected hours x target. The <strong>walk-away fee</strong> is expected hours x a floor rate (a share of your target).</li>
+    <li>A fixed fee can absorb overrun only until fee / target runs out of hours: that is its <strong>break-even overrun</strong>.</li>
+  </ol>
+
+  <h2>A worked project</h2>
+  <p>40 design hours, 4 site visits of 2.5 hours, 60 items at 25 minutes each, 6 meetings of an hour, 25 percent expected overrun and a $100.00 target. Client project cost $40,000.00, $30,000.00 bought through you, 1,500 square feet.</p>
+  <ul>
+    <li>Baseline: 40 + 10 + 25 + 6 = <strong>81 hours</strong>; with overrun, <strong>101.25 hours</strong>.</li>
+    <li>To earn $100.00 an hour you need <strong>$10,125.00</strong>; walk away below <strong>$7,593.75</strong>.</li>
+    <li>Hourly at $125.00 with 10 percent written off bills $11,390.63: <strong>$112.50</strong> an hour, whatever the overrun.</li>
+    <li>Flat fee of $8,500.00: <strong>$83.95</strong> an hour, <strong>$69.96</strong> at 50 percent overrun, and it can absorb only <strong>4.9%</strong> overrun before dropping under target.</li>
+    <li>20 percent of project cost is $8,000.00: <strong>$79.01</strong> an hour, already under target with no overrun at all.</li>
+    <li>$6.00 a square foot is $9,000.00: <strong>$88.89</strong> an hour, absorbing 11.1% overrun.</li>
+    <li>A 25 percent product margin is $7,500.00: <strong>$74.07</strong> an hour, because the procurement hours are unpaid.</li>
+    <li>A $3,500.00 design fee plus 18 percent margin is $8,900.00: <strong>$87.90</strong> an hour, absorbing 9.9%.</li>
+  </ul>
+  <p>The same project is a $112.50-an-hour job or a $74.07-an-hour job depending only on how it is billed. The models that look largest on the proposal are not the ones that pay best once hours overrun.</p>
+
+  <h2>A worked history</h2>
+  <p>Eight finished projects, $56,800.00 in fees for 655 hours: blended <strong>$86.72</strong> an hour against a $100.00 target.</p>
+  <ul>
+    <li>Five of eight earned under target; the shortfall to target across them is <strong>$10,700.00</strong>.</li>
+    <li>By model: hybrid $118.18, hourly $112.50, per square foot $102.86, flat $79.84, percent $79.31 and product-margin-only <strong>$59.62</strong> an hour.</li>
+    <li>The lowest project is a primary suite paid on margin alone: $3,100.00 for 52 hours.</li>
+  </ul>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Hours you actually tracked, including sourcing, order chasing and calls, not the hours you billed or budgeted.</li>
+    <li>An overrun you have seen on your own past projects, and a worse one for the stress case.</li>
+    <li>Your target hourly rate, which only you can set.</li>
+  </ol>
+  <p>Your contract, scope, local licensing rules and what a client will accept come first. This is arithmetic, not a view on what a client should pay.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I choose an interior design fee structure?</h3>
+  <p>Count the hours the project takes you, add the overrun you expect, and divide what each fee model would bill by those hours. On the worked project, with 81 baseline hours and 25 percent overrun, the hourly model earns $112.50 an hour and a $8,500.00 flat fee earns $83.95.</p>
+  <h3>Why does a flat or percentage fee lose money on scope creep?</h3>
+  <p>Because the fee stays fixed while your hours grow. The $8,500.00 flat fee on the worked project can absorb only 4.9 percent overrun before it drops under a $100.00 target; at 50 percent overrun it earns $69.96 an hour.</p>
+  <h3>How do I know which fee model has paid me best?</h3>
+  <p>Divide each past project's fee by the hours you really spent and group by fee model. On the worked history of eight projects, hybrid fees earned $118.18 an hour and product-margin-only earned $59.62.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax or legal advice, and it is not a market rate or fee survey. You are responsible for verifying its output, for the numbers you enter, for your contract terms and for any licensing rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../translator-project-quote/" data-pf-to="translator-project-quote">Translator Project Quote Calculator</a></li>
+      <li><a href="../tutor-effective-hourly-rate-calculator/" data-pf-to="tutor-effective-hourly-rate-calculator">Tutor hourly rate calculator: what do you really earn per hour? Free, private</a></li>
+      <li><a href="../vending-machine-planogram-optimizer/" data-pf-to="vending-machine-planogram-optimizer">Vending machine planogram optimizer</a></li>
+      <li><a href="../vending-machine-route-margin/" data-pf-to="vending-machine-route-margin">Vending Machine Route Profit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=interior-design-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="interior-design-fee-calculator"></script>
+</body>
+</html>

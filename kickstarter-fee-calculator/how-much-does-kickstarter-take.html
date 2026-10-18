@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much Does Kickstarter Take? (Worked Examples)</title>
+<meta name="description" content="Kickstarter's fee worked through: a 5% platform fee plus a per-pledge processing fee that is flat per pledge…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/how-much-does-kickstarter-take.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How Much Does Kickstarter Take? (Worked Examples)">
+<meta property="og:description" content="The 5% platform fee, the per-pledge processing fee's two tiers, and why the same total raised keeps less the more backers it came from.">
+<meta property="og:url" content="./how-much-does-kickstarter-take.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Kickstarter take on a $50 pledge?","acceptedAnswer":{"@type":"Answer","text":"A 5% platform fee ($2.50) plus a standard-tier processing fee of 3% + $0.20 ($1.70), for a total fee of $4.20 -- the creator keeps $45.80, or 91.6% of the pledge."}},{"@type":"Question","name":"Why does a $5 pledge pay a higher rate than a $50 pledge?","acceptedAnswer":{"@type":"Answer","text":"Pledges under $10 fall into Kickstarter's micro-pledge processing tier: 5% + $0.05, instead of the standard 3% + $0.20. On a $5 pledge that is a $0.25 platform fee plus a $0.30 processing fee, $0.55 total -- 11% of the pledge, versus 8.4% on the $50 example. The flat per-pledge component is a bigger share of a smaller pledge, and the percentage itself is higher below $10."}},{"@type":"Question","name":"Does a campaign keep less if it has more backers, even raising the same total?","acceptedAnswer":{"@type":"Answer","text":"Yes. A $10,000 campaign funded by 500 backers (a $20 average pledge) pays about $900 in total fees, a 9% effective rate. The same $10,000 funded by 1,000 backers (a $10 average pledge) pays about $1,000, a 10% effective rate -- $100 more, from the same raise, because the flat per-pledge processing charge is spread across twice as many transactions."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#131a2b;background:#eef1fb}body{max-width:760px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;letter-spacing:-.02em}h2{margin-top:1.6em}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.94rem}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #e1e6f5}td:last-child,th:last-child{text-align:right;font-variant-numeric:tabular-nums}.callout{background:#fff;border:1px solid #d7ddf3;border-radius:12px;padding:1rem 1.2rem;margin:1.2em 0;box-shadow:0 5px 20px #18315a0b}.note{font-size:.88rem;color:#4d5975}footer{margin-top:2rem;color:#4d5975;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Does Kickstarter Take? (Worked Examples) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../kickstarter-fee-calculator/">Kickstarter Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Does Kickstarter Take? (Worked Examples)</span></span></nav>
+<main>
+<p><a href="./">&larr; Kickstarter fee calculator</a></p>
+<h1>How much does Kickstarter take?</h1>
+<p>Kickstarter charges two fees, and only if a campaign meets its funding goal: a flat <strong>5% platform fee</strong> on the total raised, plus a <strong>per-pledge processing fee</strong> that is charged once per pledge, not once per dollar &mdash; and the processing rate itself changes below a $10 pledge. A flat &ldquo;8-10%&rdquo; summary misses both of those, and can be wrong in either direction.</p>
+
+<h2>Worked example 1: a $50 pledge</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Line</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Pledge amount</td><td>$50.00</td></tr>
+<tr><td>Platform fee (5%)</td><td>$2.50</td></tr>
+<tr><td>Processing fee (3% + $0.20)</td><td>$1.70</td></tr>
+<tr><td>Total fee</td><td>$4.20</td></tr>
+<tr><td>Creator keeps</td><td>$45.80 (91.6%)</td></tr>
+</tbody>
+</table></div>
+
+<div class="callout">
+<h2 style="margin-top:0">Worked example 2: a $5 micro-pledge pays a higher rate</h2>
+<p>Pledges under $10 fall into the micro-pledge processing tier &mdash; <strong>5% + $0.05</strong> instead of 3% + $0.20 &mdash; on top of the same 5% platform fee.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Line</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Pledge amount</td><td>$5.00</td></tr>
+<tr><td>Platform fee (5%)</td><td>$0.25</td></tr>
+<tr><td>Processing fee, micro tier (5% + $0.05)</td><td>$0.30</td></tr>
+<tr><td>Total fee</td><td>$0.55</td></tr>
+<tr><td>Creator keeps</td><td>$4.45 (89%)</td></tr>
+</tbody>
+</table></div>
+<p class="note">89% kept versus 91.6% on the $50 example &mdash; a smaller pledge pays a higher effective rate, because the flat $0.05 (or $0.20) processing charge is a bigger share of a smaller number, and the percentage itself is higher below $10.</p>
+</div>
+
+<h2>Worked example 3: more backers, same raise, less kept</h2>
+<p>The per-pledge flat charge means a campaign's effective rate depends on how many pledges it took to reach the total, not just the total itself.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Campaign</th><th>Total raised</th><th>Backers</th><th>Avg. pledge</th><th>Total fee</th><th>Effective rate</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>$10,000</td><td>500</td><td>$20.00</td><td>$900</td><td>9%</td></tr>
+<tr><td>B</td><td>$10,000</td><td>1,000</td><td>$10.00</td><td>$1,000</td><td>10%</td></tr>
+</tbody>
+</table></div>
+<p class="note">Same $10,000 raised. Campaign B's fee is $100 higher, purely because twice as many pledges means twice as many flat per-pledge processing charges spread across the same total.</p>
+
+<h2>Do this with your own numbers</h2>
+<p>The <a href="./">Kickstarter fee calculator</a> runs this same arithmetic on a single pledge or a whole campaign's totals, flags which processing tier applies, and shows the effective rate. Nothing you type leaves your browser.</p>
+
+<h2>Common questions</h2>
+<h3>How much does Kickstarter take on a $50 pledge?</h3>
+<p>A 5% platform fee ($2.50) plus a standard-tier processing fee of 3% + $0.20 ($1.70), for a total fee of $4.20 -- the creator keeps $45.80, or 91.6% of the pledge.</p>
+<h3>Why does a $5 pledge pay a higher rate than a $50 pledge?</h3>
+<p>Pledges under $10 fall into Kickstarter's micro-pledge processing tier: 5% + $0.05, instead of the standard 3% + $0.20. On a $5 pledge that is a $0.25 platform fee plus a $0.30 processing fee, $0.55 total -- 11% of the pledge, versus 8.4% on the $50 example. The flat per-pledge component is a bigger share of a smaller pledge, and the percentage itself is higher below $10.</p>
+<h3>Does a campaign keep less if it has more backers, even raising the same total?</h3>
+<p>Yes. A $10,000 campaign funded by 500 backers (a $20 average pledge) pays about $900 in total fees, a 9% effective rate. The same $10,000 funded by 1,000 backers (a $10 average pledge) pays about $1,000, a 10% effective rate -- $100 more, from the same raise, because the flat per-pledge processing charge is spread across twice as many transactions.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or crowdfunding advice. Confirm Kickstarter's current published fee schedule at <a href="https://www.kickstarter.com/help/fees" rel="noopener">kickstarter.com/help/fees</a> before budgeting a real campaign against it.</p>
+<p>Not affiliated with, endorsed by, or sponsored by Kickstarter. Kickstarter is a trademark of its owner, named here only to describe the published fee schedule this page computes against.</p>
+<p><a href="./">Open the calculator</a></p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+      <li><a href="../faire-wholesale-calculator/" data-pf-to="faire-wholesale-calculator">Faire Seller Fee Calculator</a></li>
+      <li><a href="../fba-aged-inventory-fee-analyzer/" data-pf-to="fba-aged-inventory-fee-analyzer">FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fba-reimbursement-claim-finder/" data-pf-to="fba-reimbursement-claim-finder">FBA Reimbursement Claim Finder — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kickstarter-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="kickstarter-fee-calculator"></script>
+</body>
+</html>

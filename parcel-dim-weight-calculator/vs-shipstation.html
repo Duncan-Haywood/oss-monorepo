@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. ShipStation's dimensional weight</title>
+  <meta name="description" content="ShipStation is a paid, account-based platform that rate-shops and buys labels across carriers for a real shipment.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/vs-shipstation.html">
+  <meta property="og:title" content="This calculator vs. ShipStation's dimensional weight">
+  <meta property="og:description" content="ShipStation prices dimensional weight into a rate once you are shopping a real shipment on a connected carrier account.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or ShipStation?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions at different points in the job. ShipStation is a paid, subscription multi-carrier shipping platform: you connect carrier accounts, create a shipment, and it rate-shops live carrier prices, which already fold in each carrier's dimensional-weight charge for that specific box and destination. Its own published guidance walks through how dimensional weight and cubic rates are calculated. This calculator does not rate-shop, does not buy labels, and does not need a carrier account or a login — it answers the question that usually comes first, while you are still choosing a box: what does this carton bill at, how many pounds of that are air, and what is the exact size that stops the penalty? Decide the box here, then take it to ShipStation (or any carrier account) to actually rate-shop and ship it."}},{"@type":"Question","name":"Is this page affiliated with ShipStation?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by ShipStation or its parent company. ShipStation is a trademark of its owner, named here only to describe what this calculator is and is not."}},{"@type":"Question","name":"Does ShipStation tell you the box size that stops the dimensional penalty?","acceptedAnswer":{"@type":"Answer","text":"Not as a standalone question. ShipStation shows you the rate a carrier charges for the box and weight you already entered on a real shipment — it is a rate-shopping and label tool, not a packaging worksheet. This calculator works the ratio backwards from a target: given your actual weight and DIM divisor, it names the exact cube in cubic inches and, where the footprint allows it, the packed height in inches at which the dimensional charge stops applying at all."}},{"@type":"Question","name":"Do I need an account or connected carriers to use either tool?","acceptedAnswer":{"@type":"Answer","text":"For ShipStation, yes — it is a paid subscription product, priced by monthly shipment volume with a free trial and no permanent free plan, and getting a real rate means connecting at least one carrier account. This calculator needs neither: it is a free static page, the arithmetic runs in your browser, and it keeps working with the connection off once it has loaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0f5a6e; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/vs-shipstation.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. ShipStation's dimensional weight — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../parcel-dim-weight-calculator/">Dimensional Weight Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. ShipStation's dimensional weight</span></span></nav>
+  <p><a href="./">&larr; Parcel dimensional weight calculator</a></p>
+  <h1>This calculator vs. ShipStation's dimensional weight</h1>
+  <p>
+    <strong>ShipStation</strong> is a paid, subscription multi-carrier
+    shipping platform: connect carrier accounts, create a shipment, and it
+    rate-shops live prices across carriers &mdash; prices that already fold in
+    each carrier's dimensional-weight charge for that box and destination.
+    Its own published guidance on
+    <a href="https://www.shipstation.com/en-ca/blog/dimensional-weight-and-cubic-rates/" rel="nofollow noopener">how dimensional weight and cubic rates work</a>
+    explains the mechanics; the tool itself prices a real shipment once you
+    have one to price.
+  </p>
+  <p>
+    This calculator answers the question that usually comes <em>before</em>
+    that: while you are still choosing a box, what does this carton actually
+    bill at, how many pounds of that are air, and what is the exact cube and
+    packed height at which the dimensional charge stops applying at all?
+    <strong>It does not rate-shop or buy labels, and it needs no account, no
+    carrier connection and no subscription.</strong>
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What will a specific carrier actually charge to ship this box to this address today?</td>
+        <td>ShipStation &mdash; that is a real, rate-shopped quote across your connected carrier accounts, which this calculator does not produce.</td>
+      </tr>
+      <tr>
+        <td>What box size stops me paying the dimensional penalty at all?</td>
+        <td>This calculator's <a href="./#leverHeadline">break-even cube and packed height</a> panel &mdash; a target to pack to, not a quote for one shipment.</td>
+      </tr>
+      <tr>
+        <td>How many pounds of this bill are air, on the box I already have?</td>
+        <td>This calculator's <a href="./#billable">billable weight</a> panel states the gap directly, before any carrier account is involved.</td>
+      </tr>
+      <tr>
+        <td>I'm ready to buy a label and want the cheapest carrier for this shipment.</td>
+        <td>ShipStation &mdash; comparing live carrier rates on a real shipment is its job, not this calculator's.</td>
+      </tr>
+      <tr>
+        <td>Do I need to sign up for anything to check a box size?</td>
+        <td>This calculator: no. ShipStation is a paid subscription with a free trial, and a real rate needs a connected carrier account.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Check a box size now</a>
+  <p>
+    Most sellers get use out of both, for different moments: this calculator
+    while deciding on packaging before a run of a SKU ships, and a
+    multi-carrier platform like ShipStation when it is time to actually
+    rate-shop and label a shipment.
+  </p>
+  <p class="note">No account and no upload here: this is a static page, the arithmetic runs in your browser, and the dimensions you type stay on this device.</p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or ShipStation?</h3>
+  <p>They answer different questions at different points in the job. ShipStation is a paid, subscription multi-carrier shipping platform: you connect carrier accounts, create a shipment, and it rate-shops live carrier prices, which already fold in each carrier's dimensional-weight charge for that specific box and destination. Its own published guidance walks through how dimensional weight and cubic rates are calculated. This calculator does not rate-shop, does not buy labels, and does not need a carrier account or a login &mdash; it answers the question that usually comes first, while you are still choosing a box: what does this carton bill at, how many pounds of that are air, and what is the exact size that stops the penalty? Decide the box here, then take it to ShipStation (or any carrier account) to actually rate-shop and ship it.</p>
+  <h3>Is this page affiliated with ShipStation?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by ShipStation or its parent company. ShipStation is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+  <h3>Does ShipStation tell you the box size that stops the dimensional penalty?</h3>
+  <p>Not as a standalone question. ShipStation shows you the rate a carrier charges for the box and weight you already entered on a real shipment &mdash; it is a rate-shopping and label tool, not a packaging worksheet. This calculator works the ratio backwards from a target: given your actual weight and DIM divisor, it names the exact cube in cubic inches and, where the footprint allows it, the packed height in inches at which the dimensional charge stops applying at all.</p>
+  <h3>Do I need an account or connected carriers to use either tool?</h3>
+  <p>For ShipStation, yes &mdash; it is a paid subscription product, priced by monthly shipment volume with a free trial and no permanent free plan, and getting a real rate means connecting at least one carrier account. This calculator needs neither: it is a free static page, the arithmetic runs in your browser, and it keeps working with the connection off once it has loaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or shipping advice, and it does not replace a qualified logistics professional or your own carrier agreement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. No data is uploaded; your last entry is kept only in this browser's local storage.</p>
+    <p>Free and open source. If it saved you a carton size, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=parcel-dim-weight-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="parcel-dim-weight-calculator"></script>
+</body>
+</html>

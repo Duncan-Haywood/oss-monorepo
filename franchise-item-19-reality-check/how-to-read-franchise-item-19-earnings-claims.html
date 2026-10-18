@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Read a Franchise Item 19 Earnings Claim — worked example</title>
+  <meta name="description" content="How to read a franchise Item 19 earnings claim: compare the average with the median, check how many units are included…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/how-to-read-franchise-item-19-earnings-claims.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to read a franchise Item 19 earnings claim","description":"A worked example of turning Item 19 sales tiers into owner earnings and payback."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a high average in Item 19 a good sign?","acceptedAnswer":{"@type":"Answer","text":"Only if most units are near it. An average that sits far above the median means a few large units are lifting the number. Look at the quartile table and the share of units below the average before you read anything into the headline."}},{"@type":"Question","name":"Does Item 19 tell me what I will earn?","acceptedAnswer":{"@type":"Answer","text":"No. It describes what other units earned in a past period, under the franchisor's definitions. Your sales depend on your location, your ramp-up and your own management, and your owner earnings depend on costs the table usually omits."}},{"@type":"Question","name":"Who should I ask if the numbers look too good?","acceptedAnswer":{"@type":"Answer","text":"Franchisees listed in Item 20, including those who recently left, and an independent franchise attorney and accountant. A franchisor's own broker is paid when you sign."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .sum { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/how-to-read-franchise-item-19-earnings-claims.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Read a Franchise Item 19 Earnings Claim — worked example">
+<meta property="og:description" content="How to read a franchise Item 19 earnings claim: compare the average with the median, check how many units are included…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Read a Franchise Item 19 Earnings Claim — worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../franchise-item-19-reality-check/">Franchise Item 19 Reality Check — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Read a Franchise Item 19 Earnings Claim — worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">Franchise Item 19 Reality Check</a></p>
+    <h1>How to read a franchise Item 19 earnings claim</h1>
+    <p>Item 19 is where a franchisor may tell you what its units earn. It is the most useful page in the document and the easiest to misread. Four checks take ten minutes.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. How many units are in the table?</h2>
+    <p>Compare the number of units in the table with the number in the system (Item 20 lists it). Franchisors often leave out units open less than a year, closed units and company-owned units. If the table covers half the system, ask what happened to the other half.</p>
+    <h2>2. Average or median?</h2>
+    <p>The average adds everything up; the median is the middle unit. In the worked example below four equal-sized quartiles report 1,450,000, 1,020,000, 810,000 and 560,000 of annual revenue. The average is 960,000, but the middle unit earns 810,000, and half the units are below the average.</p>
+    <h2>3. Convert sales to owner earnings</h2>
+    <p>Assume royalty 6%, ad fund 2%, cost of goods 30%, other variable costs 3%, and fixed costs of 180,000 a year. That is 41% of revenue in variable costs. At 810,000 of revenue, variable costs are 332,100 and owner earnings are 810,000 − 332,100 − 180,000 = 297,900. At 560,000, they are 560,000 − 229,600 − 180,000 = 150,400.</p>
+    <h2>4. Payback and your own pay</h2>
+    <p>With a 350,000 investment, 297,900 of owner earnings pays back in about 1.2 years before tax, debt service and ramp-up; 150,400 takes about 2.3 years. If you need 70,000 a year to live on, subtract it first. Use the <a href="./index.html">reality check</a> to run your own numbers.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a high average in Item 19 a good sign?</h3>
+    <p>Only if most units are near it. An average that sits far above the median means a few large units are lifting the number. Look at the quartile table and the share of units below the average before you read anything into the headline.</p>
+    <h3>Does Item 19 tell me what I will earn?</h3>
+    <p>No. It describes what other units earned in a past period, under the franchisor's definitions. Your sales depend on your location, your ramp-up and your own management, and your owner earnings depend on costs the table usually omits.</p>
+    <h3>Who should I ask if the numbers look too good?</h3>
+    <p>Franchisees listed in Item 20, including those who recently left, and an independent franchise attorney and accountant. A franchisor's own broker is paid when you sign.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or investment advice and does not replace the franchise disclosure document, an independent franchise attorney or an accountant. <strong>You are responsible for verifying every figure and every assumption</strong> before you sign, pay or borrow anything. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Results are arithmetic on the numbers you type and may be wrong, incomplete or out of date.</p>
+    <p><strong>Independent.</strong> Not affiliated with any franchisor, franchise broker, lender or government agency, and none is named or ranked here. The example figures are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    document.getElementById("optout").addEventListener("click", () => { setUsageOptOut(true); const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../franchise-unit-economics-calculator/" data-pf-to="franchise-unit-economics-calculator">Will this franchise pay? Free unit economics calculator</a></li>
+      <li><a href="../ghost-kitchen-brand-picker/" data-pf-to="ghost-kitchen-brand-picker">Ghost kitchen brand picker</a></li>
+      <li><a href="../hay-baling-own-vs-hire-calculator/" data-pf-to="hay-baling-own-vs-hire-calculator">Should I buy a baler or hire custom baling? Free break-even calculator</a></li>
+      <li><a href="../hydroponic-farm-profit-calculator/" data-pf-to="hydroponic-farm-profit-calculator">Hydroponic farm calculator: how many heads a week to break even? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=franchise-item-19-reality-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="franchise-item-19-reality-check"></script>
+</body>
+</html>

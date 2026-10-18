@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why disabling RLS exposes your Supabase data</title>
+<meta name="description" content="Why a Supabase table with Row Level Security off is readable by anyone holding the project's public anon key…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/why-does-disabling-rls-expose-my-supabase-data.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether your Supabase project exposes data with RLS off",
+  "step": [
+    { "@type": "HowToStep", "name": "Find your project's anon key and URL", "text": "Both are already in your app's client-side bundle -- open your deployed site's network tab or search its JavaScript for 'supabase.co' and you will find the project URL and the anon (public) key it connects with." },
+    { "@type": "HowToStep", "name": "Read the project's own schema listing", "text": "A GET request to <project-url>/rest/v1/ with the anon key returns an OpenAPI document listing every table PostgREST exposes -- the anon role's default schema USAGE grant is enough to see this list regardless of whether RLS is on." },
+    { "@type": "HowToStep", "name": "Request one row from each table", "text": "A GET to <project-url>/rest/v1/<table>?select=*&limit=1 with the same key either returns a real row (RLS is off, or its policy is broader than intended) or is rejected with 401/403 (RLS is enforcing)." },
+    { "@type": "HowToStep", "name": "Automate it, or use a free tool", "text": "A free browser tool and CLI that runs exactly this check against every table it finds, and names which ones are exposed, is at ../supabase-rls-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/why-does-disabling-rls-expose-my-supabase-data.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why disabling RLS exposes your Supabase data">
+<meta property="og:description" content="Why a Supabase table with Row Level Security off is readable by anyone holding the project's public anon key…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why disabling RLS exposes your Supabase data — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../supabase-rls-check/">Supabase RLS Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why disabling RLS exposes your Supabase data</span></span></nav>
+<p><a href="index.html">&larr; Supabase RLS exposure checker</a></p>
+
+<h1>Why disabling RLS exposes your Supabase data</h1>
+
+<p>
+  Supabase's REST API (PostgREST) is designed to be called directly from a browser tab -- that is
+  the whole point of the <strong>anon key</strong>: it is meant to sit in your app's public
+  JavaScript bundle, the same as a Firebase web config or a Stripe publishable key. What keeps that
+  safe is not the key being secret. It is <strong>Row Level Security (RLS)</strong>, a PostgreSQL
+  feature that restricts which rows a query is allowed to touch, and Supabase's own model puts the
+  entire enforcement burden on it: the anon role already has a schema-level <code>USAGE</code>
+  grant the moment a table exists, so the only thing standing between the public key and every row
+  in that table is whether RLS is turned on and a policy actually restricts it.
+</p>
+
+<h2>What happens when RLS is off</h2>
+<p>
+  A table with RLS disabled behaves, over the REST API, as if any policy allowed everything: a
+  plain unauthenticated <code>GET</code> to <code>/rest/v1/&lt;table&gt;</code> with only the anon
+  key returns every row. Not a subset scoped to "your own" anything -- every row, to every visitor,
+  including one who never logged in. The same is true for <code>POST</code>/<code>PATCH</code>/
+  <code>DELETE</code> if the anon role also has the corresponding grant, which is Supabase's
+  default for a freshly created table.
+</p>
+
+<h2>This is not hypothetical -- CVE-2025-48757</h2>
+<p>
+  In 2025, security researchers found this exact pattern across applications built with AI
+  app-builder platforms, most widely reported for Lovable: generated Supabase tables were left
+  without RLS enabled, and <strong>170+ applications and 303+ endpoints</strong> turned out to be
+  readable (and in some cases writable) by anyone with the project's public anon key -- which,
+  again, is not a secret an attacker needs to steal, because it is already in the page source. A
+  2025 analysis of AI-generated apps found roughly one in ten tested applications exposed a
+  vulnerable Supabase endpoint this way. Reporting into 2026 continued to find fresh instances,
+  including at least one case where an AI platform's own database was exfiltrated after an attacker
+  found a table with RLS missing and pulled admin emails and internal schema metadata out of it.
+</p>
+
+<h2>Why this stays easy to reintroduce</h2>
+<p>
+  Supabase improved its defaults in 2026 -- new tables get RLS enabled by default in current
+  projects, and the dashboard now flags and emails project owners about tables that lack it. That
+  closes the gap for a brand-new project, not for one created before the change, and not for the
+  ordinary case where RLS is enabled correctly on 30 tables and the 31st, added in a migration six
+  months later, is not. The dashboard's own Security Advisor lint catches this too -- but only for
+  someone logged in as a project member looking at it, which is exactly the moment a live check
+  from the outside, using only the key any visitor's browser already has, earns its keep.
+</p>
+
+<h2>Check your own project</h2>
+<p>
+  A free tool that runs exactly the check above -- reads your project's schema listing, requests
+  one row from each table it finds, and names which ones return real rows to an unauthenticated
+  request -- is at <a href="index.html">the Supabase RLS exposure checker</a>. It runs entirely in
+  your browser (or as a CLI for CI), and never sends your project URL, key, or anything it reads
+  back to any server of ours. As with any tool that sends requests to a project you name, only
+  run it against one you own or are authorised to test.
+</p>
+
+<p><a href="index.html">&larr; Back to the Supabase RLS exposure checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page and the tool it describes are provided free and
+  as-is, without warranty of any kind, express or implied. It is not security advice, and it does
+  not replace a qualified security review. You are responsible for reviewing and verifying its
+  output before relying on it, and for having authorisation to test any project you point it at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=supabase-rls-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="supabase-rls-check"></script>
+</body>
+</html>

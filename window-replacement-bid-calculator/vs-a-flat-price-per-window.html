@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per window | Window Replacement Bid Calculator</title>
+<meta name="description" content="Window crews are shopped by a flat price per window. That rate cannot see the job -- United Inches, story, frame, install method…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/vs-a-flat-price-per-window.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per window">
+<meta property="og:description" content="Two 8-window jobs, priced from this calculator's own shipped defaults: one is stock first-floor double-hung inserts…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per window get a replacement bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a window count only measures how many openings there are, not what each one takes. 8 stock first-floor double-hung windows, installed as inserts in clean openings, take about 15.6 crew-hours. 8 oversized second-floor wood casements, replaced full-frame with sill rot repair plus interior casing and exterior capping, take about 71.6 crew-hours -- the same count of windows, more than four and a half times the labor, because United Inches, story, frame, install method, and condition do not scale with a window count."}},{"@type":"Question","name":"What does a flat per-window rate usually miss entirely?","acceptedAnswer":{"@type":"Answer","text":"United Inches (a 6048 picture window is not the same material cost as a 3040 double-hung), story access (a second-floor opening adds ladder and setup time a first-floor opening does not), frame material (wood and clad-wood run slower and cost more than vinyl), install method (full-frame tear-out to the studs adds far more than an insert that leaves the frame in place), and condition (sill or jamb rot repair is a carpentry job hiding inside a \"window\" line). A flat rate has no line for any of them -- it is one number learned on one job and reused for the next window count that calls in."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs: 8 stock first-floor double-hung inserts take 15.6 crew-hours and price at $4,095.30 for the job -- $511.91 per window. 8 oversized second-floor wood casements, full-frame with rot repair plus interior casing and exterior capping, take 71.6 crew-hours, cost $14,107.24 to run before a dollar of profit, and this calculator prices the job at $18,809.65 -- $2,351.21 per window. Quoting the harder job at the easy job's learned rate of $511.91 a window gives $4,095.30 for the same 8 openings, which is $10,011.94 below the harder job's own break-even cost -- before counting the $14,714.35 it falls short of this calculator's own price at a 25% target margin."}},{"@type":"Question","name":"Is a flat price per window ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar openings -- the same size class, the same story, the same frame, an insert install, no rot -- a per-window number can land close. The risk is quoting an oversized unit, a second or third story, a full-frame tear-out, or sill rot the same way sight unseen, because the rate does not know any of that until the crew opens the wall, and by then the per-window number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or unit prices?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's unit pricing. It takes a per-opening takeoff with width, height, quantity, story, frame, install method, and condition, plus your own wage, payroll burden, travel, scaffolding, disposal, overhead, and target margin, and turns that into crew hours and a price for this job -- the arithmetic a flat per-window rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1a2430;background:#e8eef4}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1a5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#4a5666}section{background:#f7fafc;border:1px solid #c5d2de;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #d7e2ec;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c5d2de;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5666}.fine,.note{font-size:.88rem;color:#4a5666}footer{color:#4a5666;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/vs-a-flat-price-per-window.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per window — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../window-replacement-bid-calculator/">Window Replacement Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per window</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Window Replacement Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per window</h1>
+<p class="lede">Window crews are shopped by a flat price per window. That rate cannot see the job &mdash; United Inches, story, frame, install method, and tear-out condition do not scale with a window count, and two jobs with the same number of openings can price over four times apart.</p>
+</header>
+<section>
+<h2>What a flat price per window is</h2>
+<p>
+A price per window is the fastest number to quote over the phone: count the
+openings, multiply by a rate, read back a total. It is also the unit
+homeowners already compare between competing bids, and the shape of the
+postcard special every crew gets shopped against.
+</p>
+<p>
+The rate behind it was learned from a specific job &mdash; a given size, a
+given story, an insert into a clean opening &mdash; and then reused for the
+next window count that calls in, whether or not that next job shares any
+of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter a
+per-opening takeoff &mdash; width and height in inches (United Inches),
+quantity, story, frame, install method, and tear-out condition &mdash; plus
+your own wage, payroll burden, travel, scaffolding, disposal, overhead, and
+target margin. It prices each opening's material and hours from its own
+size, story, frame, install method, and condition, not a rate carried over
+from the last job.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat per-window rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a stock 3040 double-hung and a 6048 picture window, even though United Inches and material cost can differ several times over.</td>
+<td>Prices each opening's material from its type, frame, and United Inches past a 70 UI baseline, so a larger unit costs more without anyone eyeballing a surcharge.</td>
+</tr>
+<tr>
+<td>Has no line for story &mdash; a first-floor opening and a second-floor opening get the same rate.</td>
+<td>Adds ladder and setup hours per story, and prices scaffolding or a lift separately when any priced opening is on the second story or higher.</td>
+</tr>
+<tr>
+<td>Has no line for install method &mdash; an insert that leaves the frame in place and a full-frame tear-out to the studs get the same rate.</td>
+<td>Prices insert, full-frame, and new-construction install methods as their own hours and material adders, per opening.</td>
+</tr>
+<tr>
+<td>Has no line for condition &mdash; sill or jamb rot, a masonry cut-in, and pre-1978 lead-safe work are invisible inside a "window" line.</td>
+<td>Prices each condition as its own hours and parts, on top of the opening.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the price per opening and the walk-away price alongside the total, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same window count, two different jobs</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $32 hourly wage, 28%
+burden, 12 miles one way, $150 scaffolding when needed, $18 disposal per
+opening, 12% overhead, 25% target margin:
+</p>
+<p>
+<strong>8 stock first-floor double-hung windows</strong> (30&Prime;&times;40&Prime;,
+70 United Inches), installed as <strong>vinyl inserts</strong> into
+<strong>clean openings</strong>, take <strong>15.6 crew-hours</strong> and
+price at <strong>$4,095.30</strong> for the job &mdash; <strong>$511.91</strong>
+per window.
+</p>
+<p>
+The same <strong>8 windows</strong>, but <strong>oversized second-floor wood
+casements</strong> (48&Prime;&times;64&Prime;, 112 United Inches), replaced
+<strong>full-frame</strong> with <strong>sill rot repair</strong>, plus
+<strong>interior casing</strong> and <strong>exterior capping</strong> on every
+opening, take <strong>71.6 crew-hours</strong>, cost <strong>$14,107.24</strong>
+to run before a dollar of profit, and this calculator prices the job at
+<strong>$18,809.65</strong> &mdash; <strong>$2,351.21</strong> per window.
+Quoting the harder job at the easy job's learned rate of $511.91 a window
+gives <strong>$4,095.30</strong> for the same 8 openings, which is
+<strong>$10,011.94 below the harder job's own break-even cost</strong> &mdash;
+before counting the <strong>$14,714.35</strong> it falls short of this
+calculator's own price at a 25% target margin. Identical window count, more
+than four and a half times the labor, and a rate learned on the ground floor
+loses money the moment the crew opens the wall on the second.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per window get a replacement bid wrong?</h3>
+<p>Because a window count only measures how many openings there are, not what each one takes. 8 stock first-floor double-hung windows, installed as inserts in clean openings, take about 15.6 crew-hours. 8 oversized second-floor wood casements, replaced full-frame with sill rot repair plus interior casing and exterior capping, take about 71.6 crew-hours -- the same count of windows, more than four and a half times the labor, because United Inches, story, frame, install method, and condition do not scale with a window count.</p>
+<h3>What does a flat per-window rate usually miss entirely?</h3>
+<p>United Inches (a 6048 picture window is not the same material cost as a 3040 double-hung), story access (a second-floor opening adds ladder and setup time a first-floor opening does not), frame material (wood and clad-wood run slower and cost more than vinyl), install method (full-frame tear-out to the studs adds far more than an insert that leaves the frame in place), and condition (sill or jamb rot repair is a carpentry job hiding inside a "window" line). A flat rate has no line for any of them -- it is one number learned on one job and reused for the next window count that calls in.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs: 8 stock first-floor double-hung inserts take 15.6 crew-hours and price at $4,095.30 for the job -- $511.91 per window. 8 oversized second-floor wood casements, full-frame with rot repair plus interior casing and exterior capping, take 71.6 crew-hours, cost $14,107.24 to run before a dollar of profit, and this calculator prices the job at $18,809.65 -- $2,351.21 per window. Quoting the harder job at the easy job's learned rate of $511.91 a window gives $4,095.30 for the same 8 openings, which is $10,011.94 below the harder job's own break-even cost -- before counting the $14,714.35 it falls short of this calculator's own price at a 25% target margin.</p>
+<h3>Is a flat price per window ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar openings -- the same size class, the same story, the same frame, an insert install, no rot -- a per-window number can land close. The risk is quoting an oversized unit, a second or third story, a full-frame tear-out, or sill rot the same way sight unseen, because the rate does not know any of that until the crew opens the wall, and by then the per-window number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or unit prices?</h3>
+<p>No. It has no data on your local labor market or your supplier's unit pricing. It takes a per-opening takeoff with width, height, quantity, story, frame, install method, and condition, plus your own wage, payroll burden, travel, scaffolding, disposal, overhead, and target margin, and turns that into crew hours and a price for this job -- the arithmetic a flat per-window rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Window Replacement Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge.html">how much to charge to replace windows</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and a walk-through, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../egress-window-bid-calculator/" data-pf-to="egress-window-bid-calculator">Egress Window Bid Calculator</a></li>
+      <li><a href="../entry-door-bid-calculator/" data-pf-to="entry-door-bid-calculator">Entry Door Bid Calculator</a></li>
+      <li><a href="../garage-door-bid-calculator/" data-pf-to="garage-door-bid-calculator">Garage Door Bid Calculator</a></li>
+      <li><a href="../interior-door-bid-calculator/" data-pf-to="interior-door-bid-calculator">Interior Door Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=window-replacement-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="window-replacement-bid-calculator"></script>
+</body></html>

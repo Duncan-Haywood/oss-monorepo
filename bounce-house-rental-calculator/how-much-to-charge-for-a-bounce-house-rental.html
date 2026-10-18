@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Should I Charge for a Bounce House Rental?</title>
+  <meta name="description" content="A worked example of pricing a bounce house and water slide booking: what a flat per-unit rate misses once you add the truck's second trip, setup labor…">
+  <meta property="og:title" content="How much should I charge for a bounce house rental?">
+  <meta property="og:description" content="Two bounce houses and a water slide look like a $737 booking on a flat per-unit rate. The real walk-away price is $1,228.08 once the truck's second trip…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/how-much-to-charge-for-a-bounce-house-rental.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a bounce house rental?","acceptedAnswer":{"@type":"Answer","text":"More than the flat per-unit-per-day rate most price sheets quote. On the worked example on this page — two standard bounce houses and one water slide, one event day — a flat rate looks like $737.18. The real walk-away price, once the truck's second round trip, the crew's setup and teardown time, a generator, the water slide's attendant, and fleet-sized insurance are counted, is $1,228.08. Quoting the flat rate loses $490.90 before the business keeps a cent."}},{"@type":"Question","name":"Why does the flat per-unit rate undercharge so badly?","acceptedAnswer":{"@type":"Answer","text":"Because it only counts the rental value of the units — $575 in this example — and treats delivery, labor, the generator, the attendant, insurance, and overhead as included or forgotten. None of those are optional on a real booking, and together they add $653.08 on top of the bare rental value — more than the rental itself. A rate sheet built by dividing a competitor's advertised price by the number of units reproduces the omission, not the arithmetic."}},{"@type":"Question","name":"Why is the water slide's attendant a separate line from setup labor?","acceptedAnswer":{"@type":"Answer","text":"Setup and teardown labor is paid once, when the crew is on site to place and collect the units. An attendant is paid for the whole time the water slide is running — five hours in this example — which is a different job and a different headcount, often required by the operator's own liability policy for a unit involving standing water. Folding it into the general labor line is how it goes missing from a quote."}},{"@type":"Question","name":"Does the generator actually change the price much?","acceptedAnswer":{"@type":"Answer","text":"On this example it is $65 of a $1,228.08 walk-away price — about 5%, not the largest line, but real money that a per-unit rate never anticipates. Its size varies a lot by market: a generator rental with fuel can run higher in areas with fewer suppliers, and skipping it when the site turns out to have no outlet is how a delivery crew ends up buying or borrowing one on the day, at whatever the last-minute price is."}},{"@type":"Question","name":"Is any of this legal or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures entered. It makes no determination about what insurance you need, whether an attendant is legally required for your unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2333; background: #eef1fa; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { margin-top: 34px; font-size: 1.2rem; }
+    h3 { margin-bottom: 4px; font-size: 1.02rem; }
+    p, li { line-height: 1.58; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b3f9e; margin: 0 0 6px; }
+    .cta { display: inline-block; margin: 18px 0; padding: 11px 16px; border-radius: 8px; background: #2b3f9e; color: #f4f5fc; text-decoration: none; font-weight: 650; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; margin: 12px 0; }
+    th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid #d2d6ea; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #4a5170; }
+    tr.entered td { background: #e3e6f6; font-weight: 700; }
+    footer { margin-top: 34px; font-size: .82rem; color: #4a5170; border-top: 1px solid #d2d6ea; padding-top: 16px; }
+    a { color: #2b3f9e; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/how-much-to-charge-for-a-bounce-house-rental.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much should I charge for a bounce house rental? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../bounce-house-rental-calculator/">Bounce House Rental Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much should I charge for a bounce house rental?</span></span></nav>
+  <p class="eyebrow">INFLATABLE &amp; BOUNCE HOUSE RENTAL PRICING</p>
+  <h1>How much should I charge for a bounce house rental?</h1>
+
+  <p>Most price sheets in this trade are a number per unit per day: $150 for a standard bounce house, $275 for a water slide. That number prices the equipment. It does not price the booking &mdash; the truck's two round trips, the crew's setup and teardown time, a generator if the site has no outlet, an attendant for a water slide, or insurance sized to what actually left the warehouse.</p>
+
+  <p>This page works one booking all the way through. The <a href="./">bounce house rental calculator</a> does the same arithmetic on your own numbers, in your browser, with nothing uploaded.</p>
+
+  <a class="cta" href="./">Open the calculator</a>
+
+  <h2>The example</h2>
+
+  <p>A Saturday backyard party: <strong>two standard bounce houses</strong> at <strong>$150 a day</strong> each, and <strong>one water slide</strong> at <strong>$275 a day</strong>, all out for <strong>one event day</strong>. The site is a public park with no outlet in reach, so a <strong>generator</strong> is going along for <strong>$65</strong>. The water slide runs with a paid <strong>attendant for 5 hours</strong> at <strong>$18 an hour</strong>, per the operator's own liability policy. The warehouse is <strong>12 miles</strong> one way, the truck runs <strong>$2.50 a mile</strong>, and delivery and pickup each carry a <strong>$25</strong> flat fee. Setup runs <strong>25 minutes</strong> and teardown <strong>15 minutes</strong> per unit, with a <strong>2-person crew</strong> at <strong>$20 an hour each</strong>. General-liability insurance runs <strong>1.25%</strong> of the $7,400 replacement value of the units going out. Overhead is <strong>12%</strong> on direct cost, and the target margin is <strong>22%</strong>.</p>
+
+  <h2>What the flat rate says, and what it misses</h2>
+
+  <p>Add up the per-unit rate and the day: two bounce houses at $150 plus one water slide at $275 is <strong>$575</strong> of rental value. Mark that up by the same 22% margin the operator uses elsewhere and the quote looks like <strong>$737.18</strong> &mdash; a number that feels comfortably above cost.</p>
+
+  <p>It is not. Here is what a $575 rental value quote leaves out entirely:</p>
+
+  <div class="table-wrap">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Cost the flat rate misses</th><th scope="col">Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Setup &amp; teardown labor (2 crew &times; 4 hours)</td><td>$80.00</td></tr>
+      <tr><td>Haul: delivery, pickup, two round trips at 12 miles</td><td>$170.00</td></tr>
+      <tr><td>Generator</td><td>$65.00</td></tr>
+      <tr><td>Water-slide attendant (5 hours)</td><td>$90.00</td></tr>
+      <tr><td>Insurance on $7,400 of deployed fleet value</td><td>$92.50</td></tr>
+      <tr><td>Consumables (stakes, tarps, fuel)</td><td>$24.00</td></tr>
+      <tr class="entered"><td>Total missed by the flat rate</td><td>$521.50</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <h2>The real walk-away price</h2>
+
+  <p>Direct cost &mdash; rental plus every line above &mdash; comes to <strong>$1,096.50</strong>. Add 12% overhead and the total cost to run this booking is <strong>$1,228.08</strong>. That is the walk-away price: quote below it and the business loses money on this booking regardless of what the rate sheet says. Apply the same 22% target margin used on the flat-rate guess and the quote should be <strong>$1,574.46</strong>, for a profit of <strong>$346.38</strong> &mdash; against the $737.18 the flat rate would have sent, which is <strong>$490.90 below the walk-away cost</strong>.</p>
+
+  <div class="table-wrap">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Line</th><th scope="col">Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Rental (fleet &times; days)</td><td>$575.00</td></tr>
+      <tr><td>Setup &amp; teardown labor</td><td>$80.00</td></tr>
+      <tr><td>Haul (delivery, pickup, miles)</td><td>$170.00</td></tr>
+      <tr><td>Generator</td><td>$65.00</td></tr>
+      <tr><td>Attendant</td><td>$90.00</td></tr>
+      <tr><td>Insurance</td><td>$92.50</td></tr>
+      <tr><td>Consumables</td><td>$24.00</td></tr>
+      <tr><td>Direct cost</td><td>$1,096.50</td></tr>
+      <tr><td>Overhead (12%)</td><td>$131.58</td></tr>
+      <tr class="entered"><td>Walk-away price (total cost)</td><td>$1,228.08</td></tr>
+      <tr class="entered"><td>Quoted price at 22% margin</td><td>$1,574.46</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <h2>Common questions</h2>
+
+  <h3>How much should I charge for a bounce house rental?</h3>
+  <p>More than the flat per-unit-per-day rate most price sheets quote. On the worked example on this page &mdash; two standard bounce houses and one water slide, one event day &mdash; a flat rate looks like $737.18. The real walk-away price, once the truck's second round trip, the crew's setup and teardown time, a generator, the water slide's attendant, and fleet-sized insurance are counted, is $1,228.08. Quoting the flat rate loses $490.90 before the business keeps a cent.</p>
+
+  <h3>Why does the flat per-unit rate undercharge so badly?</h3>
+  <p>Because it only counts the rental value of the units &mdash; $575 in this example &mdash; and treats delivery, labor, the generator, the attendant, insurance, and overhead as included or forgotten. None of those are optional on a real booking, and together they add $653.08 on top of the bare rental value — more than the rental itself. A rate sheet built by dividing a competitor's advertised price by the number of units reproduces the omission, not the arithmetic.</p>
+
+  <h3>Why is the water slide's attendant a separate line from setup labor?</h3>
+  <p>Setup and teardown labor is paid once, when the crew is on site to place and collect the units. An attendant is paid for the whole time the water slide is running &mdash; five hours in this example &mdash; which is a different job and a different headcount, often required by the operator's own liability policy for a unit involving standing water. Folding it into the general labor line is how it goes missing from a quote.</p>
+
+  <h3>Does the generator actually change the price much?</h3>
+  <p>On this example it is $65 of a $1,228.08 walk-away price &mdash; about 5%, not the largest line, but real money that a per-unit rate never anticipates. Its size varies a lot by market: a generator rental with fuel can run higher in areas with fewer suppliers, and skipping it when the site turns out to have no outlet is how a delivery crew ends up buying or borrowing one on the day, at whatever the last-minute price is.</p>
+
+  <h3>Is any of this legal or insurance advice?</h3>
+  <p>No. It is arithmetic on the figures entered. It makes no determination about what insurance you need, whether an attendant is legally required for your unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote.</p>
+
+  <a class="cta" href="./">Run it on your own numbers</a>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or insurance advice, and it does not tell you what to charge, whether an attendant is legally required, or what insurance coverage to carry. It is arithmetic on the numbers you type, and the numbers on this page are an illustrative example rather than market data. Verify every figure against your own rate sheet, your insurance policy, and a qualified professional before acting on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> The calculator runs entirely on your device; your fleet, rates, and labor cost are never uploaded and never appear in a usage count.</p>
+    <p>Quoting a different one-off event booking? The <a href="../portable-restroom-event-quote/">portable restroom event quote calculator</a> prices days on site and pump-outs, and the <a href="../photo-booth-event-quote/">photo booth event quote calculator</a> prices a booth booking from travel and attendant hours.</p>
+    <p>Free and open source under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../photo-booth-event-quote/" data-pf-to="photo-booth-event-quote">Photo Booth Event Quote Calculator</a></li>
+      <li><a href="../pickleball-facility-pro-forma/" data-pf-to="pickleball-facility-pro-forma">Pickleball Facility Pro Forma — free, private, in your browser</a></li>
+      <li><a href="../pilot-car-escort-run-profit-calculator/" data-pf-to="pilot-car-escort-run-profit-calculator">Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</a></li>
+      <li><a href="../pool-opening-closing-price-calculator/" data-pf-to="pool-opening-closing-price-calculator">Pool Opening and Closing Price Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=bounce-house-rental-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="bounce-house-rental-calculator"></script>
+</body>
+</html>

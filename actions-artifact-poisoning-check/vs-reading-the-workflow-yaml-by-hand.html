@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Artifact Poisoning Check vs. reading the workflow YAML by hand</title>
+  <meta name="description" content="The vulnerable pattern is two lines apart in the wrong order to notice: a download-artifact step near the top of a job…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Artifact Poisoning Check vs. reading the workflow YAML by hand">
+  <meta property="og:description" content="A download-artifact step and the run step that later executes its contents can sit twenty unrelated lines apart in the same job.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reading a workflow file by hand catch reliably?","acceptedAnswer":{"@type":"Answer","text":"An obviously dangerous single line: a run: step that pipes curl output straight into bash, or a workflow trigger that looks wrong on its face. Those stand out to a reviewer scanning a file top to bottom, and this tool does not replace that kind of reading."}},{"@type":"Question","name":"Why is the artifact-poisoning pattern specifically hard to catch by reading?","acceptedAnswer":{"@type":"Answer","text":"Because the two halves of it are rarely adjacent. A download-artifact step usually appears early in a job to fetch build output; the step that executes something from disk -- a chmod +x, a ./script.sh, a bash some-file -- can appear many steps later, often looking like an unrelated build or test step on its own. Neither line is suspicious in isolation. The finding only exists in the relationship between the two, which requires holding the fact that this job downloaded a fork-influenced artifact in mind while reading every subsequent step until one of them executes something."}},{"@type":"Question","name":"Why does the workflow_run trigger matter, and is it obvious from the file?","acceptedAnswer":{"@type":"Answer","text":"workflow_run is what makes the downloaded artifact's contents attacker-influenced in the first place: the job runs with the base repository's permissions and secrets, but the artifact it downloads was uploaded by the fork-triggered run this workflow reacts to. The trigger line itself is easy to read past, especially in a file with several triggers listed together (push, pull_request, workflow_run on one line) -- and its significance here is not that the keyword appears, but that it changes who controls the bytes a later step in the same job might execute."}},{"@type":"Question","name":"Is a download-artifact step with no name: input an obvious problem to spot?","acceptedAnswer":{"@type":"Answer","text":"No -- it is the absence of something, which is much harder to notice while reading than a suspicious line would be. A download-artifact step with no name: pulls in every artifact the triggering run uploaded rather than one specific, expected one, widening what untrusted content enters the job. There is no unusual-looking text to catch a reader's eye; the step simply omits an input, and confirming that requires already knowing to check for it on every such step in every workflow."}},{"@type":"Question","name":"Does a clean scan from this tool mean my workflow has no security issues?","acceptedAnswer":{"@type":"Answer","text":"No. This tool looks for exactly two patterns -- a workflow_run job that downloads an artifact and later runs something that looks like execution, and an unscoped download-artifact step -- and reports only those. A clean result means neither pattern was found in the pasted text; it says nothing about any other risk in the workflow, and it is not a security audit."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Actions Artifact Poisoning Check vs. reading the workflow YAML by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-artifact-poisoning-check/">Can a fork PR's artifact get executed by your privileged workflow?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Actions Artifact Poisoning Check vs. reading the workflow YAML by hand</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Artifact Poisoning Check</a></p>
+    <h1>Actions Artifact Poisoning Check vs. reading the workflow YAML by hand</h1>
+    <p class="lede">This page names no company or product &mdash; reading a workflow file before trusting it is a
+      habit most maintainers already have, not a competing tool. The gap is not carelessness: the vulnerable
+      pattern this checker looks for is a relationship between two steps that can sit many lines apart, neither
+      one suspicious on its own.</p>
+
+    <section class="card">
+      <h2>What a manual read catches reliably</h2>
+      <p>
+        An obviously dangerous single line &mdash; a <code>run:</code> step that pipes <code>curl</code> output
+        straight into <code>bash</code>, or a trigger that looks wrong on its face. Those stand out to a reviewer
+        scanning top to bottom, and this tool does not replace that kind of reading.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>What a manual read struggles with, and why</h2>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where the two diverge on this specific pattern.</caption>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reading by hand</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>A download-artifact step and the run step that later executes its contents</td><td>Can sit many unrelated-looking steps apart in the same job; neither line looks suspicious read on its own</td><td>Tracks the download across every subsequent step in the job body and flags the pair together, with both line numbers</td></tr>
+          <tr><td>The <code>workflow_run</code> trigger's significance</td><td>Easy to read past, especially listed alongside other triggers on one line -- its meaning here is about who controls the artifact's bytes, not the keyword itself</td><td>Checks for the trigger explicitly before treating a download-and-execute pair as a finding, so the connection is made whether or not a reader consciously registered the trigger</td></tr>
+          <tr><td>A download-artifact step with no <code>name:</code> input</td><td>An absence, not a suspicious presence -- there is no unusual text to catch a reader's eye, only a missing one</td><td>Flags every download-artifact step with no <code>name:</code> regardless of what else looks ordinary around it</td></tr>
+          <tr><td>Whether execution "looks like" execution</td><td>chmod +x, ./script, bash, source, python, node, and eval all read as ordinary build or test commands out of context</td><td>Matches the same execution-shaped patterns specifically in a run step that follows a download in the same job, not in isolation</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">None of this is about attention or diligence. The finding lives in a relationship between two steps, not in either step alone -- which is exactly the shape of thing a linear read is worst at holding onto across a long job body.</p>
+      <p><a class="cta" href="./">Run the free artifact poisoning check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>When to still read the file yourself</h2>
+      <p>
+        This tool looks for exactly two patterns: a <code>workflow_run</code> job that downloads an artifact and
+        later runs something that looks like execution, and an unscoped download-artifact step. It reports only
+        those. It does not evaluate anything else in the workflow, does not know whether a matched <code>run:</code>
+        step is actually dangerous in context versus a false positive, and makes no network call to check anything
+        beyond the pasted text. Judging the surrounding job logic, and everything outside these two patterns, is
+        still a job for reading the workflow yourself.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does reading a workflow file by hand catch reliably?</h3>
+      <p>An obviously dangerous single line: a run: step that pipes curl output straight into bash, or a workflow trigger that looks wrong on its face. Those stand out to a reviewer scanning a file top to bottom, and this tool does not replace that kind of reading.</p>
+      <h3>Why is the artifact-poisoning pattern specifically hard to catch by reading?</h3>
+      <p>Because the two halves of it are rarely adjacent. A download-artifact step usually appears early in a job to fetch build output; the step that executes something from disk -- a chmod +x, a ./script.sh, a bash some-file -- can appear many steps later, often looking like an unrelated build or test step on its own. Neither line is suspicious in isolation. The finding only exists in the relationship between the two, which requires holding the fact that this job downloaded a fork-influenced artifact in mind while reading every subsequent step until one of them executes something.</p>
+      <h3>Why does the workflow_run trigger matter, and is it obvious from the file?</h3>
+      <p>workflow_run is what makes the downloaded artifact's contents attacker-influenced in the first place: the job runs with the base repository's permissions and secrets, but the artifact it downloads was uploaded by the fork-triggered run this workflow reacts to. The trigger line itself is easy to read past, especially in a file with several triggers listed together (push, pull_request, workflow_run on one line) -- and its significance here is not that the keyword appears, but that it changes who controls the bytes a later step in the same job might execute.</p>
+      <h3>Is a download-artifact step with no name: input an obvious problem to spot?</h3>
+      <p>No -- it is the absence of something, which is much harder to notice while reading than a suspicious line would be. A download-artifact step with no name: pulls in every artifact the triggering run uploaded rather than one specific, expected one, widening what untrusted content enters the job. There is no unusual-looking text to catch a reader's eye; the step simply omits an input, and confirming that requires already knowing to check for it on every such step in every workflow.</p>
+      <h3>Does a clean scan from this tool mean my workflow has no security issues?</h3>
+      <p>No. This tool looks for exactly two patterns -- a workflow_run job that downloads an artifact and later runs something that looks like execution, and an unscoped download-artifact step -- and reports only those. A clean result means neither pattern was found in the pasted text; it says nothing about any other risk in the workflow, and it is not a security audit.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no network call of its own -- it is a static page comparing this checker's own behaviour against reading a file by hand, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-artifact-poisoning-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-artifact-poisoning-check"></script>
+</body></html>

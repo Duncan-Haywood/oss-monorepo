@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. guessing from Google's docs or waiting for a Play Console policy warning</title>
+<meta name="description" content="Google Play's own documentation lists the Data safety categories. It does not read your manifest, your Gradle files…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/vs-manually-reviewing-play-console-warnings.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. guessing from Google's docs or waiting for a Play Console policy warning">
+<meta property="og:description" content="Google's documentation names the Data safety categories. It doesn't cross-check them against your specific manifest, Gradle files…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/vs-manually-reviewing-play-console-warnings.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't Google Play's own documentation already explain this?","acceptedAnswer":{"@type":"Answer","text":"It lists the Data safety data-type categories and what each one covers, and it is the source of truth this tool's own category list is checked against. What it doesn't do is read your specific AndroidManifest.xml, your specific Gradle files, or your specific declared list and tell you which category your app actually triggers, in which file, on which line. That cross-check is what used to mean either guessing from the docs or finding out from a policy warning."}},{"@type":"Question","name":"What does waiting for a Play Console policy warning actually cost?","acceptedAnswer":{"@type":"Answer","text":"At minimum, a policy-warning email and a fix-and-resubmit cycle; at worst, a listing taken down for an inaccurate Data safety disclosure while you scramble to correct it live. For a category pulled in transitively by a dependency's own dependency rather than one you added on purpose, the warning may be the first time anyone on the team learns the SDK collects that category at all. Scanning your manifest and Gradle files before you submit catches the same gap without spending a review cycle -- or a live listing -- to find it."}},{"@type":"Question","name":"Can I just search my project by hand for these permissions and SDKs?","acceptedAnswer":{"@type":"Answer","text":"You can, and for a small project it may be faster than downloading a tool. The risk is coverage: 20-plus permissions across every AndroidManifest.xml in a multi-module project, plus every Gradle dependency coordinate a transitive library might have pulled in without anyone adding it directly. This tool runs the same permission and SDK list against every file you point it at, in the browser or as a CI-gating CLI, so a category buried in a module or a transitive dependency you didn't think to check is not the one that reaches a policy warning first."}},{"@type":"Question","name":"Does a clean report from this tool replace Google Play's own review?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. This is pattern-matching against known permission names and Gradle dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real runtime behaviour, and Google can change its Data safety categories or a listed SDK's practices at any time. A clean report means your current manifest, Gradle files, and declared list agree with each other; it is not a guarantee Play Console will accept your submission, so verify against Google's current documentation before you publish."}}]}</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. guessing from Google's docs or waiting for a Play Console policy warning — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../android-data-safety-check/">Android Data Safety Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. guessing from Google's docs or waiting for a Play Console policy warning</span></span></nav>
+<p><a href="index.html">&larr; Android Data Safety Checker</a></p>
+<h1>This checker vs. guessing from Google's docs or waiting for a Play Console policy warning</h1>
+<p>
+  Google Play's documentation names the Data safety data-type categories and
+  what each one covers -- it is the source of truth this tool's own category
+  list is checked against. What it does not do is read your specific
+  <code>AndroidManifest.xml</code>, your specific Gradle files, or your specific
+  declared list and tell you which category your app actually triggers, in
+  which file, or whether your declaration already covers it. That cross-check
+  has always meant either a guess informed by the docs, or a definite answer
+  from a Play Console policy warning -- or a listing taken down -- after the
+  fact.
+</p>
+
+<h2>What each approach actually gives you</h2>
+<p>
+  <strong>Google's documentation</strong> is complete and authoritative about
+  what the categories are and what they cover. It is not a scanner: it cannot
+  look at your project and tell you that <code>app/build.gradle</code> line 6
+  pulls in Firebase Analytics with no matching Data safety entry, because it
+  has never seen your code.
+</p>
+<p>
+  <strong>A Play Console policy warning</strong> will eventually tell you, with
+  certainty -- after publishing, a policy review, and a warning naming the
+  gap, sometimes after the listing is already live. For a category pulled in
+  transitively by a dependency's own dependency rather than one your team
+  added on purpose, that warning may be the first time anyone learns the SDK
+  collects that category at all.
+</p>
+<p>
+  <strong>This checker</strong> runs the same permission-and-SDK-to-category
+  cross-check a policy review would, against your manifest, Gradle files, and
+  declared list, before you submit -- in the browser (nothing uploaded) or as
+  a Node CLI you can gate CI on.
+</p>
+
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which category does my app trigger, and where?</td><td>This checker's scan -- file and line, free, nothing uploaded.</td></tr>
+<tr><td>What does a given category cover?</td><td>This checker lists them alongside your results; both it and Google's docs agree, since this tool's list is checked against Google's published one.</td></tr>
+<tr><td>Will Play Console actually accept my declaration?</td><td>Neither. Only Google's own policy review determines that -- this is evidence about your manifest, Gradle files, and declared list as they stand today.</td></tr>
+<tr><td>Is my project uploaded anywhere?</td><td>No. The browser tool reads files with the File API; the CLI never makes a network call.</td></tr>
+</tbody>
+</table></div>
+
+<h2>Common questions</h2>
+<h3>Doesn't Google Play's own documentation already explain this?</h3>
+<p>It lists the Data safety data-type categories and what each one covers, and it is the source of truth this tool's own category list is checked against. What it doesn't do is read your specific AndroidManifest.xml, your specific Gradle files, or your specific declared list and tell you which category your app actually triggers, in which file, on which line. That cross-check is what used to mean either guessing from the docs or finding out from a policy warning.</p>
+<h3>What does waiting for a Play Console policy warning actually cost?</h3>
+<p>At minimum, a policy-warning email and a fix-and-resubmit cycle; at worst, a listing taken down for an inaccurate Data safety disclosure while you scramble to correct it live. For a category pulled in transitively by a dependency's own dependency rather than one you added on purpose, the warning may be the first time anyone on the team learns the SDK collects that category at all. Scanning your manifest and Gradle files before you submit catches the same gap without spending a review cycle -- or a live listing -- to find it.</p>
+<h3>Can I just search my project by hand for these permissions and SDKs?</h3>
+<p>You can, and for a small project it may be faster than downloading a tool. The risk is coverage: 20-plus permissions across every AndroidManifest.xml in a multi-module project, plus every Gradle dependency coordinate a transitive library might have pulled in without anyone adding it directly. This tool runs the same permission and SDK list against every file you point it at, in the browser or as a CI-gating CLI, so a category buried in a module or a transitive dependency you didn't think to check is not the one that reaches a policy warning first.</p>
+<h3>Does a clean report from this tool replace Google Play's own review?</h3>
+<p>No, and it is not built to. This is pattern-matching against known permission names and Gradle dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real runtime behaviour, and Google can change its Data safety categories or a listed SDK's practices at any time. A clean report means your current manifest, Gradle files, and declared list agree with each other; it is not a guarantee Play Console will accept your submission, so verify against Google's current documentation before you publish.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Google Play's own policy review
+  process. To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The checker this page describes reads files you select
+  locally with the File API and never uploads them.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Play Console, Android, and
+  Data safety are trademarks of Google LLC, named here only to describe what this tool checks.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../datadog-bill-estimator/" data-pf-to="datadog-bill-estimator">What will your Datadog bill be, and what cuts it most?</a></li>
+      <li><a href="../dependabot-config-check/" data-pf-to="dependabot-config-check">Is Dependabot actually watching all of your repo?</a></li>
+      <li><a href="../dependency-confusion-check/" data-pf-to="dependency-confusion-check">Could a public package be substituted for your internal one?</a></li>
+      <li><a href="../deploy-concurrency-check/" data-pf-to="deploy-concurrency-check">Deploy Concurrency Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=android-data-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="android-data-safety-check"></script>
+</body>
+</html>

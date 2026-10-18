@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SQL Migration Lock Check vs. squawk — Which Postgres Migration Linter?</title>
+  <meta name="description" content="squawk is an established PostgreSQL migration linter with a real parser and editor integration. This checker is a zero-install browser tool and single-file CLI…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/vs-squawk.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the actual difference?","acceptedAnswer":{"@type":"Answer","text":"squawk parses SQL with a real PostgreSQL parser and reports per-statement rules, with editor and CI integration and a maintained rule set. This checker scans statements textually, and its distinguishing checks are relational — about one statement in the context of another: A missing lock_timeout. Whether an exclusive-lock statement is protected depends on whether a SET lock_timeout appears above it in the file. This is the check that matters most in practice, because it is the difference between a migration that fails harmlessly and one that stalls every query on the table. NOT VALID and VALIDATE CONSTRAINT in one transaction. Both statements are individually correct and idiomatic. Together inside one BEGIN block they hold the lock for the whole validation anyway, so the two-step split — the entire point of writing it that way — buys nothing. CREATE INDEX CONCURRENTLY inside a transaction block. Not a style problem: PostgreSQL refuses it outright at runtime. Since most migration frameworks wrap each file in a transaction by default, this is how a correct concurrency fix most often fails. SET NOT NULL with a validated CHECK to lean on. On PostgreSQL 12+ this is either a cheap metadata change or a full table scan under an exclusive lock, and which one depends entirely on whether something earlier in the file added the constraint. A per-statement rule engine cannot answer any of those from the statement alone. That is the wedge — not a claim that it finds more, but that these four are a different shape of question."}},{"@type":"Question","name":"When is squawk the right answer?","acceptedAnswer":{"@type":"Answer","text":"When you want a maintained, widely-used linter with a real parser, editor integration, and a rule set more people have exercised than this one. A real parser is genuinely better than text scanning on unusual SQL — deeply nested expressions, exotic syntax, dialect edge cases — and if you are standardising migration linting across a team, established tooling with a community around it is worth more than any single clever check. Install it. The two are not exclusive, and they disagree about very little. Use this one when you want an answer in ten seconds without installing anything, when you want the four relational checks above, or when the person who needs to understand the finding is not the person who set up the linter."}},{"@type":"Question","name":"Is this a benchmark or a performance comparison?","acceptedAnswer":{"@type":"Answer","text":"No. Nothing here is measured against squawk — no rule-count comparison, no timing, no accuracy claim, and no run of squawk was performed to produce this page. It describes what each tool is built to do, based on each project's own stated purpose. If a specific claim on this page is out of date or wrong, it is a bug in this page."}},{"@type":"Question","name":"Are you affiliated with squawk?","acceptedAnswer":{"@type":"Answer","text":"No. This project is not affiliated with, endorsed by, or connected to squawk or its maintainers in any way. squawk is named here because it is what a practitioner searching for this has probably already found."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #17324a; margin: 0 0 14px; }
+    h2 { font-size: 1.1rem; color: #17324a; margin: 26px 0 8px; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+    th, td { border: 1px solid #d5dbe3; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef2f6; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; padding: 11px 15px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/vs-squawk.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="SQL Migration Lock Check vs. squawk — Which Postgres Migration Linter?">
+<meta property="og:description" content="squawk is an established PostgreSQL migration linter with a real parser and editor integration. This checker is a zero-install browser tool and single-file CLI…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SQL Migration Lock Check vs. squawk — Which Postgres Migration Linter? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sql-migration-lock-check/">Will this migration take your database down?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SQL Migration Lock Check vs. squawk — Which Postgres Migration Linter?</span></span></nav>
+  <p class="note"><a href="./">SQL Migration Lock Check</a> · comparison</p>
+  <h1>SQL Migration Lock Check vs. squawk</h1>
+  <p>If you have searched for a PostgreSQL migration linter, you have found <strong>squawk</strong>. It is the established answer, and this page exists because pretending otherwise would waste your time. Here is what each tool is actually built to do — and, below, an explicit note on what this page is <em>not</em>.</p>
+
+  <h2>What is the actual difference?</h2>
+  <p>squawk parses SQL with a real PostgreSQL parser and reports <em>per-statement</em> rules, with editor and CI integration and a maintained rule set.</p>
+  <p>This checker scans statements textually, and its distinguishing checks are <em>relational</em> — about one statement in the context of another:</p>
+  <ul>
+    <li><strong>A missing <code>lock_timeout</code>.</strong> Whether an exclusive-lock statement is protected depends on whether a <code>SET lock_timeout</code> appears above it in the file. This is the check that matters most in practice, because it is the difference between a migration that fails harmlessly and one that stalls every query on the table.</li>
+    <li><strong><code>NOT VALID</code> and <code>VALIDATE CONSTRAINT</code> in one transaction.</strong> Both statements are individually correct and idiomatic. Together inside one <code>BEGIN</code> block they hold the lock for the whole validation anyway, so the two-step split — the entire point of writing it that way — buys nothing.</li>
+    <li><strong><code>CREATE INDEX CONCURRENTLY</code> inside a transaction block.</strong> Not a style problem: PostgreSQL refuses it outright at runtime. Since most migration frameworks wrap each file in a transaction by default, this is how a correct concurrency fix most often fails.</li>
+    <li><strong><code>SET NOT NULL</code> with a validated <code>CHECK</code> to lean on.</strong> On PostgreSQL 12+ this is either a cheap metadata change or a full table scan under an exclusive lock, and which one depends entirely on whether something earlier in the file added the constraint.</li>
+  </ul>
+  <p>A per-statement rule engine cannot answer any of those from the statement alone. That is the wedge — not a claim that it finds more, but that these four are a different shape of question.</p>
+
+  <h2>Side by side</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th></th><th>SQL Migration Lock Check</th><th>squawk</th></tr>
+    <tr><td>Install</td><td>None for the browser tool; three files and Node 18+ for the CLI</td><td>A binary or package to install</td></tr>
+    <tr><td>Parsing</td><td>Textual statement scanner (handles comments, dollar-quoting, transaction blocks)</td><td>Real PostgreSQL parser</td></tr>
+    <tr><td>Emphasis</td><td>Relational checks: lock queue exposure, transaction grouping, the fast paths</td><td>Per-statement rules across a broad, maintained set</td></tr>
+    <tr><td>Editor integration</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Runs in a browser</td><td>Yes — paste and read, nothing uploaded</td><td>No</td></tr>
+    <tr><td>Database access</td><td>None, by construction</td><td>None required</td></tr>
+  </table></div>
+
+  <h2>When is squawk the right answer?</h2>
+  <p>When you want a maintained, widely-used linter with a real parser, editor integration, and a rule set more people have exercised than this one. A real parser is genuinely better than text scanning on unusual SQL — deeply nested expressions, exotic syntax, dialect edge cases — and if you are standardising migration linting across a team, established tooling with a community around it is worth more than any single clever check.</p>
+  <p>Install it. The two are not exclusive, and they disagree about very little. Use this one when you want an answer in ten seconds without installing anything, when you want the four relational checks above, or when the person who needs to understand the finding is not the person who set up the linter.</p>
+
+  <h2>Is this a benchmark or a performance comparison?</h2>
+  <p>No. Nothing here is measured against squawk — no rule-count comparison, no timing, no accuracy claim, and no run of squawk was performed to produce this page. It describes what each tool is built to do, based on each project's own stated purpose. If a specific claim on this page is out of date or wrong, it is a bug in this page.</p>
+
+  <h2>Are you affiliated with squawk?</h2>
+  <p>No. This project is not affiliated with, endorsed by, or connected to squawk or its maintainers in any way. squawk is named here because it is what a practitioner searching for this has probably already found.</p>
+
+  <p><a class="cta" href="./">Check a migration</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. It is not a database review or a guarantee that a migration will not cause downtime, and it does not replace a qualified professional. <strong>You are responsible for verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p>All product names, logos and brands are property of their respective owners.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../uptime-monitoring-pricing-calculator/" data-pf-to="uptime-monitoring-pricing-calculator">What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</a></li>
+      <li><a href="../vercel-bill-estimator/" data-pf-to="vercel-bill-estimator">What will your Vercel bill be, and what cuts it most?</a></li>
+      <li><a href="../video-hosting-pricing-calculator/" data-pf-to="video-hosting-pricing-calculator">What will video hosting cost for your minutes stored and watched, and who is cheapest?</a></li>
+      <li><a href="../vscode-extension-drift-check/" data-pf-to="vscode-extension-drift-check">Did an extension you already trust just change what it does?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sql-migration-lock-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sql-migration-lock-check"></script>
+</body>
+</html>

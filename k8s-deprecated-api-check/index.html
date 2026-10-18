@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kubernetes Deprecated API Check — Find Manifests a Cluster Upgrade Will Reject</title>
+  <meta name="description" content="Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will…">
+  <meta property="og:title" content="Will this manifest survive your next Kubernetes upgrade?">
+  <meta property="og:description" content="Check Kubernetes manifest YAML for removed or soon-to-be-removed apiVersion+kind pairs -- deterministic, no account, no upload…">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kubernetes Deprecated API Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks Kubernetes manifest YAML for apiVersion+kind pairs a past or future Kubernetes release has removed, against a table sourced from Kubernetes' own Deprecated API Migration Guide. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate before a cluster upgrade."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this catch every deprecated Kubernetes API?","acceptedAnswer":{"@type":"Answer","text":"No. It checks against a table of apiVersion+kind removals that Kubernetes' own Deprecated API Migration Guide documents with a fixed release number — currently the 1.16, 1.22, 1.25 and 1.26 removal waves. It deliberately does not guess at future or in-progress deprecations it cannot cite a release number for. Treat a clean report as one more gate passed, not a guarantee your manifests will survive every future upgrade."}},{"@type":"Question","name":"Is my manifest uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever."}},{"@type":"Question","name":"Does this need a kubeconfig or talk to my cluster?","acceptedAnswer":{"@type":"Answer","text":"No. It reads only the YAML text you give it. It has no kubeconfig, makes no API server call, and needs no cluster access at all — that is what makes it safe to run against production manifests in CI."}},{"@type":"Question","name":"Does it understand Helm charts or Kustomize overlays?","acceptedAnswer":{"@type":"Answer","text":"Not directly — it reads plain YAML documents, not Helm template expressions or Kustomize patches. Run helm template or kustomize build first and check the rendered output, the same manifest your cluster would actually receive."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="text"] { padding: 8px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; width: 140px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.removed { background: #fde8e8; color: #7f1d1d; }
+    .pill.deprecated { background: #fef3c7; color: #78350f; }
+    .pill.known { background: #e3e9ef; color: #17324a; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Will this manifest survive your next Kubernetes upgrade?","item":"https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Will this manifest survive your next Kubernetes upgrade? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Will this manifest survive your next Kubernetes upgrade?</span></span></nav>
+  <header>
+    <p class="note">KUBERNETES DEPRECATED API CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will this manifest survive your next Kubernetes upgrade?</h1>
+    <p>Paste or load Kubernetes manifest YAML and get a deterministic report of every <code>apiVersion</code> + <code>kind</code> pair a past or future Kubernetes release has removed -- <code>extensions/v1beta1 Ingress</code>, <code>batch/v1beta1 CronJob</code>, <code>policy/v1beta1 PodSecurityPolicy</code>, and more.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. No kubeconfig, no API server call.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your manifests</h2>
+    <p>
+      <label for="file-input">From a file (raw YAML, or the output of <code>helm template</code> / <code>kustomize build</code> -- read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".yaml,.yml,.txt">
+    </p>
+    <label for="manifest-input">…or paste it directly (one or more <code>---</code>-separated documents)</label>
+    <textarea id="manifest-input" spellcheck="false" placeholder="apiVersion: extensions/v1beta1&#10;kind: Ingress&#10;metadata:&#10;  name: web-ingress&#10;..."></textarea>
+    <label for="target-version">Target Kubernetes version (optional — e.g. <code>1.25</code>)</label>
+    <input type="text" id="target-version" placeholder="1.25" inputmode="numeric">
+    <p>
+      <button type="button" id="check">Check manifests</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What this upgrade would break</h2>
+    <p id="summary"></p>
+    <div id="findings-block" hidden>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Kind / name</th><th>Status</th><th>apiVersion used</th><th>Replacement</th><th>Removed in</th></tr></thead>
+        <tbody id="finding-rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate before you upgrade?</h2>
+    <p>Same table, zero dependencies, one file — run it against your manifest repo or your Helm/Kustomize render output:</p>
+    <pre class="cmd">node cli.mjs check manifests.yaml                              # list every known deprecated/removed API, exit 1 if any found
+node cli.mjs check manifests.yaml --target-version 1.25        # exit 1 only if 1.25 would reject one of them
+node cli.mjs check manifests.yaml --target-version 1.25 --strict --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local file you name: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checks — and what it cannot</h2>
+    <p>The table below is sourced from Kubernetes' own <a href="why-a-manifest-fails-a-kubernetes-upgrade.html">Deprecated API Migration Guide</a>, not guessed. It lists <span id="table-count"></span> apiVersion+kind pairs across the four release waves that removed something (1.16, 1.22, 1.25, 1.26).</p>
+    <p class="note">Already using <a href="vs-pluto.html">Pluto</a> from FairwindsOps? See <a href="vs-pluto.html">how this checker differs</a> — short version: same question, different install cost. Prefer to just read the guide and check by hand? See <a href="vs-checking-the-migration-guide-by-hand.html">why that gets one <code>apiVersion</code> like <code>extensions/v1beta1 Ingress</code> wrong</a> even when the rest of a check is correct. A manifest passing this check can still drop live traffic during the rollout itself for reasons that have nothing to do with a removed API — see <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> for readiness probes, PodDisruptionBudgets, and termination grace periods. Checking a chart rendered by Helm specifically? See <a href="../helm-values-schema-check/">Helm Values Schema Check</a> for whether its values.yaml actually matches its own values.schema.json before you even render it. A manifest that survives the upgrade and drops no requests on rollout can still let one container starve or crowd out its whole node — see <a href="../k8s-resource-limits-check/">Kubernetes Resource Limits Check</a> for missing memory/CPU/ephemeral-storage requests and limits.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this catch every deprecated Kubernetes API?</h3>
+    <p>No. It checks against a table of apiVersion+kind removals that Kubernetes' own Deprecated API Migration Guide documents with a fixed release number — currently the 1.16, 1.22, 1.25 and 1.26 removal waves. It deliberately does not guess at future or in-progress deprecations it cannot cite a release number for. Treat a clean report as one more gate passed, not a guarantee your manifests will survive every future upgrade.</p>
+    <h3>Is my manifest uploaded anywhere?</h3>
+    <p>No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever.</p>
+    <h3>Does this need a kubeconfig or talk to my cluster?</h3>
+    <p>No. It reads only the YAML text you give it. It has no kubeconfig, makes no API server call, and needs no cluster access at all — that is what makes it safe to run against production manifests in CI.</p>
+    <h3>Does it understand Helm charts or Kustomize overlays?</h3>
+    <p>Not directly — it reads plain YAML documents, not Helm template expressions or Kustomize patches. Run <code>helm template</code> or <code>kustomize build</code> first and check the rendered output, the same manifest your cluster would actually receive.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or compliance advice, and it does not replace a qualified professional or Kubernetes' own release notes. It matches a fixed table of documented removals against the manifest you supplied — it cannot prove your manifests will apply cleanly on every future release, only report the matches it found. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for testing any upgrade against a non-production cluster first. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The manifest you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseManifests, checkManifests, DEPRECATED_APIS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), manifest: $("#manifest-input"), targetVersion: $("#target-version"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      findingsBlock: $("#findings-block"), findingRows: $("#finding-rows"),
+      tableCount: $("#table-count"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.tableCount.textContent = String(DEPRECATED_APIS.reduce((n, e) => n + e.kinds.length, 0));
+
+    function renderReport() {
+      let manifests;
+      try {
+        manifests = parseManifests(els.manifest.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      const targetVersion = els.targetVersion.value.trim() || null;
+      let result;
+      try {
+        result = checkManifests(manifests, { targetVersion });
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const removed = result.findings.filter((f) => f.status === "removed").length;
+      els.summary.innerHTML = result.findings.length
+        ? `<span class="bad">${result.documentsChecked} document(s) checked: ${result.findings.length} deprecated or removed API use(s) found${targetVersion ? `, ${removed} of which would already fail to apply on ${escapeHtml(targetVersion)}` : ""}.</span>`
+        : `<span class="ok">${result.documentsChecked} document(s) checked: no known deprecated or removed apiVersion/kind pairs found.</span>`;
+
+      els.findingsBlock.hidden = result.findings.length === 0;
+      els.findingRows.innerHTML = result.findings.map((f) => {
+        const pillClass = f.status === "removed" ? "removed" : f.status === "deprecated" ? "deprecated" : "known";
+        const pillText = f.status === "removed" ? "removed now" : f.status === "deprecated" ? "not yet removed" : "known removal";
+        const repl = f.replacement ? `<code>${escapeHtml(f.replacement.apiVersion)}</code>` : "<em>none — see note</em>";
+        return `<tr>
+          <td>${escapeHtml(f.kind)}/${escapeHtml(f.name)}</td>
+          <td><span class="pill ${pillClass}">${pillText}</span></td>
+          <td><code>${escapeHtml(f.apiVersion)}</code></td>
+          <td>${repl}${f.note ? `<div class="note">${escapeHtml(f.note)}</div>` : ""}</td>
+          <td>${escapeHtml(f.removedIn)}</td>
+        </tr>`;
+      }).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.manifest.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_MANIFEST = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules: []
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nightly-backup
+spec: {}
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+spec:
+  minAvailable: 1
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.manifest.value = EXAMPLE_MANIFEST;
+      els.targetVersion.value = "1.24";
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.manifest.value = "";
+      els.targetVersion.value = "";
+      els.fileInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made -- counting really is off
+    // (the module remembers it), but a button reading "turn counting off"
+    // after that click tells the visitor it did not take.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+      <li><a href="../graphql-introspection-exposure-check/" data-pf-to="graphql-introspection-exposure-check">GraphQL Introspection Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-deprecated-api-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/?pfEmbed=1&quot; title=&quot;Will this manifest survive your next Kubernetes upgrade? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="k8s-deprecated-api-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/" data-pf-embed-title="Will this manifest survive your next Kubernetes upgrade?" data-pf-embed-slug="k8s-deprecated-api-check"></script>
+</body>
+</html>

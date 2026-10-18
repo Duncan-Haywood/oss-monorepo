@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Split Tests Across CI Shards Evenly | CI Test Shard Balancer</title>
+<meta name="description" content="Why an equal-count test split leaves one CI shard slow, how to get per-test timings as JUnit XML from pytest, Jest, Go, Maven and RSpec, how to balance them…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/how-to-split-tests-across-ci-shards.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to split tests across CI shards evenly">
+<meta property="og:description" content="Get timings, balance by duration instead of count, and pick the number of shards from your setup time.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "How to split tests across CI shards evenly", "step": [{"@type": "HowToStep", "name": "Write per-test timings as JUnit XML", "text": "Run the suite once with your runner's JUnit output turned on: pytest --junitxml, jest-junit, gotestsum --junitfile, Maven Surefire or Gradle test reports, or rspec_junit_formatter."}, {"@type": "HowToStep", "name": "Balance by duration, not count", "text": "Load the XML into the CI Test Shard Balancer, choose a number of shards and group by file, and read the slowest shard now against balanced."}, {"@type": "HowToStep", "name": "Check for an indivisible test", "text": "If one file or test is longer than total time divided by shards, it sets the floor on wall-clock time. Group by test, or split that test."}, {"@type": "HowToStep", "name": "Choose the shard count from setup time", "text": "Enter the fixed setup seconds each shard job pays. Pick the cheapest shard count that meets your wall-clock target."}, {"@type": "HowToStep", "name": "Paste the shard lists into CI and refresh them", "text": "Use the emitted commands or GitHub Actions matrix, and recompute the split from fresh timings every few weeks or gate on drift with --max-imbalance-pct."}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is one of my CI shards always the slowest?", "acceptedAnswer": {"@type": "Answer", "text": "Most simple splits give each shard the same number of test files in alphabetical or hashed order. Test files differ a lot in duration, so shards with the slow files finish last and the others sit idle. Balancing by measured duration fixes that part; a single very slow file can still set the floor."}}, {"@type": "Question", "name": "Do more shards always make CI faster?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each shard pays a fixed setup cost, and wall-clock time can never go below the longest single test or file plus setup. Past that point more shards only add billed minutes."}}, {"@type": "Question", "name": "How often should I recompute the split?", "acceptedAnswer": {"@type": "Answer", "text": "Whenever the suite changes a lot, and otherwise every few weeks. A CI step that runs the CLI with --max-imbalance-pct tells you when the split has drifted."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#17604a;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#17604a;margin:0 0 6px}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:30ch;letter-spacing:-.02em;color:#17324a}
+h2{margin-top:0;color:#17324a}
+.lede{font-size:1.05rem;max-width:66ch;color:#55606f}
+p,li{line-height:1.6}
+section.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324a10;margin:1rem 0}
+pre{background:#f7f9fb;padding:12px;border-radius:8px;font-size:.88rem;line-height:1.6;overflow-x:auto}
+code{overflow-wrap:anywhere}
+.fine,.note{font-size:.88rem;color:#55606f}
+footer{color:#55606f;font-size:.86rem;margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/how-to-split-tests-across-ci-shards.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to split tests across CI shards evenly — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ci-test-shard-balancer/">Split your CI tests into evenly timed shards</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to split tests across CI shards evenly</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; CI Test Shard Balancer</a></p>
+<h1>How to split tests across CI shards evenly</h1>
+<p class="lede">If one of your parallel CI jobs always finishes last while the others sit idle, the split is by count, not by time. Here is how to split by measured duration, and how to decide how many shards are worth paying for.</p>
+
+<section class="card">
+<h2>1. Get per-test timings as JUnit XML</h2>
+<p>Every mainstream runner can write JUnit XML with a <code>time</code> on each test case. Run the whole suite once, on one machine, with it switched on:</p>
+<pre>pytest --junitxml=junit.xml
+JEST_JUNIT_ADD_FILE_ATTRIBUTE=true jest --reporters=default --reporters=jest-junit
+gotestsum --junitfile junit.xml ./...
+mvn test            # reports in target/surefire-reports/TEST-*.xml
+gradle test         # reports in build/test-results/test/*.xml
+bundle exec rspec --format RspecJunitFormatter --out junit.xml</pre>
+<p class="note">For Jest, the file attribute matters: without it the report has test names but no file path, and a shard command needs file paths. Option names are from each project's own documentation as best understood when this page was written; check them against your versions.</p>
+</section>
+
+<section class="card">
+<h2>2. Balance by duration, not by count</h2>
+<p>Splitting 24 files into four groups of six looks fair, but if one file takes ninety seconds and most take five, the group holding it is slow. Putting tests on shards so the slowest shard is as short as possible is the multiway number-partitioning problem. It is hard to solve exactly in general, but a simple rule gets close: take the longest file, put it on the least-loaded shard, repeat. That is the LPT rule, and it is never worse than about a third above the best possible split. A pass of moving and swapping files between shards then evens out what is left, and for small suites the best split can be found exactly.</p>
+<p>The <a href="./">CI Test Shard Balancer</a> does all of that from the XML in your browser, and prints the file list for each shard.</p>
+</section>
+
+<section class="card">
+<h2>3. Look for the test that cannot be split</h2>
+<p>Total time divided by the number of shards is the ideal shard. If one file takes longer than that, it sets the floor: no split can finish before it does, however many shards you add. The tool flags these. If the file holds many tests, group by single test instead; if it is one long test, that test is the thing to speed up or split.</p>
+</section>
+
+<section class="card">
+<h2>4. Pick the number of shards from setup time</h2>
+<p>Every shard job pays a fixed cost before its first test: checkout, dependency restore, build. With 60 seconds of setup and a 10-minute suite, going from 4 to 8 shards cuts the test part from 2.5 minutes to 1.25 but adds four more setups. Wall-clock time is the slowest shard plus setup, and billed time is roughly shards times that, so there is a shard count past which you pay more and wait about the same. Enter your setup seconds and an optional wall-clock target and the tool prices every count in a table.</p>
+</section>
+
+<section class="card">
+<h2>5. Put it in CI, and keep it fresh</h2>
+<p>Paste the emitted commands, or use the GitHub Actions matrix JSON with <code>fromJSON</code> in a job's <code>strategy.matrix</code>. Timings drift as tests are added, so recompute every few weeks, or let CI tell you:</p>
+<pre>node cli.mjs split junit.xml --shards 4 --max-imbalance-pct 20</pre>
+<p>That exits 1 when the slowest shard is more than 20 percent over an even share. Timings also vary from run to run, so treat the result as a good starting point rather than a promise. If you want a split that adapts during every run, a paid service does that; see the <a href="vs-knapsack-pro.html">comparison</a>.</p>
+<p class="note">Flaky tests distort timings because reruns inflate them. Rule those out with the <a href="../flaky-test-finder/">Flaky Test Finder</a> first.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why is one of my CI shards always the slowest?</h3>
+<p>Most simple splits give each shard the same number of test files in alphabetical or hashed order. Test files differ a lot in duration, so shards with the slow files finish last and the others sit idle. Balancing by measured duration fixes that part; a single very slow file can still set the floor.</p>
+<h3>Do more shards always make CI faster?</h3>
+<p>No. Each shard pays a fixed setup cost, and wall-clock time can never go below the longest single test or file plus setup. Past that point more shards only add billed minutes.</p>
+<h3>How often should I recompute the split?</h3>
+<p>Whenever the suite changes a lot, and otherwise every few weeks. A CI step that runs the CLI with --max-imbalance-pct tells you when the split has drifted.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This free guide and tool are informational only. They are not engineering, financial or other professional advice. Timings vary from run to run, so predicted shard times are not a guarantee. You are responsible for verifying any CI change before relying on it.</p>
+<p><strong>Nothing leaves your browser.</strong> The browser page and the CLI read your reports locally and make no network call.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ci-test-shard-balancer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ci-test-shard-balancer"></script>
+</body></html>

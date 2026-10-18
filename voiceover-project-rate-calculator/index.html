@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute…">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Voice-Over Project Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn a script's word count or an audiobook manuscript's length into a defensible project rate, scaled by usage term. Entirely client-side.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Voice-Over Project Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a voice-over project rate two ways: a script-based project (commercial, e-learning, IVR, explainer, animation) priced per word or per finished minute and scaled by usage/licensing term (internal, web, regional broadcast, national broadcast, full buyout), with optional rush and exclusivity add-ons; and an audiobook priced per finished hour, estimated from manuscript word count. Entirely client-side; nothing is uploaded.","featureList":"per-word and per-finished-minute script pricing, usage/licensing term multiplier, rush and exclusivity add-ons, audiobook per-finished-hour pricing from manuscript word count, separate editing/proofing/mastering fee, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a voice-over project?","acceptedAnswer":{"@type":"Answer","text":"It depends on the script's length, how you price it (per word or per finished minute), and — critically — how the buyer plans to use the recording. This calculator applies commonly cited voice-over rate-guide conventions: a base fee from length and rate, then a usage/licensing multiplier for internal-only use, unrestricted web use, regional broadcast, national broadcast, or a full buyout."}},{"@type":"Question","name":"Why does the usage term change the price so much?","acceptedAnswer":{"@type":"Answer","text":"A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year — the recording is identical, but what the buyer is licensing is completely different. Voice-over rate guides price usage in tiers for exactly this reason, and a narrator who quotes one flat rate regardless of usage is leaving money on the table for broadcast and buyout work."}},{"@type":"Question","name":"Why is an audiobook priced differently, per finished hour instead of per word?","acceptedAnswer":{"@type":"Answer","text":"Per-finished-hour (PFH) pricing is the audiobook industry's own convention, most visibly used by ACX. A finished hour is the length of the produced, edited audio a listener hears — not the raw word count or the time it took to record it — so this calculator estimates finished hours from manuscript word count using a commonly cited words-per-finished-hour conversion, then prices against that estimate."}},{"@type":"Question","name":"Is this a quote I can send a client, or a guarantee of what I'll be paid?","acceptedAnswer":{"@type":"Answer","text":"No. It is a starting point for your own negotiation based on general rate-guide conventions, not a quote, guarantee, or valuation performed on your behalf. Actual rates vary by your experience, demo quality, niche demand, and what a specific buyer is willing to pay for a specific project."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1a22; background: #f2f1f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #38306b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #38306b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b4a58; }
+    .card { background: #fff; border: 1px solid #d9d5e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #38306b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.checkbox { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-top: 16px; }
+    label.checkbox input { width: auto; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #bdb6da; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    fieldset { border: 1px solid #e4e0f2; border-radius: 10px; margin: 16px 0 0; padding: 6px 14px 14px; }
+    legend { font-size: .8rem; font-weight: 700; color: #5b4fa8; padding: 0 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a3d9e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ece9f7; color: #38306b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece9f7; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b4a58; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece9f7; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #ece5f7; color: #5b4fa8; }
+    .stats { font-size: .85rem; color: #4b4a58; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d5e8; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Voice-Over Project Rate Calculator — free, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Voice-Over Project Rate Calculator — free, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Voice-Over Project Rate Calculator — free, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">VOICE-OVER PROJECT RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a voice-over project?</h1>
+    <p>Choose a project type below. A <strong>script-based project</strong>
+    (commercial, e-learning/corporate narration, IVR/telephony, explainer,
+    animation) prices per word or per finished minute, scaled by the
+    usage/licensing term the buyer wants. An <strong>audiobook</strong> prices
+    per finished hour, estimated from your manuscript's word count — the
+    convention audiobook platforms like ACX use.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Quoting a written translation instead of a recorded script? See the <a href="../translator-project-quote/">translator project quote calculator</a> for per-word, fuzzy-match, and rush pricing on that kind of language work.</p>
+    <p class="note"><a href="how-much-should-i-charge-for-a-voice-over-project.html">How much should I charge for a voice-over project?</a> &mdash; the usage-term multiplier and audiobook PFH pricing worked through on real numbers.</p>
+    <p class="note">On <a href="vs-voices-com.html">Voices.com</a>'s marketplace, or thinking about joining? See <a href="vs-voices-com.html">how this free calculator differs</a> from a marketplace listing, its membership fee, and its 20% commission.</p>
+    <p class="note">Used to quoting one flat project rate no matter how the buyer plans to use the recording? See <a href="vs-a-flat-rate-regardless-of-usage.html">what a flat quote gives away</a> once broadcast or a buyout is on the table.</p>
+  </header>
+
+  <section class="card">
+    <h2>Project type</h2>
+    <label for="project-type">What are you pricing?</label>
+    <select id="project-type">
+      <option value="script">Script-based project (commercial, e-learning, IVR, explainer, animation)</option>
+      <option value="audiobook">Audiobook narration</option>
+    </select>
+
+    <fieldset id="script-fields">
+      <legend>Script details</legend>
+      <div class="grid">
+        <div>
+          <label for="word-count">Script word count</label>
+          <input type="number" id="word-count" min="0" step="1" placeholder="e.g. 150" inputmode="numeric">
+        </div>
+        <div>
+          <label for="words-per-minute">Read pace (words per minute)</label>
+          <input type="number" id="words-per-minute" min="1" step="1" value="150" inputmode="numeric">
+        </div>
+        <div>
+          <label for="pricing-method">Pricing method</label>
+          <select id="pricing-method">
+            <option value="perWord">Per word</option>
+            <option value="perFinishedMinute">Per finished minute</option>
+          </select>
+        </div>
+        <div>
+          <label for="rate">Your base rate (per word or per finished minute)</label>
+          <input type="number" id="rate" min="0" step="0.01" placeholder="e.g. 0.30" inputmode="decimal">
+        </div>
+        <div>
+          <label for="usage-term">Usage / licensing term</label>
+          <select id="usage-term">
+            <option value="internal">Internal / training use only</option>
+            <option value="web" selected>Web / unrestricted digital use</option>
+            <option value="broadcast_regional">Regional broadcast (radio or TV)</option>
+            <option value="broadcast_national">National broadcast (radio or TV)</option>
+            <option value="buyout">Full buyout (all media, in perpetuity)</option>
+          </select>
+        </div>
+        <div>
+          <label for="extra-revisions">Extra revision rounds (beyond what's included)</label>
+          <input type="number" id="extra-revisions" min="0" step="1" value="0" inputmode="numeric">
+        </div>
+        <div>
+          <label for="extra-revision-fee">Fee per extra revision round</label>
+          <input type="number" id="extra-revision-fee" min="0" step="1" value="0" inputmode="numeric">
+        </div>
+      </div>
+      <label class="checkbox"><input type="checkbox" id="rush"> Rush turnaround (adds a 50% surcharge)</label>
+      <label class="checkbox"><input type="checkbox" id="exclusive"> Category exclusivity requested (adds a 25% add-on)</label>
+    </fieldset>
+
+    <fieldset id="audiobook-fields" hidden>
+      <legend>Audiobook details</legend>
+      <div class="grid">
+        <div>
+          <label for="ab-word-count">Manuscript word count</label>
+          <input type="number" id="ab-word-count" min="0" step="1" placeholder="e.g. 75000" inputmode="numeric">
+        </div>
+        <div>
+          <label for="words-per-finished-hour">Words per finished hour (conversion)</label>
+          <input type="number" id="words-per-finished-hour" min="1" step="1" value="9300" inputmode="numeric">
+        </div>
+        <div>
+          <label for="rate-per-finished-hour">Your rate per finished hour</label>
+          <input type="number" id="rate-per-finished-hour" min="0" step="1" placeholder="e.g. 250" inputmode="numeric">
+        </div>
+        <div>
+          <label for="epm-rate-per-finished-hour">Editing/proofing/mastering rate per finished hour (0 if included)</label>
+          <input type="number" id="epm-rate-per-finished-hour" min="0" step="1" value="0" inputmode="numeric">
+        </div>
+      </div>
+    </fieldset>
+
+    <p>
+      <button type="button" id="calculate">Calculate my rate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested project rate</h2>
+    <p class="stats" id="stats"></p>
+    <div class="pf-table-scroll"><table>
+      <tbody id="result-body"></tbody>
+    </table></div>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited voice-over rate-guide conventions —
+    per-word or per-finished-minute base pricing, tiered usage/licensing
+    multipliers, a standard rush surcharge, and the ACX-style per-finished-hour
+    audiobook convention — to the numbers you enter. It does <strong>not</strong>
+    know your specific niche's current market, your own demo quality and
+    track record, or what a specific buyer is willing to pay for this exact
+    project. Treat the output as a starting point for a negotiation, never a
+    quote, guarantee, or valuation performed on your behalf.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a voice-over project?</h3>
+    <p>It depends on the script's length, how you price it (per word or per finished minute), and — critically — how the buyer plans to use the recording. This calculator applies commonly cited voice-over rate-guide conventions: a base fee from length and rate, then a usage/licensing multiplier for internal-only use, unrestricted web use, regional broadcast, national broadcast, or a full buyout.</p>
+    <h3>Why does the usage term change the price so much?</h3>
+    <p>A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year — the recording is identical, but what the buyer is licensing is completely different. Voice-over rate guides price usage in tiers for exactly this reason, and a narrator who quotes one flat rate regardless of usage is leaving money on the table for broadcast and buyout work.</p>
+    <h3>Why is an audiobook priced differently, per finished hour instead of per word?</h3>
+    <p>Per-finished-hour (PFH) pricing is the audiobook industry's own convention, most visibly used by ACX. A finished hour is the length of the produced, edited audio a listener hears — not the raw word count or the time it took to record it — so this calculator estimates finished hours from manuscript word count using a commonly cited words-per-finished-hour conversion, then prices against that estimate.</p>
+    <h3>Is this a quote I can send a client, or a guarantee of what I'll be paid?</h3>
+    <p>No. It is a starting point for your own negotiation based on general rate-guide conventions, not a quote, guarantee, or valuation performed on your behalf. Actual rates vary by your experience, demo quality, niche demand, and what a specific buyer is willing to pay for a specific project.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own project terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote-calculated</code>, <code>example-loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeProjectQuote, computeAudiobookQuote, USAGE_TERM_LABELS } from "./calc.mjs";
+    import { recordEvent, usageAllowed, toggleUsage } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      projectType: $("#project-type"),
+      scriptFields: $("#script-fields"),
+      audiobookFields: $("#audiobook-fields"),
+      wordCount: $("#word-count"),
+      wordsPerMinute: $("#words-per-minute"),
+      pricingMethod: $("#pricing-method"),
+      rate: $("#rate"),
+      usageTerm: $("#usage-term"),
+      rush: $("#rush"),
+      exclusive: $("#exclusive"),
+      extraRevisions: $("#extra-revisions"),
+      extraRevisionFee: $("#extra-revision-fee"),
+      abWordCount: $("#ab-word-count"),
+      wordsPerFinishedHour: $("#words-per-finished-hour"),
+      ratePerFinishedHour: $("#rate-per-finished-hour"),
+      epmRate: $("#epm-rate-per-finished-hour"),
+      status: $("#status"),
+      reportCard: $("#report-card"),
+      stats: $("#stats"),
+      resultBody: $("#result-body"),
+      findings: $("#findings"),
+    };
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function updateVisibleFields() {
+      const isAudiobook = els.projectType.value === "audiobook";
+      els.scriptFields.hidden = isAudiobook;
+      els.audiobookFields.hidden = !isAudiobook;
+    }
+
+    function runScriptQuote() {
+      const input = {
+        wordCount: Number(els.wordCount.value),
+        wordsPerMinute: Number(els.wordsPerMinute.value),
+        pricingMethod: els.pricingMethod.value,
+        rate: Number(els.rate.value),
+        usageTerm: els.usageTerm.value,
+        rush: els.rush.checked,
+        exclusive: els.exclusive.checked,
+        extraRevisions: Number(els.extraRevisions.value),
+        extraRevisionFee: Number(els.extraRevisionFee.value),
+      };
+      const result = computeProjectQuote(input);
+      els.stats.textContent = `${result.finishedMinutes.toLocaleString()} estimated finished minute(s) of audio at the read pace entered above.`;
+      els.resultBody.innerHTML = `
+        <tr><td>Base fee (before usage term)</td><td class="price">${money(result.baseFee)}</td></tr>
+        <tr><td>Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</td><td class="price">×${result.usageMultiplier}</td></tr>
+        <tr><td>License fee (base × usage × rush × exclusivity)</td><td class="price">${money(result.licenseFee)}</td></tr>
+        <tr><td>Extra revision rounds (${result.revisionRounds})</td><td class="price">${money(result.revisionFee)}</td></tr>
+        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>`;
+      renderFindings(result.findings);
+    }
+
+    function runAudiobookQuote() {
+      const input = {
+        wordCount: Number(els.abWordCount.value),
+        wordsPerFinishedHour: Number(els.wordsPerFinishedHour.value),
+        ratePerFinishedHour: Number(els.ratePerFinishedHour.value),
+        epmRatePerFinishedHour: Number(els.epmRate.value),
+      };
+      const result = computeAudiobookQuote(input);
+      els.stats.textContent = `${result.finishedHours.toLocaleString()} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
+      els.resultBody.innerHTML = `
+        <tr><td>Narration fee (finished hours × your rate)</td><td class="price">${money(result.narrationFee)}</td></tr>
+        <tr><td>Editing / proofing / mastering fee</td><td class="price">${money(result.epmFee)}</td></tr>
+        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>
+        <tr><td>Effective rate per manuscript word</td><td class="price">${money(result.effectivePerWord)}</td></tr>`;
+      renderFindings(result.findings);
+    }
+
+    function runCalculate() {
+      if (els.projectType.value === "audiobook") {
+        runAudiobookQuote();
+      } else {
+        runScriptQuote();
+      }
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      recordEvent("quote-calculated");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    els.projectType.addEventListener("change", updateVisibleFields);
+
+    $("#calculate").addEventListener("click", () => {
+      const isAudiobook = els.projectType.value === "audiobook";
+      const missing = isAudiobook
+        ? (!els.abWordCount.value || !els.ratePerFinishedHour.value)
+        : (!els.wordCount.value || !els.rate.value);
+      if (missing) {
+        els.status.innerHTML = `<span class="error">Enter a word count and a rate above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.projectType.value = "script";
+      updateVisibleFields();
+      els.wordCount.value = "150";
+      els.wordsPerMinute.value = "150";
+      els.pricingMethod.value = "perWord";
+      els.rate.value = "0.30";
+      els.usageTerm.value = "web";
+      els.rush.checked = false;
+      els.exclusive.checked = false;
+      els.extraRevisions.value = "0";
+      els.extraRevisionFee.value = "0";
+      runCalculate();
+      recordEvent("example-loaded");
+      els.status.textContent = "Worked example: a 150-word e-learning script priced per word for unrestricted web use.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.wordCount.value = "";
+      els.rate.value = "";
+      els.abWordCount.value = "";
+      els.ratePerFinishedHour.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      toggleUsage(false);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (!usageAllowed()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+
+    updateVisibleFields();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+      <li><a href="../401k-plan-fee-calculator/" data-pf-to="401k-plan-fee-calculator">401(k) Plan Fee Calculator — free, private</a></li>
+      <li><a href="../ad-slot-sell-through-planner/" data-pf-to="ad-slot-sell-through-planner">Should you raise your sponsorship price? Free sell-through planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=voiceover-project-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/?pfEmbed=1&quot; title=&quot;Voice-Over Project Rate Calculator — free, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="voiceover-project-rate-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/" data-pf-embed-title="Voice-Over Project Rate Calculator — free, no sign-up" data-pf-embed-slug="voiceover-project-rate-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="voiceover-project-rate-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="voiceover-project-rate-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

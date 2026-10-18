@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
+  <meta name="description" content="Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source…">
+  <meta property="og:title" content="Survey Keeper — an NPS survey that says why the score is what it is">
+  <meta property="og:description" content="NPS with a confidence range, detractor-heavy words and a webhook on every detractor, in one zero-dependency Node server. No per-response fee.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/survey-keeper/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Survey Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted surveys and Net Promoter Score: NPS, rating, choice and text questions, a 95% range on the score, the words detractors use more than promoters, results by source, CSV export and a webhook alert on every detractor, with no per-response fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Typeform, SurveyMonkey or Delighted?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need logic branching, a design studio, panels of respondents or a vendor to call. They charge by the month, often cap responses on the cheaper plans, and your customers' answers live on their servers. Survey Keeper is one small Node server in your own account: NPS, rating, choice and free-text questions, results with a confidence range, CSV export and no per-response fee. It suits a product or shop that wants a pulse from a few hundred customers."}}, {"@type": "Question", "name": "How is the NPS calculated, and what is the range?", "acceptedAnswer": {"@type": "Answer", "text": "Each answer counts as +1 for a 9 or 10, 0 for a 7 or 8 and -1 for 0 to 6. The score is the average times 100. The 95% range comes from the variance of that three-point score, so with 20 answers it is wide and with 400 it narrows. If a change moves the score by less than the range, you cannot tell it from noise."}}, {"@type": "Question", "name": "What is the detractor-words table?", "acceptedAnswer": {"@type": "Answer", "text": "For every free-text question, Survey Keeper lists the words that come up in comments and shows whether detractors or promoters use each one more often. It is plain word counting with stop words removed, not a language model. A word like billing that detractors use several times as often as promoters points at what to fix first."}}, {"@type": "Question", "name": "Can I paste scores I already have?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The demo on this page takes lines of a score and an optional comment, for example 9, fast and friendly, and shows the NPS, its range and the word table in your browser. Nothing you paste is uploaded."}}, {"@type": "Question", "name": "How do I run a survey?", "acceptedAnswer": {"@type": "Answer", "text": "Define it in plain text, one question per line, such as nps*: How likely are you to recommend us? and text: What is the main reason for your score? Share the link, add ?ref=email or ?ref=app to see each channel's score, or embed it in an iframe from an origin you allow."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Your survey definitions and each response as the answers given, a timestamp and an optional short source tag, in one JSON file you control. It stores no name, email or IP address unless a respondent types one into a comment. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice and any consent your respondents' location requires."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 14px ui-monospace, monospace; min-height: 180px; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    .big { font-size: 2.8rem; font-weight: 700; color: #14204f; line-height: 1; }
+    .pos { color: #13703a; } .neg { color: #a3191f; font-weight: 600; }
+    .row { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Survey Keeper — an NPS survey that says why the score is what it is","item":"https://duncan-haywood.github.io/monorepo-projects/survey-keeper/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/survey-keeper/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/survey-keeper/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Survey Keeper — an NPS survey that says why the score is what it is — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Survey Keeper — an NPS survey that says why the score is what it is</span></span></nav>
+  <main>
+  <h1>An NPS survey that tells you why the score is what it is.</h1>
+  <p>Survey Keeper is the open-source survey and Net Promoter Score server for a small product or shop. Define questions in plain text, share a link, and read results with a confidence range, the words detractors use more than promoters, and a score for each channel you sent it through. Below is the same calculation the server uses, running on sample answers you can replace. Everything on this page runs in your browser; nothing you type is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try it: paste scores and comments</h2>
+    <label for="data">One answer per line: a score from 0 to 10, then an optional comment</label>
+    <textarea id="data" spellcheck="false">10, love how fast search is
+9, great support team
+9
+8, fine but the export is slow
+7
+6, billing is confusing and invoices are hard to find
+4, billing page is confusing, no way to download invoices
+3, export is slow and support took days
+10, easy to get started
+2, support was slow to answer
+9, search is fast
+8, good value</textarea>
+    <div class="row" aria-live="polite">
+      <div><div class="big" id="nps">—</div><div class="note" id="range"></div></div>
+      <div class="note" id="split"></div>
+    </div>
+    <p id="warn" class="note"></p>
+    <h3>What people mention</h3>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Word</th><th scope="col">Comments</th><th scope="col">Detractors vs promoters</th></tr></thead><tbody id="themes"></tbody></table></div>
+    <p class="note">Word counting with common words removed, not a language model. A word detractors use at least 1.5 times as often as promoters is a place to look first.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Survey Keeper</th></tr></thead><tbody>
+      <tr><td>Typeform, SurveyMonkey, Delighted, Survicate</td><td>Monthly fees that rise with responses; answers live with them; the cheap tiers hide trend and export</td><td>Your server, unlimited surveys and responses, no per-response fee</td></tr>
+      <tr><td>LimeSurvey, Formbricks</td><td>Full platforms: a database, a build, many settings</td><td>One Node process and one JSON file</td></tr>
+      <tr><td>A Google Form and a spreadsheet</td><td>No NPS maths, no range, no per-channel score, no alert on an unhappy customer</td><td>NPS, 95% range, results by <code>?ref=</code> and a webhook on every detractor</td></tr>
+    </tbody></table></div>
+    <p class="note">Honest limits: no skip logic or page branching, no email sending (share the link or embed it), one admin key, no respondent panel, and the word table is counting, not sentiment analysis. For research-grade surveys, use a full platform.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/survey-keeper
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), edit the sample survey, and share <code>/s/customer-pulse?ref=email</code>. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Typeform, SurveyMonkey or Delighted?</h3>
+    <p>Those are polished and the right call if you need logic branching, a design studio, panels of respondents or a vendor to call. They charge by the month, often cap responses on the cheaper plans, and your customers' answers live on their servers. Survey Keeper is one small Node server in your own account: NPS, rating, choice and free-text questions, results with a confidence range, CSV export and no per-response fee. It suits a product or shop that wants a pulse from a few hundred customers.</p>
+    <h3>How is the NPS calculated, and what is the range?</h3>
+    <p>Each answer counts as +1 for a 9 or 10, 0 for a 7 or 8 and -1 for 0 to 6. The score is the average times 100. The 95% range comes from the variance of that three-point score, so with 20 answers it is wide and with 400 it narrows. If a change moves the score by less than the range, you cannot tell it from noise.</p>
+    <h3>What is the detractor-words table?</h3>
+    <p>For every free-text question, Survey Keeper lists the words that come up in comments and shows whether detractors or promoters use each one more often. It is plain word counting with stop words removed, not a language model. A word like billing that detractors use several times as often as promoters points at what to fix first.</p>
+    <h3>Can I paste scores I already have?</h3>
+    <p>Yes. The demo on this page takes lines of a score and an optional comment, for example 9, fast and friendly, and shows the NPS, its range and the word table in your browser. Nothing you paste is uploaded.</p>
+    <h3>How do I run a survey?</h3>
+    <p>Define it in plain text, one question per line, such as nps*: How likely are you to recommend us? and text: What is the main reason for your score? Share the link, add ?ref=email or ?ref=app to see each channel's score, or embed it in an iframe from an origin you allow.</p>
+    <h3>What does it store?</h3>
+    <p>Your survey definitions and each response as the answers given, a timestamp and an optional short source tag, in one JSON file you control. It stores no name, email or IP address unless a respondent types one into a comment. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice and any consent your respondents' location requires.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../help-keeper/">Help Keeper</a> runs a help center, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../form-inbox/">Form Inbox</a> collects website forms and <a href="../support-desk/">Support Desk</a> answers customer email.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any survey you run, responsible for its questions, a privacy notice and the data-protection and consent rules where you and your respondents live. The NPS, its range and the word table are heuristics, they depend on who answers, and they can be wrong. This is not legal, tax, or financial advice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 28 open-source tools you run yourself.</p>
+  </footer>
+  </main>
+  <script type="module">
+    import { parsePasted, npsStats, themes, bucket } from "./survey.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const sign = (n) => (n > 0 ? "+" + n : String(n));
+    let first = true;
+    const run = () => {
+      const rows = parsePasted($("data").value), s = npsStats(rows.map((r) => r.score));
+      $("nps").textContent = s.nps == null ? "—" : sign(s.nps);
+      $("range").textContent = s.ci ? "NPS, 95% range " + sign(s.ci[0]) + " to " + sign(s.ci[1]) : "NPS";
+      $("split").textContent = s.n ? s.promoters + " promoters · " + s.passives + " passives · " + s.detractors + " detractors · " + s.n + " answers" : "Paste at least one score.";
+      $("warn").textContent = s.n && s.n < 30 ? "Fewer than 30 answers: read the score as a rough signal; the range shows how wide it is." : "";
+      const body = $("themes"); body.textContent = "";
+      const ts = themes(rows.filter((r) => r.text).map((r) => ({ text: r.text, group: bucket(r.score) })));
+      for (const t of ts) {
+        const tr = document.createElement("tr");
+        const verdict = t.lift == null ? "—" : t.lift >= 1.5 ? t.lift + "× more from detractors" : t.lift <= 0.67 ? "promoter word" : "even";
+        for (const v of [t.term, String(t.count), verdict]) { const td = document.createElement("td"); td.textContent = v; tr.append(td); }
+        if (t.lift != null && t.lift >= 1.5) tr.lastChild.className = "neg";
+        body.append(tr);
+      }
+      if (!ts.length) { const tr = document.createElement("tr"), td = document.createElement("td"); td.colSpan = 3; td.textContent = "No repeated words yet."; tr.append(td); body.append(tr); }
+      if (!first) record("paste"); first = false;
+    };
+    $("data").addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to x, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cancel-flow/" data-pf-to="cancel-flow">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a></li>
+      <li><a href="../changelog-keeper/" data-pf-to="changelog-keeper">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a></li>
+      <li><a href="../churn-radar/" data-pf-to="churn-radar">Churn Radar — see who is about to cancel before they do</a></li>
+      <li><a href="../cron-heartbeat/" data-pf-to="cron-heartbeat">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=survey-keeper">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/survey-keeper/?pfEmbed=1&quot; title=&quot;Survey Keeper — an NPS survey that says why the score is what it is — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="survey-keeper"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/survey-keeper/" data-pf-embed-title="Survey Keeper — an NPS survey that says why the score is what it is" data-pf-embed-slug="survey-keeper"></script>
+</body>
+</html>

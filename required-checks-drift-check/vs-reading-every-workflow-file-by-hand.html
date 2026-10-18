@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This Checker vs. Reading Every Workflow File by Hand</title>
+  <meta name="description" content="A pull request stuck at 'Expected -- Waiting for status to be reported' gives no reason why. Tracing it by hand means opening every .github/workflows file and…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html">
+  <meta property="og:title" content="This checker vs. reading every workflow file by hand">
+  <meta property="og:description" content="GitHub's own UI gives no reason a required check is stuck forever. Tracing it by hand means re-deriving every job's current check name from every workflow file…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can't I just read the workflow files myself?","acceptedAnswer":{"@type":"Answer","text":"You can, and for one workflow with one job it is faster than pasting anything anywhere. The problem is scale and drift: a repository with a dozen workflows and matrix jobs across several of them means re-deriving each job's current reported name (its name: field if set, otherwise its job id, with matrix combinations appended) from YAML, by eye, for every job, every time you suspect drift — and doing it again after every workflow edit, because nothing tells you when a rename happened."}},{"@type":"Question","name":"What does GitHub's own UI tell me when this happens?","acceptedAnswer":{"@type":"Answer","text":"Nothing useful. The pull request sits at \"Expected — Waiting for status to be reported\" indefinitely, with no message naming which required check is the problem or why. Settings → Branches shows you the required name you configured, but does not check it against what your workflows currently produce — that comparison is exactly what GitHub never runs for you."}},{"@type":"Question","name":"Is reading the workflow by hand ever wrong, not just slow?","acceptedAnswer":{"@type":"Answer","text":"Yes, in the case that matters most: a workflow that dropped its pull_request trigger. The job can have the exact right name and pass every time it runs, and still never satisfy the required check on a pull request, because it only runs on push. Reading the job's name tells you nothing about its trigger, so a hand check that only looks at name: lines can pass a workflow that is actually broken for this purpose."}},{"@type":"Question","name":"Does this tool check my branch protection settings for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls of any kind and never reads your repository or its settings. You paste the required check names and the workflow YAML yourself, and the comparison runs entirely in this page."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 900px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .86rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    a { color: #17324a; }
+    .cta { background: #17324a; color: #fff; display: inline-block; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. reading every workflow file by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../required-checks-drift-check/">Is a required status check stuck forever on your repo?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. reading every workflow file by hand</span></span></nav>
+  <p><a href="./">&larr; Required Checks Drift Check</a></p>
+  <header>
+    <h1>This checker vs. reading every workflow file by hand</h1>
+    <p>GitHub's own UI gives you nothing to go on: a pull request stuck at
+    "Expected &mdash; Waiting for status to be reported" names no cause.
+    Tracing it by hand means opening every workflow file and re-deriving
+    each job's current check name yourself &mdash; and doing it again the
+    next time you suspect drift.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>What reading the workflows by hand gets you</h2>
+    <p>For one workflow with one job, this is genuinely faster than pasting
+    anything into a page: open the file, read the job's <code>name:</code>
+    or its id, compare it to what Settings &rarr; Branches requires, done. It
+    stops scaling the moment a repository has more than a couple of
+    workflows, any matrix jobs, or a required-check list nobody has
+    re-audited since it was set up &mdash; which is precisely when drift is
+    most likely to have already happened.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checker does instead</h2>
+    <p>Paste your required check names (from Settings &rarr; Branches, or
+    the branch-protection API's JSON) and one or more workflow files, and it
+    computes every job's current reported name &mdash; its <code>name:</code>
+    field if set, otherwise its job id, with matrix combinations expanded in
+    declared order &mdash; and flags every required name nothing can
+    currently satisfy. A dynamic matrix or a reusable-workflow call is
+    reported <code>unverifiable</code> rather than guessed at, so a result
+    never claims more certainty than the YAML actually gives it.</p>
+  </section>
+
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Reading every workflow file by hand</th><th scope="col">This checker</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Works for one workflow, one job. Scales badly across a dozen
+        workflows and several matrix jobs, and has to be redone from scratch
+        after every workflow edit.</td>
+        <td>Computes every job's current check name from the pasted YAML in
+        one pass, matrix combinations included, every time you run it.</td>
+      </tr>
+      <tr>
+        <td>A quick read checks the job's <code>name:</code> line and stops
+        there &mdash; which passes a workflow that dropped its
+        <code>pull_request</code> trigger, because the name is still
+        correct even though the job can never report on a pull request
+        again.</td>
+        <td>Checks the trigger as well as the name, so a required check
+        pointed at a push-only workflow is flagged the same as a renamed or
+        removed job.</td>
+      </tr>
+      <tr>
+        <td>Guesses at a matrix job's reported name by eye, which is exactly
+        the case most likely to be gotten wrong by hand (the appended
+        combination text has to match GitHub's own ordering exactly).</td>
+        <td>Expands a static matrix in its declared order and reports a
+        dynamic one as <code>unverifiable</code> rather than a guess either
+        way could be wrong about.</td>
+      </tr>
+      <tr>
+        <td>Gives you no artifact to hand to a teammate or re-run after the
+        next workflow change &mdash; the check lived in your head for as
+        long as you were looking at the files.</td>
+        <td>Wires into CI with <code>check.py --fail-on-stale</code>, so a
+        newly-drifted required check is caught the moment it happens rather
+        than the next time someone happens to notice a stuck PR.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why can't I just read the workflow files myself?</h3>
+    <p>You can, and for one workflow with one job it is faster than pasting
+    anything anywhere. The problem is scale and drift: a repository with a
+    dozen workflows and matrix jobs across several of them means
+    re-deriving each job's current reported name (its <code>name:</code>
+    field if set, otherwise its job id, with matrix combinations appended)
+    from YAML, by eye, for
+    every job, every time you suspect drift &mdash; and doing it again
+    after every workflow edit, because nothing tells you when a rename
+    happened.</p>
+    <h3>What does GitHub's own UI tell me when this happens?</h3>
+    <p>Nothing useful. The pull request sits at "Expected &mdash; Waiting
+    for status to be reported" indefinitely, with no message naming which
+    required check is the problem or why. Settings &rarr; Branches shows
+    you the required name you configured, but does not check it against
+    what your workflows currently produce &mdash; that comparison is
+    exactly what GitHub never runs for you.</p>
+    <h3>Is reading the workflow by hand ever wrong, not just slow?</h3>
+    <p>Yes, in the case that matters most: a workflow that dropped its
+    <code>pull_request</code> trigger. The job can have the exact right
+    name and pass every time it runs, and still never satisfy the required
+    check on a pull request, because it only runs on push. Reading the
+    job's name tells you nothing about its trigger, so a hand check that
+    only looks at <code>name:</code> lines can pass a workflow that is
+    actually broken for this purpose.</p>
+    <h3>Does this tool check my branch protection settings for me?</h3>
+    <p>No. It makes no network calls of any kind and never reads your
+    repository or its settings. You paste the required check names and the
+    workflow YAML yourself, and the comparison runs entirely in this
+    page.</p>
+    <p class="note">Nothing here says reading a workflow file is a bad
+    habit &mdash; it is exactly the right tool for a quick, one-job check.
+    This page describes the point where that habit stops scaling to a real
+    branch-protection list.</p>
+  </section>
+
+  <section class="card">
+    <h2>Check your own workflows</h2>
+    <p>Paste your required check names and workflow files and see every
+    required check nothing can currently satisfy &mdash; the comparison a
+    by-hand read has to redo from scratch every time.</p>
+    <p><a class="cta" href="./">Open the Required Checks Drift Check</a></p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your CI configuration, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming in GitHub's own UI before changing branch protection settings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything on this page runs in your browser. Nothing is uploaded, and this page names no specific reviewer, team, or tool.</p>
+    <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-transitive-pin-check/" data-pf-to="actions-transitive-pin-check">Does your pinned workflow load something unpinned underneath it?</a></li>
+      <li><a href="../agent-instructions-drift-check/" data-pf-to="agent-instructions-drift-check">Does your AI coding agent's instruction file still match your repo?</a></li>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=required-checks-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="required-checks-drift-check"></script>
+</body>
+</html>

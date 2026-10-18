@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU VAT OSS Calculator</title>
+  <meta name="description" content="Free EU VAT OSS calculator: EUR 10,000 threshold check and the quarterly OSS return by country and rate from a sales CSV.">
+  <meta property="og:title" content="EU VAT OSS Calculator — free, private, in your browser">
+  <meta property="og:description" content="Threshold headroom, per-country VAT due and a CSV of the OSS return from your own sales file. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU VAT OSS Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Checks the EUR 10,000 EU distance-sales threshold and computes the quarterly VAT One-Stop-Shop (OSS) return by country and rate from a sales CSV, with refunds, B2B, domestic sales and foreign currencies handled. Runs entirely in your browser; the file is never uploaded.", "featureList": "EU VAT OSS calculator, EUR 10,000 distance sales threshold, per-country per-rate VAT due, gross to net VAT reverse calculation, refund handling, quarterly OSS return CSV export, 10 year record keeping checklist, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to register for the EU VAT OSS?","acceptedAnswer":{"@type":"Answer","text":"You are not forced to use it, but if you sell goods or digital services to consumers in other EU countries and your cross-border sales to consumers go over EUR 10,000 (net of VAT) in the current or the previous calendar year, you must charge the VAT of each customer's country, and OSS lets you declare and pay all of it in one quarterly return in your own country instead of registering in every country. Below the threshold you may keep charging your own country's VAT, or opt into OSS earlier. Sellers established outside the EU have no threshold and can use the non-Union OSS for services. Check your authority's guidance."}},{"@type":"Question","name":"How does the EUR 10,000 distance-sales threshold work?","acceptedAnswer":{"@type":"Answer","text":"The threshold is EU-wide, not per country, and it is measured on sales to consumers in other EU countries, net of VAT, per calendar year. If the previous year was over it, or this year goes over it, the sale that crosses the line and every later one takes the VAT rate of the customer's country. This page adds your file in date order, shows how much headroom is left and names the row and date where it was crossed."}},{"@type":"Question","name":"Which VAT rate applies to an EU consumer I sell to?","acceptedAnswer":{"@type":"Answer","text":"Above the threshold, the rate of the country where the consumer is, not yours: standard for most digital services and goods, and a reduced rate where that country applies one, for example to e-books in some countries. The rate table on this page is from memory with an as-of date. Rates change, so check the European Commission's VAT rates page or the tax authority before you file."}},{"@type":"Question","name":"Are domestic sales and B2B sales on the OSS return?","acceptedAnswer":{"@type":"Answer","text":"No. Sales to customers in your own country go on your normal VAT return. Sales to businesses with a valid VAT ID in another country are normally not OSS sales either. This page lists both separately and leaves them off the return table."}},{"@type":"Question","name":"How is the VAT on each line rounded?","acceptedAnswer":{"@type":"Answer","text":"Amounts are added up per country and per VAT rate, converted to euro, rounded to cents once, and then the VAT is calculated on that total. Rounding each line and adding the results can differ by a few cents, so your own system may not match to the cent. If your amounts include VAT, the VAT is taken out of the rounded gross total so that taxable amount plus VAT equals what the customers paid."}},{"@type":"Question","name":"Which exchange rate do I use for sales in other currencies?","acceptedAnswer":{"@type":"Answer","text":"The usual rule is the European Central Bank reference rate for the last day of the return period. The page cannot fetch rates, so you type them in as units of the currency per 1 EUR, and it shows which currencies in your file still need one. Confirm the rule with your authority."}},{"@type":"Question","name":"What records do I have to keep?","acceptedAnswer":{"@type":"Answer","text":"Generally for 10 years: the country of consumption, what was supplied, dates, taxable amounts, rates, VAT due, payments, and the evidence of where the customer was, normally two non-conflicting pieces such as billing address, IP address or card country. The page prints the list with your result. It is information, not advice, and your authority decides the details."}},{"@type":"Question","name":"Does this file leave my computer?","acceptedAnswer":{"@type":"Answer","text":"No. The CSV is read in your browser tab and nothing is uploaded, and the page makes no network requests. Customer data is only as private as the device you use."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    tfoot td { font-weight: 700; border-top: 2px solid #1f4a5d; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { font-size: 1.5rem; font-weight: 700; color: #1f4a5d; }
+    .over { color: #9a3412; font-weight: 700; }
+    .ok { color: #1f6b43; font-weight: 700; }
+    .warnbox { background: #fdf0d5; border: 1px solid #e6cf92; border-radius: 10px; padding: 10px 14px; font-size: .9rem; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 140px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 600; }
+    .chk { color: #9a3412; font-weight: 700; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"EU VAT OSS Calculator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="EU VAT OSS Calculator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">EU VAT OSS Calculator — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <main>
+  <header>
+    <p class="note">EU VAT OSS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you owe on this quarter's EU OSS return?</h1>
+    <p>Paste or drop a <strong>sales CSV</strong> and see whether you have crossed the <strong>EUR 10,000 distance-sales threshold</strong>, then get the <strong>VAT due per country and per rate</strong> for the quarterly One-Stop-Shop return, with refunds, B2B and domestic sales split out, foreign currencies converted at the rates you type in, and a CSV of the return to take to your portal. For small sellers of e-books, courses, apps, software and Etsy or Shopify goods, including sellers outside the EU using the non-Union OSS.</p>
+    <p class="note">Your file is read in this browser tab and never leaves your device. This is arithmetic on your own data, not tax advice, and not affiliated with the European Commission or any tax authority. <strong>The VAT rates in the table are from memory and have an as-of date; rates change, so verify each one against the European Commission's VAT rates page or your tax authority before you file.</strong></p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your business</h2>
+    <div class="grid">
+      <div><label for="seller">Where are you established?</label>
+        <select id="seller"><option value="">Choose a country…</option><option value="AT">Austria</option><option value="BE">Belgium</option><option value="BG">Bulgaria</option><option value="HR">Croatia</option><option value="CY">Cyprus</option><option value="CZ">Czechia</option><option value="DK">Denmark</option><option value="EE">Estonia</option><option value="FI">Finland</option><option value="FR">France</option><option value="DE">Germany</option><option value="EL">Greece</option><option value="HU">Hungary</option><option value="IE">Ireland</option><option value="IT">Italy</option><option value="LV">Latvia</option><option value="LT">Lithuania</option><option value="LU">Luxembourg</option><option value="MT">Malta</option><option value="NL">Netherlands</option><option value="PL">Poland</option><option value="PT">Portugal</option><option value="RO">Romania</option><option value="SK">Slovakia</option><option value="SI">Slovenia</option><option value="ES">Spain</option><option value="SE">Sweden</option><option value="NONEU">Outside the EU (non-Union OSS)</option></select></div>
+      <div><label for="supply">What do you sell to consumers?</label>
+        <select id="supply"><option value="services">Digital services, e-books, courses, apps</option><option value="goods">Goods shipped from my EU country (distance sales)</option></select></div>
+      <div><label for="ossmode">OSS use</label>
+        <select id="ossmode"><option value="threshold">Only above the EUR 10,000 threshold</option><option value="optin">I opted into OSS from the start</option></select></div>
+      <div><label for="prior">Previous year's net sales to consumers in other EU countries, EUR (optional)</label>
+        <input id="prior" inputmode="decimal" placeholder="e.g. 8200.00"></div>
+      <div><label for="originrate">Your own VAT rate on sales below the threshold, % (optional)</label>
+        <input id="originrate" inputmode="decimal" placeholder="your country's standard rate"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your sales file</h2>
+    <p class="note">One row per sale or refund with a date, the customer's country and an amount. Optional columns: currency, rate (standard, reduced, zero, e-book or a percentage), a VAT ID or B2B flag, and a type column containing refund or credit. Headers are detected for common exports (Shopify, Etsy, accounting software); you can correct the match after the first run.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Country,Net amount,Currency,Rate,VAT ID,Type&#10;2026-04-02,PL,2200.00,EUR,standard,,sale"></textarea>
+    <div class="grid">
+      <div><label for="basis">Amounts in the file are</label>
+        <select id="basis"><option value="net">Net of VAT</option><option value="gross">Gross, VAT included</option></select></div>
+      <div><label for="period">OSS return quarter</label>
+        <select id="period"><option value="">All dates in the file</option></select></div>
+      <div><label for="dateorder">Dates like 03/04/2026 are</label>
+        <select id="dateorder"><option value="dmy">day/month/year</option><option value="mdy">month/day/year</option></select></div>
+      <div><label for="decimal">Decimal separator</label>
+        <select id="decimal"><option value="auto">Detect</option><option value="dot">Dot (1,234.56)</option><option value="comma">Comma (1.234,56)</option></select></div>
+    </div>
+    <div id="fx-box" hidden>
+      <h3>Exchange rates for other currencies</h3>
+      <p class="note">Type how many units of each currency equal 1 EUR (the ECB reference rate for the last day of the quarter is the usual source; this page cannot fetch it).</p>
+      <div class="grid" id="fx-list"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load a net example</button>
+      <button type="button" class="secondary" id="load-gross">Load a gross example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose where you are established, add a file, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="mapping-card" hidden>
+    <h2>Columns used</h2>
+    <p class="note">Detected from your headers. Change any that are wrong and the result updates.</p>
+    <div class="grid" id="mapping"></div>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>EUR 10,000 threshold</h2>
+    <p class="note" id="threshold-note"></p>
+    <div class="scroll" tabindex="0" role="region" aria-label="Threshold by year"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Year</th><th class="n" scope="col">Net sales to other EU countries</th><th class="n" scope="col">Headroom</th><th scope="col">Status</th><th scope="col">Crossed</th></tr></thead><tbody id="threshold"></tbody></table></div></div>
+
+    <h2 style="margin-top:26px">OSS return <span id="period-label"></span></h2>
+    <p class="stats" id="oss-stats"></p>
+    <div class="scroll" tabindex="0" role="region" aria-label="OSS return"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Country</th><th class="n" scope="col">VAT rate</th><th class="n" scope="col">Taxable amount (EUR)</th><th class="n" scope="col">VAT due (EUR)</th><th class="n" scope="col">Rows</th></tr></thead><tbody id="oss"></tbody><tfoot id="oss-foot"></tfoot></table></div></div>
+    <p class="note">Each figure is rounded once per country and per rate, not per line, so your own system may differ by a few cents. Check the figures before you enter them in your return.</p>
+    <p><button type="button" id="download-oss">Download the OSS return as CSV</button> <button type="button" class="secondary" id="download-findings">Download findings as CSV</button> <button type="button" class="secondary" id="download-rows">Download row classification as CSV</button></p>
+
+    <h3>Left off the return</h3>
+    <div class="scroll" tabindex="0" role="region" aria-label="Rows left off the return"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Rows</th><th class="n" scope="col">Amount (EUR)</th><th scope="col">Why</th></tr></thead><tbody id="buckets"></tbody></table></div></div>
+
+    <h3>Findings</h3>
+    <div id="findings"></div>
+
+    <h3>Rows</h3>
+    <div class="scroll" tabindex="0" role="region" aria-label="Row classification"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Row</th><th scope="col">Date</th><th scope="col">Country</th><th class="n" scope="col">Amount (EUR)</th><th class="n" scope="col">Rate</th><th scope="col">Where it goes</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p class="note" id="rows-more"></p>
+
+    <h3>What to keep as records</h3>
+    <ul id="records"></ul>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Threshold:</strong> net sales to consumers in other EU countries are added in date order per calendar year. Over EUR 10,000 in the current or the previous year, the sale that crosses it and every later one takes the destination country's VAT. Sellers outside the EU have no threshold.</li>
+      <li><strong>Rates:</strong> from one table with an as-of date. The rate column can say standard, reduced, zero, e-book or a percentage. "Reduced" means the highest reduced rate of that country and the page warns when there are several.</li>
+      <li><strong>Money:</strong> every amount is an exact decimal (integers, no floating point). Currencies convert at the rates you type. VAT is rounded once per country and rate.</li>
+      <li><strong>Not on the return:</strong> your own country's sales, B2B sales with a VAT ID, sales to non-EU countries, and sales before the threshold was crossed.</li>
+      <li><strong>Not modelled:</strong> IOSS, special schemes, mixed supplies, correction returns for earlier quarters, penalties and interest, national rounding rules, and the exact place-of-supply rules for your product. Refunds sit in the quarter of the refund row.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>VAT rates in this tool</h2>
+    <details>
+      <summary>Show the rate table (as of <span id="asof"></span>)</summary>
+      <p class="note"><strong>Rates change.</strong> This table is from memory of public sources and was not checked against a live source. Verify against the <a href="https://taxation-customs.ec.europa.eu/" rel="noopener">European Commission's VAT rates page</a> and your tax authority. A <span class="chk">?</span> marks a figure the author is least sure of; a dash means no e-book rate is in the table and the standard rate is used.</p>
+      <div class="scroll" tabindex="0" role="region" aria-label="VAT rates by country"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Country</th><th class="n" scope="col">Standard</th><th scope="col">Reduced</th><th class="n" scope="col">E-books</th></tr></thead><tbody id="rate-table"></tbody></table></div></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Do I need to register for the EU VAT OSS?</h3>
+    <p>You are not forced to use it, but if you sell goods or digital services to consumers in other EU countries and your cross-border sales to consumers go over EUR 10,000 (net of VAT) in the current or the previous calendar year, you must charge the VAT of each customer's country, and OSS lets you declare and pay all of it in one quarterly return in your own country instead of registering in every country. Below the threshold you may keep charging your own country's VAT, or opt into OSS earlier. Sellers established outside the EU have no threshold and can use the non-Union OSS for services. Check your authority's guidance.</p>
+    <h3>How does the EUR 10,000 distance-sales threshold work?</h3>
+    <p>The threshold is EU-wide, not per country, and it is measured on sales to consumers in other EU countries, net of VAT, per calendar year. If the previous year was over it, or this year goes over it, the sale that crosses the line and every later one takes the VAT rate of the customer's country. This page adds your file in date order, shows how much headroom is left and names the row and date where it was crossed.</p>
+    <h3>Which VAT rate applies to an EU consumer I sell to?</h3>
+    <p>Above the threshold, the rate of the country where the consumer is, not yours: standard for most digital services and goods, and a reduced rate where that country applies one, for example to e-books in some countries. The rate table on this page is from memory with an as-of date. Rates change, so check the European Commission's VAT rates page or the tax authority before you file.</p>
+    <h3>Are domestic sales and B2B sales on the OSS return?</h3>
+    <p>No. Sales to customers in your own country go on your normal VAT return. Sales to businesses with a valid VAT ID in another country are normally not OSS sales either. This page lists both separately and leaves them off the return table.</p>
+    <h3>How is the VAT on each line rounded?</h3>
+    <p>Amounts are added up per country and per VAT rate, converted to euro, rounded to cents once, and then the VAT is calculated on that total. Rounding each line and adding the results can differ by a few cents, so your own system may not match to the cent. If your amounts include VAT, the VAT is taken out of the rounded gross total so that taxable amount plus VAT equals what the customers paid.</p>
+    <h3>Which exchange rate do I use for sales in other currencies?</h3>
+    <p>The usual rule is the European Central Bank reference rate for the last day of the return period. The page cannot fetch rates, so you type them in as units of the currency per 1 EUR, and it shows which currencies in your file still need one. Confirm the rule with your authority.</p>
+    <h3>What records do I have to keep?</h3>
+    <p>Generally for 10 years: the country of consumption, what was supplied, dates, taxable amounts, rates, VAT due, payments, and the evidence of where the customer was, normally two non-conflicting pieces such as billing address, IP address or card country. The page prints the list with your result. It is information, not advice, and your authority decides the details.</p>
+    <h3>Does this file leave my computer?</h3>
+    <p>No. The CSV is read in your browser tab and nothing is uploaded, and the page makes no network requests. Customer data is only as private as the device you use.</p>
+  </section>
+
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, VAT, compliance, or financial advice, and it does not replace a qualified tax adviser or your tax authority's own guidance. Results depend entirely on the file and settings you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for the return you file.</p>
+    <p><strong>Not affiliated with the European Commission or any tax authority.</strong> This tool is independent and is not sponsored, endorsed or connected to the European Commission, any member state's tax authority, or any marketplace named by a column header. The VAT rates and rules are read from memory of public documents and may be out of date.</p>
+    <p><strong>Customer data.</strong> Sales files can contain customer details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open it in a browser tool is a question for your own data-protection obligations.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_analyzed</code>, <code>example_loaded</code>, <code>summary_exported</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../einvoice-preflight/">e-invoice preflight checker</a> checks EU e-invoices before you send them, the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> does the equivalent threshold check for US state sales tax, and the <a href="../sepa-pain001-validator/">SEPA pain.001 validator</a> checks the euro payment file you upload to your bank. Selling in Canada? The <a href="../ca-gst-hst-small-supplier-checker/">Canada GST/HST small supplier checker</a> tests the CAD 30,000 registration line.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, microToCents, formatCents, sampleCsv, sampleGrossCsv, ossCsv, findingsCsv, rowsCsv, RATES, RATES_AS_OF, EU_CODES, RECORDS_NOTE, THRESHOLD_EUR, FIELDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const money = (c) => formatCents(c, { group: true });
+    const FIELD_LABELS = { date: "Date", country: "Customer country", amount: "Amount", currency: "Currency", rate: "Rate or rate type", b2b: "VAT ID or B2B flag", type: "Sale or refund type", orderId: "Order id (duplicate check)" };
+    let state = { text: "", periodSet: false, mapping: null, last: null, fx: {} };
+
+    $("#asof").textContent = RATES_AS_OF;
+    $("#rate-table").innerHTML = RATES.map((r) => `<tr><td>${esc(r.name)} (${r.code})</td><td class="n">${r.std}%${r.check.includes("std") ? ' <span class="chk">?</span>' : ""}</td><td>${r.reduced.length ? r.reduced.join("%, ") + "%" : "none"}${r.check.includes("reduced") ? ' <span class="chk">?</span>' : ""}</td><td class="n">${r.ebook === null ? "-" : r.ebook + "%"}${r.check.includes("ebook") ? ' <span class="chk">?</span>' : ""}</td></tr>`).join("");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function options() {
+      const fx = {};
+      for (const el of document.querySelectorAll("#fx-list input")) fx[el.dataset.cur] = el.value;
+      return {
+        sellerCountry: $("#seller").value, supply: $("#supply").value, ossMode: $("#ossmode").value,
+        priorYearNet: $("#prior").value, originRate: $("#originrate").value, amountBasis: $("#basis").value,
+        period: $("#period").value, dateOrder: $("#dateorder").value, decimal: $("#decimal").value, fx, mapping: state.mapping,
+      };
+    }
+
+    function fillPeriods(r) {
+      const sel = $("#period"), cur = sel.value;
+      sel.innerHTML = `<option value="">All dates in the file</option>` + r.periods.map((p) => `<option value="${esc(p)}">${esc(p.replace("-", " "))}</option>`).join("");
+      sel.value = r.periods.includes(cur) ? cur : "";
+    }
+
+    function fillFx(r) {
+      const box = $("#fx-box"), list = $("#fx-list");
+      const have = {};
+      for (const el of list.querySelectorAll("input")) have[el.dataset.cur] = el.value;
+      box.hidden = r.currencies.length === 0;
+      const same = [...list.querySelectorAll("input")].map((el) => el.dataset.cur).join() === r.currencies.join();
+      if (same) return;
+      list.innerHTML = r.currencies.map((c) => `<div><label for="fx-${c}">${c} per 1 EUR</label><input id="fx-${c}" data-cur="${c}" inputmode="decimal" value="${esc(have[c] || "")}" placeholder="e.g. 11.2"></div>`).join("");
+    }
+
+    function fillMapping(r) {
+      const card = $("#mapping-card");
+      card.hidden = !r.mapping;
+      if (!r.mapping) return;
+      $("#mapping").innerHTML = FIELDS.map((f) => `<div><label for="map-${f}">${FIELD_LABELS[f]}</label><select id="map-${f}" data-field="${f}"><option value="-1">(none)</option>${r.headers.map((h, i) => `<option value="${i}"${r.mapping[f] === i ? " selected" : ""}>${esc(h || "(blank " + (i + 1) + ")")}</option>`).join("")}</select></div>`).join("");
+      for (const sel of card.querySelectorAll("select")) sel.addEventListener("change", () => {
+        state.mapping = {};
+        for (const s of card.querySelectorAll("select")) state.mapping[s.dataset.field] = Number(s.value);
+        run(state.text, false);
+      });
+    }
+
+    function render(r) {
+      state.last = r;
+      const errs = r.findings.filter((f) => f.severity === "error").length;
+      const warns = r.findings.filter((f) => f.severity === "warning").length;
+      $("#threshold-note").textContent = r.options.sellerCountry === "NONEU"
+        ? "Sellers established outside the EU have no EUR 10,000 threshold: every B2C sale to an EU country is taxed at the destination rate."
+        : `Net sales to consumers in other EU countries, in date order. Above EUR ${THRESHOLD_EUR.toLocaleString("en")} in the current or previous calendar year, destination-country VAT applies.`;
+      $("#threshold").innerHTML = r.thresholdYears.map((y) => `<tr><td>${y.year}</td><td class="n">${money(y.totalCents)}</td><td class="n ${y.headroomCents < 0n ? "over" : ""}">${y.headroomCents < 0n ? "over by " + money(-y.headroomCents) : money(y.headroomCents)}</td><td>${y.exceeded ? `<span class="over">${y.reason === "previous-year" ? "Over: previous year exceeded" : "Over: destination VAT applies"}</span>` : r.options.sellerCountry === "NONEU" ? "No threshold" : r.options.ossMode === "optin" ? "Under (you opted in)" : '<span class="ok">Under the threshold</span>'}</td><td>${y.crossedLine ? `${esc(y.crossedDate)} (row ${y.crossedLine})` : y.reason === "previous-year" ? `previous year ${y.prevTotalCents === null ? "" : money(y.prevTotalCents)}` : "-"}</td></tr>`).join("") || `<tr><td colspan="5">No cross-border consumer sales found.</td></tr>`;
+      $("#period-label").textContent = r.period ? `for ${r.period.replace("-", " ")}` : "for all dates in the file";
+      const due = r.dueDate ? ` Usual filing and payment deadline: ${esc(r.dueDate)} (verify with your authority).` : "";
+      $("#oss-stats").innerHTML = `<span class="big">${money(r.totals.vatCents)} EUR</span> VAT due on ${money(r.totals.baseCents)} EUR taxable · ${r.totals.count} row${r.totals.count === 1 ? "" : "s"} · ${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}.${due}`;
+      $("#oss").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)} (${l.country})</td><td class="n">${esc(l.rate)}</td><td class="n">${money(l.baseCents)}</td><td class="n">${money(l.vatCents)}</td><td class="n">${l.count}</td></tr>`).join("") || `<tr><td colspan="5">Nothing on the OSS return for this selection.</td></tr>`;
+      $("#oss-foot").innerHTML = `<tr><td>Total</td><td></td><td class="n">${money(r.totals.baseCents)}</td><td class="n">${money(r.totals.vatCents)}</td><td class="n">${r.totals.count}</td></tr>`;
+      const b = r.buckets;
+      $("#buckets").innerHTML = [
+        ["Domestic sales", "domestic", "Your own country's VAT return, not OSS. Amount as entered."],
+        ["B2B with a VAT ID", "b2b", "Business sales are normally outside OSS. Amount as entered."],
+        ["Below the threshold", "origin", "Origin-country VAT may apply; net amount, on your normal return."],
+        ["Could not be included", "excluded", "Non-EU country, bad date, amount, rate or missing exchange rate."],
+      ].map(([name, k, why]) => `<tr><td>${name}</td><td class="n">${b[k] ? b[k].count : 0}</td><td class="n">${b[k] && k !== "excluded" ? money(b[k].cents) : "-"}</td><td class="note">${why}</td></tr>`).join("");
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.row ? `Row ${f.row}: ` : ""}${esc(f.title)}</h4>${f.detail ? `<p>${esc(f.detail)}</p>` : ""}</div>`).join("") || "<p>Nothing flagged.</p>";
+      const label = { oss: "OSS return", origin: "Origin VAT, not OSS", domestic: "Domestic, not OSS", b2b: "B2B, not OSS", excluded: "Excluded", pending: "-" };
+      const shown = r.rows.slice(0, 200);
+      $("#rows").innerHTML = shown.map((x) => `<tr><td>${x.line}</td><td>${esc(x.dateStr)}</td><td>${esc(x.country || x.countryName || "")}</td><td class="n">${x.date ? money(microToCents(x.amountMicroEur)) : ""}</td><td class="n">${x.bp === null || x.bp === undefined ? "" : x.bp / 100 + "%"}</td><td>${label[x.status]}${x.status === "excluded" && x.reason ? ": " + esc(x.reason) : ""}</td></tr>`).join("");
+      $("#rows-more").textContent = r.rows.length > shown.length ? `Showing the first ${shown.length} of ${r.rows.length} rows. The CSV download has all of them.` : "";
+      $("#records").innerHTML = RECORDS_NOTE.map((t) => `<li>${esc(t)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = errs ? `Calculated with ${errs} error(s); see the findings.` : "Calculated.";
+    }
+
+    function run(text, scroll = true) {
+      state.text = text;
+      let r = analyze(text, options());
+      if (!state.periodSet && r.periods.length) {
+        fillPeriods(r);
+        $("#period").value = r.periods[r.periods.length - 1];
+        state.periodSet = true;
+        r = analyze(text, options());
+      } else fillPeriods(r);
+      fillFx(r);
+      fillMapping(r);
+      render(r);
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return r;
+    }
+
+    function resetFor(text) { state.mapping = null; state.periodSet = false; $("#period").value = ""; $("#fx-list").innerHTML = ""; $("#fx-box").hidden = true; return text; }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      let text = state.text;
+      if (f) { text = await f.text(); $("#paste").value = text; $("#file").value = ""; resetFor(text); }
+      else if ($("#paste").value !== state.text) { text = $("#paste").value; resetFor(text); }
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      const r = run(text);
+      if (r.ok) record("file_analyzed");
+    });
+    for (const id of ["seller", "supply", "ossmode", "prior", "originrate", "basis", "period", "dateorder", "decimal"]) {
+      $("#" + id).addEventListener("change", () => { if (id === "period") state.periodSet = true; if (state.text.trim()) run(state.text, false); });
+    }
+    $("#fx-list").addEventListener("change", () => { if (state.text.trim()) run(state.text, false); });
+    $("#load-example").addEventListener("click", () => {
+      $("#seller").value = "DE"; $("#basis").value = "net"; $("#supply").value = "services"; $("#ossmode").value = "threshold"; $("#prior").value = "";
+      $("#paste").value = sampleCsv(); resetFor(); run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a synthetic German course seller, net amounts, crossing the threshold in April.";
+    });
+    $("#load-gross").addEventListener("click", () => {
+      $("#seller").value = "DE"; $("#basis").value = "gross"; $("#supply").value = "services"; $("#ossmode").value = "threshold"; $("#prior").value = "12000";
+      $("#paste").value = sampleGrossCsv(); resetFor();
+      $("#fx-list").innerHTML = `<div><label for="fx-SEK">SEK per 1 EUR</label><input id="fx-SEK" data-cur="SEK" inputmode="decimal" value="11.20"></div>`;
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a Shopify-style gross export, previous year over the threshold, SEK at 11.20 per EUR.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      $("#paste").value = ""; $("#file").value = ""; $("#prior").value = ""; $("#originrate").value = ""; resetFor(); state.text = ""; state.last = null;
+      report.hidden = true; $("#mapping-card").hidden = true; status.textContent = "Choose where you are established, add a file, then click Calculate.";
+    });
+    $("#download-oss").addEventListener("click", () => { if (state.last) { record("summary_exported"); download("oss-return.csv", ossCsv(state.last), "text/csv"); } });
+    $("#download-findings").addEventListener("click", () => { if (state.last) download("oss-findings.csv", findingsCsv(state.last), "text/csv"); });
+    $("#download-rows").addEventListener("click", () => { if (state.last) download("oss-rows.csv", rowsCsv(state.last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../senior-deduction-calculator/" data-pf-to="senior-deduction-calculator">Senior Deduction Calculator — free OBBBA $6,000 estimator</a></li>
+      <li><a href="../sep-ira-vs-solo-401k-calculator/" data-pf-to="sep-ira-vs-solo-401k-calculator">SEP-IRA vs Solo 401(k) Calculator — free, 2026</a></li>
+      <li><a href="../sepa-pain001-validator/" data-pf-to="sepa-pain001-validator">SEPA pain.001 Validator — free, private, in your browser</a></li>
+      <li><a href="../sepa-pain002-status-reader/" data-pf-to="sepa-pain002-status-reader">SEPA pain.002 Status Reader — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=eu-vat-oss-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/?pfEmbed=1&quot; title=&quot;EU VAT OSS Calculator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="eu-vat-oss-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/" data-pf-embed-title="EU VAT OSS Calculator — free, private, in your browser" data-pf-embed-slug="eu-vat-oss-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="eu-vat-oss-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

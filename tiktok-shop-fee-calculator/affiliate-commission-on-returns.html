@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TikTok Shop Affiliate Commission on Returns | Worked Example</title>
+  <meta name="description" content="Worked example: a $19.99 TikTok Shop SKU with a 15% creator commission and a 12% return rate. Why the affiliate path can lose money when the commission is not…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/affiliate-commission-on-returns.html">
+  <meta property="og:title" content="TikTok Shop Affiliate Commission on Returns">
+  <meta property="og:description" content="Worked example: a $19.99 TikTok Shop SKU with a 15% creator commission and a 12% return rate. Why the affiliate path can lose money when the commission is not…">
+  <meta property="og:type" content="website">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.6; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.03; letter-spacing: -.04em; margin-bottom: .3em; }
+    h2 { margin-top: 1.8em; font-size: 1.2rem; }
+    a { color: #7a1fa2; }
+    table { width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: .94rem; }
+    th, td { padding: 8px 6px; border-bottom: 1px solid #d7cce0; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    caption { text-align: left; font-size: .85rem; color: #5c4e68; padding-bottom: 6px; }
+    .lede { font-size: 1.06rem; }
+    footer { margin-top: 2.5em; font-size: .82rem; color: #53485f; border-top: 1px solid #d7cce0; padding-top: 1em; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a TikTok Shop affiliate commission still cost you on a returned order?","acceptedAnswer":{"@type":"Answer","text":"Usually yes. In the worked example the creator keeps the 15% commission when the order comes back, TikTok returns most of the 6% referral but keeps a refund-admin fee, and the outbound fulfillment, packaging, and ads are already spent. A kept order leaves $4.11 and a returned order loses $13.82."}},{"@type":"Question","name":"What is the real margin on a 15% affiliate SKU at a 12% return rate?","acceptedAnswer":{"@type":"Answer","text":"Expected profit is $1.96 per order, not the $4.11 a kept order shows, because 88% of the time you keep $4.11 and 12% of the time you lose $13.82. That is a 9.8% margin on the revenue you actually retain. The same SKU sold organically with no creator cut expects about $5.00."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/affiliate-commission-on-returns.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TikTok Shop Affiliate Commission on Returns — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tiktok-shop-fee-calculator/">TikTok Shop Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">TikTok Shop Affiliate Commission on Returns</span></span></nav>
+  <p><a href=".">← TikTok Shop Fee Calculator</a></p>
+  <h1>A 15% affiliate and a 12% return rate on the same $19.99 SKU</h1>
+  <p class="lede">
+    “TikTok Shop takes 6%” is true and incomplete. The number that decides
+    whether a creator listing makes money is usually the commission you set,
+    times the share of orders that come back without clawing that commission
+    back.
+  </p>
+
+  <h2>The SKU</h2>
+  <p>
+    A $19.99 beauty item. The buyer pays no postage. It cost $5.50 to buy,
+    $4.28 to fulfill, $0.40 to pack, and $1.50 of ads are allocated to the
+    order. Referral is the mid-2026 US default of 6%. You offer creators 15%
+    of item price. 12% of orders come back. 80% of those returned units cannot
+    be sold again. The creator keeps the commission on a return.
+  </p>
+
+  <h2>If the order is kept</h2>
+  <div class="pf-table-scroll"><table>
+    <caption>Illustrative rates. Yours depend on category, region, and the commission you actually set.</caption>
+    <tbody>
+      <tr><td>Buyer paid</td><td>$19.99</td></tr>
+      <tr><td>TikTok referral, 6%</td><td>−$1.20</td></tr>
+      <tr><td>Creator commission, 15%</td><td>−$3.00</td></tr>
+      <tr><td>Item, fulfill, pack, ads</td><td>−$11.68</td></tr>
+      <tr><th>You keep</th><th>$4.11</th></tr>
+    </tbody>
+  </table></div>
+  <p>
+    That looks fine. A seller who stops here raises the commission to get more
+    creators on the SKU.
+  </p>
+
+  <h2>If the order comes back</h2>
+  <p>
+    The buyer is refunded. TikTok typically returns most of the referral and
+    keeps a refund-admin fee (20% of that referral, capped at $5). The
+    outbound fulfillment, packaging, and ads have already been spent. In this
+    example 80% of the $5.50 item is unsellable. The $3.00 creator commission
+    stays with the creator.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <tbody>
+      <tr><td>Refund to the buyer</td><td>$0.00 kept</td></tr>
+      <tr><td>Refund admin (20% of $1.20)</td><td>−$0.24</td></tr>
+      <tr><td>Creator commission, not clawed back</td><td>−$3.00</td></tr>
+      <tr><td>Unsellable goods (80% of $5.50)</td><td>−$4.40</td></tr>
+      <tr><td>Outbound fulfill, pack, ads</td><td>−$6.18</td></tr>
+      <tr><th>You lose</th><th>$13.82</th></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Expected value at a 12% return rate</h2>
+  <p>
+    88% of the time you keep $4.11. 12% of the time you lose $13.82.
+    Expected profit is <strong>$1.96</strong> — less than half of the
+    “kept order” figure, and a 9.8% margin on the revenue you actually
+    retain. The same SKU sold organically (no creator cut) expects about
+    <strong>$5.00</strong>. The affiliate path costs roughly $3.04 more
+    per order after returns, almost the entire 15% you offered.
+  </p>
+  <p>
+    Open the <a href=".">calculator</a> and change the return rate or the
+    claw-back toggle. The gap is the product: a listing that looks
+    profitable at 6% + 15% is a different listing once returns keep the
+    commission.
+  </p>
+
+  <h2>What the announced 1 October 2026 rates do to this SKU</h2>
+  <p>
+    Under the announced 8% referral plus 1.5% creator facilitation on
+    affiliate-sourced orders, the same affiliate path keeps about $1.36
+    instead of $1.96. That is still not a pricing recommendation — it is
+    the arithmetic on these assumptions. Confirm the live schedule in
+    Seller Center before you reprice.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Does a TikTok Shop affiliate commission still cost you on a returned order?</h3>
+  <p>Usually yes. In the worked example the creator keeps the 15% commission when the order comes back, TikTok returns most of the 6% referral but keeps a refund-admin fee, and the outbound fulfillment, packaging, and ads are already spent. A kept order leaves $4.11 and a returned order loses $13.82.</p>
+  <h3>What is the real margin on a 15% affiliate SKU at a 12% return rate?</h3>
+  <p>Expected profit is $1.96 per order, not the $4.11 a kept order shows, because 88% of the time you keep $4.11 and 12% of the time you lose $13.82. That is a 9.8% margin on the revenue you actually retain. The same SKU sold organically with no creator cut expects about $5.00.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic on a worked example, not tax, financial, or business advice. Verify every figure against your own statements and a qualified professional before relying on it.</p>
+    <p>Nothing on this page is uploaded anywhere. It is a static document.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../thrift-haul-buy-picker/" data-pf-to="thrift-haul-buy-picker">What should you buy to resell, and what's the most to pay for each?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tiktok-shop-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tiktok-shop-fee-calculator"></script>
+</body>
+</html>

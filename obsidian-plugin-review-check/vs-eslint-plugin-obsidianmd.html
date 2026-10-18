@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd</title>
+<meta name="description" content="eslint-plugin-obsidianmd is the official Obsidian team's ESLint plugin: ~40 rules enforcing developer-guideline compliance…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd">
+<meta property="og:description" content="The official eslint-plugin-obsidianmd needs npm, ESLint, and a TypeScript project set up. This checker needs none of that -- pick a folder or run one CLI…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does eslint-plugin-obsidianmd already check my versions.json against manifest.json?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Its validate-manifest rule checks the structure of manifest.json on its own, and its sample-names and no-sample-code rules catch leftover sample-plugin template code, but none of its rules cross-check manifest.json's current version against versions.json's own entries. That specific cross-file check is what this tool's versions.json entry check does." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to set up ESLint to use this checker?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. eslint-plugin-obsidianmd is installed with npm into an existing project and needs an eslint.config.mjs, plus a TypeScript-aware parser configuration for its type-checked rules. This checker needs none of that: open index.html and pick your plugin's folder, or run node check.mjs . from the plugin's own directory with no config file at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I use this tool or eslint-plugin-obsidianmd?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Both, for different jobs. eslint-plugin-obsidianmd is the deeper tool: around 40 rules covering the full range of Obsidian's developer guidelines -- command naming, settings-tab patterns, sentence case in UI strings, API version compatibility, and more -- wired into your project's own lint step so it runs on every change. This tool is a narrower, five-check pre-flight pass with zero setup: required manifest fields, sample-plugin template leftovers, the versions.json entry, and innerHTML/outerHTML/insertAdjacentHTML usage. Running this tool once before a first submission does not require touching your project's ESLint configuration at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Obsidian or the eslint-plugin-obsidianmd maintainers?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This page is not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. eslint-plugin-obsidianmd is maintained under the obsidianmd GitHub organization; it is named here only to describe what it is and is not, based on its own public repository and README." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.6rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; color: #555; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../obsidian-plugin-review-check/">Obsidian Plugin Review Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd</span></span></nav>
+<p><a href="index.html">&larr; Back to the Obsidian Plugin Review Checker</a></p>
+<h1>Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd</h1>
+
+<p>
+  <strong>eslint-plugin-obsidianmd</strong> is the official Obsidian team's ESLint plugin --
+  maintained under the <code>obsidianmd</code> GitHub organization, with around 40 rules that check
+  a plugin's TypeScript/JavaScript source against the full range of Obsidian's developer
+  guidelines. It is the deeper, broader tool, and it is meant to live inside a plugin's own
+  project as a permanent lint step, not to be run once from a browser tab. This checker is a
+  narrower, zero-install pre-flight pass for the specific patterns that most commonly delay a
+  first community-plugin review.
+</p>
+
+<h2>What actually differs</h2>
+
+<div class="pf-table-scroll"><table>
+  <tbody>
+    <tr>
+      <th>Setup</th>
+      <td>eslint-plugin-obsidianmd is installed with <code>npm install eslint-plugin-obsidianmd
+      --save-dev</code> into an existing project, plus ESLint itself and an
+      <code>eslint.config.mjs</code>; its type-checked rules also need a TypeScript-aware parser
+      configuration. This checker needs none of that: open <a href="index.html">index.html</a> and
+      pick your plugin's folder, or run <code>node check.mjs .</code> from the plugin's directory
+      with no config file at all.</td>
+    </tr>
+    <tr>
+      <th>versions.json cross-check</th>
+      <td>eslint-plugin-obsidianmd's <code>validate-manifest</code> rule checks
+      <code>manifest.json</code>'s own structure, but none of its ~40 rules cross-check the current
+      manifest version against <code>versions.json</code>'s own entries -- <code>versions.json</code>
+      is a separate file that ESLint, which lints source and config files, has no reason to open.
+      This checker reads both files and reports it directly.</td>
+    </tr>
+    <tr>
+      <th>Breadth</th>
+      <td>eslint-plugin-obsidianmd's ~40 rules cover command naming, settings-tab patterns,
+      sentence case in UI strings, API-version compatibility, and a long list of DOM and platform
+      API preferences -- far more than this checker looks at. This checker covers five things:
+      required manifest fields, sample-plugin template leftovers, the versions.json entry, and
+      <code>innerHTML</code>/<code>outerHTML</code>/<code>insertAdjacentHTML</code> usage.</td>
+    </tr>
+    <tr>
+      <th>When you'd reach for each</th>
+      <td>eslint-plugin-obsidianmd running on every commit in CI, for a project already set up with
+      ESLint and TypeScript. This checker for a quick pass before a first submission, or when you
+      just want an answer without touching the project's own lint configuration.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2>What does not differ</h2>
+
+<p>
+  Both tools exist because Obsidian's own published developer guidelines name these as review
+  blockers, and both read from the same public documentation. Neither is the review process, and a
+  clean report from either is not a guarantee of approval -- see this checker's own disclaimer on
+  <a href="index.html">index.html</a>, and verify against
+  <a href="https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines" rel="noopener">Obsidian's current plugin guidelines</a>
+  before you submit either way.
+</p>
+
+<h2>Common questions</h2>
+<h3>Does eslint-plugin-obsidianmd already check my versions.json against manifest.json?</h3>
+<p>No. Its <code>validate-manifest</code> rule checks the structure of <code>manifest.json</code> on its own, and its <code>sample-names</code> and <code>no-sample-code</code> rules catch leftover sample-plugin template code, but none of its rules cross-check manifest.json's current version against versions.json's own entries. That specific cross-file check is what this tool's versions.json entry check does.</p>
+<h3>Do I need to set up ESLint to use this checker?</h3>
+<p>No. eslint-plugin-obsidianmd is installed with npm into an existing project and needs an eslint.config.mjs, plus a TypeScript-aware parser configuration for its type-checked rules. This checker needs none of that: open index.html and pick your plugin's folder, or run node check.mjs . from the plugin's own directory with no config file at all.</p>
+<h3>Should I use this tool or eslint-plugin-obsidianmd?</h3>
+<p>Both, for different jobs. eslint-plugin-obsidianmd is the deeper tool: around 40 rules covering the full range of Obsidian's developer guidelines -- command naming, settings-tab patterns, sentence case in UI strings, API version compatibility, and more -- wired into your project's own lint step so it runs on every change. This tool is a narrower, five-check pre-flight pass with zero setup: required manifest fields, sample-plugin template leftovers, the versions.json entry, and innerHTML/outerHTML/insertAdjacentHTML usage. Running this tool once before a first submission does not require touching your project's ESLint configuration at all.</p>
+<h3>Is this page affiliated with Obsidian or the eslint-plugin-obsidianmd maintainers?</h3>
+<p>No. This page is not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. eslint-plugin-obsidianmd is maintained under the obsidianmd GitHub organization; it is named here only to describe what it is and is not, based on its own public repository and README.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a> to pick your plugin's folder, or read
+<a href="versions-json-missing-entry.html">fixing a missing versions.json entry</a> for the mechanism this
+checker's own versions.json check is built on.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found
+  in the folder you selected -- known manifest/versions field names, and known risky API calls. It
+  is a line-level heuristic, not data-flow or runtime analysis, and it does not check the ~40 rules
+  eslint-plugin-obsidianmd covers. A clean report is not a guarantee your plugin will be approved for
+  the community plugin list -- verify against
+  <a href="https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines" rel="noopener">Obsidian's current plugin guidelines</a>
+  before you submit.</p>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or security advice, and it does not replace a qualified professional or
+  Obsidian's own review process. To the maximum extent permitted by law, the authors accept no liability
+  for any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The folder you select in the linked checker is read
+  locally with the File API and never uploaded. This comparison page makes no live call to npm, GitHub,
+  or eslint-plugin-obsidianmd -- it describes its publicly documented facts as of 2026-09.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a product of
+  Dynalist Inc.; eslint-plugin-obsidianmd is maintained under the obsidianmd GitHub organization. Both are
+  named here only to describe what this tool is and is not.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=obsidian-plugin-review-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="obsidian-plugin-review-check"></script>
+</body>
+</html>

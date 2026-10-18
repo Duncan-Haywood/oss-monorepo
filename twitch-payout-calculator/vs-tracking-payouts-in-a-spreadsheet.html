@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Twitch Payout Calculator vs. a Spreadsheet | Worked Comparison</title>
+  <meta name="description" content="Compare a free Twitch payout calculator against tracking sub and Bits income by hand in a spreadsheet — what each gets right…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html">
+  <meta property="og:title" content="Twitch Payout Calculator vs. a Spreadsheet">
+  <meta property="og:description" content="What a Twitch payout calculator gets right versus a homemade spreadsheet, and when a spreadsheet is still the better tool.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just track Twitch payouts in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Plenty of streamers do, and a spreadsheet is a fine tool for a monthly income log. The failure mode is not the spreadsheet itself — it is that your revenue split is not a constant across a career. It changes the day you qualify for Partner Plus, and a formula copied down a column keeps using whatever split was true the month you typed it, silently understating income every month after the split changes."}},{"@type":"Question","name":"Does this calculator replace my income-tracking spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. This tool prices one month at a time and does not save a running history across months the way a spreadsheet's rows do. Many streamers use both: this calculator to get one month's split-and-Bits arithmetic right whenever their split or sub counts change, and their own spreadsheet to log the result alongside every other month for the year."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1233; background: #f3edfb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; color: #4b1d9a; }
+    table { width: 100%; border-collapse: collapse; background: #fbf9ff; } th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d9c8f5; vertical-align: top; }
+    .note { font-size: .9rem; color: #5b4b78; } footer { margin-top: 28px; font-size: .82rem; color: #5b4b78; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Twitch Payout Calculator vs. a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../twitch-payout-calculator/">Twitch Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Twitch Payout Calculator vs. a Spreadsheet</span></span></nav>
+  <p><a href="./">← Twitch payout calculator</a></p>
+  <h1>This calculator vs. tracking Twitch payouts in a spreadsheet</h1>
+  <p>Names no specific product or company — this compares a free calculator against the generic method most
+    streamers already use: a personal spreadsheet with a payout formula typed in once and copied down for every
+    month.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Question</th><th>Spreadsheet formula</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue split over a career</td><td>A constant typed in once, easy to leave at 50% after qualifying for the Plus Program's 60% or 70%</td><td>A field you update the month your split changes, so a new split never silently underprices old-formula months</td></tr>
+      <tr><td>Whether a mobile subscription pays less</td><td>Often modeled as a fee reduction, following the outdated app-store-cut assumption</td><td>Modeled as no difference, matching Twitch's current mobile pricing policy — see the linked explainer</td></tr>
+      <tr><td>Bits vs. sub-revenue split</td><td>Easy to accidentally apply the same split percentage to Bits as to subs</td><td>Bits are kept separate and always priced at a flat $0.01 each, never split</td></tr>
+      <tr><td>Whole-month income-goal check</td><td>A second sheet or a manual sum, often not kept in sync with the tier tab</td><td>Built in — see total payout against your monthly target and how many more Tier 1 subs close the gap</td></tr>
+      <tr><td>History across months and seasons</td><td>Its actual strength — a running log month over month</td><td>Prices one month at a time; does not replace an income log</td></tr>
+      <tr><td>Shareable single scenario</td><td>Requires sending the whole file or a screenshot</td><td>One link, via "Copy shareable link," with no file attached</td></tr>
+    </tbody>
+  </table></div>
+  <p>Neither tool sets your revenue split, your sub counts, or your Bits total —
+    both are arithmetic on numbers you already have, and both are only as accurate as the figures you type in.</p>
+  <h2>Common questions</h2>
+  <h3>Why not just track Twitch payouts in a spreadsheet?</h3>
+  <p>Plenty of streamers do, and a spreadsheet is a fine tool for a monthly income log. The
+    failure mode is not the spreadsheet itself &mdash; it is that your revenue split is not a constant across a
+    career. It changes the day you qualify for Partner Plus, and a formula copied down a column keeps using
+    whatever split was true the month you typed it, silently understating income every month after the split
+    changes.</p>
+  <h3>Does this calculator replace my income-tracking spreadsheet?</h3>
+  <p>Not necessarily. This tool prices one month at a time and does not save a running history across months
+    the way a spreadsheet's rows do. Many streamers use both: this calculator to get one month's split-and-Bits
+    arithmetic right whenever their split or sub counts change, and their own spreadsheet to log the result
+    alongside every other month for the year.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an ad-revenue estimator or a substitute for your own Twitch dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bail-bond-agency-exposure-calculator/" data-pf-to="bail-bond-agency-exposure-calculator">Bail Bond Agency Exposure Calculator — free</a></li>
+      <li><a href="../barbershop-chair-profit-calculator/" data-pf-to="barbershop-chair-profit-calculator">Barbershop Chair Profit Calculator — free, private</a></li>
+      <li><a href="../bigcommerce-product-csv-check/" data-pf-to="bigcommerce-product-csv-check">BigCommerce Product CSV Check — free, private, in your browser</a></li>
+      <li><a href="../braiding-studio-profit-calculator/" data-pf-to="braiding-studio-profit-calculator">Braiding Studio Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=twitch-payout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="twitch-payout-calculator"></script>
+</body>
+</html>

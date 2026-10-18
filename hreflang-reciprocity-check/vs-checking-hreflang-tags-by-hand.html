@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hreflang Reciprocity Check vs. checking hreflang tags by hand</title>
+  <meta name="description" content="A hreflang set that looks complete at a glance can still be invalid and non-reciprocal -- 'en-uk' reads fine to the eye but is not a real region code…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/vs-checking-hreflang-tags-by-hand.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="hreflang Reciprocity Check vs. checking hreflang tags by hand">
+  <meta property="og:description" content="A 4-language hreflang set with four well-formed-looking &lt;link&gt; tags hides two danger-level problems: an invalid region code and a broken reciprocal link.">
+  <meta property="og:url" content="./vs-checking-hreflang-tags-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is checking hreflang tags by eye unreliable?","acceptedAnswer":{"@type":"Answer","text":"Because the two failures that matter most are invisible from reading one page's markup. An invalid region code like \"en-uk\" is syntactically well-formed and reads as correct — \"UK\" looks like the obvious abbreviation for the United Kingdom, but ISO 3166-1 never assigned it a country code; the real one is \"GB\". And reciprocity failures require opening every alternate page and checking that each one links back, which does not show up from reading the page you started on."}},{"@type":"Question","name":"What does a manual review usually catch, and what does it miss?","acceptedAnswer":{"@type":"Answer","text":"A human reviewer catches an obviously malformed tag — a missing href, a typo in the attribute name — because those look wrong on sight. What gets missed is exactly what looks right: a region code that reads like it should be valid, and a link-back on a page nobody opened. Reciprocity in particular requires checking N-1 other pages for every page in the set, which nobody does by hand past two or three languages."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"In the worked example on this page, a 4-language hreflang set with every tag present and well-formed at a glance carries 2 danger-level findings once actually checked: an invalid \"en-uk\" code, and one alternate page that never links back, breaking reciprocity for that pair. Google's own documentation says a non-reciprocal annotation may be ignored entirely — meaning the page pair with the broken link-back gets no hreflang benefit at all, despite four tags that all looked fine."}},{"@type":"Question","name":"Is reading the tags by hand ever enough?","acceptedAnswer":{"@type":"Answer","text":"For a two-page site where you personally maintain both pages and remember to update both at once, eyeballing them can work. It stops scaling the moment a third language, a redirect, or a second author enters the picture, because reciprocity is a claim about every other page in the set, not about the one you are looking at."}},{"@type":"Question","name":"Does this tool fetch pages for me?","acceptedAnswer":{"@type":"Answer","text":"The Node CLI does, over real HTTP, which is why it can check reciprocity unattended in CI. The browser page cannot reliably fetch a different origin itself (cross-origin requests are usually blocked), so it checks reciprocity from HTML you paste in for each alternate — still mechanical, still exhaustive, just not automatic in the browser the way the CLI is."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+    section.card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17324a0d; margin: 1.2rem 0; }
+    .table-wrap { overflow-x: auto; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="hreflang Reciprocity Check vs. checking hreflang tags by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">hreflang Reciprocity Check vs. checking hreflang tags by hand</span></span></nav>
+  <p><a href="./">&larr; hreflang Reciprocity Check</a></p>
+  <h1>hreflang Reciprocity Check vs. checking hreflang tags by hand</h1>
+  <p>
+    Reading a page's <code>&lt;link rel="alternate" hreflang&gt;</code> tags
+    yourself is free and takes thirty seconds. It also cannot catch the two
+    failures that break hreflang most often: a region code that looks right
+    but was never assigned, and a reciprocal link that only fails to exist on
+    a page you did not open.
+  </p>
+
+  <section class="card">
+    <h2>What each approach is for</h2>
+    <p>
+      <strong>Checking by hand</strong> is fine for confirming a tag exists
+      and is roughly the right shape — you will spot a missing
+      <code>href</code> or an obviously mistyped attribute immediately. It
+      cannot validate a region code against the actual ISO 3166-1 list from
+      memory, and it cannot confirm reciprocity without opening every
+      alternate page named on the one you started with and checking each one
+      links back.
+    </p>
+    <p>
+      <strong>This tool</strong> validates every hreflang value's language
+      and region subtags against the real BCP 47 / ISO 3166-1 data, checks
+      that no two tags declare the same code for different URLs, flags a
+      missing self-reference or <code>x-default</code>, and — given the
+      alternate pages' content, either fetched by the CLI or pasted into the
+      browser page — confirms each alternate actually links back. It
+      runs free, with no account, and the browser page sends nothing to a
+      server.
+    </p>
+    <div class="table-wrap">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">What checking by hand catches</th><th scope="col">What this tool catches too</th></tr></thead>
+      <tbody>
+        <tr><td>A tag with no <code>href</code>, or an obviously misspelled attribute.</td><td>Same, plus every hreflang value validated against the real language/region tables.</td></tr>
+        <tr><td>"en-uk" looks like a reasonable code for British English.</td><td>Flags it: "UK" was never assigned an ISO 3166-1 region code; the real one is "GB".</td></tr>
+        <tr><td>Whether the page you are reading lists itself among its own alternates — if you think to check.</td><td>Always checks self-reference, mechanically, on every run.</td></tr>
+        <tr><td>Whether every alternate page links back — only if you open all of them and compare by hand.</td><td>Confirms reciprocity for every alternate given its content, and reports "unverified" rather than guessing when content isn't available.</td></tr>
+        <tr><td>Two same-code tags pointing at different URLs, if you notice the duplicate on the same page.</td><td>Always flags conflicting or duplicate hreflang codes.</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>A hreflang set that looks complete</h2>
+    <p>
+      Four languages, four tags, every one present and syntactically
+      well-formed:
+    </p>
+    <div class="table-wrap">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">hreflang</th><th scope="col">href</th><th scope="col">Looks right?</th></tr></thead>
+      <tbody>
+        <tr><td><code>en</code></td><td>/en/</td><td>Yes</td></tr>
+        <tr><td><code>en-uk</code></td><td>/en-uk/</td><td>Yes, at a glance</td></tr>
+        <tr><td><code>fr</code></td><td>/fr/</td><td>Yes</td></tr>
+        <tr><td><code>es</code></td><td>/es/</td><td>Yes</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>Running this exact set through this tool's own engine reports:</p>
+    <div class="table-wrap">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Finding</th><th scope="col">Severity</th><th scope="col">Visible by reading the /en/ page alone?</th></tr></thead>
+      <tbody>
+        <tr><td>"en-uk" is not a valid hreflang value — "UK" was never assigned an ISO 3166-1 region code (the real one is "GB").</td><td>Danger</td><td>No — the tag is syntactically well-formed.</td></tr>
+        <tr><td>The /es/ page does not link back to /en/, so the annotation is not reciprocal.</td><td>Danger</td><td>No — requires opening /es/ and comparing its own tags.</td></tr>
+        <tr><td>No <code>x-default</code> declared for 4 language variants.</td><td>Notice</td><td>Only if you happen to know to look for it.</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p class="note">2 danger-level findings, 1 notice, from a set that reads as complete on the page you'd actually be looking at. Google's hreflang documentation states that a non-reciprocal annotation may be ignored entirely for both pages in the pair, so the /en/&ndash;/es/ relationship in this example gets no hreflang benefit at all despite four tags that all look fine. Figures taken directly from this tool's own <code>buildReport()</code>, not invented.</p>
+  </section>
+
+  <p>
+    Neither approach is wrong for what it does. A quick read catches an
+    obviously broken tag; it was never going to catch a plausible-looking
+    invalid code or a link-back on a page you didn't open. This tool checks
+    the parts that require comparing every value against a reference table
+    and every alternate against every other alternate — the part
+    manual review runs out of attention for first.
+  </p>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is checking hreflang tags by eye unreliable?</h3>
+    <p>Because the two failures that matter most are invisible from reading one page's markup. An invalid region code like "en-uk" is syntactically well-formed and reads as correct — "UK" looks like the obvious abbreviation for the United Kingdom, but ISO 3166-1 never assigned it a country code; the real one is "GB". And reciprocity failures require opening every alternate page and checking that each one links back, which does not show up from reading the page you started on.</p>
+    <h3>What does a manual review usually catch, and what does it miss?</h3>
+    <p>A human reviewer catches an obviously malformed tag — a missing href, a typo in the attribute name — because those look wrong on sight. What gets missed is exactly what looks right: a region code that reads like it should be valid, and a link-back on a page nobody opened. Reciprocity in particular requires checking N-1 other pages for every page in the set, which nobody does by hand past two or three languages.</p>
+    <h3>How big is the gap in practice?</h3>
+    <p>In the worked example on this page, a 4-language hreflang set with every tag present and well-formed at a glance carries 2 danger-level findings once actually checked: an invalid "en-uk" code, and one alternate page that never links back, breaking reciprocity for that pair. Google's own documentation says a non-reciprocal annotation may be ignored entirely — meaning the page pair with the broken link-back gets no hreflang benefit at all, despite four tags that all looked fine.</p>
+    <h3>Is reading the tags by hand ever enough?</h3>
+    <p>For a two-page site where you personally maintain both pages and remember to update both at once, eyeballing them can work. It stops scaling the moment a third language, a redirect, or a second author enters the picture, because reciprocity is a claim about every other page in the set, not about the one you are looking at.</p>
+    <h3>Does this tool fetch pages for me?</h3>
+    <p>The Node CLI does, over real HTTP, which is why it can check reciprocity unattended in CI. The browser page cannot reliably fetch a different origin itself (cross-origin requests are usually blocked), so it checks reciprocity from HTML you paste in for each alternate — still mechanical, still exhaustive, just not automatic in the browser the way the CLI is.</p>
+    <p class="note">Nothing here says or implies that checking hreflang tags by hand is a bad practice — it is the obvious first move, and it catches obviously broken tags immediately. This page describes the specific failures it structurally cannot catch, not a fault in anyone who does it.</p>
+  </section>
+
+  <p><a href="./">Open hreflang Reciprocity Check</a> and run it against your own pages.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not SEO, legal, or professional advice, and it does not guarantee search-engine behavior for any hreflang configuration. Verify findings against Google's own documentation and your actual search-engine results before relying on them.</p>
+    <p><strong>Nothing leaves your browser</strong> in the browser page unless you choose to fetch an alternate URL yourself; pasted HTML is processed locally. The Node CLI makes real HTTP requests to the URLs you give it, which is expected and necessary for the reciprocity check.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+      <li><a href="../auth-mau-pricing-calculator/" data-pf-to="auth-mau-pricing-calculator">What will authentication cost at your user count, and who is cheapest?</a></li>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hreflang-reciprocity-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hreflang-reciprocity-check"></script>
+</body>
+</html>

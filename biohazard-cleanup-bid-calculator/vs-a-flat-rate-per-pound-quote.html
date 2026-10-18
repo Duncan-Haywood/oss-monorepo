@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a flat day rate and a per-pound hazmat estimate | Biohazard Cleanup Bid Calculator</title>
+  <meta name="description" content="Why pricing a biohazard cleanup job as a flat day rate plus pounds-times-a-rate undercounts two real costs: PPE that scales with decon cycles, not headcount…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html">
+  <meta property="og:title" content="This calculator vs. a flat day rate and a per-pound hazmat estimate | Biohazard Cleanup Bid Calculator">
+  <meta property="og:description" content="A flat day rate plus pounds times a per-pound hazmat rate misses two things that actually move a biohazard job's price: decon-cycle PPE…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat day rate wrong?","acceptedAnswer":{"@type":"Answer","text":"Not as a starting point — it is a reasonable way to price the crew's time for a job of roughly known size. It just doesn't carry the two costs that swing a biohazard job the most: how many fresh PPE sets the crew actually burns through, and what the regulated-waste hauler's invoice actually charges once the waste is picked up. A day rate answers roughly how long a job will take, not what it will cost."}},{"@type":"Question","name":"Why is pounds times a per-pound hazmat rate wrong?","acceptedAnswer":{"@type":"Answer","text":"Because that is not how a licensed regulated-waste hauler actually bills. Haulers charge per container picked up, not per pound, and a container that is 10% full costs the same as one that is completely full, up to its rated capacity. A 55-pound job with a 40-pound container still needs two containers, not 1.375 — and a per-pound estimate that assumes a fractional container undercounts the real invoice every time the waste doesn't divide evenly."}},{"@type":"Question","name":"Why does headcount undercount PPE?","acceptedAnswer":{"@type":"Answer","text":"Because PPE is not a one-time cost per technician on the job — it is a cost per time a technician enters the contaminated area. A technician who leaves for a break, to run equipment out, or across a shift change must doff the suit they were wearing (used PPE cannot be re-donned) and don a fresh set to go back in. A crew of two who each re-enter twice needs four sets, not two."}},{"@type":"Question","name":"Is this page affiliated with any hauler, software vendor, or franchise?","acceptedAnswer":{"@type":"Answer","text":"No. This page names no specific regulated-waste hauler, estimating software, or franchise -- it compares against the generic method of a flat day rate plus a per-pound hazmat estimate, not a competing product."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #151a24; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0e2a5c; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat day rate and a per-pound hazmat estimate | Biohazard Cleanup Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../biohazard-cleanup-bid-calculator/">Biohazard Cleanup Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat day rate and a per-pound hazmat estimate | Biohazard Cleanup Bid Calculator</span></span></nav>
+  <p><a href="./">← Biohazard cleanup bid calculator</a></p>
+  <h1>This calculator vs. a flat day rate and a per-pound hazmat estimate</h1>
+  <p>
+    A common way to price a biohazard or trauma-scene job by hand: a flat
+    day rate for the crew, plus a per-pound hazmat fee tacked on for the
+    waste. It's fast, it needs no tool, and it gets the rough size of the
+    job right.
+  </p>
+  <p>
+    <strong>It gets two real costs wrong, and both of them move the price
+    by a meaningful amount.</strong> PPE doesn't cost one set per
+    technician — it costs one set per time a technician re-enters the
+    contaminated area, and a job with a break or a shift change burns
+    through more sets than headcount alone predicts. And regulated-waste
+    disposal isn't billed by the pound — it's billed by the container, and
+    a container that's mostly empty still costs the full per-container
+    charge. This page prices both directly instead of estimating around
+    them.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Roughly how big is this job — how many techs, how many hours?</td>
+        <td>Your own scoping walk-through — nothing replaces seeing the scene.</td>
+      </tr>
+      <tr>
+        <td>What will crew labor actually cost?</td>
+        <td>This calculator's <a href="./#laborOut">labor line</a>, from technicians, hours, and your loaded rate.</td>
+      </tr>
+      <tr>
+        <td>How many PPE sets will this job really burn through?</td>
+        <td>This calculator's <a href="./#ppeOut">PPE line</a> — technicians times decon cycles, not technicians times one.</td>
+      </tr>
+      <tr>
+        <td>What will disposal actually cost once the hauler picks it up?</td>
+        <td>This calculator's <a href="./#disposalOut">disposal line</a>, rounded up to whole containers the way the invoice will be.</td>
+      </tr>
+      <tr>
+        <td>What is my true direct cost on this job, before any margin?</td>
+        <td>This calculator's <a href="./#directCostOut">direct cost figure</a>.</td>
+      </tr>
+      <tr>
+        <td>What should I quote so my target margin clears, with a floor under small jobs?</td>
+        <td>This calculator's <a href="./#price">price to quote</a>, with the minimum-job-fee floor applied automatically.</td>
+      </tr>
+      <tr>
+        <td>I already gave a number, or I'm matching another company's quote. Does it actually clear cost?</td>
+        <td>This calculator's <a href="./#proposedPrice">check-a-price panel</a>, which recomputes real profit against the same direct cost.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Price a job now</a>
+  <p>
+    This tool needs no account and no upload: it is a static page, the
+    arithmetic runs in your browser, and the figures you type stay on this
+    device. It does not know your hauler's contract, your state's
+    bloodborne-pathogen protocol, or your insurance-billing arrangement —
+    you bring the rates and estimates, and it totals what happens around
+    them.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is a flat day rate wrong?</h3>
+  <p>Not as a starting point — it is a reasonable way to price the crew's time for a job of roughly known size. It just doesn't carry the two costs that swing a biohazard job the most: how many fresh PPE sets the crew actually burns through, and what the regulated-waste hauler's invoice actually charges once the waste is picked up. A day rate answers roughly how long a job will take, not what it will cost.</p>
+  <h3>Why is pounds times a per-pound hazmat rate wrong?</h3>
+  <p>Because that is not how a licensed regulated-waste hauler actually bills. Haulers charge per container picked up, not per pound, and a container that is 10% full costs the same as one that is completely full, up to its rated capacity. A 55-pound job with a 40-pound container still needs two containers, not 1.375 — and a per-pound estimate that assumes a fractional container undercounts the real invoice every time the waste doesn't divide evenly.</p>
+  <h3>Why does headcount undercount PPE?</h3>
+  <p>Because PPE is not a one-time cost per technician on the job — it is a cost per time a technician enters the contaminated area. A technician who leaves for a break, to run equipment out, or across a shift change must doff the suit they were wearing (used PPE cannot be re-donned) and don a fresh set to go back in. A crew of two who each re-enter twice needs four sets, not two.</p>
+  <h3>Is this page affiliated with any hauler, software vendor, or franchise?</h3>
+  <p>No. This page names no specific regulated-waste hauler, estimating software, or franchise -- it compares against the generic method of a flat day rate plus a per-pound hazmat estimate, not a competing product.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a job, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../spray-foam-bid-calculator/" data-pf-to="spray-foam-bid-calculator">Spray Foam Bid Calculator</a></li>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=biohazard-cleanup-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="biohazard-cleanup-bid-calculator"></script>
+</body>
+</html>

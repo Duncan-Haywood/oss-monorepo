@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRA Evidence Desk vs. matching an SBOM to advisories by hand</title>
+<meta name="description" content="Opening a CycloneDX export and an OSV advisory list side by side and eyeballing which components appear in both looks straightforward for a handful of packages." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/vs-matching-by-hand.html">
+<meta property="og:title" content="CRA Evidence Desk vs. matching an SBOM to advisories by hand" />
+<meta property="og:description" content="Eyeballing an SBOM against an advisory list works for a handful of components. It misses ecosystem-spelling mismatches, nested sub-components…" />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't comparing two lists something I can just do by eye?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For a handful of components, yes -- scan the SBOM's package names, scan the advisory list, note the overlaps. It stops being reliable once a CycloneDX export runs to hundreds of nested sub-components and an OSV advisory export runs to hundreds of entries, because the task is not really reading two lists, it is computing an exact set intersection across two large lists that do not always spell the same thing the same way. That is a mechanical task a person does slower and less consistently than a matcher that never gets tired partway through."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What actually goes wrong when someone matches by hand?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common miss is an ecosystem-naming mismatch: a CycloneDX SBOM and an OSV advisory can name the same registry two different ways -- golang vs. Go, cargo vs. crates.io -- and a Maven artifact as namespace/name in one export and group:artifact in the other. A component and its advisory that genuinely match will not visibly match on a side-by-side read unless the reviewer already knows every one of those spelling pairs and normalizes them in their head while scanning. The second common miss is nested components: CycloneDX SBOMs can nest sub-components inside a parent, and a manual read that only walks the top-level dependency list never reaches them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about an advisory that names a version range instead of a list?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OSV advisories state affected versions two ways: an enumerated list, or a range such as \"everything below 1.4.2.\" A manual reviewer looking at a range has to decide on the spot whether their installed version falls inside it, which means knowing that ecosystem's own version-ordering rules and whether a backport changes the answer -- a judgment call about the product, not a lookup. Treating a range as a quick yes-or-no during a fast manual pass is exactly where a wrong call costs the most, because the advisory that gets waved through is the one that actually matched."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean manual read leave any record of what was checked?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually not one that survives past the meeting. A person who reads through an SBOM and an advisory export and concludes nothing matches rarely writes down which advisories they evaluated, which they skipped because they only stated a range, or the date they looked. Six months later, when a reporting question comes up, nothing says what was actually checked. This tool exports a dated JSON record every time, and lists advisories it could not evaluate by name rather than silently dropping them, so the same question later has an answer instead of a memory."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool replace judgment about whether a match matters?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It only makes exact name, ecosystem, and version matches and tells you which advisories it could not evaluate. It does not resolve aliases, ranges, reachability, or exploitability, and it does not decide whether a legal reporting obligation applies to a given match. What it replaces is the mechanical part -- comparing two lists exactly, the same way, every time -- not the judgment calls that come after a match is found."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.25rem 1.25rem 3.5rem; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); line-height: 1.15; margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1.02rem; margin: 1.4rem 0 0.3rem; }
+  .intro { color: var(--muted); font-size: 1.05rem; margin: 0 0 1.4rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.15rem 1.25rem; margin-top: 1.4rem; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin-top: 0.7rem; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { font-weight: 600; }
+  .wrap { overflow-x: auto; }
+  .eyebrow { font-size: 0.9rem; }
+  footer { margin-top: 2.4rem; border-top: 1px solid var(--border); padding-top: 1rem; color: var(--muted); font-size: 0.92rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/vs-matching-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CRA Evidence Desk vs. matching an SBOM to advisories by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cra-evidence-desk/">CRA Evidence Desk — free SBOM vs advisory matcher</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">CRA Evidence Desk vs. matching an SBOM to advisories by hand</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; CRA Evidence Desk</a></p>
+  <h1>CRA Evidence Desk vs. matching an SBOM to advisories by hand</h1>
+  <p class="intro">Reading a CycloneDX export and an OSV advisory list side by side and noting the overlaps is a generic manual habit anyone with the two files already has, not a company or product this could be mistaken for. It works for a handful of components and breaks down well before a real dependency tree's size does.</p>
+
+  <section class="panel">
+    <h2>Where the manual read breaks down</h2>
+    <p>
+      Matching two lists by eye is really computing an exact set
+      intersection, and a person does that slower and less reliably than a
+      matcher that runs the same rule on every entry. Three specific gaps
+      matter more than the general slowness:
+    </p>
+    <div class="wrap">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Case</th><th scope="col">Matching by hand</th><th scope="col">This tool</th></tr></thead>
+      <tbody>
+        <tr><td>Same registry, spelled differently (<code>golang</code> vs. <code>Go</code>, <code>cargo</code> vs. <code>crates.io</code>, Maven <code>namespace/name</code> vs. <code>group:artifact</code>)</td><td>A real match reads as no match unless the reviewer already knows every spelling pair and normalizes them while scanning</td><td>Folds both spellings onto one form before comparing, using package URLs wherever present</td></tr>
+        <tr><td>Sub-components nested inside a parent in a CycloneDX SBOM</td><td>A read that only walks the top-level dependency list never reaches them</td><td>Walks nested sub-components the same as top-level ones</td></tr>
+        <tr><td>An advisory stated as a version range rather than an enumerated list</td><td>Requires an on-the-spot judgment call about that ecosystem's version ordering to accept or reject</td><td>Does not guess a range; lists it under advisories not evaluated rather than silently dropping it</td></tr>
+        <tr><td>A record of what was checked and when</td><td>Rarely survives past the review session</td><td>Exports a dated JSON record every run</td></tr>
+        <tr><td>Hundreds of components against hundreds of advisories</td><td>Attention and consistency both degrade well before the end of the list</td><td>Applies the identical exact-match rule to every entry, first to last</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>
+      None of this makes the manual read useless -- for two or three
+      components a quick look is often faster than exporting files into a
+      tool. The gap opens as the SBOM and the advisory export grow, which is
+      exactly when a manual reviewer is least likely to notice they have
+      started missing things.
+    </p>
+    <p>This tool needs no install and no server: it is a static page, the matching runs in your browser (or as a single CLI command), and once loaded it keeps working with the connection off. Nothing you give it is uploaded.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Common questions</h2>
+    <h3>Isn't comparing two lists something I can just do by eye?</h3>
+    <p>For a handful of components, yes -- scan the SBOM's package names, scan the advisory list, note the overlaps. It stops being reliable once a CycloneDX export runs to hundreds of nested sub-components and an OSV advisory export runs to hundreds of entries, because the task is not really reading two lists, it is computing an exact set intersection across two large lists that do not always spell the same thing the same way. That is a mechanical task a person does slower and less consistently than a matcher that never gets tired partway through.</p>
+    <h3>What actually goes wrong when someone matches by hand?</h3>
+    <p>The most common miss is an ecosystem-naming mismatch: a CycloneDX SBOM and an OSV advisory can name the same registry two different ways -- golang vs. Go, cargo vs. crates.io -- and a Maven artifact as namespace/name in one export and group:artifact in the other. A component and its advisory that genuinely match will not visibly match on a side-by-side read unless the reviewer already knows every one of those spelling pairs and normalizes them in their head while scanning. The second common miss is nested components: CycloneDX SBOMs can nest sub-components inside a parent, and a manual read that only walks the top-level dependency list never reaches them.</p>
+    <h3>What about an advisory that names a version range instead of a list?</h3>
+    <p>OSV advisories state affected versions two ways: an enumerated list, or a range such as "everything below 1.4.2." A manual reviewer looking at a range has to decide on the spot whether their installed version falls inside it, which means knowing that ecosystem's own version-ordering rules and whether a backport changes the answer -- a judgment call about the product, not a lookup. Treating a range as a quick yes-or-no during a fast manual pass is exactly where a wrong call costs the most, because the advisory that gets waved through is the one that actually matched.</p>
+    <h3>Does a clean manual read leave any record of what was checked?</h3>
+    <p>Usually not one that survives past the meeting. A person who reads through an SBOM and an advisory export and concludes nothing matches rarely writes down which advisories they evaluated, which they skipped because they only stated a range, or the date they looked. Six months later, when a reporting question comes up, nothing says what was actually checked. This tool exports a dated JSON record every time, and lists advisories it could not evaluate by name rather than silently dropping them, so the same question later has an answer instead of a memory.</p>
+    <h3>Does this tool replace judgment about whether a match matters?</h3>
+    <p>No. It only makes exact name, ecosystem, and version matches and tells you which advisories it could not evaluate. It does not resolve aliases, ranges, reachability, or exploitability, and it does not decide whether a legal reporting obligation applies to a given match. What it replaces is the mechanical part -- comparing two lists exactly, the same way, every time -- not the judgment calls that come after a match is found.</p>
+    <p>
+      Open <a href="./">CRA Evidence Desk</a> to run your own SBOM and
+      advisory export, or see <a href="./sbom-and-advisory-package-names-dont-match.html">why your SBOM and advisory package names don't match</a> for the ecosystem-spelling gap in more detail, or <a href="./vs-dependency-track.html">CRA Evidence Desk vs. OWASP Dependency-Track</a> if you are weighing this against a continuous monitoring platform instead of a manual read.
+    </p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, or compliance advice, and not a determination that any obligation does or does not apply to you. You are responsible for reviewing and verifying its output, and any comparison here, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Everything runs in your browser. Nothing is uploaded, and this page names no specific company or product -- it describes a generic manual habit, not a competing tool.</p>
+    <p>MIT licensed &mdash; see <a href="LICENSE">LICENSE</a>. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a> if this saved you an afternoon &mdash; entirely optional, the tool stays free either way.</p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../eu-battery-regulation-checker/" data-pf-to="eu-battery-regulation-checker">EU Battery Regulation checker: which duties apply to your battery and by when? Free, private</a></li>
+      <li><a href="../eu-csrd-scope-checker/" data-pf-to="eu-csrd-scope-checker">CSRD scope checker: original vs Omnibus thresholds. Free, private</a></li>
+      <li><a href="../eu-data-act-checker/" data-pf-to="eu-data-act-checker">EU Data Act checker: does the Data Act apply to your connected product or cloud service? Free, private</a></li>
+      <li><a href="../eu-dora-readiness-checker/" data-pf-to="eu-dora-readiness-checker">EU DORA checker: in scope?, what is missing, when is the incident report due. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cra-evidence-desk">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cra-evidence-desk"></script>
+</body>
+</html>

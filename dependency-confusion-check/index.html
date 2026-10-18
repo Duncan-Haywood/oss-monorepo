@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dependency Confusion Check — pip --extra-index-url &amp; Unscoped npm Names</title>
+  <meta name="description" content="Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident…">
+  <meta property="og:title" content="Could a public package be substituted for your internal one?">
+  <meta property="og:description" content="Paste your pip and npm config and get every --extra-index-url use and every unscoped dependency name a private registry can't protect, each with the exact fix.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dependency Confusion Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans pip and npm configuration for the two documented dependency-confusion patterns: pip --extra-index-url usage, and an unscoped npm dependency name while .npmrc sets a private default registry. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is dependency confusion?","acceptedAnswer":{"@type":"Answer","text":"In 2021, researcher Alex Birsan demonstrated that many companies' internal build tooling would install a same-named public package instead of their own internal one, and got code execution inside Apple, Microsoft, PayPal, Netflix, Uber, Tesla and others by publishing decoy packages under their internal package names on the public npm and PyPI registries."}},{"@type":"Question","name":"How does pip --extra-index-url cause this?","acceptedAnswer":{"@type":"Answer","text":"pip's own documentation names this as a risk: the additional repository named by --extra-index-url can specify a version of a package that gets installed instead of the one from --index-url, because pip compares versions across every configured index and installs whichever reports the higher number for a given name. A public package published under your internal package's name, at a higher version, wins."}},{"@type":"Question","name":"How does an unscoped npm name cause this?","acceptedAnswer":{"@type":"Answer","text":"When a repository's .npmrc sets a bare registry= to a private host, that value is the default for every unscoped dependency, public or internal. A machine or CI runner without that .npmrc in effect resolves the same unscoped name against the public npm registry instead — and if nobody has claimed it there, an attacker can."}},{"@type":"Question","name":"Does this tool check whether a name is actually claimed on the public registry?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. It flags every unscoped dependency once a private registry is configured, including ones that are already legitimately public — a dependency on left-pad looks identical, from a read-only view of package.json, to an internal package of the same shape. Read each flagged name yourself and judge which ones you actually intend to keep private."}},{"@type":"Question","name":"Does a clean scan mean I am not exposed to dependency confusion?","acceptedAnswer":{"@type":"Answer","text":"No. This checks two specific, well-documented configuration patterns. It is not a security audit and makes no claim about your overall supply-chain exposure. It does not parse Pipfile, poetry.lock, pnpm-lock.yaml, or yarn.lock, and it does not recurse into a monorepo's per-package manifests."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    label { display: block; font-weight: 700; font-size: .82rem; color: #17324a; margin: 12px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6d28d9; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #6d28d9; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.pip-extra-index-url { background: #ede9fe; color: #5b21b6; }
+    .pill.npm-unscoped-private-dependency { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Could a public package be substituted for your internal one?","item":"https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Could a public package be substituted for your internal one? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Could a public package be substituted for your internal one?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">DEPENDENCY CONFUSION CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Could a public package be substituted for your internal one?</h1>
+    <p>In 2021, researcher Alex Birsan got code execution inside Apple, Microsoft, PayPal, Netflix, Uber, and Tesla by publishing decoy packages under their internal package names on the public npm and PyPI registries. Two configuration shapes made every one of those incidents possible: <code>pip --extra-index-url</code>, which lets a public index outbid your private one on version number, and an unscoped npm dependency name, which falls back to the public registry the moment your private <code>.npmrc</code> is not in effect. Paste your config below and find both, each with the exact fix.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — it never queries npm or PyPI on your behalf.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your config</h2>
+    <p class="note">Any of the four boxes can be left empty — the check only runs on what you provide.</p>
+    <label for="requirements">requirements.txt / pip.conf / a CI workflow's pip install step</label>
+    <textarea id="requirements" spellcheck="false" placeholder="--extra-index-url https://pkgs.internal.example.com/simple/
+requests==2.31.0"></textarea>
+    <label for="package-json">package.json</label>
+    <textarea id="package-json" spellcheck="false" placeholder='{"dependencies": {"acme-internal-utils": "1.0.0"}}'></textarea>
+    <label for="npmrc">.npmrc</label>
+    <textarea id="npmrc" spellcheck="false" placeholder="registry=https://npm.internal.example.com/"></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Detail</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan a repository checkout
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
+    <p class="note">Already running a registry-aware supply-chain platform like Socket? <a href="./vs-socket.html">See how this checker differs</a> — different layers, worth running both.</p>
+    <p class="note">Been grepping your own <code>requirements.txt</code> and <code>package.json</code> for these patterns by hand? <a href="./vs-checking-configs-by-hand.html">See what a manual check structurally can't catch</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is dependency confusion?</h3>
+    <p>In 2021, researcher Alex Birsan demonstrated that many companies' internal build tooling would install a same-named public package instead of their own internal one, and got code execution inside Apple, Microsoft, PayPal, Netflix, Uber, Tesla and others by publishing decoy packages under their internal package names on the public npm and PyPI registries.</p>
+    <h3>How does pip <code>--extra-index-url</code> cause this?</h3>
+    <p>pip's own documentation names this as a risk: the additional repository named by <code>--extra-index-url</code> can specify a version of a package that gets installed instead of the one from <code>--index-url</code>, because pip compares versions across every configured index and installs whichever reports the higher number for a given name. A public package published under your internal package's name, at a higher version, wins.</p>
+    <h3>How does an unscoped npm name cause this?</h3>
+    <p>When a repository's <code>.npmrc</code> sets a bare <code>registry=</code> to a private host, that value is the default for every unscoped dependency, public or internal. A machine or CI runner without that <code>.npmrc</code> in effect resolves the same unscoped name against the public npm registry instead — and if nobody has claimed it there, an attacker can.</p>
+    <h3>Does this tool check whether a name is actually claimed on the public registry?</h3>
+    <p>No. It makes no network calls at all. It flags every unscoped dependency once a private registry is configured, including ones that are already legitimately public — a dependency on <code>left-pad</code> looks identical, from a read-only view of <code>package.json</code>, to an internal package of the same shape. Read each flagged name yourself and judge which ones you actually intend to keep private.</p>
+    <h3>Does a clean scan mean I am not exposed to dependency confusion?</h3>
+    <p>No. This checks two specific, well-documented configuration patterns. It is not a security audit and makes no claim about your overall supply-chain exposure. It does not parse <code>Pipfile</code>, <code>poetry.lock</code>, <code>pnpm-lock.yaml</code>, or <code>yarn.lock</code>, and it does not recurse into a monorepo's per-package manifests.</p>
+    <p>More: <a href="what-is-dependency-confusion.html">what is dependency confusion?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against dependency confusion, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your CI: <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> flags a fork-writable Actions cache and unscoped <code>restore-keys</code>, and <a href="../mcp-supply-chain-watch/">MCP Supply-Chain Watch</a> monitors MCP servers your team has already connected — two more slices of a hardened software supply chain. Shipping an iOS app too? <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a> reads your source and your <code>PrivacyInfo.xcprivacy</code> manifest the same way this tool reads your dependency tree, and names the exact undeclared Required Reason API behind an ITMS-91061 rejection. Once your <code>--extra-index-url</code> setup is confirmed safe, <a href="../pypi-provenance-check/">PyPI Provenance Check</a> looks at the same requirements.txt for a different signal: which of those packages were published via trusted publishing at all.</p>
+    <p>Using plain <code>requirements.txt</code>? <a href="../requirements-pin-check/">Requirements Pin Check</a> scans the whole file for unpinned versions, missing hashes, a second <code>--extra-index-url</code> and unpinned git dependencies.</p>
+    <p class="support">Free and open source. If this saved you from a substitution attack, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanPipText, scanNpm, hasRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      requirements: $("#requirements"), packageJson: $("#package-json"), npmrc: $("#npmrc"),
+      status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = {
+      requirements: "--extra-index-url https://pkgs.internal.example.com/simple/\nrequests==2.31.0\n",
+      packageJson: JSON.stringify(
+        { dependencies: { "acme-internal-utils": "^1.0.0", "@acme/other-internal": "^2.0.0", "left-pad": "^1.3.0" } },
+        null,
+        2,
+      ),
+      npmrc: "registry=https://npm.internal.example.com/\n",
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.type}">${f.type}</span></td>
+          <td><code>${escapeHtml(f.detail ?? "")}</code></td>
+          <td>${escapeHtml(f.remediation ?? "")}</td>
+        </tr>`).join("");
+    }
+
+    function runCheck() {
+      const requirementsText = els.requirements.value;
+      const packageJsonText = els.packageJson.value;
+      const npmrcText = els.npmrc.value;
+
+      if (!requirementsText.trim() && !packageJsonText.trim()) {
+        els.status.innerHTML = `<span class="error">Paste at least one file first.</span>`;
+        return;
+      }
+
+      const findings = [];
+      if (requirementsText.trim()) findings.push(...scanPipText(requirementsText, "requirements.txt"));
+      if (packageJsonText.trim()) {
+        try {
+          findings.push(...scanNpm(packageJsonText, npmrcText, "package.json"));
+        } catch (err) {
+          els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+          els.reportCard.hidden = true;
+          return;
+        }
+      }
+
+      const risk = hasRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", runCheck);
+
+    $("#load-example").addEventListener("click", () => {
+      els.requirements.value = EXAMPLE.requirements;
+      els.packageJson.value = EXAMPLE.packageJson;
+      els.npmrc.value = EXAMPLE.npmrc;
+      runCheck();
+      record("example_loaded");
+      els.status.textContent = "Worked example: an --extra-index-url use, plus two unscoped npm names (left-pad is flagged too — read the FAQ on why).";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.requirements.value = "";
+      els.packageJson.value = "";
+      els.npmrc.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../object-storage-pricing-calculator/" data-pf-to="object-storage-pricing-calculator">What will object storage cost for your GB stored and GB served, and who is cheapest?</a></li>
+      <li><a href="../obsidian-plugin-review-check/" data-pf-to="obsidian-plugin-review-check">Obsidian Plugin Review Checker</a></li>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dependency-confusion-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/?pfEmbed=1&quot; title=&quot;Could a public package be substituted for your internal one? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="dependency-confusion-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/" data-pf-embed-title="Could a public package be substituted for your internal one?" data-pf-embed-slug="dependency-confusion-check"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="dependency-confusion-check" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="dependency-confusion-check" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Powder Coating Job Price Calculator — Price Per Piece, Per Square Foot</title>
+  <meta name="description" content="Free powder coating price calculator for job shops: enter the parts, powder, transfer efficiency, labour, oven batches and setup…">
+  <meta property="og:title" content="Powder Coating Job Price Calculator — free, private">
+  <meta property="og:description" content="Price a powder coating job from powder use, oven batches, labour, setup and scrap, and see how the price falls with quantity.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Powder Coating Job Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free powder coating price calculator: turn powder, transfer efficiency, labour, oven batches, setup and scrap into a price per piece and per square foot, with quantity breaks."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price powder coating?", "acceptedAnswer": {"@type": "Answer", "text": "Add the powder you actually use (area, film thickness, transfer efficiency and reclaim), the prep, masking, spray and hanging labour, the oven batches, a colour setup, supplies and scrap, then divide by one minus your margin. This tool does that and shows the price per piece and per square foot."}}, {"@type": "Question", "name": "How much powder does a part use?", "acceptedAnswer": {"@type": "Answer", "text": "One pound covers about 192 square feet at 1 mil for a powder of specific gravity 1, so divide 192 by the specific gravity and the film thickness in mils. At 2.5 mils and a gravity of 1.5 a pound covers about 51 square feet, before transfer efficiency."}}, {"@type": "Question", "name": "What is transfer efficiency and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "The share of sprayed powder that sticks to the part. The rest is overspray, which is lost unless you reclaim it. A candy or metallic powder at 55 percent efficiency with no reclaim costs far more per part than its price per pound suggests."}}, {"@type": "Question", "name": "What should my minimum charge be?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly the cost of an empty setup: the colour change, a booth clean, one oven cycle and the time to handle the job. The tool shows when your minimum, not the parts, is setting the price."}}, {"@type": "Question", "name": "Why does the price per piece fall as the order grows?", "acceptedAnswer": {"@type": "Answer", "text": "Setup, the minimum and part-filled oven batches are spread over more pieces. The quantity table shows the price at 1 to 500 pieces and the order size that meets a customer's target price."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, freight and delivery, outsourced blasting, special pretreatments, warranty or rework beyond the scrap rate, burn-off and rack stripping, and your local rates. It is a pricing aid, not a quote."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Powder Coating Job Price Calculator — free, private","item":"https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Powder Coating Job Price Calculator — free, private — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Powder Coating Job Price Calculator — free, private</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">POWDER COATING JOB PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge to coat this job?</h1>
+    <p>Enter the parts, the powder and how your shop runs. You get <strong>a price per piece and per square foot, the powder you really use after overspray, how oven batches and colour setup move the price, and the order size that meets a customer's target</strong>. Metallic and candy powders, small runs and half-empty oven batches are where coating jobs quietly lose money.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The job and the oven</h2>
+    <div class="grid">
+      <div><label for="qty">Pieces in the order</label><input type="number" id="qty" min="1" step="1" value="40" inputmode="numeric"></div>
+      <div><label for="area">Surface area of one piece (sq ft)</label><input type="number" id="area" min="0" step="any" value="3.5" inputmode="decimal"></div>
+      <div><label for="mils">Film thickness (mils)</label><input type="number" id="mils" min="0" step="any" value="2.5" inputmode="decimal"></div>
+      <div><label for="coats">Coats (1 to 3)</label><input type="number" id="coats" min="1" step="1" value="1" inputmode="numeric"></div>
+      <div><label for="partsPerBatch">Pieces per oven batch</label><input type="number" id="partsPerBatch" min="1" step="1" value="12" inputmode="numeric"></div>
+      <div><label for="cycleMin">Oven cycle per batch (minutes, with ramp)</label><input type="number" id="cycleMin" min="0" step="any" value="45" inputmode="decimal"></div>
+      <div><label for="ovenRate">Oven cost per hour ($)</label><input type="number" id="ovenRate" min="0" step="any" value="14" inputmode="decimal"></div>
+      <div><label for="targetPerPiece">Customer's target price per piece ($, optional)</label><input type="number" id="targetPerPiece" min="0" step="any" value="18" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Labour, setup and the margin you want</h2>
+    <div class="grid">
+      <div><label for="prepMin">Prep per piece (blast, wash, minutes)</label><input type="number" id="prepMin" min="0" step="any" value="4" inputmode="decimal"></div>
+      <div><label for="maskMin">Masking per piece (minutes)</label><input type="number" id="maskMin" min="0" step="any" value="2" inputmode="decimal"></div>
+      <div><label for="handleMin">Hang and unhang per piece (minutes)</label><input type="number" id="handleMin" min="0" step="any" value="1.5" inputmode="decimal"></div>
+      <div><label for="sprayMin">Spray per coat per piece (minutes)</label><input type="number" id="sprayMin" min="0" step="any" value="3" inputmode="decimal"></div>
+      <div><label for="setupMin">Colour change and booth clean per coat (minutes)</label><input type="number" id="setupMin" min="0" step="any" value="30" inputmode="decimal"></div>
+      <div><label for="laborRate">Labour ($/hour)</label><input type="number" id="laborRate" min="0" step="any" value="28" inputmode="decimal"></div>
+      <div><label for="overheadRate">Overhead per labour hour ($)</label><input type="number" id="overheadRate" min="0" step="any" value="18" inputmode="decimal"></div>
+      <div><label for="supplies">Hooks, tape, plugs per piece ($)</label><input type="number" id="supplies" min="0" step="any" value="0.6" inputmode="decimal"></div>
+      <div><label for="scrapPct">Scrap and recoat (%)</label><input type="number" id="scrapPct" min="0" step="any" value="4" inputmode="decimal"></div>
+      <div><label for="marginPct">Margin wanted (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="35" inputmode="decimal"></div>
+      <div><label for="rushPct">Rush surcharge (%)</label><input type="number" id="rushPct" min="0" step="any" value="0" inputmode="decimal"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="125" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Powders to compare</h2>
+    <p class="note">One powder per line: <code>name, $ per lb, transfer efficiency %, reclaim % of overspray reused (optional), specific gravity (optional, 1.5)</code>. Names cannot contain commas.</p>
+    <label for="powders">Powders</label>
+    <textarea id="powders" rows="4" spellcheck="false">Standard polyester gloss black, 7.5, 65, 0</textarea>
+    <p>
+      <button type="button" id="analyze">Price this job</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the job and your powders, or load the example, then click Price this job.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Powders compared</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Powder</th><th scope="col">Powder used (lb)</th><th scope="col">Powder</th><th scope="col">Labour + overhead</th><th scope="col">Oven</th><th scope="col">Cost</th><th scope="col">Price</th><th scope="col">Per piece</th><th scope="col">Per sq ft</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <h3>Price per piece by order size (cheapest powder)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Pieces</th><th scope="col">Price</th><th scope="col">Per piece</th><th scope="col">Note</th></tr></thead><tbody id="breaks"></tbody></table></div></div>
+    <h3>The first powder as its price per pound changes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Price per lb</th><th scope="col">Powder cost</th><th scope="col">Per piece</th><th scope="col">Job price</th></tr></thead><tbody id="sens"></tbody></table></div></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>One pound covers 192.2 divided by (specific gravity times film thickness in mils) square feet. Powder applied is area times coats over that coverage.</li>
+      <li>Powder sprayed is the applied weight divided by transfer efficiency. The overspray is lost except for the share you reclaim and reuse.</li>
+      <li>Scrap means some pieces are run twice: every per-piece cost is scaled by one over (one minus scrap).</li>
+      <li>Labour is prep, masking, hanging and spray minutes per piece plus a setup per coat, charged at your labour rate plus an overhead rate per labour hour.</li>
+      <li>Oven cost is whole batches (rounded up) times coats times the cycle time times your oven cost per hour.</li>
+      <li>Price is cost divided by one minus your margin, plus any rush surcharge, never below your minimum charge.</li>
+      <li><strong>Not modelled:</strong> sales tax, freight, outsourced blasting or pretreatment, rack stripping and burn-off, warranty claims beyond the scrap rate, and local rates. Check against your own costs.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price powder coating?</h3>
+    <p>Add the powder you actually use (area, film thickness, transfer efficiency and reclaim), the prep, masking, spray and hanging labour, the oven batches, a colour setup, supplies and scrap, then divide by one minus your margin. This tool does that and shows the price per piece and per square foot.</p>
+    <h3>How much powder does a part use?</h3>
+    <p>One pound covers about 192 square feet at 1 mil for a powder of specific gravity 1, so divide 192 by the specific gravity and the film thickness in mils. At 2.5 mils and a gravity of 1.5 a pound covers about 51 square feet, before transfer efficiency.</p>
+    <h3>What is transfer efficiency and why does it matter?</h3>
+    <p>The share of sprayed powder that sticks to the part. The rest is overspray, which is lost unless you reclaim it. A candy or metallic powder at 55 percent efficiency with no reclaim costs far more per part than its price per pound suggests.</p>
+    <h3>What should my minimum charge be?</h3>
+    <p>Roughly the cost of an empty setup: the colour change, a booth clean, one oven cycle and the time to handle the job. The tool shows when your minimum, not the parts, is setting the price.</p>
+    <h3>Why does the price per piece fall as the order grows?</h3>
+    <p>Setup, the minimum and part-filled oven batches are spread over more pieces. The quantity table shows the price at 1 to 500 pieces and the order size that meets a customer's target price.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, freight and delivery, outsourced blasting, special pretreatments, warranty or rework beyond the scrap rate, burn-off and rack stripping, and your local rates. It is a pricing aid, not a quote.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written quote or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../cnc-machining-quote-calculator/">CNC machining quote</a>, <a href="../screen-print-job-quote-calculator/">screen print job quote</a>, <a href="../shop-rate-calculator/">shop rate</a>, <a href="../cabinet-refinishing-bid-calculator/">cabinet refinishing bid</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["qty", "area", "mils", "coats", "partsPerBatch", "cycleMin", "ovenRate", "targetPerPiece", "prepMin", "maskMin", "handleMin", "sprayMin", "setupMin", "laborRate", "overheadRate", "supplies", "scrapPct", "marginPct", "rushPct", "minCharge", "powders"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const input = read();
+      const r = plan(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.powder)}</th><td>${x.powderLb}</td><td>${usd(x.powderCost)}</td><td>${usd(x.laborCost + x.overhead)}</td><td>${usd(x.ovenCost)}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.perPiece)}</td><td>${usd(x.perSqFt)}</td></tr>`).join("");
+      $("#breaks").innerHTML = r.breaks.map((x) => `<tr><th scope="row">${x.qty}${x.current ? " (this order)" : ""}</th><td>${usd(x.price)}</td><td>${usd(x.perPiece)}</td><td>${x.minApplied ? "minimum charge" : ""}</td></tr>`).join("");
+      $("#sens").innerHTML = r.sensitivity.map((x) => `<tr><th scope="row">${usd(x.pricePerLb)}</th><td>${usd(x.powderCost)}</td><td>${usd(x.perPiece)}</td><td>${usd(x.price)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Quote ${usd(r.best.perPiece)} per piece in ${r.best.powder}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("job_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "powder-coating-job-price.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../capex-budget-prioritizer/" data-pf-to="capex-budget-prioritizer">Capex budget prioritizer</a></li>
+      <li><a href="../car-wash-membership-calculator/" data-pf-to="car-wash-membership-calculator">Car Wash Membership Calculator — free, private, in your browser</a></li>
+      <li><a href="../cdl-school-payback-calculator/" data-pf-to="cdl-school-payback-calculator">CDL school payback calculator: is truck driving school worth it? Free, private</a></li>
+      <li><a href="../childcare-center-break-even-calculator/" data-pf-to="childcare-center-break-even-calculator">Childcare Center Break-Even Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=powder-coating-job-price-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/?pfEmbed=1&quot; title=&quot;Powder Coating Job Price Calculator — free, private — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="powder-coating-job-price-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/" data-pf-embed-title="Powder Coating Job Price Calculator — free, private" data-pf-embed-slug="powder-coating-job-price-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="powder-coating-job-price-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

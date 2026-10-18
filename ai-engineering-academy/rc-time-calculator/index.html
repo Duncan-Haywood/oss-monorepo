@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RC Charge and Discharge Time Calculator</title>
+<meta name="description" content="Free RC capacitor charge and discharge time calculator. Find time to a voltage threshold or design a buyable resistor or capacitor for a target delay.">
+<meta name="robots" content="index, follow"><link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/rc-time-calculator/">
+<meta property="og:title" content="RC Charge and Discharge Time Calculator"><meta property="og:description" content="Calculate capacitor timing to a real voltage threshold, or design a resistor or capacitor for a target delay."><meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"RC Charge and Discharge Time Calculator","applicationCategory":"EducationalApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Client-side calculator for capacitor charge and discharge timing and RC delay design."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does τ = RC matter, and what is a “time constant”?","acceptedAnswer":{"@type":"Answer","text":"τ = RC is the time it takes an RC circuit to close about 63.2% of the gap to its final voltage — that 63.2% figure is 1 − 1/e, and it is where the “time constant” name comes from. This page's own defaults show it directly: R = 10 kΩ and C = 100 nF give τ = 1 ms, and the default threshold of 3.16 V is exactly 63.2% of the 5 V supply — charging to it takes 999.7 µs, essentially one full time constant."}},{"@type":"Question","name":"What does “voltage after a delay” answer that the timing section doesn't?","acceptedAnswer":{"@type":"Answer","text":"It's the inverse question. Timing asks \u201chow long until I reach this voltage?\u201d; this asks \u201cwhat voltage is on the capacitor after this much time?\u201d Using this page's own defaults, after exactly 1 ms of charging (one time constant) the capacitor sits at 3.1606 V, 63.21% of the 5 V supply — the same 63.2% figure the first question describes, reached from the other direction."}},{"@type":"Question","name":"Why does the design tool pick a slightly different part than the exact math?","acceptedAnswer":{"@type":"Answer","text":"Because resistors and capacitors are only sold in a fixed set of standard values (E24 for resistors, E12 for capacitors), not any number the algebra produces. Asking this page's own default 1 ms target time to solve for resistance (with the default 100 nF capacitor) calls for an exact 10003.28 Ω — but the nearest standard value happens to be 10 kΩ, which is itself an E24 value, so the snapped part still lands the delay at 999.7 µs, only 0.03% off target. A less convenient target time can snap by several percent instead."}}]}</script>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#17202a;--muted:#59636e;--panel:#f4f6f8;--border:#d7dde3;--accent:#136f63} @media(prefers-color-scheme:dark){:root{--bg:#14181c;--fg:#edf2f5;--muted:#aab5bf;--panel:#20262c;--border:#3b454e;--accent:#65d6bd}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}main{max-width:720px;margin:auto;padding:2rem 1.2rem 4rem}h1{font-size:1.65rem;line-height:1.2;margin:.7rem 0}.lede,.hint,footer{color:var(--muted)}section{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin:1.5rem 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}label{display:block;color:var(--muted);font-size:.86rem;margin:.7rem 0 0}input,select{width:100%;padding:.55rem;margin-top:.25rem;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:6px;font:inherit}.field{display:grid;grid-template-columns:2fr 1fr;gap:.45rem}.modes{display:flex;gap:1rem;flex-wrap:wrap}.modes label{color:var(--fg);display:flex;gap:.35rem;align-items:center}.modes input{width:auto;margin:0}.result{border-left:4px solid var(--accent);padding:.85rem 1rem;background:var(--bg);margin-top:1rem}.result strong{color:var(--accent);font-size:1.25rem}.error{color:#c53030}.hidden{display:none}button{border:1px solid var(--border);border-radius:6px;padding:.4rem .7rem;background:var(--bg);color:var(--fg);cursor:pointer}footer{border-top:1px solid var(--border);padding-top:1rem;font-size:.86rem}a{color:var(--accent)}@media(max-width:560px){.grid{grid-template-columns:1fr}.modes{display:block}.modes label{margin:.5rem 0}}
+</style>
+<link rel="stylesheet" href="../../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/rc-time-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RC Charge and Discharge Time Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../ai-engineering-academy/">Free Electronics Calculators</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">RC Charge and Discharge Time Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p><main>
+<nav><a href="../">← All free electronics tools</a></nav>
+<h1>RC charge and discharge time calculator</h1>
+<p class="lede">Choose a real voltage threshold. Calculate the delay from R and C, or work backwards from a target time to a preferred part value. Nothing is uploaded.</p>
+<section><h2>Timing</h2>
+<fieldset><legend>Operation</legend><div class="modes"><label><input type="radio" name="mode" value="charge" checked> Charge</label><label><input type="radio" name="mode" value="discharge"> Discharge</label></div></fieldset>
+<div class="grid"><div><label for="r">Resistance</label><div class="field"><input id="r" type="number" value="10" min="0" step="any" inputmode="decimal"><select id="ru" aria-label="Resistance unit"><option value="1">Ω</option><option value="1000" selected>kΩ</option><option value="1000000">MΩ</option></select></div></div><div><label for="c">Capacitance</label><div class="field"><input id="c" type="number" value="100" min="0" step="any" inputmode="decimal"><select id="cu" aria-label="Capacitance unit"><option value="1e-12">pF</option><option value="1e-9" selected>nF</option><option value="1e-6">µF</option><option value="1e-3">mF</option></select></div></div></div>
+<div class="grid"><div><label for="supply">Supply voltage, Vs</label><input id="supply" type="number" value="5" min="0" step="any" inputmode="decimal"></div><div><label for="initial">Initial voltage, V0 (discharge)</label><input id="initial" type="number" value="5" min="0" step="any" inputmode="decimal"></div></div>
+<label for="threshold">Threshold voltage</label><input id="threshold" type="number" value="3.16" min="0" step="any" inputmode="decimal"><p class="hint" id="threshold-hint">For charge, this is the voltage reached from 0 V.</p>
+<div id="result" class="result" aria-live="polite"></div><p class="hint">Not aiming for a specific voltage? <a href="how-long-until-a-capacitor-is-fully-charged.html">How long until a capacitor is basically fully charged?</a> — the 1&tau;&ndash;10&tau; settling table and why it never reaches 100%.</p></section>
+<section><h2>Voltage after a delay</h2><p class="hint">The inverse question: you already have R, C, and a clock edge. What voltage is on the capacitor then?</p>
+<div class="grid"><div><label for="probe">Elapsed time</label><div class="field"><input id="probe" type="number" value="1" min="0" step="any" inputmode="decimal"><select id="pu" aria-label="Elapsed time unit"><option value="0.000001">µs</option><option value="0.001" selected>ms</option><option value="1">s</option></select></div></div></div>
+<div id="voltage" class="result" aria-live="polite"></div></section>
+<section><h2>Design a delay</h2><p class="hint">The same threshold conditions apply. The result includes the exact value and the nearest preferred part.</p>
+<div class="grid"><div><label for="target">Target time</label><div class="field"><input id="target" type="number" value="1" min="0" step="any" inputmode="decimal"><select id="tu" aria-label="Target time unit"><option value="0.000001">µs</option><option value="0.001" selected>ms</option><option value="1">s</option></select></div></div><div><label for="solve">Solve for</label><select id="solve"><option value="resistance">Resistance</option><option value="capacitance">Capacitance</option></select></div></div><div id="design" class="result" aria-live="polite"></div></section>
+<section><h2>Common questions</h2>
+
+<h3>Why does &tau; = RC matter, and what is a &ldquo;time constant&rdquo;?</h3>
+<p>&tau; = RC is the time it takes an RC circuit to close about 63.2% of the
+gap to its final voltage — that 63.2% figure is 1 &minus; 1/e, and it is
+where the &ldquo;time constant&rdquo; name comes from. This page's own
+defaults show it directly: R = 10 kΩ and C = 100 nF give &tau; = 1 ms, and
+the default threshold of 3.16 V is exactly 63.2% of the 5 V supply — charging
+to it takes 999.7 &micro;s, essentially one full time constant.</p>
+
+<h3>What does &ldquo;voltage after a delay&rdquo; answer that the timing section doesn't?</h3>
+<p>It's the inverse question. Timing asks &ldquo;how long until I reach this
+voltage?&rdquo;; this asks &ldquo;what voltage is on the capacitor after
+this much time?&rdquo; Using this page's own defaults, after exactly 1 ms of
+charging (one time constant) the capacitor sits at 3.1606 V, 63.21% of the
+5 V supply — the same 63.2% figure the first question describes, reached
+from the other direction.</p>
+
+<h3>Why does the design tool pick a slightly different part than the exact math?</h3>
+<p>Because resistors and capacitors are only sold in a fixed set of standard
+values (E24 for resistors, E12 for capacitors), not any number the algebra
+produces. Asking this page's own default 1 ms target time to solve for
+resistance (with the default 100 nF capacitor) calls for an exact 10003.28 Ω
+— but the nearest standard value happens to be 10 kΩ, which is itself an E24
+value, so the snapped part still lands the delay at 999.7 &micro;s, only
+0.03% off target. A less convenient target time can snap by several percent
+instead.</p>
+</section>
+<footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace checking your components' real datasheets or measuring the built circuit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including for anything safety-critical. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Inputs stay in your browser. Anonymous feature-use events are counted locally only, never sent to an analytics vendor. <button id="privacy">Turn off local usage counting</button></p><p><a href="../">AI Engineering Academy</a> · MIT licensed — see <a href="LICENSE">LICENSE</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> optional</p></footer>
+</main>
+<script type="module">
+import {timeFromComponents,designForTime,voltageAtTime,formatTime,formatResistance,formatCapacitance} from './calc.mjs'; import{recordEventSettled,setUsageCountingEnabled,isUsageCountingEnabled}from'./usage.mjs';
+const $=id=>document.getElementById(id); const fields=['r','ru','c','cu','supply','initial','threshold','target','tu','solve','probe','pu'];
+function mode(){return document.querySelector('input[name=mode]:checked').value} function run(){try{const m=mode(), r=+$('r').value*+$('ru').value,c=+$('c').value*+$('cu').value,s=+$('supply').value,i=+$('initial').value,t=+$('threshold').value; const out=timeFromComponents({mode:m,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,thresholdVolts:t}); $('result').innerHTML=`<strong>${formatTime(out.timeSeconds)}</strong><br>Time constant: ${formatTime(out.timeConstantSeconds)}<p class="hint">${m==='charge'?'At this point the capacitor is '+(100*t/s).toFixed(1)+'% of supply voltage.':'The capacitor has fallen to '+(100*t/i).toFixed(1)+'% of its initial voltage.'}</p>`; const v=voltageAtTime({mode:m,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,timeSeconds:+$('probe').value*+$('pu').value}); $('voltage').innerHTML=m==='charge'?`<strong>${v.volts.toPrecision(4)} V</strong><br>${(v.fractionOfSupply*100).toFixed(1)}% of supply after ${formatTime(+$('probe').value*+$('pu').value)}`:`<strong>${v.volts.toPrecision(4)} V</strong><br>${(v.fractionOfInitial*100).toFixed(1)}% of the initial voltage after ${formatTime(+$('probe').value*+$('pu').value)}`; const d=designForTime({mode:m,targetTimeSeconds:+$('target').value*+$('tu').value,solveFor:$('solve').value,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,thresholdVolts:t}); $('design').innerHTML=`Exact ${d.componentLabel}: ${d.componentLabel==='resistance'?formatResistance(d.exactValue):formatCapacitance(d.exactValue)}<br><strong>Use ${d.componentLabel==='resistance'?formatResistance(d.snappedValue):formatCapacitance(d.snappedValue)}</strong><br>Actual delay: ${formatTime(d.achievedTimeSeconds)} (${d.errorPercent>=0?'+':''}${d.errorPercent.toFixed(1)}%)`; recordEventSettled('calculation');}catch(e){$('result').innerHTML=`<span class="error">${e.message}</span>`;$('voltage').textContent='Enter valid R, C, and voltages to see the voltage at a delay.';$('design').textContent='Enter valid timing values to design a part.'}} fields.forEach(id=>$(id).addEventListener('input',run)); document.querySelectorAll('input[name=mode]').forEach(e=>e.addEventListener('change',run)); $('privacy').onclick=()=>{setUsageCountingEnabled(false);$('privacy').textContent='Local usage counting is off'};/* Say it on arrival too: setUsageCountingEnabled already persisted the choice, and the button still came back offering to turn counting off. */if(!isUsageCountingEnabled())$('privacy').textContent='Local usage counting is off'; run();
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../../world-clock-widget/" data-pf-to="world-clock-widget">What time is it there — and are they awake?</a></li>
+      <li><a href="../../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../../deploy/?app=ai-engineering-academy">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../../pf-site.js" data-pf-slug="ai-engineering-academy"></script>
+<script type="module" src="../../pf-jobs.js" data-pf-jobs-slug="ai-engineering-academy" data-pf-jobs-amount=""></script>
+<script type="module" src="../../pf-link.js" data-pf-link-slug="ai-engineering-academy" data-pf-link-amount=""></script>
+</body></html>

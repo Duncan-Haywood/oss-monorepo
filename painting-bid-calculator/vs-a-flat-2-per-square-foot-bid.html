@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $2 a square foot bid | Painting Bid Calculator</title>
+<meta name="description" content="A flat '$2 a square foot' interior painting rate cannot see trim, doors, windows, or a second coat.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat $2 a square foot bid">
+<meta property="og:description" content="A plain room with no trim, doors, or windows and a trim-and-door-heavy 3-bedroom of the same floor area are not the same job.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per square foot get an interior painting bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is trim, doors, windows, cabinets, coat count, and ceiling height — not the floor square footage a homeowner measures. A 1,200 sq ft house with 320 linear feet of trim and eight doors is doing far more work than a 1,200 sq ft house of bare walls and ceilings, none of which shows up in the floor plan."}},{"@type":"Question","name":"What does a flat price per square foot usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Trim, doors, windows, and cabinet doors — surfaces that take real labor hours and paint but contribute almost nothing to the floor-square-foot figure a homeowner argues from. A second coat and above-standard ceiling height are also invisible to a flat rate."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting rates: a 400 sq ft room of bare walls and ceilings prices at $875.56, or $2.19 a floor square foot. Applying that same $2.19 rate to a 1,200 sq ft house with 320 linear feet of trim, eight doors, and ten windows quotes $2,626.68, which is $1,114.67 below that job's own $3,741.35 break-even cost, before a dollar of profit, and $2,361.79 below the calculator's own $4,988.47 bid price."}},{"@type":"Question","name":"Is a flat price per square foot ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of near-identical jobs — same trim length, same door and window count, same coat count — a per-square-foot rate can land close, and on this calculator's own bare-room preset it is exactly the rate that job supports, because it was set from that job. The risk is applying the same rate outside that band without noticing, because the rate does not know how much trim the next house has and neither does the estimator until the surfaces are actually counted."}},{"@type":"Question","name":"Does this calculator know what paint or labor cost in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material or labor rates. It takes each surface's quantity and production rate, coats, prep and setup hours, paint price and coverage, wage, and burden, and turns that into a price for this job — the arithmetic a flat per-square-foot rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f4efe6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a4b12; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5348; }
+  section { background: #fff; border: 1px solid #e3d8c4; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #241c140d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3d8c4; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5348; }
+  .fine, .note { font-size: .88rem; color: #5c5348; }
+  footer { color: #5c5348; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $2 a square foot bid — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../painting-bid-calculator/">Painting Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $2 a square foot bid</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Painting Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $2 a square foot bid</h1>
+<p class="lede">&ldquo;$2 a square foot&rdquo; is not a price for an interior repaint &mdash; it is a price for one specific room's worth of trim, doors, and windows, quietly applied to every house that calls in.</p>
+</header>
+<section>
+<h2>What a flat price per square foot is</h2>
+<p>
+A flat rate per square foot is the fastest way to quote a repaint: multiply
+the floor area by a number and read off a price. It is the number a
+homeowner holding a discount competitor's postcard or a search-result
+special will call and ask you to match, whatever their house actually
+needs.
+</p>
+<p>
+The number behind it was set for one job &mdash; bare walls and ceilings,
+no trim, no doors, no windows, one coat &mdash; and then reused for every
+repaint afterward, whether or not the next house looks anything like the
+room the rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+surface &mdash; walls, ceilings, trim, doors, windows, cabinets &mdash;
+with its own quantity, production rate, and coat count, plus your own
+labor wage, paint cost, and target margin. It prices the trim, the doors,
+and the windows separately by kind, then returns the walk-away price and
+a bid price above your target margin &mdash; for this house, not a
+generic one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price per square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/sq ft whether a house has zero linear feet of trim or 320, even though every foot of trim adds its own hours and its own paintable area the floor plan never counts.</td>
+<td>Prices trim separately as its own hours and its own paintable area, so a trim-heavy house costs more than a flat floor of the same size.</td>
+</tr>
+<tr>
+<td>Has no line for doors, windows, or cabinet doors, regardless of whether the house has none or a dozen of each.</td>
+<td>Prices doors, windows, and cabinets separately by count and production rate, so a house with more of them costs more than one without.</td>
+</tr>
+<tr>
+<td>Charges the same rate for one coat as for two, even though a second coat runs a real fraction of first-coat time on every surface.</td>
+<td>Prices extra coats per surface at a disclosed factor of first-coat time, so a two-coat job costs more than a one-coat job of the same area.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price and the dollar gap against a flat per-square-foot rate, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two houses, the same floor-blind rate</h2>
+<p>
+Using this calculator's own shipped starting rates ($25/hr wage, 25%
+burden, $45/gallon paint at 350 sq ft coverage, 10% waste, 15% overhead, a
+25% target margin):
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">This calculator's price</th><th scope="col">The flat $2.19/sq&nbsp;ft rate</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>400 sq ft room, bare walls and ceilings, two coats, no trim, no doors, no windows &mdash; the job the rate is set from</td><td>$875.56 bid price; $656.67 break-even cost</td><td>$875.56 (exactly $2.19/sq&nbsp;ft &mdash; this rate is fit to this job)</td><td>No gap on the job the rate was built on.</td></tr>
+<tr><td>1,200 sq ft house, two-coat walls and ceilings, 320 lf of trim, 8 doors, 10 windows &mdash; a typical 3-bedroom</td><td>$4,988.47 bid price; $3,741.35 break-even cost</td><td>$2,626.68</td><td>The rate quotes $1,114.67 <strong>below</strong> this job's own break-even cost &mdash; before a dollar of profit &mdash; and $2,361.79 below the calculator's own bid price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">The $2.19/sq&nbsp;ft rate is not invented &mdash; it is this calculator's own price on the bare-room job, divided by that job's own floor square footage. It fits that one job by construction. Applied to the trim-and-door-heavy 3-bedroom, it prices only the 1,200 sq ft of floor and never sees the trim, doors, or windows at all. Run your own house's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat per-square-foot rate is not wrong because it is simple &mdash; it
+is wrong when it is applied outside the one room it was built for, and
+nothing about a flat number tells you when that has happened. This
+calculator does not know your local market; it replaces the arithmetic a
+flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per square foot get an interior painting bid wrong?</h3>
+<p>Because the cost driver is trim, doors, windows, cabinets, coat count, and ceiling height — not the floor square footage a homeowner measures. A 1,200 sq ft house with 320 linear feet of trim and eight doors is doing far more work than a 1,200 sq ft house of bare walls and ceilings, none of which shows up in the floor plan.</p>
+<h3>What does a flat price per square foot usually leave out entirely?</h3>
+<p>Trim, doors, windows, and cabinet doors — surfaces that take real labor hours and paint but contribute almost nothing to the floor-square-foot figure a homeowner argues from. A second coat and above-standard ceiling height are also invisible to a flat rate.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting rates: a 400 sq ft room of bare walls and ceilings prices at $875.56, or $2.19 a floor square foot. Applying that same $2.19 rate to a 1,200 sq ft house with 320 linear feet of trim, eight doors, and ten windows quotes $2,626.68, which is $1,114.67 below that job's own $3,741.35 break-even cost, before a dollar of profit, and $2,361.79 below the calculator's own $4,988.47 bid price.</p>
+<h3>Is a flat price per square foot ever the right way to quote?</h3>
+<p>For a narrow band of near-identical jobs — same trim length, same door and window count, same coat count — a per-square-foot rate can land close, and on this calculator's own bare-room preset it is exactly the rate that job supports, because it was set from that job. The risk is applying the same rate outside that band without noticing, because the rate does not know how much trim the next house has and neither does the estimator until the surfaces are actually counted.</p>
+<h3>Does this calculator know what paint or labor cost in my market?</h3>
+<p>No. It has no data on local material or labor rates. It takes each surface's quantity and production rate, coats, prep and setup hours, paint price and coverage, wage, and burden, and turns that into a price for this job — the arithmetic a flat per-square-foot rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Painting Bid Calculator</a> to price your own job, or read <a href="interior-painting-price-per-square-foot.html">why a $2 per square foot interior painting bid loses money</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not painting, construction, legal, tax, or financial advice, and it does not replace a qualified professional. Verify every figure against your own payroll and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a job.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../screened-porch-bid-calculator/" data-pf-to="screened-porch-bid-calculator">Screened Porch Bid Calculator</a></li>
+      <li><a href="../stair-lift-bid-calculator/" data-pf-to="stair-lift-bid-calculator">Stair Lift Bid Calculator</a></li>
+      <li><a href="../sunroom-bid-calculator/" data-pf-to="sunroom-bid-calculator">Sunroom Bid Calculator</a></li>
+      <li><a href="../tile-layout-optimizer/" data-pf-to="tile-layout-optimizer">Tile Layout Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=painting-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="painting-bid-calculator"></script>
+</body></html>

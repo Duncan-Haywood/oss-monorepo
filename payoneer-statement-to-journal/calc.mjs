@@ -1,0 +1,450 @@
+// Payoneer balance statement -> accounting journal with realised FX gain or loss.
+//
+// A Payoneer multi-currency account is one bank account per currency. A business whose books are kept in
+// one currency (the base currency) has to value every movement of a foreign balance in base currency,
+// and when foreign money is spent, sent or converted, the difference between what it cost to acquire
+// and what it was worth when it left is a realised exchange gain or loss. Almost nobody books it,
+// because the statement carries no base-currency values and no cost.
+//
+// This module reads one Payoneer transaction-history CSV (one currency balance), values each row in the base
+// currency at the rate you supply for the date, tracks the balance's average cost, and writes a
+// balanced journal per month for Xero, QuickBooks Online, QuickBooks Desktop (IIF) and plain CSV, with the
+// realised FX on its own line and a workings CSV showing every row's rate, value, cost and gain.
+// Running balances are proved: each row must follow from the one before it.
+//
+// Column names and importer layouts are from memory of public Payoneer and accounting help documents;
+// no real Payoneer statement and no live import was available. Columns are matched by several aliases,
+// and a statement whose running balance does not follow is reported, never silently journalled.
+//
+// Everything is integer cents (rates are floats, values rounded per row). No network, no DOM.
+
+export const CATEGORIES = {
+  bank: { label: "Payoneer balance", account: "Payoneer" },
+  incoming: { label: "Money received", account: "Payoneer Incoming Payments" },
+  outgoing: { label: "Money sent", account: "Payoneer Outgoing Payments" },
+  card: { label: "Card spending", account: "Payoneer Card Spending" },
+  fees: { label: "Payoneer fees", account: "Payoneer Fees" },
+  interest: { label: "Interest and cashback", account: "Payoneer Interest Income" },
+  fx: { label: "Realised FX gain or loss", account: "Realised FX Gain/Loss" },
+  clearing: { label: "Conversions between Payoneer balances", account: "Payoneer Conversion Clearing" },
+};
+export const CATEGORY_ORDER = Object.keys(CATEGORIES);
+export const defaultMapping = (cur = "") => ({ ...Object.fromEntries(CATEGORY_ORDER.map((k) => [k, CATEGORIES[k].account])), bank: cur ? `Payoneer ${cur}` : CATEGORIES.bank.account });
+
+export function parseMapping(text, cur = "") {
+  const out = defaultMapping(cur), errors = [];
+  String(text || "").split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const m = line.match(/^([a-z]+)\s*[=:]\s*(.+)$/i);
+    if (!m) { errors.push(`Line ${i + 1}: expected "category = account", got "${line}"`); return; }
+    const key = m[1].toLowerCase();
+    if (!CATEGORIES[key]) { errors.push(`Line ${i + 1}: unknown category "${m[1]}" (use ${CATEGORY_ORDER.join(", ")})`); return; }
+    // The generic default for the balance account stands for "Payoneer <currency>", so it is not an override.
+    if (key === "bank" && m[2].trim() === CATEGORIES.bank.account) return;
+    out[key] = m[2].trim();
+  });
+  return { mapping: out, errors };
+}
+export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
+
+const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
+export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+
+// ---- parsing -----------------------------------------------------------------
+
+function splitLine(line, d) {
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) { if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === d) { out.push(cur); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
+
+const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+
+export function parseAmount(s) {
+  const t = String(s ?? "").trim().replace(/\s/g, "");
+  if (t === "") return null;
+  let u = t;
+  if (/^-?\d{1,3}(\.\d{3})+,\d{1,2}$/.test(t)) u = t.replace(/\./g, "").replace(",", ".");
+  else if (/^-?\d+,\d{1,2}$/.test(t)) u = t.replace(",", ".");
+  else if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) u = t.replace(/,/g, "");
+  if (!/^-?\d+(\.\d+)?$/.test(u)) return NaN;
+  return Math.round(parseFloat(u) * 100);
+}
+
+export function parseRate(s) {
+  const t = String(s ?? "").trim().replace(/\s/g, "").replace(",", ".");
+  if (!t) return null;
+  const v = Number(t);
+  return Number.isFinite(v) && v > 0 ? v : NaN;
+}
+
+// Returns YYYY-MM-DD or null. Payoneer writes 2026-09-03 12:00:00 or 3 Sep 2026; ISO, DD-MM-YYYY, DD.MM.YYYY and slashed dates are also read.
+export function parseDate(s, order = "dmy") {
+  const t = String(s ?? "").trim();
+  if (!t) return null;
+  let y, m, d, x;
+  if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/))) { const mi = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(x[2].toLowerCase()); if (mi < 0) return null; [d, m, y] = [x[1], mi + 1, x[3]]; }
+  else return null;
+  const dt = new Date(Date.UTC(+y, +m - 1, +d));
+  if (dt.getUTCFullYear() !== +y || dt.getUTCMonth() !== +m - 1 || dt.getUTCDate() !== +d) return null;
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+// The rates you type: one per line, "YYYY-MM-DD rate" or "YYYY-MM rate", base currency per 1 unit of the statement's currency.
+export function parseRates(text) {
+  const daily = new Map(), monthly = new Map(), errors = [];
+  String(text || "").split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.replace(/#.*$/, "").trim();
+    if (!line) return;
+    const m = line.match(/^(\d{4}-\d{2}(?:-\d{2})?)\s*[,=:;\s]\s*([0-9][0-9.,]*)$/);
+    const rate = m ? parseRate(m[2]) : null;
+    if (!m || !rate || Number.isNaN(rate)) { errors.push(`Rate line ${i + 1}: expected "2026-09-30 1.1050" or "2026-09 1.1050", got "${line}"`); return; }
+    if (m[1].length === 10) { if (!parseDate(m[1])) { errors.push(`Rate line ${i + 1}: ${m[1]} is not a date`); return; } daily.set(m[1], rate); }
+    else monthly.set(m[1], rate);
+  });
+  return { daily, monthly, errors };
+}
+
+// Exact day; else the latest earlier day; else that month's rate; else the earliest later day.
+export function rateFor(rates, date) {
+  if (!rates || !date) return null;
+  if (rates.daily.has(date)) return rates.daily.get(date);
+  const days = [...rates.daily.keys()].sort();
+  let before = null; for (const k of days) if (k <= date) before = k;
+  if (before) return rates.daily.get(before);
+  if (rates.monthly.has(date.slice(0, 7))) return rates.monthly.get(date.slice(0, 7));
+  const after = days.find((k) => k > date);
+  return after ? rates.daily.get(after) : null;
+}
+
+const kindOf = (desc, amt, hasExchange, type = "") => {
+  const t = `${type} ${desc}`.toLowerCase();
+  if (hasExchange || /conver|exchange/.test(t)) return "conversion";
+  if (/\bfees?\b|charge|commission/.test(t) && amt < 0) return "fee";
+  if (/interest|cashback|cash back|reward/.test(t) && amt > 0) return "interest";
+  if (/\bcard\b|\batm\b|\bpos\b/.test(t)) return "card";
+  return amt >= 0 ? "incoming" : "outgoing";
+};
+
+export function parseStatement(text, opts = {}) {
+  const findings = [];
+  const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
+  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const first = lines.findIndex((l) => l.trim());
+  const none = { rows: [], currency: "", findings, feeMode: "included" };
+  if (first < 0) { add("error", "The file is empty", "Paste or choose a Payoneer statement CSV."); return none; }
+  const d = (lines[first].match(/\t/g) || []).length > (lines[first].match(/;/g) || []).length && (lines[first].match(/\t/g) || []).length > (lines[first].match(/,/g) || []).length ? "\t" : (lines[first].match(/;/g) || []).length > (lines[first].match(/,/g) || []).length ? ";" : ",";
+  const head = splitLine(lines[first], d).map(norm);
+  const col = (...names) => { for (const n of names) { const i = head.indexOf(n); if (i >= 0) return i; } return -1; };
+  const I = {
+    id: col("transaction-id", "id", "payment-id"),
+    date: col("transaction-date", "date-completed-utc", "completed-date", "date-completed", "date-started-utc", "started-date", "date-started", "date"),
+    type: col("type", "transaction-type"),
+    amount: col("amount"),
+    credit: col("credit", "credit-amount", "deposit", "deposits"),
+    debit: col("debit", "debit-amount", "withdrawal", "withdrawals"),
+    status: col("status", "transaction-status"),
+    total: col("total-amount"),
+    currency: col("payment-currency", "currency"),
+    desc: col("description"),
+    ref: col("reference"),
+    balance: col("balance"),
+    rate: col("exchange-rate"),
+    payer: col("payer"),
+    payee: col("beneficiary"),
+    merchant: col("card-label"),
+    fee: col("fee"),
+    feeCur: col("fee-currency"),
+  };
+
+  const missing = [];
+  if (I.amount < 0 && (I.credit < 0 || I.debit < 0)) missing.push("Amount (or Credit and Debit)");
+  if (I.date < 0) missing.push("Transaction Date");
+  if (I.currency < 0) missing.push("Currency");
+  if (missing.length) {
+    add("error", "This does not look like a Payoneer statement", `Missing column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. In Payoneer open Activity (or Reports), choose the currency balance, export the transaction history as CSV, and paste the whole file here (one currency balance at a time).`, first + 1);
+    return none;
+  }
+  const get = (cells, k) => (I[k] >= 0 ? (cells[I[k]] ?? "").trim() : "");
+  const amountOf = (cells) => {
+    if (I.amount >= 0 && get(cells, "amount") !== "") return parseAmount(get(cells, "amount"));
+    const cr = parseAmount(get(cells, "credit")), db = parseAmount(get(cells, "debit"));
+    if (Number.isNaN(cr) || Number.isNaN(db)) return NaN;
+    if (cr === null && db === null) return null;
+    return (cr || 0) - Math.abs(db || 0);
+  };
+  let rows = [], currency = "", skipped = 0;
+  for (let i = first + 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const cells = splitLine(lines[i], d);
+    const amount = amountOf(cells), balance = parseAmount(get(cells, "balance")), fee = parseAmount(get(cells, "fee")), rate = parseRate(get(cells, "rate"));
+    const label = get(cells, "id") || `line ${i + 1}`;
+    if (amount === null || Number.isNaN(amount) || Number.isNaN(balance) || Number.isNaN(fee)) { add("error", `An amount on ${label} is not a number`, "The row is left out, so the running balance will not follow.", i + 1); continue; }
+    const status = get(cells, "status");
+    if (status && !/^(complete|completed|success|successful|paid|processed|approved)$/i.test(status)) { skipped++; continue; }
+    const date = parseDate(get(cells, "date"), opts.dateOrder);
+    if (!date) { add("error", `The date on ${label} could not be read`, `"${get(cells, "date")}". Payoneer writes dates such as 2026-09-03, 03 Sep, 2026 or 9/3/2026; the row is left out.`, i + 1); continue; }
+    const cur = get(cells, "currency").toUpperCase();
+    if (cur && currency && cur !== currency) { add("error", "More than one currency in the file", `${cur} among ${currency} rows. Download one statement per currency balance.`, i + 1); continue; }
+    if (cur && !currency) currency = cur;
+    const type = get(cells, "type");
+    const desc = get(cells, "desc") || get(cells, "merchant") || get(cells, "ref");
+    // An exchange row names only the other currency in its description: "Exchanged to USD" / "Exchanged from EUR".
+    // Payoneer words a conversion "Currency conversion from USD to EUR" (both named) or "Converted to USD" (one named).
+    const both = desc.match(/(?:conver\w*|exchang\w*)\s+from\s+([A-Za-z]{3})\s+to\s+([A-Za-z]{3})\b/i);
+    const one = both ? null : desc.match(/(?:conver\w*|exchang\w*)\s+(to|from)\s+([A-Za-z]{3})\b/i);
+    const ex = both || one;
+    const mine = cur || currency;
+    const from = both ? both[1].toUpperCase() : one ? (one[1].toLowerCase() === "from" ? one[2].toUpperCase() : mine) : "";
+    const to = both ? both[2].toUpperCase() : one ? (one[1].toLowerCase() === "to" ? one[2].toUpperCase() : mine) : "";
+    const feeCur = get(cells, "feeCur").toUpperCase();
+    if (fee && feeCur && cur && feeCur !== cur) add("warning", `The fee on ${label} is in ${feeCur}, not ${cur}`, "It is treated as a fee in the balance currency; check it.", i + 1);
+    const counterparty = get(cells, "payee") || get(cells, "payer") || get(cells, "merchant");
+    // Payoneer shows the fee beside the Amount. A credit with a fee arrives net of it (Total amount); a debit leaves Amount plus the fee,
+    // which the running-balance proof below detects, so only credits are folded in here.
+    const f = Math.abs(fee || 0);
+    const net = amount > 0 && f ? amount - f : amount;
+    rows.push({ line: i + 1, id: label, date, time: date, amount: net, balance: balance, fee: amount > 0 ? 0 : f, rate: rate || null, from, to, desc, type, counterparty, kind: kindOf(desc, amount, Boolean(ex), type), seq: rows.length });
+  }
+  if (skipped) add("info", `${skipped} row${skipped === 1 ? "" : "s"} skipped because the status is not completed`, "Pending, cancelled or failed payments do not move the balance, so they are not journalled.");
+  if (!rows.length) { add("error", "No transactions found", "The header was read but there were no data rows."); return { ...none, currency }; }
+  // Payoneer may list newest or oldest first. Order by the balance chain when there is one, otherwise by date.
+  const hasBal = rows.every((r) => r.balance !== null);
+  const follows = (list, mode) => list.reduce((n, r, i) => (i && r.balance !== null && list[i - 1].balance !== null && list[i - 1].balance + r.amount - (mode === "extra" && r.amount < 0 ? r.fee : 0) === r.balance ? n + 1 : n), 0);
+  const rev = [...rows].reverse();
+  if (hasBal) rows = follows(rev, "included") + follows(rev, "extra") > follows(rows, "included") + follows(rows, "extra") ? rev : rows;
+  else rows = [...rows].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : b.seq - a.seq));
+  const asRows = rows;
+  // Payoneer deducts a debit's fee on top of Amount, so without a balance column to prove otherwise that is the assumption.
+  let feeMode = hasBal ? "included" : "extra";
+  if (hasBal && asRows.some((r) => r.fee && r.amount < 0) && follows(asRows, "extra") > follows(asRows, "included")) feeMode = "extra";
+  return { rows: asRows, currency, findings, feeMode, hasBalance: hasBal };
+}
+
+// ---- valuation and journals --------------------------------------------------
+
+const lastDay = (ym) => { const [y, m] = ym.split("-").map(Number); return `${ym}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, "0")}`; };
+
+// opts: base (currency the books are kept in), rates (parseRates result), openingCost (base cents for the opening balance),
+// closing (expected closing balance, cents), mapping, split ("month" | "none").
+export function buildJournals(parsed, opts = {}) {
+  const findings = [];
+  const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
+  const { rows, currency, feeMode } = parsed;
+  const base = (opts.base || "USD").toUpperCase();
+  const mapping = opts.mapping || defaultMapping(currency);
+  const empty = { journals: [], workings: [], fx: { realised: 0, byMonth: [], position: null }, findings, base, currency };
+  if (!rows.length) return empty;
+  const foreign = currency !== base;
+  const rates = opts.rates || { daily: new Map(), monthly: new Map() };
+  const spot = (date) => (foreign ? rateFor(rates, date) : 1);
+
+  if (foreign) {
+    const gaps = [...new Set(rows.filter((r) => spot(r.date) === null).map((r) => r.date))];
+    if (gaps.length || !rows.length) {
+      add("error", `No ${currency}-to-${base} rate for ${gaps.length ? gaps.slice(0, 4).join(", ") + (gaps.length > 4 ? ` and ${gaps.length - 4} more dates` : "") : "this statement"}`, `Every row of a ${currency} balance has to be valued in ${base}. Type at least one rate (for example "${rows[0].date} 1.0850", or "${rows[0].date.slice(0, 7)} 1.0850" for a whole month) in the rates box: ${base} per 1 ${currency}, from your own source (your bank's, ECB or the rate you use for the books).`);
+      return { ...empty, findings };
+    }
+  }
+  // Opening position: the balance before the first row.
+  const first = rows[0];
+  let qty = first.balance !== null ? first.balance - first.amount + (feeMode === "extra" && first.amount < 0 ? first.fee : 0) : 0;
+  let cost = 0;
+  if (qty !== 0) {
+    cost = opts.openingCost != null && Number.isFinite(opts.openingCost) ? opts.openingCost : Math.round(qty * spot(first.date));
+    add("info", `Opening balance ${money(qty, currency)} valued at ${money(cost, base)}`, opts.openingCost != null && Number.isFinite(opts.openingCost) ? "Using the cost you typed in." : `No opening cost was typed in, so it is valued at the ${first.date} rate. Type the base-currency cost of the opening balance to carry gains over correctly from earlier periods.`);
+  }
+  // Running-balance proof.
+  let breaks = 0;
+  rows.forEach((r, i) => {
+    if (r.balance === null) return;
+    const prev = i ? rows[i - 1].balance : qty;
+    const expect = prev + r.amount - (feeMode === "extra" && r.amount < 0 ? r.fee : 0);
+    if (prev !== null && expect !== r.balance) {
+      breaks++;
+      if (breaks <= 5) add("error", `Running balance does not follow at ${r.id}`, `Previous balance ${money(prev, currency)} plus this row's ${money(r.amount, currency)} should give ${money(expect, currency)} but the statement says ${money(r.balance, currency)}. A row is missing, duplicated or edited; do not post this journal until it agrees.`, r.line);
+    }
+  });
+  if (breaks > 5) add("error", `${breaks - 5} more running-balance breaks`, "Only the first five are listed.");
+  const closing = rows[rows.length - 1].balance;
+  if (opts.closing != null && Number.isFinite(opts.closing) && closing !== null && opts.closing !== closing) add("error", `Closing balance is ${money(closing, currency)} but you typed ${money(opts.closing, currency)}`, "The statement does not end where your Payoneer balance does. Rows are missing from the end (or the start) of the paste.");
+  if (feeMode === "extra") add("info", "Fees are taken on top of the Amount", "The running balance only follows when the Fee column is deducted in addition to Amount, so each fee is booked as an extra debit to the balance.");
+
+  const months = new Map();
+  const workings = [];
+  const bump = (ym, k, base_, fgn) => { if (!base_) return; if (!months.has(ym)) months.set(ym, new Map()); const m = months.get(ym); const e = m.get(k) || { net: 0, foreign: 0, count: 0 }; e.net += base_; e.foreign += fgn; e.count++; m.set(k, e); };
+  let negative = 0;
+  for (const r of rows) {
+    const ym = opts.split === "none" ? rows[rows.length - 1].date.slice(0, 7) : r.date.slice(0, 7);
+    const sp = spot(r.date);
+    let costOut = 0, valueIn = 0, fxGain = 0, rateUsed = sp, principalBase = 0, feeBase = 0;
+    if (r.amount > 0) {
+      let value = Math.round(r.amount * sp);
+      if (r.kind === "conversion" && r.from === base && r.rate && foreign) { value = Math.round(r.amount / r.rate); rateUsed = r.rate ? 1 / r.rate : sp; }
+      valueIn = value; qty += r.amount; cost += value;
+      bump(ym, "bank", value, r.amount);
+      bump(ym, r.kind === "conversion" ? "clearing" : r.kind === "interest" ? "interest" : "incoming", -value, -r.amount);
+    } else {
+      const fee = r.fee, leaving = -r.amount + (feeMode === "extra" ? fee : 0), principal = leaving - Math.min(fee, leaving);
+      const f = Math.min(fee, leaving);
+      if (qty <= 0 || leaving > qty) negative++;
+      costOut = leaving === qty ? cost : qty > 0 ? Math.round((cost * leaving) / qty) : Math.round(leaving * sp);
+      qty -= leaving; cost -= costOut;
+      if (r.kind === "conversion" && r.to === base && r.rate && foreign) { principalBase = Math.round(principal * r.rate); rateUsed = r.rate; } else principalBase = Math.round(principal * sp);
+      feeBase = Math.round(f * sp);
+      if (r.kind === "fee") { feeBase += principalBase; principalBase = 0; }
+      const target = r.kind === "conversion" ? "clearing" : r.kind === "card" ? "card" : "outgoing";
+      fxGain = principalBase + feeBase - costOut; // spent at worth minus what it cost: positive = gain on the way out
+      bump(ym, target, principalBase, principal);
+      if (r.kind === "fee") bump(ym, "fees", feeBase, leaving); else bump(ym, "fees", feeBase, f);
+      bump(ym, "bank", -costOut, -leaving);
+      // Debits are positive. The balance leaves at cost; the target absorbs its worth; the gap is FX.
+      bump(ym, "fx", -(principalBase + feeBase - costOut), 0);
+    }
+    workings.push({ line: r.line, date: r.date, id: r.id, kind: r.kind, description: r.desc, amount: r.amount, fee: r.fee, rate: rateUsed, valueBase: r.amount > 0 ? valueIn : -(principalBase + feeBase), costOut: -costOut, fx: r.amount > 0 ? 0 : fxGain, balance: qty, costBasis: cost });
+  }
+  if (negative) add("warning", `${negative} row${negative === 1 ? "" : "s"} spent more ${currency} than the balance held`, "Usually the statement starts part-way through the history, so the opening balance is missing. Those rows are costed at the spot rate; type the opening balance cost, or paste the earlier rows, for exact gains.");
+  const unusual = rows.filter((r) => r.kind === "conversion" && r.amount < 0 && r.to !== base && foreign);
+  if (unusual.length) add("info", `${unusual.length} conversion${unusual.length === 1 ? "" : "s"} to a currency other than ${base}`, `Valued at your ${currency} rate for the day rather than Payoneer's rate, because Payoneer's rate is to the other currency, not to ${base}.`);
+
+  const keys = [...months.keys()].sort();
+  if (keys.length > 1) add("info", `The statement spans ${keys.length} months`, `Written as ${keys.length} journals (${keys.join(", ")}), each balanced on its own, so every month's flows and FX land in the month they happened.`);
+  const journals = keys.map((ym, idx) => {
+    const m = months.get(ym);
+    const date = idx === keys.length - 1 ? rows[rows.length - 1].date : lastDay(ym);
+    const jl = [];
+    for (const k of CATEGORY_ORDER) {
+      if (!m.has(k)) continue;
+      const { net, foreign: f, count } = m.get(k);
+      if (net === 0) continue;
+      const fxNote = k === "fx" ? "" : f !== 0 && foreign ? `, ${money(Math.abs(f), currency)}` : "";
+      jl.push({ category: k, account: mapping[k], debit: net > 0 ? net : 0, credit: net < 0 ? -net : 0, memo: `${CATEGORIES[k].label}${k === "bank" ? ` ${currency}` : ""} (${count} row${count === 1 ? "" : "s"}${fxNote})` });
+    }
+    const balance = jl.reduce((a, l) => a + l.debit - l.credit, 0);
+    if (balance !== 0) { jl.push({ category: "fx", account: mapping.fx, debit: balance < 0 ? -balance : 0, credit: balance > 0 ? balance : 0, memo: "Rounding" }); add("warning", `Journal ${ym} was off by ${money(balance, base)}`, "Rounding, booked to the FX line.", 0); }
+    return { period: ym, date, currency: base, statementCurrency: currency, narration: `Payoneer ${currency} statement ${ym}`, lines: jl };
+  });
+  const lastSpot = foreign ? spot(rows[rows.length - 1].date) : 1;
+  const realised = workings.reduce((a, w) => a + w.fx, 0);
+  const byMonth = keys.map((ym) => ({ period: ym, realised: workings.filter((w) => w.date.slice(0, 7) === ym || opts.split === "none").reduce((a, w) => a + w.fx, 0) }));
+  const position = { qty, cost, value: Math.round(qty * lastSpot), rate: lastSpot, unrealised: Math.round(qty * lastSpot) - cost };
+  return { journals, workings, fx: { realised, byMonth: opts.split === "none" ? [{ period: keys[keys.length - 1], realised }] : byMonth, position }, findings, base, currency };
+}
+
+export function validate(text, opts = {}) {
+  const p = parseStatement(text, opts);
+  const mp = opts.mappingText != null ? parseMapping(opts.mappingText, p.currency) : { mapping: opts.mapping, errors: [] };
+  const rates = opts.rates || parseRates(opts.ratesText);
+  const parsedOpts = { ...opts, rates, mapping: mp.mapping };
+  const b = buildJournals(p, parsedOpts);
+  const findings = [...p.findings, ...b.findings, ...rates.errors.map((e) => ({ severity: "warning", title: "A rate line was not read", detail: e, line: 0 })), ...mp.errors.map((e) => ({ severity: "warning", title: "An account line was not read", detail: e, line: 0 }))];
+  const order = { error: 0, warning: 1, info: 2 };
+  findings.sort((a, c) => order[a.severity] - order[c.severity]);
+  const closing = p.rows.length ? p.rows[p.rows.length - 1].balance : null;
+  return { rows: p.rows, journals: b.journals, workings: b.workings, fx: b.fx, findings, base: b.base, currency: p.currency, closing, summary: { rows: p.rows.length, journals: b.journals.length } };
+}
+
+// ---- exports -----------------------------------------------------------------
+
+const csvCell = (v) => { const s = String(v ?? ""); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvRow = (a) => a.map(csvCell).join(",");
+const fmtDate = (iso, order) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return order === "dmy" ? `${d}/${m}/${y}` : order === "mdy" ? `${m}/${d}/${y}` : iso; };
+const docNo = (journals, j) => `PAYONEER-${j.statementCurrency}-${j.period}`;
+
+export function toXeroJournalCsv(journals, o = {}) {
+  const tax = o.taxRate || "Tax Exempt";
+  const rows = [csvRow(["*Narration", "*Date", "Description", "*AccountCode", "*TaxRate", "*Amount"])];
+  for (const j of journals) for (const l of j.lines) rows.push(csvRow([j.narration, fmtDate(j.date, o.dateOrder || "dmy"), l.memo, l.account, tax, dollars(l.debit - l.credit)]));
+  return rows.join("\r\n") + "\r\n";
+}
+
+export function toQboJournalCsv(journals, o = {}) {
+  const rows = [csvRow(["*JournalNo", "*JournalDate", "*AccountName", "Debits", "Credits", "Description", "Name", "Currency"])];
+  for (const j of journals) for (const l of j.lines) rows.push(csvRow([docNo(journals, j), fmtDate(j.date, o.dateOrder || "mdy"), l.account, l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", l.memo, "", j.currency]));
+  return rows.join("\r\n") + "\r\n";
+}
+
+export function toIif(journals) {
+  const t = (s) => String(s ?? "").replace(/[\t\r\n]+/g, " ");
+  const out = ["!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tDOCNUM\tMEMO", "!SPL\tSPLID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tDOCNUM\tMEMO", "!ENDTRNS"];
+  for (const j of journals) {
+    const date = fmtDate(j.date, "mdy"), doc = t(docNo(journals, j));
+    j.lines.forEach((l, i) => out.push(`${i === 0 ? "TRNS" : "SPL"}\t\tGENERAL JOURNAL\t${date}\t${t(l.account)}\t${((l.debit - l.credit) / 100).toFixed(2)}\t${doc}\t${t(l.memo)}`));
+    out.push("ENDTRNS");
+  }
+  return out.join("\r\n") + "\r\n";
+}
+
+export function journalsCsv(journals) {
+  const rows = [csvRow(["period", "date", "category", "account", "debit", "credit", "memo"])];
+  for (const j of journals) for (const l of j.lines) rows.push(csvRow([j.period, j.date, l.category, l.account, l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", l.memo]));
+  return rows.join("\r\n") + "\r\n";
+}
+
+export function workingsCsv(result) {
+  const rows = [csvRow(["line", "date", "id", "kind", "description", `amount_${result.currency}`, `fee_${result.currency}`, `rate_${result.base}_per_${result.currency}`, `value_${result.base}`, `cost_${result.base}`, `realised_fx_${result.base}`, `balance_${result.currency}`, `cost_basis_${result.base}`])];
+  for (const w of result.workings) rows.push(csvRow([w.line, w.date, w.id, w.kind, w.description, dollars(w.amount), dollars(w.fee), Number(w.rate).toFixed(6), dollars(w.valueBase), dollars(w.costOut), dollars(w.fx), dollars(w.balance), dollars(w.costBasis)]));
+  return rows.join("\r\n") + "\r\n";
+}
+
+export function findingsCsv(result) {
+  return [csvRow(["severity", "line", "title", "detail"]), ...result.findings.map((f) => csvRow([f.severity, f.line || "", f.title, f.detail]))].join("\r\n") + "\r\n";
+}
+
+export function decodeBuffer(buf) {
+  const u = new Uint8Array(buf);
+  if (u[0] === 0xff && u[1] === 0xfe) return new TextDecoder("utf-16le").decode(u);
+  if (u[0] === 0xfe && u[1] === 0xff) return new TextDecoder("utf-16be").decode(u);
+  return new TextDecoder("utf-8").decode(u);
+}
+
+// ---- samples -----------------------------------------------------------------
+
+const HEAD = ["Transaction Date", "Transaction ID", "Description", "Credit", "Debit", "Currency", "Exchange Rate", "Balance", "Status"];
+
+// items (oldest first): { date, desc, amount, fee, rate }. Written newest first with a running balance. Payoneer lists a fee as its
+// own row, so an item with a fee becomes two rows: the movement and then "Payoneer fee" for the fee.
+export function buildStatement({ currency = "EUR", opening = 0, items, newestFirst = true, breakAt = -1 }) {
+  const csv = (v) => (/[",]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  let bal = Math.round(opening * 100), n = 0;
+  const out = [];
+  const push = (date, desc, a, status = "Completed", rate = "") => {
+    bal += a;
+    const shown = n === breakAt ? bal + 1000 : bal;
+    out.push([date, `tx-${1000 + n++}`, desc, a > 0 ? (a / 100).toFixed(2) : "", a < 0 ? (-a / 100).toFixed(2) : "", currency, rate, (shown / 100).toFixed(2), status].map(csv).join(","));
+  };
+  for (const it of items) {
+    push(it.date, it.desc, Math.round(it.amount * 100), it.status, it.rate ? String(it.rate) : "");
+    if (it.fee) push(it.date, "Payoneer fee", -Math.round(it.fee * 100));
+  }
+  return [HEAD.join(","), ...(newestFirst ? out.reverse() : out)].join("\n") + "\n";
+}
+
+export const SAMPLE_RATES = "2026-09-01 1.1000\n2026-09-10 1.1200\n2026-09-15 1.1100\n2026-10-01 1.1250\n";
+export const SAMPLE_ITEMS = [
+  { date: "2026-09-03", desc: "Payment from Upwork Escrow Inc.", amount: 2000.0 },
+  { date: "2026-09-10", desc: "Payment from Amazon Services - Europe", amount: 1000.0, fee: 10.0 },
+  { date: "2026-09-15", desc: "Payoneer card purchase - Figma", amount: -20.0 },
+  { date: "2026-10-02", desc: "Currency conversion from EUR to USD", amount: -2500.0, fee: 11.5, rate: 1.125 },
+  { date: "2026-10-04", desc: "Withdrawal to bank account", amount: -300.0, fee: 1.4 },
+];
+export const sampleStatement = () => buildStatement({ items: SAMPLE_ITEMS });
+// The same statement after a hand edit: one row dropped from the paste, one date unreadable, one amount not a number.
+export function sampleBrokenStatement() {
+  const lines = sampleStatement().trimEnd().split("\n");
+  lines.splice(3, 1);
+  lines[1] = lines[1].replace("2026-10-04", "31-02-2026");
+  lines.push(lines[2].replace("300.00", "3O0.00"));
+  return lines.join("\n") + "\n";
+}

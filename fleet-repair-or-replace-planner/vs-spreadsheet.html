@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This planner vs. a spreadsheet | Fleet Repair-or-Replace Planner</title>
+<meta name="description" content="A fleet repair-or-replace decision can be built in a spreadsheet: one row per asset, a keep-cost formula, a replace-cost formula, a payback formula…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/vs-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This planner vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet can run this decision row by row. This free planner runs the same equivalent-annual-cost and payback formulas for every asset and ranks the fleet…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this repair-or-replace comparison?","acceptedAnswer":{"@type":"Answer","text":"Yes, in principle: one row per vehicle or machine, a formula for the annual cost of keeping it (repair spend plus downtime days times what a day off the road costs you), a formula for the annual cost of replacing it (net capital spread over its expected service life, plus what the new asset still costs to run), and a rank column to fill a capital budget. Every part of that is ordinary spreadsheet arithmetic. Where it goes wrong is not the formula being hard to write once — it is keeping all of it right across every row, every year, as assets are added, sold, or re-priced."}},{"@type":"Question","name":"Where does a hand-built version usually go wrong?","acceptedAnswer":{"@type":"Answer","text":"Two places, both easy to get right once and wrong later. First, payback: the honest formula divides the capital outlay by the cash you stop spending each year on repairs and downtime — not by the annual saving after the new asset's own capital cost is already subtracted, which charges the purchase for itself twice and makes a genuinely fast payback look years slower than it is. Second, the ranking: filling a fixed budget by total saving instead of saving per dollar of capital spends the same money on fewer, larger assets and leaves smaller, better-returning ones unfunded. Neither mistake throws an error. The sheet just quietly recommends the wrong thing."}},{"@type":"Question","name":"What does this planner do that a spreadsheet does not do for you?","acceptedAnswer":{"@type":"Answer","text":"It runs the same equivalent-annual-cost formula, the same non-circular payback formula, and the same saving-per-dollar ranking against your capital budget every time, for every row, with no formula to copy down and no cell reference that can silently point at the wrong row after an asset is added or removed. It also states its own assumptions — straight-line capital with no financing interest, resale valued in the year of purchase, a greedy rather than guaranteed-optimal budget fill — next to the numbers, rather than leaving them implicit in a formula only its author remembers."}},{"@type":"Question","name":"If I already track my fleet in a spreadsheet, do I need to switch?","acceptedAnswer":{"@type":"Answer","text":"No. Keep the spreadsheet for whatever else it already does — a maintenance log, a mileage tracker, a list of assets. Pull each asset's repair spend and downtime days from it into this planner once a year for the capital-budget decision itself, where getting the payback formula and the ranking right matters most, then go back to the spreadsheet for everything else."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. This planner runs entirely in your browser; nothing you type is uploaded."}}]}</script>
+<style>
+:root { font: 16px system-ui, sans-serif; color: #1b2320; background: #f1f4f2; }
+body { max-width: 820px; margin: auto; padding: 28px; }
+a { color: #0f5132; overflow-wrap: anywhere; }
+h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #14452f; }
+h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14452f; }
+h3 { font-size: 1rem; margin: 18px 0 4px; }
+p, li { line-height: 1.6; }
+.lede { font-size: 1.05rem; color: #2c3630; }
+.card { background: #fff; border: 1px solid #d6e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14452f10; margin: 18px 0; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eaefec; vertical-align: top; }
+th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #47524c; }
+.note, footer { font-size: .86rem; color: #47524c; }
+footer { margin-top: 28px; border-top: 1px solid #d6e0da; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/vs-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This planner vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fleet-repair-or-replace-planner/">Repair or replace your work truck? — free planner, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This planner vs. a spreadsheet</span></span></nav>
+<main>
+<p class="note"><a href="./">&larr; Fleet repair-or-replace planner</a></p>
+<header>
+<h1>This planner vs. a spreadsheet</h1>
+<p class="lede">This decision fits a spreadsheet's shape: one row per asset, a keep-cost formula, a replace-cost formula, a rank column against a budget. This page names no specific product &mdash; it compares against the generic method of building that sheet yourself, not a competing calculator.</p>
+</header>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A spreadsheet</strong> can run every formula this planner runs. Nothing here is beyond ordinary spreadsheet arithmetic. What a spreadsheet does not do on its own is keep the payback formula non-circular once it is written, or re-check that the ranking still fills the budget correctly after a row is added, removed, or re-priced.</p>
+<p><strong>This planner</strong> runs the same equivalent-annual-cost comparison and the same saving-per-dollar ranking for every asset you enter, states the assumptions behind them next to the numbers, and exports the full table as CSV &mdash; no formula to write, copy down, or re-derive after the fleet changes.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Can I build this in a spreadsheet?</td><td>Yes &mdash; the formulas are ordinary, if every row's stays right.</td></tr>
+<tr><td>Does payback divide by the annual saving or by the cash freed up?</td><td>The cash freed up. Dividing by the annual saving after capital is already subtracted counts the purchase twice and understates how fast it pays back.</td></tr>
+<tr><td>Does filling the budget by total saving find the best subset?</td><td>No &mdash; rank by saving per dollar of capital, or a few large assets crowd out several smaller, better-returning ones.</td></tr>
+<tr><td>Can I hand someone the full table without re-deriving it?</td><td>This planner's CSV export, not a shared spreadsheet link.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No. Everything stays in this browser tab; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Can a spreadsheet do this repair-or-replace comparison?</h3>
+<p>Yes, in principle: one row per vehicle or machine, a formula for the annual cost of keeping it (repair spend plus downtime days times what a day off the road costs you), a formula for the annual cost of replacing it (net capital spread over its expected service life, plus what the new asset still costs to run), and a rank column to fill a capital budget. Every part of that is ordinary spreadsheet arithmetic. Where it goes wrong is not the formula being hard to write once &mdash; it is keeping all of it right across every row, every year, as assets are added, sold, or re-priced.</p>
+<h3>Where does a hand-built version usually go wrong?</h3>
+<p>Two places, both easy to get right once and wrong later. First, payback: the honest formula divides the capital outlay by the cash you stop spending each year on repairs and downtime &mdash; not by the annual saving after the new asset's own capital cost is already subtracted, which charges the purchase for itself twice and makes a genuinely fast payback look years slower than it is. Second, the ranking: filling a fixed budget by total saving instead of saving per dollar of capital spends the same money on fewer, larger assets and leaves smaller, better-returning ones unfunded. Neither mistake throws an error. The sheet just quietly recommends the wrong thing.</p>
+<h3>What does this planner do that a spreadsheet does not do for you?</h3>
+<p>It runs the same equivalent-annual-cost formula, the same non-circular payback formula, and the same saving-per-dollar ranking against your capital budget every time, for every row, with no formula to copy down and no cell reference that can silently point at the wrong row after an asset is added or removed. It also states its own assumptions &mdash; straight-line capital with no financing interest, resale valued in the year of purchase, a greedy rather than guaranteed-optimal budget fill &mdash; next to the numbers, rather than leaving them implicit in a formula only its author remembers.</p>
+<h3>If I already track my fleet in a spreadsheet, do I need to switch?</h3>
+<p>No. Keep the spreadsheet for whatever else it already does &mdash; a maintenance log, a mileage tracker, a list of assets. Pull each asset's repair spend and downtime days from it into this planner once a year for the capital-budget decision itself, where getting the payback formula and the ranking right matters most, then go back to the spreadsheet for everything else.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. This planner runs entirely in your browser; nothing you type is uploaded.</p>
+<p class="note">Open the <a href="./">repair-or-replace planner</a>, or read <a href="./is-it-cheaper-to-repair-or-replace-a-work-truck.html">why downtime decides this</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked planner apply arithmetic to numbers you supply; they are not financial, tax, legal, or engineering advice. <strong>You are responsible for reviewing and verifying anything here before relying on it</strong>, and for any capital commitment it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The planner this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>Nothing here says or implies that a spreadsheet is a bad way to track a fleet &mdash; it is a different job: a formula you build and maintain yourself where this planner runs the same arithmetic for you and states its assumptions. This page names no specific product.</p>
+<p class="support">Free and open source &mdash; <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tools do.</p>
+<p><a href="./">Back to the planner</a></p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../agent-brokerage-split-calculator/" data-pf-to="agent-brokerage-split-calculator">Real Estate Brokerage Split Calculator — free, private, in your browser</a></li>
+      <li><a href="../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../app-store-sales-report-analyzer/" data-pf-to="app-store-sales-report-analyzer">App Store Sales Report Analyzer — free, private, in your browser</a></li>
+      <li><a href="../appointment-deposit-calculator/" data-pf-to="appointment-deposit-calculator">Appointment Deposit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fleet-repair-or-replace-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fleet-repair-or-replace-planner"></script>
+</body>
+</html>

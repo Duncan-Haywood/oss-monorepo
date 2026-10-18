@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Release Notes Generator — Changelog From Git Commits, Free and Private</title>
+  <meta name="description" content="Generate release notes and a CHANGELOG.md entry from git log: grouped by Conventional Commit type, breaking changes first…">
+  <meta property="og:title" content="Changelog from git commits, in your browser">
+  <meta property="og:description" content="Paste git log, get grouped release notes and the next semver bump. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Release Notes Generator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+ and git, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste git log output to get grouped release notes (Keep a Changelog, GitHub or plain), breaking changes called out, and a suggested semantic version bump. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I generate release notes from git commits?", "acceptedAnswer": {"@type": "Answer", "text": "Run git log between two tags with the format this tool documents, or just run the CLI, which calls git for you. Commits are grouped by Conventional Commit type (feat, fix, perf and so on), breaking changes are pulled to the top, and non-conventional subjects are classified by their first word so an older history still produces something usable."}}, {"@type": "Question", "name": "How does it decide the next version number?", "acceptedAnswer": {"@type": "Answer", "text": "By Semantic Versioning: any breaking change suggests a major bump, otherwise any feat suggests minor, otherwise patch. Before 1.0.0 a breaking change suggests minor. It is a suggestion from commit messages only; you decide the release."}}, {"@type": "Question", "name": "Does this upload my commit history?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page. The page makes no network calls and your commit text is never uploaded. The CLI runs git on your machine and prints to your terminal."}}, {"@type": "Question", "name": "What output formats are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Keep a Changelog style Markdown for CHANGELOG.md, GitHub release style notes with a What's changed heading, and plain text for emails and store listings. Pass a repository URL to link pull requests and commits."}}, {"@type": "Question", "name": "Is this a replacement for release-please or git-cliff?", "acceptedAnswer": {"@type": "Answer", "text": "It overlaps with them on purpose. Use it when you want the notes now, without installing anything or configuring a pipeline, or to preview what your history will produce. It does not publish releases or edit files for you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    textarea.log { min-height: 200px; }
+    textarea.out { min-height: 260px; background: #f7f9fb; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Changelog from git commits, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Changelog from git commits, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Changelog from git commits, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">RELEASE NOTES GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Turn your git log into release notes</h1>
+    <p>Paste commits, get a <strong>CHANGELOG.md</strong> entry or GitHub release notes: grouped by Conventional Commit type, <strong>breaking changes first</strong>, pull requests linked, and a suggested <strong>semantic version bump</strong>. Older histories without conventions still work: the section is guessed from the first word and flagged.</p>
+    <p class="note">Nothing is uploaded. Your commit text stays in this tab and the page makes no network calls.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your commits</h2>
+    <p class="note">Get them with: <code>git log --format='%H%x1f%an%x1f%s%x1f%b%x1e' v1.2.0..HEAD</code> (or just run the CLI below). Plain <code>git log --oneline</code> output also works.</p>
+    <textarea id="log" class="log" spellcheck="false" placeholder="feat(api): add bulk export (#41)&#10;fix: handle empty CSV&#10;feat!: drop Node 16"></textarea>
+    <p>
+      <label for="version">Version: </label><input type="text" id="version" size="10" placeholder="1.3.0">
+      <label for="current">Current version: </label><input type="text" id="current" size="10" placeholder="1.2.0">
+      <label for="style">Style: </label><select id="style"><option value="keepachangelog">Keep a Changelog</option><option value="github">GitHub release</option><option value="plain">Plain text</option></select>
+      <label for="repo">Repo URL: </label><input type="text" id="repo" size="30" placeholder="https://github.com/owner/repo">
+    </p>
+    <p>
+      <button type="button" id="generate">Generate release notes</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste commits and click Generate.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2>Release notes</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="warnings"></div>
+    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <p><button type="button" id="copy">Copy Markdown</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it on your repo from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs --from v1.2.0 --version 1.3.0 --repo https://github.com/owner/repo
+node cli.mjs --from v1.2.0 --bump          # prints: minor -&gt; v1.3.0
+node cli.mjs --style github --authors --skip chore,ci,test</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="changelog.mjs" rel="noopener">changelog.mjs</a> from the repo. Node 18+, git, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I generate release notes from git commits?</h3>
+    <p>Run git log between two tags with the format this tool documents, or just run the CLI, which calls git for you. Commits are grouped by Conventional Commit type (feat, fix, perf and so on), breaking changes are pulled to the top, and non-conventional subjects are classified by their first word so an older history still produces something usable.</p>
+    <h3>How does it decide the next version number?</h3>
+    <p>By Semantic Versioning: any breaking change suggests a major bump, otherwise any feat suggests minor, otherwise patch. Before 1.0.0 a breaking change suggests minor. It is a suggestion from commit messages only; you decide the release.</p>
+    <h3>Does this upload my commit history?</h3>
+    <p>No. Everything runs in this page. The page makes no network calls and your commit text is never uploaded. The CLI runs git on your machine and prints to your terminal.</p>
+    <h3>What output formats are supported?</h3>
+    <p>Keep a Changelog style Markdown for CHANGELOG.md, GitHub release style notes with a What's changed heading, and plain text for emails and store listings. Pass a repository URL to link pull requests and commits.</p>
+    <h3>Is this a replacement for release-please or git-cliff?</h3>
+    <p>It overlaps with them on purpose. Use it when you want the notes now, without installing anything or configuring a pipeline, or to preview what your history will produce. It does not publish releases or edit files for you.</p>
+    <p>More: <a href="how-to-write-a-changelog.html">how to write a changelog people read (and automate the boring half)</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Generated notes and version suggestions come from commit messages only. <strong>You are responsible for reviewing and verifying its output before publishing it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The commits you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>notes_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a>, <a href="../llms-txt-generator/">llms.txt Generator</a> and <a href="../json-to-types-generator/">JSON to Types Generator</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { parseLog, parseCommit, render, summarize, bumpVersion } from "./changelog.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const EXAMPLE = "feat(api): add bulk export (#41)\nfix: handle empty CSV upload (#43)\nfeat!: drop Node 16 support\nperf(db): cache the schema lookup\nAdd dark mode toggle\ndocs: explain the retry flag\nchore: bump eslint\nMerge branch 'main' into dev";
+
+    function commitsFrom(text) {
+      if (text.includes("\x1e") || text.includes("\x1f")) return parseLog(text);
+      return text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+        const m = /^([0-9a-f]{7,40})\s+(.+)$/.exec(l);
+        return parseCommit(m ? { hash: m[1], subject: m[2] } : { subject: l });
+      });
+    }
+
+    function run() {
+      const commits = commitsFrom($("#log").value);
+      const s = summarize(commits);
+      const version = $("#version").value.trim();
+      const current = $("#current").value.trim();
+      const next = current ? bumpVersion(current, s.bump) : null;
+      $("#out").value = render(commits, { version: version || next || "Unreleased", style: $("#style").value, repo: $("#repo").value.trim() });
+      $("#verdict").textContent = commits.length ? `${commits.length} commits · suggested bump: ${s.bump}${next ? " → " + next : ""}` : "No commits found";
+      $("#warnings").innerHTML = s.warnings.map((w) => `<div class="finding warn"><span class="pill warn">note</span> ${escapeHtml(w)}</div>`).join("");
+      $("#result-card").hidden = false;
+      $("#status").textContent = "";
+      record("notes_generated");
+    }
+
+    $("#generate").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#log").value = EXAMPLE; $("#current").value = "1.2.0"; $("#repo").value = "https://github.com/owner/repo";
+      run(); record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const id of ["log", "version", "current", "repo"]) $("#" + id).value = "";
+      $("#result-card").hidden = true;
+      $("#status").textContent = "Paste commits and click Generate.";
+    });
+    $("#copy").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText($("#out").value); event.target.textContent = "Copied"; }
+      catch { $("#out").select(); event.target.textContent = "Press Ctrl+C to copy"; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-checkout-credentials-check/" data-pf-to="actions-checkout-credentials-check">Which of your Actions jobs leave the GITHUB_TOKEN in .git/config?</a></li>
+      <li><a href="../actions-injection-check/" data-pf-to="actions-injection-check">Is your GitHub Actions workflow open to a pwn request or script injection?</a></li>
+      <li><a href="../actions-minutes-estimator/" data-pf-to="actions-minutes-estimator">What will this GitHub Actions workflow cost you a month?</a></li>
+      <li><a href="../actions-permissions-check/" data-pf-to="actions-permissions-check">Does your GITHUB_TOKEN use least-privilege permissions?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=release-notes-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/?pfEmbed=1&quot; title=&quot;Changelog from git commits, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="release-notes-generator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/" data-pf-embed-title="Changelog from git commits, in your browser" data-pf-embed-slug="release-notes-generator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="release-notes-generator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="release-notes-generator" data-pf-link-amount=""></script>
+</body>
+</html>

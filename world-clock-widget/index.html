@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>World Clock &amp; Daylight — Time, Sunrise, Sunset and Who's Awake</title>
+  <meta name="description" content="A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like…">
+  <meta property="og:title" content="What time is it there — and are they awake?">
+  <meta property="og:description" content="Local time, sunrise, sunset, daylight length and a waking-hours band for every city you pick, all on one screen. Computed in your browser, nothing uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"World Clock & Daylight","applicationCategory":"UtilitiesApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Shows current local time, sunrise, sunset, daylight length and a waking-hours band for several world cities at once, plus each city's offset from the viewer's own time zone. Sunrise and sunset are computed locally from the Sunrise/Sunset Algorithm in the Almanac for Computers (Nautical Almanac Office, United States Naval Observatory), with no network call and no API key."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How are sunrise and sunset calculated without a network call?","acceptedAnswer":{"@type":"Answer","text":"From the Sunrise/Sunset Algorithm published in the Almanac for Computers, 1990 (Nautical Almanac Office, United States Naval Observatory) — the public-domain algorithm behind most open-source sunrise calculators. It needs only a date, a latitude and a longitude, all of which are already on this page, so the whole computation runs in your browser. It is accurate to roughly a minute outside the polar circles."}},{"@type":"Question","name":"Why does the daylight length differ slightly from my weather app?","acceptedAnswer":{"@type":"Answer","text":"Three ordinary reasons. The almanac algorithm is accurate to about a minute, not to the second. This tool uses city-centre coordinates, and sunrise genuinely differs across a large metropolitan area. And published times sometimes measure a slightly different event — the sun's upper limb clearing a flat horizon versus the centre of the disc — which shifts the answer by a minute or two. None of these matter for knowing whether it is light there; none of them should be relied on for navigation, aviation, or religious observance."}},{"@type":"Question","name":"What do the Asleep, Early, Working hours and Evening labels mean?","acceptedAnswer":{"@type":"Answer","text":"They are a plain courtesy heuristic about waking hours based only on the local clock: asleep before 07:00 and from 22:00, early until 09:00, working hours until 17:00, evening until 22:00. They are not a claim about anyone's actual schedule, working week, or public holidays, and they do not know about weekends. Treat them as a nudge before you call, not as a fact about the person."}},{"@type":"Question","name":"Is anything uploaded or tracked?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account, no cookie, no analytics vendor and no network request of any kind — the page ships the city list and the solar maths and computes everything locally. The cities you pick are remembered in your own browser's local storage so the page opens the same way next time, and anonymous feature counters are kept in the same place. Both can be cleared with the button in the footer, and Do Not Track and Global Privacy Control are honoured."}},{"@type":"Question","name":"Can I share my set of cities with someone?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Copy share link button puts the current selection into the URL, so the person you send it to opens the same cities in the same order. The link carries nothing but the city names — no identifier, and nothing about you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    select { box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; background: #fff; color: #1b1f2a; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.rowaction { background: transparent; color: #7f1d1d; font-weight: 700; padding: 4px 8px; margin: 0; font-size: .95rem; }
+    button.rowaction:hover { background: #fde8e8; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eaf0; vertical-align: middle; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    td.clock { font: 600 1.25rem ui-monospace, monospace; color: #17324a; white-space: nowrap; }
+    td.city strong { font-size: 1rem; }
+    .sub { display: block; color: #55606f; font-size: .8rem; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.asleep, .pill.asleep-late { background: #e5e7eb; color: #374151; }
+    .pill.early { background: #fef3c7; color: #78350f; }
+    .pill.working { background: #e6f4ea; color: #14532d; }
+    .pill.evening { background: #e0e7ff; color: #3730a3; }
+    .daymark { white-space: nowrap; }
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .field-row > div { flex: 1 1 220px; }
+    .empty { padding: 18px; border: 1px dashed #a8b3c1; border-radius: 10px; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      th.optional, td.optional { display: none; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"What time is it there — and are they awake?","item":"https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What time is it there — and are they awake? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/more/">More free tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What time is it there — and are they awake?</span></span></nav>
+  <header>
+    <p class="note">WORLD CLOCK &amp; DAYLIGHT · RUNS IN YOUR BROWSER</p>
+    <h1>What time is it there — and are they awake?</h1>
+    <p>Pick the cities you actually care about and see them side by side: <strong>current local time</strong>, <strong>sunrise</strong>, <strong>sunset</strong>, <strong>how long the day is</strong>, and a plain waking-hours label so you know whether a call is a kindness or an alarm clock.</p>
+    <p class="note">Nothing is uploaded and there is no network request at all. Sunrise and sunset are computed here, in this tab, from the US Naval Observatory's published almanac algorithm.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your cities</h2>
+    <p class="note" id="home-zone-note"></p>
+    <div id="clock-table-wrap">
+      <div class="pf-table-scroll"><table id="clock-table">
+        <caption class="note" style="text-align:left;padding-bottom:8px">Updates every second. Sunrise and sunset are for each city's own local calendar day.</caption>
+        <thead>
+          <tr>
+            <th scope="col">City</th>
+            <th scope="col">Local time</th>
+            <th scope="col">Now</th>
+            <th scope="col" class="optional">Sunrise</th>
+            <th scope="col" class="optional">Sunset</th>
+            <th scope="col" class="optional">Daylight</th>
+            <th scope="col">vs. you</th>
+            <th scope="col"><span class="note">Remove</span></th>
+          </tr>
+        </thead>
+        <tbody id="clock-rows"></tbody>
+      </table></div>
+    </div>
+    <p class="empty" id="empty-state" hidden>No cities selected. Add one below, or <button type="button" class="secondary" id="restore-defaults">restore the default six</button>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Add a city</h2>
+    <div class="field-row">
+      <div>
+        <label for="city-select">City</label>
+        <select id="city-select" style="width:100%"></select>
+      </div>
+      <div style="flex:0 0 auto">
+        <button type="button" id="add-city">Add city</button>
+      </div>
+    </div>
+    <p class="note" id="add-status" aria-live="polite"></p>
+    <p>
+      <button type="button" class="secondary" id="copy-link">Copy share link</button>
+      <button type="button" class="secondary" id="sort-by-time">Sort by time of day</button>
+    </p>
+    <p class="note" id="copy-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>What's computed, and how accurate it is</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th scope="col">Value</th><th scope="col">How</th></tr></thead>
+      <tbody>
+        <tr><td>Local time</td><td>Your browser's own IANA time zone database, so daylight saving is already handled for every city</td></tr>
+        <tr><td>Sunrise / sunset</td><td>The Sunrise/Sunset Algorithm from the <em>Almanac for Computers, 1990</em> (Nautical Almanac Office, US Naval Observatory), using city-centre coordinates — accurate to roughly a minute outside the polar circles</td></tr>
+        <tr><td>Daylight length</td><td>The interval between the two, for that city's own local calendar day</td></tr>
+        <tr><td>Waking-hours label</td><td>A courtesy heuristic on the local clock alone: asleep before 07:00 and from 22:00, early to 09:00, working hours to 17:00, evening to 22:00</td></tr>
+        <tr><td>vs. you</td><td>The difference between each city's current UTC offset and your own, so half-hour and three-quarter-hour zones read correctly</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">The waking-hours label knows nothing about weekends, public holidays, shift work, or the person's actual job. It is a nudge before you dial, not a fact about them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How are sunrise and sunset calculated without a network call?</h3>
+    <p>From the Sunrise/Sunset Algorithm published in the <em>Almanac for Computers, 1990</em> (Nautical Almanac Office, United States Naval Observatory) — the public-domain algorithm behind most open-source sunrise calculators. It needs only a date, a latitude and a longitude, all of which are already on this page, so the whole computation runs in your browser. It is accurate to roughly a minute outside the polar circles.</p>
+    <h3>Why does the daylight length differ slightly from my weather app?</h3>
+    <p>Three ordinary reasons. The almanac algorithm is accurate to about a minute, not to the second. This tool uses city-centre coordinates, and sunrise genuinely differs across a large metropolitan area. And published times sometimes measure a slightly different event — the sun's upper limb clearing a flat horizon versus the centre of the disc — which shifts the answer by a minute or two. None of these matter for knowing whether it is light there; none of them should be relied on for navigation, aviation, or religious observance.</p>
+    <h3>What do the Asleep, Early, Working hours and Evening labels mean?</h3>
+    <p>They are a plain courtesy heuristic about waking hours based only on the local clock: asleep before 07:00 and from 22:00, early until 09:00, working hours until 17:00, evening until 22:00. They are not a claim about anyone's actual schedule, working week, or public holidays, and they do not know about weekends. Treat them as a nudge before you call, not as a fact about the person.</p>
+    <h3>Is anything uploaded or tracked?</h3>
+    <p>No. There is no account, no cookie, no analytics vendor and no network request of any kind — the page ships the city list and the solar maths and computes everything locally. The cities you pick are remembered in your own browser's local storage so the page opens the same way next time, and anonymous feature counters are kept in the same place. Both can be cleared with the button in the footer, and Do Not Track and Global Privacy Control are honoured.</p>
+    <h3>Can I share my set of cities with someone?</h3>
+    <p>Yes. The <strong>Copy share link</strong> button puts the current selection into the URL, so the person you send it to opens the same cities in the same order. The link carries nothing but the city names — no identifier, and nothing about you.</p>
+    <h3>How is this different from my phone's built-in world clock?</h3>
+    <p>A phone's world clock shows the time in a city; it usually does not show sunrise, sunset, daylight length, or whether that time is a reasonable one to call. See <a href="./vs-your-phones-clock-app.html">this tool vs. your phone's built-in world clock</a> for the comparison.</p>
+    <h3>Why is India's time zone UTC+5:30 instead of a whole number?</h3>
+    <p>Because Indian Standard Time is anchored to a meridian near the country's geographic centre rather than rounded to the nearest hour, and the country has run on one national clock since 1906 despite spanning roughly two hours of longitude. See <a href="./why-is-indias-time-zone-utc-5-30.html">why India's time zone is UTC+5:30</a> for the full explanation, including the other half-hour and 45-minute zones around the world.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Sunrise and sunset are computed from a published almanac approximation using city-centre coordinates and are accurate to roughly a minute in ordinary latitudes — they are <strong>not</strong> suitable for navigation, aviation, maritime use, religious observance, or any purpose where an exact solar time matters. The waking-hours labels are a courtesy heuristic and say nothing about any individual's real schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Nothing you do here is ever uploaded; there are no accounts, cookies, or analytics vendors. Your selected cities and anonymous feature events (<code>city_added</code>, <code>city_removed</code>, <code>link_copied</code>, <code>sorted_by_time</code>) are kept only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../cron-dst-drift-check/">Cron DST Drift Check</a> catches the schedule that skips or double-fires across a daylight-saving transition — the same time-zone arithmetic, applied to the jobs that run while you sleep.</p>
+    <p>Also: <a href="../garmin-world-traveler-watchface/">World Traveler</a>, a Garmin watch face that shows 42 world cities on a 24-hour ring.</p>
+    <p class="support">Free and open source. If this saved you a badly-timed phone call, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      CITIES, DEFAULT_CITY_IDS, cityById, cityClock,
+      formatClock, formatDuration, formatEventTime, formatOffsetDelta, formatUtcOffset,
+      parseCityIds, serializeCityIds, utcOffsetMinutes,
+    } from "./solar.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const STORE_KEY = "world-clock-cities";
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    // The viewer's own zone drives the "vs. you" column. `resolvedOptions` can
+    // report something the solar code never has to parse, so it is only ever
+    // used for an offset, never as a catalogue key.
+    let homeZone = "UTC";
+    try {
+      homeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      /* a runtime without a resolved zone still gets a working table, in UTC */
+    }
+
+    // ---- selection state -------------------------------------------------
+    // Precedence is deliberate: a share link wins over stored state, so a link
+    // someone sends you opens *their* cities rather than silently showing
+    // yours. Storage wins over the defaults. Every layer is filtered through
+    // the catalogue, so a retired city id degrades to a shorter list.
+
+    function storedIds() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+        const ids = parsed.filter((id) => cityById(id));
+        return ids.length ? ids : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function persist(ids) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(ids));
+      } catch {
+        /* storage is optional; the page works for this visit either way */
+      }
+    }
+
+    const fromLink = parseCityIds(new URLSearchParams(location.search).get("cities"));
+    let selected = fromLink.length ? fromLink : (storedIds() ?? [...DEFAULT_CITY_IDS]);
+
+    // ---- the city picker -------------------------------------------------
+
+    function refreshPicker() {
+      const select = $("#city-select");
+      const remaining = CITIES
+        .filter((c) => !selected.includes(c.id))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      select.innerHTML = remaining
+        .map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} — ${escapeHtml(c.country)}</option>`)
+        .join("");
+      // Disabling the control rather than leaving an empty listbox: an empty
+      // select is announced as an unlabelled combobox with no options, which
+      // reads as broken rather than as "you already have them all".
+      const exhausted = remaining.length === 0;
+      select.disabled = exhausted;
+      $("#add-city").disabled = exhausted;
+      $("#add-status").textContent = exhausted ? "Every city in the catalogue is already on your list." : "";
+    }
+
+    // ---- the table -------------------------------------------------------
+
+    let sortByTimeOfDay = false;
+
+    function render() {
+      const now = new Date();
+      const homeOffset = utcOffsetMinutes(now, homeZone);
+      $("#home-zone-note").textContent =
+        `Your zone: ${homeZone} (${formatUtcOffset(homeOffset)}). "vs. you" is each city's difference from it.`;
+
+      const clocks = selected.map((id) => cityClock(cityById(id), now));
+      if (sortByTimeOfDay) {
+        clocks.sort((a, b) =>
+          (a.parts.hour * 60 + a.parts.minute) - (b.parts.hour * 60 + b.parts.minute));
+      }
+
+      $("#clock-rows").innerHTML = clocks.map((c) => {
+        const delta = formatOffsetDelta(c.offsetMinutes - homeOffset);
+        // null daylight means the sun neither rose nor set — a real state at
+        // high latitude, not an error, so it is named rather than blanked.
+        const dayMark = c.daylight === null
+          ? (c.daylightMinutes === null ? "polar day/night" : "—")
+          : (c.daylight ? "daylight" : "night");
+        return `<tr>
+          <td class="city"><strong>${escapeHtml(c.city.name)}</strong><span class="sub">${escapeHtml(c.city.country)} · ${escapeHtml(formatUtcOffset(c.offsetMinutes))}</span></td>
+          <td class="clock">${escapeHtml(formatClock(c.parts))}<span class="sub">${escapeHtml(c.parts.weekday)} ${escapeHtml(String(c.parts.day))}</span></td>
+          <td><span class="pill ${escapeHtml(c.band.id)}">${escapeHtml(c.band.label)}</span><span class="sub daymark">${escapeHtml(dayMark)}</span></td>
+          <td class="optional">${escapeHtml(formatEventTime(c.sunrise, c.city.timeZone))}</td>
+          <td class="optional">${escapeHtml(formatEventTime(c.sunset, c.city.timeZone))}</td>
+          <td class="optional">${escapeHtml(formatDuration(c.daylightMinutes))}</td>
+          <td>${escapeHtml(delta)}</td>
+          <td><button type="button" class="rowaction" data-remove="${escapeHtml(c.city.id)}" aria-label="Remove ${escapeHtml(c.city.name)}">Remove</button></td>
+        </tr>`;
+      }).join("");
+
+      const empty = selected.length === 0;
+      $("#clock-table-wrap").hidden = empty;
+      $("#empty-state").hidden = !empty;
+    }
+
+    function update(ids, { persistIt = true } = {}) {
+      selected = ids;
+      if (persistIt) persist(selected);
+      refreshPicker();
+      render();
+    }
+
+    // ---- events ----------------------------------------------------------
+
+    $("#add-city").addEventListener("click", () => {
+      const id = $("#city-select").value;
+      if (!id || selected.includes(id)) return;
+      update([...selected, id]);
+      $("#add-status").textContent = `${cityById(id).name} added.`;
+      record("city_added");
+    });
+
+    $("#clock-rows").addEventListener("click", (event) => {
+      const id = event.target?.dataset?.remove;
+      if (!id) return;
+      update(selected.filter((c) => c !== id));
+      record("city_removed");
+    });
+
+    $("#restore-defaults").addEventListener("click", () => {
+      update([...DEFAULT_CITY_IDS]);
+    });
+
+    $("#sort-by-time").addEventListener("click", (event) => {
+      sortByTimeOfDay = !sortByTimeOfDay;
+      event.target.textContent = sortByTimeOfDay ? "Sort by the order I added them" : "Sort by time of day";
+      render();
+      record("sorted_by_time");
+    });
+
+    $("#copy-link").addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}?cities=${encodeURIComponent(serializeCityIds(selected))}`;
+      const status = $("#copy-status");
+      try {
+        await navigator.clipboard.writeText(url);
+        status.textContent = "Link copied to your clipboard.";
+      } catch {
+        // Clipboard access is denied in plenty of ordinary contexts (an
+        // insecure origin, a permissions policy, a browser that gates it on a
+        // user gesture it did not see). Showing the URL is strictly better
+        // than an error the visitor cannot act on.
+        status.textContent = url;
+      }
+      record("link_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+
+    // A link's selection is shown but not written to storage: opening
+    // someone else's link should not quietly replace the cities you chose.
+    update(selected, { persistIt: fromLink.length === 0 });
+    setInterval(render, 1000);
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../jwt-security-check/" data-pf-to="jwt-security-check">JWT Security Check</a></li>
+      <li><a href="../ai-engineering-academy/" data-pf-to="ai-engineering-academy">Free Electronics Calculators</a></li>
+      <li><a href="../aid-award-letter-comparator/" data-pf-to="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+      <li><a href="../yoga-pilates-studio-class-profit-calculator/" data-pf-to="yoga-pilates-studio-class-profit-calculator">Yoga &amp; Pilates Studio Class Profit Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=world-clock-widget">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/?pfEmbed=1&quot; title=&quot;What time is it there — and are they awake? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="world-clock-widget"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/" data-pf-embed-title="What time is it there — and are they awake?" data-pf-embed-slug="world-clock-widget"></script>
+</body>
+</html>

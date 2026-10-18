@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer free shipping on TikTok Shop? | Charge vs bake vs eat the label</title>
+  <meta name="description" content="Free TikTok Shop shipping calculator. Charging postage and baking it into the item price look like a fee-base tie — they are not…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/should-i-offer-free-shipping-on-tiktok-shop.html">
+  <meta property="og:title" content="Should I offer free shipping on TikTok Shop?">
+  <meta property="og:description" content="Compare charging shipping, eating the label, and moving postage into the item price after referral, affiliate commission, and returns.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TikTok Shop free-shipping comparison",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Charge vs free shipping leftover, same-customer-total affiliate trap, extra orders to match, expected profit after returns, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer free shipping on TikTok Shop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator example — a $19.99 item, $4.99 shipping charged, 6% referral, 15% creator commission on item price only, 12% returns — charging shipping keeps more than baking the $4.99 into the item. Referral is a tie (same fee base). Affiliate is not: the creator is paid on the higher item price. Eating the label at $19.99 drops leftover further and needs extra orders to match."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is moving shipping into the item price free on TikTok Shop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No when commission is on item price only. TikTok's referral sits on item plus shipping charged, so $19.99 + $4.99 and $24.98 + $0.00 take the same referral. The creator payout rises by 15% of the $4.99 you moved. Tick 'commission includes shipping charged' if your own statements already pay creators on the full customer total — then the same customer total is a leftover tie."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does free shipping need extra orders to stay even?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes when leftover per order falls. The page shows how many extra orders per month would match charging shipping. If the free-shipping path has a non-positive leftover, extra volume cannot catch up."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a1fa2; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d7cce0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a183310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9a88ad; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .checks input { width: auto; }
+    .hint { font-weight: 500; font-size: .78rem; color: #5c4e68; }
+    .result { position: sticky; top: 15px; background: #2a1038; color: #f7f1fb; border-color: #2a1038; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 1.15rem; font-weight: 650; line-height: 1.35; margin: 8px 0 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .82rem; opacity: .84; }
+    .error { color: #ffb0a2; }
+    footer { margin-top: 25px; font-size: .82rem; color: #53485f; }
+    footer a { color: #7a1fa2; }
+    a { color: #7a1fa2; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/should-i-offer-free-shipping-on-tiktok-shop.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I offer free shipping on TikTok Shop? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tiktok-shop-fee-calculator/">TikTok Shop Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I offer free shipping on TikTok Shop?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="eyebrow">TIKTOK SHOP · FREE SHIPPING</p>
+    <h1>The badge is not a fee-base tie when creators are paid on the item.</h1>
+    <p>
+      TikTok’s referral sits on item price plus shipping charged, so
+      $19.99&nbsp;+&nbsp;$4.99 and $24.98&nbsp;+&nbsp;$0.00 take the same
+      referral. Creator commission usually does not. If you pay affiliates
+      on item price only, moving the label into the item raises their
+      payout. This page does that arithmetic on your numbers.
+      <a href=".">Back to the full calculator</a>.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>The listing</h2>
+      <div class="fields">
+        <label>Item price
+          <input id="itemPrice" type="number" min="0" step="0.01" value="19.99" inputmode="decimal">
+        </label>
+        <label>Shipping charged today
+          <input id="shippingCharged" type="number" min="0" step="0.01" value="4.99" inputmode="decimal">
+        </label>
+        <label>Free-shipping item price
+          <input id="freeShipPrice" type="number" min="0" step="0.01" value="24.98" inputmode="decimal">
+          <span class="hint">What you would actually list with the badge. Defaults to the same customer total.</span>
+        </label>
+        <label>Referral rate (%)
+          <input id="referralRate" type="number" min="0" step="0.01" value="6" inputmode="decimal">
+        </label>
+        <label>Affiliate commission you set (%)
+          <input id="affiliateRate" type="number" min="0" step="0.1" value="15" inputmode="decimal">
+        </label>
+        <label>Return rate (%)
+          <input id="returnRate" type="number" min="0" max="100" step="0.1" value="12" inputmode="decimal">
+        </label>
+        <label>You paid for the item
+          <input id="cogs" type="number" min="0" step="0.01" value="5.50" inputmode="decimal">
+        </label>
+        <label>Fulfillment / postage you pay
+          <input id="fulfillmentCost" type="number" min="0" step="0.01" value="4.28" inputmode="decimal">
+        </label>
+        <label>Packaging / other per order
+          <input id="otherPerOrder" type="number" min="0" step="0.01" value="0.40" inputmode="decimal">
+        </label>
+        <label>Ads allocated to this order
+          <input id="adSpend" type="number" min="0" step="0.01" value="1.50" inputmode="decimal">
+        </label>
+        <label>Returned units you cannot resell (%)
+          <input id="unsellableRate" type="number" min="0" max="100" step="1" value="80" inputmode="numeric">
+        </label>
+        <label>Orders per day (for the monthly lift)
+          <input id="unitsPerDay" type="number" min="0" step="0.1" value="8" inputmode="decimal">
+        </label>
+      </div>
+      <div class="checks">
+        <label>
+          <input id="affiliateOnItemOnly" type="checkbox" checked>
+          Creator commission is on item price only
+        </label>
+        <label>
+          <input id="affiliateRefundedOnReturn" type="checkbox">
+          Affiliate commission is clawed back on a return
+        </label>
+      </div>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <h2>Charge vs free shipping</h2>
+      <p class="hero-number" id="note"></p>
+      <p class="error" id="error" hidden></p>
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Item + ship</th>
+            <th scope="col">Referral</th>
+            <th scope="col">Creator</th>
+            <th scope="col">Expected leftover</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <p class="note" id="lift"></p>
+      <p class="note">Transparent arithmetic from your inputs — not TikTok’s live schedule, and not a ranking or conversion forecast. Confirm creator payout rules and postage on your own statements before you change the listing.</p>
+    </section>
+  </main>
+
+  <h2>Common questions</h2>
+  <h3>Should I offer free shipping on TikTok Shop?</h3>
+  <p>On the calculator example — a $19.99 item, $4.99 shipping charged, 6% referral, 15% creator commission on item price only, 12% returns — charging shipping keeps more than baking the $4.99 into the item. Referral is a tie (same fee base). Affiliate is not: the creator is paid on the higher item price. Eating the label at $19.99 drops leftover further and needs extra orders to match.</p>
+  <h3>Is moving shipping into the item price free on TikTok Shop?</h3>
+  <p>No when commission is on item price only. TikTok's referral sits on item plus shipping charged, so $19.99 + $4.99 and $24.98 + $0.00 take the same referral. The creator payout rises by 15% of the $4.99 you moved. Tick 'commission includes shipping charged' if your own statements already pay creators on the full customer total — then the same customer total is a leftover tie.</p>
+  <h3>Does free shipping need extra orders to stay even?</h3>
+  <p>Yes when leftover per order falls. The page shows how many extra orders per month would match charging shipping. If the free-shipping path has a non-positive leftover, extra volume cannot catch up.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
+      <input id="usageOptOut" type="checkbox" style="width:auto">
+      Do not keep anonymous local usage counts
+    </label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
+    <p>Free and open source. <a href=".">Full TikTok Shop calculator</a> · <a href="affiliate-commission-on-returns.html">Affiliate returns example</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional.</p>
+  </footer>
+
+  <script type="module">
+    import { compareFreeShipping, freeShippingNote } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const FIELD_IDS = [
+      "itemPrice", "shippingCharged", "freeShipPrice", "referralRate",
+      "affiliateRate", "returnRate", "cogs", "fulfillmentCost",
+      "otherPerOrder", "adSpend", "unsellableRate", "unitsPerDay",
+    ];
+
+    const money = (value) => {
+      if (value === null || value === undefined) return "n/a";
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+    const el = (id) => document.getElementById(id);
+    const count = (event) => recordUsage(localStorage, el("usageOptOut").checked, event);
+
+    function readInput() {
+      const value = (id) => el(id).value;
+      return {
+        itemPrice: value("itemPrice"),
+        shippingCharged: value("shippingCharged"),
+        freeShipPrice: value("freeShipPrice"),
+        referralRate: value("referralRate"),
+        affiliateRate: value("affiliateRate"),
+        returnRate: value("returnRate"),
+        cogs: value("cogs"),
+        fulfillmentCost: value("fulfillmentCost"),
+        otherPerOrder: value("otherPerOrder"),
+        adSpend: value("adSpend"),
+        unsellableRate: value("unsellableRate"),
+        unitsPerDay: value("unitsPerDay"),
+        affiliateOnItemOnly: el("affiliateOnItemOnly").checked,
+        affiliateRefundedOnReturn: el("affiliateRefundedOnReturn").checked,
+      };
+    }
+
+    function paint() {
+      el("error").hidden = true;
+      try {
+        const comparison = compareFreeShipping(readInput());
+        el("note").textContent = freeShippingNote(comparison);
+        el("rows").innerHTML = comparison.paths.map((path) => `<tr>
+          <td>${path.label}</td>
+          <td>${money(path.itemPrice)} + ${money(path.shippingCharged)}</td>
+          <td>${money(path.result.referralFee)}</td>
+          <td>${money(path.result.affiliateFee)}</td>
+          <td>${money(path.result.expectedProfit)}</td>
+        </tr>`).join("");
+        const eat = comparison.extraOrdersForEat;
+        const raised = comparison.extraOrdersForRaised;
+        const liftBits = [];
+        if (eat > 0) liftBits.push(`Eating the label needs about ${eat.toFixed(1)} extra orders/month to match charging shipping.`);
+        if (raised > 0) liftBits.push(`The typed free-shipping price needs about ${raised.toFixed(1)} extra orders/month.`);
+        if (raised === 0 && comparison.winner === "raised") liftBits.push("The typed free-shipping price already keeps more per order, so it does not need extra volume.");
+        if (raised == null) liftBits.push("The typed free-shipping price has a non-positive leftover, so extra volume cannot catch up.");
+        el("lift").textContent = liftBits.join(" ");
+      } catch (error) {
+        el("error").hidden = false;
+        el("error").textContent = error.message;
+        el("note").textContent = "";
+        el("rows").innerHTML = "";
+        el("lift").textContent = "";
+      }
+    }
+
+    FIELD_IDS.forEach((id) => {
+      el(id).addEventListener("input", paint);
+      el(id).addEventListener("change", () => count("free_shipping_compared"));
+    });
+    ["affiliateOnItemOnly", "affiliateRefundedOnReturn", "usageOptOut"].forEach((id) => {
+      el(id).addEventListener("change", () => {
+        if (id !== "usageOptOut") count("free_shipping_compared");
+        paint();
+      });
+    });
+
+    paint();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../tailor-alterations-shop-profit-calculator/" data-pf-to="tailor-alterations-shop-profit-calculator">Tailor and Alterations Shop Profit Calculator — free, private</a></li>
+      <li><a href="../tax-deed-auction-max-bid-planner/" data-pf-to="tax-deed-auction-max-bid-planner">Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</a></li>
+      <li><a href="../teachers-pay-teachers-earnings-analyzer/" data-pf-to="teachers-pay-teachers-earnings-analyzer">Teachers Pay Teachers Earnings Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../thrift-haul-buy-picker/" data-pf-to="thrift-haul-buy-picker">What should you buy to resell, and what's the most to pay for each?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tiktok-shop-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tiktok-shop-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tiktok-shop-fee-calculator" data-pf-jobs-amount="#note"></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tiktok-shop-fee-calculator" data-pf-link-amount="#note"></script>
+</body>
+</html>

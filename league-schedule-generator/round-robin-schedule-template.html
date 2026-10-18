@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robin Schedule Template: Full Fixtures For 4 To 16 Teams</title>
+  <meta name="description" content="Round-by-round round robin fixtures for 4, 5, 6, 7, 8, 9, 10, 11, 12, 14 and 16 teams, home team first, byes marked.">
+  <meta property="og:title" content="Round Robin Schedule Template For 4 To 16 Teams">
+  <meta property="og:description" content="Every round of the fixture list for 4, 5, 6, 7, 8, 9, 10, 11, 12, 14 and 16 teams, computed by the generator. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/round-robin-schedule-template.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a round robin schedule template?","acceptedAnswer":{"@type":"Answer","text":"A fixture list for a set number of teams, labelled by team number, in which every team plays every other team once. Replace the numbers with your team names: Team 1 is the first name on your list, Team 2 the second, and so on. Home is listed first."}},{"@type":"Question","name":"Why does the 8 team round robin have 7 rounds?","acceptedAnswer":{"@type":"Answer","text":"In each round every team plays once, and each team has 7 opponents, so 7 rounds. With 8 teams there are 4 games per round and 28 games in total."}},{"@type":"Question","name":"What do I do with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"One team sits out each round (a bye), so the schedule has as many rounds as teams. The 5, 7, 9 and 11 team tables below show the team with the bye in each round; every team gets exactly one."}},{"@type":"Question","name":"Can I use these for a double round robin?","acceptedAnswer":{"@type":"Answer","text":"Yes. Play the same rounds again with home and away reversed. The generator does this for you with the double round robin option, and also puts real dates, courts and time slots on the rounds."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/round-robin-schedule-template.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Round Robin Schedule Template For 4 To 16 Teams — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../league-schedule-generator/">League Schedule Generator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Round Robin Schedule Template For 4 To 16 Teams</span></span></nav>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Round robin schedule template</h1>
+  <p>Looking for the actual fixture list for a 4, 6 or 8 team round robin? It is below, round by round. Teams are numbered in the order you list them: swap in your names. Home team is first, and byes are marked. Every table is produced by the same circle-method code the generator uses, and the test suite recomputes each one, so it cannot drift from the tool.</p>
+  <p>Jump to: <a href="#teams-4">4 teams</a> &middot; <a href="#teams-5">5 teams</a> &middot; <a href="#teams-6">6 teams</a> &middot; <a href="#teams-7">7 teams</a> &middot; <a href="#teams-8">8 teams</a> &middot; <a href="#teams-9">9 teams</a> &middot; <a href="#teams-10">10 teams</a> &middot; <a href="#teams-11">11 teams</a> &middot; <a href="#teams-12">12 teams</a> &middot; <a href="#teams-14">14 teams</a> &middot; <a href="#teams-16">16 teams</a></p>
+  <p><a class="cta" href="./">Make it with real dates and courts</a></p>
+  <h2 id="teams-4">4 team round robin schedule</h2>
+  <p>3 rounds, 2 games per round, 6 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 4, 2 v 3</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>4 v 2, 3 v 1</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 4, 1 v 2</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-5">5 team round robin schedule</h2>
+  <p>5 rounds, 2 games per round, 10 games in total, one bye per team. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2 v 5, 4 v 3</td><td>1</td></tr>
+      <tr><td>2</td><td>3 v 1, 5 v 4</td><td>2</td></tr>
+      <tr><td>3</td><td>4 v 2, 1 v 5</td><td>3</td></tr>
+      <tr><td>4</td><td>5 v 3, 2 v 1</td><td>4</td></tr>
+      <tr><td>5</td><td>1 v 4, 3 v 2</td><td>5</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-6">6 team round robin schedule</h2>
+  <p>5 rounds, 3 games per round, 15 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 6, 2 v 5, 4 v 3</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>6 v 2, 3 v 1, 5 v 4</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 6, 4 v 2, 1 v 5</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>6 v 4, 5 v 3, 2 v 1</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 6, 1 v 4, 3 v 2</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-7">7 team round robin schedule</h2>
+  <p>7 rounds, 3 games per round, 21 games in total, one bye per team. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2 v 7, 6 v 3, 4 v 5</td><td>1</td></tr>
+      <tr><td>2</td><td>3 v 1, 7 v 4, 5 v 6</td><td>2</td></tr>
+      <tr><td>3</td><td>4 v 2, 1 v 5, 6 v 7</td><td>3</td></tr>
+      <tr><td>4</td><td>5 v 3, 2 v 6, 7 v 1</td><td>4</td></tr>
+      <tr><td>5</td><td>6 v 4, 3 v 7, 1 v 2</td><td>5</td></tr>
+      <tr><td>6</td><td>7 v 5, 4 v 1, 2 v 3</td><td>6</td></tr>
+      <tr><td>7</td><td>1 v 6, 5 v 2, 3 v 4</td><td>7</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-8">8 team round robin schedule</h2>
+  <p>7 rounds, 4 games per round, 28 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 8, 2 v 7, 6 v 3, 4 v 5</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>8 v 2, 3 v 1, 7 v 4, 5 v 6</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 8, 4 v 2, 1 v 5, 6 v 7</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>8 v 4, 5 v 3, 2 v 6, 7 v 1</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 8, 6 v 4, 3 v 7, 1 v 2</td><td>&ndash;</td></tr>
+      <tr><td>6</td><td>8 v 6, 7 v 5, 4 v 1, 2 v 3</td><td>&ndash;</td></tr>
+      <tr><td>7</td><td>7 v 8, 1 v 6, 5 v 2, 3 v 4</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-9">9 team round robin schedule</h2>
+  <p>9 rounds, 4 games per round, 36 games in total, one bye per team. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2 v 9, 8 v 3, 4 v 7, 6 v 5</td><td>1</td></tr>
+      <tr><td>2</td><td>3 v 1, 9 v 4, 5 v 8, 7 v 6</td><td>2</td></tr>
+      <tr><td>3</td><td>4 v 2, 1 v 5, 6 v 9, 8 v 7</td><td>3</td></tr>
+      <tr><td>4</td><td>5 v 3, 2 v 6, 7 v 1, 9 v 8</td><td>4</td></tr>
+      <tr><td>5</td><td>6 v 4, 3 v 7, 8 v 2, 1 v 9</td><td>5</td></tr>
+      <tr><td>6</td><td>7 v 5, 4 v 8, 9 v 3, 2 v 1</td><td>6</td></tr>
+      <tr><td>7</td><td>8 v 6, 5 v 9, 1 v 4, 3 v 2</td><td>7</td></tr>
+      <tr><td>8</td><td>9 v 7, 6 v 1, 2 v 5, 4 v 3</td><td>8</td></tr>
+      <tr><td>9</td><td>1 v 8, 7 v 2, 3 v 6, 5 v 4</td><td>9</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-10">10 team round robin schedule</h2>
+  <p>9 rounds, 5 games per round, 45 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 10, 2 v 9, 8 v 3, 4 v 7, 6 v 5</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>10 v 2, 3 v 1, 9 v 4, 5 v 8, 7 v 6</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 10, 4 v 2, 1 v 5, 6 v 9, 8 v 7</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>10 v 4, 5 v 3, 2 v 6, 7 v 1, 9 v 8</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 10, 6 v 4, 3 v 7, 8 v 2, 1 v 9</td><td>&ndash;</td></tr>
+      <tr><td>6</td><td>10 v 6, 7 v 5, 4 v 8, 9 v 3, 2 v 1</td><td>&ndash;</td></tr>
+      <tr><td>7</td><td>7 v 10, 8 v 6, 5 v 9, 1 v 4, 3 v 2</td><td>&ndash;</td></tr>
+      <tr><td>8</td><td>10 v 8, 9 v 7, 6 v 1, 2 v 5, 4 v 3</td><td>&ndash;</td></tr>
+      <tr><td>9</td><td>9 v 10, 1 v 8, 7 v 2, 3 v 6, 5 v 4</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-11">11 team round robin schedule</h2>
+  <p>11 rounds, 5 games per round, 55 games in total, one bye per team. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2 v 11, 10 v 3, 4 v 9, 8 v 5, 6 v 7</td><td>1</td></tr>
+      <tr><td>2</td><td>3 v 1, 11 v 4, 5 v 10, 9 v 6, 7 v 8</td><td>2</td></tr>
+      <tr><td>3</td><td>4 v 2, 1 v 5, 6 v 11, 10 v 7, 8 v 9</td><td>3</td></tr>
+      <tr><td>4</td><td>5 v 3, 2 v 6, 7 v 1, 11 v 8, 9 v 10</td><td>4</td></tr>
+      <tr><td>5</td><td>6 v 4, 3 v 7, 8 v 2, 1 v 9, 10 v 11</td><td>5</td></tr>
+      <tr><td>6</td><td>7 v 5, 4 v 8, 9 v 3, 2 v 10, 11 v 1</td><td>6</td></tr>
+      <tr><td>7</td><td>8 v 6, 5 v 9, 10 v 4, 3 v 11, 1 v 2</td><td>7</td></tr>
+      <tr><td>8</td><td>9 v 7, 6 v 10, 11 v 5, 4 v 1, 2 v 3</td><td>8</td></tr>
+      <tr><td>9</td><td>10 v 8, 7 v 11, 1 v 6, 5 v 2, 3 v 4</td><td>9</td></tr>
+      <tr><td>10</td><td>11 v 9, 8 v 1, 2 v 7, 6 v 3, 4 v 5</td><td>10</td></tr>
+      <tr><td>11</td><td>1 v 10, 9 v 2, 3 v 8, 7 v 4, 5 v 6</td><td>11</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-12">12 team round robin schedule</h2>
+  <p>11 rounds, 6 games per round, 66 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 12, 2 v 11, 10 v 3, 4 v 9, 8 v 5, 6 v 7</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>12 v 2, 3 v 1, 11 v 4, 5 v 10, 9 v 6, 7 v 8</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 12, 4 v 2, 1 v 5, 6 v 11, 10 v 7, 8 v 9</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>12 v 4, 5 v 3, 2 v 6, 7 v 1, 11 v 8, 9 v 10</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 12, 6 v 4, 3 v 7, 8 v 2, 1 v 9, 10 v 11</td><td>&ndash;</td></tr>
+      <tr><td>6</td><td>12 v 6, 7 v 5, 4 v 8, 9 v 3, 2 v 10, 11 v 1</td><td>&ndash;</td></tr>
+      <tr><td>7</td><td>7 v 12, 8 v 6, 5 v 9, 10 v 4, 3 v 11, 1 v 2</td><td>&ndash;</td></tr>
+      <tr><td>8</td><td>12 v 8, 9 v 7, 6 v 10, 11 v 5, 4 v 1, 2 v 3</td><td>&ndash;</td></tr>
+      <tr><td>9</td><td>9 v 12, 10 v 8, 7 v 11, 1 v 6, 5 v 2, 3 v 4</td><td>&ndash;</td></tr>
+      <tr><td>10</td><td>12 v 10, 11 v 9, 8 v 1, 2 v 7, 6 v 3, 4 v 5</td><td>&ndash;</td></tr>
+      <tr><td>11</td><td>11 v 12, 1 v 10, 9 v 2, 3 v 8, 7 v 4, 5 v 6</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-14">14 team round robin schedule</h2>
+  <p>13 rounds, 7 games per round, 91 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 14, 2 v 13, 12 v 3, 4 v 11, 10 v 5, 6 v 9, 8 v 7</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>14 v 2, 3 v 1, 13 v 4, 5 v 12, 11 v 6, 7 v 10, 9 v 8</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 14, 4 v 2, 1 v 5, 6 v 13, 12 v 7, 8 v 11, 10 v 9</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>14 v 4, 5 v 3, 2 v 6, 7 v 1, 13 v 8, 9 v 12, 11 v 10</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 14, 6 v 4, 3 v 7, 8 v 2, 1 v 9, 10 v 13, 12 v 11</td><td>&ndash;</td></tr>
+      <tr><td>6</td><td>14 v 6, 7 v 5, 4 v 8, 9 v 3, 2 v 10, 11 v 1, 13 v 12</td><td>&ndash;</td></tr>
+      <tr><td>7</td><td>7 v 14, 8 v 6, 5 v 9, 10 v 4, 3 v 11, 12 v 2, 1 v 13</td><td>&ndash;</td></tr>
+      <tr><td>8</td><td>14 v 8, 9 v 7, 6 v 10, 11 v 5, 4 v 12, 13 v 3, 2 v 1</td><td>&ndash;</td></tr>
+      <tr><td>9</td><td>9 v 14, 10 v 8, 7 v 11, 12 v 6, 5 v 13, 1 v 4, 3 v 2</td><td>&ndash;</td></tr>
+      <tr><td>10</td><td>14 v 10, 11 v 9, 8 v 12, 13 v 7, 6 v 1, 2 v 5, 4 v 3</td><td>&ndash;</td></tr>
+      <tr><td>11</td><td>11 v 14, 12 v 10, 9 v 13, 1 v 8, 7 v 2, 3 v 6, 5 v 4</td><td>&ndash;</td></tr>
+      <tr><td>12</td><td>14 v 12, 13 v 11, 10 v 1, 2 v 9, 8 v 3, 4 v 7, 6 v 5</td><td>&ndash;</td></tr>
+      <tr><td>13</td><td>13 v 14, 1 v 12, 11 v 2, 3 v 10, 9 v 4, 5 v 8, 7 v 6</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2 id="teams-16">16 team round robin schedule</h2>
+  <p>15 rounds, 8 games per round, 120 games in total, no byes. Home team first.</p>
+  <div class="scroll">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1 v 16, 2 v 15, 14 v 3, 4 v 13, 12 v 5, 6 v 11, 10 v 7, 8 v 9</td><td>&ndash;</td></tr>
+      <tr><td>2</td><td>16 v 2, 3 v 1, 15 v 4, 5 v 14, 13 v 6, 7 v 12, 11 v 8, 9 v 10</td><td>&ndash;</td></tr>
+      <tr><td>3</td><td>3 v 16, 4 v 2, 1 v 5, 6 v 15, 14 v 7, 8 v 13, 12 v 9, 10 v 11</td><td>&ndash;</td></tr>
+      <tr><td>4</td><td>16 v 4, 5 v 3, 2 v 6, 7 v 1, 15 v 8, 9 v 14, 13 v 10, 11 v 12</td><td>&ndash;</td></tr>
+      <tr><td>5</td><td>5 v 16, 6 v 4, 3 v 7, 8 v 2, 1 v 9, 10 v 15, 14 v 11, 12 v 13</td><td>&ndash;</td></tr>
+      <tr><td>6</td><td>16 v 6, 7 v 5, 4 v 8, 9 v 3, 2 v 10, 11 v 1, 15 v 12, 13 v 14</td><td>&ndash;</td></tr>
+      <tr><td>7</td><td>7 v 16, 8 v 6, 5 v 9, 10 v 4, 3 v 11, 12 v 2, 1 v 13, 14 v 15</td><td>&ndash;</td></tr>
+      <tr><td>8</td><td>16 v 8, 9 v 7, 6 v 10, 11 v 5, 4 v 12, 13 v 3, 2 v 14, 15 v 1</td><td>&ndash;</td></tr>
+      <tr><td>9</td><td>9 v 16, 10 v 8, 7 v 11, 12 v 6, 5 v 13, 14 v 4, 3 v 15, 1 v 2</td><td>&ndash;</td></tr>
+      <tr><td>10</td><td>16 v 10, 11 v 9, 8 v 12, 13 v 7, 6 v 14, 15 v 5, 4 v 1, 2 v 3</td><td>&ndash;</td></tr>
+      <tr><td>11</td><td>11 v 16, 12 v 10, 9 v 13, 14 v 8, 7 v 15, 1 v 6, 5 v 2, 3 v 4</td><td>&ndash;</td></tr>
+      <tr><td>12</td><td>16 v 12, 13 v 11, 10 v 14, 15 v 9, 8 v 1, 2 v 7, 6 v 3, 4 v 5</td><td>&ndash;</td></tr>
+      <tr><td>13</td><td>13 v 16, 14 v 12, 11 v 15, 1 v 10, 9 v 2, 3 v 8, 7 v 4, 5 v 6</td><td>&ndash;</td></tr>
+      <tr><td>14</td><td>16 v 14, 15 v 13, 12 v 1, 2 v 11, 10 v 3, 4 v 9, 8 v 5, 6 v 7</td><td>&ndash;</td></tr>
+      <tr><td>15</td><td>15 v 16, 1 v 14, 13 v 2, 3 v 12, 11 v 4, 5 v 10, 9 v 6, 7 v 8</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2>Questions</h2>
+  <h3>What is a round robin schedule template?</h3>
+  <p>A fixture list for a set number of teams, labelled by team number, in which every team plays every other team once. Replace the numbers with your team names: Team 1 is the first name on your list, Team 2 the second, and so on. Home is listed first.</p>
+  <h3>Why does the 8 team round robin have 7 rounds?</h3>
+  <p>In each round every team plays once, and each team has 7 opponents, so 7 rounds. With 8 teams there are 4 games per round and 28 games in total.</p>
+  <h3>What do I do with an odd number of teams?</h3>
+  <p>One team sits out each round (a bye), so the schedule has as many rounds as teams. The 5, 7, 9 and 11 team tables below show the team with the bye in each round; every team gets exactly one.</p>
+  <h3>Can I use these for a double round robin?</h3>
+  <p>Yes. Play the same rounds again with home and away reversed. The generator does this for you with the double round robin option, and also puts real dates, courts and time slots on the rounds.</p>
+  <p>For how many rounds and games any league size from 3 to 16 needs, see <a href="./round-robin-schedule-by-number-of-teams.html">round robin schedule by number of teams</a>; for the method with a worked example, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you send a schedule to a league.</p>
+    <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+      <li><a href="../courier-van-route-profit-calculator/" data-pf-to="courier-van-route-profit-calculator">Courier Van Route Profit Calculator — true profit per route, per hour and per stop</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=league-schedule-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="league-schedule-generator"></script>
+</body>
+</html>

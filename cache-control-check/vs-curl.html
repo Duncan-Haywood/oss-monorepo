@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cache-Control Checker vs. Reading Headers With curl -I</title>
+<meta name="description" content="curl -I shows you the raw response headers for a URL. This free tool takes it one step further: it classifies those caching headers into named…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cache-control-check/vs-curl.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cache-Control Checker vs. curl -I">
+<meta property="og:description" content="curl -I shows you the raw headers. This tool reads them for you -- naming the exact RFC-backed misconfiguration pattern, like Vary…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cache-control-check/vs-curl.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this tool instead of curl -I?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Different jobs, and most people who use this tool also still reach for curl. curl -I (or curl -sI) shows you the raw response headers for a URL -- fast, universal, and already installed almost everywhere. It does not tell you what those headers mean together: whether a Vary: * silently makes the whole response uncacheable, or whether a Cache-Control: public alongside a Set-Cookie header is a shared-cache cookie leak waiting to happen. This tool reads the same headers curl would show you and names the specific, well-documented pattern -- so you don't have to already know the RFC details to notice the problem." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would I need more than curl -I if I already know what to look for?",
+      "acceptedAnswer": { "@type": "Answer", "text": "If you already know every pattern this tool checks -- Vary: *, public plus Set-Cookie, no-store beside a leftover max-age, Expires silently overridden by Cache-Control, a stale Expires, a weak ETag on a range-capable response, a static asset with no caching headers -- curl -I plus your own judgement is enough. This tool exists for the times you don't want to re-derive all seven from memory on every response, or when you want the same checks wired into CI as a non-zero exit code rather than a person reading terminal output each time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool send more requests than curl -I would?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No -- exactly one. The CLI (check.mjs) sends the same single GET request curl -I would send to the URL you name, reads the response headers, and classifies them locally. It does not crawl the site, does not send a second request to compare against, and does not go through any server this portfolio operates -- the request goes straight from your machine to the URL you choose, same as curl." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my target URL or its response headers uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The CLI's request goes directly from your machine to the URL you name, exactly like curl. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target, the headers, or the report is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs or header values in it." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.87rem; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cache-control-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cache-Control Checker vs. curl -I — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cache-control-check/">Cache-Control Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cache-Control Checker vs. curl -I</span></span></nav>
+<p><a href="index.html">&larr; Cache-Control Checker</a></p>
+<h1>This checker vs. reading headers with <code>curl -I</code></h1>
+<p>
+  <strong><code>curl -I</code></strong> (or <code>curl -sI</code>) sends a request and prints the raw
+  response headers -- fast, universal, already installed almost everywhere. It is a fine first look
+  at what a server actually sent. What it does not do is tell you which of those headers, in
+  combination, form a well-documented misconfiguration: a <code>Vary: *</code> that makes the whole
+  response uncacheable forever, or a <code>Cache-Control: public</code> alongside a
+  <code>Set-Cookie</code> header that lets a shared cache leak one visitor's cookie to the next.
+  Reading raw headers and knowing what they mean together are two different skills.
+</p>
+<p>
+  <strong>This tool</strong> sends the exact same single request <code>curl -I</code> would, then
+  classifies the response's caching headers into seven named, RFC-backed patterns and states in
+  plain English why each one matters and which header proves it. It does not replace
+  <code>curl</code> -- the CLI here uses the same one HTTP request either tool would send -- it
+  automates the reading a person would otherwise have to do by eye, every time.
+</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I just want to see the raw response headers for a URL, quickly.</td>
+      <td><code>curl -I</code> -- that quick raw look is exactly its job.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether this response's caching headers have a named misconfiguration, and why it matters.</td>
+      <td>This checker -- names the pattern (<code>Vary: *</code>, a <code>public</code> + <code>Set-Cookie</code> leak, and five more) instead of leaving you to notice it in raw output.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically on every deploy, with a non-zero exit code on a real problem.</td>
+      <td>This checker's CLI -- <code>node check.mjs &lt;url&gt; --json</code> exits non-zero on a danger-severity finding, wireable into any CI step alongside your existing <code>curl</code>-based smoke tests.</td>
+    </tr>
+    <tr>
+      <td>I'd rather not learn all seven RFC-backed patterns from memory to read <code>curl</code> output myself.</td>
+      <td>This checker -- paste the CLI's JSON into the browser report and get the plain-English findings without already knowing the rules.</td>
+    </tr>
+  </tbody>
+</table></div>
+<p>
+  Neither tool replaces the other, and in practice most people use both: <code>curl -I</code> for a
+  fast raw look at one response, this tool for the recurring, automatable question of whether that
+  response's caching headers actually do what they look like they do.
+</p>
+<div class="card">
+  <h2>Try it</h2>
+  <pre class="cmd"><code>node check.mjs https://example.com --json</code></pre>
+  <p class="note">Same one request <code>curl -I https://example.com</code> would send. Paste the JSON into <a href="index.html">the checker</a> for the plain-English report.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of curl -I?</h3>
+  <p>Different jobs, and most people who use this tool also still reach for curl. curl -I (or curl -sI) shows you the raw response headers for a URL -- fast, universal, and already installed almost everywhere. It does not tell you what those headers mean together: whether a Vary: * silently makes the whole response uncacheable, or whether a Cache-Control: public alongside a Set-Cookie header is a shared-cache cookie leak waiting to happen. This tool reads the same headers curl would show you and names the specific, well-documented pattern -- so you don't have to already know the RFC details to notice the problem.</p>
+  <h3>Why would I need more than curl -I if I already know what to look for?</h3>
+  <p>If you already know every pattern this tool checks -- Vary: *, public plus Set-Cookie, no-store beside a leftover max-age, Expires silently overridden by Cache-Control, a stale Expires, a weak ETag on a range-capable response, a static asset with no caching headers -- curl -I plus your own judgement is enough. This tool exists for the times you don't want to re-derive all seven from memory on every response, or when you want the same checks wired into CI as a non-zero exit code rather than a person reading terminal output each time.</p>
+  <h3>Does this tool send more requests than curl -I would?</h3>
+  <p>No -- exactly one. The CLI (check.mjs) sends the same single GET request curl -I would send to the URL you name, reads the response headers, and classifies them locally. It does not crawl the site, does not send a second request to compare against, and does not go through any server this portfolio operates -- the request goes straight from your machine to the URL you choose, same as curl.</p>
+  <h3>Is my target URL or its response headers uploaded anywhere?</h3>
+  <p>No. The CLI's request goes directly from your machine to the URL you name, exactly like curl. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target, the headers, or the report is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs or header values in it.</p>
+  <p class="note">Chasing a specific symptom instead? <a href="why-isnt-my-cdn-caching-this.html">Why isn't my CDN caching this?</a> walks the six response-header reasons in the order worth checking them.</p>
+</section>
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  caching-header patterns from one response. It is not a full caching or performance audit and
+  cannot see a pattern it doesn't check for.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not performance or security advice, and it does not replace a
+  qualified review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any system you point the CLI at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the URL you name, exactly like curl -- never through this site. This page only parses
+  JSON you paste into it locally.</p>
+  <p>This page is not affiliated with, endorsed by, or sponsored by the curl project. curl is
+  named here only to describe the well-known command-line tool and how this checker differs from
+  it.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cache-control-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cache-control-check"></script>
+</body>
+</html>

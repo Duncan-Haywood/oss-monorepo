@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet | Sign Language Interpreter Rate Calculator</title>
+  <meta name="description" content="A spreadsheet multiplies hours by a rate fine. It won't apply the booking minimum, the after-hours differential…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet | Sign Language Interpreter Rate Calculator">
+  <meta property="og:description" content="A spreadsheet multiplies hours by a rate fine once you already know the booking minimum, the differential, and whether the setting calls for a team.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't an interpreting fee just hours times a rate?","acceptedAnswer":{"@type":"Answer","text":"The multiplication itself is trivial and a spreadsheet does it fine once you already know the billable hours and the right multiplier. What a plain spreadsheet does not do on its own is apply the booking minimum (billing the greater of hours requested or the minimum, not just the hours typed in), the after-hours/weekend/holiday differential, and portal-to-portal travel together — each is its own formula to write and keep in sync with the others."}},{"@type":"Question","name":"Will a spreadsheet tell me when a booking should be staffed with two interpreters?","acceptedAnswer":{"@type":"Answer","text":"No. That is a judgment call from RID's own Standard Practice Papers, not an arithmetic rule a spreadsheet formula can express on its own unless you build and maintain a lookup by setting and length. This calculator checks the booking's setting and billable hours against that guidance automatically and surfaces it as a finding — it never forces the team rate on, but it also never lets a six-hour legal deposition go quietly priced for one interpreter."}},{"@type":"Question","name":"What happens if I apply the wrong differential multiplier in my own sheet?","acceptedAnswer":{"@type":"Answer","text":"Nothing catches it — a spreadsheet returns whatever the formula says, whether the 1.5x evening/weekend or 2x holiday multiplier you typed matches the booking you actually have or not. This calculator derives the multiplier from the dropdown you select, so it can't drift from what you picked, and it separately reports the booking minimum, the differential, travel, and mileage as their own line items rather than one collapsed number."}},{"@type":"Question","name":"Does this replace an interpreter's own income-tracking spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or ledger that tracks every booking, every invoice, and every month's total over a year is still the right tool for that ongoing record. This page answers one question at a time — what should this one assignment cost, and does its setting and length suggest a team — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2420; background: #f1f6f3; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f6e4c; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.02em; line-height: 1.1; color: #1f4d3a; }
+    h2 { color: #1f4d3a; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e2f0e7; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #435048; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #1f6e4c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .85rem; color: #435048; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #435048; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet | Sign Language Interpreter Rate Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sign-language-interpreter-rate-calculator/">Sign Language Interpreter Rate Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet | Sign Language Interpreter Rate Calculator</span></span></nav>
+  <p><a href="./">&larr; Sign language interpreter rate calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A lot of freelance interpreters already track fees in a spreadsheet: one
+    column for hours, one for rate, a formula that multiplies them. That
+    arithmetic is trivial and a spreadsheet does it fine <em>once you already
+    know the billable hours and the right multiplier</em>. What it does not
+    do on its own is <strong>apply the booking minimum, the after-hours
+    differential, and portal-to-portal travel together</strong> -- three
+    formulas to write and keep in sync, before you even get to the
+    team-interpreting question a spreadsheet has no way to ask.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What's hours times a rate?</td>
+        <td>Either one &mdash; a spreadsheet multiplies fine.</td>
+      </tr>
+      <tr>
+        <td>Should this booking bill the 2-hour minimum instead of the hours requested?</td>
+        <td>This calculator &mdash; it bills the greater of the two automatically; a spreadsheet needs an IF formula you write and remember to apply.</td>
+      </tr>
+      <tr>
+        <td>Does an evening, weekend, or holiday differential apply, and by how much?</td>
+        <td>This calculator &mdash; you pick it from a dropdown and the multiplier is derived, so it can't drift from what you picked.</td>
+      </tr>
+      <tr>
+        <td>Should this booking be staffed with two interpreters?</td>
+        <td>This calculator &mdash; checks the setting and billable hours against RID's own Standard Practice Paper guidance and flags it; a spreadsheet has no way to ask this on its own.</td>
+      </tr>
+      <tr>
+        <td>What does travel time and mileage add, billed as their own fraction of the rate?</td>
+        <td>This calculator &mdash; separate travel-time and mileage line items, computed from the minutes and miles you enter.</td>
+      </tr>
+      <tr>
+        <td>Is anything I enter uploaded anywhere?</td>
+        <td>No, on either &mdash; but this calculator needs no template, no formula to maintain, and nothing to keep in sync across cells.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Calculate an assignment fee now</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and the hours, rate, setting, and
+    travel details you enter stay on this device &mdash; nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Isn't an interpreting fee just hours times a rate?</h3>
+  <p>The multiplication itself is trivial and a spreadsheet does it fine once you already know the billable hours and the right multiplier. What a plain spreadsheet does not do on its own is apply the booking minimum (billing the greater of hours requested or the minimum, not just the hours typed in), the after-hours/weekend/holiday differential, and portal-to-portal travel together &mdash; each is its own formula to write and keep in sync with the others.</p>
+  <h3>Will a spreadsheet tell me when a booking should be staffed with two interpreters?</h3>
+  <p>No. That is a judgment call from RID's own Standard Practice Papers, not an arithmetic rule a spreadsheet formula can express on its own unless you build and maintain a lookup by setting and length. This calculator checks the booking's setting and billable hours against that guidance automatically and surfaces it as a finding &mdash; it never forces the team rate on, but it also never lets a six-hour legal deposition go quietly priced for one interpreter.</p>
+  <h3>What happens if I apply the wrong differential multiplier in my own sheet?</h3>
+  <p>Nothing catches it &mdash; a spreadsheet returns whatever the formula says, whether the 1.5x evening/weekend or 2x holiday multiplier you typed matches the booking you actually have or not. This calculator derives the multiplier from the dropdown you select, so it can't drift from what you picked, and it separately reports the booking minimum, the differential, travel, and mileage as their own line items rather than one collapsed number.</p>
+  <h3>Does this replace an interpreter's own income-tracking spreadsheet?</h3>
+  <p>No. A spreadsheet or ledger that tracks every booking, every invoice, and every month's total over a year is still the right tool for that ongoing record. This page answers one question at a time &mdash; what should this one assignment cost, and does its setting and length suggest a team &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, medical, or financial advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it saved you from rebuilding the formula by hand, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../birth-doula-package-pricing-calculator/" data-pf-to="birth-doula-package-pricing-calculator">Birth doula package pricing calculator</a></li>
+      <li><a href="../boat-rental-fleet-profit-calculator/" data-pf-to="boat-rental-fleet-profit-calculator">Boat Rental Fleet Profit Calculator — free, private</a></li>
+      <li><a href="../bonus-take-home-gross-up-calculator/" data-pf-to="bonus-take-home-gross-up-calculator">How much of my bonus do I keep? Free take-home and gross-up calculator</a></li>
+      <li><a href="../booth-rent-vs-commission/" data-pf-to="booth-rent-vs-commission">Booth Rent vs Commission Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sign-language-interpreter-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sign-language-interpreter-rate-calculator"></script>
+</body>
+</html>

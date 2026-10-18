@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much to Set Aside for Gig Driving Taxes</title>
+  <meta name="description" content="DoorDash, Uber Eats, Instacart, Uber, and Lyft do not withhold tax from a driver's pay. Here is why the reserve is a percentage only you can set…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html">
+  <meta property="og:title" content="How Much to Set Aside for Gig Driving Taxes">
+  <meta property="og:description" content="No app withholds tax for a 1099 driver. Here is what the reserve does to a session's take-home, and why the percentage has to be yours.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "See what a tax reserve does to a gig-driving session's take-home",
+    "description": "Turn a self-employment and income tax reserve percentage into what it actually removes from one session's net profit.",
+    "step": [
+      { "@type": "HowToStep", "name": "Find net profit first", "text": "Subtract vehicle cost from gross pay for the session. The reserve applies to this, not to gross pay." },
+      { "@type": "HowToStep", "name": "Pick your own percentage", "text": "Ask a tax preparer, or use last year's return, for a reserve that fits your filing status, state, and other income." },
+      { "@type": "HowToStep", "name": "See the take-home", "text": "The reserve is a share of a profitable session's net profit only — a losing session reserves nothing." }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; }
+    .example { background: #fff; border: 1px solid #c4cedb; border-radius: 12px; padding: 16px 18px; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much to Set Aside for Gig Driving Taxes — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../gig-driver-net-pay-calculator/">Gig Driver Net Pay Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much to Set Aside for Gig Driving Taxes</span></span></nav>
+  <p><a href="./">← Gig driver net pay calculator</a></p>
+  <h1>How much to set aside for gig driving taxes</h1>
+  <p>DoorDash, Uber Eats, Instacart, Uber, and Lyft pay drivers as independent contractors. No app withholds federal income tax, state income tax, or self-employment tax from a payout the way an employer withholds from a paycheck. Whatever a driver does not set aside during the year is due, in full, at tax time — or sooner, if quarterly estimated payments are required.</p>
+  <p>This page will not hand you a percentage. The right reserve depends on filing status, state, total income from every source, deductions, and whether you owe quarterly estimates — none of which a free calculator can know, and picking a number for you would be a claim about what you owe rather than arithmetic on what you typed. What it can do is show you what a percentage <em>you</em> supply actually removes from a session.</p>
+  <div class="example">
+    <p><strong>Worked example.</strong> A session nets $149.36 in profit after vehicle cost (gross pay minus gas, maintenance, and a share of insurance). At a 25% reserve, that holds back $37.34, leaving $112.02 — about $18.67/hour on a 6-hour session, down from $24.89/hour before the reserve. The reserve never touches a losing session: if vehicle cost had exceeded gross pay, the reserve would be $0 and take-home would equal the loss, not a smaller loss plus a phantom refund.</p>
+  </div>
+  <p>Two things this reserve deliberately does not do:</p>
+  <ol>
+    <li>It does not model quarterly due dates or underpayment penalties — it is a running tally of what one session should have set aside, not a filing calendar. For the actual IRS safe-harbor payment and the real (holiday-adjusted) due dates, see the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</li>
+    <li>It does not net against other income, other jobs, or last year's refund. Whether a slow week's loss offsets something else is a judgement for your return, not this page.</li>
+  </ol>
+  <p><a href="./">Open the calculator</a>, put in your own reserve percentage, and see what it does to your next session before you spend the gross number. Nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not tax, financial, or legal advice. It does not replace a qualified tax preparer. Verify every figure and your actual tax obligation before relying on it. The authors accept no liability for loss arising from its use.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../installment-sale-tax-calculator/" data-pf-to="installment-sale-tax-calculator">Installment sale tax calculator: what do you owe each year on a seller-financed sale? Free, private</a></li>
+      <li><a href="../invoice-maker/" data-pf-to="invoice-maker">Invoice Maker — free invoice generator, no signup</a></li>
+      <li><a href="../mileage-deduction-calculator/" data-pf-to="mileage-deduction-calculator">Mileage Deduction Calculator — free, 2026</a></li>
+      <li><a href="../mobile-home-park-valuation-calculator/" data-pf-to="mobile-home-park-valuation-calculator">What is a mobile home park worth, and what is a lot rent increase worth? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=gig-driver-net-pay-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="gig-driver-net-pay-calculator"></script>
+</body>
+</html>

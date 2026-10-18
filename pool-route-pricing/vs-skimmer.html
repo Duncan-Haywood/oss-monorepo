@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Skimmer and other pool route software | Pool Route Pricing Calculator</title>
+  <meta name="description" content="Route software runs your whole pool business day to day. It still needs a price to bill against, and that price starts from your labor, drive time, chemicals…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/vs-skimmer.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This calculator vs. Skimmer">
+  <meta property="og:description" content="Two different jobs: route software runs the business day to day, this calculator works out the minimum account price that goes into it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Skimmer?","acceptedAnswer":{"@type":"Answer","text":"Both, for different jobs. Skimmer is pool service business software: routing and scheduling, service and chemical logs per body of water, invoicing and payments, and a technician mobile app, run through a paid account. This page is none of that. It has no account, no route map, no service log and no invoicing. It answers the one question that software asks you to already know rather than answers: what should the minimum monthly account price actually be, given your labor, drive time, chemicals, and overhead. Put those numbers in and it returns a specific price floor, the route hours behind it, and what your current price is leaving on the table if it falls short."}},{"@type":"Question","name":"Where does the account price that goes into route software come from?","acceptedAnswer":{"@type":"Answer","text":"From you. Route and billing software stores whatever monthly price you set per account and then invoices it reliably every cycle, which is genuinely the hard part of running a route business day to day. What it cannot do is tell you whether that price actually covers your true route cost, including the drive time between stops that no customer is billed for directly. That is the gap this calculator fills, and it is why the two sit next to each other rather than competing."}},{"@type":"Question","name":"Is this page affiliated with Skimmer?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Skimmer or any other pool service software named on this page. Those names appear only to describe what this calculator is and is not. Each is a trademark of its respective owner. Check any platform's own site for what its current plans and features actually include, because this page deliberately publishes none of their prices or feature details."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #102a43; background: #eaf6f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0b5360; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; background: #fff; margin: 1rem 0; }
+    th, td { padding: 9px 8px; text-align: left; border-bottom: 1px solid #b8dce2; vertical-align: top; }
+    th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: #52717a; }
+    .note { font-size: .9rem; color: #555; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #555; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/vs-skimmer.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Skimmer — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pool-route-pricing/">Pool Service Route Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Skimmer</span></span></nav>
+  <p><a href="./">&larr; Pool route pricing calculator</a></p>
+  <h1>This calculator vs. Skimmer</h1>
+  <p>
+    Different jobs: one runs the route business day to day, the other decides
+    what the accounts on it should be charged.
+  </p>
+  <p>
+    <strong>Skimmer</strong> is a well-known pool service business platform,
+    described on
+    <a href="https://www.getskimmer.com/" rel="nofollow noopener">getskimmer.com</a>
+    &mdash; optimized weekly routing and scheduling, a technician mobile app
+    for logging chemical readings and service visits per body of water,
+    invoicing and payment collection, and back-office reporting. It is the
+    kind of software a pool service company runs its whole operation through,
+    day after day, account after account.
+  </p>
+  <p>
+    That is a different job from the one this page does. This calculator has
+    no account, no route map, no service log and no invoicing. It exists for
+    the step that comes <em>before</em> any of that software is useful:
+    <strong>turning your service minutes, drive minutes, labor rate,
+    chemical cost and route overhead into a minimum monthly account
+    price</strong>, and checking whether the price you currently charge
+    actually clears your target margin once the drive is counted.
+  </p>
+  <h2>What each tool answers</h2>
+  <div class="pf-table-scroll"><table>
+    <caption class="note">Where to answer each question.</caption>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What is the minimum I should charge per account, given my labor, drive time, chemicals, and overhead?</td>
+        <td>This calculator &mdash; it returns a specific price floor and shows the route hours and cost behind it.</td>
+      </tr>
+      <tr>
+        <td>Is my current price actually covering the route, or losing money once drive time is counted?</td>
+        <td>This calculator &mdash; enter your current price and it checks it against the same floor.</td>
+      </tr>
+      <tr>
+        <td>How do I lay out an efficient weekly route across my accounts?</td>
+        <td>Route software such as Skimmer &mdash; optimized routing and stop sequencing are jobs this page does not attempt.</td>
+      </tr>
+      <tr>
+        <td>Where do technicians log chemical readings and service visits per pool?</td>
+        <td>Route software such as Skimmer &mdash; per-visit service and chemical logs live there, not here.</td>
+      </tr>
+      <tr>
+        <td>How do I invoice accounts and collect payment reliably every month?</td>
+        <td>Your route and billing software. This calculator only tells you what number to put in it.</td>
+      </tr>
+      <tr>
+        <td>Is a given monthly price allowed by my local licensing, water-care, or contract rules?</td>
+        <td>Neither. That is a question for your own advisers and local regulations, and no calculator settles it.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    The same split applies whatever you run your route on. Skimmer, a
+    spreadsheet, or a paper route sheet are all places a price can live; none
+    of them is where the price comes from. If you already pay for route
+    software, keep it &mdash; this page is not an alternative to it, and
+    switching is not the point.
+  </p>
+  <p class="note">
+    <strong>What this page deliberately does not tell you:</strong> what
+    Skimmer or any other platform costs, which plan includes which feature, or
+    how their routing and billing tools are configured. Those change, and a
+    stale figure repeated here would mislead you. Check the platform's own
+    site for that, and check this calculator for the price you are going to
+    load into it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Skimmer?</h3>
+  <p>Both, for different jobs. Skimmer is pool service business software: routing and scheduling, service and chemical logs per body of water, invoicing and payments, and a technician mobile app, run through a paid account. This page is none of that. It has no account, no route map, no service log and no invoicing. It answers the one question that software asks you to already know rather than answers: what should the minimum monthly account price actually be, given your labor, drive time, chemicals, and overhead. Put those numbers in and it returns a specific price floor, the route hours behind it, and what your current price is leaving on the table if it falls short.</p>
+  <h3>Where does the account price that goes into route software come from?</h3>
+  <p>From you. Route and billing software stores whatever monthly price you set per account and then invoices it reliably every cycle, which is genuinely the hard part of running a route business day to day. What it cannot do is tell you whether that price actually covers your true route cost, including the drive time between stops that no customer is billed for directly. That is the gap this calculator fills, and it is why the two sit next to each other rather than competing.</p>
+  <h3>Is this page affiliated with Skimmer?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Skimmer or any other pool service software named on this page. Those names appear only to describe what this calculator is and is not. Each is a trademark of its respective owner. Check any platform's own site for what its current plans and features actually include, because this page deliberately publishes none of their prices or feature details.</p>
+  <p>
+    <a href="./">Open the pool route pricing calculator</a> to work out your
+    own minimum price, then load it into whichever route software you
+    already run. Nothing you type is uploaded.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, or financial advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bike-shop-repair-profit-calculator/" data-pf-to="bike-shop-repair-profit-calculator">Bike Shop Repair Profit Calculator — free, private</a></li>
+      <li><a href="../birth-doula-package-pricing-calculator/" data-pf-to="birth-doula-package-pricing-calculator">Birth doula package pricing calculator</a></li>
+      <li><a href="../boat-rental-fleet-profit-calculator/" data-pf-to="boat-rental-fleet-profit-calculator">Boat Rental Fleet Profit Calculator — free, private</a></li>
+      <li><a href="../bonus-take-home-gross-up-calculator/" data-pf-to="bonus-take-home-gross-up-calculator">How much of my bonus do I keep? Free take-home and gross-up calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pool-route-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pool-route-pricing"></script>
+</body>
+</html>

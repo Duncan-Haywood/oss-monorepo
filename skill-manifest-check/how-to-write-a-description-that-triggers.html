@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Write a SKILL.md Description That Actually Triggers | Skill Manifest Check</title>
+<meta name="description" content="Why a skill's description silently never fires, with before/after rewrites — concrete trigger cues, avoiding vocabulary that overlaps a sibling skill…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/how-to-write-a-description-that-triggers.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How to write a SKILL.md description that triggers">
+<meta property="og:description" content="Before/after rewrites for the single most common reason a skill silently never fires: a description with nothing concrete to match against.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't my skill trigger even though the description sounds right to me?","acceptedAnswer":{"@type":"Answer","text":"The most common reason is a description that reads clearly to a human who already knows what the skill does, but gives an agent nothing concrete to match a real request against — no example phrasing, no named triggers, no distinctive vocabulary. A description has to work for a reader who has never seen the skill before, because that is the position the agent is in on every request."}},{"@type":"Question","name":"What makes a trigger cue concrete instead of vague?","acceptedAnswer":{"@type":"Answer","text":"Naming the actual situations, file types, commands, or phrases that should invoke the skill, rather than describing its internal purpose. \"Formats code\" is vague; \"formats Python files with black and isort when the user asks to format, lint-fix, or clean up a Python file\" is concrete, because it gives the agent real surface area to match a request against."}},{"@type":"Question","name":"How long should a description be?","acceptedAnswer":{"@type":"Answer","text":"Long enough to state the trigger situation and at least one concrete example phrase or file type, short enough to stay a single focused paragraph. A one-line description that is only the skill's name restated (\"Handles PDF tasks\") is almost always too short to give an agent anything to match; several unrelated capabilities crammed into one description is usually a sign the skill should be split rather than the description trimmed."}},{"@type":"Question","name":"How do I know if my description overlaps a sibling skill?","acceptedAnswer":{"@type":"Answer","text":"Paste both SKILL.md files into a checker that compares descriptions for shared distinctive vocabulary, not just shared common words. Two skills can both mention \"file\" and \"check\" without truly competing; two skills that both say \"validate a configuration file for errors\" with no further distinction genuinely do compete for the same request, and the fix is to narrow each description to what makes it different, not just reword it."}}]}</script>
+<style>:root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}*{box-sizing:border-box}body{margin:0}main{max-width:820px;margin:auto;padding:1.5rem}a{color:var(--accent);overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:var(--muted)}section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.example{background:#eef2fa;border-radius:8px;padding:.7rem .9rem;margin:.5rem 0;font-size:.94rem}.example.bad{border-left:4px solid #c23b3b}.example.good{border-left:4px solid #1e8a4c}.fine,.note{font-size:.88rem;color:var(--muted)}footer{color:var(--muted);font-size:.86rem;border-top:1px solid var(--line);padding-top:16px}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/how-to-write-a-description-that-triggers.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to write a SKILL.md description that triggers — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../skill-manifest-check/">Skill Manifest Check</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to write a SKILL.md description that triggers</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Skill Manifest Check</a></p>
+<header>
+<h1>How to write a description that actually triggers</h1>
+<p class="lede">A description that reads clearly to you, who already knows what the skill does, is not the same thing as one that gives an agent enough to match a real request against. Before/after rewrites for the most common reason a skill silently never fires.</p>
+</header>
+<section>
+<h2>The gap: written for a reader who already knows</h2>
+<p>
+  A description has to work for a reader who has never seen the skill before,
+  because that is the position an agent is in on every single request. A
+  description that summarizes the skill's <em>purpose</em> &mdash; what it is
+  <em>for</em>, in the author's own mental model &mdash; tends to skip exactly
+  the concrete trigger information a stranger, or an agent, would need.
+</p>
+<div class="example bad"><strong>Too vague:</strong> "Handles PDF tasks."</div>
+<div class="example good"><strong>Concrete:</strong> "Extracts text, splits, merges, and fills form fields in PDF files. Use when the user asks to read, split, merge, rotate, or fill a PDF, or mentions a .pdf file by name."</div>
+</section>
+<section>
+<h2>Name the situations, not the purpose</h2>
+<p>
+  Swap "what is this for" language for "when should this fire" language:
+  the actual file types, commands, phrases, or situations that should invoke
+  it. This is the single highest-leverage rewrite, because it is what a
+  matching step actually has surface area to work with.
+</p>
+<div class="example bad"><strong>Too vague:</strong> "Formats code."</div>
+<div class="example good"><strong>Concrete:</strong> "Formats Python files with black and isort when the user asks to format, lint-fix, or clean up a Python file."</div>
+</section>
+<section>
+<h2>Length: enough for one concrete example, not more</h2>
+<p>
+  Long enough to state the trigger situation and at least one concrete
+  example phrase or file type; short enough to stay a single focused
+  paragraph. If a description is trying to cover several unrelated
+  capabilities, that is usually a sign the skill itself should split into
+  two, not that the description needs trimming to fit.
+</p>
+</section>
+<section>
+<h2>Avoiding overlap with a sibling skill</h2>
+<p>
+  Two skills can both mention "file" and "check" without truly competing for
+  the same request. Two skills that both say "validate a configuration file
+  for errors," with no further distinction, genuinely do. The fix is to
+  narrow each description to what makes it different &mdash; the specific
+  file type, the specific kind of check &mdash; not to reword either one in
+  a way that still describes the same territory.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why doesn't my skill trigger even though the description sounds right to me?</h3>
+<p>The most common reason is a description that reads clearly to a human who already knows what the skill does, but gives an agent nothing concrete to match a real request against — no example phrasing, no named triggers, no distinctive vocabulary. A description has to work for a reader who has never seen the skill before, because that is the position the agent is in on every request.</p>
+<h3>What makes a trigger cue concrete instead of vague?</h3>
+<p>Naming the actual situations, file types, commands, or phrases that should invoke the skill, rather than describing its internal purpose. "Formats code" is vague; "formats Python files with black and isort when the user asks to format, lint-fix, or clean up a Python file" is concrete, because it gives the agent real surface area to match a request against.</p>
+<h3>How long should a description be?</h3>
+<p>Long enough to state the trigger situation and at least one concrete example phrase or file type, short enough to stay a single focused paragraph. A one-line description that is only the skill's name restated ("Handles PDF tasks") is almost always too short to give an agent anything to match; several unrelated capabilities crammed into one description is usually a sign the skill should be split rather than the description trimmed.</p>
+<h3>How do I know if my description overlaps a sibling skill?</h3>
+<p>Paste both SKILL.md files into a checker that compares descriptions for shared distinctive vocabulary, not just shared common words. Two skills can both mention "file" and "check" without truly competing; two skills that both say "validate a configuration file for errors" with no further distinction genuinely do compete for the same request, and the fix is to narrow each description to what makes it different, not just reword it.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee that a rewritten description will trigger correctly in any particular agent runtime, and it does not replace testing the skill inside the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Run your own SKILL.md through <a href="./">Skill Manifest Check</a> for the vagueness and overlap checks referenced above. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../required-checks-drift-check/" data-pf-to="required-checks-drift-check">Is a required status check stuck forever on your repo?</a></li>
+      <li><a href="../requirements-pin-check/" data-pf-to="requirements-pin-check">Is your requirements.txt actually reproducible?</a></li>
+      <li><a href="../s3-bucket-exposure-check/" data-pf-to="s3-bucket-exposure-check">S3 Bucket Exposure Checker</a></li>
+      <li><a href="../s3-storage-class-advisor/" data-pf-to="s3-storage-class-advisor">Is your S3 bucket in the wrong storage class?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=skill-manifest-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="skill-manifest-check"></script>
+</body></html>

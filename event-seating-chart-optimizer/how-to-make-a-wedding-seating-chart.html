@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Make A Wedding Seating Chart: A Worked Example</title>
+  <meta name="description" content="A seating chart is a puzzle of wishes: keep families together, separate feuds, honour pinned tables.">
+  <meta property="og:title" content="How To Make A Wedding Seating Chart: A Worked Example">
+  <meta property="og:description" content="24 guests, 3 tables, 8 wishes. Seating them in list order meets 4; a search meets all 8 and keeps every family together.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/how-to-make-a-wedding-seating-chart.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I seat people who should not sit together?", "acceptedAnswer": {"@type": "Answer", "text": "Mark the pair with a single exclamation mark to keep them apart if possible, or two to forbid sharing a table. The optimizer treats a never-together pair as outweighing almost any friendship, so it separates them even when that splits a group of friends. If a never-together pair is still seated together, the plan lists it."}}, {"@type": "Question", "name": "Does list order matter?", "acceptedAnswer": {"@type": "Answer", "text": "Only as a baseline. The guide's example seats the same 24 guests in the order typed, which meets 4 of 8 wishes and splits one family across two tables, and the optimizer meets all 8 with every family intact."}}, {"@type": "Question", "name": "How many guests should sit at each table?", "acceptedAnswer": {"@type": "Answer", "text": "Round tables commonly seat 8 to 10, and a banquet table can run longer. The tool takes seats per table as an input and by default fills tables evenly, so 24 guests across 3 tables give 8 each."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #231f2e; background: #f6f3f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #5a2d82; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ddd5e6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #5a2d82; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #50455f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/how-to-make-a-wedding-seating-chart.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Make A Wedding Seating Chart: A Worked Example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../event-seating-chart-optimizer/">Event Seating Chart Optimizer — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Make A Wedding Seating Chart: A Worked Example</span></span></nav>
+  <p><a href="./">&larr; Event seating chart optimizer</a></p>
+  <h1>How to make a wedding seating chart</h1>
+  <p>A seating chart looks like a drawing job and is really a puzzle: dozens of small wishes, a hard limit on seats per table, and a few people who must be at a particular table. Done by hand it takes an evening of moving names around, and every fix for one wish can break another.</p>
+  <p><a class="cta" href="./">Open the free seating chart optimizer</a></p>
+
+  <h2>The method</h2>
+  <p><strong>1. List everyone, and tag the families.</strong> Put the same party name after each member's name so they are treated as a group that wants to sit together.</p>
+  <p><strong>2. Write the wishes as pairs.</strong> Who should sit together, who really should, who to keep apart if you can, and who must never share a table.</p>
+  <p><strong>3. Pin the fixed seats.</strong> The couple's parents, the officiant, the head table: pin each to a table number and the search leaves them there.</p>
+  <p><strong>4. Score and search.</strong> Every pair at the same table adds or removes points, and the plan with the best total within capacity wins. Look at the unmet wishes, decide which you can live with, and run it again for another arrangement.</p>
+
+  <h2>A worked example</h2>
+  <p>Twenty-four invented guests, three tables of eight, and eight wishes: two families (the Okafors, four people, and the Brandts, three), four pairs who should sit together, and two feuds: Uncle Ray must be kept apart from Aunt Linda and never share a table with Victor Lang. Maya Okafor and Priest Anselm are pinned to table 1, Liam Brandt to table 2.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Seating</th><th class="n">Wishes met</th><th class="n">Families split</th><th class="n">Score</th></tr></thead>
+    <tbody>
+      <tr><td>In the order typed</td><td class="n">4 of 8</td><td class="n">1</td><td class="n">54</td></tr>
+      <tr><td>Optimized</td><td class="n">8 of 8</td><td class="n">0</td><td class="n">81</td></tr>
+    </tbody>
+  </table></div>
+  <p>Seating in list order puts Uncle Ray with Aunt Linda, parts Priya Nair from Tom Whitfield, Cousin Ben from Cousin Jess and Elena Petrova from Hannah Cole, and splits the Brandts across two tables. The search meets all eight wishes, keeps both families whole and keeps the pins, with eight at every table.</p>
+
+  <h2>What the plan leaves out</h2>
+  <p>It assigns tables, not seats within a table, and it knows only the wishes you typed: not who gets on, dietary needs, wheelchair access or the shape of the room. It is a starting point for you and your planner, not a promise that every guest will be happy.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I seat people who should not sit together?</h3>
+  <p>Mark the pair with a single exclamation mark to keep them apart if possible, or two to forbid sharing a table. The optimizer treats a never-together pair as outweighing almost any friendship, so it separates them even when that splits a group of friends. If a never-together pair is still seated together, the plan lists it.</p>
+  <h3>Does list order matter?</h3>
+  <p>Only as a baseline. The guide's example seats the same 24 guests in the order typed, which meets 4 of 8 wishes and splits one family across two tables, and the optimizer meets all 8 with every family intact.</p>
+  <h3>How many guests should sit at each table?</h3>
+  <p>Round tables commonly seat 8 to 10, and a banquet table can run longer. The tool takes seats per table as an input and by default fills tables evenly, so 24 guests across 3 tables give 8 each.</p>
+
+  <p><a class="cta" href="./">Seat your own guests</a></p>
+  <p>Related: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a> for the children's party and the <a href="../container-load-planner/">container load planner</a>.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. It is not legal, tax, financial or event-planning advice, is not a guarantee that any guest will be content with their seat, and does not replace your own judgement or your planner's. The example guests are invented and no price is stated or implied.</p>
+    <p><strong>Independent.</strong> Not affiliated with any venue, caterer or planner, and none is named here.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../worker-classification-checker/" data-pf-to="worker-classification-checker">Is your 1099 contractor really an employee? Free checker</a></li>
+      <li><a href="../yoga-pilates-studio-class-profit-calculator/" data-pf-to="yoga-pilates-studio-class-profit-calculator">Yoga &amp; Pilates Studio Class Profit Calculator — free, private</a></li>
+      <li><a href="../401k-loan-vs-withdrawal-calculator/" data-pf-to="401k-loan-vs-withdrawal-calculator">401(k) loan vs withdrawal calculator</a></li>
+      <li><a href="../529-to-roth-rollover-calculator/" data-pf-to="529-to-roth-rollover-calculator">529 to Roth IRA rollover calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=event-seating-chart-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="event-seating-chart-optimizer"></script>
+</body>
+</html>

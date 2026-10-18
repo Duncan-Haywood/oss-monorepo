@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. checking the final-paycheck deadline yourself | Final Paycheck Deadline Calculator</title>
+<meta name="description" content="Final-paycheck deadlines are not one rule with 50 exceptions -- they split three different ways at once: same-day vs. next-payday by state, fired vs.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. checking the final-paycheck deadline yourself | Final Paycheck Deadline Calculator">
+<meta property="og:description" content="California requires same-day payment for a firing; New York, Washington, and Illinois only require the next regular payday.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the final-paycheck deadline the same in every state?","acceptedAnswer":{"@type":"Answer","text":"No, and the range is wide. California, Colorado, Massachusetts, and Nevada require same-day or immediate payment for a firing or layoff. New York, Washington, and Illinois require only the next regularly scheduled payday -- no shorter statutory deadline at all. A manual check that learned the rule from experience in one state and applied it to an employee in another gets it wrong in either direction: too strict where the actual rule is looser, or too late where it is stricter."}},{"@type":"Question","name":"Does California's deadline for a voluntary quit depend on anything besides the state?","acceptedAnswer":{"@type":"Answer","text":"Yes -- whether the employee gave at least 72 hours' notice before quitting, and this is the detail most likely to be missed by hand. An employee who gives 72+ hours' notice must be paid on their last day worked, the same as a firing. An employee who quits without that notice has 3 calendar days instead. Treating every voluntary quit in California the same way, regardless of notice, gets one of the two cases wrong."}},{"@type":"Question","name":"Why would a manual check assume every state requires vacation payout, or that none do?","acceptedAnswer":{"@type":"Answer","text":"Because the rule genuinely splits by state with no obvious pattern tied to the payment-deadline rule itself. California, Colorado, Massachusetts, Montana, and Illinois require accrued unused vacation to be paid out as wages, with no use-it-or-lose-it forfeiture. New York, Washington, Texas, Arizona, Nevada, and Minnesota leave it entirely to employer policy -- there is no state mandate either way. A manual check that assumes the payout answer follows the same state grouping as the payment-speed rule will get several states backwards, since the two rules do not track each other."}},{"@type":"Question","name":"What is easy to miss about Minnesota's final-paycheck rule specifically?","acceptedAnswer":{"@type":"Answer","text":"That the fast deadline is triggered by a written demand, not by the firing itself. Without a demand, a fired Minnesota employee's wages are due on the next regular payday, the same as most states. Once the employee makes a written demand for payment, the employer has only 24 hours from that demand. A check that applies the 24-hour clock to every Minnesota firing, or misses that the clock exists at all, gets the deadline wrong depending on which half it skipped."}},{"@type":"Question","name":"If I get the deadline right, have I fully determined what the employer owes?","acceptedAnswer":{"@type":"Answer","text":"No. This is a payment-timing and vacation-payout lookup, not a full wage-and-hour determination. It does not determine which state's law actually governs (usually the state where the work was performed, which can differ from where the employer is headquartered), does not model city or county ordinances that can be stricter than state law, and does not cover commissions, bonuses, or expense reimbursement rules."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. checking the final-paycheck deadline yourself | Final Paycheck Deadline Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../final-paycheck-deadline-calculator/">Final Paycheck Deadline Calculator — free, by state</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. checking the final-paycheck deadline yourself | Final Paycheck Deadline Calculator</span></span></nav>
+<p class="note"><a href="index.html">&larr; back to the calculator</a></p>
+<h1>This calculator vs. checking the final-paycheck deadline yourself</h1>
+<p class="lede">Final-paycheck deadlines are not one rule with fifty exceptions. They split three separate ways at once: how fast payment is due, which varies enormously by state; whether being fired or quitting changes that deadline, which it does in some states and not others; and whether accrued vacation must be paid out at all, which follows yet another grouping of states. A manual check that learned one state's answer from experience and reused it elsewhere gets exactly the state that differs wrong.</p>
+
+<section class="card">
+<h2>Where a manual check usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake checking it by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Assuming one payment-speed rule applies everywhere</td><td>Applying California's same-day rule (or New York's next-payday rule) to every state, when the actual range runs from same-day (CA, CO, MA, NV) to a fixed number of days (TX, MT) to next-payday-only (NY, WA, IL).</td><td>Applies the specific rule for the state you select, with its own citation.</td></tr>
+<tr><td>California's notice-dependent quit rule</td><td>Treating every voluntary quit in California the same way, missing that 72+ hours' notice moves the deadline to the last day worked while no notice leaves it at 3 calendar days.</td><td>Asks whether notice was given and applies the correct one of the two rules.</td></tr>
+<tr><td>Minnesota's demand-triggered clock</td><td>Missing that Minnesota's fast 24-hour deadline only starts once the employee makes a written demand -- without one, the ordinary next-payday rule applies instead.</td><td>Asks whether a demand was made and applies the 24-hour clock only when it was.</td></tr>
+<tr><td>Vacation/PTO payout requirement</td><td>Assuming the payout rule follows the same state grouping as the payment-speed rule, when it does not -- Texas and Nevada have fast payment deadlines but leave vacation payout to employer policy, while Illinois requires payout regardless of policy.</td><td>Reports the payout requirement for the selected state independently of its payment-speed rule.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Worked example: the same separation date, three different deadlines</h2>
+<p>The first row is the calculator's own shipped "load an example" scenario -- open the calculator and click it to see the same numbers.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Scenario</th><th scope="col">Deadline</th><th scope="col">Vacation/PTO payout required?</th></tr></thead>
+<tbody>
+<tr><td>California, voluntary quit, no 72-hour notice, separated Oct 1, 2026, 40 accrued hours at $28/hour</td><td>Sun, Oct 4, 2026 (3 calendar days after separation)</td><td>Yes -- $1,120.00 at the hours/rate entered</td></tr>
+<tr><td>Same facts, but 72+ hours' notice given</td><td>Thu, Oct 1, 2026 (the day of separation)</td><td>Yes -- California requires it regardless of notice</td></tr>
+<tr><td>New York, fired/laid off, separated Oct 1, 2026, next payday Oct 10, 2026</td><td>Sat, Oct 10, 2026 (the next regularly scheduled payday)</td><td>No -- New York leaves it to employer policy</td></tr>
+</tbody>
+</table></div>
+<p>Three days apart on payment speed, three days apart again once notice changes, and a payout answer that has nothing to do with either. A hand check that got the first row right by applying "3 days" has no way to know the second row is "same day" unless it separately remembered the notice carve-out, and no way to know the third row's payout answer without separately checking that New York's rule, unlike California's, leaves it to the employer.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Is the final-paycheck deadline the same in every state?</h3>
+<p>No, and the range is wide. California, Colorado, Massachusetts, and Nevada require same-day or immediate payment for a firing or layoff. New York, Washington, and Illinois require only the next regularly scheduled payday -- no shorter statutory deadline at all. A manual check that learned the rule from experience in one state and applied it to an employee in another gets it wrong in either direction: too strict where the actual rule is looser, or too late where it is stricter.</p>
+<h3>Does California's deadline for a voluntary quit depend on anything besides the state?</h3>
+<p>Yes -- whether the employee gave at least 72 hours' notice before quitting, and this is the detail most likely to be missed by hand. An employee who gives 72+ hours' notice must be paid on their last day worked, the same as a firing. An employee who quits without that notice has 3 calendar days instead. Treating every voluntary quit in California the same way, regardless of notice, gets one of the two cases wrong.</p>
+<h3>Why would a manual check assume every state requires vacation payout, or that none do?</h3>
+<p>Because the rule genuinely splits by state with no obvious pattern tied to the payment-deadline rule itself. California, Colorado, Massachusetts, Montana, and Illinois require accrued unused vacation to be paid out as wages, with no use-it-or-lose-it forfeiture. New York, Washington, Texas, Arizona, Nevada, and Minnesota leave it entirely to employer policy -- there is no state mandate either way. A manual check that assumes the payout answer follows the same state grouping as the payment-speed rule will get several states backwards, since the two rules do not track each other.</p>
+<h3>What is easy to miss about Minnesota's final-paycheck rule specifically?</h3>
+<p>That the fast deadline is triggered by a written demand, not by the firing itself. Without a demand, a fired Minnesota employee's wages are due on the next regular payday, the same as most states. Once the employee makes a written demand for payment, the employer has only 24 hours from that demand. A check that applies the 24-hour clock to every Minnesota firing, or misses that the clock exists at all, gets the deadline wrong depending on which half it skipped.</p>
+<h3>If I get the deadline right, have I fully determined what the employer owes?</h3>
+<p>No. This is a payment-timing and vacation-payout lookup, not a full wage-and-hour determination. It does not determine which state's law actually governs (usually the state where the work was performed, which can differ from where the employer is headquartered), does not model city or county ordinances that can be stricter than state law, and does not cover commissions, bonuses, or expense reimbursement rules.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published state final-pay-timing statutes to the dates and facts you supply. They are not legal, tax, or financial advice, and do not replace a qualified employment attorney or HR compliance professional. <strong>You are responsible for reviewing and verifying the output before relying on it</strong>, and for confirming the deadline that actually applies to your situation before acting. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="index.html">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+      <li><a href="../npm-deployment-evidence/" data-pf-to="npm-deployment-evidence">npm Deployment Evidence</a></li>
+      <li><a href="../ny-llc-transparency-act-tracker/" data-pf-to="ny-llc-transparency-act-tracker">NY LLC Transparency Act Tracker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=final-paycheck-deadline-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="final-paycheck-deadline-calculator"></script>
+</body>
+</html>

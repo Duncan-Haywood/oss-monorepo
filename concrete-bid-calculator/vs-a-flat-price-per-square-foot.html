@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per square foot | Concrete Bid Calculator</title>
+<meta name="description" content="Homeowners and GCs ask for a price per square foot. Concrete is sold by the cubic yard, and thickness, finish, forms…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per square foot">
+<meta property="og:description" content="A 20x40 driveway at 4 inches and the identical footprint poured 6 inches thick for an RV both cover 800 square feet -- and need 50% more concrete.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/vs-a-flat-price-per-square-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per square foot get a concrete pour wrong?","acceptedAnswer":{"@type":"Answer","text":"Because concrete is sold by the cubic yard, not the square foot, and square footage alone does not say how many yards a pour needs. A 20x40 driveway poured 4 inches thick is 800 square feet and about 9.88 raw cubic yards. The identical 800-square-foot footprint poured 6 inches thick for an RV needs about 14.81 raw cubic yards -- 50% more material on the same sketch. A price learned per square foot from the 4-inch pour prices the 6-inch pour as if it used the same concrete, because square footage cannot tell a 4-inch slab from a 6-inch one."}},{"@type":"Question","name":"What else does square footage alone miss?","acceptedAnswer":{"@type":"Answer","text":"Finish, forms, and access. A broom finish takes about 0.85 crew-hours per 100 square feet; a stamped or decorative finish takes roughly two to three times that on the identical area. Forms are priced by the linear foot of edge, not the square footage inside it, so an oddly shaped pour with more perimeter per square foot costs more in forms than a simple rectangle of the same area. Access -- a truck chute, a wheelbarrow run, or a pump -- is its own labor and fee line that a per-square-foot number has no place to put. None of these show up in square footage."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped starting inputs: a 20x40 driveway poured 4 inches thick, broom finish, orders 10.75 cubic yards and prices at $4,679.88 -- $5.85 per square foot. Pour the identical 800-square-foot footprint 6 inches thick instead, same finish, same access, and it orders 16 cubic yards, costs $4,772.90 to run before profit, and this calculator prices it at $5,966.13 -- $7.46 per square foot. Quoting the 6-inch pour at the 4-inch pour's learned rate of $5.85 per square foot reproduces the 4-inch price, $4,679.88, which is $93.02 below the 6-inch pour's own break-even cost and $1,286.25 short of what this calculator says the job should charge at a 20% target margin."}},{"@type":"Question","name":"Is a flat price per square foot ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"As a rough, same-thickness, same-finish comparison across similar pours, a per-square-foot number can be a useful sanity check -- it is what this calculator itself reports alongside the price. The risk is using it to quote sight unseen across different thicknesses, finishes, or access methods, because the rate learned from one pour does not carry over to a pour that differs on any of those, and by the time someone is standing on site to notice, the square-foot number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local ready-mix prices or labor rates?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local plant's per-yard price, your form lumber supplier, or your crew's wage. It takes each slab's dimensions and thickness, your waste percentage, your ready-mix price, form cost, finish hours, reinforcement, access method, and short-load fee, and your own wage, payroll burden, overhead, and target margin, and turns that into cubic yards, labor hours, and a price for this pour -- the arithmetic a flat square-foot number skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#232323;background:#eceae4}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#6b4a2b;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#585245}section{background:#fff;border:1px solid #d9d3c6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e0dbcf;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d9d3c6;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#585245}.fine,.note{font-size:.88rem;color:#585245}footer{color:#585245;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price per square foot — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../concrete-bid-calculator/">Concrete Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price per square foot</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Concrete Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per square foot</h1>
+<p class="lede">Homeowners and GCs ask for a price per square foot. Concrete is sold by the cubic yard &mdash; and thickness, finish, forms, and access all change what a pour costs at the exact same square footage.</p>
+</header>
+<section>
+<h2>What a flat price per square foot is</h2>
+<p>
+A price per square foot is the fastest number to quote over the phone or
+text: multiply the footprint by a rate, read back a total. It is also the
+unit customers already think in, because it is how the rest of home
+improvement is priced.
+</p>
+<p>
+The rate behind it was learned from a specific pour &mdash; a given
+thickness, a given finish, a given access method &mdash; and then reused for
+the next square footage that comes in, whether or not that next pour shares
+any of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+slab's length, width, and thickness (or a square-footage override), a waste
+percentage, your ready-mix price per yard, form cost per linear foot,
+finish preset or your own hours, reinforcement, access method, and a
+short-load fee, plus your own wage, payroll burden, overhead, and target
+margin. It converts area and thickness into cubic yards the way a plant
+bills them, prices forms by the edge and finish by the surface, and returns
+the price, the price per square foot, the price per cubic yard, and the
+effective hourly rate &mdash; for this pour, not a rate carried over from
+the last one.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price per square foot does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for a 4-inch driveway and a 6-inch RV pad on the identical footprint, even though the thicker pour needs 50% more concrete.</td>
+<td>Computes cubic yards from area &times; thickness for every slab, rounded up to the quarter-yard the plant actually bills, so a thicker pour orders and costs more without anyone eyeballing a markup.</td>
+</tr>
+<tr>
+<td>Has no line for the finish &mdash; a broom driveway and a stamped patio of the same size get the same rate, even though stamped work takes two to three times the labor.</td>
+<td>Starts finish labor from a broom, trowel, exposed, or stamped preset in crew-hours per 100 square feet, editable to the contractor's own crew.</td>
+</tr>
+<tr>
+<td>Prices forms, if at all, as part of the blended square-foot rate, so an odd-shaped pour with more edge per square foot costs the same as a plain rectangle.</td>
+<td>Prices forms by the linear foot of perimeter, computed from the tape-measure dimensions, as its own line separate from the slab area.</td>
+</tr>
+<tr>
+<td>Has no separate line for access &mdash; a pump job and a wheelbarrow run down a long yard get the same square-foot rate.</td>
+<td>Prices chute, wheelbarrow, or pump as their own access line, including the pump's flat fee and the extra labor hours a wheelbarrow run adds.</td>
+</tr>
+<tr>
+<td>Gives the customer a number to compare against a competitor's postcard rate, not a number to check a quote against.</td>
+<td>Reports price per square foot, price per cubic yard, and effective hourly rate alongside the price, so a shopped rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same 800 square feet, two different pours</h2>
+<p>
+Using this calculator's own shipped starting inputs &mdash; 8% waste, $175
+ready-mix, $3.50 per linear foot of form, broom finish, truck-chute access,
+$28 blended wage, 30% burden, 12% overhead, 20% target margin:
+</p>
+<p>
+A 20&times;40 driveway (800 square feet) poured <strong>4 inches</strong>
+thick orders <strong>10.75 cubic yards</strong> and prices at
+<strong>$4,679.88</strong> &mdash; <strong>$5.85</strong> per square foot.
+</p>
+<p>
+Pour the identical 800-square-foot footprint <strong>6 inches</strong> thick
+instead, for an RV pad &mdash; same finish, same access, same everything
+else &mdash; and it orders <strong>16 cubic yards</strong>, costs
+<strong>$4,772.90</strong> to run before a dollar of profit, and this
+calculator prices it at <strong>$5,966.13</strong> &mdash;
+<strong>$7.46</strong> per square foot. Quoting the 6-inch pour at the
+4-inch pour's learned rate of $5.85 per square foot reproduces the 4-inch
+price, <strong>$4,679.88</strong>, which is <strong>$93.02 below the
+6-inch pour's own break-even cost</strong> &mdash; before counting the
+<strong>$1,286.25</strong> it falls short of this calculator's own price at
+a 20% target margin. Same 800 square feet, same rate, one pour that pays
+and one that loses money the moment the thickness changes.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per square foot get a concrete pour wrong?</h3>
+<p>Because concrete is sold by the cubic yard, not the square foot, and square footage alone does not say how many yards a pour needs. A 20x40 driveway poured 4 inches thick is 800 square feet and about 9.88 raw cubic yards. The identical 800-square-foot footprint poured 6 inches thick for an RV needs about 14.81 raw cubic yards -- 50% more material on the same sketch. A price learned per square foot from the 4-inch pour prices the 6-inch pour as if it used the same concrete, because square footage cannot tell a 4-inch slab from a 6-inch one.</p>
+<h3>What else does square footage alone miss?</h3>
+<p>Finish, forms, and access. A broom finish takes about 0.85 crew-hours per 100 square feet; a stamped or decorative finish takes roughly two to three times that on the identical area. Forms are priced by the linear foot of edge, not the square footage inside it, so an oddly shaped pour with more perimeter per square foot costs more in forms than a simple rectangle of the same area. Access -- a truck chute, a wheelbarrow run, or a pump -- is its own labor and fee line that a per-square-foot number has no place to put. None of these show up in square footage.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped starting inputs: a 20x40 driveway poured 4 inches thick, broom finish, orders 10.75 cubic yards and prices at $4,679.88 -- $5.85 per square foot. Pour the identical 800-square-foot footprint 6 inches thick instead, same finish, same access, and it orders 16 cubic yards, costs $4,772.90 to run before profit, and this calculator prices it at $5,966.13 -- $7.46 per square foot. Quoting the 6-inch pour at the 4-inch pour's learned rate of $5.85 per square foot reproduces the 4-inch price, $4,679.88, which is $93.02 below the 6-inch pour's own break-even cost and $1,286.25 short of what this calculator says the job should charge at a 20% target margin.</p>
+<h3>Is a flat price per square foot ever a reasonable shorthand?</h3>
+<p>As a rough, same-thickness, same-finish comparison across similar pours, a per-square-foot number can be a useful sanity check -- it is what this calculator itself reports alongside the price. The risk is using it to quote sight unseen across different thicknesses, finishes, or access methods, because the rate learned from one pour does not carry over to a pour that differs on any of those, and by the time someone is standing on site to notice, the square-foot number has often already been quoted.</p>
+<h3>Does this calculator know my local ready-mix prices or labor rates?</h3>
+<p>No. It has no data on your local plant's per-yard price, your form lumber supplier, or your crew's wage. It takes each slab's dimensions and thickness, your waste percentage, your ready-mix price, form cost, finish hours, reinforcement, access method, and short-load fee, and your own wage, payroll burden, overhead, and target margin, and turns that into cubic yards, labor hours, and a price for this pour -- the arithmetic a flat square-foot number skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Concrete Bid Calculator</a> to price your own pour, or read <a href="how-much-concrete-for-a-driveway.html">how much concrete a driveway needs</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a structural design, a mix design, or a code check. Verify every figure against your own payroll, insurance, ready-mix tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../concrete-lifting-bid-calculator/" data-pf-to="concrete-lifting-bid-calculator">Concrete Lifting Bid Calculator</a></li>
+      <li><a href="../epoxy-garage-floor-bid-calculator/" data-pf-to="epoxy-garage-floor-bid-calculator">Epoxy Garage Floor Bid Calculator</a></li>
+      <li><a href="../foundation-repair-bid-calculator/" data-pf-to="foundation-repair-bid-calculator">Foundation Repair Bid Calculator</a></li>
+      <li><a href="../french-drain-bid-calculator/" data-pf-to="french-drain-bid-calculator">French Drain Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=concrete-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="concrete-bid-calculator"></script>
+</body></html>

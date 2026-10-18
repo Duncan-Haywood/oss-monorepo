@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staffing Markup Calculator vs. a Spreadsheet</title>
+  <meta name="description" content="A markup-on-pay-rate spreadsheet usually stops at markup / (1 + markup) for margin, which is only right when the whole cost is the pay rate.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/vs-a-spreadsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Staffing Markup Calculator vs. a Spreadsheet">
+  <meta property="og:description" content="markup / (1 + markup) is the right margin formula only when the pay rate is the whole cost. This calculator prices the loaded cost -- burden, carry…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/vs-a-spreadsheet.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet price a staffing placement's real margin?","acceptedAnswer":{"@type":"Answer","text":"It can, but the one-line formula most desks use — markup / (1 + markup) — only gives the real gross margin when the pay rate is the whole cost being marked up. In staffing it isn't: FICA, FUTA, SUTA, workers' comp, PTO, benefits, onboarding and payroll admin all sit outside the pay rate and inside the real cost. A spreadsheet can price that correctly too, but it has to carry a formula for each of those lines, including capping FUTA and SUTA at their wage bases rather than charging them as a flat percentage, and that formula has to be rebuilt correctly every time a rate, a comp code, or a state changes."}},{"@type":"Question","name":"Why does the usual markup-to-margin formula overstate the real margin?","acceptedAnswer":{"@type":"Answer","text":"Because it assumes the pay rate is the only cost in the placement. Employer burden — FICA, unemployment tax, workers' comp, PTO accrual, benefits, screening and payroll admin — is real cost that sits outside the pay rate, so it is invisible to markup / (1 + markup) entirely. A 45% markup implies a 31% margin by that formula; once burden, the cost of funding payroll on the client's terms, and bad debt are counted, the placement can earn well under half of that, or lose money outright on a heavy workers' comp class code."}},{"@type":"Question","name":"What does a hand-built spreadsheet have to get right that this calculator does automatically?","acceptedAnswer":{"@type":"Answer","text":"Three things that are each easy to get wrong once and never notice: charging FUTA and SUTA against their wage base with min(wages, wageBase) rather than as a flat percentage on every dollar, so a short assignment doesn't silently overcharge or undercharge the unemployment line; excluding the overtime premium from workers' comp payroll where the state allows it, rather than charging comp on the full 1.5x wage; and pricing the cost of funding payroll for the days between paying workers weekly and collecting the invoice on the client's actual terms, which a markup-only sheet usually omits altogether."}},{"@type":"Question","name":"Is this page affiliated with any spreadsheet software?","acceptedAnswer":{"@type":"Answer","text":"No. This page names no specific spreadsheet product — Excel, Google Sheets, or otherwise — and compares against the practice of pricing a placement in a spreadsheet formula generally, not any one tool."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #edeff5; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 12px; }
+    h2 { font-size: 1.15rem; margin: 30px 0 8px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #33427a; margin: 0 0 6px; }
+    .lede { font-size: 1.05rem; }
+    a { color: #33427a; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: .92rem; }
+    th, td { border: 1px solid #ccd3e1; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #e3e7f2; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 18px; border-radius: 8px; background: #33427a; color: #f4f6fb; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #ccd3e1; font-size: .82rem; color: #4b566a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Staffing Markup Calculator vs. a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../staffing-markup-calculator/">Staffing Markup Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Staffing Markup Calculator vs. a Spreadsheet</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Staffing markup calculator</a></p>
+    <h1>Staffing markup calculator vs. a spreadsheet</h1>
+    <p class="lede">A spreadsheet can price a placement's real margin correctly. It has to carry a formula for every burden line, cap FUTA and SUTA at their wage base by hand, and get rebuilt correctly every time a rate or a comp code changes -- or it quietly reports markup / (1 + markup) instead, which is only right when the pay rate is the whole cost.</p>
+
+    <p><a class="cta" href="./">Price a real placement &rarr;</a></p>
+
+    <section>
+      <p>
+        <strong>A spreadsheet</strong> is how most independent agencies
+        price a placement today, and there is nothing wrong with the
+        arithmetic itself: markup on the pay rate, burden as a percentage,
+        margin as a formula. The formula most desks actually use is
+        <code>markup / (1 + markup)</code> &mdash; 45% markup becomes a 31%
+        margin &mdash; and that identity is exactly right when the number
+        being marked up is the whole cost of the placement. It isn't. FICA,
+        federal and state unemployment tax, workers' compensation, PTO
+        accrual, benefits, onboarding and payroll admin all sit outside the
+        pay rate, and a one-line formula has no way to know that.
+      </p>
+      <p>
+        <strong>This calculator</strong> prices the loaded cost directly:
+        it charges FUTA and SUTA against their wage base rather than as a
+        flat percentage, so a short assignment carries the effect on its
+        own; it applies the workers' comp class rate to the comp-eligible
+        payroll, excluding the overtime premium where the state allows it;
+        and it prices the cost of funding payroll for the days between
+        paying workers weekly and collecting the invoice on the client's
+        actual terms. It reports the real gross margin next to the margin
+        the markup implies, and the break-even and target-margin markups
+        directly &mdash; no formula to write or re-check.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption>What each one gets right, and what it costs to get there.</caption>
+        <thead>
+          <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Can a spreadsheet price a placement's real gross margin?</td>
+            <td>Yes &mdash; if it caps FUTA and SUTA at the wage base, excludes the OT premium from comp payroll where allowed, and prices the cost of the client's payment terms, all correctly and every time a rate changes.</td>
+          </tr>
+          <tr>
+            <td>Is markup / (1 + markup) the real margin?</td>
+            <td>Only when the pay rate is the whole cost. In staffing it isn't &mdash; that is the gap this calculator prices.</td>
+          </tr>
+          <tr>
+            <td>What markup hits a 20% gross margin on this comp code and these terms?</td>
+            <td>This calculator's target-margin markup, computed instantly, plus a markup ladder for negotiating a discount.</td>
+          </tr>
+          <tr>
+            <td>Is anything typed in uploaded anywhere?</td>
+            <td>No. Neither a spreadsheet nor this calculator sends a placement's numbers anywhere; this calculator runs entirely in your browser.</td>
+          </tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p>
+        Nothing here says a spreadsheet formula is wrong to use &mdash; a
+        correctly built one prices a placement exactly as well as this
+        calculator does. The difference is what it costs to get there:
+        this calculator applies the same wage-base-capped, comp-payroll-
+        excluded, payment-term-priced method every time, with no formula
+        to write, copy down a column, or re-check after a rate changes.
+      </p>
+
+      <h2>Common questions</h2>
+      <h3>Can a spreadsheet price a staffing placement's real margin?</h3>
+      <p>It can, but the one-line formula most desks use &mdash; markup / (1 + markup) &mdash; only gives the real gross margin when the pay rate is the whole cost being marked up. In staffing it isn't: FICA, FUTA, SUTA, workers' comp, PTO, benefits, onboarding and payroll admin all sit outside the pay rate and inside the real cost. A spreadsheet can price that correctly too, but it has to carry a formula for each of those lines, including capping FUTA and SUTA at their wage bases rather than charging them as a flat percentage, and that formula has to be rebuilt correctly every time a rate, a comp code, or a state changes.</p>
+      <h3>Why does the usual markup-to-margin formula overstate the real margin?</h3>
+      <p>Because it assumes the pay rate is the only cost in the placement. Employer burden &mdash; FICA, unemployment tax, workers' comp, PTO accrual, benefits, screening and payroll admin &mdash; is real cost that sits outside the pay rate, so it is invisible to markup / (1 + markup) entirely. A 45% markup implies a 31% margin by that formula; once burden, the cost of funding payroll on the client's terms, and bad debt are counted, the placement can earn well under half of that, or lose money outright on a heavy workers' comp class code.</p>
+      <h3>What does a hand-built spreadsheet have to get right that this calculator does automatically?</h3>
+      <p>Three things that are each easy to get wrong once and never notice: charging FUTA and SUTA against their wage base with min(wages, wageBase) rather than as a flat percentage on every dollar, so a short assignment doesn't silently overcharge or undercharge the unemployment line; excluding the overtime premium from workers' comp payroll where the state allows it, rather than charging comp on the full 1.5x wage; and pricing the cost of funding payroll for the days between paying workers weekly and collecting the invoice on the client's actual terms, which a markup-only sheet usually omits altogether.</p>
+      <h3>Is this page affiliated with any spreadsheet software?</h3>
+      <p>No. This page names no specific spreadsheet product &mdash; Excel, Google Sheets, or otherwise &mdash; and compares against the practice of pricing a placement in a spreadsheet formula generally, not any one tool.</p>
+      <h3>Is anything I enter uploaded anywhere?</h3>
+      <p>No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded.</p>
+      <p><a href="./">Open the staffing markup calculator</a> to price your own placement, or read <a href="./markup-vs-margin.html">why markup and margin are not the same number in staffing</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, insurance, or employment advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This page makes no live comparison against any spreadsheet software and no network request of any kind &mdash; it is a static page describing a common pricing practice. Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ev-charging-site-roi-calculator/" data-pf-to="ev-charging-site-roi-calculator">EV charging station ROI calculator</a></li>
+      <li><a href="../event-rental-inventory-payback-calculator/" data-pf-to="event-rental-inventory-payback-calculator">Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</a></li>
+      <li><a href="../event-seating-chart-optimizer/" data-pf-to="event-seating-chart-optimizer">Event Seating Chart Optimizer — free, private, in your browser</a></li>
+      <li><a href="../exemption-certificate-audit-check/" data-pf-to="exemption-certificate-audit-check">Which of your tax-exempt sales have no certificate? Find out before the auditor does</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=staffing-markup-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="staffing-markup-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dog Walking &amp; Pet Sitting Rate Calculator — Price Your Route</title>
+<meta name="description" content="Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Dog Walking &amp; Pet Sitting Rate Calculator">
+<meta property="og:description" content="Stop guessing at a flat per-walk rate. Price one visit from time, drive, mileage, extra pets, and overhead…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dog Walking & Pet Sitting Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a dog walk, drop-in visit, or overnight pet-sitting stay from labor time, drive time, mileage, extra-pet surcharges, overhead, and target margin, and rolls a client list up into monthly route revenue."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does drive time count as billable time if I'm not with a dog yet?","acceptedAnswer":{"@type":"Answer","text":"Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving — leave that out of the price and every visit is quietly subsidizing the commute to the next one."}},{"@type":"Question","name":"Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?","acceptedAnswer":{"@type":"Answer","text":"An overnight stay commits your whole night to one client even during the hours nothing goes wrong — you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure."}},{"@type":"Question","name":"Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?","acceptedAnswer":{"@type":"Answer","text":"If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep."}},{"@type":"Question","name":"Does anything about my clients or route get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client price/visit rows you type into the route table are never saved anywhere — they exist only in the page while it is open. The visit inputs and the two route settings above the table (weeks per month, target income) are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Dog Walking \u0026 Pet Sitting Rate Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dog Walking &amp; Pet Sitting Rate Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Dog Walking &amp; Pet Sitting Rate Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR INDEPENDENT DOG WALKERS &amp; PET SITTERS</p><h1>Price the visit, then price the route.</h1><p class="lede">A flat "$20 a walk" rate ignores drive time, extra dogs, overnight on-call hours, and what your app takes in fees. This free calculator prices one visit from your real time and costs, then rolls your whole client list up into a monthly number you can check against your income goal.</p></header>
+
+<main class="layout">
+<section><h2>Price one visit</h2>
+<fieldset><legend>Visit</legend><div class="fields">
+<label>On-site minutes (walk / drop-in)<input id="visitMinutes" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
+<label>Drive minutes to/from this stop<input id="driveMinutes" type="number" min="0" step="1" value="10" inputmode="numeric"></label>
+<label>Round-trip miles for this stop<input id="mileage" type="number" min="0" step="0.1" value="4" inputmode="decimal"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67" inputmode="decimal"></label>
+<label>Target hourly rate ($/hr)<input id="targetHourlyRate" type="number" min="0" step="0.5" value="24" inputmode="decimal"></label>
+<label>Number of pets this visit<input id="petCount" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+<label>Extra fee per additional pet<input id="additionalPetFee" type="number" min="0" step="0.5" value="6" inputmode="decimal"></label>
+<label>Special-needs fee (meds, senior, puppy)<input id="specialNeedsFee" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Overnight (leave nights at 0 for a walk or drop-in)</legend><div class="fields">
+<label>Overnight nights<input id="overnightNights" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+<label>Active minutes per night<input id="overnightActiveMinutes" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+<label>On-call hours billed per night<input id="overnightOnCallHours" type="number" min="0" step="0.5" value="2" inputmode="decimal"></label>
+</div></fieldset>
+<fieldset><legend>Fees &amp; overhead</legend><div class="fields">
+<label>Holiday / last-minute surcharge (%)<input id="holidaySurchargePct" type="number" min="0" max="200" step="1" value="0" inputmode="numeric"></label>
+<label>Payment processing fee (%)<input id="paymentProcessingFeePct" type="number" min="0" max="99.9" step="0.1" value="0" inputmode="decimal"></label>
+<label>Monthly overhead (insurance, app, supplies)<input id="monthlyOverhead" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+<label>Expected visits per month<input id="expectedVisitsPerMonth" type="number" min="0" step="1" value="60" inputmode="numeric"></label>
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99.9" step="1" value="15" inputmode="numeric"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">Your visit inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your client list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Price for this visit</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>On-site + drive + on-call time</dt><dd id="hoursOut"></dd>
+<dt>Labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Extra-pet fee</dt><dd id="petOut"></dd>
+<dt>Overhead allocated</dt><dd id="overheadOut"></dd>
+<dt>Margin</dt><dd id="marginOut"></dd>
+<dt>Holiday surcharge</dt><dd id="holidayOut"></dd>
+<dt>Processing fee</dt><dd id="processingOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not a market rate. It does not add taxes, bad debt, or slow seasons unless you fold those into overhead yourself.</p>
+</section>
+<p>Paying a marketplace cut? See the <a href="../pet-sitting-platform-fee-calculator/">Pet Sitting Platform Fee Calculator</a> for Rover, Wag and booking direct.</p>
+</main>
+
+<section><h2>Your route this month</h2><p class="note">Add each recurring client's price per visit and visits per week. Blank or zero-price rows are ignored. These rows are never saved or uploaded — refreshing the page clears them.</p>
+<div style="overflow-x:auto"><div class="pf-table-scroll"><table><thead><tr><th>Client</th><th>Price / visit</th><th>Visits / week</th></tr></thead><tbody id="clientRows">
+<tr><td>1</td><td><input class="clientPrice" data-row="1" aria-label="Client 1 price per visit in dollars" type="number" min="0" step="0.5" value="20" inputmode="decimal"></td><td><input class="clientVisits" data-row="1" aria-label="Client 1 visits per week" type="number" min="0" step="1" value="5" inputmode="numeric"></td></tr>
+<tr><td>2</td><td><input class="clientPrice" data-row="2" aria-label="Client 2 price per visit in dollars" type="number" min="0" step="0.5" value="35" inputmode="decimal"></td><td><input class="clientVisits" data-row="2" aria-label="Client 2 visits per week" type="number" min="0" step="1" value="2" inputmode="numeric"></td></tr>
+<tr><td>3</td><td><input class="clientPrice" data-row="3" aria-label="Client 3 price per visit in dollars" type="number" min="0" step="0.5" value="" inputmode="decimal"></td><td><input class="clientVisits" data-row="3" aria-label="Client 3 visits per week" type="number" min="0" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>4</td><td><input class="clientPrice" data-row="4" aria-label="Client 4 price per visit in dollars" type="number" min="0" step="0.5" value="" inputmode="decimal"></td><td><input class="clientVisits" data-row="4" aria-label="Client 4 visits per week" type="number" min="0" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>5</td><td><input class="clientPrice" data-row="5" aria-label="Client 5 price per visit in dollars" type="number" min="0" step="0.5" value="" inputmode="decimal"></td><td><input class="clientVisits" data-row="5" aria-label="Client 5 visits per week" type="number" min="0" step="1" value="" inputmode="numeric"></td></tr>
+<tr><td>6</td><td><input class="clientPrice" data-row="6" aria-label="Client 6 price per visit in dollars" type="number" min="0" step="0.5" value="" inputmode="decimal"></td><td><input class="clientVisits" data-row="6" aria-label="Client 6 visits per week" type="number" min="0" step="1" value="" inputmode="numeric"></td></tr>
+</tbody></table></div></div>
+<div class="fields" style="margin-top:14px">
+<label>Weeks per month (average)<input id="weeksPerMonth" type="number" min="1" step="0.01" value="4.33" inputmode="decimal"></label>
+<label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="2000" inputmode="numeric"></label>
+</div>
+<p class="note">Weeks per month and target income are saved on this device and carried in your shareable link, the same as the visit inputs above — only the client rows are never saved.</p>
+<p id="routeErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Clients counted</dt><dd id="routeClients"></dd>
+<dt>Visits per month</dt><dd id="routeVisits"></dd>
+<dt>Average price / visit</dt><dd id="routeAverage"></dd>
+<dt>Monthly route revenue</dt><dd id="routeRevenue"></dd>
+<dt>Gap to income goal</dt><dd id="routeGap"></dd>
+<dt>Extra visits/month to close it</dt><dd id="routeExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your visit inputs (on-site time, drive, mileage, pets, overhead) and your two route settings (weeks per month, target income) are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your client rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>estimate</code>, <code>route-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no names, prices, or route content are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does drive time count as billable time if I'm not with a dog yet?</h3><p>Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving &mdash; leave that out of the price and every visit is quietly subsidizing the commute to the next one.</p>
+<h3>Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?</h3><p>An overnight stay commits your whole night to one client even during the hours nothing goes wrong &mdash; you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure.</p>
+<h3>Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?</h3><p>If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep.</p>
+<h3>Does anything about my clients or route get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client price/visit rows you type into the route table are never saved anywhere &mdash; they exist only in the page while it is open. The visit inputs and the two route settings above the table (weeks per month, target income) are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">New to setting rates? Read the guide: <a href="./how-much-to-charge-for-a-dog-walk.html">how much to charge for a dog walk</a>.</p>
+<p class="note"><a href="./vs-rover.html">This calculator vs. Rover — pricing your own route vs. a marketplace listing</a></p>
+<p class="note"><a href="./vs-a-flat-per-walk-rate.html">This calculator vs. a flat per-walk rate — what a flat $20 walk hides once the drive is real</a></p>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not evaluate whether an animal is fit to be walked or boarded, does not screen clients, and does not replace your own judgment, contract, or insurance.</p><p>Pricing an unattended machine route rather than a service visit? The <a href="../atm-route-margin/">ATM route margin calculator</a> finds real monthly profit per placement after the surcharge split, processor fees, and vault cash cost of capital &mdash; nothing uploaded.</p><p>Pricing work by the pound rather than by the visit? The <a href="../wash-and-fold-price-calculator/">wash and fold price per pound calculator</a> costs one laundry order from handling minutes, wash and dry cycles, supplies and the same per-stop pickup and delivery drive time &mdash; and reports the break-even price per pound.</p><p>Running a fixed facility rather than a mobile route? The <a href="../dog-boarding-daycare-pricing/">dog boarding &amp; daycare pricing calculator</a> prices a reservation from staff time, supplies, and overhead, with a long-stay and multi-dog discount, then checks whether your kennel/run occupancy clears a monthly break-even &mdash; nothing uploaded.</p><p>Pricing grooming rather than boarding? The <a href="../dog-grooming-profit-calculator/">dog grooming profit calculator</a> shows profit per hour by service after card fees and overhead, the price that hits your hourly target, and own shop versus booth rent versus commission &mdash; nothing uploaded.</p><p>Running a weekly yard-cleanup route rather than walks? The <a href="../pet-waste-removal-route-calculator/">pet waste removal route calculator</a> counts drive time as work and shows pay per hour, break-even clients and what a tighter route is worth &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you price the next route, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeRouteRevenue, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const VISIT_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'dog-walking-route-pricing-visit-draft';
+let counted = false;
+let routeCounted = false;
+
+function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_VISIT_INPUTS = visitInputs();
+
+function applyVisitInputs(values) {
+  for (const id of VISIT_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistVisit() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(visitInputs())));
+}
+
+function updateVisit(count = false) {
+  try {
+    const r = calculate(visitInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.finalPrice);
+    el('rateLine').textContent = `about ${money(r.effectiveHourlyRate)}/hr across ${r.hoursBilled.toFixed(2)} billed hours`;
+    el('hoursOut').textContent = `${r.hoursBilled.toFixed(2)} hr`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('petOut').textContent = money(r.petSurcharge);
+    el('overheadOut').textContent = money(r.overheadPerVisit);
+    el('marginOut').textContent = money(r.marginAmount);
+    el('holidayOut').textContent = money(r.holidayAmount);
+    el('processingOut').textContent = money(r.processingFeeAmount);
+    if (count && !counted) { recordEvent('estimate'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    for (const id of ['rateLine', 'hoursOut', 'laborOut', 'mileageOut', 'petOut', 'overheadOut', 'marginOut', 'holidayOut', 'processingOut']) el(id).textContent = '';
+  }
+}
+
+function updateRoute(count = false) {
+  try {
+    const clients = [];
+    for (let row = 1; row <= 6; row++) {
+      const priceEl = document.querySelector(`.clientPrice[data-row="${row}"]`);
+      const visitsEl = document.querySelector(`.clientVisits[data-row="${row}"]`);
+      const price = parseFloat(priceEl.value);
+      const visits = parseFloat(visitsEl.value);
+      if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(visits) || visits <= 0) continue;
+      clients.push({ price, visitsPerWeek: visits });
+    }
+    const weeksPerMonth = parseFloat(el('weeksPerMonth').value);
+    const route = computeRouteRevenue(clients, Number.isFinite(weeksPerMonth) && weeksPerMonth > 0 ? weeksPerMonth : undefined);
+    const targetMonthlyIncome = parseFloat(el('targetMonthlyIncome').value) || 0;
+    const gap = incomeGap(targetMonthlyIncome, route.monthlyRevenue, route.averagePrice);
+    el('routeErrors').hidden = true; el('routeErrors').textContent = '';
+    el('routeClients').textContent = String(route.clientCount ? clients.length : 0);
+    el('routeVisits').textContent = route.totalVisitsPerMonth.toFixed(1);
+    el('routeAverage').textContent = money(route.averagePrice);
+    el('routeRevenue').textContent = money(route.monthlyRevenue);
+    el('routeGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('routeExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalVisitsNeeded === null ? 'add a priced client' : String(gap.additionalVisitsNeeded));
+    if (count && !routeCounted) { recordEvent('route-check'); routeCounted = true; }
+  } catch (e) {
+    el('routeErrors').textContent = e.message; el('routeErrors').hidden = false;
+    for (const id of ['routeClients', 'routeVisits', 'routeAverage', 'routeRevenue', 'routeGap', 'routeExtra']) el(id).textContent = '';
+  }
+}
+
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => { updateVisit(true); persistVisit(); }));
+document.querySelectorAll('.clientPrice, .clientVisits').forEach(input => input.addEventListener('input', () => updateRoute(true)));
+el('weeksPerMonth').addEventListener('input', () => updateRoute(true));
+el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(visitInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyVisitInputs(DEFAULT_VISIT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateVisit(false);
+  updateRoute(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every visit field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyVisitInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyVisitInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared visit. Review the numbers before you quote.'
+      : 'Restored your last visit from this browser. Your client list below is never saved.';
+  }
+})();
+
+updateVisit(false);
+updateRoute(false);
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../nanny-tax-calculator/" data-pf-to="nanny-tax-calculator">Nanny tax calculator</a></li>
+      <li><a href="../niit-calculator/" data-pf-to="niit-calculator">NIIT calculator</a></li>
+      <li><a href="../notary-trip-quote/" data-pf-to="notary-trip-quote">Mobile Notary &amp; Loan Signing Fee Calculator</a></li>
+      <li><a href="../nua-employer-stock-calculator/" data-pf-to="nua-employer-stock-calculator">NUA or IRA rollover? Work out the tax on your employer stock — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dog-walking-route-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/?pfEmbed=1&quot; title=&quot;Dog Walking &amp; Pet Sitting Rate Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="dog-walking-route-pricing"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/" data-pf-embed-title="Dog Walking &amp; Pet Sitting Rate Calculator" data-pf-embed-slug="dog-walking-route-pricing"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="dog-walking-route-pricing" data-pf-jobs-amount=""></script>
+</body></html>

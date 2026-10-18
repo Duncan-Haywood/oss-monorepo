@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. the &quot;$10 per 1,000 followers&quot; rule | Brand Deal Rate Calculator</title>
+<meta name="description" content="The flat &quot;$10 per 1,000 followers&quot; rule of thumb prices your whole audience as if every follower saw and reacted to the post.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. the &quot;$10 per 1,000 followers&quot; rule">
+<meta property="og:description" content="A flat per-follower rule prices your whole audience as if all of it engages. This calculator prices only the followers who actually do…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the \"$10 per 1,000 followers\" rule?","acceptedAnswer":{"@type":"Answer","text":"A pricing shortcut floated across influencer-marketing blogs and rate-card templates: multiply your total follower count by roughly $10 per 1,000 to get a sponsored-post price, sometimes with a range like $5-$25 depending on the source. It needs only one number, follower count, and gives the same answer to every account that size regardless of platform, deliverable, or how many of those followers ever open the app."}},{"@type":"Question","name":"Why does a flat per-follower rule overstate the price so often?","acceptedAnswer":{"@type":"Answer","text":"Because it prices your entire follower count as if all of it were engaged, and for almost every real account only a small fraction is. This calculator applies its CPM benchmark ranges to engaged followers — count multiplied by engagement rate — not raw follower count, so the two only agree at an engagement rate high enough that essentially nobody hits it in practice."}},{"@type":"Question","name":"Does a higher engagement rate close the gap?","acceptedAnswer":{"@type":"Answer","text":"It shrinks the gap but in this calculator's benchmark ranges it does not close it. A well above-average, highly engaged small account still prices lower under engaged-follower CPM than under the flat $10-per-1,000 rule — the flat rule overstates less for a highly engaged audience, but it is not built to ever land below what the engagement-adjusted math supports."}},{"@type":"Question","name":"Does the flat rule change by deliverable, the way this calculator does?","acceptedAnswer":{"@type":"Answer","text":"No — a flat per-follower rule gives the same number whether you are pricing a 24-hour Story or a dedicated long-form video, because it has no input for deliverable type at all. This calculator's benchmark ranges price a Story lower than a feed post and a dedicated video higher than either, because a brand is buying a different amount of attention in each case."}}]}</script>
+<style>
+  :root { color-scheme: light; font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8e2a6b; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a2a5d; margin: 0 0 6px; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: .3rem 0; max-width: 26ch; color: #7a2a5d; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4c5a68; }
+  p, li { line-height: 1.6; }
+  section.card { background: #fff; border: 1px solid #e0d6df; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #7a2a5d10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #7a2a5d; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #f2e7ec; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5a68; }
+  .fine, .note { font-size: .88rem; color: #4c5a68; }
+  footer { color: #4c5a68; font-size: .86rem; margin-top: 28px; border-top: 1px solid #e0d6df; padding-top: 16px; }
+  footer p { margin: .6rem 0; }
+  @media (max-width: 820px) { body { padding: 20px 14px 40px; } }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. the &quot;$10 per 1,000 followers&quot; rule — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../brand-deal-rate-calculator/">Brand Deal Rate Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. the &quot;$10 per 1,000 followers&quot; rule</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Brand Deal Rate Calculator</a></p>
+<header>
+<h1>This calculator vs. the &quot;$10 per 1,000 followers&quot; rule</h1>
+<p class="lede">The flat rule multiplies your whole follower count by a constant and calls that the price. This calculator multiplies only the followers who actually engage, using the same kind of creator-economy benchmark ranges &mdash; and for most real accounts, those two numbers are not close.</p>
+</header>
+<section class="card">
+<h2>What each one prices</h2>
+<p>
+  <strong>The &quot;$10 per 1,000 followers&quot; rule</strong> is a mental-math
+  shortcut, not a calculation: take your total follower count, divide by
+  1,000, multiply by roughly $10 (sources vary from $5 to $25), and quote
+  that. It needs one number, gives the same answer for a Story as for a
+  dedicated video, and cannot tell a 100,000-follower account nobody
+  interacts with from a 100,000-follower account whose audience shows up
+  every time &mdash; because it never asks.
+</p>
+<p>
+  <strong>This calculator</strong> multiplies the same kind of CPM benchmark
+  ranges against your <em>engaged</em> followers &mdash; your follower count
+  times your own engagement rate &mdash; and varies the range by deliverable
+  and platform. A brand is paying for people who see and react to the post,
+  not for a number on a profile, so the two only produce the same price when
+  your engagement rate happens to be unrealistically high.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Account</th><th scope="col">Flat &quot;$10 / 1,000&quot; rule</th><th scope="col">This calculator (engaged-follower CPM)</th></tr></thead>
+<tbody>
+<tr><td>50,000 followers, 2% engagement, Instagram feed post</td><td>$500</td><td>$10 &ndash; $20</td></tr>
+<tr><td>8,000 followers, 15% engagement, TikTok Reel</td><td>$80</td><td>$7 &ndash; $18</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  The first row is closer to a typical account: at 2% engagement, only
+  1,000 of those 50,000 followers are counted as reliably seeing and
+  reacting to the post, so the engaged-follower math lands at $10&ndash;$20
+  against the flat rule's $500. The second row is a highly engaged small
+  account &mdash; 15% is well above what most benchmarks call typical &mdash;
+  and the gap narrows a lot, but the flat rule still overstates it. In this
+  calculator's benchmark ranges, closing the gap entirely would take an
+  engagement rate high enough that almost no real account reaches it.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Why does the flat rule usually come out higher?</td><td>It prices your whole follower count as if all of it engages. This calculator's <a href="./#report-card">rate range</a> prices only the share that actually does.</td></tr>
+<tr><td>Does the flat rule adjust for Story vs. feed post vs. dedicated video?</td><td>No &mdash; one number for everything. This calculator's ranges differ by deliverable because a brand buys a different amount of attention in each.</td></tr>
+<tr><td>Is the flat rule ever roughly right?</td><td>Closest for a small, unusually highly engaged account. It has no way to know that from a follower count alone, so it cannot tell that account apart from a low-engagement one the same size.</td></tr>
+<tr><td>How was this calculator's range derived?</td><td>See <a href="./brand-deal-rate-benchmarks.html">where the benchmarks come from</a> &mdash; commonly cited market CPM ranges, applied to your own numbers.</td></tr>
+<tr><td>Is my follower and engagement data uploaded anywhere?</td><td>No. Everything runs in your browser; nothing is sent to any server.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  A flat per-follower number is a fine five-second gut check before you have
+  real numbers in front of you. It is not a substitute for pricing your
+  actual, current engagement rate once you have it &mdash; which is what
+  this calculator does, for free, from two numbers your own platform's
+  native insights already show you.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>What is the "$10 per 1,000 followers" rule?</h3>
+<p>A pricing shortcut floated across influencer-marketing blogs and rate-card templates: multiply your total follower count by roughly $10 per 1,000 to get a sponsored-post price, sometimes with a range like $5-$25 depending on the source. It needs only one number, follower count, and gives the same answer to every account that size regardless of platform, deliverable, or how many of those followers ever open the app.</p>
+<h3>Why does a flat per-follower rule overstate the price so often?</h3>
+<p>Because it prices your entire follower count as if all of it were engaged, and for almost every real account only a small fraction is. This calculator applies its CPM benchmark ranges to engaged followers &mdash; count multiplied by engagement rate &mdash; not raw follower count, so the two only agree at an engagement rate high enough that essentially nobody hits it in practice.</p>
+<h3>Does a higher engagement rate close the gap?</h3>
+<p>It shrinks the gap but in this calculator's benchmark ranges it does not close it. A well above-average, highly engaged small account still prices lower under engaged-follower CPM than under the flat $10-per-1,000 rule &mdash; the flat rule overstates less for a highly engaged audience, but it is not built to ever land below what the engagement-adjusted math supports.</p>
+<h3>Does the flat rule change by deliverable, the way this calculator does?</h3>
+<p>No &mdash; a flat per-follower rule gives the same number whether you are pricing a 24-hour Story or a dedicated long-form video, because it has no input for deliverable type at all. This calculator's benchmark ranges price a Story lower than a feed post and a dedicated video higher than either, because a brand is buying a different amount of attention in each case.</p>
+<p class="note">
+  Open the <a href="./">Brand Deal Rate Calculator</a> to run your own numbers, or read <a href="./brand-deal-rate-benchmarks.html">where the benchmarks come from</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not financial, legal, tax, or business advice, and it does not replace a qualified professional or your own judgment about a specific deal. It cannot promise any brand will pay a given price and does not perform, guarantee, or represent any negotiation on your behalf. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This page describes a generic pricing rule of thumb passed around across the influencer-marketing industry; it names no specific company, product, or publication, and it is not a claim that any one source states the figure exactly this way.</p>
+<p class="support">Free and open source. If it helps you set an ask, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-home-park-valuation-calculator/" data-pf-to="mobile-home-park-valuation-calculator">What is a mobile home park worth, and what is a lot rent increase worth? Free calculator</a></li>
+      <li><a href="../mortgage-extra-payment-vs-invest-calculator/" data-pf-to="mortgage-extra-payment-vs-invest-calculator">Pay extra on your mortgage or invest? Free break-even calculator</a></li>
+      <li><a href="../mortgage-points-break-even-calculator/" data-pf-to="mortgage-points-break-even-calculator">Are mortgage points worth it? Free calculator</a></li>
+      <li><a href="../mushroom-fruiting-room-planner/" data-pf-to="mushroom-fruiting-room-planner">Mushroom farm planner: flushes, room capacity, cash and break-even — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=brand-deal-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="brand-deal-rate-calculator"></script>
+</body></html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing the math yourself — AI Coding Plan Cost Calculator</title>
+<meta name="description" content="Blog posts already work out 'is Claude Max/Cursor/Copilot worth it' by hand, from one account's own token counts.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/vs-doing-the-math-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing the math yourself">
+<meta property="og:description" content="Several blog posts already hand-compute 'is my AI coding plan worth it' from their own account's token counts.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read one of the blog posts that already worked this out?","acceptedAnswer":{"@type":"Answer","text":"Those posts are real and useful as a sanity check — several report figures like ten billion tokens across eight months of Claude Code usage costing $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. But every one of those numbers comes from one specific account's usage. Your seat count, your usage tier, and your cache-read share are almost certainly different, and none of those posts let you substitute your own numbers — they report what happened to someone else."}},{"@type":"Question","name":"Can I just scale a blog post's numbers to my own usage?","acceptedAnswer":{"@type":"Answer","text":"Only roughly, and it is easy to get wrong in a way that favors the wrong answer. The ratio between subscription and API cost is not linear in total tokens — it depends on how your usage splits across fresh input, output, cache write, and cache read, and cache reads are typically billed at a small fraction of the fresh-input rate. Scaling someone else's total by your rough usage multiple ignores that split entirely, which is exactly the shortcut this calculator exists to skip."}},{"@type":"Question","name":"What does doing this by hand actually involve?","acceptedAnswer":{"@type":"Answer","text":"Opening your plan's pricing page for the monthly price, opening the vendor's separate API pricing page for four different per-token rates, estimating your own fresh input, output, cache write, and cache read tokens, and multiplying each rate by its token count before summing and comparing to the subscription price — then redoing all of it if you want to know how much your usage would need to change to flip the answer. It is arithmetic anyone can do; it is also easy to drop a rate, use last month's price, or skip the break-even step because it takes another round of multiplication by hand."}},{"@type":"Question","name":"Is this calculator's answer more trustworthy than my own spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not automatically — it runs the same arithmetic you could run yourself, with the same dated default rates you should still verify against the vendor's current pricing page. What it changes is friction: the four-rate, cache-split arithmetic is filled in for you and the break-even usage level is computed rather than left as a second calculation, so there is one less place to drop a term or forget a step."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/vs-doing-the-math-yourself.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing the math yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ai-coding-plan-cost-calculator/">Is your AI coding plan actually cheaper than the API?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing the math yourself</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing the math yourself</h1>
+<p class="lede">Several blog posts already answer "is my AI coding plan worth it?" by hand, from one account's own token counts — one reports ten billion tokens across eight months of Claude Code usage that would have cost $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. That arithmetic is real and worth reading. It is also not your arithmetic.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A blog post or forum thread working the numbers by hand</strong> reports one account's result: a specific seat count, a specific usage tier, a specific cache-read share, computed once and published. Reading a few of these gives a useful sense of the shape of the answer — subscriptions tend to win big for heavy, cache-heavy usage — but no two accounts split their tokens the same way, and none of these posts let you swap in your own numbers.</p>
+<p><strong>This calculator</strong> runs the identical subscription-vs-API arithmetic — fresh input, output, cache write, and cache read priced separately, because cache reads are typically billed at a fraction of the fresh-input rate and dominate real agentic-coding usage — from the usage and rates you enter, and reports the break-even point where the two would swap places.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does this generally look like for a heavy coding-agent user?</td><td>The published write-ups — a useful sanity check before you dig into your own numbers.</td></tr>
+<tr><td>Is <em>my</em> plan cheaper than the API, given my own usage?</td><td>This calculator — your numbers, not a published account's.</td></tr>
+<tr><td>How much would my usage need to change to flip the answer?</td><td>This calculator's break-even figure, computed rather than a second round of hand arithmetic.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+<p class="note">Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Microsoft, or OpenAI. Each is a trademark of its respective owner, named here only to describe the plans this calculator compares.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why not just read one of the blog posts that already worked this out?</h3>
+<p>Those posts are real and useful as a sanity check — several report figures like ten billion tokens across eight months of Claude Code usage costing $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. But every one of those numbers comes from one specific account's usage. Your seat count, your usage tier, and your cache-read share are almost certainly different, and none of those posts let you substitute your own numbers — they report what happened to someone else.</p>
+<h3>Can I just scale a blog post's numbers to my own usage?</h3>
+<p>Only roughly, and it is easy to get wrong in a way that favors the wrong answer. The ratio between subscription and API cost is not linear in total tokens — it depends on how your usage splits across fresh input, output, cache write, and cache read, and cache reads are typically billed at a small fraction of the fresh-input rate. Scaling someone else's total by your rough usage multiple ignores that split entirely, which is exactly the shortcut this calculator exists to skip.</p>
+<h3>What does doing this by hand actually involve?</h3>
+<p>Opening your plan's pricing page for the monthly price, opening the vendor's separate API pricing page for four different per-token rates, estimating your own fresh input, output, cache write, and cache read tokens, and multiplying each rate by its token count before summing and comparing to the subscription price — then redoing all of it if you want to know how much your usage would need to change to flip the answer. It is arithmetic anyone can do; it is also easy to drop a rate, use last month's price, or skip the break-even step because it takes another round of multiplication by hand.</p>
+<h3>Is this calculator's answer more trustworthy than my own spreadsheet?</h3>
+<p>Not automatically — it runs the same arithmetic you could run yourself, with the same dated default rates you should still verify against the vendor's current pricing page. What it changes is friction: the four-rate, cache-split arithmetic is filled in for you and the break-even usage level is computed rather than left as a second calculation, so there is one less place to drop a term or forget a step.</p>
+<p class="note">Want the reasoning behind the cache-read split first? Read <a href="./how-ai-coding-plan-pricing-works.html">how AI coding plan pricing actually works</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator produce estimates from numbers you supply and from dated default rates — they are not financial advice and not a quote from any vendor. <strong>You are responsible for verifying anything here against the vendor's own current pricing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ai-coding-plan-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ai-coding-plan-cost-calculator"></script>
+</body>
+</html>

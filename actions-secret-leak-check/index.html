@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions Secret Leak Check — Masking Bypass Scanner</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and find the two documented ways a secret slips past GitHub's own log masking…">
+  <meta property="og:title" content="Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?">
+  <meta property="og:description" content="Paste your workflow YAML and get every step that transforms a secret before it can be masked, and every step that exports a secret-derived value to…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"GitHub Actions Secret Leak Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans GitHub Actions workflow YAML for the two documented ways a secret's value reaches a log or a later step unmasked: a step that transforms (base64/hex/substring) a secret-derived value before it can be printed, and a step that writes a secret-derived value to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without registering it with ::add-mask::. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't GitHub Actions already mask secrets in logs?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the exact, unmodified string of a declared secrets.* value (or an env: var sourced from one) — the runner replaces every verbatim occurrence of that string in log output, including inside set -x trace output. This tool does not flag that case. It flags the two documented ways a value still reaches a log unmasked: transforming the secret first, and exporting a secret-derived value without registering it for masking."}},{"@type":"Question","name":"Why does transforming a secret bypass masking?","acceptedAnswer":{"@type":"Answer","text":"GitHub's masking is an exact string match against the known secret value. base64, hex, case-folding, a substring, or any other re-encoding produces a different string than the one the runner is watching for, so the transformed output prints in plain text even though the original secret would have been masked."}},{"@type":"Question","name":"Why is writing a secret to $GITHUB_ENV or $GITHUB_OUTPUT a separate risk?","acceptedAnswer":{"@type":"Answer","text":"Writing a value there exports it to later steps, but does not register it with the runner's masking list on its own. Only the exact string of a value GitHub already knows is a declared secret gets auto-masked. A freshly derived value — an OAuth token minted using a secret, a signed URL, a session cookie — is not on that list at all, so the first later step that echoes it prints it in plain text unless the workflow calls ::add-mask:: on it first."}},{"@type":"Question","name":"Does this tool fetch anything from GitHub for me?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page."}},{"@type":"Question","name":"Does a clean scan mean my secrets are safe?","acceptedAnswer":{"@type":"Answer","text":"No. This checks two specific, well-documented patterns within a single step's YAML text. It is not a security audit and makes no claim about your secrets' overall safety. A transform split across two steps, a custom action that re-exports a secret internally, or a transform utility this tool does not recognise are all outside what a regex/indentation scan can see."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.transformed-secret { background: #fde8e8; color: #9a3412; }
+    .pill.unmasked-env-export { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?","item":"https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?</span></span></nav>
+  <header>
+    <p class="note">ACTIONS SECRET LEAK CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your GitHub Actions workflow leak a secret its own masking can't catch?</h1>
+    <p>GitHub Actions masks the exact, unmodified string of a declared secret everywhere it appears in a log. It does not survive two common things: <strong>transforming</strong> a secret (base64, hex, a substring) before printing produces a different string the masking doesn't recognise, and <strong>exporting</strong> a secret-derived value to <code>$GITHUB_ENV</code> or <code>$GITHUB_OUTPUT</code> doesn't register it for masking at all — a later step that echoes it prints it in plain text. Paste your workflow YAML below and this page finds both, each with the exact fix.</p>
+    <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> you want checked. Add more blocks for more files — nothing here reads your repository, so pasting is how it sees anything.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another workflow file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Detail</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan .github/workflows under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --format sarif   # SARIF 2.1.0, for github/codeql-action/upload-sarif
+python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Doesn't GitHub Actions already mask secrets in logs?</h3>
+    <p>Yes, for the exact, unmodified string of a declared <code>secrets.*</code> value (or an <code>env:</code> var sourced from one) — the runner replaces every verbatim occurrence of that string in log output, including inside <code>set -x</code> trace output. This tool does not flag that case. It flags the two documented ways a value still reaches a log unmasked: transforming the secret first, and exporting a secret-derived value without registering it for masking.</p>
+    <h3>Why does transforming a secret bypass masking?</h3>
+    <p>GitHub's masking is an exact string match against the known secret value. base64, hex, case-folding, a substring, or any other re-encoding produces a different string than the one the runner is watching for, so the transformed output prints in plain text even though the original secret would have been masked.</p>
+    <h3>Why is writing a secret to <code>$GITHUB_ENV</code> or <code>$GITHUB_OUTPUT</code> a separate risk?</h3>
+    <p>Writing a value there exports it to later steps, but does not register it with the runner's masking list on its own. Only the exact string of a value GitHub already knows is a declared secret gets auto-masked. A freshly derived value — an OAuth token minted using a secret, a signed URL, a session cookie — is not on that list at all, so the first later step that echoes it prints it in plain text unless the workflow calls <code>::add-mask::</code> on it first.</p>
+    <h3>Does this tool fetch anything from GitHub for me?</h3>
+    <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page.</p>
+    <h3>Does a clean scan mean my secrets are safe?</h3>
+    <p>No. This checks two specific, well-documented patterns within a single step's YAML text. It is not a security audit and makes no claim about your secrets' overall safety. A transform split across two steps, a custom action that re-exports a secret internally, or a transform utility this tool does not recognise are all outside what a regex/indentation scan can see.</p>
+    <p>More: <a href="why-github-actions-secret-masking-fails.html">why GitHub Actions secret masking fails on a transformed value</a>, and <a href="vs-reading-the-workflow-by-eye.html">this checker vs. reading the workflow by eye</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it is not a guarantee that your secrets are safe: it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your workflows: <a href="../actions-injection-check/">Actions Injection Check</a> flags pwn-request checkouts and script injection, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows with no explicit <code>permissions:</code> grant or with <code>write-all</code>, <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, and <a href="../actions-secrets-inherit-check/">Actions secrets: inherit Check</a> flags <code>secrets: inherit</code> handed to an external reusable workflow or a fork-reachable job — four more slices of a hardened CI setup.</p>
+    <p class="support">Free and open source. If this saved you from shipping a secret leak, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: ".github/workflows/deploy.yml",
+        text: `name: deploy
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          API_TOKEN: \${{ secrets.API_TOKEN }}
+        run: |
+          echo "Deploying with token fingerprint: $(echo -n "$API_TOKEN" | base64)"
+          echo "token=$API_TOKEN" >> "$GITHUB_OUTPUT"
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.type}">${f.type}</span></td>
+          <td><code>${escapeHtml(f.detail ?? "")}</code></td>
+          <td>${escapeHtml(f.remediation ?? "")}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a step that base64-encodes an API token before printing it, then writes the same token to $GITHUB_OUTPUT with no ::add-mask::.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+      <li><a href="../aws-commitment-breakeven-calculator/" data-pf-to="aws-commitment-breakeven-calculator">AWS Commitment Break-Even Calculator — how much to commit, not just whether</a></li>
+      <li><a href="../aws-iam-policy-risk-check/" data-pf-to="aws-iam-policy-risk-check">AWS IAM Policy Risk Check — free, private, paste-the-policy</a></li>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-secret-leak-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/?pfEmbed=1&quot; title=&quot;Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="actions-secret-leak-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/" data-pf-embed-title="Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?" data-pf-embed-slug="actions-secret-leak-check"></script>
+</body>
+</html>

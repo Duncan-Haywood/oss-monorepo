@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cron Heartbeat — Free Cron Job Monitor, Self-Hosted in One File</title>
+  <meta name="description" content="Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can…">
+  <meta property="og:title" content="Cron Heartbeat — dead man's switch for cron jobs, self-hosted">
+  <meta property="og:description" content="Paste your crontab, get monitored lines and a ready config. The monitor is one Node file you run yourself.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cron Heartbeat", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 18+ for the monitor", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Parses a crontab, computes next runs, the longest healthy silence and a suggested grace period, wraps each job so it reports success or failure to a heartbeat URL, and generates the config for a zero-dependency self-hosted monitor that alerts a webhook or ntfy topic when a job goes quiet."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if a cron job stopped running?", "acceptedAnswer": {"@type": "Answer", "text": "Cron only reports errors it can mail, and silently does nothing when the machine is down, the crontab is overwritten or the job hangs. A heartbeat (dead man's switch) inverts this: the job pings a URL when it succeeds, and the monitor alerts when the ping does not arrive within the schedule plus a grace period."}}, {"@type": "Question", "name": "What grace period should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Long enough to cover normal run time and scheduler jitter, short enough that a missed run is noticed while it still matters. This tool suggests about 10% of the typical interval, between 1 minute and 1 hour; raise it for jobs that take a long time to finish."}}, {"@type": "Question", "name": "Does it report failures as well as silence?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The wrapped command pings /ping/name when the job exits 0 and /ping/name/fail when it does not. A /start ping is also supported so a job that starts and never finishes is distinguished from one that never started."}}, {"@type": "Question", "name": "What does the monitor store, and what does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "It is one Node.js file with no dependencies that keeps check names and last-ping times in a JSON file on your own machine. Alerts go only to the webhook or ntfy topic you configure. There is no account and no cost; you pay only for the box it runs on."}}, {"@type": "Question", "name": "Which timezone does it use?", "acceptedAnswer": {"@type": "Answer", "text": "UTC by default. Put a CRON_TZ=Europe/London line above a job in the pasted crontab, or set \"tz\" on a check, and the schedule is read in that zone, daylight saving included: a repeated hour counts once and a skipped hour is skipped that day. The host timezone is never used."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f2; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1d6b4f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14472f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14472f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46564d; }
+    .card { background: #fff; border: 1px solid #d8dfd9; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #a9bfb2; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bfb2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b4f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ece6; color: #14472f; }
+    pre { background: #f0f4f1; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; word-break: break-all; }
+    .job { border-top: 1px solid #e3e9e4; padding: 14px 0; }
+    .job h3 { margin: 0 0 4px; font-size: 1rem; }
+    .err { color: #9a3412; font-weight: 600; }
+    .warn { color: #7c5e10; font-size: .9rem; }
+    .meta { font-size: .88rem; color: #333c36; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cron Heartbeat — dead man's switch for cron jobs, self-hosted","item":"https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cron Heartbeat — dead man's switch for cron jobs, self-hosted — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main>
+  <h1>Know when your cron jobs silently stop</h1>
+  <p>Cron tells you nothing when the server is down, the crontab was overwritten or a job hangs. Paste your crontab: get next runs, the longest healthy silence, a sensible grace period, a <strong>wrapped line that reports success or failure</strong>, and the config for a heartbeat monitor you run yourself &mdash; <a href="server.mjs">one Node file, no dependencies, no account</a>.</p>
+
+  <section class="card" aria-labelledby="in">
+    <h2 id="in">Your crontab</h2>
+    <label for="tab">Paste <code>crontab -l</code> output</label>
+    <textarea id="tab" spellcheck="false">0 3 * * * /usr/local/bin/backup.sh --full >/dev/null 2>&1
+*/15 * * * * cd /srv/app && ./sync-invoices.sh
+0 9 * * mon-fri /opt/send-reports.py</textarea>
+    <label for="base">Where your monitor will run (used in the ping URLs)</label>
+    <input id="base" value="https://monitor.example.com">
+    <button id="go">Analyze</button>
+    <button id="sample" class="secondary">Reset sample</button>
+  </section>
+
+  <section class="card" id="out" aria-live="polite" hidden>
+    <h2>Jobs</h2>
+    <div id="jobs"></div>
+    <h2>checks.json for the monitor</h2>
+    <pre id="cfg"></pre>
+    <button id="copy" class="secondary">Copy checks.json</button>
+  </section>
+
+  <section class="card">
+    <h2>Run the monitor</h2>
+    <pre>curl -O https://raw.githubusercontent.com/Duncan-Haywood/fp-monorepo/main/ventures/cron-heartbeat/{server,monitor,cron}.mjs
+CONFIG=checks.json PING_KEY=choose-a-secret \
+ALERT_WEBHOOK_URL=https://hooks.slack.com/... node server.mjs</pre>
+    <p class="note">Put it behind HTTPS (Caddy or nginx) on a box that is not the one running the jobs. Alerts go only to the webhook or <code>ALERT_NTFY_URL</code> topic you set. State is a JSON file next to it. Pings accept GET or POST at <code>/ping/&lt;name&gt;</code>, <code>/ping/&lt;name&gt;/start</code> and <code>/ping/&lt;name&gt;/fail</code>; <code>/status</code> returns every check as JSON. Add <code>?key=</code> to each URL when <code>PING_KEY</code> is set.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How do I know if a cron job stopped running?</h3>
+    <p>Cron only reports errors it can mail, and silently does nothing when the machine is down, the crontab is overwritten or the job hangs. A heartbeat (dead man's switch) inverts this: the job pings a URL when it succeeds, and the monitor alerts when the ping does not arrive within the schedule plus a grace period.</p>
+    <h3>What grace period should I use?</h3>
+    <p>Long enough to cover normal run time and scheduler jitter, short enough that a missed run is noticed while it still matters. This tool suggests about 10% of the typical interval, between 1 minute and 1 hour; raise it for jobs that take a long time to finish.</p>
+    <h3>Does it report failures as well as silence?</h3>
+    <p>Yes. The wrapped command pings /ping/name when the job exits 0 and /ping/name/fail when it does not. A /start ping is also supported so a job that starts and never finishes is distinguished from one that never started.</p>
+    <h3>What does the monitor store, and what does it cost?</h3>
+    <p>It is one Node.js file with no dependencies that keeps check names and last-ping times in a JSON file on your own machine. Alerts go only to the webhook or ntfy topic you configure. There is no account and no cost; you pay only for the box it runs on.</p>
+    <h3>Which timezone does it use?</h3>
+    <p>UTC by default. Put a <code>CRON_TZ=Europe/London</code> line above a job in the pasted crontab, or set <code>"tz"</code> on a check, and the schedule is read in that zone, daylight saving included: a repeated hour counts once and a skipped hour is skipped that day. The host timezone is never used. See also the <a href="../cron-dst-drift-check/">Cron DST Drift Check</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the monitor are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. A monitor can itself fail or miss an alert; it is not legal, tax, or financial advice and should not be your only safeguard for critical systems. Everything on this page runs in your browser: your crontab is never uploaded and the page makes no network requests. Hosted on a free static site with no SLA. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { analyzeCrontab } from "./crontab.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const SAMPLE = $("tab").value;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    function run() {
+      const r = analyzeCrontab($("tab").value, new Date(), $("base").value || "https://monitor.example.com");
+      $("jobs").innerHTML = r.entries.length ? r.entries.map((e) => e.error
+        ? `<div class="job"><h3><code>${esc(e.schedule)}</code></h3><p class="err">Line ${e.line}: ${esc(e.error)}</p></div>`
+        : `<div class="job"><h3>${esc(e.slug)} <code>${esc(e.schedule)}</code></h3>
+           <p class="meta">Next runs (UTC${e.tz ? `, schedule read in ${esc(e.tz)}` : ""}): ${e.nextRuns.map((d) => d.toISOString().slice(0, 16).replace("T", " ")).join(" &middot; ")}<br>
+           Longest healthy silence: ${e.longestGapText} &middot; suggested grace: ${e.graceText}</p>
+           ${e.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("")}
+           <pre>${esc(e.wrapped)}</pre></div>`).join("") : "<p>No jobs found.</p>";
+      $("cfg").textContent = r.configJson;
+      $("out").hidden = false;
+      record("analyze");
+    }
+    $("go").addEventListener("click", run);
+    $("sample").addEventListener("click", () => { $("tab").value = SAMPLE; });
+    $("copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("cfg").textContent); record("copy_config"); } catch { /* clipboard is optional */ } });
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.resend.com and api.telegram.org, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../cancel-flow/" data-pf-to="cancel-flow">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a></li>
+      <li><a href="../changelog-keeper/" data-pf-to="changelog-keeper">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a></li>
+      <li><a href="../churn-radar/" data-pf-to="churn-radar">Churn Radar — see who is about to cancel before they do</a></li>
+      <li><a href="../deal-keeper/" data-pf-to="deal-keeper">Deal Keeper — which deals are really at risk, and what will actually close</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cron-heartbeat">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/?pfEmbed=1&quot; title=&quot;Cron Heartbeat — dead man's switch for cron jobs, self-hosted — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cron-heartbeat"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/" data-pf-embed-title="Cron Heartbeat — dead man's switch for cron jobs, self-hosted" data-pf-embed-slug="cron-heartbeat"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cron-heartbeat" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="cron-heartbeat" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commercial Photography Licensing Quote Calculator</title>
+  <meta name="description" content="Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.">
+  <meta property="og:title" content="Commercial Photography Licensing Quote Calculator">
+  <meta property="og:description" content="Stop guessing what commercial image usage should cost. Build a transparent, reviewable license quote in your browser.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Commercial Photography Licensing Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free browser-local worksheet for photographers pricing commercial image usage rights."}
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is the usage-rights fee calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Usage rights are 35% of the creative fee, scaled by four multipliers: the average factor of the channels you selected, the square root of the license term in months divided by six, the territory multiplier, and the exclusivity multiplier, then increased by the rush percentage. The creative/production fee itself is not scaled — only the usage-rights portion moves with scope. On a $1,200 creative fee with a 6-month national web license and non-exclusive rights, that is $525 in rights and a $1,725 total."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does checking more channels not just add their prices together?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The channel factor blends the highest-priced selected channel with a smaller share of the rest — 0.85× the highest factor plus 0.15× the sum of every selected channel's factor — rather than a plain average or a sum. That keeps a single channel priced exactly as it always was: checking web only (factor 1) still prices at factor 1. It also guarantees adding any channel can only raise the price, never lower it, whichever channel you already had selected — a plain average failed this, because an outdoor-only licence (factor 1.6) got cheaper once web was added, since 1.6 and 1 average to 1.3. On the $1,200/6-month/national/non-exclusive example, adding paid, print, and outdoor to web moves the factor from 1 to 2.1475, for $1,127.44 in rights and a $2,327.44 total — well short of four separate licenses, but never less than pricing the priciest channel on its own."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why doesn't doubling the license term double the price?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Term uses a square-root scale — the multiplier is the square root of (months ÷ 6) — so it grows slower than the term itself. A 1-month license prices at about 0.41× the 6-month baseline, not 1/6th, and a 24-month license prices at 2× the baseline, not 4×. On the default $1,200/national/web/non-exclusive example, with only the term changed, rights are $214.33 at 1 month, $525 at 6 months, $742.46 at 12 months, and $1,050 at 24 months."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between category-exclusive and fully exclusive?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Category-exclusive (1.35×) means no other business in the client's specific category can license these images for the selected channels and term — a competing brand in the same category is locked out, but an unrelated business is not. Fully exclusive (1.75×) locks out everyone, including the photographer's own future resale or stock licensing of the same images for that scope. Non-exclusive (1×) means you can license the same images to other clients. This tool applies the multiplier; the actual exclusivity terms belong in the signed contract."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the rush premium apply to the whole quote or just the usage-rights portion?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only the usage-rights portion. The creative/production fee is unaffected by the rush percentage; it is the licensing calculation — channel, term, territory, and exclusivity — that gets multiplied by (1 + rush% ÷ 100). A 50% rush premium on the $1,200/national/web/6-month/non-exclusive baseline raises rights from $525 to $787.50, and the total from $1,725 to $1,987.50."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this replace a licensing contract?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. It produces a quote draft and records your assumptions so you and the client start the conversation from the same numbers. You remain responsible for the signed agreement — defining the specific images, permitted uses, credit, renewal, payment terms, model releases, and termination. Ask a qualified lawyer about contract and copyright questions specific to your situation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is my quote and draft stored?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it. “Copy share link” is a separate option for handing the scope to someone else: it encodes the same fields into this page's own URL, so opening the link reopens the form with those fields filled in — still nothing sent to any server."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this for stock or per-image licensing instead of a project quote?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is built for a commissioned project: one creative fee plus a usage-rights calculation, with a per-image figure shown only as an allocation of that total. Stock and microstock licensing is usually priced per download against a published rate card rather than derived from a shoot's creative fee, so this worksheet is a starting point to adapt, not a stock pricing tool."
+        }
+      }
+    ]
+  }
+  </script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Commercial Photography Licensing Quote Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Commercial Photography Licensing Quote Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Commercial Photography Licensing Quote Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header class="hero">
+    <p class="eyebrow">For independent photographers</p>
+    <h1>Price the rights, not just the shoot.</h1>
+    <p class="lede">When a client asks where, how long, and how widely they can use your images, turn that scope into a transparent starting quote instead of guessing.</p>
+    <p class="value"><strong>After using this, you can now</strong> explain a commercial image license line by line, <strong>which used to take</strong> rebuilding a spreadsheet for every client request.</p>
+  </header>
+
+  <main>
+    <form id="quote-form" novalidate>
+      <section class="panel" aria-labelledby="inputs-title">
+        <div class="section-heading"><span>01</span><h2 id="inputs-title">Scope the job</h2></div>
+        <div class="grid">
+          <label>Currency<select id="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option></select></label>
+          <label>Creative / production fee<input id="creativeFee" type="number" min="0" step="0.01" value="1200" required inputmode="decimal"><small>Keep the shoot fee separate from usage rights.</small></label>
+          <label>Number of final images<input id="images" type="number" min="1" step="1" value="5" required inputmode="numeric"></label>
+          <label>License term<select id="term"><option value="1">1 month</option><option value="3">3 months</option><option value="6" selected>6 months</option><option value="12">12 months</option><option value="24">24 months</option></select></label>
+          <label>Territory<select id="territory"><option value="1">Local / one city</option><option value="1.25" selected>Country / national</option><option value="1.6">Worldwide</option></select></label>
+          <label>Exclusivity<select id="exclusivity"><option value="1">Non-exclusive</option><option value="1.35">Category-exclusive</option><option value="1.75">Fully exclusive</option></select></label>
+        </div>
+        <fieldset><legend>Where will the images appear?</legend>
+          <label class="check"><input type="checkbox" name="channel" value="web" data-factor="1" checked> Website, email, and organic social</label>
+          <label class="check"><input type="checkbox" name="channel" value="paid" data-factor="1.4"> Paid social or display advertising</label>
+          <label class="check"><input type="checkbox" name="channel" value="print" data-factor="1.25"> Print, packaging, or point-of-sale</label>
+          <label class="check"><input type="checkbox" name="channel" value="outdoor" data-factor="1.6"> Outdoor, signage, or broadcast</label>
+        </fieldset>
+        <div class="grid compact">
+          <label>Rush premium (%)<input id="rush" type="number" min="0" max="100" step="1" value="0" inputmode="numeric"></label>
+          <label>Business / client name<input id="client" type="text" maxlength="80" placeholder="e.g. Northstar Coffee"></label>
+          <label>Photographer name<input id="photographer" type="text" maxlength="80" placeholder="Your name or studio"></label>
+        </div>
+        <button type="submit">Build license quote</button>
+        <button type="button" class="secondary" id="save-draft">Save draft locally</button>
+        <button type="button" class="secondary" id="copy-share">Copy share link</button>
+        <span id="share-status" class="small" role="status" aria-live="polite"></span>
+      </section>
+    </form>
+
+    <div id="errors" class="error" role="alert" hidden></div>
+    <section id="results" class="panel result" aria-labelledby="results-title" aria-live="polite" hidden>
+      <div class="section-heading"><span>02</span><h2 id="results-title">Review the starting point</h2></div>
+      <div class="total"><span>Suggested total quote</span><strong id="total"></strong></div>
+      <dl class="breakdown"><div><dt>Creative / production</dt><dd id="out-creative"></dd></div><div><dt>Usage rights</dt><dd id="out-license"></dd></div><div><dt>Per-image rights allocation</dt><dd id="out-per-image"></dd></div></dl>
+      <p id="assumptions" class="callout"></p>
+      <h3>Client-ready draft</h3>
+      <textarea id="draft" rows="12" aria-label="Licence quote draft" readonly></textarea>
+      <button type="button" id="copy-draft">Copy draft</button> <span id="copy-status" role="status"></span>
+      <p class="small">This is a negotiation starting point, not a contract. Define deliverables, permitted uses, credit, renewal, payment, and termination in your signed agreement.</p>
+    </section>
+
+    <section class="plain" aria-labelledby="faq-title">
+      <h2 id="faq-title">Common questions</h2>
+      <p>Start with the business value and scope of the license, not only the hours spent shooting. A paid advertising campaign, national territory, long term, or exclusivity gives the client more commercial reach and restricts how you can reuse the work. This worksheet makes those assumptions visible so you can adjust them to your market and relationship.</p>
+      <h3>How is the usage-rights fee calculated?</h3>
+      <p>Usage rights are 35% of the creative fee, scaled by four multipliers: the average factor of the channels you selected, the square root of the license term in months divided by six, the territory multiplier, and the exclusivity multiplier, then increased by the rush percentage. The creative/production fee itself is not scaled — only the usage-rights portion moves with scope. On a $1,200 creative fee with a 6-month national web license and non-exclusive rights, that is $525 in rights and a $1,725 total.</p>
+      <h3>Why does checking more channels not just add their prices together?</h3>
+      <p>The channel factor blends the highest-priced selected channel with a smaller share of the rest — 0.85× the highest factor plus 0.15× the sum of every selected channel's factor — rather than a plain average or a sum. That keeps a single channel priced exactly as it always was: checking web only (factor 1) still prices at factor 1. It also guarantees adding any channel can only raise the price, never lower it, whichever channel you already had selected — a plain average failed this, because an outdoor-only licence (factor 1.6) got cheaper once web was added, since 1.6 and 1 average to 1.3. On the $1,200/6-month/national/non-exclusive example, adding paid, print, and outdoor to web moves the factor from 1 to 2.1475, for $1,127.44 in rights and a $2,327.44 total — well short of four separate licenses, but never less than pricing the priciest channel on its own.</p>
+      <h3>Why doesn't doubling the license term double the price?</h3>
+      <p>Term uses a square-root scale — the multiplier is the square root of (months ÷ 6) — so it grows slower than the term itself. A 1-month license prices at about 0.41× the 6-month baseline, not 1/6th, and a 24-month license prices at 2× the baseline, not 4×. On the default $1,200/national/web/non-exclusive example, with only the term changed, rights are $214.33 at 1 month, $525 at 6 months, $742.46 at 12 months, and $1,050 at 24 months.</p>
+      <h3>What is the difference between category-exclusive and fully exclusive?</h3>
+      <p>Category-exclusive (1.35×) means no other business in the client's specific category can license these images for the selected channels and term — a competing brand in the same category is locked out, but an unrelated business is not. Fully exclusive (1.75×) locks out everyone, including the photographer's own future resale or stock licensing of the same images for that scope. Non-exclusive (1×) means you can license the same images to other clients. This tool applies the multiplier; the actual exclusivity terms belong in the signed contract.</p>
+      <h3>Does the rush premium apply to the whole quote or just the usage-rights portion?</h3>
+      <p>Only the usage-rights portion. The creative/production fee is unaffected by the rush percentage; it is the licensing calculation — channel, term, territory, and exclusivity — that gets multiplied by (1 + rush% ÷ 100). A 50% rush premium on the $1,200/national/web/6-month/non-exclusive baseline raises rights from $525 to $787.50, and the total from $1,725 to $1,987.50.</p>
+      <h3>Does this replace a licensing contract?</h3>
+      <p>No. It produces a quote draft and records your assumptions so you and the client start the conversation from the same numbers. You remain responsible for the signed agreement — defining the specific images, permitted uses, credit, renewal, payment terms, model releases, and termination. Ask a qualified lawyer about contract and copyright questions specific to your situation.</p>
+      <h3>Where is my quote and draft stored?</h3>
+      <p>In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it. &ldquo;Copy share link&rdquo; is a separate option for handing the scope to someone else: it encodes the same fields into this page's own URL, so opening the link reopens the form with those fields filled in &mdash; still nothing sent to any server.</p>
+      <h3>Can I use this for stock or per-image licensing instead of a project quote?</h3>
+      <p>It is built for a commissioned project: one creative fee plus a usage-rights calculation, with a per-image figure shown only as an allocation of that total. Stock and microstock licensing is usually priced per download against a published rate card rather than derived from a shoot's creative fee, so this worksheet is a starting point to adapt, not a stock pricing tool.</p>
+      <p>See the territory multiplier worked into a full table: <a href="how-much-more-does-a-national-or-worldwide-license-cost.html">how much more does a national or worldwide license cost than local?</a></p>
+      <p>Already have fotoQuote Pro, or wondering whether to buy it? See <a href="vs-fotoquote.html">this calculator vs. fotoQuote Pro</a>.</p>
+      <p>Just tack on a flat percentage for usage? See <a href="vs-a-flat-usage-fee.html">this calculator vs. a flat usage fee</a>.</p>
+    </section>
+    <section class="plain" aria-labelledby="privacy-title"><h2 id="privacy-title">Privacy and usage</h2><p>Everything runs in your browser. Your numbers and draft are never uploaded; there are no accounts, cookies, or analytics vendors. &ldquo;Copy share link&rdquo; encodes your inputs into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it. We count only anonymous feature events in local storage, never people or quote content. The counter is off-switchable:</p><label class="check"><input type="checkbox" id="usage-opt-out"> Don't count feature usage in this browser</label> <button type="button" class="link-button" id="clear-usage">Clear local usage</button><p id="usage-summary" class="small"></p></section>
+    <section class="disclaimer"><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or copyright advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p></section>
+  </main>
+  <footer>Pricing a one-off event booking instead of a licensing scope? The <a href="../photo-booth-event-quote/">photo booth event quote calculator</a> prices setup and teardown time, travel, attendant labor, and the print cost an unlimited-print package depends on &mdash; nothing uploaded. Shooting the imagery from the air? The <a href="../drone-mapping-job-calculator/">drone mapping job calculator</a> prices the flight itself &mdash; ground sample distance, image count, airtime and processing hours &mdash; which is the cost side of the job this page licenses the output of. Free and open source under MIT. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. <a href="LICENSE">Licence</a></footer>
+  <script type="module" src="app.mjs"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../client-rebooking-predictor/" data-pf-to="client-rebooking-predictor">Client Rebooking Predictor — free, private, in your browser</a></li>
+      <li><a href="../climbing-gym-profit-calculator/" data-pf-to="climbing-gym-profit-calculator">Climbing Gym Profit Calculator — monthly profit, payback and break-even members</a></li>
+      <li><a href="../cnc-machining-quote-calculator/" data-pf-to="cnc-machining-quote-calculator">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</a></li>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=commercial-photo-license-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/?pfEmbed=1&quot; title=&quot;Commercial Photography Licensing Quote Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="commercial-photo-license-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/" data-pf-embed-title="Commercial Photography Licensing Quote Calculator" data-pf-embed-slug="commercial-photo-license-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="commercial-photo-license-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,1708 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves…">
+  <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, invested-cash recovery checkpoint, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, combined shipping vs separate labels after returns, seller-initiated offer vs waiting after sell-through, Promoted Offsite vs skip after a bill charged either way, Promoted Listings Standard vs skip after extra sales, Promoted Listings Advanced vs skip after a click bill charged either way, quantity discount vs selling separately after sell-through, seller coupon vs stay listed vs drop the list after sell-through, immediate payment vs unpaid checkouts after sell-through, Top Rated Plus vs stay standard after free returns, Managed Returns vs your own label after extra returns, domestic vs worldwide at this list, Global Shipping Program vs you-ship after claims, store subscription vs no-store rate after monthly volume, incoming Best Offer vs waiting for list, free shipping vs buyer-pays after sell-through, skip vs insurance vs signature after item-not-received claims, eBay label vs Pirate Ship after claims and upload time, auction vs Buy It Now after sell-through, repricing sensitivity table, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out what an eBay sale actually leaves?","acceptedAnswer":{"@type":"Answer","text":"Enter the sale price, the fee rates your own account is charged, what you paid for the item, and what shipping costs you. The order result gives net profit, margin, return on the cash you had tied up in the item, and the lowest resale price that still breaks even. The rates come from the boxes you fill in rather than a stored fee table, so the arithmetic stays right when eBay changes a category rate, or when your store tier changes what you pay."}},{"@type":"Question","name":"Why does a sale that looked profitable still leave me short?","acceptedAnswer":{"@type":"Answer","text":"Because most of what erodes an eBay sale lands after checkout, not in the list price: the outbound label, return postage on the ones that come back, promoted-listing bills that are charged whether or not the click was the reason it sold, and the time spent packing. The “If some come back” section applies a return rate you type — the outbound label and the return postage usually stay with you even when the item resells, which is why a few returns move net profit more than sellers expect."}},{"@type":"Question","name":"Should I offer a partial refund or take the return?","acceptedAnswer":{"@type":"Answer","text":"It depends on what the item is worth back in your stock against what it costs to get it there. “Partial refund vs taking the return” puts both against each other on the order you already entered, so the comparison uses your real postage and cost of goods instead of a rule of thumb."}},{"@type":"Question","name":"Does offering free shipping cost me money?","acceptedAnswer":{"@type":"Answer","text":"Only if it does not sell more. Free shipping is postage you absorb into the item price, and it pays when the extra sell-through covers that. “Free shipping vs charging the buyer” asks you for the sell-through lift you actually see rather than assuming one, and shows whether it covers the postage at this list price."}},{"@type":"Question","name":"Do I need an account, and does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No account, and nothing is uploaded. The whole calculator runs in your browser: it makes no network requests at all, your inputs are kept only in your own browser’s local storage so the page remembers them next time, and “Reset saved inputs” clears them. A shareable link carries the numbers in the URL itself, so a scenario is only shared with whoever you send that link to."}},{"@type":"Question","name":"Is this eBay’s official fee schedule?","acceptedAnswer":{"@type":"Answer","text":"No. It is an estimate built from the numbers you supply, not a published rate card, and it is not tax, financial, or business advice. Check the fee rates against your own eBay account before you rely on a result — category rates, store tiers, and promotions all change what a given sale is charged."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 700px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.7rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; } p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    section { background: #ffffff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb0a2; } .positive { color: #a9e6b0; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff2b; } .note { font-size: .82rem; opacity: .82; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* The repricing table sits outside .layout on purpose: as a grid item it
+       would be painted under the sticky result panel, which hid its right-hand
+       columns on desktop. min-width:0 keeps the table's own min-width from
+       widening the page, so only the table scrolls sideways on a phone. */
+    .sensitivity { margin-top: 18px; min-width: 0; } .table-scroll { overflow-x: auto; min-width: 0; }
+    .sensitivity table { width: 100%; min-width: 290px; border-collapse: collapse; font-size: .92rem; } .sensitivity p.note { color: #4a5666; opacity: 1; margin-top: 0; }
+    /* A single-unit order's per-unit profit is the same number as its net
+       profit, so the column is dropped rather than shown twice — that keeps the
+       "vs your price" column on screen on a phone. */
+    .sensitivity table.single-unit .unit { display: none; }
+    .sensitivity table.no-returns .after-returns { display: none; }
+    .sensitivity tr.winner { background: #e7f6ea; }
+    .sensitivity th, .sensitivity td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
+    .sensitivity thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; } .sensitivity tr.current { background: #eaf1fc; font-weight: 700; } .sensitivity .down { color: #a3391f; } .sensitivity .up { color: #1c6b34; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #3569cb; }
+    .support { margin-top: 14px; }
+    @media (max-width: 700px) { .layout { grid-template-columns: minmax(0, 1fr); } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"eBay Fee \u0026 Profit Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="eBay Fee &amp; Profit Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">eBay Fee &amp; Profit Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <h1>Know what each sale really leaves.</h1>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows and meetup time, whether keeping a lot still beats splitting it into singles after five labels and listing time, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels after the shipping discount, whether sending a seller-initiated offer still beats waiting for Buy It Now after a typed accept rate, whether a Promoted Offsite campaign still pays after a bill that is charged even if they bounce, whether Promoted Listings Standard still pays after the cut on a sale you already had, whether Promoted Listings Advanced still pays after a click bill that is charged even if they bounce, whether a quantity discount still beats selling those units separately after a typed take rate, whether a seller coupon still beats staying listed or dropping the Buy It Now after a typed redeem rate, whether requiring immediate payment still beats unpaid checkouts after a typed sell-through hit, whether Top Rated Plus still covers free returns after the fee discount and 1-day handling, whether Managed Returns still beats buying the return label yourself after extra returns, whether offering international still leaves a profit at this list after the extra fee and postage, whether Global Shipping Program still beats buying the international label after item-not-received claims, whether a store subscription still beats the no-store rate after your monthly volume, whether an incoming Best Offer still beats waiting for list after your guessed chance it still sells, whether free shipping still beats charging the buyer after a typed sell-through lift, whether skip still beats shipping insurance or signature confirmation after item-not-received claims, whether an eBay shipping label still beats Pirate Ship after item-not-received claims and upload time, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice. This is not the same job as eBay's own official fee lookup — <a href="vs-ebay-fee-calculator.html">this calculator vs. eBay's own Fee Calculator</a> says which one to open for which question, and <a href="vs-a-spreadsheet.html">this calculator vs. a spreadsheet</a> says what a flat fee-rate cell misses.</p>
+  </header>
+  <main>
+    <div class="layout">
+      <section>
+        <h2>Order, fees and costs</h2>
+        <div class="fields">
+          <label>Item price <input id="price" type="number" min="0" step="0.01" value="40" inputmode="decimal"></label>
+          <label>Units in this batch <input id="quantity" type="number" min="1" max="1000" step="1" value="1" inputmode="numeric"></label>
+          <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+          <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6" inputmode="decimal"></label>
+          <label>Per-order fixed fee (charged once) <input id="fixedFee" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+          <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+          <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12" inputmode="decimal"></label>
+          <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+          <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+          <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20" inputmode="decimal"></label>
+          <label>Target leftover ($) <input id="targetProfit" type="number" step="0.01" value="20" inputmode="decimal"></label>
+          <label>Target ROI for sourcing (%) <input id="targetRoi" type="number" min="0" step="1" value="50" inputmode="numeric"></label>
+          <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+          <label>Fees refunded on return (%) <input id="feeRefundOnReturnPercent" type="number" min="0" max="100" step="1" value="100" inputmode="numeric"></label>
+          <label>Auction expected close <input id="auctionExpectedClose" type="number" min="0" step="0.01" placeholder="90% of BIN" inputmode="decimal"></label>
+          <label>Buy It Now sell-through (%) <input id="binSellThroughPct" type="number" min="0" max="100" step="1" value="50" inputmode="numeric"></label>
+          <label>Auction sell-through (%) <input id="auctionSellThroughPct" type="number" min="0" max="100" step="1" value="90" inputmode="numeric"></label>
+          <label>Buy It Now days to sell <input id="binDaysToSell" type="number" min="0.1" step="0.1" value="21" inputmode="decimal"></label>
+          <label>Auction duration (days) <input id="auctionDays" type="number" min="0.1" step="0.1" value="7" inputmode="decimal"></label>
+          <label>Buy It Now insertion fee <input id="binInsertionFee" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Auction insertion fee <input id="auctionInsertionFee" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Auction promoted listings (%) <input id="auctionPromotedRate" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Partial refund you would offer <input id="partialRefundAmount" type="number" min="0" step="0.01" value="15" inputmode="decimal"></label>
+          <label>Buyer cases per month <input id="monthlyCases" type="number" min="0" step="1" value="4" inputmode="numeric"></label>
+          <label>Authenticity fee (%) <input id="authenticityFeeRate" type="number" min="0" step="0.01" value="3" inputmode="decimal"></label>
+          <label>Extra hub shipping <input id="authenticityExtraShip" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+          <label>Sell-through without AG (%) <input id="withoutAgSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Authenticity sell-through (%) <input id="authenticitySellThroughPct" type="number" min="0" max="100" step="1" value="80" inputmode="numeric"></label>
+          <label>Authenticity return rate (%) <input id="authenticityReturnRatePercent" type="number" min="0" max="100" step="0.1" value="4" inputmode="decimal"></label>
+          <label>AG listings per month <input id="monthlyAgListings" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+          <label>Ship sell-through (%) <input id="shipSellThroughPct" type="number" min="0" max="100" step="1" value="70" inputmode="numeric"></label>
+          <label>Pickup sell-through (%) <input id="pickupSellThroughPct" type="number" min="0" max="100" step="1" value="35" inputmode="numeric"></label>
+          <label>Pickup no-show (%) <input id="pickupNoShowPct" type="number" min="0" max="100" step="1" value="20" inputmode="numeric"></label>
+          <label>Pickup minutes <input id="pickupMinutes" type="number" min="0" step="1" value="25" inputmode="numeric"></label>
+          <label>Pickup hourly wage <input id="pickupHourlyWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Pickup fee charged <input id="pickupFeeCharged" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Pickup packaging <input id="pickupPackagingCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Pickup return rate (%) <input id="pickupReturnRatePercent" type="number" min="0" max="100" step="0.1" value="2" inputmode="decimal"></label>
+          <label>Pickup listings per month <input id="monthlyPickupListings" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+          <label>Pieces in the lot <input id="lotPieceCount" type="number" min="2" max="100" step="1" value="5" inputmode="numeric"></label>
+          <label>Single expected price <input id="singleExpectedPrice" type="number" min="0" step="0.01" value="14" inputmode="decimal"></label>
+          <label>Lot sell-through (%) <input id="lotSellThroughPct" type="number" min="0" max="100" step="1" value="80" inputmode="numeric"></label>
+          <label>Single sell-through (%) <input id="singleSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Lot insertion fee <input id="lotInsertionFee" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Single insertion fee <input id="singleInsertionFee" type="number" min="0" step="0.01" value="0.35" inputmode="decimal"></label>
+          <label>Single shipping charged <input id="singleShippingCharged" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+          <label>Single shipping cost <input id="singleShippingCost" type="number" min="0" step="0.01" value="4" inputmode="decimal"></label>
+          <label>Single packaging <input id="singlePackagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+          <label>Lot listing minutes <input id="lotListingMinutes" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+          <label>Single listing minutes <input id="singleListingMinutes" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+          <label>Listing hourly wage <input id="lotListingWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Lot decisions per month <input id="monthlyLotDecisions" type="number" min="0" step="1" value="6" inputmode="numeric"></label>
+          <label>Envelope postage <input id="envelopeShippingCost" type="number" min="0" step="0.01" value="0.66" inputmode="decimal"></label>
+          <label>Envelope packaging <input id="envelopePackagingCost" type="number" min="0" step="0.01" value="0.35" inputmode="decimal"></label>
+          <label>Envelope claim rate (%) <input id="envelopeClaimRatePercent" type="number" min="0" max="100" step="0.1" value="8" inputmode="decimal"></label>
+          <label>Fees refunded on envelope claim (%) <input id="envelopeFeeRefundOnClaimPercent" type="number" min="0" max="100" step="1" value="100" inputmode="numeric"></label>
+          <label>Tracked sell-through (%) <input id="trackedSellThroughPct" type="number" min="0" max="100" step="1" value="90" inputmode="numeric"></label>
+          <label>Envelope sell-through (%) <input id="envelopeSellThroughPct" type="number" min="0" max="100" step="1" value="85" inputmode="numeric"></label>
+          <label>Envelope listings per month <input id="monthlyEnvelopeListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Items already sold <input id="combinedItemCount" type="number" min="2" max="20" step="1" value="2" inputmode="numeric"></label>
+          <label>Combined shipping charged <input id="combinedShippingCharged" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+          <label>Combined postage <input id="combinedShippingCost" type="number" min="0" step="0.01" value="6.50" inputmode="decimal"></label>
+          <label>Combined packaging <input id="combinedPackagingCost" type="number" min="0" step="0.01" value="1.25" inputmode="decimal"></label>
+          <label>Combined return postage <input id="combinedReturnShippingCost" type="number" min="0" step="0.01" value="6.50" inputmode="decimal"></label>
+          <label>Combined per-order fixed fee <input id="combinedFixedFee" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+          <label>Combined return rate (%) <input id="combinedReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Combined invoices per month <input id="monthlyCombinedOrders" type="number" min="0" step="1" value="12" inputmode="numeric"></label>
+          <label>Offer percent off <input id="offerPercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Wait sell-through (%) <input id="waitSellThroughPct" type="number" min="0" max="100" step="1" value="40" inputmode="numeric"></label>
+          <label>Offer accept rate (%) <input id="offerAcceptPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Offers sent per month <input id="monthlyOffers" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Promoted Offsite spend <input id="offsiteSpend" type="number" min="0" step="0.01" value="20" inputmode="decimal"></label>
+          <label>Extra Offsite sales <input id="offsiteExtraOrders" type="number" min="0" step="0.1" value="2" inputmode="decimal"></label>
+          <label>Offsite sale promoted listings (%) <input id="offsitePromotedRate" type="number" min="0" max="100" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Offsite campaigns per month <input id="monthlyOffsiteCampaigns" type="number" min="0" step="1" value="4" inputmode="numeric"></label>
+          <label>Promoted Listings Standard (%) <input id="promotedStandardRate" type="number" min="0" max="100" step="0.1" value="5" inputmode="decimal"></label>
+          <label>Extra Standard sales <input id="promotedStandardExtraOrders" type="number" min="0" step="0.1" value="1" inputmode="decimal"></label>
+          <label>Standard listings per month <input id="monthlyPromotedListings" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+          <label>Promoted Listings Advanced CPC <input id="advancedCpc" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+          <label>Advanced clicks <input id="advancedClicks" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Extra Advanced sales <input id="advancedExtraOrders" type="number" min="0" step="0.1" value="1" inputmode="decimal"></label>
+          <label>Advanced sale promoted listings (%) <input id="advancedPromotedRate" type="number" min="0" max="100" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Advanced campaigns per month <input id="monthlyAdvancedCampaigns" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+          <label>Quantity-discount units <input id="qtyDiscountUnits" type="number" min="2" max="20" step="1" value="2" inputmode="numeric"></label>
+          <label>Quantity-discount percent off <input id="qtyDiscountPercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Quantity-discount shipping charged <input id="qtyShippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+          <label>Quantity-discount postage <input id="qtyShippingCost" type="number" min="0" step="0.01" value="5.50" inputmode="decimal"></label>
+          <label>Quantity-discount packaging <input id="qtyPackagingCost" type="number" min="0" step="0.01" value="1.25" inputmode="decimal"></label>
+          <label>Quantity-discount return postage <input id="qtyReturnShippingCost" type="number" min="0" step="0.01" value="5.50" inputmode="decimal"></label>
+          <label>Quantity-discount per-order fixed fee <input id="qtyFixedFee" type="number" min="0" step="0.01" value="0.40" inputmode="decimal"></label>
+          <label>Quantity-discount return rate (%) <input id="qtyReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Singles sell-through (%) <input id="singlesSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Quantity-discount take rate (%) <input id="qtyTakePct" type="number" min="0" max="100" step="1" value="70" inputmode="numeric"></label>
+          <label>Quantity-discount orders per month <input id="monthlyQtyOrders" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+          <label>Coupon percent off <input id="couponPercent" type="number" min="0" max="100" step="0.1" value="15" inputmode="decimal"></label>
+          <label>Coupon redeem rate (%) <input id="couponRedeemPct" type="number" min="0" max="100" step="1" value="40" inputmode="numeric"></label>
+          <label>Listed sell-through (%) <input id="listedSellThroughPct" type="number" min="0" max="100" step="1" value="40" inputmode="numeric"></label>
+          <label>Coupon sell-through (%) <input id="couponSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Dropped-list sell-through (%) <input id="dropSellThroughPct" type="number" min="0" max="100" step="1" value="50" inputmode="numeric"></label>
+          <label>Coupon listings per month <input id="monthlyCouponListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Unpaid checkout rate (%) <input id="unpaidRatePercent" type="number" min="0" max="100" step="0.1" value="8" inputmode="decimal"></label>
+          <label>Later-pay sell-through (%) <input id="laterSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Immediate-pay sell-through (%) <input id="immediateSellThroughPct" type="number" min="0" max="100" step="1" value="45" inputmode="numeric"></label>
+          <label>Unpaid relist fee <input id="unpaidRelistFee" type="number" min="0" step="0.01" value="0.35" inputmode="decimal"></label>
+          <label>Unpaid case minutes <input id="unpaidMinutes" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+          <label>Unpaid hourly wage <input id="unpaidHourlyWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Immediate-payment listings per month <input id="monthlyImmediateListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Top Rated FVF discount (%) <input id="trsDiscountPct" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Standard sell-through (%) <input id="standardSellThroughPct" type="number" min="0" max="100" step="1" value="60" inputmode="numeric"></label>
+          <label>Top Rated sell-through (%) <input id="trsSellThroughPct" type="number" min="0" max="100" step="1" value="75" inputmode="numeric"></label>
+          <label>Standard return rate (%) <input id="standardReturnRatePercent" type="number" min="0" max="100" step="0.1" value="8" inputmode="decimal"></label>
+          <label>Top Rated return rate (%) <input id="trsReturnRatePercent" type="number" min="0" max="100" step="0.1" value="16" inputmode="decimal"></label>
+          <label>Standard return shipping <input id="standardReturnShippingCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Top Rated return shipping <input id="trsReturnShippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+          <label>1-day handling minutes <input id="trsHandlingMinutes" type="number" min="0" step="1" value="8" inputmode="numeric"></label>
+          <label>Handling hourly wage <input id="trsHandlingWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Top Rated listings per month <input id="monthlyTrsListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Your return label (Managed Returns) <input id="selfReturnShippingCost" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+          <label>Self-return rate (%) <input id="selfReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>Managed Returns fee <input id="managedReturnFee" type="number" min="0" step="0.01" value="5.50" inputmode="decimal"></label>
+          <label>Managed Returns rate (%) <input id="managedReturnRatePercent" type="number" min="0" max="100" step="0.1" value="14" inputmode="decimal"></label>
+          <label>Buyer-pays return rate (%) <input id="buyerPaysReturnRatePercent" type="number" min="0" max="100" step="0.1" value="6" inputmode="decimal"></label>
+          <label>Managed Returns listings per month <input id="monthlyManagedListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>GSP return rate (%) <input id="gspReturnRatePercent" type="number" min="0" max="100" step="0.1" value="6" inputmode="decimal"></label>
+          <label>GSP sell-through (%) <input id="gspSellThroughPct" type="number" min="0" max="100" step="1" value="40" inputmode="numeric"></label>
+          <label>You-ship shipping charged <input id="selfShipShippingCharged" type="number" min="0" step="0.01" value="22" inputmode="decimal"></label>
+          <label>You-ship international label <input id="selfShipShippingCost" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>You-ship return postage <input id="selfShipReturnShippingCost" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>You-ship international fee (%) <input id="selfShipIntlFeeRate" type="number" min="0" step="0.01" value="1.65" inputmode="decimal"></label>
+          <label>You-ship return rate (%) <input id="selfShipReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal"></label>
+          <label>You-ship claim rate (%) <input id="selfShipClaimRatePercent" type="number" min="0" max="100" step="0.1" value="8" inputmode="decimal"></label>
+          <label>You-ship sell-through (%) <input id="selfShipSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>International listings per month <input id="monthlyGspListings" type="number" min="0" step="1" value="20" inputmode="numeric"></label>
+          <label>Store orders per month <input id="monthlyStoreOrders" type="number" min="1" step="1" value="40" inputmode="numeric"></label>
+          <label>Current monthly store fee <input id="monthlyStoreFee" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+          <label>Incoming Best Offer <input id="incomingBestOffer" type="number" min="0" step="0.01" value="34" inputmode="decimal"></label>
+          <label>Chance it still sells at list (%) <input id="incomingWaitChancePct" type="number" min="0" max="100" step="1" value="50" inputmode="numeric"></label>
+          <label>Free-shipping list price <input id="freeShipPrice" type="number" min="0" step="0.01" value="46" placeholder="item + shipping" inputmode="decimal"></label>
+          <label>Buyer-pays sell-through (%) <input id="buyerPaysSellThroughPct" type="number" min="0" max="100" step="1" value="55" inputmode="numeric"></label>
+          <label>Free-shipping sell-through (%) <input id="freeShipSellThroughPct" type="number" min="0" max="100" step="1" value="70" inputmode="numeric"></label>
+          <label>Free-shipping listings per month <input id="monthlyFreeShipListings" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>Extra international postage you absorb <input id="intlExtraShipping" type="number" min="0" step="0.01" value="12" inputmode="decimal"></label>
+          <label>Skip claim rate (%) <input id="skipClaimRatePercent" type="number" min="0" max="100" step="0.1" value="2.5" inputmode="decimal"></label>
+          <label>Insurance premium <input id="insurancePremium" type="number" min="0" step="0.01" value="1.80" inputmode="decimal"></label>
+          <label>Insurance leftover-claim rate (%) <input id="insuranceClaimRatePercent" type="number" min="0" max="100" step="0.1" value="0.6" inputmode="decimal"></label>
+          <label>Insurance payout <input id="insurancePayout" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Signature confirmation fee <input id="signatureFee" type="number" min="0" step="0.01" value="3.45" inputmode="decimal"></label>
+          <label>Signature claim rate (%) <input id="signatureClaimRatePercent" type="number" min="0" max="100" step="0.1" value="0.4" inputmode="decimal"></label>
+          <label>Fee refund on protection claim (%) <input id="protectionFeeRefundOnClaimPercent" type="number" min="0" max="100" step="1" value="100" inputmode="numeric"></label>
+          <label>Protected shipments per month <input id="monthlyProtectionShipments" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+          <label>eBay label cost <input id="ebayLabelCost" type="number" min="0" step="0.01" placeholder="shipping label cost" inputmode="decimal"></label>
+          <label>Third-party / Pirate Ship label <input id="thirdPartyLabelCost" type="number" min="0" step="0.01" value="4.25" inputmode="decimal"></label>
+          <label>eBay label claim rate (%) <input id="ebayLabelClaimRatePercent" type="number" min="0" max="100" step="0.1" value="0.8" inputmode="decimal"></label>
+          <label>Third-party claim rate (%) <input id="thirdPartyClaimRatePercent" type="number" min="0" max="100" step="0.1" value="2.5" inputmode="decimal"></label>
+          <label>Extra upload minutes <input id="labelUploadMinutes" type="number" min="0" step="0.1" value="4" inputmode="decimal"></label>
+          <label>Hourly wage for that time <input id="labelUploadWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+          <label>Fee refund on label claim (%) <input id="labelFeeRefundOnClaimPercent" type="number" min="0" max="100" step="1" value="100" inputmode="numeric"></label>
+          <label>Label shipments per month <input id="monthlyLabelShipments" type="number" min="0" step="1" value="40" inputmode="numeric"></label>
+        </div>
+      </section>
+      <section class="result" aria-live="polite">
+        <h2>Order result</h2>
+        <div id="profit" class="hero-number">$—</div>
+        <div id="label">estimated batch profit</div>
+        <dl>
+          <dt>Total revenue</dt><dd id="revenue"></dd>
+          <dt>eBay &amp; payment fees</dt><dd id="fees"></dd>
+          <dt>Cash you invested</dt><dd id="invested"></dd>
+          <dt>Cash recovered after fees</dt><dd id="cashRecovered"></dd>
+          <dt>Recovery of invested cash</dt><dd id="cashRecoveryPct"></dd>
+          <dt>Cash surplus / shortfall</dt><dd id="cashSurplus"></dd>
+          <dt>Net margin</dt><dd id="margin"></dd>
+          <dt>Return on investment</dt><dd id="roi"></dd>
+          <dt>Profit per unit</dt><dd id="unitProfit"></dd>
+          <dt>Break-even item price</dt><dd id="breakEven"></dd>
+          <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+          <dt>Price for target leftover</dt><dd id="targetProfitPrice"></dd>
+          <dt>Max buy for target ROI</dt><dd id="sourcingCeiling"></dd>
+          <dt>Batch buy budget at that ceiling</dt><dd id="sourcingCeilingBatch"></dd>
+          <dt>Max item cost at target margin</dt><dd id="maxCostOfGoods"></dd>
+          <dt>Expected profit after returns</dt><dd id="expectedProfit"></dd>
+          <dt>Cash one return still eats</dt><dd id="cashEatenPerReturn"></dd>
+          <dt>Return rate that zeros expected profit</dt><dd id="breakEvenReturnRate"></dd>
+        </dl>
+        <hr>
+        <p id="ceilingStatus" class="note"></p>
+        <p class="note">Cash recovered is sale revenue after modeled fees. The checkpoint compares it with your modeled cash outlay; it does not account for sell-through speed, returns, taxes, storage, labor, or opportunity cost. The surplus is the same arithmetic as net profit, shown in sourcing language.</p>
+        <p class="note">Transparent arithmetic from your inputs. The fixed fee is charged once per batch order; other listed costs are per unit. This is not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status. The sourcing ceiling is the modeled buy cost at your target ROI. The batch buy budget is that ceiling times the unit count. Max item cost at target margin is the same sale solved for cost instead of ROI. Neither is a recommendation to buy or pass.</p>
+      </section>
+    </div>
+    <section class="sensitivity" aria-live="polite">
+      <h2>If you repriced</h2>
+      <p id="sensitivityNote" class="note">The same order listed a little higher or lower, with your costs, fees, and unit count unchanged. Percentage fees move with the price, so profit does not change one-for-one with it.</p>
+      <div class="table-scroll">
+        <!-- The note sits outside the scrolling box so it wraps on a phone
+             instead of being clipped with the table. -->
+        <div class="pf-table-scroll"><table id="scenarioTable" aria-describedby="sensitivityNote">
+          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col" class="after-returns">After returns</th><th scope="col">Net margin</th><th scope="col" class="unit">Profit per unit</th><th scope="col">vs your price</th></tr></thead>
+          <tbody id="scenarios"></tbody>
+        </table></div>
+      </div>
+      <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="returns">
+      <h2>If some come back</h2>
+      <p class="note">A completed sale can look fine and still lose money once returns start. This assumes the item comes back into inventory — so you do not lose the sourcing cost again — and that you refund the buyer. The outbound label, packaging, other cash, return postage, and any fees you do not get back stay with you. It is arithmetic from the rate you type, not a forecast of your category or a statement of eBay’s refund rules. <a href="do-ebay-returns-wipe-the-profit.html">Why a 10% return rate can erase a thin listing</a>.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="listingFormat">
+      <h2>Auction vs Buy It Now</h2>
+      <p id="listingFormatNote" class="note">A completed auction sale is often cheaper than Buy It Now. Auctions still win when they actually sell. Expected listing profit is the sale you already calculated — including the typed return rate — times sell-through, minus the insertion fee that is sunk either way. Promoted Listings Standard stays on Buy It Now; set an auction promoted rate only if that listing uses one. <a href="should-i-list-ebay-auction-or-buy-it-now.html">Should I list this as an auction or Buy It Now?</a></p>
+      <p id="listingFormatVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="listingFormatTable" aria-describedby="listingFormatNote">
+          <thead>
+            <tr>
+              <th scope="col">Format</th>
+              <th scope="col">Price</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Days</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">Per day</th>
+            </tr>
+          </thead>
+          <tbody id="listingFormatRows"></tbody>
+        </table></div>
+      </div>
+      <p id="listingFormatEmpty" class="note" hidden>Enter a valid item price to compare auction and Buy It Now.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="partialRefund">
+      <h2>Partial refund vs taking the return</h2>
+      <p id="partialRefundNote" class="note">A buyer case is not the same decision as a return rate. Once they open it you can send a concession and let them keep the item, take the return, or refund the whole order without getting the item back. Percentage fees usually come back on the refunded amount; the outbound label does not. <a href="should-i-offer-a-partial-refund-on-ebay.html">Should I offer a partial refund instead of taking the return?</a></p>
+      <p id="partialRefundVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="partialRefundTable" aria-describedby="partialRefundNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Cash back</th>
+              <th scope="col">Item back?</th>
+              <th scope="col">Fees returned</th>
+              <th scope="col">Keep after this case</th>
+              <th scope="col">vs taking the return</th>
+            </tr>
+          </thead>
+          <tbody id="partialRefundRows"></tbody>
+        </table></div>
+      </div>
+      <p id="partialRefundEmpty" class="note" hidden>Enter a valid item price to compare a partial refund with taking the return.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="authenticity">
+      <h2>Authenticity Guarantee vs skip-AG</h2>
+      <p id="authenticityNote" class="note">Authenticity Guarantee is not the same decision as a return rate or a partial refund. You pay an authenticity fee and often an extra label to the hub; you usually sell more of the listing and see fewer “not authentic” returns. The fee is treated like a percentage marketplace fee and comes back on a return; the extra hub label does not. Rates are inputs, not eBay’s live Authenticity Guarantee schedule. <a href="is-ebay-authenticity-guarantee-worth-it.html">Is eBay Authenticity Guarantee worth it?</a></p>
+      <p id="authenticityVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="authenticityTable" aria-describedby="authenticityNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Return rate</th>
+              <th scope="col">Extra on a sale</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs skip-AG</th>
+            </tr>
+          </thead>
+          <tbody id="authenticityRows"></tbody>
+        </table></div>
+      </div>
+      <p id="authenticityEmpty" class="note" hidden>Enter a valid item price to compare Authenticity Guarantee with skip-AG.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="localPickup">
+      <h2>Local pickup vs the label</h2>
+      <p id="localPickupNote" class="note">Local pickup is not the same decision as a return rate or Authenticity Guarantee. You skip the outbound label and return postage, then pay meetup time and take a lower sell-through because only local buyers can collect. A committed buyer still ghosts. The table keeps the original sale, then drops postage and multiplies by sell-through and the no-show rate. Rates and the wage are inputs, not eBay’s pickup policy. <a href="should-i-offer-ebay-local-pickup.html">Should I offer local pickup on eBay?</a></p>
+      <p id="localPickupVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="localPickupTable" aria-describedby="localPickupNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">No-show</th>
+              <th scope="col">Time cost</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs ship</th>
+            </tr>
+          </thead>
+          <tbody id="localPickupRows"></tbody>
+        </table></div>
+      </div>
+      <p id="localPickupEmpty" class="note" hidden>Enter a valid item price to compare local pickup with shipping.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="lotVsSingles">
+      <h2>Lot vs individual listings</h2>
+      <p id="lotVsSinglesNote" class="note">A pile you could list as one lot is not the same decision as a return rate or a meetup. You keep one label, one insertion, and one listing session — or you split the pieces, pay a label and insertion on each, and take the time to write five titles. The table keeps the original lot sale, then prices each piece on its own postage and multiplies by sell-through. Rates, insertion, and the wage are inputs, not eBay’s listing policy. <a href="should-i-break-an-ebay-lot-into-individual-listings.html">Should I break an eBay lot into individual listings?</a></p>
+      <p id="lotVsSinglesVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="lotVsSinglesTable" aria-describedby="lotVsSinglesNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Listings</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Time cost</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs the lot</th>
+            </tr>
+          </thead>
+          <tbody id="lotVsSinglesRows"></tbody>
+        </table></div>
+      </div>
+      <p id="lotVsSinglesEmpty" class="note" hidden>Enter a valid item price and at least two pieces to compare a lot with individual listings.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="standardEnvelope">
+      <h2>Standard Envelope vs a tracked label</h2>
+      <p id="standardEnvelopeNote" class="note">A Standard Envelope is not the same decision as a return rate or a meetup. You save most of the outbound label, then take an item-not-received claim rate because there is no tracking. A claim is not a return: the buyer is refunded and the item is gone, so cost of goods is lost. The table keeps the original tracked sale — including the typed return rate — then prices the envelope postage and multiplies by sell-through. Postage and the claim rate are inputs, not eBay’s envelope eligibility or seller-protection policy. <a href="is-ebay-standard-envelope-worth-it.html">Is eBay Standard Envelope worth it?</a></p>
+      <p id="standardEnvelopeVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="standardEnvelopeTable" aria-describedby="standardEnvelopeNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Loss rate</th>
+              <th scope="col">Postage and pack</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs tracked</th>
+            </tr>
+          </thead>
+          <tbody id="standardEnvelopeRows"></tbody>
+        </table></div>
+      </div>
+      <p id="standardEnvelopeEmpty" class="note" hidden>Enter a valid item price to compare Standard Envelope with a tracked label.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="combinedShipping">
+      <h2>Combined shipping vs two labels</h2>
+      <p id="combinedShippingNote" class="note">Combined shipping is not the same decision as a lot listing or a Standard Envelope. The sales already closed. You ship each item on its own label, or you invoice one combined postage and pay one box. A cheap “I’ll combine them” discount can give away more shipping revenue than the second label costs. A return of the box restocks every item and eats the one outbound plus the one return label. Postage is an input, not eBay’s invoice policy. <a href="should-i-offer-ebay-combined-shipping.html">Should I offer combined shipping on eBay?</a></p>
+      <p id="combinedShippingVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="combinedShippingTable" aria-describedby="combinedShippingNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Shipments</th>
+              <th scope="col">Collected</th>
+              <th scope="col">Postage and pack</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after returns</th>
+              <th scope="col">vs separate</th>
+            </tr>
+          </thead>
+          <tbody id="combinedShippingRows"></tbody>
+        </table></div>
+      </div>
+      <p id="combinedShippingEmpty" class="note" hidden>Enter a valid item price and at least two sold items to compare combined shipping with separate labels.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="sellerInitiatedOffer">
+      <h2>Seller-initiated offer vs waiting</h2>
+      <p id="sellerInitiatedOfferNote" class="note">Sending an offer to watchers is not the same decision as taking an incoming Best Offer. You are naming the discount. Waiting keeps the listed price and a lower sell-through; the offer drops the ticket and uses a typed accept rate. Insertion is already sunk — the listing exists. Accept rate is an input, not eBay’s watcher-conversion policy. <a href="should-i-send-an-ebay-offer-to-watchers.html">Should I send an offer to eBay watchers?</a></p>
+      <p id="sellerInitiatedOfferVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="sellerInitiatedOfferTable" aria-describedby="sellerInitiatedOfferNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Price</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs waiting</th>
+            </tr>
+          </thead>
+          <tbody id="sellerInitiatedOfferRows"></tbody>
+        </table></div>
+      </div>
+      <p id="sellerInitiatedOfferEmpty" class="note" hidden>Enter a valid item price to compare a seller-initiated offer with waiting.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="promotedOffsite">
+      <h2>Promoted Offsite vs skip</h2>
+      <p id="promotedOffsiteNote" class="note">Promoted Offsite is not the same decision as Promoted Listings Standard. Standard is a percent of a completed sale. Offsite is a bill either way — you pay the campaign even if they bounce. The extra sales still pay final value fee and, unless you zero the Offsite sale promoted rate, the same Standard percent as the listing. Spend and extra-sale counts are inputs, not eBay’s Offsite bid. <a href="is-ebay-promoted-offsite-worth-it.html">Is eBay Promoted Offsite worth it?</a> Compare <a href="are-ebay-promoted-listings-worth-it.html">Standard versus skip</a> when the question is a percent of a completed sale.</p>
+      <p id="promotedOffsiteVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="promotedOffsiteTable" aria-describedby="promotedOffsiteNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Extra sales</th>
+              <th scope="col">Ad spend</th>
+              <th scope="col">Extra sales after returns</th>
+              <th scope="col">If they keep the extras</th>
+              <th scope="col">Expected after spend</th>
+              <th scope="col">vs skip</th>
+            </tr>
+          </thead>
+          <tbody id="promotedOffsiteRows"></tbody>
+        </table></div>
+      </div>
+      <p id="promotedOffsiteEmpty" class="note" hidden>Enter a valid item price to compare Promoted Offsite with skipping the campaign.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="promotedStandard">
+      <h2>Promoted Listings Standard vs skip</h2>
+      <p id="promotedStandardNote" class="note">Promoted Listings Standard is not the same decision as Promoted Offsite. Offsite is a bill either way. Standard is a percent of a completed sale — including the one you already would have made. Zero extra sales is the conservative test: the campaign only takes a cut of a sale you already had. Extra-sale counts and the rate are inputs, not eBay’s Promoted Listings attribution. <a href="are-ebay-promoted-listings-worth-it.html">Are eBay Promoted Listings worth it?</a></p>
+      <p id="promotedStandardVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="promotedStandardTable" aria-describedby="promotedStandardNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Extra sales</th>
+              <th scope="col">Ad fee</th>
+              <th scope="col">Extra sales after returns</th>
+              <th scope="col">If they keep the extras</th>
+              <th scope="col">Expected after ads</th>
+              <th scope="col">vs skip</th>
+            </tr>
+          </thead>
+          <tbody id="promotedStandardRows"></tbody>
+        </table></div>
+      </div>
+      <p id="promotedStandardEmpty" class="note" hidden>Enter a valid item price to compare Promoted Listings Standard with skipping the campaign.</p>
+      <p id="promotedRateCap" class="note"></p>
+      <p class="note">The same completed sale at several Standard rates, with extra-sale lift left at zero. This is the ad cut on a sale you already had — complementary to skip vs one campaign above. Salvaged from the leftover promoted-rate table on #1482 / #1633.</p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="promotedRateTable" aria-describedby="promotedRateCap">
+          <thead>
+            <tr>
+              <th scope="col">Ad rate</th>
+              <th scope="col">Leftover</th>
+              <th scope="col">After returns</th>
+              <th scope="col">vs 0%</th>
+            </tr>
+          </thead>
+          <tbody id="promotedRateRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="promotedAdvanced">
+      <h2>Promoted Listings Advanced vs skip</h2>
+      <p id="promotedAdvancedNote" class="note">Promoted Listings Advanced is not the same decision as Standard or Offsite. Standard is a percent of a completed sale. Offsite is a Google or Facebook bill. Advanced is a cost-per-click on eBay search — billed even if they bounce. Zero extra sales is the conservative test: you paid for traffic and kept the sale you already had. CPC, clicks, and extra-sale counts are inputs, not eBay’s Promoted Listings attribution. <a href="are-ebay-promoted-listings-advanced-worth-it.html">Are eBay Promoted Listings Advanced worth it?</a></p>
+      <p id="promotedAdvancedVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="promotedAdvancedTable" aria-describedby="promotedAdvancedNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Clicks</th>
+              <th scope="col">Ad spend</th>
+              <th scope="col">Extra sales after returns</th>
+              <th scope="col">If they keep the extras</th>
+              <th scope="col">Expected after spend</th>
+              <th scope="col">vs skip</th>
+            </tr>
+          </thead>
+          <tbody id="promotedAdvancedRows"></tbody>
+        </table></div>
+      </div>
+      <p id="promotedAdvancedEmpty" class="note" hidden>Enter a valid item price to compare Promoted Listings Advanced with skipping the campaign.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="quantityDiscount">
+      <h2>Quantity discount vs selling separately</h2>
+      <p id="quantityDiscountNote" class="note">A quantity discount is not the same decision as combined shipping or a seller-initiated offer. Combined shipping is already-sold different items and no price cut. An offer to watchers is one unit. Promoted Offsite is a campaign billed either way. Here you cut the item price so one buyer takes N of the same SKU, pays shipping once, and gets one box. If they would have bought N anyway, the leftover usually shrinks. The table also multiplies by a typed singles sell-through versus multi-buy take rate. Rates are inputs, not eBay’s volume-pricing policy. <a href="should-i-offer-an-ebay-quantity-discount.html">Should I offer an eBay quantity discount?</a></p>
+      <p id="quantityDiscountVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="quantityDiscountTable" aria-describedby="quantityDiscountNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Shipments</th>
+              <th scope="col">Unit price</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs singles</th>
+            </tr>
+          </thead>
+          <tbody id="quantityDiscountRows"></tbody>
+        </table></div>
+      </div>
+      <p id="quantityDiscountEmpty" class="note" hidden>Enter a valid item price and at least two units to compare a quantity discount with selling separately.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="sellerCoupon">
+      <h2>Seller coupon vs stay listed vs drop the list</h2>
+      <p id="sellerCouponNote" class="note">A seller coupon is not the same decision as a seller-initiated offer or a quantity discount. An offer to watchers is a private sent price. A quantity discount cuts N units into one box. Promoted Offsite is a campaign billed either way. Here the listing stays at Buy It Now; only the redeem share pays less. Dropping the list writes the cheaper price into search and sold comps. Rates are inputs, not eBay’s coupon policy. <a href="should-i-offer-an-ebay-coupon.html">Should I offer an eBay coupon?</a></p>
+      <p id="sellerCouponVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="sellerCouponTable" aria-describedby="sellerCouponNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Paid price</th>
+              <th scope="col">Redeem share</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs listed</th>
+            </tr>
+          </thead>
+          <tbody id="sellerCouponRows"></tbody>
+        </table></div>
+      </div>
+      <p id="sellerCouponEmpty" class="note" hidden>Enter a valid item price to compare a seller coupon with staying listed or dropping the price.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="immediatePayment">
+      <h2>Immediate payment vs unpaid checkouts</h2>
+      <p id="immediatePaymentNote" class="note">Requiring immediate payment is not the same decision as a seller-initiated offer, a coupon, or local pickup. An offer and a coupon change the price. Pickup is a no-show after they committed to a meetup. Here the listing price stays put. Allowing later checkout starts more sales and then eats a typed unpaid-item rate — the item never ships, so leftover on that case is relist insertion plus case time. Requiring immediate payment treats unpaid as zero and takes a typed sell-through hit from buyers who will not pay now. Rates are inputs, not eBay’s unpaid-item policy. <a href="should-i-require-immediate-payment-on-ebay.html">Should I require immediate payment on eBay?</a></p>
+      <p id="immediatePaymentVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="immediatePaymentTable" aria-describedby="immediatePaymentNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Unpaid share</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">Time on unpaid</th>
+              <th scope="col">If checkout starts</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs later</th>
+            </tr>
+          </thead>
+          <tbody id="immediatePaymentRows"></tbody>
+        </table></div>
+      </div>
+      <p id="immediatePaymentEmpty" class="note" hidden>Enter a valid item price to compare immediate payment with unpaid checkouts.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="topRatedPlus">
+      <h2>Top Rated Plus vs stay standard</h2>
+      <p id="topRatedPlusNote" class="note">Top Rated Plus is not the same decision as a return-rate mix, a one-case concession, or requiring immediate payment. You take a typed final-value discount and a badge sell-through lift, then pay seller-paid return labels, a higher return rate, and 1-day handling time on every sale. Discount and rates are inputs, not eBay’s Top Rated policy. <a href="is-ebay-top-rated-plus-worth-it.html">Is eBay Top Rated Plus worth it?</a></p>
+      <p id="topRatedPlusVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="topRatedPlusTable" aria-describedby="topRatedPlusNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Return rate</th>
+              <th scope="col">Handling</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs standard</th>
+            </tr>
+          </thead>
+          <tbody id="topRatedPlusRows"></tbody>
+        </table></div>
+      </div>
+      <p id="topRatedPlusEmpty" class="note" hidden>Enter a valid item price to compare Top Rated Plus with staying standard.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="managedReturns">
+      <h2>Managed Returns vs your own label</h2>
+      <p id="managedReturnsNote" class="note">Managed Returns is not the same decision as a return-rate mix, a one-case concession, or Top Rated Plus. You replace the label you buy with a typed program fee, then usually take a higher return rate because the buyer path is easier. Buyer-paid return shipping is the friction path: no label cost, lower return rate. Fee and rates are inputs, not eBay’s Managed Returns schedule. <a href="is-ebay-managed-returns-worth-it.html">Is eBay Managed Returns worth it?</a></p>
+      <p id="managedReturnsVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="managedReturnsTable" aria-describedby="managedReturnsNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Label / fee</th>
+              <th scope="col">Return rate</th>
+              <th scope="col">Expected leftover</th>
+              <th scope="col">vs self-label</th>
+            </tr>
+          </thead>
+          <tbody id="managedReturnsRows"></tbody>
+        </table></div>
+      </div>
+      <p id="managedReturnsEmpty" class="note" hidden>Enter a valid item price to compare Managed Returns with buying the label yourself.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="globalShipping">
+      <h2>Global Shipping Program vs you-ship</h2>
+      <p id="globalShippingNote" class="note">Global Shipping Program is not the same decision as offering international at all, Standard Envelope, Authenticity Guarantee, Top Rated Plus, or Managed Returns. Envelope is cheap domestic postage versus a claim. Authenticity Guarantee is a hub label for authentication. Here an international buyer already wants the item. GSP ships to the US hub on your domestic label; the buyer pays eBay the international bill. You-ship collects that postage, buys the international label, takes the extra international fee, and eats a typed item-not-received claim rate. Rates are inputs, not eBay’s GSP schedule. <a href="should-i-use-ebay-global-shipping-program.html">Should I use eBay Global Shipping Program?</a></p>
+      <p id="globalShippingVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="globalShippingTable" aria-describedby="globalShippingNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Collected</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">Loss rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs GSP</th>
+            </tr>
+          </thead>
+          <tbody id="globalShippingRows"></tbody>
+        </table></div>
+      </div>
+      <p id="globalShippingEmpty" class="note" hidden>Enter a valid item price to compare Global Shipping Program with buying the international label.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="storeTiers">
+      <h2>Store subscription vs no-store rate</h2>
+      <p id="storeTiersNote" class="note">A store is not the same decision as Promoted Listings, Top Rated Plus, or Global Shipping. Promoted Listings is a percent of a completed sale. Top Rated Plus trades a fee discount for free returns. Global Shipping is who buys the international label. Here you keep the same SKU, then compare the final-value rate you type with example Starter, Basic, and Premium mixes after the monthly subscription. Fees are inputs, not eBay’s store schedule. <a href="is-an-ebay-store-worth-it.html">Is an eBay store worth it?</a></p>
+      <p id="storeTiersVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="storeTiersTable" aria-describedby="storeTiersNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Monthly fee</th>
+              <th scope="col">Final value</th>
+              <th scope="col">Monthly leftover</th>
+              <th scope="col">vs no store</th>
+            </tr>
+          </thead>
+          <tbody id="storeTiersRows"></tbody>
+        </table></div>
+      </div>
+      <p id="storeTiersEmpty" class="note" hidden>Enter a valid item price to compare a store subscription with the no-store rate.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="bestOffer">
+      <h2>Incoming Best Offer vs waiting</h2>
+      <p id="bestOfferNote" class="note">An incoming Best Offer is not the same decision as sending an offer to watchers. The buyer named a price. Waiting keeps the list profit times your guessed chance it still sells at list; a miss this cycle leaves the cash sitting in the item. A seller-initiated offer is you naming the discount. The repricing table moves the list without a typed wait chance. The offer and the chance are inputs, not eBay’s Best Offer policy. <a href="should-i-accept-this-ebay-offer.html">Should I accept this eBay offer?</a></p>
+      <p id="bestOfferVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="bestOfferTable" aria-describedby="bestOfferNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Price</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected leftover</th>
+              <th scope="col">vs waiting</th>
+            </tr>
+          </thead>
+          <tbody id="bestOfferRows"></tbody>
+        </table></div>
+      </div>
+      <p id="bestOfferEmpty" class="note" hidden>Enter a valid item price to compare this Best Offer with waiting for list.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="freeShipping">
+      <h2>Free shipping vs charging the buyer</h2>
+      <p id="freeShippingNote" class="note">Free shipping is not the same decision as Global Shipping, combined shipping, a store subscription, incoming Best Offer, worldwide at this list, or a Standard Envelope. On eBay the final value fee sits on item plus shipping, so baking the exact shipping charge into the list is leftover-identical on a completed sale — the leftover difference is only the extra fee on any amount you add above that. The real question is whether a higher close rate on a free-shipping list still covers that extra fee after unsold listings. Rates are inputs, not eBay’s fee schedule. <a href="should-i-offer-free-shipping-on-ebay.html">Should I offer free shipping on eBay?</a></p>
+      <p id="freeShippingVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="freeShippingTable" aria-describedby="freeShippingNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Buyer pays</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs buyer-pays</th>
+            </tr>
+          </thead>
+          <tbody id="freeShippingRows"></tbody>
+        </table></div>
+      </div>
+      <p id="freeShippingEmpty" class="note" hidden>Enter a valid item price to compare offering free shipping with charging the buyer for shipping.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="internationalShipping">
+      <h2>Domestic vs worldwide at this list</h2>
+      <p id="internationalShippingNote" class="note">Offering international is not the same decision as Global Shipping Program. Worldwide at this list adds the international fee, and a free-shipping listing pays the extra label too. Global Shipping assumes an international buyer already wants the item and asks who buys the postage. Standard Envelope is cheap domestic postage versus a claim. The fee and extra postage are inputs, not eBay’s live international schedule. <a href="should-i-offer-international-shipping-on-ebay.html">Should I offer international shipping on eBay?</a></p>
+      <p id="internationalShippingVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="internationalShippingTable" aria-describedby="internationalShippingNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Intl fee</th>
+              <th scope="col">Your label</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected leftover</th>
+              <th scope="col">vs domestic</th>
+            </tr>
+          </thead>
+          <tbody id="internationalShippingRows"></tbody>
+        </table></div>
+      </div>
+      <p id="internationalShippingEmpty" class="note" hidden>Enter a valid item price to compare domestic-only with worldwide shipping.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="packageProtection">
+      <h2>Skip vs insurance vs signature</h2>
+      <p id="packageProtectionNote" class="note">Package protection is not the same decision as a Standard Envelope or Authenticity Guarantee. Envelope is cheap untracked mail versus a tracked label. Authenticity Guarantee sends the item through a hub. Here the label is already tracked. Skip pays nothing extra and eats the typed item-not-received rate as a full loss. Insurance pays a typed premium on every box and a typed replacement-value payout on leftover claims. Signature confirmation lowers claims but does not reimburse. Premium, payout, and rates are inputs, not a carrier table. <a href="should-i-add-shipping-insurance-on-ebay.html">Should I add shipping insurance on eBay?</a></p>
+      <p id="packageProtectionVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="packageProtectionTable" aria-describedby="packageProtectionNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Extra cost</th>
+              <th scope="col">Claim rate</th>
+              <th scope="col">Payout</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after claims</th>
+              <th scope="col">vs skip</th>
+            </tr>
+          </thead>
+          <tbody id="packageProtectionRows"></tbody>
+        </table></div>
+      </div>
+      <p id="packageProtectionEmpty" class="note" hidden>Enter a valid item price to compare skip, insurance, and signature confirmation.</p>
+    </section>
+    <section class="sensitivity" aria-live="polite" id="ebayLabels">
+      <h2>eBay label vs Pirate Ship</h2>
+      <p id="ebayLabelsNote" class="note">Buying the label is not the same decision as package protection or a Standard Envelope. Protection is an add-on on a tracked label you already bought. Envelope is cheap untracked mail. Here the shipment is already sold. The eBay quote auto-uploads tracking and usually keeps a lower item-not-received rate. A Pirate Ship, Shippo, or carrier-account quote is often cheaper and usually loses that protection, plus the minutes you spend uploading tracking. Quotes, claim rates, and time are inputs, not a carrier table. <a href="should-i-buy-ebay-shipping-labels.html">Should I buy eBay shipping labels or use Pirate Ship?</a></p>
+      <p id="ebayLabelsVerdict" class="note"></p>
+      <div class="table-scroll">
+        <div class="pf-table-scroll"><table id="ebayLabelsTable" aria-describedby="ebayLabelsNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Label</th>
+              <th scope="col">Extra time</th>
+              <th scope="col">Claim rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after claims</th>
+              <th scope="col">vs eBay</th>
+            </tr>
+          </thead>
+          <tbody id="ebayLabelsRows"></tbody>
+        </table></div>
+      </div>
+      <p id="ebayLabelsEmpty" class="note" hidden>Enter a valid item price to compare an eBay label with a third-party quote.</p>
+    </section>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How do I work out what an eBay sale actually leaves?</h3>
+      <p>Enter the sale price, the fee rates your own account is charged, what you paid for the
+        item, and what shipping costs you. The order result gives net profit, margin, return on the
+        cash you had tied up in the item, and the lowest resale price that still breaks even. The
+        rates come from the boxes you fill in rather than a stored fee table, so the arithmetic
+        stays right when eBay changes a category rate, or when your store tier changes what you
+        pay.</p>
+
+      <h3>Why does a sale that looked profitable still leave me short?</h3>
+      <p>Because most of what erodes an eBay sale lands after checkout, not in the list price: the
+        outbound label, return postage on the ones that come back, promoted-listing bills that are
+        charged whether or not the click was the reason it sold, and the time spent packing. The
+        &ldquo;If some come back&rdquo; section applies a return rate you type &mdash; the outbound
+        label and the return postage usually stay with you even when the item resells, which is why
+        a few returns move net profit more than sellers expect.</p>
+
+      <h3>Should I offer a partial refund or take the return?</h3>
+      <p>It depends on what the item is worth back in your stock against what it costs to get it
+        there. &ldquo;Partial refund vs taking the return&rdquo; puts both against each other on the
+        order you already entered, so the comparison uses your real postage and cost of goods
+        instead of a rule of thumb.</p>
+
+      <h3>Does offering free shipping cost me money?</h3>
+      <p>Only if it does not sell more. Free shipping is postage you absorb into the item price, and
+        it pays when the extra sell-through covers that. &ldquo;Free shipping vs charging the
+        buyer&rdquo; asks you for the sell-through lift you actually see rather than assuming one,
+        and shows whether it covers the postage at this list price.</p>
+
+      <h3>Do I need an account, and does anything I type get uploaded?</h3>
+      <p>No account, and nothing is uploaded. The whole calculator runs in your browser: it makes no
+        network requests at all, your inputs are kept only in your own browser&rsquo;s local storage
+        so the page remembers them next time, and &ldquo;Reset saved inputs&rdquo; clears them. A
+        shareable link carries the numbers in the URL itself, so a scenario is only shared with
+        whoever you send that link to.</p>
+
+      <h3>Is this eBay&rsquo;s official fee schedule?</h3>
+      <p>No. It is an estimate built from the numbers you supply, not a published rate card, and it
+        is not tax, financial, or business advice. Check the fee rates against your own eBay account
+        before you rely on a result &mdash; category rates, store tiers, and promotions all change
+        what a given sale is charged.</p>
+    </section>
+  </main>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Have a month of real sales? Drop your Seller Hub Transaction report into the <a href="../ebay-transaction-report-analyzer/">eBay Transaction Report Analyzer</a> for fee totals and profit per item, computed in your browser.</p>
+    <p>Running Promoted Listings? Drop the ad report into the <a href="../ebay-promoted-listings-roi-analyzer/">eBay Promoted Listings ROI Analyzer</a> to see which listings lose money after ad fees, computed in your browser.</p>
+    <p>Comparing eBay to other channels on the same item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks eBay against Etsy, Amazon, Reverb and your own store side by side — it opens with this batch's price, shipping and cost already filled in and eBay switched on, no retyping. It can also hand numbers the other way, into this page.</p>
+    <p>Want a headline-fee triage across marketplaces first? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks eBay against Etsy, Amazon, Walmart, TikTok Shop and your own store from one set of inputs, then points here for the parts a headline rate cannot carry.</p>
+    <p class="support">Free and open source. If it saves you time, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { calculateOrder, calculateSourcingCeiling, calculateRepricingTable, calculatePromotedTable, maxAffordablePromotedRate, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, comparePromotedStandard, promotedStandardNote, comparePromotedAdvanced, promotedAdvancedNote, compareQuantityDiscount, quantityDiscountNote, compareSellerCoupon, sellerCouponNote, compareImmediatePayment, immediatePaymentNote, compareTopRatedPlus, topRatedPlusNote, compareManagedReturns, managedReturnsNote, compareGlobalShipping, globalShippingNote, compareStoreTiers, storeTiersNote, compareBestOffer, bestOfferNote, compareFreeShipping, freeShippingNote, compareInternational, internationalNote, comparePackageProtection, packageProtectionNote, compareEbayLabels, ebayLabelsNote, INPUT_FIELDS as ids } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { repricingCsv } from './csv.mjs';
+    import { decodeInputs, encodeInputs } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const signedMoney = value => `${value > 0 ? '+' : value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+    // Counted at most once per visit, and only after the seller has actually
+    // changed an input. Counting the table's first render instead would just
+    // re-count page views, which says nothing about whether anyone used it.
+    let sensitivityCounted = false;
+    let listingFormatCounted = false;
+    let partialRefundCounted = false;
+    let authenticityCounted = false;
+    let localPickupCounted = false;
+    let lotVsSinglesCounted = false;
+    let standardEnvelopeCounted = false;
+    let combinedShippingCounted = false;
+    let sellerInitiatedOfferCounted = false;
+    let promotedOffsiteCounted = false;
+    let promotedStandardCounted = false;
+    let promotedAdvancedCounted = false;
+    let quantityDiscountCounted = false;
+    let sellerCouponCounted = false;
+    let immediatePaymentCounted = false;
+    let topRatedPlusCounted = false;
+    let managedReturnsCounted = false;
+    let globalShippingCounted = false;
+    let storeTiersCounted = false;
+    let bestOfferCounted = false;
+    let freeShippingCounted = false;
+    let internationalShippingCounted = false;
+    let packageProtectionCounted = false;
+    let ebayLabelsCounted = false;
+    let sellerEditedInputs = false;
+    function renderScenarios(input) {
+      const rows = calculateRepricingTable(input);
+      document.getElementById('scenarioTable').classList.toggle('single-unit', rows[0].quantity === 1);
+      document.getElementById('scenarioTable').classList.toggle('no-returns', Number(input.returnRatePercent) === 0);
+      document.getElementById('scenarios').innerHTML = rows.map(row => `
+        <tr class="${row.isCurrent ? 'current' : ''}">
+          <td>${money(row.price)}${row.isCurrent ? ' (now)' : ''}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="after-returns ${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td>${row.margin.toFixed(1)}%</td>
+          <td class="unit">${money(row.unitProfit)}</td>
+          <td class="${row.profitDelta > 0 ? 'up' : row.profitDelta < 0 ? 'down' : ''}">${row.isCurrent ? '—' : signedMoney(row.profitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('scenariosEmpty').hidden = true;
+      if (sellerEditedInputs && !sensitivityCounted) {
+        sensitivityCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
+      }
+    }
+    function renderListingFormat(input) {
+      const comparison = compareListingFormat(input);
+      document.getElementById('listingFormatRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.format ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.format ? ' (ahead)' : ''}</td>
+          <td>${money(row.price)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.days}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitPerDay < 0 ? 'down' : ''}">${money(row.expectedProfitPerDay)}</td>
+        </tr>`).join('');
+      document.getElementById('listingFormatVerdict').textContent = listingFormatNote(comparison);
+      document.getElementById('listingFormatEmpty').hidden = true;
+      document.getElementById('listingFormatTable').hidden = false;
+      if (sellerEditedInputs && !listingFormatCounted) {
+        listingFormatCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'listing_format_compared');
+      }
+    }
+    function renderPartialRefund(input) {
+      const comparison = comparePartialRefund(input);
+      document.getElementById('partialRefundRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.cashBack)}</td>
+          <td>${row.itemRecovered ? 'Yes' : 'No'}</td>
+          <td>${money(row.feeReturned)}</td>
+          <td class="${row.kept < 0 ? 'down' : ''}">${money(row.kept)}</td>
+          <td class="${row.vsReturn > 0 ? 'up' : row.vsReturn < 0 ? 'down' : ''}">${row.id === 'return' ? '—' : signedMoney(row.vsReturn)}</td>
+        </tr>`).join('');
+      document.getElementById('partialRefundVerdict').textContent = partialRefundNote(comparison);
+      document.getElementById('partialRefundEmpty').hidden = true;
+      document.getElementById('partialRefundTable').hidden = false;
+      if (sellerEditedInputs && !partialRefundCounted) {
+        partialRefundCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'partial_refund_compared');
+      }
+    }
+    function renderLocalPickup(input) {
+      const comparison = compareLocalPickup(input);
+      document.getElementById('localPickupRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.noShowPct}%</td>
+          <td>${money(row.timeCost)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'ship' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('localPickupVerdict').textContent = localPickupNote(comparison);
+      document.getElementById('localPickupEmpty').hidden = true;
+      document.getElementById('localPickupTable').hidden = false;
+      if (sellerEditedInputs && !localPickupCounted) {
+        localPickupCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'local_pickup_compared');
+      }
+    }
+    function renderLotVsSingles(input) {
+      const comparison = compareLotVsSingles(input);
+      document.getElementById('lotVsSinglesRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.listings}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${money(row.timeCost)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'lot' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('lotVsSinglesVerdict').textContent = lotVsSinglesNote(comparison);
+      document.getElementById('lotVsSinglesEmpty').hidden = true;
+      document.getElementById('lotVsSinglesTable').hidden = false;
+      if (sellerEditedInputs && !lotVsSinglesCounted) {
+        lotVsSinglesCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'lot_vs_singles_compared');
+      }
+    }
+    function renderStandardEnvelope(input) {
+      const comparison = compareStandardEnvelope(input);
+      document.getElementById('standardEnvelopeRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.lossRatePercent}% ${row.lossKind}</td>
+          <td>${money(row.postageAndPack)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'tracked' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('standardEnvelopeVerdict').textContent = standardEnvelopeNote(comparison);
+      document.getElementById('standardEnvelopeEmpty').hidden = true;
+      document.getElementById('standardEnvelopeTable').hidden = false;
+      if (sellerEditedInputs && !standardEnvelopeCounted) {
+        standardEnvelopeCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'standard_envelope_compared');
+      }
+    }
+    function renderCombinedShipping(input) {
+      const comparison = compareCombinedShipping(input);
+      document.getElementById('combinedShippingRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.shipments}</td>
+          <td>${money(row.shippingCharged)}</td>
+          <td>${money(row.postageAndPack)}</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'separate' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('combinedShippingVerdict').textContent = combinedShippingNote(comparison);
+      document.getElementById('combinedShippingEmpty').hidden = true;
+      document.getElementById('combinedShippingTable').hidden = false;
+      if (sellerEditedInputs && !combinedShippingCounted) {
+        combinedShippingCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'combined_shipping_compared');
+      }
+    }
+    function renderSellerInitiatedOffer(input) {
+      const comparison = compareSellerInitiatedOffer(input);
+      document.getElementById('sellerInitiatedOfferRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.price)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'wait' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('sellerInitiatedOfferVerdict').textContent = sellerInitiatedOfferNote(comparison);
+      document.getElementById('sellerInitiatedOfferEmpty').hidden = true;
+      document.getElementById('sellerInitiatedOfferTable').hidden = false;
+      if (sellerEditedInputs && !sellerInitiatedOfferCounted) {
+        sellerInitiatedOfferCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'seller_initiated_offer_compared');
+      }
+    }
+    function renderPromotedOffsite(input) {
+      const comparison = comparePromotedOffsite(input);
+      document.getElementById('promotedOffsiteRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.extraOrders}</td>
+          <td>${money(row.adSpend)}</td>
+          <td class="${row.extraSalesProfit < 0 ? 'down' : ''}">${money(row.extraSalesProfit)}</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'skip' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('promotedOffsiteVerdict').textContent = promotedOffsiteNote(comparison);
+      document.getElementById('promotedOffsiteEmpty').hidden = true;
+      document.getElementById('promotedOffsiteTable').hidden = false;
+      if (sellerEditedInputs && !promotedOffsiteCounted) {
+        promotedOffsiteCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_offsite_compared');
+      }
+    }
+    function renderPromotedStandard(input) {
+      const comparison = comparePromotedStandard(input);
+      document.getElementById('promotedStandardRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.extraOrders}</td>
+          <td>${money(row.adFee)}</td>
+          <td class="${row.extraSalesProfit < 0 ? 'down' : ''}">${money(row.extraSalesProfit)}</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'skip' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('promotedStandardVerdict').textContent = promotedStandardNote(comparison);
+      document.getElementById('promotedStandardEmpty').hidden = true;
+      document.getElementById('promotedStandardTable').hidden = false;
+      const rateRows = calculatePromotedTable(input);
+      const breakEvenCap = maxAffordablePromotedRate(input);
+      const marginCap = maxAffordablePromotedRate(input, { forTargetMargin: true });
+      document.getElementById('promotedRateRows').innerHTML = rateRows.map(row => `
+        <tr class="${row.isCurrent ? 'winner' : ''}">
+          <td>${row.promotedRate.toFixed(1)}%${row.isCurrent ? ' (typed)' : ''}${row.isUnpromoted ? ' (skip ads)' : ''}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.profitDelta > 0 ? 'up' : row.profitDelta < 0 ? 'down' : ''}">${row.isUnpromoted ? '—' : signedMoney(row.profitDelta)}</td>
+        </tr>`).join('');
+      const capLine = Number.isFinite(breakEvenCap)
+        ? `This completed sale still breaks even at about ${breakEvenCap.toFixed(1)}% Standard. The typed ${Number(input.targetMargin ?? 0).toFixed(1)}% margin still holds up to about ${marginCap.toFixed(1)}%.`
+        : 'Could not compute an ad-rate cap from these inputs.';
+      document.getElementById('promotedRateCap').textContent = capLine;
+      if (sellerEditedInputs && !promotedStandardCounted) {
+        promotedStandardCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_standard_compared');
+      }
+    }
+    function renderPromotedAdvanced(input) {
+      const comparison = comparePromotedAdvanced(input);
+      document.getElementById('promotedAdvancedRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.clicks}</td>
+          <td>${money(row.adSpend)}</td>
+          <td class="${row.extraSalesProfit < 0 ? 'down' : ''}">${money(row.extraSalesProfit)}</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'skip' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('promotedAdvancedVerdict').textContent = promotedAdvancedNote(comparison);
+      document.getElementById('promotedAdvancedEmpty').hidden = true;
+      document.getElementById('promotedAdvancedTable').hidden = false;
+      if (sellerEditedInputs && !promotedAdvancedCounted) {
+        promotedAdvancedCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_advanced_compared');
+      }
+    }
+    function renderQuantityDiscount(input) {
+      const comparison = compareQuantityDiscount(input);
+      document.getElementById('quantityDiscountRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.shipments}</td>
+          <td>${money(row.unitPrice)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'singles' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('quantityDiscountVerdict').textContent = quantityDiscountNote(comparison);
+      document.getElementById('quantityDiscountEmpty').hidden = true;
+      document.getElementById('quantityDiscountTable').hidden = false;
+      if (sellerEditedInputs && !quantityDiscountCounted) {
+        quantityDiscountCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'quantity_discount_compared');
+      }
+    }
+    function renderSellerCoupon(input) {
+      const comparison = compareSellerCoupon(input);
+      document.getElementById('sellerCouponRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.price)}</td>
+          <td>${row.redeemPct}%</td>
+          <td>${row.sellThroughPct}%</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'listed' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('sellerCouponVerdict').textContent = sellerCouponNote(comparison);
+      document.getElementById('sellerCouponEmpty').hidden = true;
+      document.getElementById('sellerCouponTable').hidden = false;
+      if (sellerEditedInputs && !sellerCouponCounted) {
+        sellerCouponCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'seller_coupon_compared');
+      }
+    }
+    function renderImmediatePayment(input) {
+      const comparison = compareImmediatePayment(input);
+      document.getElementById('immediatePaymentRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.unpaidPct}%</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${money(row.timeCost)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'later' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('immediatePaymentVerdict').textContent = immediatePaymentNote(comparison);
+      document.getElementById('immediatePaymentEmpty').hidden = true;
+      document.getElementById('immediatePaymentTable').hidden = false;
+      if (sellerEditedInputs && !immediatePaymentCounted) {
+        immediatePaymentCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'immediate_payment_compared');
+      }
+    }
+    function renderTopRatedPlus(input) {
+      const comparison = compareTopRatedPlus(input);
+      document.getElementById('topRatedPlusRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.returnRatePercent}%</td>
+          <td>${money(row.handlingCost)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'standard' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('topRatedPlusVerdict').textContent = topRatedPlusNote(comparison);
+      document.getElementById('topRatedPlusEmpty').hidden = true;
+      document.getElementById('topRatedPlusTable').hidden = false;
+      if (sellerEditedInputs && !topRatedPlusCounted) {
+        topRatedPlusCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'top_rated_plus_compared');
+      }
+    }
+    function renderManagedReturns(input) {
+      const comparison = compareManagedReturns(input);
+      document.getElementById('managedReturnsRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.returnCost)}</td>
+          <td>${row.returnRatePercent.toFixed(1)}%</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.vsSelf > 0 ? 'up' : row.vsSelf < 0 ? 'down' : ''}">${row.id === 'self' ? '—' : signedMoney(row.vsSelf)}</td>
+        </tr>`).join('');
+      document.getElementById('managedReturnsVerdict').textContent = managedReturnsNote(comparison);
+      document.getElementById('managedReturnsEmpty').hidden = true;
+      document.getElementById('managedReturnsTable').hidden = false;
+      if (sellerEditedInputs && !managedReturnsCounted) {
+        managedReturnsCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'managed_returns_compared');
+      }
+    }
+    function renderGlobalShipping(input) {
+      const comparison = compareGlobalShipping(input);
+      document.getElementById('globalShippingRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.shippingCharged)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.lossRatePercent}% ${row.lossKind}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'gsp' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('globalShippingVerdict').textContent = globalShippingNote(comparison);
+      document.getElementById('globalShippingEmpty').hidden = true;
+      document.getElementById('globalShippingTable').hidden = false;
+      if (sellerEditedInputs && !globalShippingCounted) {
+        globalShippingCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'global_shipping_compared');
+      }
+    }
+    function renderStoreTiers(input) {
+      const comparison = compareStoreTiers(input);
+      document.getElementById('storeTiersRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.monthlyFee)}</td>
+          <td>${row.finalValueRate.toFixed(2)}%</td>
+          <td class="${row.monthlyProfit < 0 ? 'down' : ''}">${money(row.monthlyProfit)}</td>
+          <td class="${row.vsCurrent > 0 ? 'up' : row.vsCurrent < 0 ? 'down' : ''}">${row.id === 'current' ? '—' : signedMoney(row.vsCurrent)}</td>
+        </tr>`).join('');
+      document.getElementById('storeTiersVerdict').textContent = storeTiersNote(comparison);
+      document.getElementById('storeTiersEmpty').hidden = true;
+      document.getElementById('storeTiersTable').hidden = false;
+      if (sellerEditedInputs && !storeTiersCounted) {
+        storeTiersCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_compared');
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_comparison_viewed');
+      }
+    }
+    function renderBestOffer(input) {
+      const comparison = compareBestOffer(input);
+      document.getElementById('bestOfferRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.price)}</td>
+          <td class="${row.soldProfit < 0 ? 'down' : ''}">${money(row.soldProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'wait' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('bestOfferVerdict').textContent = bestOfferNote(comparison);
+      document.getElementById('bestOfferEmpty').hidden = true;
+      document.getElementById('bestOfferTable').hidden = false;
+      if (sellerEditedInputs && !bestOfferCounted) {
+        bestOfferCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'best_offer_compared');
+      }
+    }
+    function renderInternational(input) {
+      const comparison = compareInternational(input);
+      document.getElementById('internationalShippingRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${row.winner ? 'winner' : ''}">
+          <td>${row.label}${row.winner ? ' (ahead)' : ''}</td>
+          <td>${row.pathIntlFeeRate.toFixed(2)}%</td>
+          <td>${money(row.pathShippingCost)}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'domestic' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('internationalShippingVerdict').textContent = internationalNote(comparison);
+      document.getElementById('internationalShippingEmpty').hidden = true;
+      document.getElementById('internationalShippingTable').hidden = false;
+      if (sellerEditedInputs && !internationalShippingCounted) {
+        internationalShippingCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'international_compared');
+      }
+    }
+
+    function renderPackageProtection(input) {
+      const comparison = comparePackageProtection(input);
+      document.getElementById('packageProtectionRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.extraCost)}</td>
+          <td>${row.claimRatePercent}%</td>
+          <td>${money(row.payout)}</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'skip' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('packageProtectionVerdict').textContent = packageProtectionNote(comparison);
+      document.getElementById('packageProtectionEmpty').hidden = true;
+      document.getElementById('packageProtectionTable').hidden = false;
+      if (sellerEditedInputs && !packageProtectionCounted) {
+        packageProtectionCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'package_protection_compared');
+      }
+    }
+
+    function renderEbayLabels(input) {
+      const comparison = compareEbayLabels(input);
+      document.getElementById('ebayLabelsRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.labelCost)}</td>
+          <td>${money(row.extraCost)}</td>
+          <td>${row.claimRatePercent}%</td>
+          <td class="${row.completedProfit < 0 ? 'down' : ''}">${money(row.completedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'ebay' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('ebayLabelsVerdict').textContent = ebayLabelsNote(comparison);
+      document.getElementById('ebayLabelsEmpty').hidden = true;
+      document.getElementById('ebayLabelsTable').hidden = false;
+      if (sellerEditedInputs && !ebayLabelsCounted) {
+        ebayLabelsCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'ebay_labels_compared');
+      }
+    }
+
+    function renderFreeShipping(input) {
+      const comparison = compareFreeShipping(input);
+      document.getElementById('freeShippingRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.buyerPays)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'buyer_pays' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('freeShippingVerdict').textContent = freeShippingNote(comparison);
+      document.getElementById('freeShippingEmpty').hidden = true;
+      document.getElementById('freeShippingTable').hidden = false;
+      if (sellerEditedInputs && !freeShippingCounted) {
+        freeShippingCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'free_shipping_compared');
+      }
+    }
+
+    function renderAuthenticity(input) {
+      const comparison = compareAuthenticity(input);
+      document.getElementById('authenticityRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.returnRatePercent}%</td>
+          <td>${money(row.extraCashOnSale)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'skip' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('authenticityVerdict').textContent = authenticityNote(comparison);
+      document.getElementById('authenticityEmpty').hidden = true;
+      document.getElementById('authenticityTable').hidden = false;
+      if (sellerEditedInputs && !authenticityCounted) {
+        authenticityCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'authenticity_compared');
+      }
+    }
+    function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
+    function update() {
+      try {
+        const input = readInputs();
+        const result = calculateOrder(input);
+        const ceiling = calculateSourcingCeiling(input, input.targetRoi);
+        renderScenarios(input);
+        renderListingFormat(input);
+        renderPartialRefund(input);
+        renderAuthenticity(input);
+        renderLocalPickup(input);
+        renderLotVsSingles(input);
+        renderStandardEnvelope(input);
+        renderCombinedShipping(input);
+        renderSellerInitiatedOffer(input);
+        renderPromotedOffsite(input);
+        renderPromotedStandard(input);
+        renderPromotedAdvanced(input);
+        renderQuantityDiscount(input);
+        renderSellerCoupon(input);
+        renderImmediatePayment(input);
+        renderTopRatedPlus(input);
+        renderManagedReturns(input);
+        renderGlobalShipping(input);
+        renderStoreTiers(input);
+        renderBestOffer(input);
+        renderFreeShipping(input);
+        renderInternational(input);
+        renderPackageProtection(input);
+        renderEbayLabels(input);
+        document.getElementById('whereToSellLink').href = whereToSellUrl(input);
+        const profitEl = document.getElementById('profit');
+        profitEl.textContent = money(result.profit);
+        profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
+        document.getElementById('label').textContent = result.profit < 0 ? 'loss on this batch' : 'estimated batch profit';
+        document.getElementById('revenue').textContent = money(result.revenue);
+        document.getElementById('fees').textContent = money(result.feeTotal);
+        document.getElementById('invested').textContent = money(result.cashInvested);
+        document.getElementById('cashRecovered').textContent = money(result.cashRecovered);
+        document.getElementById('cashRecoveryPct').textContent = result.cashRecoveryPct === null ? 'n/a' : `${result.cashRecoveryPct.toFixed(1)}%`;
+        const cashSurplus = document.getElementById('cashSurplus');
+        cashSurplus.textContent = signedMoney(result.cashSurplus);
+        cashSurplus.className = result.cashSurplus < 0 ? 'negative' : 'positive';
+        document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`;
+        document.getElementById('roi').textContent = result.roi === null ? 'n/a' : `${result.roi.toFixed(1)}%`;
+        document.getElementById('unitProfit').textContent = money(result.unitProfit);
+        document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
+        document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        document.getElementById('targetProfitPrice').textContent = Number.isFinite(result.targetProfitPrice) ? money(result.targetProfitPrice) : 'unreachable';
+        document.getElementById('sourcingCeiling').textContent = ceiling.isReachable ? money(ceiling.maximumAcquisitionCost) : 'unreachable';
+        document.getElementById('sourcingCeilingBatch').textContent = ceiling.isReachable ? money(ceiling.maximumBatchAcquisitionCost) : 'unreachable';
+        document.getElementById('maxCostOfGoods').textContent = result.maxCostOfGoods > 0 ? money(result.maxCostOfGoods) : 'unreachable';
+        const ceilingStatus = document.getElementById('ceilingStatus');
+        ceilingStatus.className = ceiling.amountOverCeiling > 0 ? 'note warning' : 'note';
+        ceilingStatus.textContent = ceiling.isReachable
+          ? ceiling.amountOverCeiling > 0
+            ? `Current buy cost is ${money(ceiling.amountOverCeiling)} above the modeled ceiling for ${ceiling.targetRoi.toFixed(1)}% ROI.`
+            : `Current buy cost is at or under the modeled ceiling for ${ceiling.targetRoi.toFixed(1)}% ROI.`
+          : `At zero acquisition cost, this order does not reach ${ceiling.targetRoi.toFixed(1)}% ROI with the other cash costs entered.`;
+        document.getElementById('expectedProfit').textContent = money(result.expectedProfit);
+        document.getElementById('cashEatenPerReturn').textContent = money(result.cashEatenPerReturn);
+        document.getElementById('breakEvenReturnRate').textContent = Number.isFinite(result.breakEvenReturnRate)
+          ? `${result.breakEvenReturnRate.toFixed(1)}%`
+          : 'still pays at 100%';
+      } catch (error) {
+        document.getElementById('profit').textContent = error.message;
+        document.getElementById('profit').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'estimated batch profit';
+        document.getElementById('revenue').textContent = '';
+        document.getElementById('fees').textContent = '';
+        document.getElementById('invested').textContent = '';
+        document.getElementById('cashRecovered').textContent = '';
+        document.getElementById('cashRecoveryPct').textContent = '';
+        document.getElementById('cashSurplus').textContent = '';
+        document.getElementById('cashSurplus').className = '';
+        document.getElementById('margin').textContent = '';
+        document.getElementById('roi').textContent = '';
+        document.getElementById('unitProfit').textContent = '';
+        document.getElementById('breakEven').textContent = '';
+        document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('targetProfitPrice').textContent = '';
+        document.getElementById('sourcingCeiling').textContent = '';
+        document.getElementById('sourcingCeilingBatch').textContent = '';
+        document.getElementById('maxCostOfGoods').textContent = '';
+        document.getElementById('ceilingStatus').textContent = '';
+        document.getElementById('expectedProfit').textContent = '';
+        document.getElementById('cashEatenPerReturn').textContent = '';
+        document.getElementById('breakEvenReturnRate').textContent = '';
+        document.getElementById('scenarios').innerHTML = '';
+        document.getElementById('scenariosEmpty').hidden = false;
+        document.getElementById('listingFormatRows').innerHTML = '';
+        document.getElementById('listingFormatTable').hidden = true;
+        document.getElementById('listingFormatEmpty').hidden = false;
+        document.getElementById('listingFormatVerdict').textContent = '';
+        document.getElementById('partialRefundRows').innerHTML = '';
+        document.getElementById('partialRefundTable').hidden = true;
+        document.getElementById('partialRefundEmpty').hidden = false;
+        document.getElementById('partialRefundVerdict').textContent = '';
+        document.getElementById('authenticityRows').innerHTML = '';
+        document.getElementById('authenticityTable').hidden = true;
+        document.getElementById('authenticityEmpty').hidden = false;
+        document.getElementById('authenticityVerdict').textContent = '';
+        document.getElementById('localPickupRows').innerHTML = '';
+        document.getElementById('localPickupTable').hidden = true;
+        document.getElementById('localPickupEmpty').hidden = false;
+        document.getElementById('localPickupVerdict').textContent = '';
+        document.getElementById('lotVsSinglesRows').innerHTML = '';
+        document.getElementById('lotVsSinglesTable').hidden = true;
+        document.getElementById('lotVsSinglesEmpty').hidden = false;
+        document.getElementById('lotVsSinglesVerdict').textContent = '';
+        document.getElementById('standardEnvelopeRows').innerHTML = '';
+        document.getElementById('standardEnvelopeTable').hidden = true;
+        document.getElementById('standardEnvelopeEmpty').hidden = false;
+        document.getElementById('standardEnvelopeVerdict').textContent = '';
+        document.getElementById('combinedShippingRows').innerHTML = '';
+        document.getElementById('combinedShippingTable').hidden = true;
+        document.getElementById('combinedShippingEmpty').hidden = false;
+        document.getElementById('combinedShippingVerdict').textContent = '';
+        document.getElementById('sellerInitiatedOfferRows').innerHTML = '';
+        document.getElementById('sellerInitiatedOfferTable').hidden = true;
+        document.getElementById('sellerInitiatedOfferEmpty').hidden = false;
+        document.getElementById('sellerInitiatedOfferVerdict').textContent = '';
+        document.getElementById('promotedOffsiteRows').innerHTML = '';
+        document.getElementById('promotedOffsiteTable').hidden = true;
+        document.getElementById('promotedOffsiteEmpty').hidden = false;
+        document.getElementById('promotedOffsiteVerdict').textContent = '';
+        document.getElementById('promotedStandardRows').innerHTML = '';
+        document.getElementById('promotedStandardTable').hidden = true;
+        document.getElementById('promotedStandardEmpty').hidden = false;
+        document.getElementById('promotedStandardVerdict').textContent = '';
+        document.getElementById('promotedRateRows').innerHTML = '';
+        document.getElementById('promotedRateCap').textContent = '';
+        document.getElementById('promotedAdvancedRows').innerHTML = '';
+        document.getElementById('promotedAdvancedTable').hidden = true;
+        document.getElementById('promotedAdvancedEmpty').hidden = false;
+        document.getElementById('promotedAdvancedVerdict').textContent = '';
+        document.getElementById('quantityDiscountRows').innerHTML = '';
+        document.getElementById('quantityDiscountTable').hidden = true;
+        document.getElementById('quantityDiscountEmpty').hidden = false;
+        document.getElementById('quantityDiscountVerdict').textContent = '';
+        document.getElementById('sellerCouponRows').innerHTML = '';
+        document.getElementById('sellerCouponTable').hidden = true;
+        document.getElementById('sellerCouponEmpty').hidden = false;
+        document.getElementById('sellerCouponVerdict').textContent = '';
+        document.getElementById('immediatePaymentRows').innerHTML = '';
+        document.getElementById('immediatePaymentTable').hidden = true;
+        document.getElementById('immediatePaymentEmpty').hidden = false;
+        document.getElementById('immediatePaymentVerdict').textContent = '';
+        document.getElementById('topRatedPlusRows').innerHTML = '';
+        document.getElementById('topRatedPlusTable').hidden = true;
+        document.getElementById('topRatedPlusEmpty').hidden = false;
+        document.getElementById('topRatedPlusVerdict').textContent = '';
+        document.getElementById('managedReturnsRows').innerHTML = '';
+        document.getElementById('managedReturnsTable').hidden = true;
+        document.getElementById('managedReturnsEmpty').hidden = false;
+        document.getElementById('managedReturnsVerdict').textContent = '';
+        document.getElementById('globalShippingRows').innerHTML = '';
+        document.getElementById('globalShippingTable').hidden = true;
+        document.getElementById('globalShippingEmpty').hidden = false;
+        document.getElementById('globalShippingVerdict').textContent = '';
+        document.getElementById('storeTiersRows').innerHTML = '';
+        document.getElementById('storeTiersTable').hidden = true;
+        document.getElementById('storeTiersEmpty').hidden = false;
+        document.getElementById('storeTiersVerdict').textContent = '';
+        document.getElementById('bestOfferRows').innerHTML = '';
+        document.getElementById('bestOfferTable').hidden = true;
+        document.getElementById('bestOfferEmpty').hidden = false;
+        document.getElementById('bestOfferVerdict').textContent = '';
+        document.getElementById('freeShippingRows').innerHTML = '';
+        document.getElementById('freeShippingTable').hidden = true;
+        document.getElementById('freeShippingEmpty').hidden = false;
+        document.getElementById('freeShippingVerdict').textContent = '';
+        document.getElementById('internationalShippingRows').innerHTML = '';
+        document.getElementById('internationalShippingTable').hidden = true;
+        document.getElementById('internationalShippingEmpty').hidden = false;
+        document.getElementById('internationalShippingVerdict').textContent = '';
+        document.getElementById('packageProtectionRows').innerHTML = '';
+        document.getElementById('packageProtectionTable').hidden = true;
+        document.getElementById('packageProtectionEmpty').hidden = false;
+        document.getElementById('packageProtectionVerdict').textContent = '';
+        document.getElementById('ebayLabelsRows').innerHTML = '';
+        document.getElementById('ebayLabelsTable').hidden = true;
+        document.getElementById('ebayLabelsEmpty').hidden = false;
+        document.getElementById('ebayLabelsVerdict').textContent = '';
+      }
+    }
+    ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));
+    const savedKey = 'ebay-fee-calculator-inputs';
+    function restoreInputs() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(savedKey) || '{}'); } catch { /* blocked storage */ }
+      const shared = decodeInputs(location.hash || location.search);
+      ids.forEach(id => { const value = shared[id] ?? saved[id]; if (value !== undefined) document.getElementById(id).value = value; });
+    }
+    function saveInputs() {
+      try { localStorage.setItem(savedKey, JSON.stringify(readInputs())); } catch { /* private mode */ }
+    }
+    function downloadScenarios() {
+      const csv = repricingCsv(calculateRepricingTable(readInputs()));
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'ebay-repricing-scenarios.csv';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'repricing_csv_downloaded');
+    }
+    function shareLink() {
+      const link = `${location.href.split('#')[0]}#${encodeInputs(readInputs())}`;
+      try { history.replaceState(null, '', link); } catch { /* file URLs may reject it */ }
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'share_link_copied');
+      window.prompt('Copy this private link:', link);
+    }
+    function resetInputs() {
+      try { localStorage.removeItem(savedKey); } catch { /* private mode */ }
+      location.hash = '';
+      location.reload();
+    }
+    ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
+      saveInputs();
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetProfit' ? 'target_profit_calculated' : id === 'costOfGoods' ? 'max_acquisition_cost_calculated' : id === 'targetRoi' ? 'sourcing_ceiling_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'combinedItemCount' || id === 'combinedShippingCharged' || id === 'combinedShippingCost' || id === 'combinedPackagingCost' || id === 'combinedReturnShippingCost' || id === 'combinedFixedFee' || id === 'combinedReturnRatePercent' || id === 'monthlyCombinedOrders') ? 'combined_shipping_compared' : (id === 'offerPercent' || id === 'waitSellThroughPct' || id === 'offerAcceptPct' || id === 'monthlyOffers') ? 'seller_initiated_offer_compared' : (id === 'offsiteSpend' || id === 'offsiteExtraOrders' || id === 'offsitePromotedRate' || id === 'monthlyOffsiteCampaigns') ? 'promoted_offsite_compared' : (id === 'promotedStandardRate' || id === 'promotedStandardExtraOrders' || id === 'monthlyPromotedListings') ? 'promoted_standard_compared' : (id === 'advancedCpc' || id === 'advancedClicks' || id === 'advancedExtraOrders' || id === 'advancedPromotedRate' || id === 'monthlyAdvancedCampaigns') ? 'promoted_advanced_compared' : (id === 'qtyDiscountUnits' || id === 'qtyDiscountPercent' || id === 'qtyShippingCharged' || id === 'qtyShippingCost' || id === 'qtyPackagingCost' || id === 'qtyReturnShippingCost' || id === 'qtyFixedFee' || id === 'qtyReturnRatePercent' || id === 'singlesSellThroughPct' || id === 'qtyTakePct' || id === 'monthlyQtyOrders') ? 'quantity_discount_compared' : (id === 'couponPercent' || id === 'couponRedeemPct' || id === 'listedSellThroughPct' || id === 'couponSellThroughPct' || id === 'dropSellThroughPct' || id === 'monthlyCouponListings') ? 'seller_coupon_compared' : (id === 'unpaidRatePercent' || id === 'laterSellThroughPct' || id === 'immediateSellThroughPct' || id === 'unpaidRelistFee' || id === 'unpaidMinutes' || id === 'unpaidHourlyWage' || id === 'monthlyImmediateListings') ? 'immediate_payment_compared' : (id === 'trsDiscountPct' || id === 'standardSellThroughPct' || id === 'trsSellThroughPct' || id === 'standardReturnRatePercent' || id === 'trsReturnRatePercent' || id === 'standardReturnShippingCost' || id === 'trsReturnShippingCost' || id === 'trsHandlingMinutes' || id === 'trsHandlingWage' || id === 'monthlyTrsListings') ? 'top_rated_plus_compared' : (id === 'selfReturnShippingCost' || id === 'selfReturnRatePercent' || id === 'managedReturnFee' || id === 'managedReturnRatePercent' || id === 'buyerPaysReturnRatePercent' || id === 'monthlyManagedListings') ? 'managed_returns_compared' : (id === 'gspReturnRatePercent' || id === 'gspSellThroughPct' || id === 'selfShipShippingCharged' || id === 'selfShipShippingCost' || id === 'selfShipReturnShippingCost' || id === 'selfShipIntlFeeRate' || id === 'selfShipReturnRatePercent' || id === 'selfShipClaimRatePercent' || id === 'selfShipSellThroughPct' || id === 'monthlyGspListings') ? 'global_shipping_compared' : (id === 'monthlyStoreOrders' || id === 'monthlyStoreFee') ? 'store_compared' : (id === 'incomingBestOffer' || id === 'incomingWaitChancePct') ? 'best_offer_compared' : (id === 'freeShipPrice' || id === 'buyerPaysSellThroughPct' || id === 'freeShipSellThroughPct' || id === 'monthlyFreeShipListings') ? 'free_shipping_compared' : id === 'intlExtraShipping' ? 'international_compared' : 'order_profit_calculated');
+    }));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+    const actions = document.createElement('p');
+    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="download">Download repricing CSV</button> <button type="button" id="reset">Reset saved inputs</button>';
+    document.querySelector('section:first-child').append(actions);
+    document.getElementById('share').addEventListener('click', shareLink);
+    document.getElementById('download').addEventListener('click', downloadScenarios);
+    document.getElementById('reset').addEventListener('click', resetInputs);
+    document.getElementById('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'handoff_where_to_sell');
+    });
+    restoreInputs();
+    update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebay-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/?pfEmbed=1&quot; title=&quot;eBay Fee &amp; Profit Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ebay-fee-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/" data-pf-embed-title="eBay Fee &amp; Profit Calculator" data-pf-embed-slug="ebay-fee-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ebay-fee-calculator" data-pf-jobs-amount="#profit"></script>
+</body>
+</html>

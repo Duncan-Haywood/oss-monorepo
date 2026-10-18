@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I take a partial retainage check now?</title>
+  <meta name="description" content="A $5,000 retainage check today can close the rest or only accelerate part of it. See the modeled carrying cost of waiting 60 days for the full $10,000…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/retainage-cashflow-calculator/should-i-take-partial-retainage-now.html">
+  <meta property="og:title" content="Should I take a partial retainage check now?">
+  <meta property="og:description" content="On a $100,000 job with 10% retainage, waiting 60 days for $10,000 models $197.26 more carrying cost. A $5,000 waiver check is $4,802.74 behind that wait.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a $5,000 retainage check today better than waiting 60 days for $10,000?","acceptedAnswer":{"@type":"Answer","text":"On the calculator defaults — a $100,000 contract, 10% retainage, $75,000 paid, and a 12% carrying-cost assumption — waiting 60 days for the remaining $10,000 models $197.26 more carrying cost on that retainage, leaving $9,802.74. A $5,000 check that closes the rest is $4,802.74 behind that wait. The break-even check that matches waiting is $9,802.74."}},{"@type":"Question","name":"What if the rest of retainage still arrives later?","acceptedAnswer":{"@type":"Answer","text":"If the remaining $5,000 still arrives in 60 days, taking the $5,000 check now leaves $9,901.37 after $98.63 carrying on the remainder — $98.63 ahead of waiting for the whole $10,000. That path is acceleration, not a waiver. The calculator shows both interpretations; it does not tell you to sign."}},{"@type":"Question","name":"Does this include interest I can charge the GC?","acceptedAnswer":{"@type":"Answer","text":"No. The carrying-cost figure is your own borrowing or opportunity-cost assumption applied only to the retainage still unpaid. It is not a contractual interest rate, payment deadline, lien right, or entitlement. Review the contract, payment terms, and local requirements before relying on any number."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #17211b; background: #f4f0e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a3d14; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d0c0; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #514d46; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/retainage-cashflow-calculator/should-i-take-partial-retainage-now.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/retainage-cashflow-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I take a partial retainage check now? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../retainage-cashflow-calculator/">Construction Retainage Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I take a partial retainage check now?</span></span></nav>
+  <p><a href="./">← Construction retainage calculator</a></p>
+  <h1>Should I take a partial retainage check now?</h1>
+  <p>
+    Specialty subcontractors search this after a general contractor offers a
+    check today against retainage. Sometimes that check closes the rest — a
+    waiver or discounted payoff. Sometimes it only accelerates part of the
+    withhold and the remainder still arrives later. Those are different deals.
+    Carrying cost is not the same as “twice the wait.”
+  </p>
+  <p>
+    Open the <a href="./#partialReleaseCompare">retainage calculator</a>, keep
+    your contract value and paid-to-date, and type the check they offered plus
+    the days they say until full release. The table below uses the page
+    defaults: a $100,000 contract, 10% retainage, $75,000 paid, 90 days
+    already outstanding, a 12% annual carrying-cost assumption, a $5,000
+    check today, and 60 days until they say the rest lands.
+  </p>
+  <h2>Close the rest vs wait vs take-and-still-wait</h2>
+  <p>
+    Unpaid retainage on those figures is $10,000. Waiting 60 days models
+    $197.26 more carrying cost on that slice, leaving $9,802.74. A $5,000
+    check that closes the rest is $4,802.74 behind that wait. The break-even
+    check that matches waiting is $9,802.74.
+  </p>
+  <p>
+    If the other $5,000 still arrives in 60 days, taking the check now leaves
+    $9,901.37 after $98.63 carrying on the remainder — $98.63 ahead of
+    waiting for the whole balance. That is acceleration, not a waiver.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th>Path</th>
+        <th>Cash</th>
+        <th>Added carrying</th>
+        <th>Net</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Take $5,000, close the rest</td><td>$5,000.00</td><td>$0.00</td><td>$5,000.00</td></tr>
+      <tr><td>Take $5,000, rest in 60 days</td><td>$10,000.00</td><td>$98.63</td><td>$9,901.37</td></tr>
+      <tr><td>Wait 60 days for $10,000</td><td>$10,000.00</td><td>$197.26</td><td>$9,802.74</td></tr>
+    </tbody>
+  </table></div>
+  <h2>What this number is not</h2>
+  <p>
+    The carrying-cost line is your own assumption applied only to the
+    retainage still unpaid. It is not interest you can invoice, a lien
+    deadline, or a reason to sign a waiver. Other earned-but-unpaid progress
+    is still in the cash snapshot and the further-delay table; this page
+    isolates the retainage in the offer.
+  </p>
+  <p>
+    Type the check they actually wrote and the days they actually said.
+    The calculator shows the arithmetic from those figures. It does not
+    tell you which path to take.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Is a $5,000 retainage check today better than waiting 60 days for $10,000?</h3>
+  <p>On the calculator defaults — a $100,000 contract, 10% retainage, $75,000 paid, and a 12% carrying-cost assumption — waiting 60 days for the remaining $10,000 models $197.26 more carrying cost on that retainage, leaving $9,802.74. A $5,000 check that closes the rest is $4,802.74 behind that wait. The break-even check that matches waiting is $9,802.74.</p>
+  <h3>What if the rest of retainage still arrives later?</h3>
+  <p>If the remaining $5,000 still arrives in 60 days, taking the $5,000 check now leaves $9,901.37 after $98.63 carrying on the remainder — $98.63 ahead of waiting for the whole $10,000. That path is acceleration, not a waiver. The calculator shows both interpretations; it does not tell you to sign.</p>
+  <h3>Does this include interest I can charge the GC?</h3>
+  <p>No. The carrying-cost figure is your own borrowing or opportunity-cost assumption applied only to the retainage still unpaid. It is not a contractual interest rate, payment deadline, lien right, or entitlement. Review the contract, payment terms, and local requirements before relying on any number.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, tax, financial, or engineering advice. Verify every output against your contract, payment terms, and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../route-account-pruner/" data-pf-to="route-account-pruner">Route Account Pruner — free, private, in your browser</a></li>
+      <li><a href="../sawmill-custom-sawing-calculator/" data-pf-to="sawmill-custom-sawing-calculator">Sawmill Custom Sawing Calculator — free, private</a></li>
+      <li><a href="../security-questionnaire-matcher/" data-pf-to="security-questionnaire-matcher">Security Questionnaire Answer Matcher</a></li>
+      <li><a href="../service-van-stock-optimizer/" data-pf-to="service-van-stock-optimizer">Service Van Stock Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=retainage-cashflow-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="retainage-cashflow-calculator"></script>
+</body>
+</html>

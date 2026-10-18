@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. tracking it in a spreadsheet | Basement Finishing Bid Calculator</title>
+<meta name="description" content="A basement remodeler pricing rec-room versus framed-finish versus legal-living scope usually builds a spreadsheet for it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. tracking it in a spreadsheet">
+<meta property="og:description" content="A spreadsheet can hold the same shell, ceiling, floor, bath, egress, and extras formulas this calculator does.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet price a basement finish instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every line this calculator prices — shell labor and material by scope, a ceiling plane, a floor with waste, a bathroom kit, egress windows, bedroom extras, a stair rebuild, a wet bar, an HVAC extend, permit coordination, travel, overhead, and target margin — is ordinary arithmetic you can put in a spreadsheet. Building it means setting up separate rate blocks for rec-room, framed-finish, and legal-living scope, then remembering to update every formula that touches finished square feet whenever the job changes shape."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Re-price the same basement under all three scopes at once, so you can see where a rec-room rate would lose money on a legal-living suite before you quote it. Switching scope, ceiling, or floor in this calculator refills the starting hours and material for that choice automatically — a spreadsheet's cells stay whatever you last typed until you notice they are wrong. It also turns the same numbers into a printable customer proposal with a deposit split and a price-held date, and a shareable bid link that reopens the exact scenario for you or your crew, neither of which a formula cell produces on its own."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when the job has a wrinkle this calculator does not model — a walkout entrance, a second stair, a kitchenette, or a rate structure this tool's fields cannot represent. A spreadsheet you build yourself can represent any line item you can describe. This calculator trades that flexibility for a form that already has the right fields for one basement finish, wired together so changing scope does not mean rebuilding the sheet."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser's local storage between visits, and a bid link you copy carries those same numbers in the page's URL hash rather than sending anything to a server."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #243044; background: #e8eaee; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #3d5a80; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5b6574; }
+  section { background: #fff; border: 1px solid #c5ccd6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2430440d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c5ccd6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5b6574; }
+  .fine, .note { font-size: .88rem; color: #5b6574; }
+  footer { color: #5b6574; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/basement-finishing-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. tracking it in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../basement-finishing-bid-calculator/">Basement Finishing Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. tracking it in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Basement Finishing Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. tracking it in a spreadsheet</h1>
+<p class="lede">A remodeler pricing rec-room versus framed-finish versus legal-living scope usually ends up with a spreadsheet: a rate block per scope, a ceiling line, a floor line with waste, and a new section whenever the job needs a bath, egress windows, or a stair rebuild it did not have last time. Every formula is ordinary arithmetic. Keeping it wired together as the scope changes under you is the part that gets skipped when a homeowner needs a number today.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+<strong>A spreadsheet</strong> can reproduce every line this calculator prices &mdash;
+shell labor and material by scope, a ceiling plane, a floor with waste, a
+bathroom kit, egress windows, bedroom extras, a stair rebuild, a wet bar, an
+HVAC extend, permit coordination, travel, overhead, and target margin.
+Building it means setting up separate rate blocks for rec-room, framed-finish,
+and legal-living, then remembering which cells to update every time the job's
+scope, ceiling, or floor choice changes &mdash; and adding a new block the
+next time a job needs a line item the sheet did not have last time.
+</p>
+<p>
+<strong>This calculator</strong> keeps shell, ceiling, floor, bath, egress,
+bedrooms, stairs, wet bar, HVAC, and permit on one screen, already wired to
+the scope you pick. Changing scope, ceiling, or floor refills the starting
+hours and material for that choice automatically &mdash; a field you have
+already hand-edited is left alone, but nothing else silently keeps yesterday's
+number. The &ldquo;same basement, three scopes&rdquo; table re-prices your
+finished square footage under rec-room, framed-finish, and legal-living at
+once, and a saved bid or a printable customer proposal with a deposit split
+and a price-held date are both one click, not a second document to build.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does this basement cost under rec-room, framed-finish, and legal-living, side by side?</td><td>This calculator's &ldquo;same basement, three scopes&rdquo; comparison &mdash; one screen, no separate rate blocks.</td></tr>
+<tr><td>Is the price I'm about to quote still above my walk-away cost for this scope?</td><td>This calculator's proposed-price margin check.</td></tr>
+<tr><td>My job has a wrinkle this calculator doesn't model (a walkout entrance, a kitchenette).</td><td>A spreadsheet you build yourself &mdash; it can represent any line item you can describe.</td></tr>
+<tr><td>I need to hand the homeowner a proposal with a deposit split and a price-held date.</td><td>This calculator's printable proposal, generated from the same figures &mdash; no second document.</td></tr>
+<tr><td>I want to reopen this exact bid later, or send it to my crew.</td><td>This calculator's shareable bid link &mdash; a spreadsheet has to be saved and sent as a file.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This page names no specific product &mdash; it compares against the generic method of tracking a basement bid in a spreadsheet, not a competing calculator.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can a spreadsheet price a basement finish instead?</h3>
+<p>Yes. Every line this calculator prices &mdash; shell labor and material by scope, a ceiling plane, a floor with waste, a bathroom kit, egress windows, bedroom extras, a stair rebuild, a wet bar, an HVAC extend, permit coordination, travel, overhead, and target margin &mdash; is ordinary arithmetic you can put in a spreadsheet. Building it means setting up separate rate blocks for rec-room, framed-finish, and legal-living scope, then remembering to update every formula that touches finished square feet whenever the job changes shape.</p>
+<h3>What does a spreadsheet not do that this calculator does?</h3>
+<p>Re-price the same basement under all three scopes at once, so you can see where a rec-room rate would lose money on a legal-living suite before you quote it. Switching scope, ceiling, or floor in this calculator refills the starting hours and material for that choice automatically &mdash; a spreadsheet's cells stay whatever you last typed until you notice they are wrong. It also turns the same numbers into a printable customer proposal with a deposit split and a price-held date, and a shareable bid link that reopens the exact scenario for you or your crew, neither of which a formula cell produces on its own.</p>
+<h3>Is a spreadsheet ever the better choice?</h3>
+<p>Yes, when the job has a wrinkle this calculator does not model &mdash; a walkout entrance, a second stair, a kitchenette, or a rate structure this tool's fields cannot represent. A spreadsheet you build yourself can represent any line item you can describe. This calculator trades that flexibility for a form that already has the right fields for one basement finish, wired together so changing scope does not mean rebuilding the sheet.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid is saved in this browser's local storage between visits, and a bid link you copy carries those same numbers in the page's URL hash rather than sending anything to a server.</p>
+<p class="note">
+Open the <a href="./">Basement Finishing Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-to-finish-a-basement.html">how much to charge to finish a basement</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, material, and permit costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page names no specific product or company &mdash; it compares against the generic method of tracking a bid in a spreadsheet.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../tile-layout-optimizer/" data-pf-to="tile-layout-optimizer">Tile Layout Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tile-layout-planner/" data-pf-to="tile-layout-planner">Tile Layout Planner — free, private, in your browser</a></li>
+      <li><a href="../walk-in-shower-bid-calculator/" data-pf-to="walk-in-shower-bid-calculator">Walk-In Shower Bid Calculator</a></li>
+      <li><a href="../walk-in-tub-bid-calculator/" data-pf-to="walk-in-tub-bid-calculator">Walk-In Tub Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=basement-finishing-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="basement-finishing-bid-calculator"></script>
+</body></html>

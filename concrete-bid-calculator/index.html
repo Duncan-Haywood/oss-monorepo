@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concrete Bid Calculator — Driveway &amp; Patio by Cubic Yard</title>
+  <meta name="description" content="Price a concrete driveway, patio, or slab from cubic yards, form footage, finish labor, and access — not a flat price per square foot.">
+  <meta property="og:title" content="Concrete Bid Calculator">
+  <meta property="og:description" content="Bid concrete the way the trade does — yards and forms, not square footage — and see the margin before you send the price.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Concrete Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Cubic yards from thickness, waste and quarter-yard order quantity, form footage, finish labor by surface, chute vs wheelbarrow vs pump, short-load fee, demo haul, walk-away price, price per square foot, price per cubic yard, effective hourly rate, proposed-price margin check, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this concrete estimate include?","acceptedAnswer":{"@type":"Answer","text":"Each slab’s cubic yards from its area and thickness, a waste percentage rounded up to the plant’s billed order increment, forms priced by perimeter, reinforcement priced by area, finish labor by the finish you pick, access costs for a pump or wheelbarrow pour, a short-load fee if the order falls under your threshold, demo and haul of any existing slab, and overhead and margin on top."}},{"@type":"Question","name":"Why does the ordered yardage differ from the raw calculated volume?","acceptedAnswer":{"@type":"Answer","text":"Ready-mix plants typically bill in quarter-yard increments, so after your waste percentage is added the tool rounds the order up to the next one. The exact volume and the ordered volume are shown separately so you can see what you’ll actually be billed for, rather than eating the rounding difference yourself."}},{"@type":"Question","name":"What is the “80-lb bags (comparison only)” number for, if the bid prices ready-mix?","acceptedAnswer":{"@type":"Answer","text":"It is not part of the priced bid — it converts your ordered cubic yards (waste included) into 80-lb bags at about 0.6 cubic feet per bag, so you can weigh a hardware-store bag run against calling in a ready-mix truck. Once a pour is over about a cubic yard, bagging it is almost never the cheaper path; the bag count exists mainly to confirm that a small patch, footing, or post base is one of the rare jobs where it might be worth comparing."}},{"@type":"Question","name":"Does finish labor account for a stamped or exposed-aggregate patio the same as a broom driveway?","acceptedAnswer":{"@type":"Answer","text":"No. Finish hours per 100 square feet are different for broom, smooth trowel, exposed aggregate, and stamped finishes, and a stamped or decorative finish carries meaningfully more hours than a broom finish of the same size. Pick the preset that matches the job, or replace it with your own crew’s times."}},{"@type":"Question","name":"Does this check the mix design, slump, or reinforcement spec?","acceptedAnswer":{"@type":"Answer","text":"No. Reinforcement is priced only as a flat cost per square foot for wire mesh or rebar, and there is no mix design, slump, or engineering check built in. Confirm those specifics with your ready-mix plant or an engineer before you pour."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your entries are optionally kept in this browser’s local storage as a draft so a reload doesn’t lose them, and nothing is sent to a server. A share link encodes only the job details you see on screen into the web address itself, so copying one and sending it does not upload anything either."}},{"@type":"Question","name":"What’s the difference between the total cost and the price shown?","acceptedAnswer":{"@type":"Answer","text":"Total cost is concrete, forms, reinforcement, labor, demo, and access fees plus overhead — the walk-away number. The price on top applies your target margin, so it is what you’d need to charge to hit that margin rather than just cover your costs."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c16; background: #f3eee6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8cbb8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a790; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .slab-row { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .slab-row select, .slab-row input { padding: 10px 7px; }
+    .slab-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6a5e4e; }
+    .slab-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a790; background: #f7f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #241c16; }
+    button:hover { background: #efe6d6; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #3a2614; color: #f7f1e8; border-color: #3a2614; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b06a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #ead7b3; }
+    .draft-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .slab-head { display: none; }
+      .slab-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6dccb; border-radius: 9px; padding: 11px; }
+      .slab-row label { font-size: .78rem; gap: 5px; }
+      .slab-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .slab-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #b8a78d; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3a2614; --pr-accent: #8a4b12;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Concrete Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Concrete Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Concrete Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR CONCRETE CONTRACTORS</p>
+    <h1>Bid the yards and the forms, not the square footage.</h1>
+    <p>Price a driveway, patio, or slab the way the trade actually does: area times thickness for cubic yards, waste and the plant&rsquo;s quarter-yard ticket, forms by the edge, finish by the surface, and a separate line for chute vs wheelbarrow vs pump. You get the bid, what it works out to per yard and per square foot, and the number below which the pour loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The pour</h2>
+        <p class="hint">One row per slab. Thickness is what turns a cheap square-foot quote into a losing job &mdash; a 6-inch RV pad is 50% more concrete than a 4-inch driveway of the same size. Pick a finish to start from a common labor figure, then replace it with a time from your own crew.</p>
+        <div class="slab-row slab-head" aria-hidden="true">
+          <span>Finish</span><span>Length (ft)</span><span>Width (ft)</span><span>Thickness (in)</span><span>Hours / 100 sf</span><span></span>
+        </div>
+        <div id="slabs"></div>
+        <button type="button" id="addSlab">+ Add a slab</button>
+      </section>
+
+      <section>
+        <h2>Material, access, and demo</h2>
+        <div class="fields">
+          <label>Waste / over-excavate (%) <input id="wastePct" type="number" min="0" step="0.5" value="8" inputmode="decimal"></label>
+          <label>Ready-mix price / cubic yard <input id="concretePerYd" type="number" min="0" step="1" value="175" inputmode="numeric"></label>
+          <label>Form material / linear foot <input id="formPerLf" type="number" min="0" step="0.25" value="3.50" inputmode="decimal"></label>
+          <label>Hours to set and strip forms <input id="formHours" type="number" min="0" step="0.25" value="6" inputmode="decimal"></label>
+          <label>Reinforcement <select id="reinforcement"></select></label>
+          <label>Reinforcement $ / sq ft <input id="reinforcementPerSqFt" type="number" min="0" step="0.05" value="0.35" inputmode="decimal"></label>
+          <label>Access to the pour <select id="access"></select></label>
+          <label>Pump / extra access fee <input id="pumpFee" type="number" min="0" step="10" value="0" inputmode="numeric"></label>
+          <label>Short-load threshold (yd) <input id="shortLoadThresholdYd" type="number" min="0" step="0.25" value="5" inputmode="decimal"></label>
+          <label>Short-load fee <input id="shortLoadFee" type="number" min="0" step="5" value="80" inputmode="numeric"></label>
+          <label>Existing slab to remove (sq ft) <input id="demoSqFt" type="number" min="0" step="10" value="0" inputmode="numeric"></label>
+          <label>Existing thickness (in) <input id="demoThicknessIn" type="number" min="0" step="0.5" value="4" inputmode="decimal"></label>
+          <label>Haul-off / dump per yard <input id="haulPerYd" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+          <label>Demo hours <input id="demoHours" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Most plants add a short-load fee under about five yards. A 5×5 stoop that looked cheap per square foot often loses the job on that fee plus the truck minimum.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Prep / base hours <input id="prepHours" type="number" min="0" step="0.25" value="4" inputmode="decimal"></label>
+          <label>Crew hourly wage (blended) <input id="hourlyWage" type="number" min="0" step="0.25" value="28" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30" inputmode="decimal"></label>
+          <label>Other cost (permits, joints, sealer) <input id="otherCost" type="number" min="0" step="5" value="150" inputmode="numeric"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20" inputmode="decimal"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 4800" inputmode="numeric"></label>
+        </div>
+        <div class="draft-actions">
+          <button type="button" id="saveDraft">Save draft on this device</button>
+          <button type="button" id="loadDraft">Load saved draft</button>
+          <button type="button" id="clearDraft">Clear saved draft</button>
+          <span id="draftStatus" class="summary-status" role="status" aria-live="polite"></span>
+        </div>
+        <div class="draft-actions">
+          <button type="button" id="copyShare">Copy share link</button>
+          <span id="shareStatus" class="summary-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Ruiz Concrete LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(816) 555-0143"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="MO-CN-55218"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="740 E 18th St, Kansas City MO"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="K. Osei"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="3117 Gillham Rd"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Pour 620 sq ft driveway at 4&quot;&#10;Broom finish"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Removal of existing slab beyond 200 sq ft&#10;Permit fees"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Cure time before vehicle traffic is seven days."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">pour price</div>
+      <dl>
+        <dt>Yards in the slab (no waste)</dt><dd id="rawYards"></dd>
+        <dt>Yards with waste</dt><dd id="yardsWithWaste"></dd>
+        <dt>Yards the plant will bill</dt><dd id="orderedYards"></dd>
+        <dt>80-lb bags (comparison only)</dt><dd id="bags"></dd>
+        <dt>Form edge</dt><dd id="perimeter"></dd>
+        <dt>Ready-mix</dt><dd id="concrete"></dd>
+        <dt>Forms + reinforcement</dt><dd id="forms"></dd>
+        <dt>Pump + short-load</dt><dd id="accessFees"></dd>
+        <dt>Demo haul</dt><dd id="demo"></dd>
+        <dt>Labor hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Price per cubic yard</dt><dd id="perYard"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the yards go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting finish hours are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them. Confirm slump, mix, and reinforcement with the engineer or the ready-mix plant before you order.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this concrete estimate include?</h3>
+      <p>Each slab&rsquo;s cubic yards from its area and thickness, a waste percentage rounded up to
+        the plant&rsquo;s billed order increment, forms priced by perimeter, reinforcement priced by
+        area, finish labor by the finish you pick, access costs for a pump or wheelbarrow pour, a
+        short-load fee if the order falls under your threshold, demo and haul of any existing slab, and
+        overhead and margin on top.</p>
+
+      <h3>Why does the ordered yardage differ from the raw calculated volume?</h3>
+      <p>Ready-mix plants typically bill in quarter-yard increments, so after your waste percentage is
+        added the tool rounds the order up to the next one. The exact volume and the ordered volume are
+        shown separately so you can see what you&rsquo;ll actually be billed for, rather than eating the
+        rounding difference yourself.</p>
+
+      <h3>What is the &ldquo;80-lb bags (comparison only)&rdquo; number for, if the bid prices ready-mix?</h3>
+      <p>It is not part of the priced bid &mdash; it converts your ordered cubic yards (waste included)
+        into 80-lb bags at about 0.6 cubic feet per bag, so you can weigh a hardware-store bag run
+        against calling in a ready-mix truck. Once a pour is over about a cubic yard, bagging it is
+        almost never the cheaper path; the bag count exists mainly to confirm that a small patch,
+        footing, or post base is one of the rare jobs where it might be worth comparing.</p>
+
+      <h3>Does finish labor account for a stamped or exposed-aggregate patio the same as a broom driveway?</h3>
+      <p>No. Finish hours per 100 square feet are different for broom, smooth trowel, exposed
+        aggregate, and stamped finishes, and a stamped or decorative finish carries meaningfully more
+        hours than a broom finish of the same size. Pick the preset that matches the job, or replace it
+        with your own crew&rsquo;s times.</p>
+
+      <h3>Does this check the mix design, slump, or reinforcement spec?</h3>
+      <p>No. Reinforcement is priced only as a flat cost per square foot for wire mesh or rebar, and
+        there is no mix design, slump, or engineering check built in. Confirm those specifics with your
+        ready-mix plant or an engineer before you pour.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your
+        entries are optionally kept in this browser&rsquo;s local storage as a draft so a reload
+        doesn&rsquo;t lose them, and nothing is sent to a server. A share link encodes only the
+        job details you see on screen into the web address itself, so copying one and sending it
+        does not upload anything either.</p>
+
+      <h3>What&rsquo;s the difference between the total cost and the price shown?</h3>
+      <p>Total cost is concrete, forms, reinforcement, labor, demo, and access fees plus overhead
+        &mdash; the walk-away number. The price on top applies your target margin, so it is what
+        you&rsquo;d need to charge to hit that margin rather than just cover your costs.</p>
+    </section>
+  </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a structural design, a mix design, or a code check. Verify every figure against your own payroll, insurance, ready-mix tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your job, yards, costs, or prices.</p>
+    <p>Related: <a href="how-much-concrete-for-a-driveway.html">how many cubic yards for a driveway</a>, <a href="./vs-stack.html">this calculator vs. STACK</a>, <a href="./vs-a-flat-price-per-square-foot.html">this calculator vs. a flat price per square foot</a>.</p>
+    <p>Lifting a settled slab instead of pouring a new one? The <a href="../concrete-lifting-bid-calculator/">concrete lifting bid calculator</a> prices mudjacking or polyjacking from void depth and access — nothing uploaded.</p>
+    <p>Coating an existing garage slab with epoxy or polyaspartic instead of pouring new? The <a href="../epoxy-garage-floor-bid-calculator/">epoxy garage floor bid calculator</a> prices grind hours, flake load, and kit cost &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { ACCESS_PRESETS, FINISH_PRESETS, REINFORCEMENT_PRESETS, calculateBid } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+
+    const COST_IDS = [
+      'wastePct','concretePerYd','formPerLf','formHours','reinforcementPerSqFt','pumpFee',
+      'shortLoadThresholdYd','shortLoadFee','demoSqFt','demoThicknessIn','haulPerYd','demoHours',
+      'prepHours','hourlyWage','burdenRate','otherCost','overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_SLABS = [
+      { name: 'Broom finish', lengthFt: 20, widthFt: 40, thicknessIn: 4, hoursPer100: 0.85 },
+      { name: 'Broom finish', lengthFt: 3, widthFt: 20, thicknessIn: 4, hoursPer100: 0.85 },
+    ];
+
+    const FINISH_OPTIONS = FINISH_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other finish</option>';
+
+    el('reinforcement').innerHTML = REINFORCEMENT_PRESETS
+      .map(preset => `<option value="${preset.id}">${preset.label}</option>`)
+      .join('');
+    el('reinforcement').value = 'mesh';
+    el('access').innerHTML = ACCESS_PRESETS
+      .map(preset => `<option value="${preset.id}">${preset.label}</option>`)
+      .join('');
+
+    const slabsHost = el('slabs');
+    let rowSeq = 0;
+    let accessEdited = false;
+    let reinforcementEdited = false;
+
+    function addSlabRow(slab) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'slab-row';
+      row.innerHTML = `
+        <label for="${id}-finish"><span class="lbl">Finish</span><select class="s-finish" id="${id}-finish">${FINISH_OPTIONS}</select></label>
+        <label for="${id}-len"><span class="lbl">Length (ft)</span><input class="s-len" id="${id}-len" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label for="${id}-wid"><span class="lbl">Width (ft)</span><input class="s-wid" id="${id}-wid" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label for="${id}-thk"><span class="lbl">Thickness (in)</span><input class="s-thk" id="${id}-thk" type="number" min="0.5" step="0.5" inputmode="decimal"></label>
+        <label for="${id}-hrs"><span class="lbl">Finish hours per 100 sq ft</span><input class="s-hrs" id="${id}-hrs" type="number" min="0" step="0.05" inputmode="decimal"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this slab</span></button>`;
+
+      const finishField = row.querySelector('.s-finish');
+      const hoursField = row.querySelector('.s-hrs');
+      const presetIndex = FINISH_PRESETS.findIndex(p => p.label === slab.name);
+      finishField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.s-len').value = slab.lengthFt;
+      row.querySelector('.s-wid').value = slab.widthFt;
+      row.querySelector('.s-thk').value = slab.thicknessIn;
+      hoursField.value = slab.hoursPer100;
+
+      finishField.addEventListener('change', () => {
+        const preset = FINISH_PRESETS[Number(finishField.value)];
+        if (preset && !hoursField.dataset.edited) hoursField.value = preset.hoursPer100;
+        count('bid_calculated');
+        update();
+      });
+      hoursField.addEventListener('input', () => { hoursField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('slab_removed');
+        update();
+      });
+      slabsHost.append(row);
+    }
+
+    function readSlabs() {
+      return [...slabsHost.querySelectorAll('.slab-row')].map(row => {
+        const preset = FINISH_PRESETS[Number(row.querySelector('.s-finish').value)];
+        return {
+          name: preset ? preset.label : '',
+          lengthFt: row.querySelector('.s-len').value,
+          widthFt: row.querySelector('.s-wid').value,
+          thicknessIn: row.querySelector('.s-thk').value,
+          hoursPer100: row.querySelector('.s-hrs').value,
+        };
+      });
+    }
+
+    const DRAFT_KEY = 'concrete-bid-calculator:draft:v1';
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function draftData() {
+      return {
+        slabs: readSlabs(),
+        fields: Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        reinforcement: el('reinforcement').value,
+        access: el('access').value,
+        // The deposit split, valid-until days, customer name/address, and the
+        // proposal's payment-terms/notes/exclusions text live on this same
+        // form but outside COST_IDS. Leaving them out here is the draft-save
+        // version of the bug `platform/proposal/terms.mjs` documents for
+        // shared links: the price restores exactly and the deposit quietly
+        // reverts to the page default, with nothing on screen saying so.
+        proposal: Object.fromEntries(
+          [...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+        ),
+      };
+    }
+
+    function setDraftStatus(message) {
+      el('draftStatus').textContent = message;
+      setTimeout(() => { el('draftStatus').textContent = ''; }, 2500);
+    }
+
+    function saveDraft() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData()));
+        count('draft_saved');
+        setDraftStatus('Saved on this device');
+      } catch {
+        setDraftStatus('Could not save locally');
+      }
+    }
+
+    function loadDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if (!draft || !Array.isArray(draft.slabs)) {
+          setDraftStatus('No saved draft');
+          return;
+        }
+        slabsHost.replaceChildren();
+        rowSeq = 0;
+        draft.slabs.forEach(addSlabRow);
+        Object.entries(draft.fields || {}).forEach(([id, value]) => {
+          if (COST_IDS.includes(id) && el(id)) el(id).value = value;
+        });
+        if ([...el('reinforcement').options].some(option => option.value === draft.reinforcement)) el('reinforcement').value = draft.reinforcement;
+        if ([...el('access').options].some(option => option.value === draft.access)) el('access').value = draft.access;
+        Object.entries(draft.proposal || {}).forEach(([id, value]) => {
+          if ([...CLIENT_IDS, ...TERM_IDS].includes(id) && el(id)) el(id).value = value;
+        });
+        count('draft_loaded');
+        update();
+        setDraftStatus('Loaded saved draft');
+      } catch {
+        setDraftStatus('Saved draft is unreadable');
+      }
+    }
+
+    function clearDraft() {
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* unavailable storage is harmless */ }
+      count('draft_cleared');
+      setDraftStatus('Saved draft cleared');
+    }
+
+    function applyReinforcementPreset() {
+      const preset = REINFORCEMENT_PRESETS.find(p => p.id === el('reinforcement').value);
+      if (preset && !reinforcementEdited) el('reinforcementPerSqFt').value = preset.costPerSqFt;
+    }
+
+    function applyAccessPreset() {
+      const preset = ACCESS_PRESETS.find(p => p.id === el('access').value);
+      if (preset && !accessEdited) el('pumpFee').value = preset.pumpFee;
+    }
+
+    function accessHoursPer100() {
+      const preset = ACCESS_PRESETS.find(p => p.id === el('access').value);
+      return preset ? preset.extraHoursPer100 : 0;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'pour price';
+      ['rawYards','yardsWithWaste','orderedYards','bags','perimeter','concrete','forms','accessFees','demo','hours','labor','overhead','cost','profit','perSqFt','perYard','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * The one place the calculator's inputs are assembled. Previously this
+     * object literal was built at each call site; the proposal is a third, and
+     * three copies of it is how the summary and the printed sheet come to be
+     * priced from different fields.
+     */
+    function readInput() {
+      return {
+        slabs: readSlabs(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        accessHoursPer100: accessHoursPer100(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    // Same fields as readInput(), minus the derived accessHoursPer100 and plus
+    // the raw reinforcement/access select values a share link needs to restore
+    // the selects themselves rather than just their preset side-effects.
+    function shareInput() {
+      return {
+        slabs: readSlabs(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        reinforcement: el('reinforcement').value,
+        access: el('access').value,
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return false;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if ([...el('reinforcement').options].some(option => option.value === payload.reinforcement)) {
+        el('reinforcement').value = payload.reinforcement;
+      }
+      if ([...el('access').options].some(option => option.value === payload.access)) {
+        el('access').value = payload.access;
+      }
+      if (Array.isArray(payload.slabs) && payload.slabs.length > 0) {
+        slabsHost.replaceChildren();
+        rowSeq = 0;
+        payload.slabs.forEach(addSlabRow);
+        return true;
+      }
+      return false;
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.slabs.length === 0) {
+        clearOutputs('Add a slab to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one slab above and the yard split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'pour price';
+      el('rawYards').textContent = `${result.rawYards.toFixed(2)} yd³`;
+      el('yardsWithWaste').textContent = `${result.yardsWithWaste.toFixed(2)} yd³`;
+      el('orderedYards').textContent = `${result.orderedYards.toFixed(2)} yd³`;
+      el('bags').textContent = result.bags80lb.toLocaleString('en-US');
+      el('perimeter').textContent = `${result.totalPerimeterFt.toFixed(1)} ft`;
+      el('concrete').textContent = money(result.concreteCost);
+      el('forms').textContent = money(result.formMaterialCost + result.reinforcementCost);
+      el('accessFees').textContent = money(result.pumpFee + result.shortLoadFee);
+      el('demo').textContent = money(result.demoHaulCost);
+      el('hours').textContent = `${result.laborHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('perYard').textContent = result.pricePerYard === null ? 'n/a' : money(result.pricePerYard);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.slabs.filter(slab => slab.rawYards > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No slab has area yet — enter length and width above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.rawYards - a.rawYards)
+          .map(slab => `<li><span>${slab.name} (${slab.thicknessIn}&quot;)</span><span>${slab.yardsShare.toFixed(0)}% of yards</span>
+            <span class="bar"><span style="width:${slab.yardsShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this pour <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const slabs = result.slabs
+        .filter(slab => slab.squareFeet > 0)
+        .map(slab => `- ${slab.name}: ${slab.squareFeet.toLocaleString('en-US')} sq ft at ${slab.thicknessIn}" (${slab.rawYards.toFixed(2)} yd³)`)
+        .join('\n');
+      return [
+        'CONCRETE POUR BID',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Yards to order: ${result.orderedYards.toFixed(2)} yd³ (includes waste, billed increment)`,
+        `Form edge: ${result.totalPerimeterFt.toFixed(1)} ft`,
+        `Labor: ${result.laborHours.toFixed(1)} hours`,
+        `Price per square foot: ${result.pricePerSqFt === null ? 'n/a' : '$' + result.pricePerSqFt.toFixed(2)}`,
+        `Price per cubic yard: ${result.pricePerYard === null ? 'n/a' : money(result.pricePerYard)}`,
+        '',
+        'SLABS',
+        slabs || '- No slabs entered',
+        '',
+        'This is a draft for review. Confirm mix, thickness, reinforcement, access, permits, and all pricing before sending or ordering.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(shareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('shareStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('shareStatus').textContent = ''; }, 2500);
+    }
+
+    el('addSlab').addEventListener('click', () => {
+      addSlabRow({ name: '', lengthFt: 0, widthFt: 0, thicknessIn: 4, hoursPer100: 1 });
+      count('slab_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('reinforcementPerSqFt').addEventListener('input', () => { reinforcementEdited = true; });
+    el('pumpFee').addEventListener('input', () => { accessEdited = true; });
+    el('reinforcement').addEventListener('change', () => {
+      applyReinforcementPreset();
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessPreset();
+      count('bid_calculated');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('saveDraft').addEventListener('click', saveDraft);
+    el('loadDraft').addEventListener('click', loadDraft);
+    el('clearDraft').addEventListener('click', clearDraft);
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed.'; });
+    });
+
+    // A share link wins over the starting sample slabs, the same way it wins
+    // over a local draft on the calculators that have one — someone who opens
+    // a link a contractor sent them should see that contractor's pour, not two
+    // generic driveway slabs.
+    const incomingHash = splitTerms(location.hash);
+    const sharedInputs = decodeShare(incomingHash.payload);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    if (!applyShare(sharedInputs)) STARTING_SLABS.forEach(addSlabRow);
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'concrete-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a structural, building-code, or engineering determination, and it does not specify a mix, a reinforcement schedule, or a subgrade any particular pour requires.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const pours = result.slabs
+        .filter(row => row.squareFeet > 0)
+        .map(row => `${row.name}: ${Math.round(row.squareFeet).toLocaleString('en-US')} sq ft `
+          + `at ${row.thicknessIn}" thick`);
+      const suggested = [
+        ...pours,
+        `Place and finish ${result.orderedYards.toFixed(2)} cubic yards of concrete`,
+        result.demoYards > 0 ? 'Break out and haul away the existing slab' : '',
+        'Form, grade, and prepare the subgrade',
+        'Site protection and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Concrete flatwork',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
+    update();
+    restoreCompany();
+    refreshProposal();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../concrete-lifting-bid-calculator/" data-pf-to="concrete-lifting-bid-calculator">Concrete Lifting Bid Calculator</a></li>
+      <li><a href="../epoxy-garage-floor-bid-calculator/" data-pf-to="epoxy-garage-floor-bid-calculator">Epoxy Garage Floor Bid Calculator</a></li>
+      <li><a href="../foundation-repair-bid-calculator/" data-pf-to="foundation-repair-bid-calculator">Foundation Repair Bid Calculator</a></li>
+      <li><a href="../french-drain-bid-calculator/" data-pf-to="french-drain-bid-calculator">French Drain Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=concrete-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/?pfEmbed=1&quot; title=&quot;Concrete Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="concrete-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/" data-pf-embed-title="Concrete Bid Calculator" data-pf-embed-slug="concrete-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="concrete-bid-calculator" data-pf-jobs-amount="#price"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

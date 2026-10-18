@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Structured Data Drift Check vs. checking it by eye</title>
+  <meta name="description" content="Reading view-source and comparing a JSON-LD block against the visible page by eye genuinely works for one short FAQ answer.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/vs-checking-it-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Structured Data Drift Check vs. checking it by eye">
+  <meta property="og:description" content="Eyeballing view-source against the rendered page catches an obvious one-line mismatch. It misses an escaped quote that reads identically to a curly one…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/vs-checking-it-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does checking JSON-LD against the page by eye actually catch?","acceptedAnswer":{"@type":"Answer","text":"It catches the case everyone tests: view-source, find the application/ld+json block, read one short FAQ answer, glance at the matching paragraph on the page, and see they say the same thing. That works fine for a single short claim someone is already looking straight at."}},{"@type":"Question","name":"Why does eyeballing miss an entity or escape difference?","acceptedAnswer":{"@type":"Answer","text":"The JSON-LD in view-source is a raw, minified, escaped string: a curly right quote is the literal characters \\u2019 or an HTML entity, an em dash can be a plain double hyphen, and a straight quote inside the JSON is backslash-escaped as \\\". None of those render as anything unusual when you read the raw source text — they look like ordinary characters mixed into a long line — so two strings that differ by exactly one of them read as identical to a person scanning past them, while a browser decoding the same page renders visibly different punctuation."}},{"@type":"Question","name":"Why does eyeballing miss a nested node?","acceptedAnswer":{"@type":"Answer","text":"Real JSON-LD nests: a Review sits inside a Product's review field, an Organization sits inside an Article's publisher field, and an @graph array can hold several unrelated top-level nodes in one script block. Finding every checkable claim means mentally walking that structure without missing a level, for however many script tags the page carries — and a person scanning for the FAQPage block they know is there has no particular reason to also open the Product node three lines below it."}},{"@type":"Question","name":"Why is a long claim harder to check by eye than a short one?","acceptedAnswer":{"@type":"Answer","text":"A HowTo step or an Article description can run to several sentences. Comparing two paragraph-length strings word for word by eye, across the gap between a minified JSON string and a rendered paragraph with different line wrapping, is exactly the kind of exhaustive comparison people are bad at doing reliably — and unlike a one-line FAQ answer, a single dropped clause in the middle of a long paragraph produces no visual cue that anything is missing."}},{"@type":"Question","name":"Does this tool replace reading the page yourself?","acceptedAnswer":{"@type":"Answer","text":"No. It only compares text that is already on the page against text that is already in the page's own JSON-LD — it has no opinion on whether the copy is well-written, whether the JSON-LD is eligible for a rich result, or whether a claim outside its six checked types is accurate. Judging the content itself is still a job for reading it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 800px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.12; color: #17324a; margin: .3rem 0; }
+    h2 { font-size: 1.1rem; margin-top: 1.8rem; color: #17324a; }
+    h3 { font-size: 1rem; margin: 1.2rem 0 .3rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { font-size: .92em; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Structured Data Drift Check vs. checking it by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../structured-data-drift-check/">Does your structured data match what's actually on the page?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Structured Data Drift Check vs. checking it by eye</span></span></nav>
+  <p><a href="./">&larr; Structured Data Drift Check</a></p>
+  <h1>Structured Data Drift Check vs. checking it by eye</h1>
+  <p>
+    This page names no specific product or company: "checking it by eye" is
+    view-source plus reading, a generic manual habit anyone with a browser
+    already has, not a competing tool.
+  </p>
+  <p>
+    Reading a page's <code>&lt;script type="application/ld+json"&gt;</code>
+    block and comparing it by eye against the rendered page genuinely works
+    for the case most people picture when they think about checking this: one
+    short FAQ answer, one matching paragraph, both in view at the same time.
+    That case is real, and it is not what this tool exists to replace. What
+    it replaces is everything past that case &mdash; escaped punctuation that
+    reads as ordinary text, a node nested inside another node, more than one
+    <code>&lt;script&gt;</code> block on the page, and a claim long enough
+    that a dropped clause in the middle produces no visual cue at all.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Case</th><th>Checking it by eye</th><th>This tool</th></tr></thead>
+    <tbody>
+      <tr><td>One short FAQ answer next to its matching paragraph, both in view together</td><td>Works fine &mdash; this is the case the habit is built for</td><td>Also passes, the same way, as one of six checked claim types</td></tr>
+      <tr><td>A JSON-escaped straight quote (<code>\"</code>) vs. a curly one rendered on the page</td><td>Both read as an ordinary quote mark scanning past a long raw-text line &mdash; no visual difference to notice</td><td>Squashes and compares the decoded text directly, so a quote-style mismatch shows up as an exact divergence, not a guess</td></tr>
+      <tr><td>An em dash written as a plain double hyphen in the JSON-LD, or an HTML entity like <code>&amp;mdash;</code></td><td>Reads as unremarkable ASCII in the raw source either way</td><td>Decodes named and numeric entities before comparing, so the two only match when the actual characters agree</td></tr>
+      <tr><td>A <code>Review</code> nested inside a <code>Product</code>, or an <code>Organization</code> nested inside an <code>Article</code>'s <code>publisher</code> field</td><td>Only found if the person scanning the script block happens to open that nested object too, past whichever top-level type they were looking for</td><td>Walks every reachable node in every script block, including <code>@graph</code> arrays and nested fields, so a claim three levels deep is checked the same as a top-level one</td></tr>
+      <tr><td>A paragraph-length <code>HowTo</code> step or <code>Article</code> description</td><td>A manual word-for-word comparison across a line-wrap difference &mdash; exactly the kind of exhaustive check people get wrong under time pressure, with no signal when they do</td><td>A deterministic string comparison with no length limit, reporting the exact character where the two diverge</td></tr>
+      <tr><td>More than one <code>&lt;script type="application/ld+json"&gt;</code> block on the page</td><td>Easy to check the one you already scrolled to and skip the others</td><td>Parses every JSON-LD script block on the page in one pass</td></tr>
+      <tr><td>Catching drift a future edit introduces</td><td>A one-time read answers for today; nothing re-checks the page after the next copy edit</td><td><code>cli.mjs</code> reads local files with no network call and can run as a CI gate on every build</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>The gap that matters most: escaped text looks identical to decoded text</h2>
+  <p>
+    View-source shows the JSON-LD exactly as authored: a right single quote
+    can be the six literal characters <code>&amp;rsquo;</code> or the escape
+    sequence <code>’</code>, and an em dash can be typed as two hyphens
+    because it was faster to type than the real character. None of that looks
+    unusual sitting inside a long minified string &mdash; there is no red
+    flag, no obviously-wrong shape, just ordinary-looking text. The page's
+    rendered copy, meanwhile, shows the decoded, real character. Two strings
+    that differ by exactly one of these substitutions read as the same thing
+    to someone scanning past them, and stay that way indefinitely, because
+    nothing about a clean-looking read tells you whether you checked the
+    actual characters or the ones your eye auto-corrected on the way past.
+    This tool's <code>decodeEntities</code> step resolves both named and
+    numeric character references before comparing, so a punctuation
+    substitution shows up as a real divergence rather than passing on sight.
+  </p>
+
+  <h2>The gap that matters second: nesting has no visual marker</h2>
+  <p>
+    Schema.org nodes nest freely &mdash; a <code>Review</code> can live inside
+    a <code>Product</code>'s <code>review</code> field, an
+    <code>Organization</code> can live inside an <code>Article</code>'s
+    <code>publisher</code> field, and a single script block can hold an
+    <code>@graph</code> array of several unrelated top-level nodes. None of
+    that changes how the raw text looks: it is still one long line of nested
+    braces, and there is no highlighting to tell a person scanning it that a
+    checkable claim sits three levels deeper than the type they came looking
+    for. This tool walks every object reachable from every parsed script
+    block &mdash; arrays, <code>@graph</code>, and every nested property
+    &mdash; so a nested claim is checked the same way a top-level one is,
+    with no dependence on whether a reader happened to open that branch.
+  </p>
+
+  <h2>When to still read the page yourself</h2>
+  <p>
+    This is a text comparison, not a content review. It has no opinion on
+    whether the copy is accurate, well-written, or eligible for a rich
+    result, and it checks only six schema.org types' textual fields &mdash;
+    a claim outside <code>FAQPage</code>, <code>HowTo</code>,
+    <code>Article</code>/<code>BlogPosting</code>/<code>NewsArticle</code>,
+    <code>Product</code>, <code>LocalBusiness</code>/<code>Organization</code>,
+    or <code>Review</code> is invisible to it the same way it would be to a
+    person who never scrolled that far. Judging the substance of the content
+    is still a job for reading it.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>What does checking JSON-LD against the page by eye actually catch?</h3>
+  <p>It catches the case everyone tests: view-source, find the <code>application/ld+json</code> block, read one short FAQ answer, glance at the matching paragraph on the page, and see they say the same thing. That works fine for a single short claim someone is already looking straight at.</p>
+  <h3>Why does eyeballing miss an entity or escape difference?</h3>
+  <p>The JSON-LD in view-source is a raw, minified, escaped string: a curly right quote is the literal characters <code>\u2019</code> or an HTML entity, an em dash can be a plain double hyphen, and a straight quote inside the JSON is backslash-escaped as <code>\"</code>. None of those render as anything unusual when you read the raw source text &mdash; they look like ordinary characters mixed into a long line &mdash; so two strings that differ by exactly one of them read as identical to a person scanning past them, while a browser decoding the same page renders visibly different punctuation.</p>
+  <h3>Why does eyeballing miss a nested node?</h3>
+  <p>Real JSON-LD nests: a <code>Review</code> sits inside a <code>Product</code>'s <code>review</code> field, an <code>Organization</code> sits inside an <code>Article</code>'s <code>publisher</code> field, and an <code>@graph</code> array can hold several unrelated top-level nodes in one script block. Finding every checkable claim means mentally walking that structure without missing a level, for however many script tags the page carries &mdash; and a person scanning for the <code>FAQPage</code> block they know is there has no particular reason to also open the <code>Product</code> node three lines below it.</p>
+  <h3>Why is a long claim harder to check by eye than a short one?</h3>
+  <p>A <code>HowTo</code> step or an <code>Article</code> description can run to several sentences. Comparing two paragraph-length strings word for word by eye, across the gap between a minified JSON string and a rendered paragraph with different line wrapping, is exactly the kind of exhaustive comparison people are bad at doing reliably &mdash; and unlike a one-line FAQ answer, a single dropped clause in the middle of a long paragraph produces no visual cue that anything is missing.</p>
+  <h3>Does this tool replace reading the page yourself?</h3>
+  <p>No. It only compares text that is already on the page against text that is already in the page's own JSON-LD &mdash; it has no opinion on whether the copy is well-written, whether the JSON-LD is eligible for a rich result, or whether a claim outside its six checked types is accurate. Judging the content itself is still a job for reading it.</p>
+
+  <p class="note">
+    More: <a href="why-google-requires-structured-data-to-match-visible-text.html">why Google requires structured data to match visible text</a>.
+    See also: <a href="vs-google-rich-results-test.html">how this differs from Google's Rich Results Test</a>.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether a JSON-LD claim's exact text is present in the page's own visible copy, not a legal opinion or an eligibility determination for any rich result. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a drift before it caught you, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../app-store-commission-calculator/" data-pf-to="app-store-commission-calculator">What does the App Store really cost you versus web checkout?</a></li>
+      <li><a href="../app-store-screenshot-check/" data-pf-to="app-store-screenshot-check">App Store Screenshot &amp; Icon Checker</a></li>
+      <li><a href="../auth-mau-pricing-calculator/" data-pf-to="auth-mau-pricing-calculator">What will authentication cost at your user count, and who is cheapest?</a></li>
+      <li><a href="../aws-bill-change-explainer/" data-pf-to="aws-bill-change-explainer">Why did my AWS bill go up this month?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=structured-data-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="structured-data-drift-check"></script>
+</body>
+</html>

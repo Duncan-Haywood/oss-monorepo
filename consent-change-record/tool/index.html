@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Consent Change Record — did the consent banner actually stop tracking?</title>
+<meta name="description" content="Free tool: drop two HAR network captures (before and after a consent choice) and get a dated diff of every request and cookie that appeared or disappeared." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/tool/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b6cb0'/%3E%3Cpath d='M8 16h6l3-8 4 16 3-8h4' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Consent Change Record" />
+<meta property="og:description" content="Diff two HAR captures to see exactly what requests and cookies a consent choice actually changed — free, client-side, no upload." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Consent Change Record",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Diffs two HAR (HTTP Archive) network captures taken before and after a consent choice, and reports every request and cookie that appeared or disappeared. Runs entirely client-side."
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --added: #c53030; --removed: #2f855a; --persisting: #c05621;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --added: #fc8181; --removed: #68d391; --persisting: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.1rem; margin-top: 0; }
+  .drop-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .drop-zone {
+    border: 1.5px dashed var(--border); border-radius: 10px; padding: 1.25rem;
+    text-align: center; background: var(--bg);
+  }
+  .drop-zone.has-file { border-style: solid; border-color: var(--accent); }
+  .drop-zone label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+  .drop-zone input[type="file"] { width: 100%; font-size: 0.85rem; }
+  .filename { margin-top: 0.5rem; font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+  .howto { font-size: 0.85rem; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.75rem; }
+  th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .tag { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.72rem; border: 1px solid var(--border); }
+  .tag.added { color: var(--added); border-color: var(--added); }
+  .tag.removed { color: var(--removed); border-color: var(--removed); }
+  .tag.persisting { color: var(--persisting); border-color: var(--persisting); }
+  .tag.unclassified { color: var(--muted); }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.8rem; }
+  .stat .n { font-size: 1.4rem; font-weight: 700; }
+  .stat .label { font-size: 0.75rem; color: var(--muted); }
+  button {
+    padding: 0.55rem 1.1rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--fg); cursor: pointer; font-size: 0.9rem;
+  }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error { color: var(--added); font-size: 0.9rem; }
+  .empty { color: var(--muted); font-size: 0.9rem; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  code { font-size: 0.85em; }
+</style>
+<link rel="stylesheet" href="../../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/tool/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Consent Change Record — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../consent-change-record/">Consent Change Record</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Consent Change Record</span></span></nav>
+<main>
+  <h1>Consent Change Record</h1>
+  <p class="lede">
+    Did that consent banner actually stop the tracking requests, or just hide
+    the banner? Export two HAR network captures from your browser — one
+    before a consent choice, one after — and this diffs every request and
+    cookie that appeared or disappeared. Nothing is uploaded.
+  </p>
+
+  <section aria-labelledby="howto-heading">
+    <h2 id="howto-heading">How to get a HAR file</h2>
+    <p class="howto">
+      Open your browser's DevTools → <strong>Network</strong> tab → reload the
+      page → make your consent choice (or don't) → right-click any request →
+      <strong>"Save all as HAR"</strong>. Do this twice on the same site: once
+      before the consent action, once after, then drop both files below. Only
+      test sites you own or are authorized to test.
+    </p>
+  </section>
+
+  <section aria-labelledby="upload-heading">
+    <h2 id="upload-heading">Compare two captures</h2>
+    <div class="drop-row">
+      <div class="drop-zone" id="before-zone">
+        <label for="before-input">Before capture (.har)</label>
+        <input type="file" id="before-input" accept=".har,application/json" />
+        <div class="filename" id="before-filename"></div>
+      </div>
+      <div class="drop-zone" id="after-zone">
+        <label for="after-input">After capture (.har)</label>
+        <input type="file" id="after-input" accept=".har,application/json" />
+        <div class="filename" id="after-filename"></div>
+      </div>
+    </div>
+    <p id="load-error" class="error" role="alert"></p>
+  </section>
+
+  <section id="report-section" aria-labelledby="report-heading" style="display:none">
+    <h2 id="report-heading">Diff report</h2>
+    <div class="summary-grid" id="summary-grid"></div>
+
+    <h3>Third-party requests present in both captures</h3>
+    <p class="howto">
+      These carried on across the consent choice — the same endpoint was
+      requested before and after. This is usually the part of the report worth
+      reading first: a request that disappears is easy to spot, but one that
+      never stopped is what a consent check is looking for. Repeats of the same
+      endpoint are collapsed into one row. Requests to the page's own host are
+      counted below rather than listed, because a site's own assets are
+      expected to persist.
+    </p>
+    <div id="persisting-table"></div>
+
+    <h3>Cookies present in both captures</h3>
+    <div id="persisting-cookies-table"></div>
+
+    <h3>Requests that appeared or disappeared</h3>
+    <div id="requests-table"></div>
+
+    <h3>Cookies that appeared or disappeared</h3>
+    <div id="cookies-table"></div>
+
+    <p style="margin-top:1rem;">
+      <button class="primary" id="export-btn">Export evidence record (.json)</button>
+    </p>
+    <p class="howto">
+      The export is a dated JSON file with this exact diff, the two source
+      filenames, and this disclaimer — a record for you to review, not a
+      compliance determination.
+    </p>
+  </section>
+
+  <footer>
+    <h2>No warranty</h2>
+    <p>
+      This tool is provided free and as-is, without warranty of any kind,
+      express or implied. It is <strong>not legal advice</strong> and does not
+      determine whether any site is compliant with any law. It observes
+      requests and cookies present in the two files you provide, classified
+      against a small, manually curated, non-exhaustive list of known tracker
+      domains — an "unclassified" domain is <strong>not</strong> a finding
+      that it is safe. A missing request in the "after" capture is not proof a
+      technology was removed for every visitor, browser, region, or session —
+      only for the one capture you made. <strong>You are responsible for
+      reviewing and verifying this output before relying on it.</strong> To
+      the maximum extent permitted by law, the authors accept no liability
+      for any loss or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+
+    <h2>Privacy</h2>
+    <p>
+      Everything runs in your browser. The HAR files you select are read
+      locally with the File API and are <strong>never uploaded</strong> —
+      there is no server this page talks to. We don't have accounts, tracking
+      cookies, or an analytics vendor. This page counts anonymous, local
+      feature-use events (e.g. "a diff was generated") in your own browser's
+      <code>localStorage</code>, only so the maintainers can tell whether the
+      tool is used at all — nothing leaves your device.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>Part of the portfolio's product research. MIT licensed — see <a href="../LICENSE">LICENSE</a>. Optional <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+  </footer>
+</main>
+
+<script type="module">
+  import { diffHarCaptures } from "./har-diff.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  let beforeCapture = null; // { name, har }
+  let afterCapture = null;
+  let lastDiff = null;
+
+  const loadError = document.getElementById("load-error");
+  const reportSection = document.getElementById("report-section");
+
+  function readHarFile(input, zoneId, filenameId, onLoaded) {
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      loadError.textContent = "";
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const har = JSON.parse(text);
+        if (!har?.log?.entries) throw new Error("This file does not look like a HAR capture (no log.entries).");
+        document.getElementById(zoneId).classList.add("has-file");
+        document.getElementById(filenameId).textContent = file.name;
+        onLoaded({ name: file.name, har });
+        renderIfReady();
+      } catch (err) {
+        loadError.textContent = `Could not read ${file.name}: ${err.message}`;
+        document.getElementById(zoneId).classList.remove("has-file");
+        document.getElementById(filenameId).textContent = "";
+        onLoaded(null);
+        lastDiff = null;
+        reportSection.style.display = "none";
+      }
+    });
+  }
+
+  readHarFile(document.getElementById("before-input"), "before-zone", "before-filename", (c) => { beforeCapture = c; });
+  readHarFile(document.getElementById("after-input"), "after-zone", "after-filename", (c) => { afterCapture = c; });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function renderRequestsTable(added, removed) {
+    if (added.length === 0 && removed.length === 0) {
+      return '<p class="empty">No request differences between the two captures.</p>';
+    }
+    const rows = [
+      ...added.map((r) => ({ ...r, tag: "added" })),
+      ...removed.map((r) => ({ ...r, tag: "removed" })),
+    ];
+    const trs = rows.map((r) => `
+      <tr>
+        <td><span class="tag ${r.tag}">${r.tag === "added" ? "appeared" : "disappeared"}</span></td>
+        <td>${escapeHtml(r.hostname || "(unknown host)")}</td>
+        <td><span class="tag unclassified">${escapeHtml(r.classification.category)}</span></td>
+        <td>${escapeHtml(r.method)} ${escapeHtml(r.url)}</td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Category</th><th>Request</th></tr></thead><tbody>${trs}</tbody></table>`;
+  }
+
+  function renderCookiesTable(added, removed) {
+    if (added.length === 0 && removed.length === 0) {
+      return '<p class="empty">No cookie differences between the two captures.</p>';
+    }
+    const rows = [
+      ...added.map((c) => ({ ...c, tag: "added" })),
+      ...removed.map((c) => ({ ...c, tag: "removed" })),
+    ];
+    const trs = rows.map((c) => `
+      <tr>
+        <td><span class="tag ${c.tag}">${c.tag === "added" ? "appeared" : "disappeared"}</span></td>
+        <td>${escapeHtml(c.hostname || "(unknown host)")}</td>
+        <td><code>${escapeHtml(c.name)}</code></td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Cookie name</th></tr></thead><tbody>${trs}</tbody></table>`;
+  }
+
+  // Persisting third-party requests, listed in full — known-tracker rows first
+  // so the disclosed classifier is a sort order, not a filter. Unclassified
+  // rows are never hidden: an unmatched domain is not a finding that it is safe.
+  function renderPersistingTable(persisting, documentHost) {
+    const thirdParty = persisting.filter((r) => r.thirdParty);
+    const firstPartyCount = persisting.length - thirdParty.length;
+    const hostNote = documentHost
+      ? `<p class="howto">${firstPartyCount} request(s) to the page's own host (<code>${escapeHtml(documentHost)}</code>) also persisted and are not listed.</p>`
+      : "";
+    if (thirdParty.length === 0) {
+      return `<p class="empty">No third-party request was present in both captures. That is not proof tracking stopped — it only means these two captures share none.</p>${hostNote}`;
+    }
+    const sorted = [...thirdParty].sort(
+      (a, b) => Number(b.classification.known) - Number(a.classification.known),
+    );
+    const trs = sorted.map((r) => `
+      <tr>
+        <td><span class="tag persisting">still present</span></td>
+        <td>${escapeHtml(r.hostname || "(unknown host)")}</td>
+        <td><span class="tag unclassified">${escapeHtml(r.classification.category)}</span></td>
+        <td>${escapeHtml(r.method)} ${escapeHtml(r.url)}</td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Category</th><th>Request</th></tr></thead><tbody>${trs}</tbody></table>${hostNote}`;
+  }
+
+  function renderPersistingCookiesTable(persisting) {
+    if (persisting.length === 0) {
+      return '<p class="empty">No response cookie was set in both captures.</p>';
+    }
+    const trs = persisting.map((c) => `
+      <tr>
+        <td><span class="tag persisting">still set</span></td>
+        <td>${escapeHtml(c.hostname || "(unknown host)")}</td>
+        <td><code>${escapeHtml(c.name)}</code></td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Cookie name</th></tr></thead><tbody>${trs}</tbody></table>`;
+  }
+
+  function renderSummary(summary) {
+    const stats = [
+      ["Requests before", summary.beforeRequestCount],
+      ["Requests after", summary.afterRequestCount],
+      ["Third-party still present", summary.persistingThirdPartyRequestCount],
+      ["…of those, known trackers", summary.persistingKnownTrackerRequestCount],
+      ["Cookies still set", summary.persistingCookieCount],
+      ["Requests appeared", summary.addedRequestCount],
+      ["Requests disappeared", summary.removedRequestCount],
+      ["Cookies appeared", summary.addedCookieCount],
+      ["Cookies disappeared", summary.removedCookieCount],
+    ];
+    return stats.map(([label, n]) => `<div class="stat"><div class="n">${n}</div><div class="label">${label}</div></div>`).join("");
+  }
+
+  function renderIfReady() {
+    if (!beforeCapture || !afterCapture) return;
+    try {
+      lastDiff = diffHarCaptures(beforeCapture.har, afterCapture.har);
+      loadError.textContent = "";
+    } catch (err) {
+      loadError.textContent = err.message;
+      reportSection.style.display = "none";
+      return;
+    }
+    document.getElementById("summary-grid").innerHTML = renderSummary(lastDiff.summary);
+    document.getElementById("persisting-table").innerHTML = renderPersistingTable(lastDiff.persistingRequests, lastDiff.documentHost);
+    document.getElementById("persisting-cookies-table").innerHTML = renderPersistingCookiesTable(lastDiff.persistingCookies);
+    document.getElementById("requests-table").innerHTML = renderRequestsTable(lastDiff.addedRequests, lastDiff.removedRequests);
+    document.getElementById("cookies-table").innerHTML = renderCookiesTable(lastDiff.addedCookies, lastDiff.removedCookies);
+    reportSection.style.display = "";
+    recordEvent("diff_generated");
+  }
+
+  document.getElementById("export-btn").addEventListener("click", () => {
+    if (!lastDiff) return;
+    const record = {
+      generatedAt: new Date().toISOString(),
+      beforeFile: beforeCapture.name,
+      afterFile: afterCapture.name,
+      disclaimer:
+        "Observed requests and cookies from the two provided HAR captures only. Not a compliance determination. An 'unclassified' domain is not a finding that it is safe. Absence of a request in the after-capture is not proof it is absent for every visitor, browser, region, or session. Equally, a request present in both captures is an observation that the same endpoint was contacted twice — not a determination that it carries personal data, that consent was required for it, or that any law was broken.",
+      diff: lastDiff,
+    };
+    const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const day = record.generatedAt.slice(0, 10);
+    a.href = url;
+    a.download = `consent-change-record-${day}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    recordEvent("evidence_exported");
+  });
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+    </ul>
+    <p>
+      <a href="../../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../../deploy/?app=consent-change-record">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../../pf-site.js" data-pf-slug="consent-change-record"></script>
+</body>
+</html>

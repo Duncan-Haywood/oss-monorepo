@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price-per-foot quote | Fence Bid Calculator</title>
+<meta name="description" content="A flat $35-a-foot fence quote is priced on one easy run, not on the corners, gates, and tear-out a real yard actually needs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fence-bid-calculator/vs-a-flat-price-per-foot.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat price-per-foot quote">
+<meta property="og:description" content="A $35/ft fence quote covers a flat chain-link run with no gates by over $2,100 and falls $1,133.93 short on this calculator's own shipped default job -- and…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fence-bid-calculator/vs-a-flat-price-per-foot.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price-per-foot fence quote get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because fence cost scales with posts, terminals, gates, tear-out, and digging conditions — not with linear feet alone. A flat run of chain-link with no gates and easy digging is a different job from the same footage in 6-foot wood privacy with two corners, a walk gate, a drive gate, tear-out of the old fence, and heavy clay. A flat per-foot price quotes both the same and is wrong on one of them every time."}},{"@type":"Question","name":"What does a flat price-per-foot quote usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Terminal posts at corners and gates, gate material and hang time, tear-out of an existing fence, and the extra labor hours that clay, rock, or a slope add to every hole. A published per-foot number is set on one configuration — usually a flat, easy run with no gates and normal soil — and has no separate line for any of those."}},{"@type":"Question","name":"How much do corners, gates, and tear-out actually add over a flat rate?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples, at a $25 hourly wage, 28% burden, 15% overhead, and a 25% target margin: 140 feet of chain-link with no corners, no gates, and no tear-out walks away at $2,532.76, comfortably under a $35/ft, $4,900.00 quote. This calculator's own shipped default job — 140 feet of 6-foot wood privacy with two corners, a walk gate, a drive gate, and 40 feet of tear-out in heavy clay — walks away at $6,033.93, $1,133.93 short of that same $35/ft number. A 220-foot vinyl-privacy run with three corners, two gates, 60 feet of tear-out, rocky digging, and a steep slope walks away at $16,261.98, $8,561.98 short of a $35/ft, $7,700.00 quote."}},{"@type":"Question","name":"Is a flat price-per-foot quote ever the right way to bid a fence?","acceptedAnswer":{"@type":"Answer","text":"For something close to the easy run it was probably priced on — flat ground, no corners, no gates, nothing to tear out — a flat rate can land close, and on this calculator's own numbers that easy job clears a $35/ft quote with over $2,100 to spare. The risk is corners, gates, tear-out, and hard digging stacking on top of each other, because a flat per-foot price has no way to see any of them until the crew is already on site."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local material costs or what competitors charge. It takes the runs, posts, gates, tear-out, and digging conditions you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe — the arithmetic a flat per-foot number skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #8a5a22; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c5348; }
+  section { background: #fff; border: 1px solid #d9cbb6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a2a120d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9cbb6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5348; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .covers { color: #1d6b3a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #5c5348; }
+  footer { color: #5c5348; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fence-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat price-per-foot quote — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fence-bid-calculator/">Fence Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat price-per-foot quote</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Fence Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price-per-foot quote</h1>
+<p class="lede">"$35 a foot installed" is not a price for a fence &mdash; it is a price for one flat run with no gates, quietly applied to a corner-heavy yard with tear-out and hard digging.</p>
+</header>
+<section>
+<h2>What a flat price-per-foot quote is</h2>
+<p>
+A flat per-foot number is the fastest way to bid over the phone or match a
+homeowner's forum post: one figure, easy to multiply by any run length, and
+the number a caller holding a competitor's estimate will ask you to match on
+their own yard.
+</p>
+<p>
+The number behind it was set for one job &mdash; usually a flat, easy run
+with no corners, no gates, normal soil, and nothing to tear out &mdash; and
+then reused for every fence afterward, whether or not the next yard has
+terminals at every corner, a walk gate and a drive gate, an old fence to
+pull, or clay that slows every post hole.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+run's length, post spacing, corners, and gates, the existing fence to tear
+out, the digging condition and slope, and your own material and labor
+rates. It prices posts, terminals, gates, tear-out, and the extra hours
+harder digging adds separately, and returns a walk-away price and price per
+foot below which the job loses money &mdash; for this yard, not a generic
+one.
+</p>
+</section>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$35/ft quote</th><th class="num" scope="col">Walk-away price</th><th scope="col">Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td>140 ft chain-link, 4 ft, no corners, no gates, normal soil, no tear-out</td><td class="num">$4,900.00</td><td class="num">$2,532.76</td><td class="covers">Covers, $2,367.24 to spare</td></tr>
+<tr><td>140 ft wood privacy, 6 ft, 2 corners, walk + drive gate, heavy clay, 40 ft tear-out (this calculator's own default job)</td><td class="num">$4,900.00</td><td class="num">$6,033.93</td><td class="loses">Short $1,133.93</td></tr>
+<tr><td>220 ft vinyl privacy, 6 ft, 3 corners, walk + drive gate, rocky/steep, 60 ft tear-out</td><td class="num">$7,700.00</td><td class="num">$16,261.98</td><td class="loses">Short $8,561.98</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Worked using this calculator's own material presets at a $25 hourly wage, 28% payroll burden, 15% overhead on direct cost, and a 25% target margin &mdash; the form's own shipped defaults, not numbers invented for this page. Open the calculator to check any row yourself.</p>
+<p class="note">
+Notice the middle row: it is this calculator's own shipped starting
+point, not a job picked to prove a point, and a $35/ft quote already falls
+over a thousand dollars short of it. One old fence to tear out, one more
+corner, or one gate is the difference between a flat rate that happens to
+work and one that does not.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat price-per-foot quote does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate whether the run is a flat chain-link stretch with no gates or a corner-heavy privacy fence &mdash; counting terminal posts the same as cheaper line posts either way.</td>
+<td>Counts posts from run length and spacing, then upgrades ends, corners, and gate posts to heavier terminals, so a corner-heavy yard prices differently from a flat run.</td>
+</tr>
+<tr>
+<td>Has no separate line for a walk gate or a drive gate, so hardware and hang time are absorbed into the same per-foot number as plain infill.</td>
+<td>Subtracts gate openings from infill and prices gate material and hang hours per gate, scaled to walk or drive width.</td>
+</tr>
+<tr>
+<td>Prices "a fence" the same whether or not an old one has to come out first.</td>
+<td>Adds tear-out hours and haul cost per foot only when there is an existing fence to pull.</td>
+</tr>
+<tr>
+<td>Has no line for clay, rock, or a sloped yard, so a hard dig gets the same price as a flat, easy one.</td>
+<td>Multiplies labor hours by a dig-condition and slope multiplier entered for the actual site.</td>
+</tr>
+<tr>
+<td>Gives the homeowner a price to shop, not a number to check a quote against when their yard turns out to have three corners and 40 feet of rotten fence to remove after the flat rate was already promised.</td>
+<td>Reports the walk-away price and price per foot for the job as entered, so a shopped rate can be scored against real cost before it is confirmed.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+A flat price-per-foot quote is not wrong because it is simple &mdash; it is
+wrong when it is applied to a run, corner count, gate set, or digging
+condition it was not set on, and "a fence" alone never tells you that has
+happened. This calculator does not replace judgment about your market; it
+replaces the arithmetic a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price-per-foot fence quote get the price wrong?</h3>
+<p>Because fence cost scales with posts, terminals, gates, tear-out, and digging conditions &mdash; not with linear feet alone. A flat run of chain-link with no gates and easy digging is a different job from the same footage in 6-foot wood privacy with two corners, a walk gate, a drive gate, tear-out of the old fence, and heavy clay. A flat per-foot price quotes both the same and is wrong on one of them every time.</p>
+<h3>What does a flat price-per-foot quote usually leave out entirely?</h3>
+<p>Terminal posts at corners and gates, gate material and hang time, tear-out of an existing fence, and the extra labor hours that clay, rock, or a slope add to every hole. A published per-foot number is set on one configuration &mdash; usually a flat, easy run with no gates and normal soil &mdash; and has no separate line for any of those.</p>
+<h3>How much do corners, gates, and tear-out actually add over a flat rate?</h3>
+<p>On this calculator's own worked examples, at a $25 hourly wage, 28% burden, 15% overhead, and a 25% target margin: 140 feet of chain-link with no corners, no gates, and no tear-out walks away at $2,532.76, comfortably under a $35/ft, $4,900.00 quote. This calculator's own shipped default job &mdash; 140 feet of 6-foot wood privacy with two corners, a walk gate, a drive gate, and 40 feet of tear-out in heavy clay &mdash; walks away at $6,033.93, $1,133.93 short of that same $35/ft number. A 220-foot vinyl-privacy run with three corners, two gates, 60 feet of tear-out, rocky digging, and a steep slope walks away at $16,261.98, $8,561.98 short of a $35/ft, $7,700.00 quote.</p>
+<h3>Is a flat price-per-foot quote ever the right way to bid a fence?</h3>
+<p>For something close to the easy run it was probably priced on &mdash; flat ground, no corners, no gates, nothing to tear out &mdash; a flat rate can land close, and on this calculator's own numbers that easy job clears a $35/ft quote with over $2,100 to spare. The risk is corners, gates, tear-out, and hard digging stacking on top of each other, because a flat per-foot price has no way to see any of them until the crew is already on site.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local material costs or what competitors charge. It takes the runs, posts, gates, tear-out, and digging conditions you enter, plus your own wage, burden, and overhead, and turns them into a walk-away price for the job you describe &mdash; the arithmetic a flat per-foot number skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a flat price-per-foot is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the run, gates, and ground it was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="./">Fence Bid Calculator</a> and price your own job. Matching a flat rate a homeowner is holding you to? See <a href="./how-to-bid-a-fence-job.html">how to bid a fence job from posts and gates</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and site conditions, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../lawn-aeration-overseeding-bid-calculator/" data-pf-to="lawn-aeration-overseeding-bid-calculator">Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</a></li>
+      <li><a href="../lawn-care-bid-calculator/" data-pf-to="lawn-care-bid-calculator">Lawn Care Bid Calculator</a></li>
+      <li><a href="../pergola-bid-calculator/" data-pf-to="pergola-bid-calculator">Pergola Bid Calculator</a></li>
+      <li><a href="../pool-plaster-bid-calculator/" data-pf-to="pool-plaster-bid-calculator">Pool Plaster / Resurfacing Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fence-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fence-bid-calculator"></script>
+</body></html>

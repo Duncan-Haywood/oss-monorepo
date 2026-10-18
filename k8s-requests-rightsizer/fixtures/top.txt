@@ -1,0 +1,17 @@
+NAMESPACE   POD   NAME   CPU(cores)   MEMORY(bytes)
+prod   api-6d9f8c7b5-5mvha   api   140m   410Mi
+prod   api-6d9f8c7b5-5mvha   envoy   22m   60Mi
+prod   api-6d9f8c7b5-5mvhb   api   133m   390Mi
+prod   api-6d9f8c7b5-5mvhb   envoy   21m   57Mi
+prod   api-6d9f8c7b5-5mvhc   api   126m   369Mi
+prod   api-6d9f8c7b5-5mvhc   envoy   20m   54Mi
+prod   worker-6d9f8c7b5-3ui1a   worker   310m   470Mi
+prod   worker-6d9f8c7b5-3ui1b   worker   295m   447Mi
+prod   web-6d9f8c7b5-60ova   web   170m   190Mi
+prod   web-6d9f8c7b5-60ovb   web   162m   181Mi
+prod   web-6d9f8c7b5-60ovc   web   153m   171Mi
+prod   web-6d9f8c7b5-60ovd   web   170m   190Mi
+data   redis-0   redis   180m   1800Mi
+data   redis-1   redis   171m   1710Mi
+data   redis-2   redis   162m   1620Mi
+tools   cron-helper-6d9f8c7b5-1pqfa   helper   15m   40Mi

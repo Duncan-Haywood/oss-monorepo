@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Happens If You Miss a Quarterly Estimated Tax Payment? | Quarterly Estimated Tax Calendar</title>
+  <meta name="description" content="Missing a quarterly estimated tax payment doesn't erase it -- it sits on the running total until you pay it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="What happens if you miss a quarterly estimated tax payment?">
+  <meta property="og:description" content="The missed quarter's share doesn't go away -- it stacks onto the running total. Catch it before the next due date and it costs one quarter's share…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What actually happens if I miss a quarterly estimated tax payment?","acceptedAnswer":{"@type":"Answer","text":"Nothing is forgiven and nothing resets. The IRS safe-harbor requirement for that quarter still exists; it just sits unpaid on the running total until you pay it. On this calculator's own worked example -- a filer who owed $9,500 last year on an $85,000 AGI, so a $2,375 flat quarterly share -- missing Q1 entirely leaves a $2,375 gap that stays open until it's paid, whichever quarter you finally send it in."}},{"@type":"Question","name":"How much should the next payment be after I miss one?","acceptedAnswer":{"@type":"Answer","text":"If you catch it before the next quarter's own due date arrives, the make-up payment is just that one missed quarter's flat share -- $2,375 in this worked example, the same as if you'd paid it on time, just later. It only grows if you let more due dates pass without paying anything."}},{"@type":"Question","name":"Does waiting longer to catch up make the required payment bigger?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each due date that passes with nothing paid adds another quarter's flat share to the one payment needed to get back on the safe-harbor pace. In the worked example, catching up right after missing Q1 costs $2,375; let Q2's own due date pass too before paying anything, and the single catch-up payment needed is $4,750 -- two quarters' worth, not one -- because the running total the IRS measures against keeps growing every quarter you don't pay."}},{"@type":"Question","name":"If I just pay my normal quarterly amount after missing one, am I caught up?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the mistake a flat reminder (\"pay $2,375 every quarter\") doesn't catch. A filer who missed Q1 and then sends the usual $2,375 for Q2 has paid $2,375 total against $4,750 actually required by that point -- still $2,375 behind, exactly one quarter's share short, even though a payment went out on time. The running total, not the single quarter, is what determines whether you're caught up."}},{"@type":"Question","name":"Does this calculate the IRS underpayment penalty or interest?","acceptedAnswer":{"@type":"Answer","text":"No. This page and the calculator only track the safe-harbor dollar amount required by each due date against what's actually been paid, and size a catch-up payment from that. The IRS charges interest on an underpayment separately, computed under Form 2210, and that interest is not shown here -- the practical effect for a filer is that the catch-up amounts on this page are the floor, not the full cost of waiting."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f5c35; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: 0 0 14px; color: #1f5c35; }
+    h2 { color: #1f5c35; margin: 1.6rem 0 .6rem; }
+    section { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d2c6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5b54; }
+    td.hit { font-weight: 700; color: #9a3412; }
+    .note { font-size: .85rem; color: #4f5b54; }
+    .cta { display: inline-block; margin-top: .4rem; padding: 10px 15px; border-radius: 8px; background: #1f5c35; color: #fff; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5b54; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What happens if you miss a quarterly estimated tax payment? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What happens if you miss a quarterly estimated tax payment?</span></span></nav>
+  <p><a href="./">&larr; Quarterly Estimated Tax Calendar</a></p>
+  <h1>What happens if you miss a quarterly estimated tax payment?</h1>
+  <p>
+    The missed quarter's requirement doesn't disappear and it doesn't reset --
+    it stays open on the running total the IRS safe harbor measures against,
+    until you actually pay it. How much the next payment needs to be depends
+    entirely on how many more due dates pass before you catch up. Worked with
+    this calculator's own example numbers below, and every figure is checked
+    against <code>calc.mjs</code> in this page's test file.
+  </p>
+  <p><a class="cta" href="./">Run this on your own numbers</a></p>
+
+  <section>
+    <h2>The worked example</h2>
+    <p>
+      This calculator's own "Load an example" button sets a freelancer who
+      owed <strong>$9,500</strong> last year on an <strong>$85,000</strong>
+      AGI, with nothing withheld and nothing paid yet. That AGI is under the
+      $150,000 high-income threshold, so the safe harbor is 100% of last
+      year's tax, split evenly across four quarters:
+      <strong>$2,375</strong> per quarter. For the 2026 tax year, Q1 is due
+      April&nbsp;15 and Q2 is due June&nbsp;15.
+    </p>
+  </section>
+
+  <section>
+    <h2>Catch it before the next due date, and it costs one quarter's share</h2>
+    <p>
+      Say Q1's April&nbsp;15 due date passes with nothing paid. If you catch
+      it any time before Q2's June&nbsp;15 due date arrives, only Q1 is
+      counted as actually due so far -- the running total required is
+      $2,375, nothing has been paid against it, and the one catch-up payment
+      needed is <strong>$2,375</strong>. That's the same amount Q1 always
+      needed; paying it late instead of on time doesn't add anything to the
+      dollar figure by itself.
+    </p>
+  </section>
+
+  <section>
+    <h2>Let the next due date pass too, and the one payment doubles</h2>
+    <p>
+      Now say nothing gets paid before Q2's due date passes either. By that
+      point two quarters are counted as due -- a running total of
+      <strong>$4,750</strong> -- and still nothing has been paid against it.
+      The single catch-up payment needed to get back on the safe-harbor pace
+      is now <strong>$4,750</strong>, not $2,375: two quarters' worth in one
+      payment, because the requirement that was already open from Q1 didn't
+      go away when Q2's own share came due -- it stacked.
+    </p>
+    <div>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Point in time</th><th>Quarters counted as due</th><th>Paid so far</th><th>Catch-up payment needed</th></tr></thead>
+        <tbody>
+          <tr><td>Before Q2's due date, Q1 still unpaid</td><td>1 (Q1 only)</td><td>$0</td><td class="hit">$2,375</td></tr>
+          <tr><td>After Q2's due date, both still unpaid</td><td>2 (Q1 and Q2)</td><td>$0</td><td class="hit">$4,750</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">
+      Every additional due date that passes with nothing paid adds another
+      $2,375 -- one full quarter's flat share -- to that single number, for
+      as long as the running total stays unpaid.
+    </p>
+  </section>
+
+  <section>
+    <h2>Paying "the usual amount" after a miss still leaves you behind</h2>
+    <p>
+      This is the part a flat reminder -- "pay $2,375 every quarter" -- can't
+      catch. Say a filer misses Q1, then simply sends the normal $2,375 for
+      Q2 on time, thinking that settles it. By Q2's due date, $4,750 is
+      required and only $2,375 has been paid: they are still
+      <strong>$2,375 short</strong>, exactly one quarter's share behind, even
+      though a payment went out and landed on time. What matters is the
+      running total paid against the running total required, not whether the
+      most recent single payment matched the flat quarterly figure.
+    </p>
+  </section>
+
+  <section>
+    <h2>What this doesn't cover</h2>
+    <p>
+      The catch-up figures above track only the IRS Form 1040-ES safe-harbor
+      dollar amount -- the running total required against what's actually
+      been paid. They are not the full cost of missing a payment: the IRS
+      separately charges interest on an underpayment, computed under Form
+      2210, and that interest is not calculated on this page or by this
+      calculator. Treat the numbers above as the floor of what catching up
+      costs, not the whole bill.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>What actually happens if I miss a quarterly estimated tax payment?</h3>
+    <p>Nothing is forgiven and nothing resets. The IRS safe-harbor requirement for that quarter still exists; it just sits unpaid on the running total until you pay it. On this calculator's own worked example -- a filer who owed $9,500 last year on an $85,000 AGI, so a $2,375 flat quarterly share -- missing Q1 entirely leaves a $2,375 gap that stays open until it's paid, whichever quarter you finally send it in.</p>
+    <h3>How much should the next payment be after I miss one?</h3>
+    <p>If you catch it before the next quarter's own due date arrives, the make-up payment is just that one missed quarter's flat share -- $2,375 in this worked example, the same as if you'd paid it on time, just later. It only grows if you let more due dates pass without paying anything.</p>
+    <h3>Does waiting longer to catch up make the required payment bigger?</h3>
+    <p>Yes. Each due date that passes with nothing paid adds another quarter's flat share to the one payment needed to get back on the safe-harbor pace. In the worked example, catching up right after missing Q1 costs $2,375; let Q2's own due date pass too before paying anything, and the single catch-up payment needed is $4,750 -- two quarters' worth, not one -- because the running total the IRS measures against keeps growing every quarter you don't pay.</p>
+    <h3>If I just pay my normal quarterly amount after missing one, am I caught up?</h3>
+    <p>No, and this is the mistake a flat reminder ("pay $2,375 every quarter") doesn't catch. A filer who missed Q1 and then sends the usual $2,375 for Q2 has paid $2,375 total against $4,750 actually required by that point -- still $2,375 behind, exactly one quarter's share short, even though a payment went out on time. The running total, not the single quarter, is what determines whether you're caught up.</p>
+    <h3>Does this calculate the IRS underpayment penalty or interest?</h3>
+    <p>No. This page and the calculator only track the safe-harbor dollar amount required by each due date against what's actually been paid, and size a catch-up payment from that. The IRS charges interest on an underpayment separately, computed under Form 2210, and that interest is not shown here -- the practical effect for a filer is that the catch-up amounts on this page are the floor, not the full cost of waiting.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is arithmetic on the calculator's own defaults and the published IRS safe-harbor formula, not tax advice. It does not compute Form 2210 underpayment interest. Verify any figure against the current-year IRS instructions or a tax professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="./">Open the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wage-garnishment-limit-calculator/" data-pf-to="wage-garnishment-limit-calculator">Wage Garnishment Limit Calculator — free, private, in your browser</a></li>
+      <li><a href="../wash-sale-checker/" data-pf-to="wash-sale-checker">Wash sale checker across all your accounts — free, private</a></li>
+      <li><a href="../workers-comp-premium-calculator/" data-pf-to="workers-comp-premium-calculator">Workers' Comp Premium Calculator — free, with audit true-up</a></li>
+      <li><a href="../xero-contacts-csv-check/" data-pf-to="xero-contacts-csv-check">Xero Contacts CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=quarterly-estimated-tax-calendar">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="quarterly-estimated-tax-calendar"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Deterrence window in rounds versus stake when the bounty is a fixed fraction of the stake">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Challenge window when the bounty scales with stake</text>
+<line x1="64" x2="624" y1="304.4" y2="304.4" stroke="#ddd"/><text x="58" y="308.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="251.7" y2="251.7" stroke="#ddd"/><text x="58" y="255.7" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="182.0" y2="182.0" stroke="#ddd"/><text x="58" y="186.0" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="129.3" y2="129.3" stroke="#ddd"/><text x="58" y="133.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="76.6" y2="76.6" stroke="#ddd"/><text x="58" y="80.6" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">stake S</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">window w (rounds, log scale)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,59.6 176.0,129.3 288.0,182.0 400.0,220.9 512.0,251.7 624.0,304.4"/>
+<circle cx="64.0" cy="59.6" r="2.5" fill="#c0392b"/>
+<circle cx="176.0" cy="129.3" r="2.5" fill="#c0392b"/>
+<circle cx="288.0" cy="182.0" r="2.5" fill="#c0392b"/>
+<circle cx="400.0" cy="220.9" r="2.5" fill="#c0392b"/>
+<circle cx="512.0" cy="251.7" r="2.5" fill="#c0392b"/>
+<circle cx="624.0" cy="304.4" r="2.5" fill="#c0392b"/>
+<line x1="76" x2="100" y1="58" y2="58" stroke="#c0392b" stroke-width="2"/><text x="106" y="62" font-family="sans-serif" font-size="11">window w</text>
+</svg>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Does Per-Creation Billing Cost More in Fees? | Patreon Payout Guide</title>
+<meta name="description" content="A per-creation pledge charges patrons once per post instead of once a month. Same total pledge, more charges — and on Patreon's Standard plan…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Does Per-Creation Billing Cost More in Fees?">
+<meta property="og:description" content="Splitting a $5 monthly pledge into four $1.25 per-creation charges pays a fixed processing fee four times instead of once.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/does-per-creation-billing-cost-more-in-fees.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does per-creation billing cost more in fees than monthly billing?","acceptedAnswer":{"@type":"Answer","text":"Often, yes, for the same total pledge. Payment processing charges a fixed fee every time a patron is charged, and per-creation billing charges more often for the same money. Splitting a $5 monthly pledge across 4 posts means four $1.25 charges instead of one $5 charge, and each of those four charges pays its own fixed fee -- on Patreon's Standard plan, with no small-charge discount, that fixed $0.30 is paid four times instead of once."}},{"@type":"Question","name":"How much difference does that actually make on the Standard plan?","acceptedAnswer":{"@type":"Answer","text":"On 100 patrons at a $5 monthly pledge with the Standard plan's 10% platform fee, monthly billing pays $94.50 in total fees against $500 gross revenue, for a $405.50 net payout. The same $500 billed per-creation across 4 posts pays $184.50 in total fees, for a $315.50 net payout -- $90.00 less, from identical revenue, purely because of how the charge was split."}},{"@type":"Question","name":"Does a legacy plan's micropayment rate change this?","acceptedAnswer":{"@type":"Answer","text":"It softens the gap but does not close it. A legacy plan (a page created on or before August 4, 2025) gets a lower processing rate -- about 5% plus a $0.10 fixed fee instead of the standard 2.9% plus $0.30 -- on any charge under $3. On a Legacy Pro plan (8% platform fee), the same 100-patron example pays $84.50 in total fees under monthly billing and $105.00 under per-creation billing -- a $20.50 gap, well below the Standard plan's $90.00 gap, because the legacy micropayment rate's lower fixed fee partly offsets charging four times instead of once."}},{"@type":"Question","name":"Is per-creation billing always worse?","acceptedAnswer":{"@type":"Answer","text":"No. The gap shrinks as the per-post charge gets larger, because the fixed part of the fee stops dominating a bigger charge. A creator publishing once a month sees no split at all, since there is then only one charge either way. The trap is specifically low per-post amounts multiplied by several posts a month, and it is worse on the Standard plan than on a legacy plan because the Standard plan has no small-charge discount to soften it."}},{"@type":"Question","name":"Why would a creator use per-creation billing at all, then?","acceptedAnswer":{"@type":"Answer","text":"It ties what a patron pays to how much the creator actually publishes that month, which some audiences find fairer than a flat monthly charge regardless of output. That is a real trade-off worth making deliberately -- this page is not an argument against per-creation billing, only against choosing it without seeing what it costs in fees for a given post cadence, pledge size, and plan."}},{"@type":"Question","name":"Could Patreon's rates change and make this stale?","acceptedAnswer":{"@type":"Answer","text":"Yes. Patreon retired the three-tier plan for new creators in August 2025 in favor of the single Standard plan this page uses as its main example, and it publishes no live feed a static page could read. Treat this explainer as current as of the date on this page and verify anything material against your own Patreon creator dashboard and Patreon's own current help documentation."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#2a1810;background:#fdf3ec}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#a8420f}
+h2{color:#a8420f;font-size:1.15rem;margin-top:1.7em}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #f0c9a8}
+a{color:#b8480f}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#c2262f;color:#fff;text-decoration:none;font-weight:700}
+footer{border-top:1px solid #f0c9a8;padding-top:18px;margin-top:2em;font-size:.85rem;color:#6b5142}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/does-per-creation-billing-cost-more-in-fees.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does Per-Creation Billing Cost More in Fees? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../patreon-fee-calculator/">Patreon Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does Per-Creation Billing Cost More in Fees?</span></span></nav>
+<p><a href="./">← Patreon fee calculator</a></p>
+<h1>Does per-creation billing cost more in fees?</h1>
+<p>A per-creation pledge charges a patron once for every post you publish instead of once a month, so a $5-a-month supporter under per-creation billing might see four separate $1.25 charges in a busy month instead of one $5 charge. Same total pledge — but not the same fee bill, because payment processing charges a fixed fee on every charge, not on every dollar. On Patreon's Standard plan, the one every new page is on since August 2025, there is no small-charge discount to soften that at all.</p>
+<p><a class="cta" href="./">Open the free payout calculator</a></p>
+
+<h2>The worked comparison: Standard plan</h2>
+<p>Take 100 patrons, each pledging $5 a month, on the Standard plan (10% platform fee, one flat processing rate regardless of charge size). The gross revenue is $500 either way. Here is what changes:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Monthly billing (1 charge)</th><th>Per-creation billing (4 posts, 4 charges)</th></tr></thead>
+<tbody>
+<tr><td>Charge amount</td><td>$5.00</td><td>$1.25</td></tr>
+<tr><td>Processing rate for that charge</td><td>~2.9% + $0.30</td><td>~2.9% + $0.30 (same — Standard has no small-charge rate)</td></tr>
+<tr><td>Processing fee, this patron</td><td>$0.445</td><td>$1.345 (4 × $0.33625)</td></tr>
+<tr><td>Total processing fees, 100 patrons</td><td>$44.50</td><td>$134.50</td></tr>
+<tr><td>Platform fee (10% of $500 either way)</td><td>$50.00</td><td>$50.00</td></tr>
+<tr><td>Total fees</td><td>$94.50</td><td>$184.50</td></tr>
+<tr><td>Net payout</td><td>$405.50</td><td>$315.50</td></tr>
+</tbody>
+</table></div>
+<p>$90.00 less, from identical $500 gross revenue, purely from how the charge was split into four instead of one. The percentage portion of the fee is the same either way (2.9% of $500 is $14.50 total, whichever way it's charged); the entire gap is the $0.30 fixed fee, paid four times instead of once.</p>
+
+<h2>Does a legacy plan change this?</h2>
+<p>Partly. A legacy plan — a page created on or before August 4, 2025 — keeps its Lite/Pro/Premium platform fee and also gets a lower "micropayment" processing rate (about 5% + $0.10) on any charge under $3. On a Legacy Pro plan (8%), the identical 100-patron, $5-pledge, 4-post example pays $84.50 in total fees under monthly billing and $105.00 under per-creation billing — a $20.50 gap, much smaller than the Standard plan's $90.00, because the legacy rate's lower fixed fee ($0.10 instead of $0.30) partly offsets paying it four times. It is a real mitigant, not a myth — but it does not close the gap to zero.</p>
+
+<h2>When the gap closes</h2>
+<p>The gap shrinks as the per-post charge gets larger, on either plan, because the fixed fee stops dominating a bigger charge. A creator who posts once a month sees no split at all, since there is only one charge either way. The trap is specifically a low per-post amount multiplied by several posts in the same month — and it bites hardest on the Standard plan, which is what a page created today is on.</p>
+<p>Use the calculator's plan, tier, and billing selectors to see this for your own pledge tiers and post cadence, rather than assuming either billing mode is always better.</p>
+
+<h2>Common questions</h2>
+<h3>Does per-creation billing cost more in fees than monthly billing?</h3><p>Often, yes, for the same total pledge. Payment processing charges a fixed fee every time a patron is charged, and per-creation billing charges more often for the same money. Splitting a $5 monthly pledge across 4 posts means four $1.25 charges instead of one $5 charge, and each of those four charges pays its own fixed fee -- on Patreon's Standard plan, with no small-charge discount, that fixed $0.30 is paid four times instead of once.</p>
+<h3>How much difference does that actually make on the Standard plan?</h3><p>On 100 patrons at a $5 monthly pledge with the Standard plan's 10% platform fee, monthly billing pays $94.50 in total fees against $500 gross revenue, for a $405.50 net payout. The same $500 billed per-creation across 4 posts pays $184.50 in total fees, for a $315.50 net payout -- $90.00 less, from identical revenue, purely because of how the charge was split.</p>
+<h3>Does a legacy plan's micropayment rate change this?</h3><p>It softens the gap but does not close it. A legacy plan (a page created on or before August 4, 2025) gets a lower processing rate -- about 5% plus a $0.10 fixed fee instead of the standard 2.9% plus $0.30 -- on any charge under $3. On a Legacy Pro plan (8% platform fee), the same 100-patron example pays $84.50 in total fees under monthly billing and $105.00 under per-creation billing -- a $20.50 gap, well below the Standard plan's $90.00 gap, because the legacy micropayment rate's lower fixed fee partly offsets charging four times instead of once.</p>
+<h3>Is per-creation billing always worse?</h3><p>No. The gap shrinks as the per-post charge gets larger, because the fixed part of the fee stops dominating a bigger charge. A creator publishing once a month sees no split at all, since there is then only one charge either way. The trap is specifically low per-post amounts multiplied by several posts a month, and it is worse on the Standard plan than on a legacy plan because the Standard plan has no small-charge discount to soften it.</p>
+<h3>Why would a creator use per-creation billing at all, then?</h3><p>It ties what a patron pays to how much the creator actually publishes that month, which some audiences find fairer than a flat monthly charge regardless of output. That is a real trade-off worth making deliberately -- this page is not an argument against per-creation billing, only against choosing it without seeing what it costs in fees for a given post cadence, pledge size, and plan.</p>
+<h3>Could Patreon's rates change and make this stale?</h3><p>Yes. Patreon retired the three-tier plan for new creators in August 2025 in favor of the single Standard plan this page uses as its main example, and it publishes no live feed a static page could read. Treat this explainer as current as of the date on this page and verify anything material against your own Patreon creator dashboard and Patreon's own current help documentation.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the calculator it explains are provided free and as-is, without warranty of any kind, express or implied. They are not tax, financial, or business advice, and do not replace a qualified professional. This is also not a payout tracker or a substitute for your own Patreon dashboard and payout statements. You are responsible for reviewing and verifying anything here before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with, endorsed by, or sponsored by Patreon. Patreon is a trademark of Patreon, Inc., named here only to describe what this page explains, and its platform fee percentages and processing rates change over time — verify against your own current Patreon dashboard and Patreon's own help documentation. Everything on the linked calculator runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../personal-trainer-package-pricing-calculator/" data-pf-to="personal-trainer-package-pricing-calculator">Personal Trainer Package Pricing Calculator — package vs. pay-per-session, free</a></li>
+      <li><a href="../photo-editing/" data-pf-to="photo-editing">ShootFlow | Safe ingest and deliverables for photographers</a></li>
+      <li><a href="../photos-import-tools/" data-pf-to="photos-import-tools">Photos Import Tools | Resumable macOS photo import</a></li>
+      <li><a href="../podcast-feed-check/" data-pf-to="podcast-feed-check">Podcast Feed Validator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=patreon-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="patreon-fee-calculator"></script>
+</body>
+</html>

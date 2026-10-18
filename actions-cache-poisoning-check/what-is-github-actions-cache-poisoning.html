@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is GitHub Actions cache poisoning?</title>
+  <meta name="description" content="A pull_request_target or workflow_run job can write to a repository-scoped Actions cache that a privileged workflow later restores.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html">
+  <meta property="og:title" content="What is GitHub Actions cache poisoning?">
+  <meta property="og:description" content="Actions cache entries are scoped to the repository, not the branch. A fork-triggered job that writes to the cache can plant a payload a privileged job later…">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is GitHub Actions cache poisoning?","acceptedAnswer":{"@type":"Answer","text":"GitHub Actions caches are scoped to the whole repository, not to a branch, a workflow, or a trust level. pull_request, the ordinary PR trigger, runs with a read-only token and no secrets — a cache it writes is not especially dangerous, because nothing valuable trusts it either. pull_request_target and workflow_run exist for jobs that need more: commenting on a PR, or building it with real credentials. They run in the context of the base repository, with the base repository's secrets — but the event that triggers them is still raised by whoever opened the pull request, who might be a stranger."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What is GitHub Actions cache poisoning? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-cache-poisoning-check/">Can a fork PR poison your GitHub Actions cache?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What is GitHub Actions cache poisoning?</span></span></nav>
+  <p><a href="./">← Actions Cache Poisoning Check</a></p>
+  <h1>What is GitHub Actions cache poisoning?</h1>
+  <p>GitHub Actions caches are scoped to the whole repository, not to a branch, a workflow, or a trust level. <code>pull_request</code>, the ordinary PR trigger, runs with a read-only token and no secrets — a cache it writes is not especially dangerous, because nothing valuable trusts it either. <code>pull_request_target</code> and <code>workflow_run</code> exist for jobs that need more: commenting on a PR, or building it with real credentials. They run in the context of the <em>base</em> repository, with the base repository's secrets — but the event that triggers them is still raised by whoever opened the pull request, who might be a stranger.</p>
+  <p>If a job on one of those two triggers writes to the cache, the stranger controls what gets written:</p>
+  <pre><code>on: pull_request_target
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ github.event.pull_request.head.sha }}
+      - run: pnpm install</code></pre>
+  <p><code>actions/cache</code> restores on a hit and saves on a miss, so this step writes a cache entry the fork PR fully controls the contents of. If a separate, privileged workflow — a release build, a deploy step, anything triggered by a push to a protected branch — later restores from the same key namespace, it can pick up the fork's poisoned entry and run it with real secrets.</p>
+  <h2>A real incident</h2>
+  <p>In May 2026, a pull request opened against TanStack Router's <code>pull_request_target</code> workflow wrote a poisoned <code>pnpm</code> store to the shared Actions cache on every push. The project's own release pipeline later restored that cache and executed the payload. Independent security researchers (AdnaneKhan's <code>ActionsCacheBlasting</code> proof-of-concept, Hive Security's cache-poisoning writeup) had already documented the underlying mechanism: caches are not segregated by workflow, event type, or trust level, and a <code>restore-keys</code> fallback can adopt an entry that merely shares a key prefix with the one you actually asked for — described as "all keys are restore keys" in practice.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li>Do not write to the cache from a job reachable by <code>pull_request_target</code> or <code>workflow_run</code>. If the job genuinely needs to build the fork's code, keep that build unprivileged (plain <code>pull_request</code>) and hand off only reviewed results as artifacts to the privileged job.</li>
+    <li>If a fork-triggered job must cache something, key it so no privileged job ever restores from the same namespace — prefix the key with the untrusted run's own run ID, never a branch name or a lockfile hash a privileged job also uses.</li>
+    <li>Narrow or drop <code>restore-keys</code> fallback lists, especially on a cache a privileged workflow trusts. An exact-key miss that falls through to "anything with this prefix" is exactly the mechanism a poisoned entry rides in on.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Cache Poisoning Check</a> to find every fork-writable cache step and unscoped <code>restore-keys</code> fallback across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-cache-poisoning-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-cache-poisoning-check"></script>
+</body>
+</html>

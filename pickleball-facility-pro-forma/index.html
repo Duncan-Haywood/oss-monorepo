@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pickleball Facility Pro Forma — what does an indoor court business earn?</title>
+  <meta name="description" content="Pickleball facility pro forma: enter courts, rates, utilization, memberships and costs and see monthly P&amp;L, revenue per court-hour, break-even utilization…">
+  <meta property="og:title" content="Pickleball Facility Pro Forma — free, private, in your browser">
+  <meta property="og:description" content="Does an indoor pickleball or padel facility pencil out? P&amp;L, break-even utilization and members, ramp cash curve and what raises profit most…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pickleball Facility Pro Forma", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A pro-forma for an indoor pickleball or padel facility: monthly P&L at steady state, revenue per court-hour, break-even utilization and members, a 24-month ramp cash curve with months to cash break-even and peak drawdown, payback on build-out, sensitivity tables and a ranking of what raises profit most. Runs entirely in your browser; nothing is uploaded.", "featureList": "Pickleball facility P&L, revenue per court-hour, break-even utilization, break-even members, 24-month ramp cash curve, build-out payback, utilization and rate sensitivity, membership sensitivity, profit lever ranking, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does it cost to open an indoor pickleball facility?", "acceptedAnswer": {"@type": "Answer", "text": "It varies enormously with building, region, court count and whether you lease an existing warehouse or build new, so the tool ships no cost figure as fact. Enter your own build-out or lease-up quote (flooring, nets, lighting, HVAC, front desk, locker rooms, permits) as one number, plus how much of it is financed. The tool then shows how much of your own cash goes in, the deepest point your cash balance reaches while the facility ramps up, and how long until cumulative cash turns positive."}}, {"@type": "Question", "name": "What utilization does an indoor pickleball facility need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The tool finds it from your own figures: it keeps the shape of your peak, off-peak and weekend utilization and scales it until monthly cash after debt service is zero, then reports the overall share of court-hours that represents. Fixed costs (rent, staff, insurance, utilities, debt service) mostly do not move with play, so break-even utilization is driven by how large those are against your hourly rates."}}, {"@type": "Question", "name": "How do I price memberships against hourly court rental?", "acceptedAnswer": {"@type": "Answer", "text": "Every member hour is an hour you cannot rent to a walk-in. The tool counts member play against the booked hours your utilization implies, so a membership only adds profit when the monthly fee beats the hourly revenue those hours would have earned. If members would play more hours than your utilization implies, utilization is treated as higher; if they would play more hours than the courts have, member play is capped at capacity and you get a warning. The membership table shows monthly cash for combinations of fee and member count."}}, {"@type": "Question", "name": "What is revenue per court-hour, and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "It is court revenue (hourly play plus membership dues) divided by the court-hours you have available in a month. It lets you compare a facility with eight courts and long hours against one with four courts and short hours, and see whether a rate change or a membership push moved the number. The tool also shows revenue per booked court-hour, which is what a booked hour is worth on average."}}, {"@type": "Question", "name": "How long does an indoor pickleball facility take to pay back?", "acceptedAnswer": {"@type": "Answer", "text": "Two readings are shown. Payback on build-out is the build-out cost divided by annual net operating income at steady state. Months to cash break-even runs a month-by-month curve from your ramp-up assumption, with fixed costs and debt service from month one and revenue climbing from your starting percentage to full, and tells you the month cumulative cash turns positive and the lowest cash point on the way."}}, {"@type": "Question", "name": "What raises profit the most: rates, utilization, members or cutting costs?", "acceptedAnswer": {"@type": "Answer", "text": "The ranking moves each input up and down ten percent, one at a time, holding the rest fixed, and shows the change in annual net operating income and the elasticity (percent change in income per percent change in the input). It is a local view around your numbers, not a forecast: raising a rate ten percent is easier to type than to achieve without losing play, and the tool does not model that response."}}, {"@type": "Question", "name": "Does this work for padel or a different racquet-sport facility?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, the model only needs courts, hours, rates, utilization, memberships, other revenue and costs, so it fits padel, tennis or squash facilities too. Examples are written for pickleball, and the sample numbers are invented."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No address or personal information is asked for."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d6b4a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #24533a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #24533a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #24533a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b4a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #24533a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #24533a; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #24533a; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1d6b4a; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Pickleball Facility Pro Forma — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pickleball Facility Pro Forma — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Pickleball Facility Pro Forma — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">PICKLEBALL FACILITY PRO FORMA · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your indoor pickleball facility pencil out?</h1>
+    <p>Enter your <strong>courts</strong>, <strong>hours</strong>, <strong>rates</strong>, <strong>utilization</strong>, <strong>memberships</strong> and <strong>costs</strong>. The tool builds a <strong>monthly P&amp;L</strong>, shows <strong>revenue per court-hour</strong>, the <strong>utilization and member count you need to break even</strong>, a <strong>24-month ramp-up cash curve</strong>, <strong>payback on the build-out</strong> and <strong>what raises profit most</strong>. Works for padel too.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Courts and build-out</h2>
+    <div class="row3">
+      <div><label for="courts">Courts</label><input id="courts" inputmode="decimal" value=""></div>
+      <div><label for="buildOutCost">Build-out / lease-up cost ($)</label><input id="buildOutCost" inputmode="decimal" value=""></div>
+      <div><label for="loanProceeds">Part of that financed by debt ($)</label><input id="loanProceeds" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Hours open per week, per court</h2>
+    <div class="row3">
+      <div><label for="peakHours">Peak hours (weekday evenings)</label><input id="peakHours" inputmode="decimal" value=""></div>
+      <div><label for="offPeakHours">Off-peak hours (weekday daytime)</label><input id="offPeakHours" inputmode="decimal" value=""></div>
+      <div><label for="weekendHours">Weekend hours</label><input id="weekendHours" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Hourly rate by daypart ($ per court-hour)</h2>
+    <div class="row3">
+      <div><label for="peakRate">Peak rate</label><input id="peakRate" inputmode="decimal" value=""></div>
+      <div><label for="offPeakRate">Off-peak rate</label><input id="offPeakRate" inputmode="decimal" value=""></div>
+      <div><label for="weekendRate">Weekend rate</label><input id="weekendRate" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Utilization by daypart (% of court-hours played, members included)</h2>
+    <div class="row3">
+      <div><label for="peakUtil">Peak utilization (%)</label><input id="peakUtil" inputmode="decimal" value=""></div>
+      <div><label for="offPeakUtil">Off-peak utilization (%)</label><input id="offPeakUtil" inputmode="decimal" value=""></div>
+      <div><label for="weekendUtil">Weekend utilization (%)</label><input id="weekendUtil" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Membership</h2>
+    <div class="row3">
+      <div><label for="members">Members</label><input id="members" inputmode="decimal" value=""></div>
+      <div><label for="memberFee">Monthly fee per member ($)</label><input id="memberFee" inputmode="decimal" value=""></div>
+      <div><label for="memberHours">Court-hours each member plays per month</label><input id="memberHours" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Other revenue per month</h2>
+    <div class="row3">
+      <div><label for="leagueRevenue">Leagues ($)</label><input id="leagueRevenue" inputmode="decimal" value=""></div>
+      <div><label for="lessonRevenue">Lessons and clinics ($)</label><input id="lessonRevenue" inputmode="decimal" value=""></div>
+      <div><label for="eventRevenue">Events and parties ($)</label><input id="eventRevenue" inputmode="decimal" value=""></div>
+      <div><label for="proShopSales">Pro-shop / F&amp;B sales ($)</label><input id="proShopSales" inputmode="decimal" value=""></div>
+      <div><label for="proShopMarginPct">Pro-shop / F&amp;B margin (%)</label><input id="proShopMarginPct" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Costs per month</h2>
+    <div class="row3">
+      <div><label for="staffMonthly">Staff ($)</label><input id="staffMonthly" inputmode="decimal" value=""></div>
+      <div><label for="rentMonthly">Rent ($)</label><input id="rentMonthly" inputmode="decimal" value=""></div>
+      <div><label for="utilitiesMonthly">Utilities ($)</label><input id="utilitiesMonthly" inputmode="decimal" value=""></div>
+      <div><label for="insuranceMonthly">Insurance ($)</label><input id="insuranceMonthly" inputmode="decimal" value=""></div>
+      <div><label for="otherMonthly">Other fixed costs ($)</label><input id="otherMonthly" inputmode="decimal" value=""></div>
+      <div><label for="feePct">Booking software and card processing (% of revenue)</label><input id="feePct" inputmode="decimal" value="3"></div>
+      <div><label for="debtServiceMonthly">Debt service ($)</label><input id="debtServiceMonthly" inputmode="decimal" value=""></div>
+    </div>
+    <h2 style="margin-top:18px">Ramp-up</h2>
+    <div class="row3">
+      <div><label for="rampMonths">Months to reach steady state</label><input id="rampMonths" inputmode="decimal" value="6"></div>
+      <div><label for="rampStartPct">Revenue in month 1 (% of steady state)</label><input id="rampStartPct" inputmode="decimal" value="30"></div>
+    </div>
+    <p class="note">Utilization is the share of all court-hours that are played, including member play. Member hours come out of the booked hours; if members would play more than the courts allow, play is capped at capacity and you get a warning.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your court count and hours, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Monthly P&amp;L at steady state</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="pl"><thead><tr><th>Line</th><th class="n">Per month</th><th class="n">Per year</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>24-month ramp-up cash curve</h3>
+    <div id="curve-chart"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ct"><thead><tr><th class="n">Month</th><th class="n">Revenue</th><th class="n">Operating costs</th><th class="n">Debt service</th><th class="n">Cash</th><th class="n">Cumulative cash</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Monthly cash after debt service: utilization vs peak rate</h3>
+    <p class="note">Rows shift every daypart's utilization by percentage points; columns change the peak rate.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="ur"></table></div></div>
+    <h3>Monthly cash after debt service: membership fee vs member count</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="mt"></table></div></div>
+    <h3>What raises profit most</h3>
+    <p class="note">Each input moved up and down 10% on its own; change in annual net operating income. Elasticity is the % change in income per 1% change in the input.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="lv"><thead><tr><th>Input</th><th class="n">+10%</th><th class="n">-10%</th><th class="n">Elasticity</th><th>Size</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Capacity:</strong> courts x weekly hours in each daypart x 52/12 weeks. <strong>Booked hours:</strong> capacity x utilization. <strong>Members:</strong> members x court-hours each; that play comes out of the booked hours (and if it exceeds them, utilization is treated as higher; if it exceeds capacity, it is capped). <strong>Court revenue:</strong> remaining hourly play x the daypart rate. <strong>Revenue:</strong> court revenue + dues + leagues, lessons and events + pro-shop and F&amp;B margin (sales x margin). <strong>Costs:</strong> staff, rent, utilities, insurance and other fixed costs plus the percentage fee on everything except pro-shop margin. <strong>Net operating income (NOI):</strong> revenue less costs, before debt. <strong>Cash:</strong> NOI less debt service.</p>
+    <p><strong>Ramp-up:</strong> revenue (and the percentage fee) climbs in a straight line from your month-1 percentage to 100% at the ramp month; fixed costs and debt service run in full from month 1. Month 0 is your own cash in: build-out cost less the debt-financed part. <strong>Break-even utilization:</strong> your peak, off-peak and weekend utilization scaled together until cash after debt is zero, shown as overall utilization. <strong>Break-even members:</strong> the smallest member count at which cash after debt is zero, counting the hourly play those members displace. <strong>Payback on build-out:</strong> build-out cost over annual NOI.</p>
+    <p><strong>Not modelled:</strong> income tax and depreciation, seasonality, price elasticity (raising a rate does not lower play in the ranking), member churn, no-shows and refunds, staff scaling with hours, sales tax, equipment replacement and court resurfacing, working capital, landlord concessions, build-out overruns, and permitting or zoning. In the ranking, adding hours assumes the same utilization in the new hours. Sample numbers are invented. Unverified: tested on hand-calculated examples, not on a real facility. It computes outcomes from your inputs; it does not tell you whether to open.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does it cost to open an indoor pickleball facility?</h3>
+    <p>It varies enormously with building, region, court count and whether you lease an existing warehouse or build new, so the tool ships no cost figure as fact. Enter your own build-out or lease-up quote (flooring, nets, lighting, HVAC, front desk, locker rooms, permits) as one number, plus how much of it is financed. The tool then shows how much of your own cash goes in, the deepest point your cash balance reaches while the facility ramps up, and how long until cumulative cash turns positive.</p>
+    <h3>What utilization does an indoor pickleball facility need to break even?</h3>
+    <p>The tool finds it from your own figures: it keeps the shape of your peak, off-peak and weekend utilization and scales it until monthly cash after debt service is zero, then reports the overall share of court-hours that represents. Fixed costs (rent, staff, insurance, utilities, debt service) mostly do not move with play, so break-even utilization is driven by how large those are against your hourly rates.</p>
+    <h3>How do I price memberships against hourly court rental?</h3>
+    <p>Every member hour is an hour you cannot rent to a walk-in. The tool counts member play against the booked hours your utilization implies, so a membership only adds profit when the monthly fee beats the hourly revenue those hours would have earned. If members would play more hours than your utilization implies, utilization is treated as higher; if they would play more hours than the courts have, member play is capped at capacity and you get a warning. The membership table shows monthly cash for combinations of fee and member count.</p>
+    <h3>What is revenue per court-hour, and why does it matter?</h3>
+    <p>It is court revenue (hourly play plus membership dues) divided by the court-hours you have available in a month. It lets you compare a facility with eight courts and long hours against one with four courts and short hours, and see whether a rate change or a membership push moved the number. The tool also shows revenue per booked court-hour, which is what a booked hour is worth on average.</p>
+    <h3>How long does an indoor pickleball facility take to pay back?</h3>
+    <p>Two readings are shown. Payback on build-out is the build-out cost divided by annual net operating income at steady state. Months to cash break-even runs a month-by-month curve from your ramp-up assumption, with fixed costs and debt service from month one and revenue climbing from your starting percentage to full, and tells you the month cumulative cash turns positive and the lowest cash point on the way.</p>
+    <h3>What raises profit the most: rates, utilization, members or cutting costs?</h3>
+    <p>The ranking moves each input up and down ten percent, one at a time, holding the rest fixed, and shows the change in annual net operating income and the elasticity (percent change in income per percent change in the input). It is a local view around your numbers, not a forecast: raising a rate ten percent is easier to type than to achieve without losing play, and the tool does not model that response.</p>
+    <h3>Does this work for padel or a different racquet-sport facility?</h3>
+    <p>Yes, the model only needs courts, hours, rates, utilization, memberships, other revenue and costs, so it fits padel, tennis or squash facilities too. Examples are written for pickleball, and the sample numbers are invented.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No address or personal information is asked for.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant, lender, attorney or contractor. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any pickleball brand, league, governing body, facility chain or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../dumpster-rental-margin-calculator/">dumpster rental margin calculator</a>, the <a href="../music-lesson-break-even/">music lesson break-even calculator</a> the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> the <a href="../escape-room-pricing-capacity-planner/">escape room pricing and capacity planner</a> and the <a href="../padel-club-profit-calculator/">padel club profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInputs, money, pct, yrs, months } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["courts", "buildOutCost", "loanProceeds", "peakHours", "offPeakHours", "weekendHours", "peakRate", "offPeakRate", "weekendRate", "peakUtil", "offPeakUtil", "weekendUtil", "members", "memberFee", "memberHours", "leagueRevenue", "lessonRevenue", "eventRevenue", "proShopSales", "proShopMarginPct", "staffMonthly", "rentMonthly", "utilitiesMonthly", "insuranceMonthly", "otherMonthly", "feePct", "debtServiceMonthly", "rampMonths", "rampStartPct"];
+    const DEFAULT_FORM = { feePct: "3", rampMonths: "6", rampStartPct: "30" };
+    let last = null;
+
+    function run() {
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.steady;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(s.noi), "Net operating income per month"],
+        [money(s.cash), "Cash per month after debt service"],
+        [r.revPerAvailableCourtHour === null ? "n/a" : money(r.revPerAvailableCourtHour), "Revenue per available court-hour"],
+        [r.revPerBookedCourtHour === null ? "n/a" : money(r.revPerBookedCourtHour), "Revenue per booked court-hour"],
+        [pct(s.utilization), "Utilization (members included)"],
+        [r.breakEvenUtilization === null ? "not reachable" : pct(r.breakEvenUtilization), "Break-even utilization"],
+        [r.breakEvenMembers === null ? "not reachable" : String(r.breakEvenMembers), "Break-even members"],
+        [months(r.monthsToCashBreakeven), "Cumulative cash turns positive"],
+        [money(r.peakCashDrawdown), "Peak cash drawdown (first 24 months)"],
+        [yrs(r.buildOutPaybackYears), "Payback on build-out (steady-state NOI)"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      const line = (name, m, strong) => `<tr><td>${strong ? "<strong>" + esc(name) + "</strong>" : esc(name)}</td><td class="n">${money(m)}</td><td class="n">${money(m * 12)}</td></tr>`;
+      $("#pl tbody").innerHTML = [
+        line("Pay-to-play court revenue", s.courtRevenue), line("Membership dues", s.membershipRevenue),
+        line("Leagues, lessons and events", s.programRevenue), line("Pro-shop / F&B margin", s.proShopProfit),
+        line("Total revenue", s.revenue, true), line("Fixed operating costs", -s.fixedCosts), line("Software and processing fees", -s.processing),
+        line("Net operating income", s.noi, true), line("Debt service", -s.debt), line("Cash after debt service", s.cash, true),
+      ].join("");
+      $("#ct tbody").innerHTML = r.curve.map((c) => `<tr><td class="n">${c.month}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.opex)}</td><td class="n">${money(c.debt)}</td><td class="n">${money(c.cash)}</td><td class="n">${money(c.cumulative)}</td></tr>`).join("");
+      $("#curve-chart").innerHTML = chart(r.curve);
+      const lab = (d) => d === 0 ? "yours" : (d > 0 ? "+" : "") + d;
+      $("#ur").innerHTML = `<thead><tr><th>Utilization (points) / peak rate</th>${r.utilRate[0].cells.map((c) => `<th class="n">${lab(c.rateDelta)}%<br>${money(c.peakRate)}</th>`).join("")}</tr></thead><tbody>${r.utilRate.map((row) => `<tr><td>${lab(row.utilDelta)} pts</td>${row.cells.map((c) => `<td class="n">${money(c.cash)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+      $("#mt").innerHTML = `<thead><tr><th>Monthly fee / members</th>${r.membership[0].cells.map((c) => `<th class="n">${c.members}</th>`).join("")}</tr></thead><tbody>${r.membership.map((row) => `<tr><td>${money(row.memberFee)} (${lab(row.feeDelta)}%)</td>${row.cells.map((c) => `<td class="n">${money(c.cash)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+      const top = Math.max(1, ...r.levers.map((l) => l.swing));
+      const sgn = (v) => (v >= 0 ? "+" : "") + money(v);
+      $("#lv tbody").innerHTML = r.levers.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${sgn(l.up)}</td><td class="n">${sgn(l.down)}</td><td class="n">${l.elasticity === null ? "n/a" : l.elasticity.toFixed(2)}</td><td><span class="bar" style="width:${Math.round((l.swing / top) * 120)}px"></span></td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function chart(curve) {
+      const W = 640, H = 220, P = 56;
+      const ys = curve.map((c) => c.cumulative);
+      const lo = Math.min(0, ...ys), hi = Math.max(0, ...ys), span = hi - lo || 1;
+      const x = (m) => P + (m / (curve.length - 1)) * (W - P - 10);
+      const y = (v) => 10 + (1 - (v - lo) / span) * (H - 30);
+      const pts = curve.map((c) => `${x(c.month).toFixed(1)},${y(c.cumulative).toFixed(1)}`).join(" ");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative cash by month over the first 24 months"><line x1="${P}" x2="${W - 10}" y1="${y(0)}" y2="${y(0)}" stroke="#6c8896" stroke-dasharray="4 3"/><polyline points="${pts}" fill="none" stroke="#1d6b4a" stroke-width="2.5"/><text x="4" y="${y(0) + 4}" font-size="11" fill="#4c5a68">$0</text><text x="${P}" y="${H - 4}" font-size="11" fill="#4c5a68">month 0</text><text x="${W - 70}" y="${H - 4}" font-size="11" fill="#4c5a68">month ${curve.length - 1}</text><text x="4" y="${Math.min(H - 14, y(lo))}" font-size="11" fill="#4c5a68">${esc(money(lo))}</text></svg>`;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const ex = sampleInputs();
+      for (const k of FIELDS) $("#" + k).value = String(ex[k]);
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented figures, not a real facility or market."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const k of FIELDS) $("#" + k).value = DEFAULT_FORM[k] || "";
+      report.hidden = true; last = null; status.textContent = "Enter your court count and hours, then click Calculate.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "pickleball-facility-pro-forma.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../529-to-roth-rollover-calculator/" data-pf-to="529-to-roth-rollover-calculator">529 to Roth IRA rollover calculator</a></li>
+      <li><a href="../aba-authorization-tracker/" data-pf-to="aba-authorization-tracker">ABA authorization tracker: units, expirations and reauth dates — free, private</a></li>
+      <li><a href="../adjunct-course-offer-calculator/" data-pf-to="adjunct-course-offer-calculator">Adjunct course offer calculator</a></li>
+      <li><a href="../amusement-route-location-calculator/" data-pf-to="amusement-route-location-calculator">Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pickleball-facility-pro-forma">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/?pfEmbed=1&quot; title=&quot;Pickleball Facility Pro Forma — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pickleball-facility-pro-forma"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/" data-pf-embed-title="Pickleball Facility Pro Forma — free, private, in your browser" data-pf-embed-slug="pickleball-facility-pro-forma"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="pickleball-facility-pro-forma" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="pickleball-facility-pro-forma" data-pf-link-amount=""></script>
+</body>
+</html>

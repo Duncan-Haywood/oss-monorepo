@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>security.txt Checker vs. checking it by eye</title>
+  <meta name="description" content="Reading a security.txt file and eyeballing it for problems genuinely works for one obvious thing: a completely missing Contact line.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="security.txt Checker vs. checking it by eye">
+  <meta property="og:description" content="Eyeballing a security.txt catches an obviously missing field. It misses an expired date, a bare-address Contact, a silent British-spelling typo…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/vs-checking-it-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does checking a security.txt by eye actually catch?","acceptedAnswer":{"@type":"Answer","text":"It catches the case everyone tests: a file with no Contact field at all, or an obviously empty file. That is real, and it is not what this tool exists to replace. What it replaces is everything past that — a field whose value is wrong in a way that still reads as ordinary text."}},{"@type":"Question","name":"Why does eyeballing miss an expired Expires date?","acceptedAnswer":{"@type":"Answer","text":"A date sitting in a list of fields looks like a normal date whether it is next week or three years ago — nothing about its formatting changes when it is in the past. RFC 9116 says a consumer must treat an expired file's data as stale, so the file quietly stops doing its job while still looking complete to a person reading it. This checker compares the date against the actual current time and flags it by name."}},{"@type":"Question","name":"Why does eyeballing miss a bare-address Contact?","acceptedAnswer":{"@type":"Answer","text":"security@example.com reads as an obviously correct contact address to a person — it is one. RFC 9116 requires Contact to be a URI specifically, so a conforming tool cannot tell whether that string is an email address, a username, or something else without the mailto: prefix. The distinction that matters to a parser is invisible to a reader who already knows what it means."}},{"@type":"Question","name":"Why does eyeballing miss a misspelled field name?","acceptedAnswer":{"@type":"Answer","text":"Acknowledgements (the British spelling, with the extra e) reads as a completely normal word. RFC 9116 spells the field Acknowledgments, without it, and a conforming parser silently ignores any field name it does not recognize — so the misspelled field, and whatever page it points to, simply never gets found by anything that reads the file correctly, with no error and no visual cue."}},{"@type":"Question","name":"Why does eyeballing miss a missing colon?","acceptedAnswer":{"@type":"Answer","text":"Policy https://example.com/vulnerability-policy without a colon after Policy still reads as a complete, sensible line — a field name followed by a URL. RFC 9116 requires the colon; without it, the line is not a field at all, just unstructured text a parser cannot use. It looks identical to a correct line at a glance."}},{"@type":"Question","name":"Does this tool replace reading the file yourself?","acceptedAnswer":{"@type":"Answer","text":"No. It only checks conformance to RFC 9116's own rules about field syntax, required fields, and their formats — it has no opinion on whether the contact address is monitored, whether the policy page is any good, or whether the file is even reachable at the right location from a paste alone. Judging the substance is still a job for reading it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 900px; margin: auto; padding: 28px 18px 64px; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.6rem, 4.8vw, 2.4rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 24px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/vs-checking-it-by-eye.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-txt-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="security.txt Checker vs. checking it by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-txt-check/">security.txt Checker (RFC 9116)</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">security.txt Checker vs. checking it by eye</span></span></nav>
+  <p class="note"><a href="./">&larr; back to the checker</a></p>
+  <h1>security.txt Checker vs. checking it by eye</h1>
+  <p>This page names no specific product or company: "checking it by eye"
+  is reading a security.txt file yourself, a generic habit anyone with a
+  text editor already has, not a competing tool.</p>
+  <p>Reading a security.txt file and eyeballing it for problems genuinely
+  catches the case everyone pictures: a file with no Contact field at
+  all, or one that is completely empty. That case is real, and it is not
+  what this tool exists to replace. What it replaces is everything
+  past that — a field whose value is wrong in a way that still reads as
+  ordinary, complete text to a person scanning the file.</p>
+
+  <section class="card">
+    <h2>Where eyeballing it usually goes wrong</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Case</th><th>Checking it by eye</th><th>This checker</th></tr></thead>
+      <tbody>
+        <tr><td><code>Expires: 2025-06-01T00:00:00Z</code></td><td>Reads as an ordinary date sitting in a list of fields — nothing about its formatting changes whether it is next week or years past</td><td>Compares it against the actual current time and flags an expired file by name</td></tr>
+        <tr><td><code>Contact: security@example.com</code></td><td>Reads as an obviously correct contact address — it is one</td><td>Flags it as not a URI: RFC 9116 requires the <code>mailto:</code> prefix specifically, so a parser can tell what kind of contact it is</td></tr>
+        <tr><td><code>Acknowledgements:</code> (British spelling)</td><td>Reads as a completely ordinary field name</td><td>Flags the misspelling by name and names the RFC-correct spelling, <code>Acknowledgments</code></td></tr>
+        <tr><td><code>Encryption: http://example.com/pgp-key.txt</code></td><td>An http vs. https difference of one letter, easy to skim past in a long URL</td><td>Flags plain-http explicitly</td></tr>
+        <tr><td><code>Preferred-Languages: English</code></td><td>Reads as a perfectly reasonable value</td><td>Flags that "English" is not a valid language tag — RFC 9116 wants a tag like <code>en</code></td></tr>
+        <tr><td><code>Policy https://example.com/vulnerability-policy</code> (no colon)</td><td>Still reads as a complete, sensible line — a field name followed by a URL</td><td>Flags it as a malformed field with the colon missing, since without it the line is not a field a parser can use at all</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>The gap that matters most: a wrong value can look exactly like a right one</h2>
+    <p>Every case above shares the same shape: none of them looks broken.
+    An expired date is still a date. A bare email address is still a
+    contact. A misspelled field name is still a word. A missing colon
+    still reads as a sentence. There is no red flag, no obviously wrong
+    formatting — just a field whose meaning to a conforming parser
+    differs from what it looks like to a person who already knows what
+    the file is trying to say. This checker applies RFC 9116's own rules
+    to every field, so a value that is wrong in a way invisible to a
+    reader still gets flagged.</p>
+  </section>
+
+  <section class="card">
+    <h2>When to still read the file yourself</h2>
+    <p>This is a conformance check, not a security review. It has no
+    opinion on whether the contact address is actually monitored,
+    whether the linked policy page is any good, or where the file is
+    served from — a paste cannot show that, only the CLI checking a
+    live URL can. Judging the substance behind the file is still a job
+    for reading it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does checking a security.txt by eye actually catch?</h3>
+    <p>It catches the case everyone tests: a file with no Contact field at all, or an obviously empty file. That is real, and it is not what this tool exists to replace. What it replaces is everything past that — a field whose value is wrong in a way that still reads as ordinary text.</p>
+    <h3>Why does eyeballing miss an expired Expires date?</h3>
+    <p>A date sitting in a list of fields looks like a normal date whether it is next week or three years ago — nothing about its formatting changes when it is in the past. RFC 9116 says a consumer must treat an expired file's data as stale, so the file quietly stops doing its job while still looking complete to a person reading it. This checker compares the date against the actual current time and flags it by name.</p>
+    <h3>Why does eyeballing miss a bare-address Contact?</h3>
+    <p>security@example.com reads as an obviously correct contact address to a person — it is one. RFC 9116 requires Contact to be a URI specifically, so a conforming tool cannot tell whether that string is an email address, a username, or something else without the mailto: prefix. The distinction that matters to a parser is invisible to a reader who already knows what it means.</p>
+    <h3>Why does eyeballing miss a misspelled field name?</h3>
+    <p>Acknowledgements (the British spelling, with the extra e) reads as a completely normal word. RFC 9116 spells the field Acknowledgments, without it, and a conforming parser silently ignores any field name it does not recognize — so the misspelled field, and whatever page it points to, simply never gets found by anything that reads the file correctly, with no error and no visual cue.</p>
+    <h3>Why does eyeballing miss a missing colon?</h3>
+    <p>Policy https://example.com/vulnerability-policy without a colon after Policy still reads as a complete, sensible line — a field name followed by a URL. RFC 9116 requires the colon; without it, the line is not a field at all, just unstructured text a parser cannot use. It looks identical to a correct line at a glance.</p>
+    <h3>Does this tool replace reading the file yourself?</h3>
+    <p>No. It only checks conformance to RFC 9116's own rules about field syntax, required fields, and their formats — it has no opinion on whether the contact address is monitored, whether the policy page is any good, or whether the file is even reachable at the right location from a paste alone. Judging the substance is still a job for reading it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It checks whether a security.txt file conforms to RFC 9116, not a security assessment of your site. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you paste, or that a URL will keep working. Do not use it as a system of record — nothing you paste is saved anywhere by this tool.</p>
+    <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors.</p>
+    <p><a href="./">Back to the checker</a></p>
+    <p class="support">Free and open source. If this caught a stale field before it cost you, the code is under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+      <li><a href="../k8s-resource-limits-check/" data-pf-to="k8s-resource-limits-check">Will this container take down its whole node?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-txt-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-txt-check"></script>
+</body>
+</html>

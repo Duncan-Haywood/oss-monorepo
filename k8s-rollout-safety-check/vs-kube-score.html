@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>kube-score vs a Rollout Safety Check — Which Answers "Will This Deploy Drop Requests?"</title>
+  <meta name="description" content="kube-score, Polaris and kubeaudit are general Kubernetes manifest linters covering dozens of rules.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/vs-kube-score.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use kube-score or this checker?","acceptedAnswer":{"@type":"Answer","text":"Both, for different jobs. kube-score is a broad manifest linter: it scores a manifest across dozens of rules spanning resource limits, security contexts, image tags, network policies and probes, and it is the better choice when you want one gate covering general manifest hygiene. This checker asks a single question — can this rolling update or node drain drop a live request? — and answers it with the causal chain rather than a rule name. Use the broad linter as your standing CI gate, and this one when you are specifically investigating errors that appear during deploys."}},{"@type":"Question","name":"Does this checker duplicate kube-score's probe rules?","acceptedAnswer":{"@type":"Answer","text":"They overlap on the readinessProbe rule and diverge everywhere else. The checks here that a general linter does not typically make are the relational ones: whether terminationGracePeriodSeconds is long enough to cover the preStop hook it is paired with, whether maxUnavailable resolves — after Kubernetes' round-down arithmetic — to the full replica count, whether the livenessProbe is a copy of the readinessProbe, and whether a PodDisruptionBudget is satisfiable at the Deployment's replica count. Each of those is a relationship between two fields, sometimes in two different resources, rather than a property of one field."}},{"@type":"Question","name":"Why does this tool not score my manifest?","acceptedAnswer":{"@type":"Answer","text":"Because a score answers \"how am I doing?\" and the question here is \"will this specific thing break?\". A score of 7/10 does not tell you whether the three missing points are the ones that drop requests. Findings are reported at two levels only — it can drop requests, or it is worth reviewing — and each one names the resource, the container, what a user experiences when it fires, and the YAML that fixes it."}},{"@type":"Question","name":"Can I run this without installing anything?","acceptedAnswer":{"@type":"Answer","text":"Yes. The browser page needs no install at all and uploads nothing — paste the manifest and read the result. The CLI is two files of plain JavaScript that run on Node 18 or later with no dependencies, no Go toolchain, no container image and no kubeconfig. kube-score is distributed as a Go binary, container image and Krew plugin, which is a better fit if you already manage tooling that way."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; background: #fff; border: 1px solid #d5dbe3; border-radius: 10px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .cta { background: #fff; border: 1px solid #d5dbe3; border-radius: 12px; padding: 18px; margin: 22px 0; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/vs-kube-score.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="kube-score vs a Rollout Safety Check — Which Answers &quot;Will This Deploy Drop Requests?&quot;">
+<meta property="og:description" content="kube-score, Polaris and kubeaudit are general Kubernetes manifest linters covering dozens of rules.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="kube-score vs a Rollout Safety Check — Which Answers &quot;Will This Deploy Drop Requests?&quot; — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../k8s-rollout-safety-check/">Will your Kubernetes rollout drop live requests?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">kube-score vs a Rollout Safety Check — Which Answers &quot;Will This Deploy Drop Requests?&quot;</span></span></nav>
+  <h1>kube-score vs a rollout safety check</h1>
+  <p class="note">A comparison · <a href="./">back to the rollout safety checker</a></p>
+
+  <p>These tools are often mentioned in the same breath and answer different questions. This page says which is which, including where the other one is the better choice. It describes kube-score as a category of tool — a general manifest linter, alongside Polaris and kubeaudit — from its published behaviour; it is not affiliated with, endorsed by, or a benchmark against any of them.</p>
+
+  <h2>The short version</h2>
+  <h3>Should I use kube-score or this checker?</h3>
+  <p>Both, for different jobs. kube-score is a broad manifest linter: it scores a manifest across dozens of rules spanning resource limits, security contexts, image tags, network policies and probes, and it is the better choice when you want one gate covering general manifest hygiene. This checker asks a single question — can this rolling update or node drain drop a live request? — and answers it with the causal chain rather than a rule name. Use the broad linter as your standing CI gate, and this one when you are specifically investigating errors that appear during deploys.</p>
+
+  <div class="tableWrap">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th></th><th>General manifest linter</th><th>This checker</th></tr></thead>
+      <tbody>
+        <tr><td>Question asked</td><td>Does this manifest follow recommended practice across many dimensions?</td><td>Can this rollout or node drain drop a live request?</td></tr>
+        <tr><td>Output</td><td>A score and a list of rule results</td><td>Findings at two levels, each with the user-visible consequence and the YAML fix</td></tr>
+        <tr><td>Scope</td><td>Most workload kinds, many rule categories</td><td><code>Deployment</code> and <code>PodDisruptionBudget</code> only; other kinds listed as skipped</td></tr>
+        <tr><td>Relational checks</td><td>Generally per-field</td><td>Grace period vs. preStop duration; maxUnavailable vs. replicas; PDB vs. replicas; liveness vs. readiness</td></tr>
+        <tr><td>Install</td><td>Go binary, container image, or Krew plugin</td><td>Nothing in the browser; two files on Node 18+ for the CLI</td></tr>
+        <tr><td>Cluster access</td><td>Optional, for some checks</td><td>None, ever — it reads YAML text and makes no network calls</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>Where they genuinely differ</h2>
+  <h3>Does this checker duplicate kube-score's probe rules?</h3>
+  <p>They overlap on the <code>readinessProbe</code> rule and diverge everywhere else. The checks here that a general linter does not typically make are the relational ones: whether <code>terminationGracePeriodSeconds</code> is long enough to cover the preStop hook it is paired with, whether <code>maxUnavailable</code> resolves — after Kubernetes' round-down arithmetic — to the full replica count, whether the <code>livenessProbe</code> is a copy of the <code>readinessProbe</code>, and whether a PodDisruptionBudget is satisfiable at the Deployment's replica count. Each of those is a relationship between two fields, sometimes in two different resources, rather than a property of one field.</p>
+
+  <p>The grace-period case is the clearest example of why that distinction matters. A manifest with a 30-second preStop hook and the default 30-second grace period passes any per-field check: it <em>has</em> a preStop hook, and it <em>has</em> a grace period. The defect is only visible when the two are read together — SIGKILL lands at the moment preStop returns, so the application never drains at all, and the configuration is worse than having no preStop hook while looking considerably more careful.</p>
+
+  <h3>Why does this tool not score my manifest?</h3>
+  <p>Because a score answers "how am I doing?" and the question here is "will this specific thing break?". A score of 7/10 does not tell you whether the three missing points are the ones that drop requests. Findings are reported at two levels only — it can drop requests, or it is worth reviewing — and each one names the resource, the container, what a user experiences when it fires, and the YAML that fixes it.</p>
+
+  <h3>Can I run this without installing anything?</h3>
+  <p>Yes. The browser page needs no install at all and uploads nothing — paste the manifest and read the result. The CLI is two files of plain JavaScript that run on Node 18 or later with no dependencies, no Go toolchain, no container image and no kubeconfig. kube-score is distributed as a Go binary, container image and Krew plugin, which is a better fit if you already manage tooling that way.</p>
+
+  <h2>When the other tool is the right answer</h2>
+  <ul>
+    <li>You want <strong>one</strong> CI gate covering manifest hygiene broadly — resource limits, security contexts, image tags, network policy. Use the general linter; this checker covers none of that.</li>
+    <li>You need <strong>StatefulSet, DaemonSet, CronJob or Job</strong> coverage. This tool analyzes Deployments only and says so rather than guessing.</li>
+    <li>You want a <strong>policy engine</strong> with custom rules you write yourself (Kyverno, OPA Gatekeeper). This tool's checks are fixed and deliberately few.</li>
+    <li>You want a <strong>trend line</strong> across many services. A score is the right shape for that; a findings list is not.</li>
+  </ul>
+
+  <div class="cta">
+    <p><strong>Try it on one manifest.</strong> <a href="./">Paste a Deployment</a> and see whether its rollout can drop requests. Nothing is uploaded, no cluster access is needed, and <code>--list-checks</code> shows the complete rule list before you trust any of it.</p>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It describes other tools from their published behaviour and is not affiliated with or endorsed by any of them; it is not a benchmark, and their capabilities change over time — check their current documentation before choosing. Nothing here is a production-readiness audit or a guarantee about your deploy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p><a href="./">Kubernetes Rollout Safety Check</a> · <a href="why-your-kubernetes-rollout-drops-requests.html">why rollouts drop requests</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is optional and changes nothing about the tool.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../helm-values-schema-check/" data-pf-to="helm-values-schema-check">Does your values.yaml actually match its own schema?</a></li>
+      <li><a href="../hidden-unicode-check/" data-pf-to="hidden-unicode-check">Hidden Unicode Check</a></li>
+      <li><a href="../hreflang-reciprocity-check/" data-pf-to="hreflang-reciprocity-check">hreflang Reciprocity Check</a></li>
+      <li><a href="../incident-postmortem-timeline/" data-pf-to="incident-postmortem-timeline">Turn incident notes into a postmortem draft</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=k8s-rollout-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="k8s-rollout-safety-check"></script>
+</body>
+</html>

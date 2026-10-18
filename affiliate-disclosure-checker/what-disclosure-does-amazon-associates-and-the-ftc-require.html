@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Disclosure Does Amazon Associates and the FTC Actually Require?</title>
+  <meta name="description" content="What Amazon's Associates Program Operating Agreement requires versus what the FTC's Endorsement Guides require, why they are two separate obligations…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/what-disclosure-does-amazon-associates-and-the-ftc-require.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are the Amazon rule and the FTC rule the same thing?","acceptedAnswer":{"@type":"Answer","text":"No, and meeting one does not automatically meet the other. The FTC's Endorsement Guides are a general legal standard: a clear and conspicuous disclosure, in plain language, before a reader encounters the affiliate link. Amazon's Associates Program Operating Agreement is a specific contractual term with Amazon: it requires that exact statement, on every page carrying an Associates link, regardless of how clearly you have disclosed some other way."}},{"@type":"Question","name":"What counts as \"before\" the link?","acceptedAnswer":{"@type":"Answer","text":"FTC guidance treats a disclosure buried at the bottom of a long page, after several affiliate links, as too late — a reader who clicked the first link never saw it. A disclosure near the top of the post, or immediately next to the first affiliate mention, is the safer placement. This tool checks exactly that: whether the earliest disclosure phrase it finds comes before the earliest affiliate link it finds, in the page's own reading order."}},{"@type":"Question","name":"Does a footer-only or about-page-only disclosure count?","acceptedAnswer":{"@type":"Answer","text":"Not under FTC guidance, and not under this tool's check either — a disclosure that exists somewhere on the site but not on the page with the link is not \"clear and conspicuous\" to a reader who lands on that page from search or a shared link, which is how most affiliate content is actually read."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: #4a1f5c; }
+    h2 { color: #4a1f5c; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/what-disclosure-does-amazon-associates-and-the-ftc-require.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="What Disclosure Does Amazon Associates and the FTC Actually Require?">
+<meta property="og:description" content="What Amazon's Associates Program Operating Agreement requires versus what the FTC's Endorsement Guides require, why they are two separate obligations…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Disclosure Does Amazon Associates and the FTC Actually Require? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../affiliate-disclosure-checker/">Is your affiliate disclosure missing, or just too late?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Disclosure Does Amazon Associates and the FTC Actually Require?</span></span></nav>
+  <p><a href="./">← Back to Affiliate Disclosure Checker</a></p>
+  <h1>What disclosure does Amazon Associates and the FTC actually require?</h1>
+
+  <p>Two separate obligations sit on top of each other here, and mixing them
+  up is the mistake this page exists to prevent: a general legal standard
+  from the FTC that applies to any affiliate or sponsored content, and a
+  specific contractual term from Amazon that applies only to Amazon
+  Associates links.</p>
+
+  <h2>The FTC's Endorsement Guides: a general standard</h2>
+  <p>The FTC's position, stated in its Endorsement Guides, is that a material
+  connection between an endorser and a seller — including an affiliate
+  commission — must be disclosed <strong>clearly and conspicuously</strong>,
+  in plain language, close to the claim it relates to, and
+  <strong>before</strong> the reader has to act on it (click the link, add
+  the item to a cart). A disclosure that exists only in an about page, a
+  footer, or after several affiliate links have already appeared does not
+  meet that standard for a reader who arrives partway down the page from
+  search.</p>
+
+  <h2>Amazon's Associates Program Operating Agreement: a specific term</h2>
+  <p>Separately, and in addition to the FTC standard, Amazon's own Associates
+  Program Operating Agreement requires that every page carrying an
+  Associates link include a statement to the effect of:</p>
+  <pre>As an Amazon Associate I earn from qualifying purchases.</pre>
+  <p>This is a contractual requirement with Amazon, not a suggestion, and it
+  is specific wording — a generic "this post contains affiliate links" note
+  satisfies the FTC's general standard but does not satisfy Amazon's own
+  term. Amazon has terminated Associates accounts for missing this
+  statement, which ends the account's entire earning history, not just
+  future commissions on the page in question.</p>
+
+  <h2>Where to put it</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Placement</th><th>Meets FTC guidance?</th><th>Meets Amazon's term?</th></tr></thead>
+    <tbody>
+      <tr><td>Near the top of the post, before the first affiliate link</td><td>Yes</td><td>Yes, if the exact Amazon statement is included</td></tr>
+      <tr><td>Immediately beside the first affiliate mention</td><td>Yes</td><td>Yes, if the exact Amazon statement is included</td></tr>
+      <tr><td>Only in a sitewide footer or About page</td><td>No — not conspicuous to a reader landing mid-page</td><td>No — Amazon's term is per-page, not sitewide</td></tr>
+      <tr><td>After the affiliate links, at the bottom of a long post</td><td>No — too late for a reader who already clicked</td><td>Present, but likely too late to be "clear and conspicuous" if ever reviewed</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Checking it automatically before you publish</h2>
+  <p>Run the CLI against a built site's output directory as part of your
+  publish step:</p>
+  <pre>node cli.mjs check dist --strict</pre>
+  <p>Exits non-zero if any page has an affiliate link with no disclosure
+  before it, or an Amazon link missing Amazon's own exact statement. It
+  reads only the local files you name — no network call, ever.</p>
+
+  <h2>Common questions</h2>
+  <h3>Are the Amazon rule and the FTC rule the same thing?</h3>
+  <p>No, and meeting one does not automatically meet the other. The FTC's Endorsement Guides are a general legal standard: a clear and conspicuous disclosure, in plain language, before a reader encounters the affiliate link. Amazon's Associates Program Operating Agreement is a specific contractual term with Amazon: it requires that exact statement, on every page carrying an Associates link, regardless of how clearly you have disclosed some other way.</p>
+  <h3>What counts as "before" the link?</h3>
+  <p>FTC guidance treats a disclosure buried at the bottom of a long page, after several affiliate links, as too late — a reader who clicked the first link never saw it. A disclosure near the top of the post, or immediately next to the first affiliate mention, is the safer placement. This tool checks exactly that: whether the earliest disclosure phrase it finds comes before the earliest affiliate link it finds, in the page's own reading order.</p>
+  <h3>Does a footer-only or about-page-only disclosure count?</h3>
+  <p>Not under FTC guidance, and not under this tool's check either — a disclosure that exists somewhere on the site but not on the page with the link is not "clear and conspicuous" to a reader who lands on that page from search or a shared link, which is how most affiliate content is actually read.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report which known affiliate-link and disclosure-phrase patterns appear in a page's text, and their order — nothing more. It is not legal advice, and it is not a determination that any page complies with the FTC's Endorsement Guides or Amazon's Associates Program Operating Agreement. Read the source documents linked above and consult a professional if you need a determination you can rely on.
+    Not affiliated with, endorsed by, or sponsored by Amazon or Amazon Associates, named here only to describe the requirement this tool checks for.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../heloc-vs-cash-out-refinance-calculator/" data-pf-to="heloc-vs-cash-out-refinance-calculator">HELOC or cash-out refinance? Free calculator</a></li>
+      <li><a href="../home-sale-net-proceeds-calculator/" data-pf-to="home-sale-net-proceeds-calculator">Home Sale Net Proceeds Calculator — what you really walk away with</a></li>
+      <li><a href="../house-hack-calculator/" data-pf-to="house-hack-calculator">House Hack Calculator — free, private</a></li>
+      <li><a href="../hsa-shoebox-reimbursement-planner/" data-pf-to="hsa-shoebox-reimbursement-planner">HSA shoebox planner: what are your unreimbursed receipts worth?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=affiliate-disclosure-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="affiliate-disclosure-checker"></script>
+</body>
+</html>

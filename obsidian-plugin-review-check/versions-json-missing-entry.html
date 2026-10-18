@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixing an Obsidian plugin's missing versions.json entry</title>
+<meta name="description" content="What it means when an Obsidian community plugin's versions.json has no entry for the current manifest.json version, why it happens…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/versions-json-missing-entry.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix an Obsidian plugin's missing versions.json entry",
+  "step": [
+    { "@type": "HowToStep", "name": "Open manifest.json and find the version field", "text": "At your plugin's root, manifest.json carries the current release's version string, e.g. \"version\": \"1.4.0\". This is the version you just tagged and released." },
+    { "@type": "HowToStep", "name": "Open versions.json and look for a matching key", "text": "versions.json maps each released plugin version to the minimum Obsidian app version it requires, e.g. { \"1.3.0\": \"0.15.0\", \"1.4.0\": \"0.15.0\" }. It has to carry a key exactly matching manifest.json's current version." },
+    { "@type": "HowToStep", "name": "Add the missing entry", "text": "If the current version has no key in versions.json, add one, mapping it to the minAppVersion your release actually requires (usually the same value manifest.json's own minAppVersion field carries)." },
+    { "@type": "HowToStep", "name": "Commit both files together and re-check before releasing", "text": "manifest.json and versions.json live in two separate files with nothing forcing them to move together, so re-scan both before tagging the next release." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/versions-json-missing-entry.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Fixing an Obsidian plugin's missing versions.json entry">
+<meta property="og:description" content="What it means when an Obsidian community plugin's versions.json has no entry for the current manifest.json version, why it happens…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fixing an Obsidian plugin's missing versions.json entry — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../obsidian-plugin-review-check/">Obsidian Plugin Review Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Fixing an Obsidian plugin's missing versions.json entry</span></span></nav>
+<h1>Fixing a missing <code>versions.json</code> entry</h1>
+
+<p>
+  A community plugin release with no matching entry in <strong><code>versions.json</code></strong>
+  is one of the easiest release-blocking mistakes to introduce, because
+  <code>manifest.json</code> and <code>versions.json</code> live in two separate files, in two
+  different formats, with nothing forcing them to move together.
+</p>
+
+<h2>Why it happens</h2>
+<p>
+  Obsidian's release mechanism reads <code>versions.json</code> to decide which installed app
+  versions can see a given plugin release. <code>manifest.json</code> carries only the
+  <em>current</em> release's version and its <code>minAppVersion</code> -- it says nothing about
+  history. Bump the version in <code>manifest.json</code>, tag the release, and forget to add the
+  matching line to <code>versions.json</code>, and the release exists but the version-resolution
+  step it depends on does not know about it.
+</p>
+
+<h2>What "correct" looks like</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>File</th><th>Example</th><th>What it controls</th></tr></thead>
+<tbody>
+<tr><td><code>manifest.json</code></td><td><code>"version": "1.4.0"</code></td><td>The current release's version string</td></tr>
+<tr><td><code>versions.json</code></td><td><code>{ "1.4.0": "0.15.0" }</code></td><td>Which Obsidian app versions the release is compatible with</td></tr>
+</tbody>
+</table></div>
+<p>
+  Every version you have ever released should keep its own entry in <code>versions.json</code> --
+  it only grows, it never has old versions removed, since a user on an older Obsidian build may
+  still need to know which of your past releases it can run.
+</p>
+
+<h2>Find it automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> reads both files and tells you immediately if
+  the current version has no matching entry, along with the other checks it runs (required
+  manifest fields, leftover sample-plugin placeholder values, and the innerHTML/outerHTML/
+  insertAdjacentHTML pattern Obsidian's own developer guidelines flag). It runs as a browser tool
+  (nothing uploaded) or a Node CLI you can add to your own pre-release check.
+</p>
+
+<p>
+  This is evidence of what the two files currently say, not a determination that a
+  community-plugin submission will be approved in every respect -- see
+  <a href="index.html">the checker</a> and its disclaimer for what else it can and can't see, and
+  verify against
+  <a href="https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines" rel="noopener">Obsidian's current plugin guidelines</a>
+  before you submit or tag a release.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not legal or security advice, and it does not replace
+  Obsidian's own plugin-review process. To the maximum extent permitted by law, the authors accept
+  no liability for any loss or damage arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a
+  product of Dynalist Inc., named here only to describe the field this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=obsidian-plugin-review-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="obsidian-plugin-review-check"></script>
+</body>
+</html>

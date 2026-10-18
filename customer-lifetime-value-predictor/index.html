@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Customer Lifetime Value Predictor — BG/NBD CLV from your orders</title>
+  <meta name="description" content="Free customer lifetime value predictor for online shops. Upload an order list to get each customer's predicted value, the chance they are still active…">
+  <meta property="og:title" content="Customer Lifetime Value Predictor — free, private, in your browser">
+  <meta property="og:description" content="Predict CLV per customer with BG/NBD and Gamma-Gamma models from a plain order export, with a back-test you can check.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Customer Lifetime Value Predictor", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload an order list (customer, date, amount) and get a predicted lifetime value for every customer using BG/NBD and Gamma-Gamma models, the probability each customer is still active, at-risk high spenders, what a new customer is worth, and a back-test of the forecast against your own recent orders. Runs entirely in your browser.", "featureList": "customer lifetime value calculator, CLV prediction, BG/NBD model, Gamma-Gamma model, probability customer is still active, churn prediction for ecommerce, at-risk customer list, customer acquisition cost ceiling, forecast back-test, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is customer lifetime value and how do I predict it?", "acceptedAnswer": {"@type": "Answer", "text": "Customer lifetime value (CLV) is the total margin a customer will bring you over their relationship with you. For a shop where customers come back at irregular times, the standard way to predict it is a probabilistic model: BG/NBD estimates how often each customer buys and how likely they have already stopped, and Gamma-Gamma estimates what they spend per order. This tool fits both to your own order list in your browser and multiplies them, month by month, with discounting."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per order with a customer identifier (an id or an email), the order date and the order amount. A Shopify, WooCommerce, Stripe or spreadsheet export works if it has those three columns; the tool finds them by header name. Refunds and negative amounts are dropped. Six months of history is the practical minimum and a few hundred customers gives stable totals."}}, {"@type": "Question", "name": "Why not just use average order value times average orders per customer?", "acceptedAnswer": {"@type": "Answer", "text": "Because that average hides who is still buying. A customer who ordered five times and then went quiet for a year looks valuable in a spreadsheet but is probably gone. The BG/NBD model uses recency as well as frequency, so it separates customers who are between orders from customers who have left, and it will not credit the lost ones with future revenue."}}, {"@type": "Question", "name": "How accurate is the forecast?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows its own report card. It refits the model on your data up to some weeks before your last order, predicts the purchases in those final weeks, and compares with what really happened, in total and by number of past repeat orders. On data that follows the model's assumptions the total is typically within a few percent. If the back-test misses badly, a promotion, a price change, seasonality or a new channel is usually why, and you should trust the forecast less."}}, {"@type": "Question", "name": "What is the model not good at?", "acceptedAnswer": {"@type": "Answer", "text": "It assumes each customer's buying rate is steady, that customers stop for good rather than pausing, and that order value is unrelated to how often they buy. Subscriptions with fixed billing dates, one-time purchases such as furniture, strong seasonality and businesses that change a lot during the window are poor fits. The tool warns when spend and frequency are correlated or when history is short."}}, {"@type": "Question", "name": "What do I do with the segments?", "acceptedAnswer": {"@type": "Answer", "text": "Customers who spent a lot but look unlikely to still be active are the cheapest people to try to win back. Customers who look lost should come out of expensive retargeting audiences. The predicted value of a new customer is the ceiling for what you can afford to pay to acquire one. Download the per-customer CSV to build these lists in your own tools."}}, {"@type": "Question", "name": "Is my customer data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your orders. Customer emails in your file stay on your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Customer Lifetime Value Predictor — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Customer Lifetime Value Predictor — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Customer Lifetime Value Predictor — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">CUSTOMER LIFETIME VALUE PREDICTOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is each customer really worth?</h1>
+    <p>Drop in an order export (customer, date, amount). The tool fits the <strong>BG/NBD</strong> and <strong>Gamma-Gamma</strong> models to your own data and returns a <strong>predicted value for every customer</strong>, the <strong>chance each one is still active</strong>, the <strong>big spenders who look ready to leave</strong>, and <strong>what a brand-new customer is worth</strong>, which is the ceiling on what you should pay to acquire one. It then <strong>back-tests itself</strong> on your most recent weeks so you can see how far to trust it.</p>
+    <p class="note">Your orders never leave this browser tab. Statistical forecast from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your orders</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="orders">…or paste rows (header optional: customer, date, amount)</label>
+    <textarea id="orders" spellcheck="false" placeholder="customer_id,order_date,order_total&#10;C0001,2025-01-14,42.00&#10;C0001,2025-03-02,58.50"></textarea>
+    <div class="grid">
+      <div><label for="horizon">Predict the next</label><select id="horizon"><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option><option value="36">36 months</option></select></div>
+      <div><label for="margin">Gross margin on orders (%)</label><input id="margin" inputmode="decimal" value="100"></div>
+      <div><label for="disc">Annual discount rate (%)</label><input id="disc" inputmode="decimal" value="10"></div>
+    </div>
+    <p class="note">Leave margin at 100 to value revenue; enter your gross margin (for example 45) to value profit. Amounts should be in one currency. Orders on the same day count as one purchase; refunds and zero amounts are ignored.</p>
+    <button type="button" id="analyze">Predict lifetime value</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your orders, then click Predict.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>What a new customer is worth</h3>
+    <div class="big" id="new-big"></div>
+    <h3>Customer segments</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="segments"><thead><tr><th>Segment</th><th class="n">Customers</th><th class="n">Predicted value</th><th>What to do</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Back-test: predicted vs actual purchases in your last weeks</h3>
+    <div id="bt-note" class="note"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="bt"><thead><tr><th>Repeat orders before</th><th class="n">Customers</th><th class="n">Predicted</th><th class="n">Actual</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Highest predicted value</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="top"><thead><tr><th>Customer</th><th class="n">Repeat orders</th><th class="n">Still active</th><th class="n">Avg repeat order</th><th class="n">Predicted value</th><th>Segment</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Fitted model</h3>
+    <p class="note" id="params"></p>
+    <button type="button" id="download">Download per-customer CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Frequency and recency:</strong> for each customer, the number of repeat purchase days, the time between first and last purchase, and the time since first purchase, in weeks. <strong>BG/NBD</strong> (Fader, Hardie and Lee, 2005): while active a customer buys at a steady random rate that differs between customers (gamma distributed); after each purchase they may become inactive for good (beta distributed). The four parameters are fitted by maximum likelihood (Nelder-Mead). Expected future purchases and the probability a customer is still active follow from the published closed forms. <strong>Gamma-Gamma</strong> (Fader and Hardie, 2013): average repeat order value varies between customers around a gamma distributed mean; predicted order value blends each customer's own average with the population's, so a customer with one repeat order is pulled toward the average. <strong>Value:</strong> expected purchases in each future month times predicted order value times your margin, discounted monthly. Customers with no repeat order get the population's average repeat order. <strong>Back-test:</strong> the model is refit on data ending some weeks before your last order (8 to 26 weeks depending on history) and its predictions are compared with the purchases that followed.</p>
+    <p><strong>Not modelled:</strong> subscriptions with fixed billing, one-off purchases, seasonality, promotions, price changes, returns, customers who pause and come back, and any link between how often someone buys and how much they spend. <strong>Unverified:</strong> checked against simulated data with known parameters and closed-form identities in unit tests, not against a published customer dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is customer lifetime value and how do I predict it?</h3>
+    <p>Customer lifetime value (CLV) is the total margin a customer will bring you over their relationship with you. For a shop where customers come back at irregular times, the standard way to predict it is a probabilistic model: BG/NBD estimates how often each customer buys and how likely they have already stopped, and Gamma-Gamma estimates what they spend per order. This tool fits both to your own order list in your browser and multiplies them, month by month, with discounting.</p>
+    <h3>What data do I need?</h3>
+    <p>One row per order with a customer identifier (an id or an email), the order date and the order amount. A Shopify, WooCommerce, Stripe or spreadsheet export works if it has those three columns; the tool finds them by header name. Refunds and negative amounts are dropped. Six months of history is the practical minimum and a few hundred customers gives stable totals.</p>
+    <h3>Why not just use average order value times average orders per customer?</h3>
+    <p>Because that average hides who is still buying. A customer who ordered five times and then went quiet for a year looks valuable in a spreadsheet but is probably gone. The BG/NBD model uses recency as well as frequency, so it separates customers who are between orders from customers who have left, and it will not credit the lost ones with future revenue.</p>
+    <h3>How accurate is the forecast?</h3>
+    <p>The tool shows its own report card. It refits the model on your data up to some weeks before your last order, predicts the purchases in those final weeks, and compares with what really happened, in total and by number of past repeat orders. On data that follows the model's assumptions the total is typically within a few percent. If the back-test misses badly, a promotion, a price change, seasonality or a new channel is usually why, and you should trust the forecast less.</p>
+    <h3>What is the model not good at?</h3>
+    <p>It assumes each customer's buying rate is steady, that customers stop for good rather than pausing, and that order value is unrelated to how often they buy. Subscriptions with fixed billing dates, one-time purchases such as furniture, strong seasonality and businesses that change a lot during the window are poor fits. The tool warns when spend and frequency are correlated or when history is short.</p>
+    <h3>What do I do with the segments?</h3>
+    <p>Customers who spent a lot but look unlikely to still be active are the cheapest people to try to win back. Customers who look lost should come out of expensive retargeting audiences. The predicted value of a new customer is the ceiling for what you can afford to pay to acquire one. Download the per-customer CSV to build these lists in your own tools.</p>
+    <h3>Is my customer data uploaded anywhere?</h3>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your orders. Customer emails in your file stay on your device.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified analyst. Results are statistical forecasts from the orders you supply; they do not guarantee what customers will do. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any e-commerce platform, analytics vendor or research firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your orders are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../icp-lens/">ICP Lens</a> finds the prospects that look like your best customers, the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>, the <a href="../stripe-churn-cohort-analyzer/">Stripe churn cohort analyzer</a>, the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>, and the <a href="../ad-spend-saturation-optimizer/">ad spend saturation optimizer</a>. Setting a trial length? The <a href="../trial-conversion-timing-analyzer/">trial conversion timing analyzer</a> shows on which day of a trial people first pay.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseOrders, analyze, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const ACTIONS = {
+      "Top 20% value": "Your best customers still active. Protect them: early access, fast support, no discount dependence.",
+      "Active": "Buying normally. The core of your forecast.",
+      "At risk, high spend": "Big spenders who probably left. Cheapest win-back audience you have.",
+      "Likely lost": "Under 20% likely active. Take them out of paid retargeting.",
+    };
+
+    function run() {
+      const text = $("#orders").value;
+      const parsed = parseOrders(text);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.orders, { horizonMonths: Number($("#horizon").value), margin: Number($("#margin").value) / 100, annualDiscount: Number($("#disc").value) / 100 });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#big").innerHTML = [
+        [money(s.totalClv), `Predicted ${s.horizonMonths}-month value, all customers`],
+        [money(s.avgClv), "Average per customer"],
+        [pct(s.topShare, 0), "Share from the top 20% of customers"],
+        [`${Math.round(s.expectedActive).toLocaleString("en-US")} of ${s.customers.toLocaleString("en-US")}`, "Customers expected still active"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const n = r.newCustomer;
+      $("#new-big").innerHTML = [
+        [money(n.value), `Value of a new customer over ${s.horizonMonths} months (first order included)`],
+        [n.expectedRepeat.toFixed(2), "Expected repeat orders"],
+        [money(n.firstOrder), "Average first order"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#segments tbody").innerHTML = ["Top 20% value", "Active", "At risk, high spend", "Likely lost"].filter((k) => r.segments[k]).map((k) => `<tr><td>${esc(k)}</td><td class="n">${r.segments[k].customers.toLocaleString("en-US")}</td><td class="n">${esc(money(r.segments[k].clv))}</td><td>${esc(ACTIONS[k])}</td></tr>`).join("");
+      const bt = r.backtest;
+      $("#bt-note").textContent = bt ? `Model fitted on orders up to ${bt.holdoutWeeks} weeks before your last order (${bt.customers.toLocaleString("en-US")} customers), then asked to predict those final weeks. Total predicted ${bt.predicted.toFixed(0)}, actual ${bt.actual}.` : "Not enough history (under about 30 weeks) to hold out a test period.";
+      $("#bt tbody").innerHTML = bt ? bt.buckets.filter((b) => b.customers).map((b) => `<tr><td>${esc(b.label)}</td><td class="n">${b.customers.toLocaleString("en-US")}</td><td class="n">${b.predicted.toFixed(0)}</td><td class="n">${b.actual}</td></tr>`).join("") : "";
+      $("#top tbody").innerHTML = r.sorted.slice(0, 15).map((c) => `<tr><td>${esc(c.id)}</td><td class="n">${c.x}</td><td class="n">${pct(c.pAlive, 0)}</td><td class="n">${c.x ? esc(money(c.m)) : "–"}</td><td class="n">${esc(money(c.clv))}</td><td>${esc(c.segment)}</td></tr>`).join("");
+      const p = r.params, g = r.gg;
+      $("#params").textContent = `Purchase model (weeks): r ${p.r.toFixed(3)}, alpha ${p.alpha.toFixed(2)}, a ${p.a.toFixed(3)}, b ${p.b.toFixed(3)}. ` + (g ? `Spend model: p ${g.p.toFixed(2)}, q ${g.q.toFixed(2)}, gamma ${g.gamma.toFixed(2)}. ` : "Spend model: too few repeat buyers, observed averages used. ") + `Data: ${s.orders.toLocaleString("en-US")} orders, ${dayToIso(s.firstDay)} to ${dayToIso(s.lastDay)}` + (parsed.skipped || parsed.refunds ? `; ${parsed.skipped} unreadable rows skipped, ${parsed.refunds} refunds or zero amounts ignored.` : ".");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#orders").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 1,200 invented customers, not a real shop."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#orders").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Predict.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#orders").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your orders, then click Predict."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "customer-lifetime-value.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../donor-retention-analyzer/" data-pf-to="donor-retention-analyzer">Donor Retention Analyzer — free, private, in your browser</a></li>
+      <li><a href="../duplicate-payment-audit/" data-pf-to="duplicate-payment-audit">Duplicate Payment Audit</a></li>
+      <li><a href="../early-pay-discount-picker/" data-pf-to="early-pay-discount-picker">Early pay discount picker</a></li>
+      <li><a href="../edi-x12-order-checker/" data-pf-to="edi-x12-order-checker">EDI X12 Order Checker — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=customer-lifetime-value-predictor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/?pfEmbed=1&quot; title=&quot;Customer Lifetime Value Predictor — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="customer-lifetime-value-predictor"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/" data-pf-embed-title="Customer Lifetime Value Predictor — free, private, in your browser" data-pf-embed-slug="customer-lifetime-value-predictor"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="customer-lifetime-value-predictor" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="customer-lifetime-value-predictor" data-pf-link-amount=""></script>
+</body>
+</html>

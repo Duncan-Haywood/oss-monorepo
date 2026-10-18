@@ -1,0 +1,5 @@
+cluster,kind,dbu_month,autotermination_minutes,dbu_per_hour,starts_month
+nightly-etl,scheduled,9000,0,20,30
+analyst-shared,interactive,2400,120,12,300
+ml-sandbox,interactive,8760,never,12,2
+reporting-jobs,jobs,5000,0,16,60

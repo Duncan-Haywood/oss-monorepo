@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Google Play flags your Data safety declaration, and how to fix it</title>
+<meta name="description" content="What causes a Play Console Data safety policy warning or listing removal, the permissions and SDKs that most often trigger an undeclared category…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/missing-data-safety-declaration.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix an undeclared Google Play Data safety category",
+  "step": [
+    { "@type": "HowToStep", "name": "Find which permission or SDK implies a category", "text": "Check your AndroidManifest.xml for dangerous/runtime permissions (location, camera, microphone, contacts, calendar, SMS, storage, sensors) and your Gradle dependencies for known analytics, ads, or crash-reporting SDKs -- each maps to a Google Play Data safety category." },
+    { "@type": "HowToStep", "name": "Add or correct the declaration in Play Console", "text": "For each category your app actually collects, go to App content > Data safety in Play Console and declare it: whether it's collected, whether it's shared, and for what purpose. Only you know the real purpose and whether collection is optional." },
+    { "@type": "HowToStep", "name": "Re-check before your next release", "text": "Re-scan your manifest and Gradle files against your updated declared list to confirm every detected category is accounted for before you publish the update." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/missing-data-safety-declaration.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Google Play flags your Data safety declaration, and how to fix it">
+<meta property="og:description" content="What causes a Play Console Data safety policy warning or listing removal, the permissions and SDKs that most often trigger an undeclared category…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Google Play flags your Data safety declaration, and how to fix it — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../android-data-safety-check/">Android Data Safety Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Google Play flags your Data safety declaration, and how to fix it</span></span></nav>
+<h1>Why Google Play flags your Data safety declaration</h1>
+
+<p>
+  Google Play's <strong>Data safety</strong> section (App content &gt; Data safety in
+  Play Console) asks every developer to declare what user data their app collects
+  and shares, and for what purpose. Google's policy requires that declaration to be
+  <em>accurate</em> -- and the most common way it stops being accurate is silent
+  drift: a permission or a third-party SDK starts collecting a category of data
+  that the form was never updated to mention.
+</p>
+
+<h2>What actually triggers a mismatch</h2>
+<p>
+  Two sources, both easy to miss because neither shows up as a compile error:
+</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Source</th><th>Example</th><th>Implied category</th></tr></thead>
+<tbody>
+<tr><td>A requested permission</td><td><code>ACCESS_FINE_LOCATION</code>, <code>READ_CONTACTS</code>, <code>RECORD_AUDIO</code></td><td>Location, Contacts, Audio files</td></tr>
+<tr><td>A third-party SDK</td><td>Firebase Analytics, AdMob, a crash reporter, an ad network</td><td>App activity, Device or other IDs, App info and performance</td></tr>
+</tbody>
+</table></div>
+<p>
+  A permission added for one feature (say, location for a store-locator screen)
+  is trivial to forget when the Data safety form was filled in months earlier at
+  first submission. An SDK is worse: many are added transitively by another
+  dependency, so nobody on the team consciously chose to add data collection at
+  all.
+</p>
+
+<h2>Find the exact gap</h2>
+<p>
+  <a href="index.html">The checker on this site</a> scans your
+  <code>AndroidManifest.xml</code> and Gradle files for the permissions and known
+  SDKs that imply a category, and compares the result against a plain list of
+  what you've already ticked in Play Console -- naming the exact file and line
+  behind anything undeclared. It runs as a browser tool (nothing uploaded) or a
+  Node CLI you can add to your own pre-release check.
+</p>
+
+<p>
+  This is evidence of what the manifest, the Gradle files, and your declared list
+  say -- not a determination that Play Console will accept the submission. See
+  <a href="index.html">the checker</a> and its disclaimer for what it can and
+  can't see, and verify against
+  <a href="https://support.google.com/googleplay/android-developer/answer/10787469" rel="noopener">Google Play's current Data safety documentation</a>
+  before you publish.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Google Play's own policy review
+  process. To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Play Console, Android, and
+  Data safety are trademarks of Google LLC, named here only to describe the feature this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../datadog-bill-estimator/" data-pf-to="datadog-bill-estimator">What will your Datadog bill be, and what cuts it most?</a></li>
+      <li><a href="../dependabot-config-check/" data-pf-to="dependabot-config-check">Is Dependabot actually watching all of your repo?</a></li>
+      <li><a href="../dependency-confusion-check/" data-pf-to="dependency-confusion-check">Could a public package be substituted for your internal one?</a></li>
+      <li><a href="../deploy-concurrency-check/" data-pf-to="deploy-concurrency-check">Deploy Concurrency Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=android-data-safety-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="android-data-safety-check"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cut List Optimizer vs. planning cuts by hand</title>
+<meta name="description" content="Cutting a job in the order the parts were listed -- one part type at a time, top to bottom -- is how most shops plan by hand.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/vs-planning-cuts-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cut List Optimizer vs. planning cuts by hand">
+<meta property="og:description" content="Same 24-part list, two plans: cutting each part type in order books 13 boards at 73.1% utilization…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/vs-planning-cuts-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does planning cuts by hand usually get right, and what does it miss?","acceptedAnswer":{"@type":"Answer","text":"Cutting a job list top to bottom, one part type at a time, gets every individual cut right -- the lengths are correct and nothing is wasted through error. What it doesn't do is hold a cut back from one part type to pair it with a complementary length from a different part type later in the list, because by the time that later, shorter part comes up, the board it could have shared has usually already been closed out and set aside. That pairing is exactly what determines how many boards the job actually needs."}},{"@type":"Question","name":"Why does cutting by part type use more boards than the same list needs?","acceptedAnswer":{"@type":"Answer","text":"Because a job ticket is naturally grouped by part -- all the stiles, then all the rails, then the aprons, then the legs -- and a board closed out while cutting stiles is not reopened once rails come up, even if a rail would have fit in the space left over. Holding it open across part types means keeping several boards in progress on the saw at once, which is exactly the bookkeeping a hand plan skips in favor of finishing one part before starting the next."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On a 24-part face-frame list -- 6 stiles at 22 in, 8 rails at 34 in, 6 aprons at 46 in, 4 legs at 58 in, cut from 96 in stock with a 1/8 in kerf -- cutting each part type in order books 13 boards at 73.1% utilization. This optimizer's plan for the identical list books 10 boards at 95.0% utilization: 3 fewer boards, worth $126 at $42 a board, entirely from which board a cut lands on, with no part mismeasured either way."}},{"@type":"Question","name":"Does this optimizer know my local lumber prices?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on what your yard charges. It takes your cut list, your stock length, your kerf, and the price you enter for a board, and turns that into a plan and a cost -- the packing arithmetic a hand plan skips, not a price lookup."}}]}</script>
+<style>
+:root{font-family:ui-sans-serif,system-ui,sans-serif;color:#20241d;background:#f1eee6}
+body{max-width:900px;margin:auto;padding:34px 18px}
+a{color:#af4d29;overflow-wrap:anywhere}
+.eyebrow{color:#af4d29;font-weight:800;letter-spacing:.12em;font-size:.75rem;margin:0}
+header{margin:1rem 0}
+h1{font:800 clamp(1.9rem,5.4vw,3.1rem)/1.02 Georgia,serif;letter-spacing:-.03em;margin:.3rem 0;max-width:22ch}
+.lede{font-size:1.05rem;max-width:64ch;color:#4a4f44;line-height:1.55}
+section{background:#fffdf8;border:1px solid #d6d0c3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e4dece;margin:1rem 0}
+h2{margin-top:0;font-family:Georgia,serif}
+h3{font-family:Georgia,serif}
+p{line-height:1.55}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d6d0c3;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5b52}
+ul{line-height:1.55}
+.fine,.note{font-size:.88rem;color:#5c5b52}
+footer{color:#5c5b52;font-size:.8rem}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cut List Optimizer vs. planning cuts by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cut-list-optimizer/">Cut List Optimizer — compare sheet sizes and board lengths before you buy</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cut List Optimizer vs. planning cuts by hand</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Cut List Optimizer</a></p>
+<header>
+<h1>Cut list optimizer vs. planning cuts by hand</h1>
+<p class="lede">Cutting a job list top to bottom, one part type at a time, gets every individual length right. What it doesn't do is hold a cut back from an early part type to pair it with a complementary length from a later one -- and that pairing, not the arithmetic on any one cut, is what decides how many boards the job actually needs.</p>
+</header>
+
+<section>
+<h2>What a hand plan gets right, and what it doesn't</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th></th><th>Planning by hand, part type by part type</th><th>This optimizer</th></tr>
+<tr><th>Each cut's own length</th><td>Correct, if measured carefully</td><td>Correct, from the same list</td></tr>
+<tr><th>Pairing across part types</th><td>Not considered -- a board closed out while cutting one part is not reopened for a later part</td><td>Holds every board open until nothing left in the list fits it</td></tr>
+<tr><th>Boards kept in progress at once</th><td>Effectively one -- finish a part, close its boards, move on</td><td>As many as the list needs, tracked automatically</td></tr>
+<tr><th>Offcuts already on the rack</th><td>A separate mental note, easy to forget mid-job</td><td>Placed into before any new board counts as bought</td></tr>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>Same 24 parts, two plans</h2>
+<p>Take a face-frame job: 6 stiles at 22", 8 rails at 34", 6 aprons at 46", and 4 legs at 58", cut from 8-foot (96") stock with a 1/8" kerf at $42 a board. Cutting the ticket the way it's usually written -- all 6 stiles first, then all 8 rails, then the aprons, then the legs -- books:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th>Boards booked</th><td>13</td></tr>
+<tr><th>Utilization</th><td>73.1%</td></tr>
+<tr><th>Waste (length not cut, net of kerf)</th><td>334.63"</td></tr>
+<tr><th>Cost at $42/board</th><td>$546.00</td></tr>
+</table></div>
+</div>
+<p>The same 24 parts, planned by holding every board open until nothing left in the list fits it, book onto 10 boards: three rail-and-leg pairs (58"+34"), three rail pairs with an apron (46"+46"), a rail-stile-apron mix (46"+34"), two stile-and-rail combinations (34"+34"+22"), and one board of stiles alone (22"x4):</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th>Boards booked</th><td>10</td></tr>
+<tr><th>Utilization</th><td>95.0%</td></tr>
+<tr><th>Waste (length not cut, net of kerf)</th><td>46.25"</td></tr>
+<tr><th>Cost at $42/board</th><td>$420.00</td></tr>
+</table></div>
+</div>
+<p>Three fewer boards, $126 not spent, on a list where every measurement was correct either way. The difference is entirely which board each cut lands on -- specifically, that a 58" leg and a 34" rail (92" together) share a 96" board with only the kerf between them, a pairing a part-by-part read-through never has reason to try because the rails haven't come up yet when the legs are being cut.</p>
+</section>
+
+<section>
+<h2>Why the gap grows with the list, not the mistakes on it</h2>
+<p>Nothing about the hand plan above was careless -- every cut was measured and placed correctly onto a board that fit it. The gap comes from having only one part type open on the saw at a time, so a board with room left over when a part type finishes is closed out rather than held for a length that hasn't come up yet. A longer, more varied list gives this more chances to happen, not fewer: the more distinct lengths a job has, the more complementary pairs exist to miss by cutting in ticket order.</p>
+<p class="note">Open the <a href="./">Cut List Optimizer</a> to plan your own list against the boards or offcuts you actually have. Comparing sheet sizes instead of board lengths? See <a href="compare-4x8-vs-5x5.html">4&times;8 vs 5&times;5 sheets</a>. Weighing this against a hosted optimizer? See <a href="vs-opticutter-and-cutlist-optimizer.html">this cut list optimizer vs. optiCutter and CutList Optimizer</a>.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What does planning cuts by hand usually get right, and what does it miss?</h3>
+<p>Cutting a job list top to bottom, one part type at a time, gets every individual cut right -- the lengths are correct and nothing is wasted through error. What it doesn't do is hold a cut back from one part type to pair it with a complementary length from a different part type later in the list, because by the time that later, shorter part comes up, the board it could have shared has usually already been closed out and set aside. That pairing is exactly what determines how many boards the job actually needs.</p>
+<h3>Why does cutting by part type use more boards than the same list needs?</h3>
+<p>Because a job ticket is naturally grouped by part -- all the stiles, then all the rails, then the aprons, then the legs -- and a board closed out while cutting stiles is not reopened once rails come up, even if a rail would have fit in the space left over. Holding it open across part types means keeping several boards in progress on the saw at once, which is exactly the bookkeeping a hand plan skips in favor of finishing one part before starting the next.</p>
+<h3>How big is the gap in practice?</h3>
+<p>On a 24-part face-frame list -- 6 stiles at 22 in, 8 rails at 34 in, 6 aprons at 46 in, 4 legs at 58 in, cut from 96 in stock with a 1/8 in kerf -- cutting each part type in order books 13 boards at 73.1% utilization. This optimizer's plan for the identical list books 10 boards at 95.0% utilization: 3 fewer boards, worth $126 at $42 a board, entirely from which board a cut lands on, with no part mismeasured either way.</p>
+<h3>Does this optimizer know my local lumber prices?</h3>
+<p>No. It has no data on what your yard charges. It takes your cut list, your stock length, your kerf, and the price you enter for a board, and turns that into a plan and a cost -- the packing arithmetic a hand plan skips, not a price lookup.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>The worked figures above come directly from this calculator's own packing arithmetic for the stated cut list and stock length, with the "planning by hand" figures computed the same way but placing each cut in ticket order rather than holding boards open across part types -- nothing here is a claim about what your own cut list or boards will return.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing never changes what the calculator does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../drywall-bid-calculator/" data-pf-to="drywall-bid-calculator">Drywall Bid Calculator</a></li>
+      <li><a href="../fireplace-insert-bid-calculator/" data-pf-to="fireplace-insert-bid-calculator">Fireplace Insert Bid Calculator</a></li>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+      <li><a href="../hardwood-refinishing-bid-calculator/" data-pf-to="hardwood-refinishing-bid-calculator">Hardwood Refinishing Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cut-list-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cut-list-optimizer"></script>
+</body></html>

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Facebook &amp; Instagram Catalog Feed Checker — Find CSV Errors Before You Upload</title>
+  <meta name="description" content="Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency…">
+  <meta property="og:title" content="Meta Catalog CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks a Facebook or Instagram catalog upload, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meta Catalog CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Meta (Facebook and Instagram) catalog feed CSV or TSV for delimiter and encoding, required fields, duplicate ids, price and sale price format, availability and condition values, product links, image addresses, GTIN check digits, item groups and Excel damage before it is uploaded to Commerce Manager, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Facebook catalog feed validator, Instagram Shop product CSV checker, GTIN check digit validator, Excel barcode leading zero fixer, price format checker, CSV delimiter converter"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why was my Facebook or Instagram catalog upload rejected?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a file saved with semicolons or as UTF-16, a missing required column (id, title, description, availability, condition, price, link, image_link, brand), duplicate ids, prices without a currency code like 19.99 USD or written with a $ sign or a decimal comma, availability values such as In Stock instead of in stock, empty image or product links, an image in WebP format, a sale price that is not lower than the price, and barcodes that Excel turned into 4.00638E+12. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Why did Excel change my ids and barcodes?", "acceptedAnswer": {"@type": "Answer", "text": "Excel treats digit strings as numbers. A 12-digit UPC such as 036000291452 becomes 36000291452 and a long id becomes 1.2346E+09 or gains a trailing .0. Format those columns as Text before pasting. This tool flags each, and restores a barcode's leading zeros only when the padded number has a valid check digit; 36000291452 becomes 036000291452, but a number that is still invalid is left for you to check."}}, {"@type": "Question", "name": "What format does the price field use?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of Meta's catalog help, a price is the amount, a space, then the ISO 4217 currency code, for example 19.99 USD, with a decimal point and no thousands separator. A currency symbol such as $ or a decimal comma is flagged, not guessed, because $ can mean several currencies. sale_price uses the same form and must be lower than price in the same currency."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: semicolon or pipe delimiters to commas, stray spaces, a trailing .0 on an id or barcode, a barcode's leading zeros when the check digit confirms them, availability and condition spelling and case, and price spacing such as 19.99USD to 19.99 USD. It never edits a title, a description, a brand, a link, an image address or the digits of a price."}}, {"@type": "Question", "name": "Is it safe to put my product feed into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether Meta will accept the feed today, whether your domain is verified for the catalog, whether links and images actually open, image dimensions, whether a product category is current, and Meta's commerce and advertising policies, which can reject a perfectly formatted item. A clean result is not a promise of approval: upload a small test feed first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Meta Catalog CSV Check — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Meta Catalog CSV Check — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Meta Catalog CSV Check — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">META CATALOG CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why was my Facebook or Instagram catalog upload rejected?</h1>
+    <p>Paste or drop your <strong>Meta catalog feed CSV or TSV</strong> (Commerce Manager, Facebook Shops, Instagram Shopping, dynamic ads) and get every problem <strong>with its line number</strong> before you upload: <strong>duplicate ids</strong>, prices <strong>without a currency</strong> or written with $ or a decimal comma, <strong>In Stock</strong> instead of <code>in stock</code>, a sale price that is not lower than the price, empty or http links, <strong>WebP images</strong>, barcodes that Excel turned into <code>4.00638E+12</code>, GTINs with a wrong check digit, and variants that look identical. Then <strong>apply the safe fixes</strong> and download a cleaned file.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Meta Platforms, Inc. Field names, limits and value lists are read from memory of Meta's public catalog help pages; no Commerce Manager upload was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your feed file</h2>
+    <p class="note">A product feed saved as CSV or tab-separated text, or an export from Shopify, WooCommerce, a spreadsheet or your own system.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="id,title,description,availability,condition,price,link,image_link,brand,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Products</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">id</th><th scope="col">Title</th><th scope="col">Group</th></tr></thead><tbody id="products"></tbody></table></div></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Comma- or tab-separated, UTF-8.</strong> A semicolon file (European Excel) or Excel's UTF-16 "Unicode Text" is read wrongly.</li>
+      <li><strong>Required columns:</strong> id, title, description, availability, condition, price, link, image_link, brand. A missing one is an error. Item_group_id, gtin and google_product_category are expected and raise a warning when absent.</li>
+      <li><strong>id</strong> is unique, at most 100 characters, and must not be Excel scientific notation or end in .0. <strong>Title</strong> is at most 200 characters, not all capitals, with no promotional text or HTML. <strong>Description</strong> is at most 9,999 characters and plain text.</li>
+      <li><strong>availability</strong> is in stock, out of stock, preorder, available for order or discontinued, in lowercase. <strong>condition</strong> is new, refurbished or used.</li>
+      <li><strong>price</strong> is an amount, a space and an ISO currency code (19.99 USD) with a decimal point. <strong>sale_price</strong> uses the same form, the same currency, and is lower than price. <strong>sale_price_effective_date</strong> is two ISO 8601 date-times separated by a slash.</li>
+      <li><strong>link</strong> and <strong>image_link</strong> are full web addresses, https preferred. Images should be JPEG, PNG, GIF, BMP or TIFF; WebP, SVG and HEIC are flagged.</li>
+      <li><strong>gtin</strong> is 8, 12, 13 or 14 digits with a valid GS1 check digit. <strong>brand</strong> is required and not a placeholder like n/a.</li>
+      <li><strong>Variants:</strong> rows sharing an item_group_id need at least one differing color, size, material, pattern, gender or age group; two variants with the same options are flagged.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, stray spaces, a trailing .0, barcode leading zeros the check digit confirms, availability and condition spelling, and price spacing. They never edit a title, description, brand, link or the digits of a price.</li>
+      <li><strong>Not checked:</strong> that Meta will accept the feed today, domain verification, that links and images open, image dimensions, category validity, and Meta's commerce and advertising policies. Upload a small test feed first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why was my Facebook or Instagram catalog upload rejected?</h3>
+    <p>The usual causes are a file saved with semicolons or as UTF-16, a missing required column (id, title, description, availability, condition, price, link, image_link, brand), duplicate ids, prices without a currency code like 19.99 USD or written with a $ sign or a decimal comma, availability values such as In Stock instead of in stock, empty image or product links, an image in WebP format, a sale price that is not lower than the price, and barcodes that Excel turned into 4.00638E+12. This tool tests each of them and names the line.</p>
+    <h3>Why did Excel change my ids and barcodes?</h3>
+    <p>Excel treats digit strings as numbers. A 12-digit UPC such as 036000291452 becomes 36000291452 and a long id becomes 1.2346E+09 or gains a trailing .0. Format those columns as Text before pasting. This tool flags each, and restores a barcode's leading zeros only when the padded number has a valid check digit; 36000291452 becomes 036000291452, but a number that is still invalid is left for you to check.</p>
+    <h3>What format does the price field use?</h3>
+    <p>From memory of Meta's catalog help, a price is the amount, a space, then the ISO 4217 currency code, for example 19.99 USD, with a decimal point and no thousands separator. A currency symbol such as $ or a decimal comma is flagged, not guessed, because $ can mean several currencies. sale_price uses the same form and must be lower than price in the same currency.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: semicolon or pipe delimiters to commas, stray spaces, a trailing .0 on an id or barcode, a barcode's leading zeros when the check digit confirms them, availability and condition spelling and case, and price spacing such as 19.99USD to 19.99 USD. It never edits a title, a description, a brand, a link, an image address or the digits of a price.</p>
+    <h3>Is it safe to put my product feed into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Meta will accept the feed today, whether your domain is verified for the catalog, whether links and images actually open, image dimensions, whether a product category is current, and Meta's commerce and advertising policies, which can reject a perfectly formatted item. A clean result is not a promise of approval: upload a small test feed first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Meta's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small test feed first, and a clean result is not a promise that Meta will accept the feed or approve any item.</p>
+    <p><strong>Not affiliated with Meta.</strong> This tool is independent and is not sponsored, endorsed or connected to Meta Platforms, Inc. or any e-commerce platform. Facebook, Instagram and Meta are trademarks of their owner, used here only to say which file format the tool reads. The field list, limits and values are read from memory of public sources and may be out of date or miss a variant; check them against Meta's current documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../merchant-feed-check/">Google Merchant feed check</a>, the <a href="../shopify-product-csv-check/">Shopify product CSV check</a>, the <a href="../woocommerce-product-csv-check/">WooCommerce product CSV check</a>, the <a href="../etsy-listing-csv-check/">Etsy listing CSV check</a> and the <a href="../google-ads-editor-csv-check/">Google Ads Editor CSV check</a> do the same job for those files, which share the price, barcode and Excel-damage problems.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Only the barcode column in doubt? The <a href="../gtin-list-check/">GTIN List Check</a> validates check digits and restores zeros Excel dropped, for any product list. It runs in your browser and the file is never uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.products} product row${s.products === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#products").innerHTML = s.groups.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.handle)}</td><td>${esc(g.title)}</td><td>${esc(g.variants)}</td></tr>`).join("") || `<tr><td colspan="4">No locations found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses, phone digits and categories are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up apparel shop's three catalog rows, not a real business."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of feed after a European-Excel round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("meta-catalog-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("meta-catalog-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../real-estate-agent-photo-app/" data-pf-to="real-estate-agent-photo-app">MLS Listing Photo Preflight — free listing photo checker</a></li>
+      <li><a href="../redirect-map-check/" data-pf-to="redirect-map-check">Redirect Map Check — free, private, in your browser</a></li>
+      <li><a href="../repository-branch-hygiene/" data-pf-to="repository-branch-hygiene">Safe Git branch cleanup review</a></li>
+      <li><a href="../retirement-plan-startup-credit-calculator/" data-pf-to="retirement-plan-startup-credit-calculator">Retirement plan startup credit calculator. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=meta-catalog-csv-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/?pfEmbed=1&quot; title=&quot;Meta Catalog CSV Check — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="meta-catalog-csv-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/" data-pf-embed-title="Meta Catalog CSV Check — free, private, in your browser" data-pf-embed-slug="meta-catalog-csv-check"></script>
+</body>
+</html>

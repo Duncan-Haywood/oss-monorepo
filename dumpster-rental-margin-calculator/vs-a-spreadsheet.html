@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dumpster Rental Margin Calculator vs a Spreadsheet</title>
+<meta name="description" content="A per-job pricing spreadsheet gets one job's revenue and cost right if every cell is filled in. It has no cell that checks your overage rate against your…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dumpster Rental Margin Calculator vs a Spreadsheet">
+<meta property="og:description" content="A spreadsheet can price one job correctly and still never tell you whether your overage rate covers your tipping fee…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a per-job pricing spreadsheet usually get right, and what does it miss?","acceptedAnswer":{"@type":"Answer","text":"Filled in carefully, a spreadsheet can get one job's own revenue and cost right — rental price plus overage charged, minus disposal, labor, mileage and equipment for that job. What it doesn't do on its own is check whether your overage rate, by itself, is priced above what an extra ton actually costs you at the transfer station. That is a comparison between two rate-card numbers, independent of any single job, and a per-job total has no cell for it unless someone builds one specifically."}},{"@type":"Question","name":"Why can an underpriced overage rate look fine for months and then lose money on one job?","acceptedAnswer":{"@type":"Answer","text":"Because most jobs never test it. A rental that stays inside its included weight allowance never charges overage at all, so a rate card can carry an overage fee below the tipping fee indefinitely with nothing on any routine job's spreadsheet row to reveal it. The gap only shows up on a job heavy enough to exceed the allowance — a shingle tear-off, a concrete tear-out, wet dirt — and by then it is being charged, not caught."}},{"@type":"Question","name":"What is \"tons before loss,\" and why can't a flat per-job total compute it?","acceptedAnswer":{"@type":"Answer","text":"It is how many overage tons a specific job can absorb before the rate's own per-ton loss erases that job's entire built-in profit. Computing it needs the tipping fee and the overage rate held apart as two separate figures, divided into the base rental's profit — a spreadsheet that only ever totals one blended number per job has nothing to divide, because the two rates were never kept separate in the first place."}},{"@type":"Question","name":"Does this calculator store or upload anything I type?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser and nothing survives closing the tab. Usage counting only tallies anonymous feature events, and you can turn it off from the calculator page."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#241a12;background:#f7f1ea}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#9a5a12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em}.lede{font-size:1.05rem;max-width:64ch;color:#6a5a46}section{background:#fff;border:1px solid #e6d3ba;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #46270708;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6d3ba;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#6a5a46}.fine,.note{font-size:.88rem;color:#6a5a46}footer{color:#6a5a46;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dumpster Rental Margin Calculator vs a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dumpster-rental-margin-calculator/">Dumpster Rental Margin Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Dumpster Rental Margin Calculator vs a Spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Dumpster Rental Margin Calculator</a></p>
+<header>
+<h1>Dumpster rental margin calculator vs a spreadsheet</h1>
+<p class="lede">A pricing spreadsheet can get one job's numbers right if every cell is filled in correctly. What it can't do on its own is answer the question that actually protects your margin over time: is the overage rate on your rate card, by itself, priced above what an extra ton costs you to dispose of? That's a two-number comparison independent of any specific job, and most per-job sheets have no cell for it.</p>
+</header>
+
+<section>
+<h2>What a per-job spreadsheet tracks, and what it doesn't</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th></th><th>A per-job pricing spreadsheet</th><th>This calculator</th></tr>
+<tr><th>Base rental vs. overage</th><td>Usually one price cell for the job total</td><td>Prices the base rental from the included weight allowance only, then computes overage separately</td></tr>
+<tr><th>Overage rate vs. tipping fee</th><td>Not compared automatically — both are just cost/revenue inputs on the same row</td><td>Flags an overage rate below the tipping fee directly, and reports how many overage tons would erase the job's profit</td></tr>
+<tr><th>Labor, mileage, equipment</th><td>Often one blended "average cost per haul" figure</td><td>Itemized: driver hours and rate, round-trip miles and mileage rate, equipment cost, separate from disposal</td></tr>
+<tr><th>Scale ticket reconciliation</th><td>A separate one-off worksheet, easy to skip on a busy day</td><td>Built into the same page — enter the actual weight to check it against this same quote's breakeven</td></tr>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>One rate card, two outcomes</h2>
+<p>Take a rate card with a $65/ton tipping fee and a $55/ton overage rate — a common drift when the overage line was set once and the transfer station has raised its tipping fee since. Priced at the calculator's own default allowance and cost inputs, the base rental (2 tons included, 30% target margin) comes out to $351.01 and clears $105.30 in built-in profit. Nothing on that job's own spreadsheet row looks wrong, because a rental that stays inside its allowance never touches the overage rate at all.</p>
+<p>The first heavy job changes that. A shingle tear-off in the same 20-yard container that actually weighs 5 tons runs 3 tons over the allowance:</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<tr><th>Overage revenue (3 tons &times; $55/ton charged)</th><td>$165.00</td></tr>
+<tr><th>Overage disposal cost (3 tons &times; $65/ton tipping fee)</th><td>$195.00</td></tr>
+<tr><th>Loss on the overage tons alone</th><td>&minus;$30.00</td></tr>
+<tr><th>Job profit including the base rental's margin</th><td>$75.30 (down from $105.30 if the job had stayed at allowance)</td></tr>
+<tr><th>Overage tons this job could absorb before flipping to a net loss</th><td>10.53 tons</td></tr>
+</table></div>
+</div>
+<p>The job as a whole still turns a profit, which is exactly why a spreadsheet totaling one number per job reads it as a normal day. The $30 lost on the overage tons is real and it recurs on every heavy job this rate card prices, but it never appears as its own line unless the overage rate and the tipping fee are kept apart on purpose and checked against each other — a structural comparison a per-job total, by design, doesn't make.</p>
+</section>
+
+<section>
+<h2>Why "tons before loss" needs two separate numbers</h2>
+<p>The 10.53-ton figure above — how many overage tons this specific job could take before its entire built-in profit is gone — only exists because the tipping fee and the overage rate are held apart as two distinct inputs, then divided into the base rental's profit. A spreadsheet that totals revenue minus cost for the job as one number never produces that figure, because by the time the total is computed, the two rates that would have to be compared have already been folded together. Recomputing it by hand for every rate change is the reason this one check is what the calculator adds over a general-purpose sheet, not the arithmetic underneath it.</p>
+<p class="note">Open the <a href="./">Dumpster Rental Margin Calculator</a> to check your own overage rate against your own tipping fee, or read <a href="why-your-overage-fee-might-be-losing-you-money.html">why your overage fee might be losing you money</a> for the method behind it. Already comparing this against a field-service platform? See <a href="vs-jobber.html">this calculator vs Jobber</a>.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What does a per-job pricing spreadsheet usually get right, and what does it miss?</h3>
+<p>Filled in carefully, a spreadsheet can get one job's own revenue and cost right — rental price plus overage charged, minus disposal, labor, mileage and equipment for that job. What it doesn't do on its own is check whether your overage rate, by itself, is priced above what an extra ton actually costs you at the transfer station. That is a comparison between two rate-card numbers, independent of any single job, and a per-job total has no cell for it unless someone builds one specifically.</p>
+<h3>Why can an underpriced overage rate look fine for months and then lose money on one job?</h3>
+<p>Because most jobs never test it. A rental that stays inside its included weight allowance never charges overage at all, so a rate card can carry an overage fee below the tipping fee indefinitely with nothing on any routine job's spreadsheet row to reveal it. The gap only shows up on a job heavy enough to exceed the allowance — a shingle tear-off, a concrete tear-out, wet dirt — and by then it is being charged, not caught.</p>
+<h3>What is "tons before loss," and why can't a flat per-job total compute it?</h3>
+<p>It is how many overage tons a specific job can absorb before the rate's own per-ton loss erases that job's entire built-in profit. Computing it needs the tipping fee and the overage rate held apart as two separate figures, divided into the base rental's profit — a spreadsheet that only ever totals one blended number per job has nothing to divide, because the two rates were never kept separate in the first place.</p>
+<h3>Does this calculator store or upload anything I type?</h3>
+<p>No. Every field runs in your browser and nothing survives closing the tab. Usage counting only tallies anonymous feature events, and you can turn it off from the calculator page.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>The worked figures above come directly from this calculator's own default inputs and its own arithmetic, with the overage rate and expected weight changed to show the gap — nothing here is a claim about what your rate card or your next job will return.</p>
+<p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pet-sitting-platform-fee-calculator/" data-pf-to="pet-sitting-platform-fee-calculator">Pet sitting platform fee calculator</a></li>
+      <li><a href="../pet-waste-removal-route-calculator/" data-pf-to="pet-waste-removal-route-calculator">Pet waste removal route calculator: what does your route really pay per hour? Free, private</a></li>
+      <li><a href="../photo-addon-pricing-calculator/" data-pf-to="photo-addon-pricing-calculator">Photo Package Add-On Pricing Calculator</a></li>
+      <li><a href="../photo-booth-event-quote/" data-pf-to="photo-booth-event-quote">Photo Booth Event Quote Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dumpster-rental-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dumpster-rental-margin-calculator"></script>
+</body></html>

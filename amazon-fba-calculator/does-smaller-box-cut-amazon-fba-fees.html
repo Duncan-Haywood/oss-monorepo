@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Does a smaller box cut Amazon FBA fees? | Size-tier cliff</title>
+  <meta name="description" content="Compare Amazon FBA size-tier packaging: current carton vs flattening into the next-lower tier vs dropping a fulfillment weight band.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/does-smaller-box-cut-amazon-fba-fees.html">
+  <meta property="og:title" content="Does a smaller box cut Amazon FBA fees?">
+  <meta property="og:description" content="The fee jump is often a carton gate, not the referral rate. Compare the current pack, the next-lower size tier, and the next cheaper weight band.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon FBA size-tier packaging cliff",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "current carton leftover, next-lower size-tier pack, next cheaper weight band, extra prep on the smaller carton, monthly leftover at typed volume, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does a smaller box drop my Amazon FBA size tier?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It can, when the packed cube crosses a dimensional or weight gate. On the calculator defaults — an 8×6×2 inch carton at 0.75 lb — the pack is large standard because the shortest side is 2 inches. Flattening that side to 0.75 inch classifies the same unit as small standard if it still fits. Illustrative large-standard fulfillment is $4.15 and small-standard is $3.38. Storage also falls with the smaller cube. Together the smaller carton keeps $0.80 more per unit, or $64.02 per month at 80 units, before extra prep."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is a cheaper weight band the same as a cheaper size tier?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. A weight-band drop keeps the same size tier. The same 8×6×2 carton at 8 oz instead of 12 oz stays large standard and keeps $0.40 more. The page shows both rows so a cheaper ounce band is not confused with a cheaper size tier."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this Amazon's live fee schedule?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Referral, fulfillment, and storage rates are inputs. The page fills illustrative defaults a seller can overwrite from their current Amazon fee preview. Extra prep on the smaller carton is subtracted from the savings. The page does not claim the product fits the smaller box."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/does-smaller-box-cut-amazon-fba-fees.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does a smaller box cut Amazon FBA fees? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does a smaller box cut Amazon FBA fees?</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Does a smaller box cut Amazon FBA fees?</h1>
+  <p>
+    Sellers search for “Amazon FBA size tier” after a fee preview jumps
+    overnight. The referral rate did not change. The carton crossed a
+    gate. Large standard starts when the shortest side is over 0.75
+    inch or the weight is over 1 lb. Extra-large starts when the longest
+    side clears 59 inches or the girth math fails.
+  </p>
+  <p>
+    On the default 8×6×2 inch, 0.75 lb home-and-kitchen example, the
+    pack is large standard. Flattening the shortest side to 0.75 inch
+    is what classifies the same unit as small standard — if it still
+    fits. Illustrative fulfillment drops from $4.15 to $3.38. Storage
+    also falls with the smaller cube. Together the smaller carton
+    keeps $0.80 more per unit, or $64.02 per month at 80 units, before
+    extra prep. A mailer that costs $5.00 more than the current carton
+    erases the cliff.
+  </p>
+  <form id="packForm" class="fields">
+    <label>Sale price ($) <input id="salePrice" type="number" min="0" step="0.01" value="29.99" inputmode="decimal"></label>
+    <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15" inputmode="decimal"></label>
+    <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+    <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+    <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2" inputmode="decimal"></label>
+    <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75" inputmode="decimal"></label>
+    <label>You paid for the item ($) <input id="costOfGoods" type="number" min="0" step="0.01" value="8" inputmode="decimal"></label>
+    <label>Inbound / unit ($) <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20" inputmode="decimal"></label>
+    <label>Prep / packaging ($) <input id="packagingCost" type="number" min="0" step="0.01" value="0.60" inputmode="decimal"></label>
+    <label>Extra prep on smaller carton ($) <input id="repackCostPerUnit" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+    <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1" inputmode="decimal"></label>
+    <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87" inputmode="decimal"></label>
+    <label>Professional plan / month ($) <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99" inputmode="decimal"></label>
+    <label>Units sold per month <input id="monthlyUnits" type="number" min="1" step="1" value="80" inputmode="numeric"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr>
+        <th scope="col">Carton</th>
+        <th scope="col">Size tier</th>
+        <th scope="col">Fulfillment</th>
+        <th scope="col">FBA leftover</th>
+        <th scope="col">vs current</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table></div>
+  <p class="note">
+    Rates change by size, season, category, and account. This page does
+    not publish Amazon’s live schedule. Paste the fulfillment fee from
+    your current fee preview after you change a carton. Complementary to
+    <a href="peak-vs-off-peak-storage.html">Q4 peak storage</a>
+    (when the unit sits) and to
+    <a href="should-i-pay-amazon-to-prep-inbound.html">Amazon inbound prep</a>
+    (who labels the unit). The same listing lives on the
+    <a href="./">Amazon FBA calculator</a>.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not claim the
+    product fits the smaller box, and it does not recommend a pack-out.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Does a smaller box drop my Amazon FBA size tier?</h3>
+  <p>It can, when the packed cube crosses a dimensional or weight gate. On the calculator defaults — an 8×6×2 inch carton at 0.75 lb — the pack is large standard because the shortest side is 2 inches. Flattening that side to 0.75 inch classifies the same unit as small standard if it still fits. Illustrative large-standard fulfillment is $4.15 and small-standard is $3.38. Storage also falls with the smaller cube. Together the smaller carton keeps $0.80 more per unit, or $64.02 per month at 80 units, before extra prep.</p>
+  <h3>Is a cheaper weight band the same as a cheaper size tier?</h3>
+  <p>No. A weight-band drop keeps the same size tier. The same 8×6×2 carton at 8 oz instead of 12 oz stays large standard and keeps $0.40 more. The page shows both rows so a cheaper ounce band is not confused with a cheaper size tier.</p>
+  <h3>Is this Amazon's live fee schedule?</h3>
+  <p>No. Referral, fulfillment, and storage rates are inputs. The page fills illustrative defaults a seller can overwrite from their current Amazon fee preview. Extra prep on the smaller carton is subtracted from the savings. The page does not claim the product fits the smaller box.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "referralRate", "length", "width", "height", "weightLb",
+      "costOfGoods", "inboundPerUnit", "packagingCost", "repackCostPerUnit",
+      "monthsInStorage", "storageRate", "monthlySellerFee", "monthlyUnits",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function rowLabel(id, comparison) {
+      if (id === "current") {
+        const p = comparison.current.pack;
+        return `Current ${p.length}×${p.width}×${p.height} in`;
+      }
+      if (id === "drop_tier" && comparison.dropTier) {
+        const p = comparison.dropTier.pack;
+        return `Next-lower tier ${p.length.toFixed(2)}×${p.width.toFixed(2)}×${p.height.toFixed(2)} in`;
+      }
+      if (id === "drop_weight" && comparison.dropWeight) {
+        return `Next weight band ${comparison.dropWeight.pack.weightLb.toFixed(2)} lb`;
+      }
+      return id;
+    }
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareSizeTierPackaging(raw);
+        document.getElementById("summary").textContent = sizeTierPackagingNote(result);
+        document.getElementById("verdict").textContent = result.winner === "current"
+          ? "The current carton keeps as much or more leftover on these rates"
+          : result.winner === "drop_tier"
+            ? `The next-lower size tier keeps ${money(result.dropTier.profitDelta)} more per unit`
+            : `The next weight band keeps ${money(result.dropWeight.profitDelta)} more per unit`;
+        const rows = [
+          { id: "current", row: result.current },
+          result.dropTier ? { id: "drop_tier", row: result.dropTier } : null,
+          result.dropWeight ? { id: "drop_weight", row: result.dropWeight } : null,
+        ].filter(Boolean);
+        document.getElementById("compare").innerHTML = rows.map(({ id, row }) => {
+          const winner = result.winner === id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${rowLabel(id, result)}</td><td>${row.sizeTierLabel}</td><td>${money(row.fulfillmentFee)}</td><td>${money(row.profit)}</td><td>${id === "current" ? "Current" : money(row.profitDelta)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "size_tier_packaging_compared");
+      });
+    });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../kdp-royalty-to-journal/" data-pf-to="kdp-royalty-to-journal">KDP royalty report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../kickstarter-fee-calculator/" data-pf-to="kickstarter-fee-calculator">Kickstarter Fee Calculator</a></li>
+      <li><a href="../lash-studio-profit-calculator/" data-pf-to="lash-studio-profit-calculator">Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</a></li>
+      <li><a href="../liquidation-pallet-bid-calculator/" data-pf-to="liquidation-pallet-bid-calculator">Liquidation Pallet Bid Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=amazon-fba-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="amazon-fba-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="amazon-fba-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="amazon-fba-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
+  <meta name="description" content="Free Gumroad fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product…">
+  <meta property="og:title" content="Gumroad Sales Fee Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="The fee Gumroad actually took, what you keep per order and per product, and the price to charge for a target take-home. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gumroad Sales Fee Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Gumroad seller sales CSV into the service fee actually observed, take-home per order, net revenue per product and buyer, repeat-buyer share, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs entirely in your browser; the file is never uploaded.", "featureList": "Observed fee rate, take-home per order, per-product net revenue, repeat buyer share, refunds and cancellations, withdrawal costs, pending funds, break-even price, optional per-hour ranking, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Gumroad actually take from a seller?", "acceptedAnswer": {"@type": "Answer", "text": "Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. The rate can differ between rows because of payment processing, discovery-sourced sales, adjustments or a changed fee schedule, so the tool reports the observed rate and only falls back to the percentage you type (20 by default, an assumption, not Gumroad’s rate) when the file has no fee information at all. The buyer-side fee is separate and is not part of what you keep."}}, {"@type": "Question", "name": "What is my real take-home per order?", "acceptedAnswer": {"@type": "Answer", "text": "Take-home is your net order and tip revenue, minus refunds, minus any cost per order you enter, minus withdrawal fees found in the file, divided by the number of orders. It is shown next to the average order value so you can see how much of a typical price you actually keep."}}, {"@type": "Question", "name": "What price do I need to charge to take home a target amount?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the take-home you want per order. The break-even price is (target + your cost per order) divided by (1 minus the fee rate), and a second figure also allows for your own refund rate. It uses the fee rate observed in your file, or the percentage you enter when the file has none."}}, {"@type": "Question", "name": "Does the tool rank products by profit per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Only when you supply hours. Gumroad does not record your time, so hours per order come from an optional Hours column, a line per product, or one default figure you type. Without hours the tool ranks products by take-home only and says so."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias, and no real Gumroad export was available when this was built, so nothing here claims to know Gumroad's exact headers. The page lists the columns it looks for and, if a row cannot be read, names the line and the reason. A sheet with Date, Type, Status, Product, Buyer, Amount, Service Fee and Net always works."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you type. It is independent of Gumroad and not affiliated with or endorsed by Gumroad, Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Gumroad Sales Fee Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Gumroad Sales Fee Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Gumroad Sales Fee Analyzer — free, private, CSV in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">FIVERR EARNINGS FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you actually take home from Gumroad?</h1>
+    <p>Drop in your <strong>Gumroad sales CSV</strong> and get <strong>the service fee actually taken, your take-home per order, net revenue per product and per buyer, repeat-buyer share, refunds, withdrawal costs and funds still clearing</strong>, plus the <strong>price to charge for a target take-home</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Gumroad: not affiliated with or endorsed by Gumroad, Inc. Column names are matched by alias and were not checked against a real export; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your earnings file</h2>
+    <p class="note">Columns looked for, under several spellings each: an amount, as <strong>Amount</strong> or <strong>Price</strong> (read as before Gumroad's fee) and/or <strong>Earnings</strong> or <strong>Net</strong> (what you keep). Used when present: <strong>Date</strong>, <strong>Type</strong> (order, tip, refund, withdrawal), <strong>Status</strong> (cancelled, pending or clearing), <strong>Product</strong>, <strong>Buyer</strong>, <strong>Service fee</strong>, <strong>Hours</strong>. These are assumed names, not Gumroad's documented ones. Without a Type column, a negative amount is read as a refund and a description mentioning withdrawal as a withdrawal.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Order ID,Type,Status,Product,Buyer,Amount,Service Fee,Net"></textarea>
+    <div class="grid">
+      <div><label for="feemode">Amounts in the file are</label><select id="feemode"><option value="auto">Detect (fee column, amount vs earnings, or amount only)</option><option value="gross">Before Gumroad's fee: apply the percentage below</option><option value="net">What I keep: gross it up by the percentage below</option></select></div>
+      <div><label for="feepct">Fee % (only when the file has no fee)</label><input type="number" id="feepct" min="0" max="99" step="any" value="20" inputmode="decimal"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your costs, hours and target (all optional)</h2>
+    <p class="note">Hours are used only if you enter them; Gumroad does not record your time and the tool does not guess it.</p>
+    <div class="grid">
+      <div><label for="cost">Your cost per order (tools, ads, help)</label><input type="number" id="cost" min="0" step="any" placeholder="e.g. 3" inputmode="decimal"></div>
+      <div><label for="hoursdefault">Default hours per order</label><input type="number" id="hoursdefault" min="0" step="any" placeholder="e.g. 2" inputmode="decimal"></div>
+      <div><label for="target">Target take-home per order</label><input type="number" id="target" min="0" step="any" placeholder="e.g. 50" inputmode="decimal"></div>
+      <div><label for="targethourly">…or target per hour (uses default hours)</label><input type="number" id="targethourly" min="0" step="any" placeholder="e.g. 30" inputmode="decimal"></div>
+    </div>
+    <label for="hourslist">Hours per order for particular products (optional)</label>
+    <textarea id="hourslist" spellcheck="false" placeholder="One product per line: name, hours per order&#10;Logo design, 4&#10;Blog post, 1.5"></textarea>
+    <p class="note">The name can be part of the product name in the file. Leave commas out of names.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By product</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Product</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Order value</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Net</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Take-home</th><th class="n" scope="col">Per order</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">Price for target</th></tr></thead><tbody id="by-product"></tbody></table></div></div>
+    <h3>By month</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Order value</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Net</th><th class="n" scope="col">Take-home</th></tr></thead><tbody id="by-month"></tbody></table></div></div>
+    <h3>Top buyers by net revenue</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Buyer</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Order value</th><th class="n" scope="col">Net</th></tr></thead><tbody id="by-buyer"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download product table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Observed fee.</strong> Fees divided by order value, taken from the file's fee column, or from amount minus earnings. Only when the file has neither is the percentage you enter applied, and the page says so under the result.</li>
+      <li><strong>Reconciles.</strong> The per-product rows add up to the totals at the top, and take-home is net revenue minus refunds, minus your cost per order, minus withdrawal fees.</li>
+      <li><strong>Refunds</strong> are rows typed as refund, dispute or adjustment, or with a negative amount; they reduce net by the earnings figure on the row, or the amount if that is all it has. <strong>Cancelled</strong> orders are counted and left out of revenue.</li>
+      <li><strong>Withdrawals</strong> are rows typed as withdrawal or payout to a method. Their cost is the fee column, or the gap between the two amounts; currency conversion appears only if the file shows it that way.</li>
+      <li><strong>Still clearing</strong> means a status of pending, clearing, processing or in progress. It stays in the totals and is shown separately; the clearing period itself is set by Gumroad for your account.</li>
+      <li><strong>Repeat buyers</strong> have two or more orders in the file, using the buyer names the file gives.</li>
+      <li><strong>Not modelled:</strong> taxes, the buyer's own service fee, Gumroad Connect or Ads spend beyond what you type as a cost, currency effects not in the file, your unbilled time, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does Gumroad actually take from a seller?</h3>
+    <p>Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. The rate can differ between rows because of payment processing, discovery-sourced sales, adjustments or a changed fee schedule, so the tool reports the observed rate and only falls back to the percentage you type (20 by default, an assumption, not Gumroad’s rate) when the file has no fee information at all. The buyer-side fee is separate and is not part of what you keep.</p>
+    <h3>What is my real take-home per order?</h3>
+    <p>Take-home is your net order and tip revenue, minus refunds, minus any cost per order you enter, minus withdrawal fees found in the file, divided by the number of orders. It is shown next to the average order value so you can see how much of a typical price you actually keep.</p>
+    <h3>What price do I need to charge to take home a target amount?</h3>
+    <p>Enter the take-home you want per order. The break-even price is (target + your cost per order) divided by (1 minus the fee rate), and a second figure also allows for your own refund rate. It uses the fee rate observed in your file, or the percentage you enter when the file has none.</p>
+    <h3>Does the tool rank products by profit per hour?</h3>
+    <p>Only when you supply hours. Gumroad does not record your time, so hours per order come from an optional Hours column, a line per product, or one default figure you type. Without hours the tool ranks products by take-home only and says so.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias, and no real Gumroad export was available when this was built, so nothing here claims to know Gumroad's exact headers. The page lists the columns it looks for and, if a row cannot be read, names the line and the reason. A sheet with Date, Type, Status, Product, Buyer, Amount, Service Fee and Net always works.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file and the costs you type. It is independent of Gumroad and not affiliated with or endorsed by Gumroad, Inc.</p>
+  </section>
+
+    <p class="note">Choosing between Stripe and a merchant of record rather than costing one platform? <a href="../merchant-of-record-fee-calculator/">Compare Stripe, Paddle, Lemon Squeezy and Polar at your monthly revenue, with sales-tax filing counted</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Gumroad.</strong> Gumroad is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Gumroad, Inc., or any other platform in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sell music too? The <a href="../bandcamp-sales-report-analyzer/">Bandcamp sales report analyzer</a> shows fees, net per release and vinyl profit from your own sales report.</p>
+    <p>Selling elsewhere too? See the <a href="../patreon-fee-calculator/">Patreon fee calculator</a>, or the <a href="../upwork-earnings-fee-analyzer/">Upwork earnings fee analyzer</a> for the same kind of file on Upwork.</p>
+    <p>Sell classroom resources too? The <a href="../teachers-pay-teachers-earnings-analyzer/">Teachers Pay Teachers earnings analyzer</a> reads a TPT sales file, including the flat per-sale fee that weighs on cheap resources.</p>
+    <p>Selling iOS apps too? The <a href="../app-store-sales-report-analyzer/">App Store sales report analyzer</a> shows net proceeds by product and country, refunds and the Small Business Program signal from your own Summary Sales report.</p>
+    <p>Related tool: the <a href="../gumroad-sales-to-journal/">Gumroad sales to journal converter</a> turns the same sales export into month-split Xero and QuickBooks journals.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null || v === undefined ? "–" : money(v));
+    const num = (id) => Number($(id).value) || 0;
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value) });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.rows, { costPerOrder: num("#cost"), hoursDefault: num("#hoursdefault"), target: num("#target"), targetHourly: num("#targethourly"), hoursList: $("#hourslist").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
+      $("#report-stats").innerHTML = `${span}${s.orders} orders${s.tips ? ` and ${s.tips} tips` : ""}: order value ${cur}${money(s.gross)}, fee ${cur}${money(s.fee)} (<strong>${pct(s.feeRate)} observed</strong>), net ${cur}${money(s.net)}, refunds ${cur}${money(s.refundNet)}, withdrawal costs ${cur}${money(s.moveFees)}, your costs ${cur}${money(s.orderCosts)}, <strong>take-home ${cur}${money(s.takeHome)}</strong>, which is <strong>${rate(s.takeHomePerOrder)} per order</strong> against an average order value of ${rate(s.avgOrderGross)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const be = r.breakEven;
+      $("#by-product").innerHTML = r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.fee)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${money(g.refundNet)}</td><td class="n">${money(g.takeHome)}</td><td class="n">${rate(g.takeHomePerOrder)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${be ? money(be.priceWithRefunds) : "–"}</td></tr>`).join("");
+      $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.orders}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.fee)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.takeHome)}</td></tr>`).join("") : `<tr><td colspan="6">The file has no dates.</td></tr>`;
+      $("#by-buyer").innerHTML = r.byBuyer.length ? r.byBuyer.map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.orders}</td><td class="n">${money(b.gross)}</td><td class="n">${money(b.net)}</td></tr>`).join("") : `<tr><td colspan="4">The file has no buyer names.</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      notes.push({ column: "Fee read from the file's fee column.", difference: "Fee taken as amount minus earnings.", percent: `Fee not in the file: ${$("#feepct").value || 0}% applied to the amount, so the fee rate above is assumed, not observed.`, grossup: `Only what you keep is in the file: order value grossed up at ${$("#feepct").value || 0}%, so the fee rate above is assumed, not observed.` }[n.feeSource]);
+      if (be) notes.push(`Price for target is the refund-adjusted break-even price (${money(be.priceWithRefunds)}); it is the same for every product because it uses one fee rate.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (!$("#cost").value) $("#cost").value = 2;
+      if (!$("#hoursdefault").value) $("#hoursdefault").value = 2;
+      if (!$("#target").value) $("#target").value = 50;
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic orders for three made-up products with sample cost, hours and target filled in. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null || v === undefined ? "" : v.toFixed(2));
+      const rows = ["product,orders,order_value,fee,net,refunds,take_home,take_home_per_order,take_home_per_hour"].concat(last.byProduct.map((g) => [q(g.label), g.orders, g.gross.toFixed(2), g.fee.toFixed(2), g.net.toFixed(2), g.refundNet.toFixed(2), g.takeHome.toFixed(2), f(g.takeHomePerOrder), f(g.netPerHour)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "gumroad-take-home-by-product.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../roommate-rent-splitter/" data-pf-to="roommate-rent-splitter">Roommate Rent Splitter — fair rent for unequal rooms</a></li>
+      <li><a href="../rush-job-sequencer/" data-pf-to="rush-job-sequencer">Rush job sequencer</a></li>
+      <li><a href="../schengen-90-180-day-calculator/" data-pf-to="schengen-90-180-day-calculator">Schengen 90/180 day calculator: days left and last exit date. Free, private</a></li>
+      <li><a href="../section-1256-futures-tax-calculator/" data-pf-to="section-1256-futures-tax-calculator">Section 1256 60/40 futures tax calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=gumroad-sales-fee-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/?pfEmbed=1&quot; title=&quot;Gumroad Sales Fee Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="gumroad-sales-fee-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/" data-pf-embed-title="Gumroad Sales Fee Analyzer — free, private, CSV in your browser" data-pf-embed-slug="gumroad-sales-fee-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="gumroad-sales-fee-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="gumroad-sales-fee-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

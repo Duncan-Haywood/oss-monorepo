@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>COBRA vs Marketplace Calculator — which costs less after a job loss</title>
+  <meta name="description" content="Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care…">
+  <meta property="og:title" content="COBRA or a marketplace plan after a job loss: what each really costs">
+  <meta property="og:description" content="Premiums plus deductible and out-of-pocket, with the amount you already paid this year carried over on COBRA. No account, no upload.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "COBRA vs Marketplace Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare COBRA continuation coverage with an ACA marketplace plan after losing job-based coverage: premiums plus out-of-pocket cost at five levels of care, the break-even, and COBRA election and special-enrollment deadlines."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this insurance or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds premiums and expected out-of-pocket cost for the numbers you type and computes deadlines from the dates you give. It cannot see your network, drugs, state law or plan documents. Confirm deadlines with your plan administrator or the marketplace."}}, {"@type": "Question", "name": "Where do I get the marketplace premium?", "acceptedAnswer": {"@type": "Answer", "text": "From a healthcare.gov or state-exchange quote for the months you need. Enter the monthly premium after your premium tax credit; this tool deliberately holds no subsidy tables, so it cannot go out of date on that."}}, {"@type": "Question", "name": "Why does COBRA sometimes win even though it costs more every month?", "acceptedAnswer": {"@type": "Answer", "text": "COBRA keeps the same plan, so the deductible and out-of-pocket maximum you already paid this plan year carry over. A marketplace plan starts both at zero. If you have already met much of the deductible and expect real care, that head start can outweigh a premium gap."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local arguments and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"COBRA or a marketplace plan after a job loss: what each really costs","item":"https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="COBRA or a marketplace plan after a job loss: what each really costs — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">COBRA or a marketplace plan after a job loss: what each really costs</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">COBRA VS MARKETPLACE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Lost your job-based health insurance: is COBRA or a marketplace plan cheaper?</h1>
+    <p>Enter the <strong>COBRA premium</strong> from your election notice, a <strong>marketplace quote</strong> and each plan's deductible and out-of-pocket maximum. See the <strong>total cost over the months you need coverage</strong> at five levels of medical care, the <strong>break-even</strong>, and your <strong>election and enrollment deadlines</strong>. COBRA carries over what you already paid toward this year's deductible; a new plan does not. That is often the whole answer.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter. It is not insurance or legal advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your two options</h2>
+    <div class="grid">
+      <div><h3>COBRA (your old plan)</h3>
+        <label for="cp">Full monthly premium (USD)</label><input type="number" id="cp" min="0" step="any" value="0" inputmode="decimal">
+        <label for="cd">Deductible (USD)</label><input type="number" id="cd" min="0" step="any" value="0" inputmode="decimal">
+        <label for="cdm">Deductible already met this plan year (USD)</label><input type="number" id="cdm" min="0" step="any" value="0" inputmode="decimal">
+        <label for="co">Out-of-pocket maximum (USD)</label><input type="number" id="co" min="0" step="any" value="0" inputmode="decimal">
+        <label for="com">Out-of-pocket already spent this plan year (USD)</label><input type="number" id="com" min="0" step="any" value="0" inputmode="decimal">
+        <label for="cc">Your coinsurance after deductible (%)</label><input type="number" id="cc" min="0" max="100" step="any" value="20" inputmode="decimal">
+      </div>
+      <div><h3>Marketplace plan</h3>
+        <label for="mp">Monthly premium after tax credit (USD)</label><input type="number" id="mp" min="0" step="any" value="0" inputmode="decimal">
+        <label for="md">Deductible (USD)</label><input type="number" id="md" min="0" step="any" value="0" inputmode="decimal">
+        <label for="mo">Out-of-pocket maximum (USD)</label><input type="number" id="mo" min="0" step="any" value="0" inputmode="decimal">
+        <label for="mc">Your coinsurance after deductible (%)</label><input type="number" id="mc" min="0" max="100" step="any" value="20" inputmode="decimal">
+        <h3>Your situation</h3>
+        <label for="mo2">Months you need coverage (1 to 18)</label><input type="number" id="mo2" min="1" max="18" step="1" value="6" inputmode="numeric">
+        <label for="es">Your own estimate of care, allowed charges (USD, optional)</label><input type="number" id="es" min="0" step="any" inputmode="decimal">
+      </div>
+    </div>
+    <div class="grid">
+      <div><label for="ld">Date your job coverage ends (optional, for deadlines)</label><input type="date" id="ld"></div>
+      <div><label for="nd">Date the COBRA election notice was sent (optional)</label><input type="date" id="nd"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Total cost over the months you need coverage</h2>
+    <p id="summary"></p>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table><thead><tr><th>If you need</th><th>Allowed charges</th><th>COBRA total</th><th>Marketplace total</th><th>Cheaper</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <p class="note">Total = premiums for every month plus what you pay out of pocket. Allowed charges are insurer contract prices, not hospital list prices, and the levels are illustrations.</p>
+    <div id="notes"></div>
+    <div id="dates"></div>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <pre class="cmd">node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31
+node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 8000 --market-oop-max 9200 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="cobra-election-deadlines-explained.html">COBRA election deadlines explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+<h3>Is this insurance or legal advice?</h3><p>No. It adds premiums and expected out-of-pocket cost for the numbers you type and computes deadlines from the dates you give. It cannot see your network, drugs, state law or plan documents. Confirm deadlines with your plan administrator or the marketplace.</p><h3>Where do I get the marketplace premium?</h3><p>From a healthcare.gov or state-exchange quote for the months you need. Enter the monthly premium after your premium tax credit; this tool deliberately holds no subsidy tables, so it cannot go out of date on that.</p><h3>Why does COBRA sometimes win even though it costs more every month?</h3><p>COBRA keeps the same plan, so the deductible and out-of-pocket maximum you already paid this plan year carry over. A marketplace plan starts both at zero. If you have already met much of the deductible and expect real care, that head start can outweigh a premium gap.</p><h3>Is my data uploaded anywhere?</h3><p>No. The page calculates in your browser and sends nothing. The CLI reads local arguments and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not insurance, legal, tax or financial advice. It adds the premiums and out-of-pocket amounts you type and ignores provider networks, formularies, cost-sharing reductions, copays, state continuation laws and plan-specific rules; it is not a guarantee of what any plan will pay. Confirm deadlines and benefits with your plan administrator or the marketplace before you decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../aca-subsidy-cliff-calculator/">ACA Subsidy Cliff Calculator</a>, <a href="../insurance-denial-appeal-builder/">Insurance Denial Appeal Builder</a>, <a href="../s-corp-reasonable-compensation-calculator/">S-Corp Reasonable Compensation Calculator</a>, <a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar</a>, <a href="../severance-package-calculator/">Severance Package Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { RULES_AS_OF, compute, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = { cobraPremium: "cp", cobraDeductible: "cd", cobraDedMet: "cdm", cobraOopMax: "co", cobraOopMet: "com", cobraCoinsurancePct: "cc", marketPremium: "mp", marketDeductible: "md", marketOopMax: "mo", marketCoinsurancePct: "mc", months: "mo2", expectedSpend: "es", lossDate: "ld", noticeDate: "nd" };
+    const read = () => Object.fromEntries(Object.entries(IDS).map(([k, id]) => [k, $("#" + id).value]));
+
+    function render() {
+      const r = compute(read());
+      if (r.status === "error") { $("#status").innerHTML = `<span class="error">${escapeHtml(r.text)}</span>`; return; }
+      if (r.dates && r.dates.error) { $("#status").innerHTML = `<span class="error">${escapeHtml(r.dates.error)}</span>`; return; }
+      $("#status").textContent = "";
+      $("#summary").innerHTML = `<span class="ok">${escapeHtml(r.text)}</span>`;
+      $("#rows").innerHTML = r.scenarios.map((s) => `<tr><td>${escapeHtml(s.label)}</td><td>${fmt(s.spend)}</td><td>${fmt(s.cobraTotal)}</td><td>${fmt(s.marketTotal)}</td><td>${s.cheaper === "tie" ? "about equal" : s.cheaper === "cobra" ? "COBRA" : "Marketplace"}</td></tr>`).join("");
+      const notes = [...r.notes, ...r.warnings];
+      $("#notes").innerHTML = "<ul>" + notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("") + "</ul>";
+      const d = r.dates;
+      $("#dates").innerHTML = d ? `<h3>Your deadlines</h3><ul><li>Elect COBRA by <strong>${d.electionDeadline}</strong> (60 days from ${escapeHtml(d.electionNoticeBasis)}); first premium due by <strong>${d.firstPremiumDue}</strong>.</li><li>Marketplace special enrollment ends <strong>${d.marketplaceWindowEnds}</strong>. Pick a plan by <strong>${d.marketplaceNoGapPickBy}</strong> to start <strong>${d.marketplaceStartsIfPickedByThen}</strong>.</li><li>COBRA for a job loss runs at most to <strong>${d.maxCobraEnds}</strong>.</li></ul>` : "";
+      $("#estimate").textContent = RULES_AS_OF + ". Your numbers; not insurance or legal advice.";
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { cobraPremium: 780, cobraDeductible: 3000, cobraDedMet: 2400, cobraOopMax: 8000, cobraOopMet: 2600, marketPremium: 210, marketDeductible: 5500, marketOopMax: 9200, months: 6, lossDate: "2026-10-31" };
+    $("#load-example").addEventListener("click", () => {
+      for (const [k, v] of Object.entries(EXAMPLE)) $("#" + IDS[k]).value = v;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = k === "months" ? 6 : k.endsWith("CoinsurancePct") ? 20 : k === "expectedSpend" || k.endsWith("Date") ? "" : 0;
+      $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-brokerage-split-calculator/" data-pf-to="agent-brokerage-split-calculator">Real Estate Brokerage Split Calculator — free, private, in your browser</a></li>
+      <li><a href="../airbnb-earnings-report-analyzer/" data-pf-to="airbnb-earnings-report-analyzer">Airbnb Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../app-store-sales-report-analyzer/" data-pf-to="app-store-sales-report-analyzer">App Store Sales Report Analyzer — free, private, in your browser</a></li>
+      <li><a href="../appointment-deposit-calculator/" data-pf-to="appointment-deposit-calculator">Appointment Deposit Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cobra-vs-marketplace-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/?pfEmbed=1&quot; title=&quot;COBRA or a marketplace plan after a job loss: what each really costs — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cobra-vs-marketplace-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/" data-pf-embed-title="COBRA or a marketplace plan after a job loss: what each really costs" data-pf-embed-slug="cobra-vs-marketplace-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cobra-vs-marketplace-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="cobra-vs-marketplace-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

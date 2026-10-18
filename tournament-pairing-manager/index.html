@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tournament Pairing Manager — free Swiss pairings and bracket maker for clubs</title>
+  <meta name="description" content="Free Swiss pairing generator and bracket maker. Paste your players, get round-by-round Swiss pairings with colour balance…">
+  <meta property="og:title" content="Tournament Pairing Manager — free, private, in your browser">
+  <meta property="og:description" content="Swiss pairings, tiebreak standings and single or double elimination brackets for chess clubs, pickleball, darts, esports and school events.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tournament Pairing Manager", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Swiss pairing generator and bracket maker for chess clubs, pickleball, darts, esports and school tournaments. Swiss pairings with colour balance and Buchholz tiebreaks, plus single and double elimination brackets. Runs entirely in your browser; nothing is uploaded.", "featureList": "swiss pairing generator, swiss tournament software, chess tournament pairings, buchholz tiebreak, sonneborn-berger, single elimination bracket maker, double elimination bracket generator, bracket reset, byes, standings csv export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does Swiss pairing work?", "acceptedAnswer": {"@type": "Answer", "text": "Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four."}}, {"@type": "Question", "name": "How many Swiss rounds do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field."}}, {"@type": "Question", "name": "What happens with an odd number of players?", "acceptedAnswer": {"@type": "Answer", "text": "One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one."}}, {"@type": "Question", "name": "How are ties in the Swiss standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule."}}, {"@type": "Question", "name": "Does it balance colours or home and away?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you switch it on. The first player listed on each board is White or home. The pairing search penalises giving anyone the same colour three times in a row or a large imbalance, so over a six-round event nobody gets three in a row."}}, {"@type": "Question", "name": "Can I run a single or double elimination bracket instead?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose the format and the page seeds the players by rating (or list order), gives the top seeds byes when the field is not a power of two, and lets you click the winner of each match. Double elimination has a winners bracket, a losers bracket and a grand final with an optional bracket reset. Change an earlier result and any later matches that depended on it are cleared."}}, {"@type": "Question", "name": "Is my player list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save tournament to keep a file you can load again later; nothing is kept on the page itself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .champ { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tournament Pairing Manager — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tournament Pairing Manager — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tournament Pairing Manager — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">TOURNAMENT PAIRING MANAGER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Run a Swiss tournament or bracket without the spreadsheet</h1>
+    <p>Paste your <strong>players</strong> (with ratings if you have them) and pick a format. Get <strong>Swiss pairings</strong> round by round with <strong>colour balance</strong> and <strong>Buchholz and Sonneborn-Berger tiebreaks</strong>, or a <strong>single or double elimination bracket</strong> with byes, where you click each winner and the bracket fills itself in. Save the event to a file, export standings as a <strong>CSV</strong>, and copy the pairings for the group chat.</p>
+    <p class="note">For chess clubs, pickleball, darts, table tennis, esports and school events. New to Swiss? Read <a href="./how-to-run-a-swiss-tournament.html">how to run a Swiss tournament, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Players</h2>
+    <label for="players">One player per line, with an optional rating: <code>Maya Okafor, 1720</code></label>
+    <textarea id="players" rows="8" placeholder="Maya Okafor, 1720&#10;Ben Lindqvist, 1655&#10;Ana Souza, 1610&#10;Jonas Weber, 1580"></textarea>
+
+    <h2 style="margin-top:18px">2. Format</h2>
+    <div class="row4">
+      <div><label for="format">Format</label>
+        <select id="format"><option value="swiss">Swiss (everyone plays every round)</option><option value="single">Single elimination</option><option value="double">Double elimination</option></select></div>
+      <div id="swiss-opts-rounds"><label for="rounds-total">Swiss rounds planned</label><input id="rounds-total" inputmode="numeric" value="0"></div>
+      <div id="swiss-opts-win"><label for="pts-win">Points for a win</label><input id="pts-win" inputmode="decimal" value="1"></div>
+      <div id="swiss-opts-draw"><label for="pts-draw">Points for a draw</label><input id="pts-draw" inputmode="decimal" value="0.5"></div>
+      <div id="swiss-opts-bye"><label for="pts-bye">Points for a bye</label><input id="pts-bye" inputmode="decimal" value="1"></div>
+    </div>
+    <div class="check" id="colours-wrap"><input type="checkbox" id="colours" checked><label for="colours" style="display:inline;margin:0;font-weight:400">Balance colours (first player on each board is White or home)</label></div>
+    <div class="check" id="third-wrap" hidden><input type="checkbox" id="third"><label for="third" style="display:inline;margin:0;font-weight:400">Third-place match</label></div>
+    <div class="check" id="reset-wrap" hidden><input type="checkbox" id="reset" checked><label for="reset" style="display:inline;margin:0;font-weight:400">Bracket reset: if the losers-bracket finalist wins the grand final, play it again</label></div>
+
+    <button type="button" id="start">Start the tournament</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved tournament</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved tournament file">
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter at least two players, choose a format and click Start.</p>
+  </section>
+
+  <section id="event" class="card" hidden>
+    <h2 id="event-title">Tournament</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="champion"></div>
+
+    <div id="swiss-panel" hidden>
+      <h2>Round <span id="round-no">1</span> pairings</h2>
+      <p class="note" id="round-help">Set each result, then pair the next round.</p>
+      <div class="scroll"><div class="pf-table-scroll"><table id="boards"><thead><tr><th>Board</th><th>White / home</th><th>Black / away</th><th>Result</th></tr></thead><tbody></tbody></table></div></div>
+      <p id="bye-line" class="note"></p>
+      <button type="button" id="next-round">Pair the next round</button>
+      <button type="button" class="secondary" id="undo-round">Undo this round</button>
+      <h2 style="margin-top:22px">Standings</h2>
+      <div class="scroll"><div class="pf-table-scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Player</th><th class="n">Score</th><th class="n">W-D-L</th><th class="n">Buchholz</th><th class="n">Cut 1</th><th class="n">S-B</th><th>Withdrawn</th></tr></thead><tbody></tbody></table></div></div>
+      <p class="note" id="tiebreak-note"></p>
+      <details style="margin-top:14px"><summary>Earlier rounds</summary><pre id="history"></pre></details>
+    </div>
+
+    <div id="bracket-panel" hidden>
+      <h2>Bracket</h2>
+      <p class="note">Pick the winner of each match when it is played. Changing a result clears any later match that depended on it.</p>
+      <div class="scroll"><div class="pf-table-scroll"><table id="matches"><thead><tr><th>Round</th><th>Match</th><th>Player A</th><th>Player B</th><th>Winner</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+
+    <button type="button" id="save-file">Save tournament</button>
+    <button type="button" id="dl-csv" class="secondary">Download standings CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Swiss pairing:</strong> players are ranked by score, then rating. Round one pairs the top half against the bottom half. Later rounds search for the whole round at once and choose the set of pairings with the lowest total cost, where a rematch is effectively forbidden, a score gap between opponents is expensive, and straying from the top-half-versus-bottom-half pattern inside a score group costs a little. An odd field gives the bye to the lowest-ranked player who has not had one.</p>
+    <p><strong>Colours:</strong> with colour balance on, each pairing gives White to the player who is owed it, and a long run or a large imbalance adds to the cost so the search avoids it.</p>
+    <p><strong>Tiebreaks:</strong> Buchholz, Buchholz cut 1, Sonneborn-Berger, wins and progressive score, in that order, then rating. Players level on everything share a rank and are marked as tied.</p>
+    <p><strong>Brackets:</strong> standard seeding (1 v 8, 4 v 5, 2 v 7, 3 v 6), top seeds take the byes when the field is not a power of two. Double elimination drops each loser into the losers bracket in an order chosen to delay rematches, and the grand final can reset. Every match is derived from the results you have entered, so the bracket can never disagree with them.</p>
+    <p><strong>Checked:</strong> the test suite plays out hundreds of random events, from 4 to 32 players: no rematches, one game per player per round, byes spread evenly, nobody out of a double elimination bracket before a second loss.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How does Swiss pairing work?</h3>
+    <p>Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four.</p>
+    <h3>How many Swiss rounds do I need?</h3>
+    <p>Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field.</p>
+    <h3>What happens with an odd number of players?</h3>
+    <p>One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one.</p>
+    <h3>How are ties in the Swiss standings broken?</h3>
+    <p>In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule.</p>
+    <h3>Does it balance colours or home and away?</h3>
+    <p>Yes, if you switch it on. The first player listed on each board is White or home. The pairing search penalises giving anyone the same colour three times in a row or a large imbalance, so over a six-round event nobody gets three in a row.</p>
+    <h3>Can I run a single or double elimination bracket instead?</h3>
+    <p>Yes. Choose the format and the page seeds the players by rating (or list order), gives the top seeds byes when the field is not a power of two, and lets you click the winner of each match. Double elimination has a winners bracket, a losers bracket and a grand final with an optional bracket reset. Change an earlier result and any later matches that depended on it are cleared.</p>
+    <h3>Is my player list uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save tournament to keep a file you can load again later; nothing is kept on the page itself.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your tournament's own rules or an official rated-event system. <strong>You are responsible for reviewing and verifying every pairing and result</strong> before you publish them or submit them to a rating body. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. The pairings follow the general Swiss idea and are not an implementation of any federation's official pairing rules.</p>
+    <p><strong>Independent.</strong> Not affiliated with any chess federation, sports body, club or tournament software company, and none is named or ranked here. The example players are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save tournament and keep the file.</p>
+    <p>Everything runs in your browser. Your player names and results are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tournament_started</code>, <code>example_loaded</code>, <code>round_paired</code>, <code>file_saved</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tool: the <a href="../league-schedule-generator/">league schedule generator</a> for round-robin seasons with dates, courts and home and away.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePlayers, seedPlayers, recommendedSwissRounds, swissStandings, pairSwissRound, validateSwiss, buildBracket, resolveBracket, pruneResults, roundName, bracketText, standingsCsv, pairingsText, serializeState, parseState, sampleFields, BYE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    // The whole tournament lives in this one object; every render reads from it.
+    let T = null;
+
+    const num = (id, d) => { const v = Number($(id).value); return Number.isFinite(v) ? v : d; };
+    const name = (id) => (id === BYE ? "bye" : id ? T.players.find((p) => p.id === id)?.name ?? id : "TBD");
+
+    function syncFormat() {
+      const f = $("#format").value;
+      for (const id of ["#swiss-opts-rounds", "#swiss-opts-win", "#swiss-opts-draw", "#swiss-opts-bye", "#colours-wrap"]) $(id).hidden = f !== "swiss";
+      $("#third-wrap").hidden = f !== "single";
+      $("#reset-wrap").hidden = f !== "double";
+    }
+
+    function swissOpts() { return { win: T.win, draw: T.draw, bye: T.bye, colours: T.colours, withdrawn: T.withdrawn }; }
+    const seeded = () => seedPlayers(T.players);
+
+    function start() {
+      const { players, errors } = parsePlayers($("#players").value);
+      if (errors.length) { status.textContent = errors.join(" "); return false; }
+      if (players.length < 2) { status.textContent = "Enter at least two players, one per line."; return false; }
+      const format = $("#format").value;
+      if (format === "double" && players.length < 3) { status.textContent = "Double elimination needs at least three players."; return false; }
+      T = { players, format, rounds: [], results: {}, withdrawn: [], colours: $("#colours").checked, third: $("#third").checked, reset: $("#reset").checked,
+            win: num("#pts-win", 1), draw: num("#pts-draw", 0.5), bye: num("#pts-bye", 1), planned: Math.max(0, Math.trunc(num("#rounds-total", 0))) || recommendedSwissRounds(players.length) };
+      if (format === "swiss") pairNext(true);
+      status.textContent = "Tournament started. Scroll down.";
+      render();
+      return true;
+    }
+
+    function pairNext(first) {
+      const p = pairSwissRound(T.players, T.rounds, swissOpts());
+      T.rounds.push({ pairings: p.pairings.map((x) => ({ ...x, result: null })), byes: p.byes });
+      T.notes = p.notes;
+      if (!first) record("round_paired");
+    }
+
+    function bracketOf() { return buildBracket(T.players.length, { format: T.format, thirdPlace: T.third, reset: T.reset }); }
+
+    function render() {
+      $("#event").hidden = false;
+      $("#event-title").textContent = T.format === "swiss" ? "Swiss tournament" : T.format === "single" ? "Single elimination" : "Double elimination";
+      $("#notices").innerHTML = (T.notes ?? []).map((n) => `<div class="warn">${esc(n)}</div>`).join("");
+      $("#swiss-panel").hidden = T.format !== "swiss";
+      $("#bracket-panel").hidden = T.format === "swiss";
+      $("#champion").innerHTML = "";
+      if (T.format === "swiss") renderSwiss(); else renderBracket();
+    }
+
+    function renderSwiss() {
+      const cur = T.rounds[T.rounds.length - 1];
+      const done = T.rounds.length > 0 && cur.pairings.every((p) => p.result);
+      const finished = done && T.rounds.length >= T.planned;
+      const st = swissStandings(T.players, T.rounds, swissOpts());
+      $("#big").innerHTML = [[T.players.length, "players"], [`${T.rounds.length} of ${T.planned}`, "rounds paired"], [recommendedSwissRounds(T.players.length), "rounds recommended"], [T.rounds.reduce((a, r) => a + r.pairings.filter((p) => p.result).length, 0), "games played"]].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#round-no").textContent = T.rounds.length;
+      $("#boards tbody").innerHTML = cur.pairings.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(name(p.a))}</td><td>${esc(name(p.b))}</td><td><select data-board="${i}" aria-label="Result of board ${i + 1}"><option value="">Not played</option><option value="a"${p.result === "a" ? " selected" : ""}>${esc(name(p.a))} wins</option><option value="draw"${p.result === "draw" ? " selected" : ""}>Draw</option><option value="b"${p.result === "b" ? " selected" : ""}>${esc(name(p.b))} wins</option></select></td></tr>`).join("");
+      $("#bye-line").textContent = cur.byes.length ? `Bye this round: ${cur.byes.map(name).join(", ")}` : "";
+      $("#next-round").disabled = !done || finished;
+      $("#next-round").textContent = finished ? "All planned rounds are done" : "Pair the next round";
+      $("#undo-round").disabled = T.rounds.length < 1;
+      $("#round-help").textContent = finished ? "The planned rounds are finished. The standings below are final unless you change a result." : done ? "All results are in. Pair the next round." : "Set every result on this round, then pair the next one.";
+      $("#standings tbody").innerHTML = st.map((r) => `<tr class="${T.withdrawn.includes(r.id) ? "wd" : ""}"><td class="n">${r.rank}</td><td>${esc(r.name)}${r.tied ? ' <span class="pill tie">tied</span>' : ""}</td><td class="n">${r.score}</td><td class="n">${r.wins}-${r.draws}-${r.losses}</td><td class="n">${r.buchholz}</td><td class="n">${r.buchholzCut1}</td><td class="n">${r.sonnebornBerger}</td><td><input type="checkbox" data-wd="${esc(r.id)}" aria-label="Withdraw ${esc(r.name)}"${T.withdrawn.includes(r.id) ? " checked" : ""}></td></tr>`).join("");
+      $("#tiebreak-note").textContent = "Tiebreaks in order: Buchholz, Buchholz cut 1, Sonneborn-Berger, wins, progressive score, then rating. Tick Withdrawn to leave a player out of later pairings.";
+      $("#history").textContent = T.rounds.slice(0, -1).map((r, i) => pairingsText(T.players, r, i + 1, T.colours)).join("\n\n") || "No earlier rounds yet.";
+      if (finished) $("#champion").innerHTML = `<div class="champ">${st[0].tied ? "Leaders level: " : "Winner: "}${esc(st.filter((r) => r.rank === 1).map((r) => r.name).join(" and "))}</div>`;
+      const v = validateSwiss(T.players, T.rounds);
+      if (!v.ok) $("#notices").innerHTML += `<div class="warn">${esc(v.errors.slice(0, 3).join(" "))}</div>`;
+    }
+
+    function renderBracket() {
+      const b = bracketOf();
+      const s = seeded();
+      T.results = pruneResults(b, s, T.results);
+      const res = resolveBracket(b, s, T.results);
+      $("#big").innerHTML = [[T.players.length, "players"], [b.size, "bracket slots"], [`${res.played} of ${res.playable}`, "matches played"]].map(([x, y]) => `<div><strong>${esc(x)}</strong>${esc(y)}</div>`).join("");
+      const rows = [];
+      for (const m of b.matches) {
+        const st = res.states.get(m.id);
+        if (st.status === "void" || st.status === "skipped") continue;
+        const auto = st.status === "bye";
+        const label = (v) => (v === BYE ? "<em>bye</em>" : v ? esc(name(v)) : "<em>to be decided</em>");
+        let cell;
+        if (auto) cell = `<span class="note">advances: ${esc(name(st.winner))}</span>`;
+        else if (st.status === "ready" || st.status === "done") cell = `<select data-match="${esc(m.id)}" aria-label="Winner of ${esc(m.id)}"><option value="">Not played</option><option value="${esc(st.a)}"${st.winner === st.a ? " selected" : ""}>${esc(name(st.a))}</option><option value="${esc(st.b)}"${st.winner === st.b ? " selected" : ""}>${esc(name(st.b))}</option></select>`;
+        else cell = '<span class="note">waiting</span>';
+        rows.push(`<tr><td>${esc(roundName(b, m))}</td><td>${esc(m.id)}</td><td>${label(st.a)}</td><td>${label(st.b)}</td><td>${cell}</td></tr>`);
+      }
+      $("#matches tbody").innerHTML = rows.join("");
+      if (res.champion) $("#champion").innerHTML = `<div class="champ">Champion: ${esc(name(res.champion))}</div>`;
+      T.bracketView = { b, s, res };
+    }
+
+    function exportText() {
+      if (T.format === "swiss") return T.rounds.map((r, i) => pairingsText(T.players, r, i + 1, T.colours)).join("\n\n") + "\n\nSTANDINGS\n" + swissStandings(T.players, T.rounds, swissOpts()).map((r) => `${r.rank}. ${r.name}  ${r.score}`).join("\n");
+      const { b, s } = T.bracketView;
+      return bracketText(b, s, T.results, name);
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#format").addEventListener("change", syncFormat);
+    $("#start").addEventListener("click", () => setTimeout(() => { if (start()) record("tournament_started"); }, 0));
+    $("#load-example").addEventListener("click", () => {
+      $("#players").value = sampleFields().players;
+      setTimeout(() => { if (start()) { record("example_loaded"); status.textContent = "Sample event: invented players, not a real club."; } }, 0);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#players").value = ""; $("#event").hidden = true; T = null; status.textContent = "Cleared."; });
+    $("#boards").addEventListener("change", (e) => {
+      const i = e.target.dataset.board;
+      if (i === undefined || !T) return;
+      T.rounds[T.rounds.length - 1].pairings[Number(i)].result = e.target.value || null;
+      render();
+    });
+    $("#standings").addEventListener("change", (e) => {
+      const id = e.target.dataset.wd;
+      if (!id || !T) return;
+      T.withdrawn = e.target.checked ? [...new Set([...T.withdrawn, id])] : T.withdrawn.filter((x) => x !== id);
+      render();
+    });
+    $("#matches").addEventListener("change", (e) => {
+      const id = e.target.dataset.match;
+      if (!id || !T) return;
+      if (e.target.value) T.results[id] = e.target.value; else delete T.results[id];
+      render();
+    });
+    $("#next-round").addEventListener("click", () => { if (!T) return; pairNext(false); render(); });
+    $("#undo-round").addEventListener("click", () => { if (!T || !T.rounds.length) return; T.rounds.pop(); T.notes = []; if (T.rounds.length === 0) pairNext(true); render(); });
+    $("#save-file").addEventListener("click", () => {
+      if (!T) return;
+      const { bracketView, ...rest } = T;
+      download("tournament.json", serializeState(rest), "application/json");
+      record("file_saved");
+    });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      T = out.state;
+      T.withdrawn = T.withdrawn ?? [];
+      T.planned = T.planned || recommendedSwissRounds(T.players.length);
+      $("#players").value = T.players.map((p) => (p.rating == null ? p.name : `${p.name}, ${p.rating}`)).join("\n");
+      $("#format").value = T.format; syncFormat();
+      if (T.format === "swiss" && !T.rounds.length) pairNext(true);
+      status.textContent = "Loaded.";
+      render();
+    });
+    $("#dl-csv").addEventListener("click", () => {
+      if (!T) return;
+      const rows = swissStandings(T.players, T.rounds, swissOpts());
+      download("standings.csv", standingsCsv(rows), "text/csv");
+      record("csv_downloaded");
+    });
+    $("#dl-text").addEventListener("click", () => { if (!T) return; download("tournament.txt", exportText(), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!T) return;
+      try { await navigator.clipboard.writeText(exportText()); status.textContent = "Copied. Paste it into your group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    syncFormat();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+      <li><a href="../walmart-marketplace-calculator/" data-pf-to="walmart-marketplace-calculator">Walmart Marketplace WFS vs Seller-Fulfilled Calculator</a></li>
+      <li><a href="../whatnot-sales-report-analyzer/" data-pf-to="whatnot-sales-report-analyzer">Whatnot Sales Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tournament-pairing-manager">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/?pfEmbed=1&quot; title=&quot;Tournament Pairing Manager — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tournament-pairing-manager"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/" data-pf-embed-title="Tournament Pairing Manager — free, private, in your browser" data-pf-embed-slug="tournament-pairing-manager"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tournament-pairing-manager" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tournament-pairing-manager" data-pf-link-amount=""></script>
+</body>
+</html>

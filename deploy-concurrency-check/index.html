@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy Concurrency Check — find the race that ships an older commit</title>
+<meta name="description" content="Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/">
+<meta property="og:title" content="Deploy Concurrency Check">
+<meta property="og:description" content="A deploy that races itself does not fail — it succeeds twice, in the wrong order, and leaves a green check above a live site running the older commit.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Deploy Concurrency Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser and CLI checker that reads GitHub Actions workflow YAML and reports every way a deploying workflow can apply an older revision over a newer one."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a deployment race?", "acceptedAnswer": {"@type": "Answer", "text": "Two runs of the same deploy workflow overlapping in time. Push commit A, then commit B a minute later, and both runs start. If A's run happens to finish last — because it queued for a runner, because its build was slower, because a step retried — then A is what is live, while B's green check sits at the top of the branch. Nothing failed, and the run log for A does not say it overwrote anything, because from inside that run nothing did."}}, {"@type": "Question", "name": "Does a concurrency block always fix it?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the group name is the same for every run that writes to the same target. A group keyed on something that changes each run puts every run in a group of its own, so nothing ever waits for anything. That is the same race as having no block at all, with the difference that the block is there and reads as protection, which is why it survives review. Two workflows deploying the same environment under two different group names have the same problem for the same reason."}}, {"@type": "Question", "name": "Should a deploy use cancel-in-progress?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Cancelling is right for tests, where the only cost of stopping a superseded run is the time it had used. A deploy cancelled part-way through has already written part of its change — some of a batch of uploaded files, half a copied artifact, a migration that ran without the code expecting it — and nothing re-runs to finish it. For a deploy, queueing the newer run instead means it applies last, which is the order you want."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The scan runs in this page's own JavaScript, on your device. Nothing you paste is sent anywhere, stored on a server, or logged. This page makes no network request of any kind after it loads — no analytics service, no font, no CDN. The same logic ships as a stdlib-only Python script with no network access at all, if you would rather not paste a workflow into a web page."}}, {"@type": "Question", "name": "Can I run this in my own CI?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The CLI takes workflow files or a directory of them, prints the same findings this page shows, and can exit non-zero when a high-risk finding is present, so it can gate a pull request. It is free, MIT-licensed, has no dependencies beyond the Python standard library, and never calls the GitHub API."}}]}</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
+    --border: #e2e2dd; --accent: #1f5f3f; --high: #8c2f20; --medium: #7a5310;
+    --code: #f2f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
+      --border: #34353a; --accent: #7fd0a4; --high: #f0917f; --medium: #e5bc6a;
+      --code: #26272b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 60rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+  h1 { font-size: 1.85rem; line-height: 1.2; margin: 0 0 .5rem; max-width: 24ch; }
+  h2 { font-size: 1.12rem; margin: 2rem 0 .6rem; }
+  p.lede { color: var(--muted); max-width: 46rem; font-size: 1.05rem; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  section { background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+  label { display: block; font-weight: 600; margin-bottom: .35rem; }
+  textarea { width: 100%; min-height: 15rem; padding: .7rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--code); color: var(--fg);
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    resize: vertical; }
+  .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .8rem; }
+  button { font: inherit; font-weight: 600; padding: .5rem .95rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--accent); color: var(--bg);
+    cursor: pointer; }
+  button.secondary { background: transparent; color: var(--fg); font-weight: 500; }
+  button:focus-visible, textarea:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px; }
+  .finding { border-left: 4px solid var(--border); padding: .1rem 0 .1rem .8rem;
+    margin: 1.1rem 0; }
+  .finding.high { border-left-color: var(--high); }
+  .finding.medium { border-left-color: var(--medium); }
+  .badge { display: inline-block; font-size: .73rem; font-weight: 700;
+    letter-spacing: .05em; text-transform: uppercase; padding: .1rem .4rem;
+    border-radius: 4px; border: 1px solid currentColor; vertical-align: .1em; }
+  .badge.high { color: var(--high); }
+  .badge.medium { color: var(--medium); }
+  .finding h3 { font-size: 1rem; margin: .2rem 0 .35rem; }
+  .where { font-size: .84rem; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
+    padding: .65rem .75rem; overflow-x: auto; font-size: .84rem; margin: .5rem 0 0; }
+  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
+  .ok { color: var(--accent); font-weight: 600; }
+  .fine { font-size: .87rem; color: var(--muted); }
+  ul.jobs { margin: .4rem 0 0; padding-left: 1.1rem; font-size: .92rem; color: var(--muted); }
+  .empty { color: var(--muted); }
+  footer { margin-top: 2.5rem; font-size: .87rem; color: var(--muted); }
+  footer p { max-width: 46rem; }
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Deploy Concurrency Check","item":"https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Deploy Concurrency Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Deploy Concurrency Check</span></span></nav>
+<div class="wrap">
+
+  <h1>Find the race that ships an older commit</h1>
+  <p class="lede">
+    A deploy that races itself does not fail. It succeeds &mdash; twice, in the
+    wrong order &mdash; and what is left behind is a green check on the newer
+    commit sitting above a live site running the older one. Paste a GitHub
+    Actions workflow below and this page names every way yours is permitted to
+    do that, with the line and the fix. Free, no sign-in, and nothing you paste
+    leaves your device.
+  </p>
+
+  <section>
+    <label for="yaml">Workflow YAML</label>
+    <textarea id="yaml" spellcheck="false" aria-describedby="yaml-help"
+      placeholder="Paste the contents of .github/workflows/deploy.yml here"></textarea>
+    <p id="yaml-help" class="fine">
+      Paste one workflow at a time. Nothing is uploaded &mdash; the scan runs in
+      this page.
+    </p>
+    <div class="row">
+      <button id="scan" type="button">Check this workflow</button>
+      <button id="example" type="button" class="secondary">Load an example</button>
+      <button id="clear" type="button" class="secondary">Clear</button>
+    </div>
+  </section>
+
+  <section aria-live="polite" id="results">
+    <h2>Findings</h2>
+    <p class="empty" id="placeholder">
+      Nothing scanned yet. Paste a workflow above, or load the example to see
+      what a report looks like.
+    </p>
+    <div id="report"></div>
+  </section>
+
+  <section>
+    <h2>The five things it looks for</h2>
+    <ol>
+      <li><strong>No concurrency group on a deploying job.</strong> Two pushes
+        run at once and the one that finishes last is the one that is live.</li>
+      <li><strong>A group that changes every run</strong> &mdash; keyed on
+        <code>github.sha</code>, <code>github.run_id</code> and friends. Every
+        run gets its own group, so nothing waits for anything. The dangerous one,
+        because the block is there and reads as protection.</li>
+      <li><strong><code>cancel-in-progress</code> on a deploy.</strong> Right for
+        tests, wrong for a deploy: a cancelled deploy has already written part of
+        its change and nothing re-runs to finish it.</li>
+      <li><strong>Split groups on one environment.</strong> Two jobs, or two
+        workflows, writing to the same target under different group names do not
+        serialize against each other at all.</li>
+      <li><strong>A deploying job that checks out a moving branch.</strong> A
+        branch name resolves when the step runs, so a queued or re-run job can
+        ship a different tree than the one it was queued for.</li>
+    </ol>
+    <p class="fine">
+      Read the longer version, with what each failure looks like from the
+      outside, in
+      <a href="./how-a-deploy-ships-an-older-commit.html">how a deploy ships an
+      older commit</a>. There is also a
+      <a href="./vs-reading-your-workflows-yourself.html">comparison against
+      reading the workflows yourself</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Run it in your own CI</h2>
+    <p>
+      The same logic ships as <code>check.py</code> &mdash; Python standard
+      library only, no dependencies, no network access, and no GitHub token. A
+      test in this repository runs both over the same workflows and asserts they
+      report the same findings, so the CLI and this page cannot drift apart.
+    </p>
+<pre><code>python3 check.py .github/workflows/          # scan them all
+python3 check.py .github/workflows/ --fail-on-risk   # exit 1 on a high-risk finding
+python3 check.py deploy.yml --json          # stable ids, for your own tooling</code></pre>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>What is a deployment race?</h3>
+    <p>Two runs of the same deploy workflow overlapping in time. Push commit A, then commit B a minute later, and both runs start. If A's run happens to finish last — because it queued for a runner, because its build was slower, because a step retried — then A is what is live, while B's green check sits at the top of the branch. Nothing failed, and the run log for A does not say it overwrote anything, because from inside that run nothing did.</p>
+    <h3>Does a concurrency block always fix it?</h3>
+    <p>Only if the group name is the same for every run that writes to the same target. A group keyed on something that changes each run puts every run in a group of its own, so nothing ever waits for anything. That is the same race as having no block at all, with the difference that the block is there and reads as protection, which is why it survives review. Two workflows deploying the same environment under two different group names have the same problem for the same reason.</p>
+    <h3>Should a deploy use cancel-in-progress?</h3>
+    <p>Usually not. Cancelling is right for tests, where the only cost of stopping a superseded run is the time it had used. A deploy cancelled part-way through has already written part of its change — some of a batch of uploaded files, half a copied artifact, a migration that ran without the code expecting it — and nothing re-runs to finish it. For a deploy, queueing the newer run instead means it applies last, which is the order you want.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The scan runs in this page's own JavaScript, on your device. Nothing you paste is sent anywhere, stored on a server, or logged. This page makes no network request of any kind after it loads — no analytics service, no font, no CDN. The same logic ships as a stdlib-only Python script with no network access at all, if you would rather not paste a workflow into a web page.</p>
+    <h3>Can I run this in my own CI?</h3>
+    <p>Yes. The CLI takes workflow files or a directory of them, prints the same findings this page shows, and can exit non-zero when a high-risk finding is present, so it can gate a pull request. It is free, MIT-licensed, has no dependencies beyond the Python standard library, and never calls the GitHub API.</p>
+  </section>
+
+  <footer>
+    <h2>Limits, and what this is not</h2>
+    <p>
+      <strong>This is evidence, not a determination.</strong> It reads the YAML
+      you give it and reports patterns that permit an out-of-order deployment. It
+      cannot know whether your deployment target is idempotent, whether a
+      deployment protection rule already serializes the environment, or whether
+      your team has decided a given race is acceptable. A clean report means this
+      tool found none of the five patterns above &mdash; not that your pipeline is
+      safe.
+    </p>
+    <p>
+      Free and provided as is, with <strong>no warranty</strong> of any kind,
+      express or implied. It is not a security audit, a compliance control, or
+      professional advice, and no liability is accepted for any loss arising from
+      its use or from a deployment you make after reading it. Verify anything it
+      reports against your own workflows before changing them.
+    </p>
+    <p>
+      <strong>Privacy:</strong> everything you paste stays in your browser. This
+      page uploads nothing, sets no cookie, embeds no third-party script, font or
+      analytics service, and makes no network request at all once it has loaded.
+      It keeps a small local count of how often the scan button is used, on your
+      device only, which never leaves it and which you can switch off here:
+    </p>
+    <p class="row">
+      <label class="fine" for="optout" style="font-weight:400">
+        <input type="checkbox" id="optout"> Don&rsquo;t count my use of this page
+      </label>
+    </p>
+    <p>
+      Free to use and free to keep. If it saved you an incident,
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsoring is
+      optional</a> and changes nothing about what the tool does.
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/deploy-concurrency-check">Source
+      and <code>check.py</code></a>, MIT licensed.
+    </p>
+  </footer>
+</div>
+
+<script type="module">
+import { classifyWorkflow } from "./classify.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const yaml = document.getElementById("yaml");
+const report = document.getElementById("report");
+const placeholder = document.getElementById("placeholder");
+const optout = document.getElementById("optout");
+
+const EXAMPLE = `name: Deploy site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Looks serialized. Is not: the group changes on every run.
+concurrency:
+  group: deploy-\${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: ./deploy.sh
+`;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+// Render the backtick spans the finding text uses, after escaping. Escaping
+// first is what keeps a workflow that contains markup from reaching the DOM.
+function withCode(text) {
+  return escapeHtml(text).replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function render(result) {
+  placeholder.hidden = true;
+  const parts = [];
+
+  if (result.deployJobs.length === 0) {
+    parts.push(
+      `<p class="empty">No deploying job found in this workflow, so there is ` +
+      `nothing here that can apply a revision out of order. A job counts as ` +
+      `deploying when it declares an <code>environment:</code>, runs a known ` +
+      `deploy action, or is named for a deployment.</p>`);
+    report.innerHTML = parts.join("");
+    return;
+  }
+
+  parts.push(
+    `<p class="fine">Deploying job(s) found:</p><ul class="jobs">` +
+    result.deployJobs.map((j) =>
+      `<li><code>${escapeHtml(j.id)}</code> &mdash; ${withCode(j.signal)} ` +
+      `<span class="where">(line ${j.line})</span></li>`).join("") +
+    `</ul>`);
+
+  if (result.findings.length === 0) {
+    parts.push(
+      `<p class="ok">No deployment race found.</p>` +
+      `<p class="fine">This workflow has none of the five patterns this tool ` +
+      `looks for. That is not the same as proving the deployment is safe &mdash; ` +
+      `see the limits below.</p>`);
+    report.innerHTML = parts.join("");
+    return;
+  }
+
+  for (const f of result.findings) {
+    parts.push(
+      `<div class="finding ${escapeHtml(f.risk)}">` +
+      `<span class="badge ${escapeHtml(f.risk)}">${escapeHtml(f.risk)} risk</span> ` +
+      `<span class="where">${escapeHtml(f.id)}` +
+      (f.line ? `, line ${f.line}` : "") + `</span>` +
+      `<h3>${escapeHtml(f.title)}</h3>` +
+      `<p>${withCode(f.detail)}</p>` +
+      `<pre><code>${escapeHtml(f.fix)}</code></pre>` +
+      `</div>`);
+  }
+  report.innerHTML = parts.join("");
+}
+
+document.getElementById("scan").addEventListener("click", () => {
+  const text = yaml.value;
+  if (!text.trim()) {
+    placeholder.hidden = false;
+    placeholder.textContent =
+      "Nothing to scan yet — paste a workflow into the box above first.";
+    report.innerHTML = "";
+    return;
+  }
+  record("scan_run");
+  try {
+    render(classifyWorkflow(text, "pasted workflow"));
+  } catch {
+    placeholder.hidden = false;
+    placeholder.textContent =
+      "That input could not be read as a GitHub Actions workflow. Check that " +
+      "you pasted the whole file, including its `jobs:` block.";
+    report.innerHTML = "";
+  }
+});
+
+document.getElementById("example").addEventListener("click", () => {
+  yaml.value = EXAMPLE;
+  record("example_loaded");
+  render(classifyWorkflow(EXAMPLE, "example.yml"));
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  yaml.value = "";
+  report.innerHTML = "";
+  placeholder.hidden = false;
+  placeholder.textContent =
+    "Nothing scanned yet. Paste a workflow above, or load the example to see " +
+    "what a report looks like.";
+});
+
+optout.checked = usageOptedOut();
+optout.addEventListener("change", () => setUsageOptOut(optout.checked));
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../oidc-trust-policy-check/" data-pf-to="oidc-trust-policy-check">GitHub Actions OIDC Trust Policy Checker</a></li>
+      <li><a href="../oncall-load-analyzer/" data-pf-to="oncall-load-analyzer">On-Call Load Analyzer — free, private, paste-the-export</a></li>
+      <li><a href="../openapi-breaking-change-check/" data-pf-to="openapi-breaking-change-check">Did this API version break existing clients?</a></li>
+      <li><a href="../package-exports-drift-check/" data-pf-to="package-exports-drift-check">Does your package.json &quot;exports&quot; map point at files that actually exist?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=deploy-concurrency-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/?pfEmbed=1&quot; title=&quot;Deploy Concurrency Check — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="deploy-concurrency-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/" data-pf-embed-title="Deploy Concurrency Check" data-pf-embed-slug="deploy-concurrency-check"></script>
+</body>
+</html>

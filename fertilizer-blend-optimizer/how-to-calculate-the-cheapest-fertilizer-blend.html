@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Calculate the Cheapest Fertilizer Blend — worked example</title>
+  <meta name="description" content="How to find the cheapest fertilizer program that still meets your N, P2O5, K2O and S targets, with a worked example for corn, soybeans, wheat, hay…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/how-to-calculate-the-cheapest-fertilizer-blend.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate the cheapest fertilizer blend?","acceptedAnswer":{"@type":"Answer","text":"Write down every product you can buy with its price per ton and its grade (N, P2O5, K2O and S as a percent of weight). Convert each to a price per pound of nutrient, remembering that DAP, MAP and ammonium sulfate carry more than one. Then find the pounds of each product per acre that meet your nutrient targets at the lowest total price. By hand you can price two or three nutrients one at a time; with seven or more products and four nutrients at once, a linear program does it exactly."}},{"@type":"Question","name":"Is the cheapest price per pound of nitrogen the cheapest nitrogen?","acceptedAnswer":{"@type":"Answer","text":"Not always. A phosphate product also delivers nitrogen, so the nitrogen you still need to buy is lower than the target. The optimizer credits every nutrient a product carries, which is why its answer can differ from a plan that prices each nutrient separately."}},{"@type":"Question","name":"What does the example show?","acceptedAnswer":{"@type":"Answer","text":"With the example prices, anhydrous ammonia supplies most of the nitrogen, a phosphate product supplies P2O5 plus some nitrogen, potash supplies K2O, and ammonium sulfate is used only where a sulfur target forces it. Buying each nutrient separately from the cheapest source per pound costs noticeably more because it pays twice for the nitrogen in the phosphate. Your prices will give different answers, which is the point of running it with your own quotes."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a2418; background: #f8f5ee; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #7a4a12; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #5a3608; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a3608; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5d4d33; }
+    .card { background: #fff; border: 1px solid #e3d6bd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a360812; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7551; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a4a12; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f0e4cc; color: #5a3608; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f3ead8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #5a3608; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3d6bd; }
+    table.t th { color: #5a3608; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #d4b982; border-radius: 12px; padding: 10px 12px; background: #fdfaf3; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #5a3608; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #e3d6bd; padding-top: 16px; }
+    .ghost { color: #5d4d33; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/how-to-calculate-the-cheapest-fertilizer-blend.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Calculate the Cheapest Fertilizer Blend — worked example">
+<meta property="og:description" content="How to find the cheapest fertilizer program that still meets your N, P2O5, K2O and S targets, with a worked example for corn, soybeans, wheat, hay…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Calculate the Cheapest Fertilizer Blend — worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fertilizer-blend-optimizer/">Fertilizer Blend Optimizer — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Calculate the Cheapest Fertilizer Blend — worked example</span></span></nav>
+<main>
+  <p class="note"><a href="./">← Fertilizer Blend Optimizer</a></p>
+  <h1>How to calculate the cheapest fertilizer blend</h1>
+  <p>Fertilizer is one of the biggest inputs on a row-crop or hay farm, and the cheapest program is rarely built from the product with the lowest price per ton. This page walks through the method and shows what it produces for seven crop presets. It is arithmetic on example numbers, not an agronomic recommendation.</p>
+  <h2>1. Put every product on the same footing</h2>
+  <p>Urea is 46% N, so a $520 ton holds 920 lb of nitrogen: about $0.57 per pound. Anhydrous ammonia at 82% N and $700 is about $0.43. Do the same for P2O5 and K2O, and for sulfur.</p>
+  <h2>2. Count what each product carries along</h2>
+  <p>DAP is 18-46-0, so every pound of P2O5 you buy in it brings about 0.39 lb of nitrogen with it. That nitrogen is worth something, and it lowers the nitrogen you still need to buy.</p>
+  <h2>3. Let the solver trade the products off</h2>
+  <p>Each target is a linear inequality in the pounds of each product, so the cheapest program is a linear program. <a href="./">The optimizer</a> solves it, then re-solves to tell you what one more pound of each nutrient really costs and the price at which a product you are not using would start to pay.</p>
+  <h2>Worked example, with the starter products and example prices, 160 acres</h2>
+  <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t"><thead><tr><th>Crop (approximate targets)</th><th class="n">Optimum per acre</th><th class="n">Field total</th><th class="n">Each nutrient bought separately, per acre</th><th class="n">Saved per acre</th></tr></thead><tbody>
+<tr><td>Corn after soybeans (about 180 bu/ac)</td><td class="n">$137.11</td><td class="n">$21,937</td><td class="n">$146.76</td><td class="n">$9.66</td></tr>
+<tr><td>Corn after corn</td><td class="n">$157.59</td><td class="n">$25,214</td><td class="n">$167.78</td><td class="n">$10.19</td></tr>
+<tr><td>Soybeans</td><td class="n">$75.48</td><td class="n">$12,077</td><td class="n">$75.48</td><td class="n">$0.00</td></tr>
+<tr><td>Winter wheat</td><td class="n">$95.56</td><td class="n">$15,289</td><td class="n">$103.60</td><td class="n">$8.04</td></tr>
+<tr><td>Grass hay (3 tons/ac)</td><td class="n">$131.91</td><td class="n">$21,106</td><td class="n">$141.82</td><td class="n">$9.91</td></tr>
+<tr><td>Alfalfa (established, 5 tons/ac)</td><td class="n">$178.17</td><td class="n">$28,508</td><td class="n">$178.17</td><td class="n">$0.00</td></tr>
+<tr><td>Vegetable garden, per acre equivalent</td><td class="n">$155.68</td><td class="n">$24,909</td><td class="n">$164.30</td><td class="n">$8.61</td></tr>
+</tbody></table></div></div>
+  <p class="note">Computed by the same solver the test suite runs. The example prices are illustrative, not quotes, and the crop targets are rounded rules of thumb.</p>
+  <h2>What to check before you buy</h2>
+  <p>Set the targets from your soil test and your extension service, replace the example prices with your quotes, and remember what the tool does not model: application method and timing, nitrogen loss, salt and burn limits, lime, micronutrients, freight and application cost.</p>
+  <h2>Common questions</h2>
+  <h3>How do you calculate the cheapest fertilizer blend?</h3>
+  <p>Write down every product you can buy with its price per ton and its grade (N, P2O5, K2O and S as a percent of weight). Convert each to a price per pound of nutrient, remembering that DAP, MAP and ammonium sulfate carry more than one. Then find the pounds of each product per acre that meet your nutrient targets at the lowest total price. By hand you can price two or three nutrients one at a time; with seven or more products and four nutrients at once, a linear program does it exactly.</p>
+  <h3>Is the cheapest price per pound of nitrogen the cheapest nitrogen?</h3>
+  <p>Not always. A phosphate product also delivers nitrogen, so the nitrogen you still need to buy is lower than the target. The optimizer credits every nutrient a product carries, which is why its answer can differ from a plan that prices each nutrient separately.</p>
+  <h3>What does the example show?</h3>
+  <p>With the example prices, anhydrous ammonia supplies most of the nitrogen, a phosphate product supplies P2O5 plus some nitrogen, potash supplies K2O, and ammonium sulfate is used only where a sulfur target forces it. Buying each nutrient separately from the cheapest source per pound costs noticeably more because it pays twice for the nitrogen in the phosphate. Your prices will give different answers, which is the point of running it with your own quotes.</p>
+  <p><a href="./">Open the optimizer</a> — related: the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> and the <a href="../production-mix-optimizer/">production mix optimizer</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not agronomic, crop advisory, legal, tax or financial advice, and no substitute for a certified crop advisor, your soil test or your extension service. Figures are standard grades and example prices.</p>
+  <p><strong>Independent.</strong> Not affiliated with any fertilizer manufacturer, retailer or university. <strong>Best-effort hosting, no SLA.</strong> Everything runs in your browser; nothing is uploaded or stored.</p>
+  <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../backyard-honey-profit-calculator/" data-pf-to="backyard-honey-profit-calculator">What do you really make on a pound of honey?</a></li>
+      <li><a href="../bakery-production-scheduler/" data-pf-to="bakery-production-scheduler">Bakery production schedule from your orders, free</a></li>
+      <li><a href="../ball-python-morph-pairing-planner/" data-pf-to="ball-python-morph-pairing-planner">Ball Python Morph Pairing Planner — free, private, in your browser</a></li>
+      <li><a href="../beef-cattle-ration-optimizer/" data-pf-to="beef-cattle-ration-optimizer">Beef Cattle Ration Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fertilizer-blend-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fertilizer-blend-optimizer"></script>
+</body>
+</html>

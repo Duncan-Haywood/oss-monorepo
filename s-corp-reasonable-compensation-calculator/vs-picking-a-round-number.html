@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. picking a round salary number | S-Corp Reasonable Compensation Calculator</title>
+<meta name="description" content="Most single-shareholder S-corp owners without a formal report just pick a round salary number -- $50,000 because that is what a friend pays themselves…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. picking a round salary number | S-Corp Reasonable Compensation Calculator">
+<meta property="og:description" content="A round number is fast and free. It is also the exact fact pattern the IRS and courts have recharacterized in every reported reasonable-compensation case.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just picking a round number, like $50,000?","acceptedAnswer":{"@type":"Answer","text":"Nothing is wrong with the number itself -- $50,000 might even be defensible. What's missing is the comparison: a round number picked because it sounds reasonable, matches what a friend pays themselves, or is last year's figure rolled forward isn't tied to the comparable-wage test the IRS and courts actually apply (what would an unrelated employer pay someone else to do this specific job, for these specific hours). Watson v. Commissioner is exactly this pattern -- a round $24,000 salary against $200k-274k of annual profit, recharacterized because nobody had checked it against a market figure."}},{"@type":"Question","name":"Isn't a round number faster than filling in a calculator?","acceptedAnswer":{"@type":"Answer","text":"Picking the number is faster, yes. What a round number skips is seeing the FICA-tax cost of the gap between what you picked and what a comparable role actually pays, and having a documented answer ready if your preparer or an examiner asks how the figure was set. This calculator takes the same couple of numbers you already have -- your planned salary, the business's compensation pool, and a comparable-wage figure you supply -- and runs the comparison and the tax math in the time it takes to fill in a form."}},{"@type":"Question","name":"Does rolling last year's salary forward count as a documented method?","acceptedAnswer":{"@type":"Answer","text":"Not on its own. Rev. Rul. 74-44's factors include the comparable-wage test and the corporation's dividend history, not simply consistency with a prior year -- a salary that was never benchmarked to a market wage doesn't become benchmarked by being repeated. It can still be a reasonable number; the point is that nothing so far has checked it against the test that actually gets litigated."}},{"@type":"Question","name":"Is my information safer with a round-number guess than with this calculator?","acceptedAnswer":{"@type":"Answer","text":"A guess never leaves your head, and this calculator never leaves your browser -- no account, no upload, and nothing sent to a server. The only difference is that one of the two gives you a comparison and a documentation checklist to keep."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f0e9; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2f5d50; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #2f5d50; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2f5d50; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fffdf9; border: 1px solid #dbd4c4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a231010; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef1ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a6472; }
+  .note, footer, .fine { font-size: .86rem; color: #5a6472; }
+  footer { margin-top: 28px; border-top: 1px solid #dbd4c4; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. picking a round salary number | S-Corp Reasonable Compensation Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s-corp-reasonable-compensation-calculator/">S-Corp Reasonable Compensation Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. picking a round salary number | S-Corp Reasonable Compensation Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. picking a round salary number</h1>
+<p class="lede">Most single-shareholder S-corp owners who haven't paid for a formal report set their own salary by picking a round number -- $50,000 because it sounds about right, whatever a friend in the same trade pays themselves, or last year's figure rolled forward unchanged. That number might be perfectly defensible. The problem is nothing has checked it against the comparable-wage test courts and the IRS actually apply, and that gap is the fact pattern in every reported reasonable-compensation adjustment case.</p>
+
+<section class="card">
+<h2>What each approach actually does</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Job</th><th scope="col">Picking a round number</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr><td>How the number is set</td><td>Rounded to a figure that sounds reasonable, matches a peer, or repeats last year's number.</td><td>Compared against a comparable-wage figure you supply, scaled to your actual hours.</td></tr>
+<tr><td>Whether it's tied to the test that gets litigated</td><td>Not necessarily -- a round number is not itself evidence of the comparable-wage factor.</td><td>Directly compares your planned salary to that factor and flags the gap.</td></tr>
+<tr><td>Seeing the tax cost of the gap</td><td>Not visible until a preparer or examiner runs the numbers separately.</td><td>Shown immediately, in FICA-tax dollars, at your planned figure and at the comparable-wage floor.</td></tr>
+<tr><td>A documentation trail if asked later</td><td>Whatever you remember about why you picked that figure.</td><td>A nine-factor checklist you fill in and keep for your own records.</td></tr>
+<tr><td>Cost</td><td>Free, no time spent beyond picking a number.</td><td>Free, a few minutes to fill in the numbers you already have.</td></tr>
+<tr><td>Where your numbers go</td><td>Nowhere -- it's a guess, not data.</td><td>Nowhere -- stays in your browser's local storage, never uploaded.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's wrong with just picking a round number, like $50,000?</h3>
+<p>Nothing is wrong with the number itself -- $50,000 might even be defensible. What's missing is the comparison: a round number picked because it sounds reasonable, matches what a friend pays themselves, or is last year's figure rolled forward isn't tied to the comparable-wage test the IRS and courts actually apply (what would an unrelated employer pay someone else to do this specific job, for these specific hours). Watson v. Commissioner is exactly this pattern -- a round $24,000 salary against $200k-274k of annual profit, recharacterized because nobody had checked it against a market figure.</p>
+<h3>Isn't a round number faster than filling in a calculator?</h3>
+<p>Picking the number is faster, yes. What a round number skips is seeing the FICA-tax cost of the gap between what you picked and what a comparable role actually pays, and having a documented answer ready if your preparer or an examiner asks how the figure was set. This calculator takes the same couple of numbers you already have -- your planned salary, the business's compensation pool, and a comparable-wage figure you supply -- and runs the comparison and the tax math in the time it takes to fill in a form.</p>
+<h3>Does rolling last year's salary forward count as a documented method?</h3>
+<p>Not on its own. Rev. Rul. 74-44's factors include the comparable-wage test and the corporation's dividend history, not simply consistency with a prior year -- a salary that was never benchmarked to a market wage doesn't become benchmarked by being repeated. It can still be a reasonable number; the point is that nothing so far has checked it against the test that actually gets litigated.</p>
+<h3>Is my information safer with a round-number guess than with this calculator?</h3>
+<p>A guess never leaves your head, and this calculator never leaves your browser -- no account, no upload, and nothing sent to a server. The only difference is that one of the two gives you a comparison and a documentation checklist to keep.</p>
+<p class="fine">This page names no specific product or service -- it compares against the generic method of picking a round salary figure without checking it against the comparable-wage test, not a competing tool.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator are not legal, tax, or financial advice and do not replace a qualified CPA or tax attorney. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../donor-acknowledgment-letter-generator/" data-pf-to="donor-acknowledgment-letter-generator">Year-end donor acknowledgment letters from a gift list — free, private</a></li>
+      <li><a href="../donor-retention-analyzer/" data-pf-to="donor-retention-analyzer">Donor Retention Analyzer — free, private, in your browser</a></li>
+      <li><a href="../duplicate-payment-audit/" data-pf-to="duplicate-payment-audit">Duplicate Payment Audit</a></li>
+      <li><a href="../early-pay-discount-picker/" data-pf-to="early-pay-discount-picker">Early pay discount picker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s-corp-reasonable-compensation-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s-corp-reasonable-compensation-calculator"></script>
+</body>
+</html>

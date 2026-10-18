@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to depreciate a rental property (27.5 years, mid-month) — Rental Ledger</title>
+<meta name="description" content="How rental property depreciation works: basis, land split, 27.5-year straight line, the mid-month convention and improvements, with a worked example.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/rental-ledger/how-to-depreciate-a-rental-property.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How to depreciate a rental property">
+<meta property="og:description" content="How rental property depreciation works: basis, land split, 27.5-year straight line, the mid-month convention and improvements, with a worked example.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many years do you depreciate a residential rental property?","acceptedAnswer":{"@type":"Answer","text":"27.5 years, straight line, for residential rental property placed in service in the US. Only the building is depreciated; land is not, so the purchase price has to be split between the two."}},{"@type":"Question","name":"What is the mid-month convention?","acceptedAnswer":{"@type":"Answer","text":"The property is treated as placed in service in the middle of the month, so the first calendar year gets a half month less than a full 12 months' worth. A home placed in service in June gets 6.5 months of depreciation in its first year, not 7."}},{"@type":"Question","name":"What counts as the depreciable basis?","acceptedAnswer":{"@type":"Answer","text":"Generally the purchase price plus capitalized closing costs, minus the value of the land. The land share often comes from the county tax assessor's ratio of land to total value; if you have no better figure, ask your preparer."}},{"@type":"Question","name":"Do improvements get their own depreciation clock?","acceptedAnswer":{"@type":"Answer","text":"Yes. A new roof or a kitchen remodel is depreciated over 27.5 years starting from the month it was placed in service, separately from the house. A repair that merely keeps the property in working order is deducted in the year paid. Telling the two apart is a judgment call, so Rental Ledger flags large repairs rather than deciding for you."}},{"@type":"Question","name":"What if I never claimed depreciation?","acceptedAnswer":{"@type":"Answer","text":"Depreciation is treated as allowed whether or not you claimed it, which matters when you sell: the gain is computed as if you had taken it. If prior years were missed, a preparer can usually fix it with Form 3115 rather than amended returns."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Rental Ledger runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f4f6f3}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#1f6b45;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#164a31}
+h2{font-size:1.15rem;margin:0 0 10px;color:#164a31}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#34403a}
+.card{background:#fff;border:1px solid #d3e0d8;border-radius:14px;padding:22px;box-shadow:0 8px 24px #164a3110;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e1e8e3;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#46564c}
+.note,footer{font-size:.86rem;color:#46564c}
+footer{margin-top:28px;border-top:1px solid #d3e0d8;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/rental-ledger/how-to-depreciate-a-rental-property.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/rental-ledger/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to depreciate a rental property — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../rental-ledger/">Rental Ledger — free landlord Schedule E and depreciation, private</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to depreciate a rental property</span></span></nav>
+<p class="note"><a href="./">&larr; back to Rental Ledger</a></p>
+<h1>How to depreciate a rental property</h1>
+<p class="lede">Residential rental property is deducted over 27.5 years, the building only, with the first month counted as half. The arithmetic is short once you know which numbers go in. Here it is, with a worked example you can check against the tool.</p>
+<section class="card">
+<h2>The short version</h2>
+<ol>
+<li>Start with the purchase price and add closing costs you must capitalize.</li>
+<li>Subtract the land. Land is never depreciated.</li>
+<li>Divide what is left by 27.5 for a full year of straight-line depreciation.</li>
+<li>In the first year, use the mid-month convention: count the month you started renting as half a month.</li>
+<li>Give every later improvement its own 27.5-year schedule from its own date.</li>
+</ol>
+</section>
+<section class="card">
+<h2>A worked example</h2>
+<p>A rental bought for $250,000 with $5,000 of capitalized closing costs, of which $50,000 is land, and placed in service in June 2025:</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><td>Price + closing costs</td><td>$255,000</td></tr>
+<tr><td>Less land</td><td>&minus;$50,000</td></tr>
+<tr><td>Depreciable basis (the building)</td><td>$205,000</td></tr>
+<tr><td>Full year: $205,000 &divide; 27.5</td><td>$7,454.55</td></tr>
+<tr><td>2025: 6.5 of 330 months (June counts as half)</td><td>$4,037.88</td></tr>
+<tr><td>2026 (a full year)</td><td>$7,454.54</td></tr>
+<tr><td>Each later full year</td><td>about $7,454.55 (a cent either way as the running total rounds)</td></tr>
+</tbody>
+</table></div>
+<p>The yearly amounts add up to the basis exactly over the recovery period; the last year is a partial one. The figures above come from the same arithmetic Rental Ledger uses, so you can enter the same numbers and compare. They can differ from the IRS percentage tables by a few cents because the tables round to three decimals.</p>
+</section>
+<section class="card">
+<h2>Where people lose money or get it wrong</h2>
+<ul>
+<li><strong>Depreciating the land.</strong> It overstates the deduction and is easy for a preparer to spot.</li>
+<li><strong>Starting the clock at the purchase date.</strong> Depreciation starts when the property is ready and available to rent, which can be later.</li>
+<li><strong>Expensing an improvement.</strong> A new roof logged as a repair is deducted all at once when it should be spread over 27.5 years.</li>
+<li><strong>Forgetting what depreciation does at sale.</strong> It lowers your basis, so the gain on a sale is larger, and the part of it that is depreciation is taxed at up to 25%.</li>
+<li><strong>Missing the loss limits.</strong> A rental loss can be limited by the passive loss rules; the $25,000 allowance phases out between $100,000 and $150,000 of modified adjusted gross income.</li>
+</ul>
+</section>
+<section class="card">
+<h2>Do it with your own numbers</h2>
+<p><a href="./">Rental Ledger</a> takes your properties, rent and expenses and produces Schedule E by property, the depreciation above, the passive loss allowance with carried-forward losses, and a sale-year estimate. It is free, needs no account and keeps everything on your device.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>How many years do you depreciate a residential rental property?</h3>
+<p>27.5 years, straight line, for residential rental property placed in service in the US. Only the building is depreciated; land is not, so the purchase price has to be split between the two.</p>
+<h3>What is the mid-month convention?</h3>
+<p>The property is treated as placed in service in the middle of the month, so the first calendar year gets a half month less than a full 12 months' worth. A home placed in service in June gets 6.5 months of depreciation in its first year, not 7.</p>
+<h3>What counts as the depreciable basis?</h3>
+<p>Generally the purchase price plus capitalized closing costs, minus the value of the land. The land share often comes from the county tax assessor's ratio of land to total value; if you have no better figure, ask your preparer.</p>
+<h3>Do improvements get their own depreciation clock?</h3>
+<p>Yes. A new roof or a kitchen remodel is depreciated over 27.5 years starting from the month it was placed in service, separately from the house. A repair that merely keeps the property in working order is deducted in the year paid. Telling the two apart is a judgment call, so Rental Ledger flags large repairs rather than deciding for you.</p>
+<h3>What if I never claimed depreciation?</h3>
+<p>Depreciation is treated as allowed whether or not you claimed it, which matters when you sell: the gain is computed as if you had taken it. If prior years were missed, a preparer can usually fix it with Form 3115 rather than amended returns.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. Rental Ledger runs entirely in your browser; nothing you enter is uploaded.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page and the linked tool are free and provided as is. They apply published federal rules to numbers you supply and are not tax, legal or financial advice. <strong>Verify every figure against the IRS instructions or with a tax preparer before you file.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss arising from their use.</p>
+<p><strong>Nothing leaves your browser.</strong> Rental Ledger runs entirely client-side and keeps your records in this browser's storage; nothing you enter is uploaded.</p>
+<p><a href="./">Open Rental Ledger</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+      <li><a href="../401k-plan-fee-calculator/" data-pf-to="401k-plan-fee-calculator">401(k) Plan Fee Calculator — free, private</a></li>
+      <li><a href="../ad-slot-sell-through-planner/" data-pf-to="ad-slot-sell-through-planner">Should you raise your sponsorship price? Free sell-through planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=rental-ledger">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="rental-ledger"></script>
+</body>
+</html>

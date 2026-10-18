@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Preview Checker vs. checking your tags by eye</title>
+<meta name="description" content="Opening view-source or DevTools' Elements panel and reading the og: and twitter: meta tags catches an obviously missing tag.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/vs-checking-tags-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Social Preview Checker vs. checking your tags by eye">
+<meta property="og:description" content="View-source shows you whether a tag exists. It cannot show you the image's real pixel size, a relative URL that looks fine in a browser address bar…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/vs-checking-tags-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reading the tags by eye actually catch?","acceptedAnswer":{"@type":"Answer","text":"Opening a page's view-source or DevTools' Elements panel and scanning for og:title, og:description, og:image, and the twitter: equivalents is a real, fast way to catch the most obvious failure: a tag that is simply missing. If og:image isn't in the markup at all, you'll see that in seconds with no tool."}},{"@type":"Question","name":"Where does eyeballing the tags fall short?","acceptedAnswer":{"@type":"Answer","text":"Three ways this checker catches and a by-eye read of the markup cannot, even by a careful reader: (1) the og:image tag can be present and point at a real image that is simply too small -- Facebook documents a 200x200 minimum and Twitter's summary_large_image card documents 300x157, and nothing about reading the URL string tells you the image's actual pixel dimensions; that needs opening the file itself and reading its header, which is what this tool's CLI and standalone image checker do. (2) A relative og:image URL (\"/images/share.png\" instead of \"https://example.com/images/share.png\") renders fine if you click it in your own browser, because your browser resolves it against the page you're already on -- but the Open Graph protocol requires an absolute URL, and a platform's crawler fetching the tag value directly, with no page context to resolve it against, can fail silently. (3) A CMS plugin that writes its own og:title alongside a theme or hand-written one produces two tags with the same property name in the markup; which one a given platform's parser keeps is not something reading the HTML tells you, since both are sitting right there looking equally valid."}},{"@type":"Question","name":"Why does the fallback chain matter here?","acceptedAnswer":{"@type":"Answer","text":"Platforms document a fallback: Twitter Cards fall back to the equivalent og:* tag when twitter:image, twitter:title, or twitter:description is absent, so a page missing twitter:image is not automatically broken on Twitter/X if og:image is set. Reading the markup by eye, a missing twitter:image tag looks like a problem -- and it's easy to \"fix\" by adding a duplicate image tag that then has to be kept in sync by hand. This tool applies the documented fallback chain before reporting anything as missing, so it only flags the case where the fallback itself has nothing to fall back to."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .eyebrow { font-size: 0.85rem; }
+  .cta { display: inline-block; margin: 1rem 0; padding: 0.6rem 1rem; border-radius: 8px; background: #0a7c42; color: #fff; text-decoration: none; font-weight: 650; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(127,127,127,0.12); }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Social Preview Checker vs. checking your tags by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../social-preview-check/">Social Preview Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Social Preview Checker vs. checking your tags by eye</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Social Preview Checker</a></p>
+  <h1>Social Preview Checker vs. checking your tags by eye</h1>
+  <p>Opening view-source or DevTools' Elements panel and reading the og: and twitter: meta tags is the method most developers reach for first, and it is a real, free way to catch the most obvious failure: a tag that is missing outright. This page names no company or product -- reading a page's own markup is a generic habit every web developer already has, not a tool being compared against.</p>
+
+  <p><a class="cta" href="./">Check your page's tags &rarr;</a></p>
+
+  <section>
+    <p>
+      That habit works well for exactly the case it is suited to: is the tag
+      there at all. It runs into trouble the moment the question becomes
+      anything more specific than presence -- <strong>is the image actually
+      big enough, is the URL actually absolute, and is there exactly one of
+      each tag rather than two fighting for the same platform's
+      attention?</strong> None of those three are visible from reading the
+      tag's text.
+    </p>
+    <div class="table-wrap">
+    <div class="pf-table-scroll"><table>
+      <caption>What each method actually tells you.</caption>
+      <thead>
+        <tr><th scope="col">Question</th><th scope="col">Reading the tags by eye</th><th scope="col">This checker</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Is an og:image (or twitter:image) tag present at all?</td>
+          <td>Catches it -- a missing tag is visible in the markup.</td>
+          <td>Catches it too.</td>
+        </tr>
+        <tr>
+          <td>Is the image behind that tag actually large enough for Facebook's or Twitter's documented minimum?</td>
+          <td>Not visible from the tag's text -- the URL string says nothing about the file's real pixel dimensions.</td>
+          <td>Fetches the image and reads its real width/height from the file's own header.</td>
+        </tr>
+        <tr>
+          <td>Is the og:image URL absolute, as the Open Graph protocol requires, rather than relative?</td>
+          <td>Easy to miss -- a relative URL opens fine in your own browser tab, because your browser resolves it against the page you're on.</td>
+          <td>Flags a relative URL explicitly, before any platform's crawler has a chance to fail resolving it with no page context.</td>
+        </tr>
+        <tr>
+          <td>Did a CMS plugin write a second og:title (or similar) alongside your theme's own tag?</td>
+          <td>Both tags look equally valid sitting in the markup; which one a parser keeps isn't visible from reading either one.</td>
+          <td>Reports duplicated tags for the same property as a distinct finding.</td>
+        </tr>
+        <tr>
+          <td>Is a missing twitter:image actually a problem, given the documented og:* fallback chain?</td>
+          <td>Reads as broken at a glance, which invites "fixing" it with a second image tag to keep in sync by hand.</td>
+          <td>Applies the fallback chain first, and only flags the case where the fallback itself has nothing to fall back to.</td>
+        </tr>
+        <tr>
+          <td>Run the same check the same way every time, right before a page ships?</td>
+          <td>Manual, and only as thorough as whoever is looking that day.</td>
+          <td>A CLI with a real exit code, or the browser report viewer on this page.</td>
+        </tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>
+      A quick look at the markup is still worth doing -- it is free, it needs
+      no tool, and it genuinely catches the tag-is-missing case in seconds.
+      What it cannot do is answer the three questions above that decide
+      whether a preview actually renders, which is the gap this checker
+      exists to close.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>What does reading the tags by eye actually catch?</h3>
+    <p>Opening a page's view-source or DevTools' Elements panel and scanning for og:title, og:description, og:image, and the twitter: equivalents is a real, fast way to catch the most obvious failure: a tag that is simply missing. If og:image isn't in the markup at all, you'll see that in seconds with no tool.</p>
+    <h3>Where does eyeballing the tags fall short?</h3>
+    <p>Three ways this checker catches and a by-eye read of the markup cannot, even by a careful reader: (1) the og:image tag can be present and point at a real image that is simply too small -- Facebook documents a 200x200 minimum and Twitter's summary_large_image card documents 300x157, and nothing about reading the URL string tells you the image's actual pixel dimensions; that needs opening the file itself and reading its header, which is what this tool's CLI and standalone image checker do. (2) A relative og:image URL ("/images/share.png" instead of "https://example.com/images/share.png") renders fine if you click it in your own browser, because your browser resolves it against the page you're already on -- but the Open Graph protocol requires an absolute URL, and a platform's crawler fetching the tag value directly, with no page context to resolve it against, can fail silently. (3) A CMS plugin that writes its own og:title alongside a theme or hand-written one produces two tags with the same property name in the markup; which one a given platform's parser keeps is not something reading the HTML tells you, since both are sitting right there looking equally valid.</p>
+    <h3>Why does the fallback chain matter here?</h3>
+    <p>Platforms document a fallback: Twitter Cards fall back to the equivalent og:* tag when twitter:image, twitter:title, or twitter:description is absent, so a page missing twitter:image is not automatically broken on Twitter/X if og:image is set. Reading the markup by eye, a missing twitter:image tag looks like a problem -- and it's easy to "fix" by adding a duplicate image tag that then has to be kept in sync by hand. This tool applies the documented fallback chain before reporting anything as missing, so it only flags the case where the fallback itself has nothing to fall back to.</p>
+    <p><a href="./">Open the Social Preview Checker</a> to check your own page, or read <a href="./social-preview-fallback-rules.html">the fallback chain and size-rule reference</a>.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, documented set of Open Graph and
+  Twitter Card patterns from one page fetch. It is not a guarantee of how any individual platform will render
+  the result today -- platforms cache aggressively and can change rendering rules without notice. A clean
+  report describes what this one fetch found, not a promise about every platform's preview.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express
+  or implied. It is not marketing, SEO, or legal advice, and it does not replace checking each platform's own
+  preview tool before you rely on a link. <strong>You are responsible for reviewing and verifying its output
+  before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison and no network request of
+  any kind -- it is a static page describing a generic manual habit. The checker's own CLI requests go straight
+  from your machine to the URL you name and its preview image, never through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>, and optional
+  support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=social-preview-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="social-preview-check"></script>
+</body>
+</html>

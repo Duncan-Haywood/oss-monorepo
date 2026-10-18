@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coverage Drop Check vs. a flat coverage floor</title>
+  <meta name="description" content="--cov-fail-under=80 only asks whether you are above 80% -- it cannot see a PR that walks coverage from 92% to 81%, both comfortably above the floor…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/vs-a-flat-coverage-floor.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Coverage Drop Check vs. a flat coverage floor">
+  <meta property="og:description" content="Two reports, 92% then 81%, both above an 80% floor. One file collapsed from 100% to 20% covered; another improved just enough to keep the total above the line.">
+  <meta property="og:url" content="./vs-a-flat-coverage-floor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a flat coverage floor get wrong?","acceptedAnswer":{"@type":"Answer","text":"A floor like --cov-fail-under=80 asks one question: is the overall percentage still above 80? It cannot see direction or which file moved, only where the number sits right now. A PR can walk coverage down from 92% to 81%, one point at a time across many merges, and never once fail the floor — and within a single PR, one file's tests can be gutted while another file's coverage happens to improve enough that the overall percentage still clears 80, so the floor reports a clean pass while a real regression ships inside it."}},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A baseline report shows 92% overall (auth.py fully covered at 100%, utils.py at 90%). After a PR, the report shows 81% overall — auth.py dropped to 20% covered (16 of its 20 lines lost their tests), while utils.py improved slightly to 96.25%, which is what keeps the overall number above an 80% floor at all. A flat --cov-fail-under=80 check passes on both reports: 92 and 81 are each above 80. Pasted into this tool, the same two reports report a real finding: line coverage dropped 11.00 points (92.00% → 81.00%), and auth.py is named as the one file that got worse — the fact the floor has no way to express."}},{"@type":"Question","name":"Is this tool just automating something obvious?","acceptedAnswer":{"@type":"Answer","text":"Noticing that one file's coverage fell is obvious once you already know to compare that specific file's line rate across the two reports, file by file. What a flat floor gets wrong is that it collapses every file into one number before you ever see it, and a codebase with dozens or hundreds of files makes re-deriving the per-file delta from two raw XML reports exactly the kind of bookkeeping nobody does by hand on every PR. This tool does that comparison mechanically and exhaustively, so a drop hiding behind an improvement elsewhere in the same report does not depend on someone happening to open the one file that got worse."}},{"@type":"Question","name":"Does this replace setting a coverage floor?","acceptedAnswer":{"@type":"Answer","text":"No. A floor still catches the case this tool cannot: a project that never had good coverage in the first place, or a brand-new file added with no tests and no baseline to compare against. The two catch different failures — a floor bounds the absolute number, this tool bounds the direction and names the file, and neither replaces reading the diff for why a file's tests changed at all."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #e7ebf0; padding: .1em .3em; border-radius: 4px; font-size: .9em; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Coverage Drop Check vs. a flat coverage floor — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../coverage-drop-check/">Did this PR drop your coverage?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Coverage Drop Check vs. a flat coverage floor</span></span></nav>
+  <p><a href="./">&larr; Coverage Drop Check</a></p>
+  <h1>Coverage Drop Check vs. a flat coverage floor</h1>
+  <p>
+    <strong>A flat coverage floor</strong> &mdash; <code>--cov-fail-under=80</code>
+    in pytest-cov, or an equivalent minimum in any coverage tool &mdash; is the
+    default method, because most CI setups already have one: fail the build if
+    the overall percentage is below the line. It catches a project that never
+    had good coverage to begin with. It cannot catch a project walking
+    <em>down</em> from good coverage, one merge at a time, as long as every
+    merge stays above the floor &mdash; and it cannot catch one file's tests
+    getting gutted inside a single PR if another file's coverage happens to
+    improve enough to keep the total above the line.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">File</th><th scope="col">Baseline</th><th scope="col">This PR</th><th scope="col">Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>auth.py</code></td><td>20/20 lines, 100%</td><td><strong>4/20 lines, 20%</strong></td><td><strong>dropped</strong> &mdash; 80.00 points</td></tr>
+      <tr><td><code>utils.py</code></td><td>72/80 lines, 90%</td><td>77/80 lines, 96.25%</td><td>improved &mdash; -6.25 points</td></tr>
+      <tr><td><strong>Overall</strong></td><td><strong>92/100, 92%</strong></td><td><strong>81/100, 81%</strong></td><td>both above an 80% floor</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    Against a flat <code>--cov-fail-under=80</code> floor, both reports pass:
+    92% clears 80, and so does 81%. Nothing about the floor fails, and nothing
+    about it can even see that <code>auth.py</code> lost 16 of its 20 covered
+    lines &mdash; the check only ever looks at the one summed-up number.
+    Pasted into this tool, the same two reports resolve to a real finding:
+    line coverage dropped 11.00 points (92.00% &rarr; 81.00%), and
+    <code>auth.py</code> is named as the file that got worse, sorted to the
+    top of the report. <code>utils.py</code>'s improvement is exactly what
+    kept the overall number above the floor at all &mdash; without it, this
+    PR would have failed on the floor alone and never needed a per-file
+    breakdown to catch.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>My CI's coverage floor passed &mdash; did this PR still make coverage worse?</td>
+        <td>Coverage Drop Check &mdash; a floor only checks the absolute number; this checks the direction and names which file moved.</td>
+      </tr>
+      <tr>
+        <td>Which specific file's tests got weaker in this PR?</td>
+        <td>Coverage Drop Check &mdash; the per-file table sorts dropped files first; a flat floor has no per-file breakdown at all.</td>
+      </tr>
+      <tr>
+        <td>This project has never had good test coverage and I want a baseline minimum enforced.</td>
+        <td>A flat floor &mdash; that is exactly the job it is built for, and this tool needs a baseline report to compare against, not just an absolute minimum.</td>
+      </tr>
+      <tr>
+        <td>Coverage dropped a little on this PR but stayed comfortably above our floor &mdash; is that worth blocking on?</td>
+        <td>Neither tool decides that for you. Coverage Drop Check reports the exact points-and-file delta so a reviewer can judge it; a floor cannot even show the number moved.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Neither method is wrong on its own: a floor is the right guard against a
+    codebase that never had coverage discipline, and this tool needs a real
+    baseline report to compare against, which a brand-new project does not
+    have yet. The gap is the case a floor is structurally unable to close
+    &mdash; a number that stays technically fine while the file it actually
+    matters for gets worse underneath it, masked by whatever else moved in
+    the same report. That is exactly the gap this tool exists to close.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What does a flat coverage floor get wrong?</h3>
+  <p>A floor like <code>--cov-fail-under=80</code> asks one question: is the overall percentage still above 80? It cannot see direction or which file moved, only where the number sits right now. A PR can walk coverage down from 92% to 81%, one point at a time across many merges, and never once fail the floor &mdash; and within a single PR, one file's tests can be gutted while another file's coverage happens to improve enough that the overall percentage still clears 80, so the floor reports a clean pass while a real regression ships inside it.</p>
+  <h3>Can you give a concrete example?</h3>
+  <p>A baseline report shows 92% overall (<code>auth.py</code> fully covered at 100%, <code>utils.py</code> at 90%). After a PR, the report shows 81% overall &mdash; <code>auth.py</code> dropped to 20% covered (16 of its 20 lines lost their tests), while <code>utils.py</code> improved slightly to 96.25%, which is what keeps the overall number above an 80% floor at all. A flat <code>--cov-fail-under=80</code> check passes on both reports: 92 and 81 are each above 80. Pasted into this tool, the same two reports report a real finding: line coverage dropped 11.00 points (92.00% &rarr; 81.00%), and <code>auth.py</code> is named as the one file that got worse &mdash; the fact the floor has no way to express.</p>
+  <h3>Is this tool just automating something obvious?</h3>
+  <p>Noticing that one file's coverage fell is obvious once you already know to compare that specific file's line rate across the two reports, file by file. What a flat floor gets wrong is that it collapses every file into one number before you ever see it, and a codebase with dozens or hundreds of files makes re-deriving the per-file delta from two raw XML reports exactly the kind of bookkeeping nobody does by hand on every PR. This tool does that comparison mechanically and exhaustively, so a drop hiding behind an improvement elsewhere in the same report does not depend on someone happening to open the one file that got worse.</p>
+  <h3>Does this replace setting a coverage floor?</h3>
+  <p>No. A floor still catches the case this tool cannot: a project that never had good coverage in the first place, or a brand-new file added with no tests and no baseline to compare against. The two catch different failures &mdash; a floor bounds the absolute number, this tool bounds the direction and names the file, and neither replaces reading the diff for why a file's tests changed at all.</p>
+  <p class="note">
+    More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a> &middot; <a href="vs-codecov.html">Coverage Drop Check vs. Codecov</a>, for an ongoing connected dashboard rather than a one-off local delta.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a quality judgement of your code, not a substitute for reading the diff, and not advice about what coverage you should have. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this saved you a Codecov bill or a silent coverage drop, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../incident-postmortem-timeline/" data-pf-to="incident-postmortem-timeline">Turn incident notes into a postmortem draft</a></li>
+      <li><a href="../ios-privacy-manifest-check/" data-pf-to="ios-privacy-manifest-check">iOS Privacy Manifest Checker</a></li>
+      <li><a href="../json-ld-rich-result-validator/" data-pf-to="json-ld-rich-result-validator">JSON-LD Rich Result Validator — free, private, in your browser</a></li>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=coverage-drop-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="coverage-drop-check"></script>
+</body>
+</html>

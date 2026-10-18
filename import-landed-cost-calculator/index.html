@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Import Landed Cost Calculator — Duty, Tariff &amp; Customs Fee Breakdown</title>
+  <meta name="description" content="Free landed cost calculator for small e-commerce importers: enter your item cost, freight, duty rate…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/">
+  <!-- A shipping crate in the page's own dark-navy/light palette (#2a2350 /
+       #d9d0f3, both already used for the result panel and its accent) —
+       stacked boxes standing in for a shipment moving through customs. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a2350'/%3E%3Cg fill='%23d9d0f3'%3E%3Crect x='6' y='16' width='9' height='9' rx='1'/%3E%3Crect x='17' y='16' width='9' height='9' rx='1'/%3E%3Crect x='11.5' y='7' width='9' height='9' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+  <meta property="og:title" content="Import Landed Cost Calculator">
+  <meta property="og:description" content="See total landed cost, cost per unit, and your real tariff burden on an import shipment — item cost, freight, duty, Section 301/supplemental tariff…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Import Landed Cost Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Landed cost breakdown for an import shipment, duty and supplemental/Section 301 tariff on customs value, Merchandise Processing Fee with formal-entry floor and ceiling or flat informal-entry fee, Harbor Maintenance Fee on ocean shipments, customs broker fee, total landed cost, landed cost per unit, effective tariff burden as a percent of item cost, copy a shareable link, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this tool know my product's actual duty rate?","acceptedAnswer":{"@type":"Answer","text":"No, on purpose. The duty rate and the supplemental/Section 301 tariff rate are fields you fill in, not a stored schedule this tool claims to know. Duty rates are set per HTS classification and change; a table baked into a calculator goes stale silently and still looks authoritative. Look your product's HTS code up at hts.usitc.gov, or confirm the current rate with a licensed customs broker, then type it in — the arithmetic is yours to check."}},{"@type":"Question","name":"Is this a customs broker or a compliance service?","acceptedAnswer":{"@type":"Answer","text":"No. This is not a customs broker, freight forwarder, or licensed customs classification service. It does not determine your HTS code, your duty rate, or your compliance obligations — you must verify those with a licensed customs broker or CBP. This tool only performs the arithmetic once you supply the rates and fees."}},{"@type":"Question","name":"What is the Merchandise Processing Fee?","acceptedAnswer":{"@type":"Answer","text":"A CBP fee charged on most formal entries: 0.3464% of the customs value, with a minimum of $32.71 and a maximum of $634.62 per entry. Informal entries (typically lower-value, more casual shipments) pay a flat fee instead, currently around $2.62. These are published, indexed figures — confirm the current numbers at cbp.gov before relying on them for a real entry, since CBP periodically adjusts them."}},{"@type":"Question","name":"What is the Harbor Maintenance Fee, and why does it only sometimes apply?","acceptedAnswer":{"@type":"Answer","text":"It is 0.125% of the customs value, charged on shipments that move by ocean freight — not on air or truck shipments. Check the ocean freight box if your shipment came by sea; leave it unchecked otherwise. Like the MPF, this is a published CBP fee schedule figure worth confirming before relying on it."}},{"@type":"Question","name":"What does the 2025 end of the $800 de minimis exemption mean for me?","acceptedAnswer":{"@type":"Answer","text":"For many countries, shipments that used to clear duty-free under $800 no longer do, so imports that once had no landed-cost surprise at all now carry duty, potential supplemental tariffs, and processing fees the way a formal or informal entry always has. If you used to ship under that exemption, run your numbers through this calculator rather than assuming the old duty-free math still holds — see does the de minimis exemption still apply for the specifics and how to check where things stand for your own shipments."}},{"@type":"Question","name":"Is my shipment data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. The shareable link carries your numbers in the URL itself rather than sending them to a server. The optional usage counter records only which features were used and the day, never your costs, rates, or quantities."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2028; background: #f2f0f7; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; } p { line-height: 1.5; }
+    .callout { background: #ece6fb; border: 1px solid #c9baf0; border-radius: 10px; padding: 12px 14px; font-size: .92rem; margin: 0 0 18px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fdfcff; border: 1px solid #d6d0e6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c144d0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input, select { width: 100%; box-sizing: border-box; border: 1px solid #b3a9cc; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .field-note { font-size: .74rem; font-weight: 500; opacity: .75; }
+    .checkbox-field { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; } .checkbox-field input { width: auto; }
+    .result { position: sticky; top: 15px; background: #2a2350; color: #fbfaff; border-color: #2a2350; } .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0; } .hero-sub { font-size: 1.02rem; font-weight: 650; opacity: .9; margin: -4px 0 14px; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 16px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .82; }
+    #inputError { background: #ffffff1a; border: 1px solid #ffc9a6; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; font-weight: 650; color: #ffe3cd; }
+    .result a { color: inherit; text-decoration: underline; }
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; font-variant-numeric: tabular-nums; } th:first-child, td:first-child { text-align: left; }
+    .result table tr.total td { font-weight: 750; border-top: 2px solid #ffffff40; border-bottom: none; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: inherit; } #copyLink { background: #d9d0f3; color: #201850; border-color: #d9d0f3; } #reset { background: transparent; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5b566c; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+    .layout > * { min-width: 0; }
+    @media (max-width: 700px) { section { overflow-x: auto; } table { max-width: 100%; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Import Landed Cost Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Import Landed Cost Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Import Landed Cost Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p>FOR SMALL IMPORTERS &amp; E-COMMERCE SELLERS</p>
+    <h1>What does this shipment actually cost, landed?</h1>
+    <p>Enter your item cost, freight, and the duty and supplemental tariff rates from your own HTS lookup or broker to see total landed cost, cost per unit, and the tariff burden as a percent of your invoice price — the number that turns a profitable-looking import into a loss when it shows up at customs instead of at pricing time. See <a href="does-the-de-minimis-exemption-still-apply.html">whether the $800 de minimis exemption still applies to your shipment</a> before you assume the old duty-free math still holds, and <a href="formal-vs-informal-entry.html">why the processing fee jumps $30 the moment an entry is formal instead of informal</a>, regardless of how close the shipment sits to the value line. Compare this against tracking landed cost by hand on <a href="vs-tracking-landed-cost-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>, or against booking through a freight forwarder on <a href="vs-flexport.html">this calculator vs. Flexport</a>.</p>
+    <p class="callout"><strong>Not a customs broker or compliance service.</strong> This tool is not a customs broker, freight forwarder, or licensed customs classification service. It does not determine your HTS code, your duty rate, or your compliance obligations — you must verify those with a licensed customs broker or CBP. This tool only performs the arithmetic once you supply the rates and fees.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Shipment and rate inputs</h2>
+      <div class="fields">
+        <label>Item / goods cost (commercial invoice, $) <input id="itemCost" type="number" min="0" step="0.01" value="5000" inputmode="decimal"></label>
+        <label>Freight to US port/border ($) <input id="freightCost" type="number" min="0" step="0.01" value="800" inputmode="decimal"></label>
+        <label>Insurance ($, optional) <input id="insuranceCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+        <label>Quantity of units <input id="quantity" type="number" min="1" step="1" value="500" inputmode="numeric"></label>
+        <label>Duty rate (%)
+          <input id="dutyRatePct" type="number" min="0" step="0.01" value="4.5" placeholder="e.g. 4.5" inputmode="decimal">
+          <span class="field-note">Your product's general/MFN rate. Look up your HTS code at <a href="https://hts.usitc.gov" target="_blank" rel="noopener">hts.usitc.gov</a> or confirm with your broker — not stored here.</span>
+        </label>
+        <label>Supplemental / Section 301 tariff rate (%)
+          <input id="supplementalRatePct" type="number" min="0" step="0.01" value="25" placeholder="e.g. 25" inputmode="decimal">
+          <span class="field-note">Any additional or Section 301 tariff on top of the general rate. These change — confirm current CBP guidance before relying on it.</span>
+        </label>
+        <label>Customs broker / entry fee ($)
+          <input id="brokerFee" type="number" min="0" step="0.01" value="125" placeholder="e.g. 75-150 typical" inputmode="decimal">
+          <span class="field-note">Flat fee your broker charges per entry — typically $75-150 for a low-cost broker.</span>
+        </label>
+        <label>Entry type
+          <select id="entryType">
+            <option value="formal">Formal entry</option>
+            <option value="informal">Informal entry</option>
+          </select>
+          <span class="field-note">Formal entries pay a percentage-based Merchandise Processing Fee (floor/ceiling apply); informal entries pay a flat fee. Ask your broker which applies to you.</span>
+        </label>
+        <label>Your selling price per unit ($, optional)
+          <input id="sellPricePerUnit" type="number" min="0" step="0.01" value="24" placeholder="leave blank to skip margin" inputmode="decimal">
+        </label>
+        <label>Target gross margin (%)
+          <input id="targetMarginPct" type="number" min="0" max="99.9" step="0.1" value="30" inputmode="decimal">
+        </label>
+        <label class="checkbox-field"><input id="oceanFreight" type="checkbox" checked> Shipped by ocean freight (Harbor Maintenance Fee applies)</label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Total landed cost</h2>
+      <p id="inputError" class="error" hidden></p>
+      <div id="totalLandedCost" class="hero-number">$7,675.96</div>
+      <div id="perUnit" class="hero-sub">$15.35 per unit</div>
+      <dl>
+        <dt>Effective tariff burden</dt><dd id="tariffBurdenPct"></dd>
+        <dt>Customs value (item + freight)</dt><dd id="customsValue"></dd>
+      </dl>
+      <h3>Pricing</h3>
+      <dl>
+        <dt>Break-even price per unit</dt><dd id="breakEvenPrice"></dd>
+        <dt id="minPriceLabel">Minimum price for target margin</dt><dd id="minPrice"></dd>
+        <dt>Profit per unit at your price</dt><dd id="profitPerUnit"></dd>
+        <dt>Gross margin at your price</dt><dd id="marginPct"></dd>
+        <dt>Profit on the whole shipment</dt><dd id="totalProfit"></dd>
+      </dl>
+      <p class="note">Gross margin = (price − landed cost) ÷ price, before marketplace fees, shipping to customers, returns and ad spend.</p>
+      <hr>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
+        <tbody id="breakdown"></tbody>
+      </table></div>
+      <div class="actions">
+        <button id="copyLink" type="button">Copy shareable link</button>
+        <button id="reset" type="button">Reset to example</button>
+      </div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Numbers stay in this browser. This is arithmetic on the rates and fees you typed, not CBP's or a broker's determination of what you owe. MPF and HMF percentages, floors and ceilings are the currently published CBP fee schedule figures as of this tool's last update — confirm current figures at <a href="https://www.cbp.gov" target="_blank" rel="noopener">cbp.gov</a> before relying on them.</p>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Does this tool know my product's actual duty rate?</h3>
+    <p>No, on purpose. The duty rate and the supplemental/Section 301 tariff rate are fields you fill in, not a
+      stored schedule this tool claims to know. Duty rates are set per HTS classification and change; a table
+      baked into a calculator goes stale silently and still looks authoritative. Look your product's HTS code up
+      at <a href="https://hts.usitc.gov" target="_blank" rel="noopener">hts.usitc.gov</a>, or confirm the current
+      rate with a licensed customs broker, then type it in &mdash; the arithmetic is yours to check.</p>
+
+    <h3>Is this a customs broker or a compliance service?</h3>
+    <p>No. This is not a customs broker, freight forwarder, or licensed customs classification service. It does
+      not determine your HTS code, your duty rate, or your compliance obligations &mdash; you must verify those
+      with a licensed customs broker or CBP. This tool only performs the arithmetic once you supply the rates and
+      fees.</p>
+
+    <h3>What is the Merchandise Processing Fee?</h3>
+    <p>A CBP fee charged on most formal entries: 0.3464% of the customs value, with a minimum of $32.71 and a
+      maximum of $634.62 per entry. Informal entries (typically lower-value, more casual shipments) pay a flat
+      fee instead, currently around $2.62. These are published, indexed figures &mdash; confirm the current
+      numbers at <a href="https://www.cbp.gov" target="_blank" rel="noopener">cbp.gov</a> before relying on them
+      for a real entry, since CBP periodically adjusts them. See
+      <a href="formal-vs-informal-entry.html">formal vs. informal entry</a> for what decides which one you are
+      and why the fee does not scale smoothly across that line.</p>
+
+    <h3>What is the Harbor Maintenance Fee, and why does it only sometimes apply?</h3>
+    <p>It is 0.125% of the customs value, charged on shipments that move by ocean freight &mdash; not on air or
+      truck shipments. Check the ocean freight box if your shipment came by sea; leave it unchecked otherwise.
+      Like the MPF, this is a published CBP fee schedule figure worth confirming before relying on it.</p>
+
+    <h3>What does the 2025 end of the $800 de minimis exemption mean for me?</h3>
+    <p>For many countries, shipments that used to clear duty-free under $800 no longer do, so imports that once
+      had no landed-cost surprise at all now carry duty, potential supplemental tariffs, and processing fees the
+      way a formal or informal entry always has. If you used to ship under that exemption, run your numbers
+      through this calculator rather than assuming the old duty-free math still holds &mdash; see
+      <a href="does-the-de-minimis-exemption-still-apply.html">does the de minimis exemption still apply</a> for
+      the specifics and how to check where things stand for your own shipments.</p>
+
+    <h3>Is my shipment data uploaded anywhere?</h3>
+    <p>No account and no network requests &mdash; the calculator runs entirely in your browser. The shareable
+      link carries your numbers in the URL itself rather than sending them to a server. The optional usage
+      counter records only which features were used and the day, never your costs, rates, or quantities.</p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not customs, legal, tax, or financial advice, and it does not replace a licensed customs broker or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Already know your landed cost and need to check the freight quote itself? The <a href="../3pl-quote-normalizer/">3PL quote normalizer</a> compares carrier and fulfillment quotes on the other leg of the same shipment.</p>
+    <p>Containers sitting at the port? See the <a href="../container-demurrage-detention-calculator/">container demurrage &amp; detention calculator</a> — what the dwell time costs on your tariff, and what an earlier pickup is worth.</p>
+    <p>Deciding between shared and full-container freight? The <a href="../lcl-vs-fcl-container-calculator/">LCL vs FCL container calculator</a> finds the break-even volume and the freight cost per unit.</p>
+    <p>Free and open source. If it kept a lowball tariff estimate from turning your shipment into a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { INPUT_FIELDS, LANDED_COST_DEFAULTS, calculateLandedCost, breakdownRows } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+
+    const field = id => document.getElementById(id);
+    const money = (value) => {
+      const format = (value) => `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const currentInputs = () => Object.fromEntries(INPUT_FIELDS.map(id => {
+      const el = field(id);
+      if (id === 'oceanFreight') return [id, el.checked];
+      return [id, el.value];
+    }));
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    const INPUTS_KEY = 'import-landed-cost-inputs';
+    let statusTimer;
+    function flash(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+    function apply(values) {
+      for (const id of INPUT_FIELDS) {
+        if (values[id] === undefined) continue;
+        const el = field(id);
+        if (id === 'oceanFreight') el.checked = Boolean(values[id]);
+        else el.value = values[id];
+      }
+    }
+    // calculateLandedCost throws on an input it cannot price -- blank while a
+    // field is mid-edit, a negative number, a fractional or zero quantity.
+    // Clearing a field to retype it is an ordinary way to use a number input,
+    // so this is reachable on the very first field a seller edits.
+    function showInputError(message) {
+      const banner = field('inputError');
+      banner.textContent = message;
+      banner.hidden = false;
+    }
+    function clearInputError() {
+      const banner = field('inputError');
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+
+    function paint() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      try {
+        paintResults(inputs);
+        clearInputError();
+      } catch (error) {
+        showInputError(error.message || 'Check the highlighted inputs — this shipment cannot be priced.');
+      }
+    }
+
+    function paintResults(inputs) {
+      const result = calculateLandedCost(inputs);
+      field('totalLandedCost').textContent = money(result.totalLandedCost);
+      field('perUnit').textContent = `${money(result.perUnitLandedCost)} per unit`;
+      field('tariffBurdenPct').textContent = `${result.effectiveTariffBurdenPct.toFixed(2)}% of item cost`;
+      field('customsValue').textContent = money(result.customsValue);
+      const p = result.pricing;
+      field('breakEvenPrice').textContent = money(p.breakEvenPrice);
+      field('minPriceLabel').textContent = `Minimum price for ${p.targetMarginPct}% margin`;
+      field('minPrice').textContent = money(p.minPriceForTarget);
+      field('profitPerUnit').textContent = p.profitPerUnit === null ? '—' : money(p.profitPerUnit);
+      field('marginPct').textContent = p.marginPct === null ? '—' : `${p.marginPct.toFixed(1)}%`;
+      field('totalProfit').textContent = p.totalProfit === null ? '—' : money(p.totalProfit);
+
+      const rows = breakdownRows(result);
+      field('breakdown').innerHTML = rows.map(([label, amount], i) =>
+        `<tr class="${i === rows.length - 1 ? 'total' : ''}"><td>${label}</td><td>${money(amount)}</td></tr>`
+      ).join('');
+
+      const optedOut = field('usageOptOut').checked;
+      recordUsage(undefined, optedOut, 'landed_cost_calculated');
+    }
+
+    field('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(currentInputs());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+      history.replaceState(null, '', url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        flash('Link copied.');
+      } catch {
+        flash('Link updated in the address bar.');
+      }
+      recordUsage(undefined, field('usageOptOut').checked, 'link_copied');
+    });
+    field('reset').addEventListener('click', () => {
+      apply(formValues(LANDED_COST_DEFAULTS));
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      history.replaceState(null, '', location.pathname);
+      paint();
+      flash('Reset to the worked example.');
+    });
+    field('usageOptOut').addEventListener('change', () => {
+      safe(() => localStorage.setItem('import-landed-cost-usage-opt-out', field('usageOptOut').checked ? '1' : '0'));
+    });
+    field('entryType').addEventListener('change', () => {
+      recordUsage(undefined, field('usageOptOut').checked, 'entry_type_toggled');
+    });
+
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. `formValues` writes every field, so one the link
+    // omitted is cleared (or, for entryType/oceanFreight, reset to a valid
+    // default) rather than left showing the recipient's own saved draft.
+    const fromLink = decodeInputs(location.hash || location.search);
+    const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || '{}')) || {};
+    const hasLink = Object.keys(fromLink).length > 0;
+    apply(hasLink ? formValues(fromLink) : formValues({ ...LANDED_COST_DEFAULTS, ...saved }));
+    field('usageOptOut').checked = safe(() => localStorage.getItem('import-landed-cost-usage-opt-out') === '1') || false;
+    for (const id of INPUT_FIELDS) field(id).addEventListener('input', paint);
+    field('entryType').addEventListener('change', paint);
+    field('oceanFreight').addEventListener('change', paint);
+    paint();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=import-landed-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/?pfEmbed=1&quot; title=&quot;Import Landed Cost Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="import-landed-cost-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/" data-pf-embed-title="Import Landed Cost Calculator" data-pf-embed-slug="import-landed-cost-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="import-landed-cost-calculator" data-pf-jobs-amount="#totalLandedCost"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

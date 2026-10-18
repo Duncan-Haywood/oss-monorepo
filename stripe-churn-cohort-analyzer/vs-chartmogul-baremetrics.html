@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Alternative to ChartMogul and Baremetrics for Stripe Churn | CSV Analyzer</title>
+  <meta name="description" content="Need MRR, churn and cohort retention from Stripe without connecting a subscription-analytics vendor to your billing account?">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/stripe-churn-cohort-analyzer/vs-chartmogul-baremetrics.html">
+  <meta property="og:title" content="Free alternative to ChartMogul and Baremetrics for Stripe churn">
+  <meta property="og:description" content="MRR waterfall, churn and cohorts from a Stripe CSV export, in your browser. An honest comparison with connected subscription-analytics products.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is there a free alternative to ChartMogul or Baremetrics for Stripe churn?","acceptedAnswer":{"@type":"Answer","text":"For a one-off or monthly look at MRR, churn and cohort retention, yes: export your subscriptions from the Stripe Dashboard as CSV and analyze the file in your browser or with the command-line version. Nothing is uploaded and no account or API key is needed. It reads start and cancel dates and amounts, so it cannot see upgrades, discounts, refunds or failed payments the way a connected product that reads your full billing history can."}},{"@type":"Question","name":"What do connected analytics tools do that a CSV analysis cannot?","acceptedAnswer":{"@type":"Answer","text":"Products that connect to your billing account can read invoice and event history, so they can report expansion and contraction MRR, discounts, refunds, trials and failed-payment recovery, keep the dashboard current without a monthly export, and join billing data with other sources. A subscriptions export carries only the dates and amounts on each subscription, so this tool holds each subscription's MRR constant and shows new and churned MRR only."}},{"@type":"Question","name":"Can I run it automatically every month?","acceptedAnswer":{"@type":"Answer","text":"Yes. The command-line version reads a CSV from a file or stdin and can exit with status 1 when monthly logo churn passes a threshold you choose, so a cron job or CI step can flag a spike. You still need to export the CSV from Stripe; it does not connect to your account."}},{"@type":"Question","name":"Are these tools affiliated with this one?","acceptedAnswer":{"@type":"Answer","text":"No. This project is not affiliated with, endorsed by or sponsored by ChartMogul, Baremetrics, Paddle or Stripe. Their names are used only to describe what each kind of tool does."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfbfa; --fg:#1a1a19; --muted:#5c5c58; --card:#fff; --border:#e2e2dd; --accent:#1f5b78; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#ececeb; --muted:#a3a39e; --card:#202124; --border:#34353a; --accent:#7cc4e4; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .wrap { max-width:62rem; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    h1 { font-size:1.8rem; line-height:1.2; margin:0 0 .5rem; max-width:28ch; }
+    h2 { font-size:1.15rem; margin:0 0 .6rem; }
+    p.lede { color:var(--muted); max-width:44rem; font-size:1.05rem; }
+    a { color:var(--accent); overflow-wrap:anywhere; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.15rem; margin-top:1.25rem; }
+    .scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.93rem; }
+    th,td { text-align:left; padding:.55rem .6rem; border-bottom:1px solid var(--border); vertical-align:top; }
+    thead th { font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+    pre { overflow-x:auto; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:.8rem; font-size:.88rem; }
+    .fine { font-size:.87rem; color:var(--muted); }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/stripe-churn-cohort-analyzer/vs-chartmogul-baremetrics.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/stripe-churn-cohort-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Free alternative to ChartMogul and Baremetrics for Stripe churn — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../stripe-churn-cohort-analyzer/">Stripe Churn and Cohort Analyzer — free, private, CSV in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Free alternative to ChartMogul and Baremetrics for Stripe churn</span></span></nav>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Stripe Churn and Cohort Analyzer</a></p>
+  <h1>This analyzer vs. ChartMogul and Baremetrics for Stripe churn</h1>
+  <p class="lede">Connected subscription-analytics products read your billing account and keep a dashboard current. If all you need is MRR, churn and cohort retention from the subscriptions you have, a Stripe CSV export and a local analysis answers it for free, with no account and no read access handed to anyone. Here is where each approach fits.</p>
+
+  <section>
+    <h2>Side by side</h2>
+    <div class="scroll"><div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>Connected analytics product</th><th>This CSV analyzer</th></tr></thead>
+      <tbody>
+        <tr><td>Setup</td><td>Connect your Stripe account (read access to billing data) and wait for the import</td><td>Export a CSV from the Stripe Dashboard, drop it in the page or run <code>node cli.mjs</code></td></tr>
+        <tr><td>Where your data goes</td><td>To the vendor, under its terms and security practices</td><td>Nowhere. Read in your browser tab or local process; the page makes no network requests with your file</td></tr>
+        <tr><td>Cost</td><td>Check each vendor's current pricing page</td><td>Free, MIT licensed</td></tr>
+        <tr><td>MRR, new and churned MRR, logo and revenue churn</td><td>Yes</td><td>Yes, from start and cancel dates and amounts</td></tr>
+        <tr><td>Cohort retention by start month</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Expansion and contraction MRR (upgrades, downgrades)</td><td>Yes, from invoice and event history</td><td><strong>No.</strong> Each subscription's MRR is held constant</td></tr>
+        <tr><td>Discounts, refunds, trials, failed-payment recovery</td><td>Typically yes</td><td><strong>No.</strong> A subscription export does not carry them</td></tr>
+        <tr><td>Always-current dashboard, alerts, team access</td><td>Yes</td><td>No. You re-export when you want a fresh reading</td></tr>
+        <tr><td>Price-rise what-if with break-even cancellation share</td><td>Varies by product</td><td>Yes, built in, labelled as assumptions rather than a forecast</td></tr>
+        <tr><td>Scriptable alert when churn passes a limit</td><td>Varies by product</td><td>Yes: <code>--max-churn</code> exits 1 in a cron or CI job</td></tr>
+      </tbody>
+    </table></div></div>
+    <p class="fine">The right-hand column describes this tool exactly. The middle column describes the general category from the vendors' public descriptions; check a product's own documentation for what it supports today.</p>
+  </section>
+
+  <section>
+    <h2>When a CSV is enough, and when it is not</h2>
+    <p><strong>A CSV is enough</strong> when you are an early-stage founder checking whether churn is concentrated in the first months, comparing plans, sizing a price rise, or preparing a board or investor note once a month and you would rather not give a third party billing access to do it.</p>
+    <p><strong>Use a connected product</strong> when expansion revenue is a large part of your story (seat-based or usage-based pricing), when discounts and refunds distort your real revenue, when several people need a live dashboard, or when you want failed-payment recovery and alerts without lifting a finger. Those need history a subscriptions export does not contain.</p>
+  </section>
+
+  <section>
+    <h2>Do it in three steps</h2>
+    <ol>
+      <li>In the Stripe Dashboard open Billing &rarr; Subscriptions and export as CSV.</li>
+      <li>Drop the file into the <a href="./">analyzer</a>, or run it from a terminal:
+<pre>node cli.mjs subscriptions.csv --cohorts
+node cli.mjs subscriptions.csv --max-churn 5   # exit 1 if monthly logo churn &gt; 5%</pre></li>
+      <li>Read the findings first (early-life churn, rising churn, concentration, plan gaps), then the cohort table.</li>
+    </ol>
+    <p class="fine">Export labels in the Stripe Dashboard change over time. The analyzer recognises the common header names and lists any row it cannot read with a line number and reason.</p>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Is there a free alternative to ChartMogul or Baremetrics for Stripe churn?</h3>
+    <p>For a one-off or monthly look at MRR, churn and cohort retention, yes: export your subscriptions from the Stripe Dashboard as CSV and analyze the file in your browser or with the command-line version. Nothing is uploaded and no account or API key is needed. It reads start and cancel dates and amounts, so it cannot see upgrades, discounts, refunds or failed payments the way a connected product that reads your full billing history can.</p>
+    <h3>What do connected analytics tools do that a CSV analysis cannot?</h3>
+    <p>Products that connect to your billing account can read invoice and event history, so they can report expansion and contraction MRR, discounts, refunds, trials and failed-payment recovery, keep the dashboard current without a monthly export, and join billing data with other sources. A subscriptions export carries only the dates and amounts on each subscription, so this tool holds each subscription's MRR constant and shows new and churned MRR only.</p>
+    <h3>Can I run it automatically every month?</h3>
+    <p>Yes. The command-line version reads a CSV from a file or stdin and can exit with status 1 when monthly logo churn passes a threshold you choose, so a cron job or CI step can flag a spike. You still need to export the CSV from Stripe; it does not connect to your account.</p>
+    <h3>Are these tools affiliated with this one?</h3>
+    <p>No. This project is not affiliated with, endorsed by or sponsored by ChartMogul, Baremetrics, Paddle or Stripe. Their names are used only to describe what each kind of tool does.</p>
+  </section>
+
+  <p class="fine">Free, open source (MIT). Estimates from the dates and amounts in your file; not legal, tax, or financial advice. No warranty. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor</a>.</p>
+</div>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../van-westendorp-pricing-analyzer/" data-pf-to="van-westendorp-pricing-analyzer">Van Westendorp Pricing Analyzer — free, private, in your browser</a></li>
+      <li><a href="../vendor-rate-break-even/" data-pf-to="vendor-rate-break-even">Vendor Rate Break-Even Calculator</a></li>
+      <li><a href="../veterinarian-associate-pay-calculator/" data-pf-to="veterinarian-associate-pay-calculator">Veterinarian Associate Pay Calculator — free, private, in your browser</a></li>
+      <li><a href="../w2-efw2-file-validator/" data-pf-to="w2-efw2-file-validator">W-2 EFW2 File Validator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=stripe-churn-cohort-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="stripe-churn-cohort-analyzer"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NIIT Calculator: 3.8% Net Investment Income Tax and How to Cut It — Free</title>
+  <meta name="description" content="Free net investment income tax (NIIT) calculator: your Form 8960 lines, how far you are over the $200,000 / $250,000 threshold…">
+  <meta property="og:title" content="NIIT calculator">
+  <meta property="og:description" content="Do you owe the 3.8% net investment income tax, and what moves it? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/niit-calculator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NIIT Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Net investment income tax (3.8% surtax, Form 8960) calculator with threshold headroom, what-if for extra gains, two-year gain splitting and MAGI levers. Runs in your browser.", "featureList": "Form 8960 lines, headroom, extra-gain what-if, split-gain comparison, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the net investment income tax (NIIT)?", "acceptedAnswer": {"@type": "Answer", "text": "A 3.8% federal surtax on the lesser of your net investment income or the amount your modified adjusted gross income exceeds a threshold: $200,000 for single and head of household, $250,000 for married filing jointly, $125,000 for married filing separately. It is reported on Form 8960 and added to your Form 1040 tax."}}, {"@type": "Question", "name": "Is the $200,000 threshold indexed for inflation?", "acceptedAnswer": {"@type": "Answer", "text": "No. The thresholds are written into the statute and have never been adjusted, so each year more households cross them as wages and asset prices rise."}}, {"@type": "Question", "name": "What counts as net investment income?", "acceptedAnswer": {"@type": "Answer", "text": "Interest, dividends, capital gains, passive rental and royalty income, annuity income and income from passive businesses or trading in financial instruments, less deductions properly allocable to them. Wages, active business income, Social Security, tax-exempt interest and qualified retirement plan distributions are not NII."}}, {"@type": "Question", "name": "Do retirement withdrawals and Roth conversions trigger it?", "acceptedAnswer": {"@type": "Answer", "text": "The withdrawal or conversion itself is not net investment income, but it raises your MAGI. That can push you over the threshold so that your existing investment income becomes taxable at 3.8%. Enter it in the wages box to see the effect."}}, {"@type": "Question", "name": "How can I reduce the NIIT?", "acceptedAnswer": {"@type": "Answer", "text": "You can lower MAGI (pre-tax retirement or HSA contributions, qualified charitable distributions), spread a large gain over two tax years, harvest losses, or hold income in tax-exempt bonds or retirement accounts. The splitting and lever sections of the result put numbers on these for your figures."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. Figures such as the gain on a home sale exclusion, passive-activity status, and estimated-tax safe harbors need a professional. Verify with Form 8960 instructions and IRS Topic 559."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"NIIT calculator","item":"https://duncan-haywood.github.io/monorepo-projects/niit-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/niit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/niit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NIIT calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">NIIT calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">NIIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will the 3.8% investment surtax hit you, and what moves it?</h1>
+    <p>Type your income and investment income. The tool fills in Form 8960, shows how far your MAGI is over the threshold, prices an extra gain, compares realizing it in one year against two, and shows what a $10,000 cut in MAGI is worth.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not your return; the thresholds are statutory and not inflation-indexed.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Income that is not investment income</h2>
+      <div class="grid">
+        <div><label for="wages">Wages and other non-investment income ($)</label><input id="wages" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="businessIncome">Active business income ($)</label><input id="businessIncome" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="otherMagiAdjust">Other MAGI changes ($, negative for deductions)</label><input id="otherMagiAdjust" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Investment income</h2>
+      <div class="grid">
+        <div><label for="interest">Taxable interest ($)</label><input id="interest" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="dividends">Ordinary dividends ($)</label><input id="dividends" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="shortTermGains">Short-term gains ($)</label><input id="shortTermGains" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="longTermGains">Long-term gains ($)</label><input id="longTermGains" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="rentalIncome">Passive rental and royalty income ($)</label><input id="rentalIncome" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="annuityIncome">Annuity income ($)</label><input id="annuityIncome" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="otherNii">Other net investment income ($)</label><input id="otherNii" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="investmentExpenses">Allocable investment expenses ($)</label><input id="investmentExpenses" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Filing status and what-if</h2>
+      <div class="grid">
+        <div><label for="filingStatus">Filing status</label><select id="filingStatus"><option value="single">Single</option><option value="hoh">Head of household</option><option value="mfj">Married filing jointly</option><option value="qss">Qualifying surviving spouse</option><option value="mfs">Married filing separately</option></select></div>
+        <div><label for="threshold">MAGI threshold ($)</label><input id="threshold" type="number" step="any" value="0" inputmode="decimal"></div>
+        <div><label for="extraGain">What if I realize an extra gain of ($)</label><input id="extraGain" type="number" step="any" value="0" inputmode="decimal"></div>
+      </div>
+      <button type="button" id="run">Work out my NIIT</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the net investment income tax (NIIT)?</h3>
+      <p>A 3.8% federal surtax on the lesser of your net investment income or the amount your modified adjusted gross income exceeds a threshold: $200,000 for single and head of household, $250,000 for married filing jointly, $125,000 for married filing separately. It is reported on Form 8960 and added to your Form 1040 tax.</p>
+      <h3>Is the $200,000 threshold indexed for inflation?</h3>
+      <p>No. The thresholds are written into the statute and have never been adjusted, so each year more households cross them as wages and asset prices rise.</p>
+      <h3>What counts as net investment income?</h3>
+      <p>Interest, dividends, capital gains, passive rental and royalty income, annuity income and income from passive businesses or trading in financial instruments, less deductions properly allocable to them. Wages, active business income, Social Security, tax-exempt interest and qualified retirement plan distributions are not NII.</p>
+      <h3>Do retirement withdrawals and Roth conversions trigger it?</h3>
+      <p>The withdrawal or conversion itself is not net investment income, but it raises your MAGI. That can push you over the threshold so that your existing investment income becomes taxable at 3.8%. Enter it in the wages box to see the effect.</p>
+      <h3>How can I reduce the NIIT?</h3>
+      <p>You can lower MAGI (pre-tax retirement or HSA contributions, qualified charitable distributions), spread a large gain over two tax years, harvest losses, or hold income in tax-exempt bonds or retirement accounts. The splitting and lever sections of the result put numbers on these for your figures.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type. Figures such as the gain on a home sale exclusion, passive-activity status, and estimated-tax safe harbors need a professional. Verify with Form 8960 instructions and IRS Topic 559.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your rental or business income is passive, the home-sale exclusion, trader status, estates and trusts (different thresholds), state taxes, the interaction with the additional 0.9% Medicare tax on wages, estimated-tax safe harbors, and whether a given strategy is right for your whole return. Rates and thresholds can change by law.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a>, the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> and the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the IRS Form 8960 instructions and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, THRESHOLDS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { if (k === "filingStatus") { o[k] = $(k).value; continue; } o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    $("filingStatus").addEventListener("change", () => { $("threshold").value = THRESHOLDS[$("filingStatus").value]; });
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      if (r.tax === 0) h += `<div class="finding"><h4>No net investment income tax on these figures</h4><p>${a.belowThreshold ? `MAGI of ${money(r.magi)} is ${money(a.headroom)} under the ${money(a.opts.threshold)} threshold: that much more income, of any kind, can be added before the tax starts.` : "Your net investment income is zero, so there is nothing to tax."}</p></div>`;
+      else h += `<div class="finding"><h4>NIIT of ${money(r.tax)}</h4><p>3.8% of ${money(r.base)}, the smaller of net investment income (${money(r.nii)}) and MAGI over the threshold (${money(r.over)}). ${r.limitedBy === "magi" ? "The excess over the threshold is the limit, so lowering MAGI by up to " + money(r.over) + " would remove the tax." : "Your investment income is the limit, so lowering MAGI will not help unless it drops below the threshold; only less investment income will."}</p></div>`;
+      h += `<div class="finding"><h4>Levers</h4><p>A $10,000 cut in MAGI (a pre-tax retirement or HSA contribution, a qualified charitable distribution) changes the tax by ${money(a.tenKMagiLever)}. $10,000 less gain (a harvested loss) changes it by ${money(a.tenKGainLever)}.</p></div>`;
+      h += `<div class="finding"><h4>What an extra ${money(a.opts.extraGain)} of gain costs</h4>${table(["Extra gain", "Added NIIT", "Rate on the extra"], a.grid.map((g) => [money(g.extra), money(g.added), pct(g.effective)]))}<p>Taking ${money(a.opts.extraGain)} in one year adds ${money(a.oneYear)}; half in each of two years like this one adds ${money(a.twoYears)}${a.splitSaves > 0 ? ", saving " + money(a.splitSaves) + " of NIIT" : ""}. Income tax rates and your own plans may point the other way.</p></div>`;
+      h += `<div class="finding"><h4>Form 8960, filled in</h4>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "niit-form-8960.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../pawn-loan-profit-calculator/" data-pf-to="pawn-loan-profit-calculator">Pawn loan profit calculator for pawnbrokers</a></li>
+      <li><a href="../pay-application-generator/" data-pf-to="pay-application-generator">Progress billing and retainage, worked out line by line — free, private</a></li>
+      <li><a href="../pet-boarding-daycare-profit-calculator/" data-pf-to="pet-boarding-daycare-profit-calculator">Dog boarding and daycare calculator: what occupancy do you need to break even? Free, private</a></li>
+      <li><a href="../pet-sitting-platform-fee-calculator/" data-pf-to="pet-sitting-platform-fee-calculator">Pet sitting platform fee calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=niit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/niit-calculator/?pfEmbed=1&quot; title=&quot;NIIT calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="niit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/niit-calculator/" data-pf-embed-title="NIIT calculator" data-pf-embed-slug="niit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="niit-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="niit-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

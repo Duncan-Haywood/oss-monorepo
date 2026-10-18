@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fix ITMS-91061 "Missing privacy manifest" and ITMS-91055 "Invalid API reason declaration"</title>
+<meta name="description" content="What ITMS-91061 and ITMS-91055 mean, the five Required Reason API categories that cause them, and how to find and fix the missing or invalid…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix ITMS-91061 (Missing privacy manifest) and ITMS-91055 (Invalid API reason declaration)",
+  "step": [
+    { "@type": "HowToStep", "name": "Find which Required Reason API your code or an SDK uses", "text": "Search your source (and check your SDKs' own privacy manifests) for the file timestamp, disk space, system boot time, active keyboard, or UserDefaults APIs Apple lists as Required Reason APIs." },
+    { "@type": "HowToStep", "name": "Add or fix the PrivacyInfo.xcprivacy entry", "text": "For each category your code actually uses, add an NSPrivacyAccessedAPITypes entry naming the category and a reason code Apple has published for it -- ITMS-91055 means a declared code isn't one of the published ones for that category." },
+    { "@type": "HowToStep", "name": "Re-check before resubmitting", "text": "Re-scan your source and manifest to confirm every detected category is declared with a recognised code before you upload the build again." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Fix ITMS-91061 &quot;Missing privacy manifest&quot; and ITMS-91055 &quot;Invalid API reason declaration&quot;">
+<meta property="og:description" content="What ITMS-91061 and ITMS-91055 mean, the five Required Reason API categories that cause them, and how to find and fix the missing or invalid…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fix ITMS-91061 &quot;Missing privacy manifest&quot; and ITMS-91055 &quot;Invalid API reason declaration&quot; — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Fix ITMS-91061 &quot;Missing privacy manifest&quot; and ITMS-91055 &quot;Invalid API reason declaration&quot;</span></span></nav>
+<h1>Fixing ITMS-91061 and ITMS-91055</h1>
+
+<h2>ITMS-91061: "Missing privacy manifest"</h2>
+<p>
+  App Store Connect returns this when your app -- or an SDK it embeds --
+  calls one of Apple's five <strong>Required Reason API</strong> categories
+  and no <code>PrivacyInfo.xcprivacy</code> file in the app bundle declares
+  an approved reason for it. It doesn't matter whether the call is deliberate
+  or came in through a dependency; Apple checks the compiled binary's symbol
+  table, not your intent.
+</p>
+
+<h2>ITMS-91055: "Invalid API reason declaration"</h2>
+<p>
+  You have a manifest, but one of its declared reason codes isn't on Apple's
+  published list <em>for that category</em>. The most common cause is
+  copy-pasting an entry from one category's example while changing only the
+  <code>NSPrivacyAccessedAPIType</code> string -- the reason codes are not
+  interchangeable between categories.
+</p>
+
+<h2>The five Required Reason API categories</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Category</th><th>Typical trigger</th></tr></thead>
+<tbody>
+<tr><td>File timestamp</td><td><code>creationDate</code>, <code>modificationDate</code>, <code>stat()</code>/<code>fstat()</code>/<code>lstat()</code>, <code>getattrlist()</code></td></tr>
+<tr><td>System boot time</td><td><code>ProcessInfo.processInfo.systemUptime</code>, <code>mach_absolute_time()</code></td></tr>
+<tr><td>Disk space</td><td><code>volumeAvailableCapacityKey</code>, <code>systemFreeSize</code>, <code>statfs()</code></td></tr>
+<tr><td>Active keyboard</td><td><code>UITextInputMode.activeInputModes</code></td></tr>
+<tr><td>User defaults</td><td><code>UserDefaults</code>, <code>NSUserDefaults</code>, SwiftUI's <code>@AppStorage</code></td></tr>
+</tbody>
+</table></div>
+
+<h2>Find the exact file and line</h2>
+<p>
+  <a href="index.html">The checker on this site</a> scans your source for
+  these symbols, reads your manifest, and tells you exactly which category is
+  used-but-undeclared or declared-with-an-invalid-code, with the file and
+  line for every match. It runs as a browser tool (nothing uploaded) or a
+  Node CLI you can add to your own pre-submission check.
+</p>
+
+<p>
+  This is evidence of what the code and the manifest say, not a determination
+  that App Review will pass -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it can and
+  can't see, and verify against
+  <a href="https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api" rel="noopener">Apple's current documentation</a>
+  before you resubmit.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Apple's own review process. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Apple Inc. Apple, Xcode, App Store, and
+  PrivacyInfo.xcprivacy are trademarks of Apple Inc., named here only to describe the error codes and file
+  this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../docker-base-image-eol-check/" data-pf-to="docker-base-image-eol-check">Is your Dockerfile's base image still supported?</a></li>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ios-privacy-manifest-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ios-privacy-manifest-check"></script>
+</body>
+</html>

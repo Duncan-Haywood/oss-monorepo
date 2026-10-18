@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Are Upwork Connects Worth? Cost Per Hire and Break-Even Win Rate</title>
+  <meta name="description" content="How to work out what a freelance hire costs in Connects and writing time, the win rate you need to break even, and why your time is usually the bigger cost…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/what-are-upwork-connects-worth.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are Upwork Connects worth the money?", "acceptedAnswer": {"@type": "Answer", "text": "On the default numbers, yes by a wide margin: 40 proposals cost $72.00 in Connects and a 5 percent win rate pays $2,700.00 across two hires. The Connects are the small cost. Your writing time, $500.00 in the same month, is the large one."}}, {"@type": "Question", "name": "What is a good win rate on Upwork?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal number, and the calculator does not claim one. Count your own hires divided by proposals over several months, then compare it with the break-even rate the tool computes, 1.1 percent on the worked numbers."}}, {"@type": "Question", "name": "How many Connects should one proposal cost?", "acceptedAnswer": {"@type": "Answer", "text": "At a 5 percent win rate, $1,350.00 net per hire and 15 minutes of writing, a proposal stops paying above about 366 Connects. In practice the ceiling matters less than whether an extra boost raises your win rate by more than it costs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/what-are-upwork-connects-worth.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="What Are Upwork Connects Worth? Cost Per Hire and Break-Even Win Rate">
+<meta property="og:description" content="How to work out what a freelance hire costs in Connects and writing time, the win rate you need to break even, and why your time is usually the bigger cost…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Are Upwork Connects Worth? Cost Per Hire and Break-Even Win Rate — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../upwork-connects-roi-calculator/">Are your Upwork Connects paying for themselves?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Are Upwork Connects Worth? Cost Per Hire and Break-Even Win Rate</span></span></nav>
+  <p class="note"><a href="./">Upwork Connects ROI Calculator</a> · guide</p>
+  <h1>What are Upwork Connects worth, and how to tell if a proposal pays</h1>
+  <p>Short answer: <strong>Connects are the cheap part of winning freelance work; your time is the expensive part.</strong> The <a href="./">calculator</a> prices both for your own numbers.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not financial or business advice. Connects prices, fees and rules are the platform's and change; check your own account. No warranty.</p>
+
+  <h2>A worked month</h2>
+  <p>You send 40 proposals. Each uses 12 Connects at $0.15 and 15 minutes of writing that you value at $50 an hour. 5 percent of proposals become hires, each a $1,500.00 contract with a 10 percent service fee.</p>
+  <ul>
+    <li>Connects cost $1.80 a proposal, so <strong>$72.00</strong> a month.</li>
+    <li>Writing time costs $12.50 a proposal, so <strong>$500.00</strong> a month.</li>
+    <li>Cost per proposal is <strong>$14.30</strong>, cost per hire <strong>$286.00</strong>, and 2 hires net $1,350.00 each after the fee.</li>
+    <li>The month nets <strong>$2,128.00</strong>. You break even at a <strong>1.1%</strong> win rate; counting Connects alone, <strong>0.1%</strong>.</li>
+    <li>At that win rate a proposal stops paying above about <strong>366</strong> Connects.</li>
+  </ul>
+
+  <h2>Where the money actually leaks</h2>
+  <p>Halve the Connects per proposal and the month improves by about $36.00. Halve the win rate and it falls by $1,350.00. The levers that matter are win rate and the minutes behind each proposal. Fewer, better-matched proposals usually beat more of them, but only your own history can say which side of that you are on. Try a 1 percent win rate, 30 minutes a proposal and $60 an hour in the <a href="./">calculator</a>: the same Connects spend now loses money.</p>
+
+  <h2>How to measure your win rate</h2>
+  <ul>
+    <li>Count proposals sent and hires over three or more months. Hires divided by proposals is the number to type in.</li>
+    <li>Use the median contract you actually win, not the best one.</li>
+    <li>If clients come back, raise the repeat multiplier, but only to what has really happened to you.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>Are Upwork Connects worth the money?</h3>
+  <p>On the default numbers, yes by a wide margin: 40 proposals cost $72.00 in Connects and a 5 percent win rate pays $2,700.00 across two hires. The Connects are the small cost. Your writing time, $500.00 in the same month, is the large one.</p>
+<h3>What is a good win rate on Upwork?</h3>
+  <p>There is no universal number, and the calculator does not claim one. Count your own hires divided by proposals over several months, then compare it with the break-even rate the tool computes, 1.1 percent on the worked numbers.</p>
+<h3>How many Connects should one proposal cost?</h3>
+  <p>At a 5 percent win rate, $1,350.00 net per hire and 15 minutes of writing, a proposal stops paying above about 366 Connects. In practice the ceiling matters less than whether an extra boost raises your win rate by more than it costs.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not financial, tax, legal or business advice. Not affiliated with, endorsed by or sponsored by Upwork or any other platform. You are responsible for verifying anything before relying on it.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../shopify-inventory-csv-check/" data-pf-to="shopify-inventory-csv-check">Shopify Inventory CSV Check — free, private, in your browser</a></li>
+      <li><a href="../shopify-inventory-reorder-planner/" data-pf-to="shopify-inventory-reorder-planner">Inventory Reorder Planner — free, private, CSV in your browser</a></li>
+      <li><a href="../shopify-payments-fee-analyzer/" data-pf-to="shopify-payments-fee-analyzer">Shopify Payments Fee Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../shopify-payout-profit-analyzer/" data-pf-to="shopify-payout-profit-analyzer">Shopify Payout Profit Analyzer — free, private, CSVs in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=upwork-connects-roi-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="upwork-connects-roi-calculator"></script>
+</body>
+</html>

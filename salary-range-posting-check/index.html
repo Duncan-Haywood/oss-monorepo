@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Salary Range Posting Check — Does Your Job Ad Have One?</title>
+  <meta name="description" content="Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range…">
+  <meta property="og:title" content="Does your job posting state a pay range?">
+  <meta property="og:description" content="A free, deterministic scan of job-posting text against a fixed table of which US states currently require a posted pay range, with the law, effective date…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Salary Range Posting Check","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans pasted job-posting text for a stated dollar range, and cross-references a chosen set of US states against a fixed table of which ones currently require a posted pay range, citing the law, effective date, and size threshold. Reference lookup and text scan only, not a compliance determination. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which US states currently require a pay range in the job posting itself?","acceptedAnswer":{"@type":"Answer","text":"As of this tool's last check (September 2026): Colorado, California, Washington, New York, Hawaii, Illinois, Maryland, Minnesota, New Jersey, Vermont, the District of Columbia, Massachusetts, Virginia, and Maine. Each has its own effective date and employer-size threshold, shown in the table below. Several other states and cities require disclosure at a different point in the process (upon request, before an interview, after an offer) rather than in the ad — this tool does not cover those."}},{"@type":"Question","name":"How does this tool decide whether my posting text has a range?","acceptedAnswer":{"@type":"Answer","text":"It is a literal text scan: it looks for two dollar figures close together, joined by a dash, en dash, or the word \"to\" or \"through\" (like \"$60,000 - $80,000\" or \"$28.50 to $34.00 per hour\"). It does not understand whether the number is a good-faith range, a wage versus a bonus figure, or whether your specific posting is otherwise compliant — it only reports what the wording contains."}},{"@type":"Question","name":"Is this legal advice, or a guarantee my posting is compliant?","acceptedAnswer":{"@type":"Answer","text":"No. This is a text-pattern scan plus a reference lookup against a fixed table of state posting-range laws, current as of the date shown. It does not know your employer's size, whether the role is exempt, or your specific state's current statute text, and it does not cover city or county ordinances layered on top of state law. Verify against your state's labor agency or an employment attorney before relying on this."}},{"@type":"Question","name":"Is anything I type uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The posting text you paste and the states you pick are scanned and looked up entirely in your browser from a fixed table shipped with the page. Nothing is sent anywhere. The CLI makes no network call either. The \"Copy shareable link\" button carries only your selected states into the link — never the posting text."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .field-row > div { flex: 1 1 260px; }
+    textarea, select, input[type=text] { box-sizing: border-box; width: 100%; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; }
+    textarea { min-height: 140px; resize: vertical; }
+    select[multiple] { min-height: 160px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .pill.range { background: #e6f4ea; color: #14532d; }
+    .pill.single-figure { background: #fdf3d8; color: #7a5a00; }
+    .pill.none { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Does your job posting state a pay range?","item":"https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does your job posting state a pay range? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does your job posting state a pay range?</span></span></nav>
+  <header>
+    <p class="note">SALARY RANGE POSTING CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your job posting state a pay range?</h1>
+    <p>Paste the posting text and pick the state(s) it could be filled from. Get an instant read on whether the wording states a <strong>dollar range</strong>, and which of those states currently require one by law — with the law, effective date, and size threshold cited.</p>
+    <p class="note">Nothing you paste is uploaded — this scans your text and looks up a fixed reference table entirely in this browser. <strong>Not legal advice.</strong> See the disclaimer below before you rely on this.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Scan a posting against selected states</h2>
+    <div class="field-row">
+      <div>
+        <label for="posting-text">Posting text</label>
+        <textarea id="posting-text" placeholder="Paste the job posting text here..."></textarea>
+      </div>
+      <div>
+        <label for="posting-states">State(s) it could be filled from</label>
+        <select id="posting-states" multiple></select>
+        <p class="note">Ctrl/Cmd-click to select more than one — useful for a remote posting open to several states.</p>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-posting">Scan posting</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (no range, Colorado)</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link (states only)</button>
+    </p>
+    <p id="copy-link-status" class="note" aria-live="polite"></p>
+    <div id="check-report" hidden aria-live="polite">
+      <p id="check-summary"></p>
+      <p id="check-detail" class="note"></p>
+      <div class="pf-table-scroll"><table>
+        <tbody id="check-rows"></tbody>
+      </table></div>
+      <p id="check-caveat" class="note"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in a script?</h2>
+    <p>Same table and scan, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs scan "$60,000 - $80,000 per year" --states CO,NY
+node cli.mjs scan --file posting.txt --states California,Texas --json
+node cli.mjs states</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install, no network call ever. <code>scan</code> exits 1 when a selected state requires a range and none was detected, so it doubles as a one-line reminder in a posting-review checklist or CI step for an ATS template.</p>
+  </section>
+
+  <section class="card">
+    <h2>All 14 jurisdictions with a posting-range law, and the other 37 + DC without one</h2>
+    <p class="note">Covers only the requirement to state a range IN the posting itself — not a different-point-in-process rule (Connecticut, Nevada, Rhode Island, and others), and not city/county ordinances layered on top. Full scope and caveats: <a href="why-pay-range-laws-differ-by-state.html">why this varies by state</a>.</p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>State</th><th>Requires range?</th><th>Law</th><th>Effective</th><th>Threshold</th></tr></thead>
+      <tbody id="states-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which US states currently require a pay range in the job posting itself?</h3>
+    <p>As of this tool's last check (September 2026): Colorado, California, Washington, New York, Hawaii, Illinois, Maryland, Minnesota, New Jersey, Vermont, the District of Columbia, Massachusetts, Virginia, and Maine. Each has its own effective date and employer-size threshold, shown in the table below. Several other states and cities require disclosure at a different point in the process (upon request, before an interview, after an offer) rather than in the ad — this tool does not cover those.</p>
+    <h3>How does this tool decide whether my posting text has a range?</h3>
+    <p>It is a literal text scan: it looks for two dollar figures close together, joined by a dash, en dash, or the word "to" or "through" (like "$60,000 - $80,000" or "$28.50 to $34.00 per hour"). It does not understand whether the number is a good-faith range, a wage versus a bonus figure, or whether your specific posting is otherwise compliant — it only reports what the wording contains.</p>
+    <h3>Is this legal advice, or a guarantee my posting is compliant?</h3>
+    <p>No. This is a text-pattern scan plus a reference lookup against a fixed table of state posting-range laws, current as of the date shown. It does not know your employer's size, whether the role is exempt, or your specific state's current statute text, and it does not cover city or county ordinances layered on top of state law. Verify against your state's labor agency or an employment attorney before relying on this.</p>
+    <h3>Is anything I type uploaded anywhere?</h3>
+    <p>No. The posting text you paste and the states you pick are scanned and looked up entirely in your browser from a fixed table shipped with the page. Nothing is sent anywhere. The CLI makes no network call either. The "Copy shareable link" button carries only your selected states into the link — never the posting text.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified employment attorney. It reports a literal text-pattern scan of the words you pasted and a fixed table's state-level posting-range classification — nothing more — and it does not know your employer's size, industry-specific exemptions, or whether a city/county ordinance also applies. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking your state's current guidance. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>posting_scanned</code>, <code>example_loaded</code>, <code>link_shared</code>, <code>link_loaded</code>) are counted only in local storage and can be deleted with the button below. The "Copy shareable link" button puts only your selected states into the link itself — the posting text never leaves this page. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../call-recording-consent-check/">Call Recording Consent Check</a> covers a different US-state-law reference problem (recording a phone call, not posting a job) in the same style. If you're comparing this to just checking each state's law by hand, see <a href="vs-checking-each-states-law-by-hand.html">how this compares to a manual lookup</a>.</p>
+    <p>Employing people in the EU? <a href="../eu-pay-gap-report-calculator/">EU Pay Gap Report Calculator</a> computes the pay transparency reporting indicators the Directive requires, from a payroll table you paste.</p>
+    <p class="support">Free and open source. If this saved you a compliance headache, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { listStates, getRule, checkPosting } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    const states = listStates();
+    const select = $("#posting-states");
+    select.innerHTML = states.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+
+    function setSelectedStates(list) {
+      const wanted = new Set(list);
+      for (const opt of select.options) opt.selected = wanted.has(opt.value);
+    }
+    function selectedStates() {
+      return [...select.selectedOptions].map((o) => o.value);
+    }
+    setSelectedStates(["Colorado"]);
+
+    // A shared link wins over the default just set above.
+    function applyShared(values) {
+      setSelectedStates(String(values.states || "").split(",").map((s) => s.trim()).filter(Boolean));
+    }
+    const sharedInputs = decodeInputs(location.hash);
+    const openedFromLink = Object.keys(sharedInputs).length > 0;
+    if (openedFromLink) applyShared(formValues(sharedInputs));
+
+    $("#states-rows").innerHTML = states.map((name) => {
+      const rule = getRule(name);
+      if (rule.type === "range-required") {
+        return `<tr><td>${escapeHtml(name)}</td><td><span class="pill range">yes</span></td><td>${escapeHtml(rule.law)}</td><td>${escapeHtml(rule.effective)}</td><td>${escapeHtml(rule.threshold)}</td></tr>`;
+      }
+      return `<tr><td>${escapeHtml(name)}</td><td><span class="pill none">no</span></td><td>—</td><td>—</td><td>—</td></tr>`;
+    }).join("");
+
+    function renderCheck() {
+      const text = $("#posting-text").value;
+      const chosen = selectedStates();
+      const result = checkPosting(text, chosen);
+      const pillClass = result.scan.classification === "range" ? "range" : result.scan.classification === "single-figure" ? "single-figure" : "none";
+      const pillText = result.scan.classification.replace("-", " ").toUpperCase();
+      $("#check-summary").innerHTML = `<span class="pill ${pillClass}">${pillText}</span>`;
+      $("#check-detail").textContent = result.scan.detail;
+      const rows = [];
+      for (const r of result.covered) rows.push(`<tr><th>Covered</th><td>${escapeHtml(r.state)} requires a range (${escapeHtml(r.law)}, effective ${escapeHtml(r.effective)}) — this text appears to have one.</td></tr>`);
+      for (const r of result.missing) rows.push(`<tr><th class="error">Missing</th><td>${escapeHtml(r.state)} requires a range (${escapeHtml(r.law)}, effective ${escapeHtml(r.effective)}, threshold: ${escapeHtml(r.threshold)}) — none was detected in this text.</td></tr>`);
+      for (const r of result.notApplicable) rows.push(`<tr><th>No state law modeled</th><td>${escapeHtml(r.state)} has no state-level posting-range requirement in this table.</td></tr>`);
+      $("#check-rows").innerHTML = rows.join("") || "<tr><td colspan=2>Pick at least one state to see a per-state breakdown.</td></tr>";
+      $("#check-caveat").textContent = "Reference scan only, not a compliance determination for this posting. Not legal advice. Verify against current state guidance.";
+      $("#check-report").hidden = false;
+      record("posting_scanned");
+    }
+
+    $("#check-posting").addEventListener("click", renderCheck);
+
+    $("#load-example").addEventListener("click", () => {
+      $("#posting-text").value = "Join our fast-growing team as a Senior Engineer! Great benefits and a fun culture.";
+      setSelectedStates(["Colorado"]);
+      renderCheck();
+      record("example_loaded");
+    });
+
+    $("#copy-link").addEventListener("click", async () => {
+      const encoded = encodeInputs({ states: selectedStates().join(",") });
+      const url = `${location.origin}${location.pathname}${encoded ? `#${encoded}` : ""}`;
+      const status = $("#copy-link-status");
+      try {
+        await navigator.clipboard.writeText(url);
+        status.textContent = "Link copied — paste it to a teammate. It carries only your selected states, never the posting text.";
+      } catch {
+        status.textContent = `Copy this link: ${url}`;
+      }
+      record("link_shared");
+    });
+
+    // A recipient opening a shared link should see the same states pre-selected
+    // without picking them again themselves.
+    if (openedFromLink) {
+      record("link_loaded");
+    }
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../xero-bank-statement-csv-check/" data-pf-to="xero-bank-statement-csv-check">Xero Bank Statement CSV Check — free, private, in your browser</a></li>
+      <li><a href="../youtube-adsense-payout-to-journal/" data-pf-to="youtube-adsense-payout-to-journal">YouTube AdSense payments to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../youtube-chapters-check/" data-pf-to="youtube-chapters-check">YouTube Chapters Check — free, private, in your browser</a></li>
+      <li><a href="../zoho-crm-import-csv-check/" data-pf-to="zoho-crm-import-csv-check">Zoho CRM Import CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=salary-range-posting-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/?pfEmbed=1&quot; title=&quot;Does your job posting state a pay range? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="salary-range-posting-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/" data-pf-embed-title="Does your job posting state a pay range?" data-pf-embed-slug="salary-range-posting-check"></script>
+</body>
+</html>

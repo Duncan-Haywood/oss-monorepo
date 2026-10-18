@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Lead Tracker — Free Pipeline, Follow-Up Reminders and Income Forecast, No Signup</title>
+  <meta name="description" content="Free freelance lead tracker: a simple pipeline from new lead to won, who to follow up today, a weighted income forecast…">
+  <meta property="og:title" content="Freelance Lead Tracker — free pipeline and follow-up reminders, no signup">
+  <meta property="og:description" content="Never lose a lead to silence: follow-ups due today, quiet proposals, a weighted forecast and win rate by source. Free, private, no account.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Lead Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free freelance lead tracker that runs in your browser: a pipeline from new lead to won, follow-up reminders, a weighted income forecast, win rate by lead source and a hand-off into a proposal. No account; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this lead tracker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no limit on leads and no paywall on exporting. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"Why track freelance leads at all?","acceptedAnswer":{"@type":"Answer","text":"Most lost freelance work is not lost to a competitor, it is lost to silence: a proposal sent and never followed up. A pipeline shows who is waiting on you today, which proposals have gone quiet, and which lead sources actually turn into paid work."}},{"@type":"Question","name":"How is the forecast worked out?","acceptedAnswer":{"@type":"Answer","text":"Each open lead's value is multiplied by the chance of winning at its stage, then added up. Until you have eight closed leads the chances are starting guesses (10, 25, 40 and 70 percent). After that the tool uses your own win rates, and says which it is using."}},{"@type":"Question","name":"How often should I follow up on a proposal?","acceptedAnswer":{"@type":"Answer","text":"A common rhythm is a check-in two to three days after sending, again after a week, then a polite last note. The tracker marks a proposal as quiet after seven days with no contact and suggests a next date for you to confirm."}},{"@type":"Question","name":"How many leads do I need to hit a monthly income target?","acceptedAnswer":{"@type":"Answer","text":"Enter the amount you want to win and the tool divides it by your average won deal, then by your win rate, to give the number of wins and leads you need. With no history yet it uses a stated 25 percent win rate you can sanity-check."}},{"@type":"Question","name":"Where is my lead list stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes it, so use Download backup now and then. Nothing you type is uploaded."}},{"@type":"Question","name":"Can I move a lead into a proposal?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each lead has a Write the proposal link that opens Freelance Proposal Maker with the client name, contact and your notes filled in. The details travel in the page address fragment, which browsers never send to a server."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #doc { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #doc h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#doc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #doc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #doc-card .noprint { display: none !important; } #doc { border: 0; padding: 0; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Freelance Lead Tracker — free pipeline and follow-up reminders, no signup","item":"https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Freelance Lead Tracker — free pipeline and follow-up reminders, no signup — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Freelance Lead Tracker — free pipeline and follow-up reminders, no signup</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <h1>Freelance Lead Tracker: never lose a lead to silence</h1>
+    <p>Keep every prospect in one pipeline, see <strong>who to follow up with today</strong>, which proposals have gone quiet, what your open pipeline is <strong>likely to be worth</strong> and which lead sources actually pay. Free, private, no account.</p>
+  </header>
+
+  <section class="card" aria-label="Today">
+    <h2>Today</h2>
+    <ul class="issues" id="issues" aria-live="polite"></ul>
+    <div class="kpis" id="kpis" aria-live="polite"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="todo"></table></div></div>
+  </section>
+
+  <section class="card" aria-label="Add or edit a lead">
+    <h2 id="form-title">Add a lead</h2>
+    <div class="grid">
+      <div><label for="f-name">Client or company</label><input id="f-name" autocomplete="off"></div>
+      <div><label for="f-contact">Email, phone or link</label><input id="f-contact" autocomplete="off"></div>
+      <div><label for="f-source">Where they came from</label><select id="f-source"><option value="">Choose</option><option>Referral</option><option>Past client</option><option>Upwork or marketplace</option><option>LinkedIn</option><option>Cold outreach</option><option>Website or search</option><option>Social media</option><option>Event or community</option><option>Other</option></select></div>
+      <div><label for="f-value">Likely value</label><input id="f-value" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="f-stage">Stage</label><select id="f-stage"><option value="lead">New lead</option><option value="contacted">In conversation</option><option value="proposal">Proposal sent</option><option value="negotiating">Negotiating</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
+      <div><label for="f-nextDate">Next follow-up date</label><input id="f-nextDate" type="date"></div>
+    </div>
+    <label for="f-nextAction">Next action</label>
+    <input id="f-nextAction" placeholder="e.g. Ask if they have questions on option 2">
+    <label for="f-notes">Notes (what they need, in their words)</label>
+    <textarea id="f-notes" rows="2"></textarea>
+    <div id="lost-wrap" hidden><label for="f-lostReason">Why was it lost?</label><input id="f-lostReason" placeholder="e.g. Went with a cheaper quote"></div>
+    <p><button type="button" id="save">Save lead</button><button type="button" class="secondary" id="cancel" hidden>Cancel edit</button><button type="button" class="secondary" id="plus3">Set follow-up in 3 days</button></p>
+    <p class="note" id="form-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-label="Pipeline">
+    <h2>Pipeline</h2>
+    <div class="grid">
+      <div><label for="f-currency">Currency</label><select id="f-currency"><option>USD</option><option>CAD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>MXN</option><option>INR</option></select></div>
+      <div><label for="f-filter">Show</label><select id="f-filter"><option value="open">Open leads</option><option value="all">Everything</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
+    </div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="pipe"></table></div></div>
+    <p class="note" id="forecast-note"></p>
+  </section>
+
+  <section class="card" aria-label="What your history says">
+    <h2>What your history says</h2>
+    <div class="kpis" id="stats"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="sources"></table></div></div>
+    <ul id="lost"></ul>
+    <h3>How much pipeline do I need?</h3>
+    <div class="grid"><div><label for="f-target">Income you want to win this month</label><input id="f-target" inputmode="decimal" placeholder="0.00"></div></div>
+    <p id="need" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-label="Back up and restore">
+    <h2>Back up, restore, export</h2>
+    <p><button type="button" class="secondary" id="export-json">Download backup</button><button type="button" class="secondary" id="import-btn">Restore from backup</button><button type="button" class="secondary" id="export-csv">Export CSV</button><button type="button" class="secondary" id="load-example">Load an example</button><button type="button" class="danger" id="clear-all">Clear everything</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore"></p>
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>What it does and does not do</h2>
+    <ul>
+      <li><strong>A short, honest pipeline.</strong> New lead, in conversation, proposal sent, negotiating, then won or lost. No scoring model, no automation, nothing sent on your behalf.</li>
+      <li><strong>Follow-ups first.</strong> Overdue and due-today follow-ups come first, then leads that have gone quiet for longer than their stage usually allows.</li>
+      <li><strong>A forecast that says what it is using.</strong> Starting guesses at first; your own win rates once you have eight closed leads. It is an estimate of your own numbers, not a prediction of income.</li>
+      <li><strong>Where work comes from.</strong> Win rate and won value by source, and the reasons you record for lost leads, so you can stop spending time on channels that never pay.</li>
+      <li><strong>Not modelled:</strong> email sync, reminders by email or phone, calendar invites, multiple users or sharing, and contact enrichment. It is a private notebook for one freelancer, not a shared CRM.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this lead tracker really free?</h3>
+    <p>Yes. There is no account, no limit on leads and no paywall on exporting. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Why track freelance leads at all?</h3>
+    <p>Most lost freelance work is not lost to a competitor, it is lost to silence: a proposal sent and never followed up. A pipeline shows who is waiting on you today, which proposals have gone quiet, and which lead sources actually turn into paid work.</p>
+    <h3>How is the forecast worked out?</h3>
+    <p>Each open lead's value is multiplied by the chance of winning at its stage, then added up. Until you have eight closed leads the chances are starting guesses (10, 25, 40 and 70 percent). After that the tool uses your own win rates, and says which it is using.</p>
+    <h3>How often should I follow up on a proposal?</h3>
+    <p>A common rhythm is a check-in two to three days after sending, again after a week, then a polite last note. The tracker marks a proposal as quiet after seven days with no contact and suggests a next date for you to confirm.</p>
+    <h3>How many leads do I need to hit a monthly income target?</h3>
+    <p>Enter the amount you want to win and the tool divides it by your average won deal, then by your win rate, to give the number of wins and leads you need. With no history yet it uses a stated 25 percent win rate you can sanity-check.</p>
+    <h3>Where is my lead list stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes it, so use Download backup now and then. Nothing you type is uploaded.</p>
+    <h3>Can I move a lead into a proposal?</h3>
+    <p>Yes. Each lead has a Write the proposal link that opens Freelance Proposal Maker with the client name, contact and your notes filled in. The details travel in the page address fragment, which browsers never send to a server.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Forecasts and win rates are arithmetic on the numbers you enter, not a prediction of income, and you are responsible for checking them before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>lead_added</code>, <code>lead_moved</code>, <code>proposal_handoff</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>When a lead says yes, write the <a href="../freelance-proposal-maker/">proposal</a>, then the <a href="../freelance-contract-maker/">service agreement</a>, break the price down in <a href="../estimate-maker/">Estimate Maker</a>, track hours with <a href="../time-tracker/">Time Tracker</a>, bill with <a href="../invoice-maker/">Invoice Maker</a>, and see what to do next on the <a href="../freelance-dashboard/">Freelance Dashboard</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { STAGES, OPEN, STAGE_LABEL, SOURCES, DEFAULTS, parseCents, formatMoney, formatDate, addDays, cleanLead, moveStage, forecast, followUps, bySource, lostReasons, cycleDays, ownRates, pipelineNeeded, check, proposalHandoffHash, toCsv, exampleLeads, isOpen } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "freelance-lead-tracker-data";
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const today = () => new Date().toISOString().slice(0, 10);
+    let data = load();
+    let editing = null;
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && typeof d === "object" && !Array.isArray(d)) return normalise(d);
+      } catch { /* storage is optional */ }
+      return normalise({});
+    }
+    function normalise(d) {
+      return { currency: typeof d.currency === "string" && d.currency in { USD: 1, CAD: 1, EUR: 1, GBP: 1, AUD: 1, NZD: 1, CHF: 1, JPY: 1, MXN: 1, INR: 1 } ? d.currency : "USD", target: String(d.target ?? ""), leads: (Array.isArray(d.leads) ? d.leads : []).map(cleanLead).filter(Boolean) };
+    }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+    const m = (c) => formatMoney(c, data.currency);
+
+    function render() {
+      const t = today();
+      const f = forecast(data.leads);
+      const o = ownRates(data.leads);
+      $("#f-currency").value = data.currency;
+      $("#f-target").value = data.target;
+      $("#issues").innerHTML = check(data.leads, t).map((w) => "<li>" + esc(w) + "</li>").join("");
+      const fu = followUps(data.leads, t);
+      const due = fu.filter((r) => r.kind === "overdue" || r.kind === "today").length;
+      $("#kpis").innerHTML = [[String(due), "follow-ups due"], [String(f.openCount), "open leads"], [m(f.openCents), "open pipeline"], [m(f.weightedCents), "weighted forecast"]].map(([b, l]) => '<div class="kpi"><b>' + esc(b) + "</b><span>" + esc(l) + "</span></div>").join("");
+      $("#forecast-note").textContent = f.openCount ? (f.usingOwnRates ? "Forecast uses your own win rates from " + o.closed + " closed leads." : "Forecast uses starting guesses (10, 25, 40 and 70 percent by stage) until you have 8 closed leads; you have " + o.closed + ".") : "";
+      const kind = { overdue: (r) => r.days + " day" + (r.days === 1 ? "" : "s") + " overdue", today: () => "due today", quiet: (r) => "quiet for " + r.days + " days", upcoming: (r) => "in " + r.days + " day" + (r.days === 1 ? "" : "s"), unscheduled: () => "no date" };
+      $("#todo").innerHTML = fu.length ? '<caption class="sr">Follow-ups, most urgent first</caption><thead><tr><th>Lead</th><th>When</th><th>Next action</th><th class="n">Value</th><th></th></tr></thead><tbody>' + fu.slice(0, 25).map((r) => "<tr><td>" + esc(r.lead.name || "(no name)") + ' <span class="pill">' + esc(STAGE_LABEL[r.lead.stage]) + "</span></td><td>" + esc(kind[r.kind](r)) + "</td><td>" + esc(r.lead.nextAction) + '</td><td class="n">' + esc(m(r.lead.value)) + '</td><td><button type="button" class="small" data-act="touched" data-id="' + esc(r.lead.id) + '">Contacted today</button></td></tr>').join("") + "</tbody>" : "";
+      const flt = $("#f-filter").value;
+      const rows = data.leads.filter((l) => flt === "all" || (flt === "open" ? isOpen(l) : l.stage === flt));
+      $("#pipe").innerHTML = rows.length ? '<caption class="sr">Leads</caption><thead><tr><th>Lead</th><th>Stage</th><th>Source</th><th class="n">Value</th><th>Next</th><th></th></tr></thead><tbody>' + rows.map((l) => "<tr><td>" + esc(l.name || "(no name)") + (l.contact ? '<br><span class="note">' + esc(l.contact) + "</span>" : "") + '</td><td><select class="stage-sel" data-id="' + esc(l.id) + '" aria-label="Stage for ' + esc(l.name || "lead") + '">' + STAGES.map((s) => '<option value="' + s + '"' + (s === l.stage ? " selected" : "") + ">" + esc(STAGE_LABEL[s]) + "</option>").join("") + "</select></td><td>" + esc(l.source || "—") + '</td><td class="n">' + esc(m(l.value)) + "</td><td>" + esc(l.nextDate ? formatDate(l.nextDate) : "—") + '</td><td><button type="button" class="small secondary" data-act="edit" data-id="' + esc(l.id) + '">Edit</button><a href="../freelance-proposal-maker/" data-act="handoff" data-id="' + esc(l.id) + '">Write the proposal</a> <button type="button" class="small danger" data-act="del" data-id="' + esc(l.id) + '">Delete</button></td></tr>').join("") + "</tbody>" : "";
+      const won = data.leads.filter((l) => l.stage === "won");
+      const cd = cycleDays(data.leads);
+      $("#stats").innerHTML = [[o.overall === null ? "—" : Math.round(o.overall * 100) + "%", "win rate (" + o.closed + " closed)"], [m(won.reduce((s, l) => s + l.value, 0)), "won value"], [cd ? cd.median + " days" : "—", "median days to win"]].map(([b, l]) => '<div class="kpi"><b>' + esc(b) + "</b><span>" + esc(l) + "</span></div>").join("");
+      const src = bySource(data.leads);
+      $("#sources").innerHTML = src.length ? '<caption class="sr">Results by lead source</caption><thead><tr><th>Source</th><th class="n">Leads</th><th class="n">Won</th><th class="n">Win rate</th><th class="n">Won value</th></tr></thead><tbody>' + src.map((r) => "<tr><td>" + esc(r.source) + '</td><td class="n">' + r.leads + '</td><td class="n">' + r.won + '</td><td class="n">' + (r.winRate === null ? "—" : Math.round(r.winRate * 100) + "%") + '</td><td class="n">' + esc(m(r.wonCents)) + "</td></tr>").join("") + "</tbody>" : "";
+      $("#lost").innerHTML = lostReasons(data.leads).map((r) => "<li>Lost: " + esc(r.reason) + " (" + r.count + ")</li>").join("");
+      const target = parseCents(data.target);
+      const need = target ? pipelineNeeded(data.leads, target) : null;
+      $("#need").textContent = need ? "At an average deal of " + m(need.avgCents) + " you need " + need.winsNeeded + " win" + (need.winsNeeded === 1 ? "" : "s") + ", which at a " + Math.round(need.rate * 100) + "% win rate (" + (need.ownRate ? "yours" : "a starting assumption") + ") means about " + need.leadsNeeded + " leads reaching an answer." : (target ? "Add a lead with a value to see this." : "");
+    }
+
+    function formFill(l) {
+      $("#f-name").value = l?.name ?? ""; $("#f-contact").value = l?.contact ?? ""; $("#f-source").value = l?.source ?? "";
+      $("#f-value").value = l?.value ? (l.value / 100).toFixed(2) : ""; $("#f-stage").value = l?.stage ?? "lead";
+      $("#f-nextDate").value = l?.nextDate ?? ""; $("#f-nextAction").value = l?.nextAction ?? ""; $("#f-notes").value = l?.notes ?? ""; $("#f-lostReason").value = l?.lostReason ?? "";
+      $("#lost-wrap").hidden = $("#f-stage").value !== "lost";
+      $("#form-title").textContent = l ? "Edit lead" : "Add a lead"; $("#cancel").hidden = !l;
+    }
+    $("#f-stage").onchange = () => { $("#lost-wrap").hidden = $("#f-stage").value !== "lost"; };
+    $("#plus3").onclick = () => { $("#f-nextDate").value = addDays(today(), 3); };
+    $("#save").onclick = () => {
+      const name = $("#f-name").value.trim();
+      if (!name) { $("#form-status").textContent = "Add a name first."; return; }
+      const v = $("#f-value").value.trim();
+      const cents = v === "" ? 0 : parseCents(v);
+      if (cents === null) { $("#form-status").textContent = "Value must be a number, for example 2500 or 2,500.00."; return; }
+      const t = today();
+      const base = editing ? data.leads.find((l) => l.id === editing) : null;
+      let lead = cleanLead({ ...(base ?? { id: "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), created: t, lastTouch: t, history: [] }), name, contact: $("#f-contact").value, source: $("#f-source").value, value: cents, nextDate: $("#f-nextDate").value, nextAction: $("#f-nextAction").value, notes: $("#f-notes").value, lostReason: $("#f-lostReason").value });
+      const newStage = $("#f-stage").value;
+      lead = moveStage(lead, newStage, t);
+      if (base) { data.leads = data.leads.map((l) => (l.id === base.id ? lead : l)); } else { data.leads = [lead, ...data.leads]; record("lead_added"); }
+      if (base && base.stage !== newStage) record("lead_moved");
+      editing = null; formFill(null); persist(); render(); $("#form-status").textContent = "Saved.";
+    };
+    $("#cancel").onclick = () => { editing = null; formFill(null); };
+    document.addEventListener("change", (ev) => {
+      const sel = ev.target.closest?.(".stage-sel"); if (!sel) return;
+      data.leads = data.leads.map((l) => (l.id === sel.dataset.id ? moveStage(l, sel.value, today()) : l)); record("lead_moved"); persist(); render();
+    });
+    document.addEventListener("click", (ev) => {
+      const a = ev.target.closest?.("[data-act]"); if (!a) return;
+      const id = a.dataset.id;
+      if (a.dataset.act === "handoff") { const l = data.leads.find((x) => x.id === id); if (!l) return; ev.preventDefault(); record("proposal_handoff"); location.href = "../freelance-proposal-maker/" + proposalHandoffHash(l, data.currency); return; }
+      if (a.dataset.act === "edit") { editing = id; formFill(data.leads.find((l) => l.id === id)); $("#form-title").scrollIntoView?.(); }
+      if (a.dataset.act === "touched") { data.leads = data.leads.map((l) => (l.id === id ? { ...l, lastTouch: today(), nextDate: "" } : l)); persist(); render(); }
+      if (a.dataset.act === "del") { if (!confirm("Delete this lead? This cannot be undone.")) return; data.leads = data.leads.filter((l) => l.id !== id); persist(); render(); }
+    });
+    $("#f-currency").onchange = () => { data.currency = $("#f-currency").value; persist(); render(); };
+    $("#f-filter").onchange = render;
+    $("#f-target").oninput = () => { data.target = $("#f-target").value; persist(); render(); };
+    function download(name, body, type) {
+      const url = URL.createObjectURL(new Blob([body], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    $("#export-json").onclick = () => download("freelance-lead-tracker-backup.json", JSON.stringify(data, null, 2), "application/json");
+    $("#export-csv").onclick = () => { download("leads.csv", toCsv(data.leads, data.currency), "text/csv"); record("csv_exported"); };
+    $("#import-btn").onclick = () => $("#import-file").click();
+    $("#import-file").onchange = async (ev) => {
+      try {
+        const d = JSON.parse(await ev.target.files[0].text());
+        if (!d || typeof d !== "object" || Array.isArray(d) || !Array.isArray(d.leads)) throw new Error("shape");
+        data = normalise(d); persist(); render(); $("#io-status").textContent = "Backup restored.";
+      } catch { $("#io-status").textContent = "That file is not a Freelance Lead Tracker backup."; }
+      ev.target.value = "";
+    };
+    $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = normalise({}); persist(); render(); };
+    $("#load-example").onclick = () => { data = { ...data, leads: exampleLeads(today()) }; persist(); render(); record("example_loaded"); };
+    $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+    if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    formFill(null); render();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../time-tracker/" data-pf-to="time-tracker">Time Tracker — free billable hours timer, no signup</a></li>
+      <li><a href="../upwork-earnings-to-journal/" data-pf-to="upwork-earnings-to-journal">Upwork earnings to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../vcard-contacts-check/" data-pf-to="vcard-contacts-check">vCard Contacts Check — free, private, in your browser</a></li>
+      <li><a href="../vendor-change-evidence/" data-pf-to="vendor-change-evidence">Vendor Change Evidence</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-lead-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/?pfEmbed=1&quot; title=&quot;Freelance Lead Tracker — free pipeline and follow-up reminders, no signup — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="freelance-lead-tracker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/" data-pf-embed-title="Freelance Lead Tracker — free pipeline and follow-up reminders, no signup" data-pf-embed-slug="freelance-lead-tracker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="freelance-lead-tracker" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="freelance-lead-tracker" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Branch Protection Drifts Silently — Branch Protection Drift Check</title>
+  <meta name="description" content="GitHub branch protection settings are a live control panel, not a committed file — nothing diffs them against what your team agreed on.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/why-branch-protection-drifts.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why branch protection drifts silently","acceptedAnswer":{"@type":"Answer","text":"Most configuration in a software project lives in a file: a linter's rule set, a CI workflow, an environment's variable list. All of it goes through version control, so a change to it is a diff someone reviews before it takes effect, and a change nobody meant to make is visible in git blame forever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: #17324a; }
+    h2 { font-size: 1.1rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/why-branch-protection-drifts.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Why Branch Protection Drifts Silently — Branch Protection Drift Check">
+<meta property="og:description" content="GitHub branch protection settings are a live control panel, not a committed file — nothing diffs them against what your team agreed on.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Branch Protection Drifts Silently — Branch Protection Drift Check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../branch-protection-drift-check/">Has your branch protection drifted from policy?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Branch Protection Drifts Silently — Branch Protection Drift Check</span></span></nav>
+  <p><a href="./">&larr; Back to Branch Protection Drift Check</a></p>
+  <h1>Why branch protection drifts silently</h1>
+
+  <p>Most configuration in a software project lives in a file: a linter's rule set, a CI workflow, an environment's variable list. All of it goes through version control, so a change to it is a diff someone reviews before it takes effect, and a change nobody meant to make is visible in <code>git blame</code> forever.</p>
+
+  <p>GitHub branch protection is not that. It lives in repository settings — a live control panel a maintainer edits directly, with no commit, no pull request, and no reviewer. The audit log records that a setting changed and who changed it, but nothing compares the new state to what the team actually agreed the policy should be. There is no diff to notice, because there was never a file to diff.</p>
+
+  <h2>The ordinary way it happens</h2>
+  <p>It is rarely a decision to weaken security. It is an incident: production is down, the fix is ready, and required reviews or a status check are standing between the fix and the deploy. Someone with admin access turns the rule off, ships the fix, and means to turn it back on once things calm down. The incident ends; the follow-up task to re-enable the rule does not get the same urgency the incident itself had, and it quietly falls off the list.</p>
+
+  <p>Months later, a different change — one that genuinely needed review — merges without it, because the rule that would have required a review has been off the whole time. Nobody decided that outcome. Nobody would have agreed to it if asked directly. It happened because the gap between the setting changing and the setting mattering can be arbitrarily long, and nothing in GitHub's own UI narrows that gap by reminding anyone what is currently off.</p>
+
+  <h2>Why "read the settings page" doesn't fix it</h2>
+  <p>The settings page shows the current state accurately. What it cannot show is whether the current state matches what your team decided the policy should be, because GitHub has no concept of your declared policy — only of whatever the toggles currently say. Reading the page tells you the branch is unprotected in some way; it does not tell you that unprotected way is a deviation from anything, unless you already remember, precisely, what every toggle used to be.</p>
+
+  <p>That is the gap a declared policy closes: write down, once, what every rule is supposed to be — required reviewer count, admin enforcement, force-push and deletion rules, required status checks — and compare the live settings against that written statement whenever you have reason to check, rather than against memory.</p>
+
+  <h2>What to actually do about it</h2>
+  <ol>
+    <li>Write the policy down once, in whatever form your team will actually maintain — a paragraph in a wiki, a YAML file in the repo, or just the plain-text field list <a href="./">this tool</a> accepts.</li>
+    <li>After any incident that involved touching branch protection, check the live settings against that policy as part of the incident's own follow-up — not as a separate task that competes for priority once the pressure is off.</li>
+    <li>Run the comparison periodically regardless — in CI on a schedule, or by hand before a compliance review — because an incident is not the only way a setting can be that no diff would ever have surfaced.</li>
+  </ol>
+
+  <p><a href="./">Compare your own repository's actual settings against a declared policy &rarr;</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. Not a security audit or compliance attestation. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p>Free and open source. <a href="LICENSE">MIT licensed</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../rds-instance-rightsizer/" data-pf-to="rds-instance-rightsizer">Is your RDS instance too big?</a></li>
+      <li><a href="../redirect-chain-check/" data-pf-to="redirect-chain-check">Redirect Chain Checker</a></li>
+      <li><a href="../referrer-permissions-policy-check/" data-pf-to="referrer-permissions-policy-check">Referrer-Policy &amp; Permissions-Policy Checker</a></li>
+      <li><a href="../regex-redos-check/" data-pf-to="regex-redos-check">Which regexes in your code can hang your server?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=branch-protection-drift-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="branch-protection-drift-check"></script>
+</body>
+</html>

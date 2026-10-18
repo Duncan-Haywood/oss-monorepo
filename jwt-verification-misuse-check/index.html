@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JWT Verification Misuse Check — Find jwt.decode, alg none and Weak Secrets</title>
+  <meta name="description" content="Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none…">
+  <meta property="og:title" content="Is your code verifying JWTs, or only reading them?">
+  <meta property="og:description" content="Paste your source and get every JWT verification mistake with its file:line, the risk and the exact fix.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"JWT Verification Misuse Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A heuristic line scan of JavaScript, TypeScript, Python, Go and Java source for JWT verification misuse: decode without verify, signature checks disabled, alg none, unpinned algorithms, ignored expiry, hard-coded or weak secrets and request-controlled keys. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is JWT verification misuse?","acceptedAnswer":{"@type":"Answer","text":"It is code that accepts a JSON Web Token without actually proving the issuer signed it: decoding without verifying, switching signature checks off, accepting the none algorithm, letting the token pick its own algorithm, ignoring expiry, or verifying with a guessable or caller-supplied key. Each one lets an attacker forge a token your server will trust."}},{"@type":"Question","name":"Is jwt.decode the same as jwt.verify?","acceptedAnswer":{"@type":"Answer","text":"No. In jsonwebtoken, jwt.decode only base64-decodes the token and checks no signature, so anything an attacker types into the payload is returned as if it were real. jwt.verify checks the signature. Use decode only for claims you never trust, such as showing a name in a UI."}},{"@type":"Question","name":"Why must the algorithms option be pinned?","acceptedAnswer":{"@type":"Answer","text":"If you do not pin it, the library may let the token's own alg header choose how it is checked. That is the root of the none-algorithm and RS256-to-HS256 key-confusion attacks. Pin the single algorithm you issue with, for example algorithms: ['RS256']."}},{"@type":"Question","name":"Does this tool send my source code anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. The code you paste is scanned in this page and never leaves your device."}},{"@type":"Question","name":"Does a clean scan mean my JWT handling is safe?","acceptedAnswer":{"@type":"Answer","text":"No. This is a heuristic line scan, not a security audit. It misses misuse split across functions or built dynamically, it flags some safe code, and it cannot judge your key management, token lifetime or revocation. Have a qualified person review authentication code that protects anything valuable."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill { background: #fde8e8; color: #9a3412; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is your code verifying JWTs, or only reading them?","item":"https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is your code verifying JWTs, or only reading them? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is your code verifying JWTs, or only reading them?</span></span></nav>
+  <header>
+    <p class="note">JWT VERIFICATION MISUSE CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your code verifying JWTs, or just reading them?</h1>
+    <p>A token whose signature is never checked is a note anyone can write. <code>jwt.decode</code> where <code>jwt.verify</code> was needed, <code>verify_signature: False</code>, the <code>none</code> algorithm, no pinned <code>algorithms</code>, ignored expiry and a hard-coded <code>'secret'</code> all turn authentication into a formality. Paste your source below and this page lists each one with its file and line, the risk, and the exact fix.</p>
+    <p class="note">Nothing is uploaded. The code you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a heuristic line scan, not a security audit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more source files</h2>
+    <p class="note">Copy the code of each file that signs or verifies tokens (JavaScript, TypeScript, Python, Go or Java). Give each block its real file name so the language is detected, for example <code>auth.js</code> or <code>handlers.py</code>.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one source file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Risk</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan source files under the current directory
+python3 check.py src/ app.py      # scan specific directories or files
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. It skips <code>node_modules</code>, <code>vendor</code>, <code>.git</code> and build folders.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is JWT verification misuse?</h3>
+    <p>It is code that accepts a JSON Web Token without actually proving the issuer signed it: decoding without verifying, switching signature checks off, accepting the none algorithm, letting the token pick its own algorithm, ignoring expiry, or verifying with a guessable or caller-supplied key. Each one lets an attacker forge a token your server will trust.</p>
+    <h3>Is jwt.decode the same as jwt.verify?</h3>
+    <p>No. In jsonwebtoken, jwt.decode only base64-decodes the token and checks no signature, so anything an attacker types into the payload is returned as if it were real. jwt.verify checks the signature. Use decode only for claims you never trust, such as showing a name in a UI.</p>
+    <h3>Why must the algorithms option be pinned?</h3>
+    <p>If you do not pin it, the library may let the token's own alg header choose how it is checked. That is the root of the none-algorithm and RS256-to-HS256 key-confusion attacks. Pin the single algorithm you issue with, for example algorithms: ['RS256'].</p>
+    <h3>Does this tool send my source code anywhere?</h3>
+    <p>No. It makes no network calls at all. The code you paste is scanned in this page and never leaves your device.</p>
+    <h3>Does a clean scan mean my JWT handling is safe?</h3>
+    <p>No. This is a heuristic line scan, not a security audit. It misses misuse split across functions or built dynamically, it flags some safe code, and it cannot judge your key management, token lifetime or revocation. Have a qualified person review authentication code that protects anything valuable.</p>
+    <p>More: <a href="what-is-jwt-verification-misuse.html">what is JWT verification misuse, and how do you fix each kind?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a heuristic line scan, not a security audit, a penetration test or a guarantee that your authentication is sound, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The code you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same code: <a href="../jwt-security-check/">JWT Security Check</a> decodes a pasted token and flags the misconfigured header or claims, <a href="../cors-misconfig-check/">CORS Misconfig Check</a> covers another web-security footgun, <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> finds why an HMAC webhook signature does not verify, <a href="../terraform-plan-secret-exposure-check/">Terraform Plan Secret Exposure Check</a> finds secrets that print into plan logs, and <a href="../regex-redos-check/">Regex ReDoS Check</a> finds patterns that can hang a server.</p>
+    <p class="support">Free and open source. If this caught a forgeable token before an attacker did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "auth.js",
+        text: `const jwt = require('jsonwebtoken');
+
+function requireUser(req, res, next) {
+  const claims = jwt.decode(req.headers.authorization);
+  const ok = jwt.verify(req.headers.authorization, 'secret', { ignoreExpiration: true });
+  next();
+}
+`,
+      },
+      {
+        name: "handlers.py",
+        text: `import jwt
+
+def current_user(token):
+    return jwt.decode(token, options={"verify_signature": False})
+
+def login(user):
+    return jwt.encode({"sub": user}, "changeme", algorithm="HS256")
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder="auth.js" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the source code here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `file-${i + 1}`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill">${f.type}</span></td>
+          <td>${escapeHtml(f.detail ?? "")}</td>
+          <td>${escapeHtml(f.remediation ?? "")}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one source file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a JavaScript file that decodes without verifying and verifies with a literal secret and ignored expiry, and a Python file that turns signature verification off and signs with a placeholder secret.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one source file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../flaky-test-finder/" data-pf-to="flaky-test-finder">Which of your tests are actually flaky?</a></li>
+      <li><a href="../git-bus-factor-check/" data-pf-to="git-bus-factor-check">If one person left tomorrow, which folders would nobody understand?</a></li>
+      <li><a href="../git-exposure-check/" data-pf-to="git-exposure-check">Git Exposure Checker</a></li>
+      <li><a href="../git-timesheet/" data-pf-to="git-timesheet">Turn your git history into a timesheet your client can read</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=jwt-verification-misuse-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/?pfEmbed=1&quot; title=&quot;Is your code verifying JWTs, or only reading them? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="jwt-verification-misuse-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/" data-pf-embed-title="Is your code verifying JWTs, or only reading them?" data-pf-embed-slug="jwt-verification-misuse-check"></script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ATS Resume Checker — Format Test and Job Keyword Match, Free</title>
+  <meta name="description" content="Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break…">
+  <meta property="og:title" content="ATS Resume Checker — the copy-paste test, free, no sign-up">
+  <meta property="og:description" content="Paste the text you copied out of your resume file. See exactly which formatting issues would break an ATS parser reading the same text — nothing uploaded…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"ATS Resume Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Runs the ATS copy-paste test on resume text you paste: flags icon-font bullet characters, corrupted text, missing standard section headings, buried or missing contact info, missing dates, and signs of a collapsed multi-column layout. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ATS copy-paste test?","acceptedAnswer":{"@type":"Answer","text":"Copy all the text out of your resume file (Ctrl+A, Ctrl+C from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly."}},{"@type":"Question","name":"Does this tell me whether my resume will pass a specific company's ATS?","acceptedAnswer":{"@type":"Answer","text":"No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you."}},{"@type":"Question","name":"Why paste text instead of uploading my resume file?","acceptedAnswer":{"@type":"Answer","text":"Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding."}},{"@type":"Question","name":"What if my resume is already text and copies out perfectly?","acceptedAnswer":{"@type":"Answer","text":"Then the format check will likely report no findings, which is a good sign for the checks it runs — but format is only half of it. Step 3 compares your wording with a job posting you paste; it still does not judge achievement phrasing or grammar."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #3a1f5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3a1f5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5c5468; }
+    .card { background: #fff; border: 1px solid #ddd6e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3a1f5d10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #b9adcc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3a8e; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e9e4f1; color: #3a1f5d; }
+    .headline { font-size: 1.3rem; font-weight: 800; margin: 0 0 4px; color: #14532d; }
+    .headline.high { color: #9a3412; }
+    .headline.medium { color: #7c5e10; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low { background: #e3e9ef; color: #3a1f5d; }
+    .stats { display: flex; gap: 18px; flex-wrap: wrap; font-size: .85rem; color: #5c5468; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; padding: 0; list-style: none; }
+    .chip { font-size: .85rem; padding: 3px 10px; border-radius: 999px; background: #e3f1e6; color: #14532d; }
+    .chip.miss { background: #fde8e8; color: #7c2d12; }
+    .chip.nice { background: #e9e4f1; color: #3a1f5d; }
+    .meter { height: 10px; background: #e9e4f1; border-radius: 999px; overflow: hidden; margin: 8px 0 12px; }
+    .meter > span { display: block; height: 100%; background: #5b3a8e; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd6e6; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"ATS Resume Checker — the copy-paste test, free, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ATS Resume Checker — the copy-paste test, free, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">ATS Resume Checker — the copy-paste test, free, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">ATS RESUME CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your resume even reach a human? Run the copy-paste test.</h1>
+    <p>Most job applications go through an applicant tracking system before
+    anyone reads them, and it extracts your resume's text the same
+    mechanical way copying it out by hand does. Select all the text in your
+    resume file, copy it, and paste it below — this page reads the exact
+    same extraction for the specific, well-documented formatting problems
+    that break it: icon-font bullets that paste as garbage, missing section
+    headings, contact info buried where a parser won't look, and layouts
+    that scramble when flattened to plain text.</p>
+    <p class="note">Nothing is uploaded. The text you paste is read in this
+    browser and never leaves your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Copy the text out of your resume file</h2>
+    <p>Open your resume (PDF or Word), select all the text (<kbd>Ctrl+A</kbd>
+    / <kbd>Cmd+A</kbd>), and copy it (<kbd>Ctrl+C</kbd> / <kbd>Cmd+C</kbd>).
+    Do not retype it — the whole point is testing what a mechanical
+    extraction produces, not what you meant to write.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste it here</h2>
+    <textarea id="resume-text" spellcheck="false" placeholder="Paste the text you copied from your resume file here..."></textarea>
+    <p>
+      <button type="button" id="check">Check my resume</button>
+      <button type="button" class="secondary" id="load-example">Load an example with issues</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste your resume text above and click Check my resume.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>What was found</h2>
+    <p class="headline" id="headline"></p>
+    <div class="stats" id="stats"></div>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. Optional: match it to a job posting</h2>
+    <p>Paste the full text of one job posting. This reads the skills, tools and
+    qualifications the posting leans on and shows which your resume already
+    covers and which it never mentions, most important first. It is a
+    wording check, not a promise of an interview — only add a term if you
+    genuinely have that experience.</p>
+    <textarea id="posting-text" spellcheck="false" placeholder="Paste the job posting here (the requirements section matters most)..."></textarea>
+    <p>
+      <button type="button" id="match">Match my resume to this posting</button>
+      <button type="button" class="secondary" id="load-posting">Load an example posting</button>
+    </p>
+    <p class="note" id="match-status">Uses the resume text from step 2 and the posting above. Nothing is sent anywhere unless you add an AI key in the wording-changes box below the result.</p>
+  </section>
+
+  <section class="card" id="match-card" aria-live="polite" hidden>
+    <h2>How your resume covers this posting</h2>
+    <p class="headline" id="match-headline"></p>
+    <div class="meter" aria-hidden="true"><span id="match-meter"></span></div>
+    <div id="match-extra"></div>
+    <h3>Mentioned in the posting, missing from your resume</h3>
+    <ul class="chips" id="missing-list"></ul>
+    <h3>Already covered</h3>
+    <ul class="chips" id="matched-list"></ul>
+    <p class="note">The percentage is this page's own weighted coverage of the terms it could read from the posting
+    (repeated, required and title terms count more; "nice to have" terms count less). It is not an applicant tracking system's
+    score. Plain-word and phrase matching cannot tell that two different words mean the same thing unless it knows the pair.</p>
+  </section>
+
+  <section class="card" id="tailor-card" hidden>
+    <h2>Suggest wording changes (optional)</h2>
+    <p class="note">Without a key you get, for each missing term, the line of your resume closest to how the posting uses it, and a plain instruction. With your own key from Anthropic, OpenAI, Google Gemini or any OpenAI-compatible endpoint, a model rewrites up to five of your existing lines. Your resume text and the posting are then sent from this browser to the provider you choose, and nowhere else; the key stays in this tab and is not saved. Suggestions are drafts: keep a change only if it is true.</p>
+    <label for="prov">AI provider (optional)</label>
+    <select id="prov"><option value="">None: no AI call</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select>
+    <label for="model">Model (required except for Anthropic)</label>
+    <input id="model" type="text" autocomplete="off">
+    <label for="base">Base URL (OpenAI-compatible only)</label>
+    <input id="base" type="text" autocomplete="off" placeholder="https://openrouter.ai/api/v1">
+    <label for="key">Your API key</label>
+    <input id="key" type="password" autocomplete="off">
+    <p><button type="button" id="tailor">Suggest wording changes</button></p>
+    <p class="note" id="tailor-status" role="status"></p>
+    <div id="tailor-out"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't check</h2>
+    <p>Steps 1–2 read the text you paste for symptoms that are documented to
+    break ATS text extraction: icon-font characters standing in for
+    bullets, corrupted text, missing standard section headings, missing or
+    buried contact information, missing dates, and signs of a multi-column
+    layout collapsing into one line. Step 3 separately compares your wording with one job
+    posting you paste. It does <strong>not</strong> check achievement
+    phrasing or grammar — and it cannot see your file's actual visual layout (columns,
+    text boxes, images), only what copied out as text, which is exactly
+    what most parsers see too.</p>
+    <p>More on the technique: <a href="what-is-the-ats-copy-paste-test.html">what the ATS copy-paste test is and why it works</a>. Wondering how the keyword match differs from a paid scanner? See <a href="vs-jobscan.html">how this checker compares to Jobscan</a>. Wondering if you even need a tool for this? See <a href="vs-checking-it-by-eye.html">what an eyeball scan of the pasted text usually misses</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the ATS copy-paste test?</h3>
+    <p>Copy all the text out of your resume file (<kbd>Ctrl+A</kbd>, <kbd>Ctrl+C</kbd> from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly.</p>
+    <h3>Does this tell me whether my resume will pass a specific company's ATS?</h3>
+    <p>No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you.</p>
+    <h3>Why paste text instead of uploading my resume file?</h3>
+    <p>Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding.</p>
+    <h3>What if my resume is already text and copies out perfectly?</h3>
+    <p>Then the format check will likely report no findings, which is a good sign for the checks it runs — but format is only half of it. Step 3 compares your wording with a job posting you paste; it still does not judge achievement phrasing or grammar.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and it does not tell you whether any specific employer's applicant tracking system will accept your resume — only whether the text you pasted shows documented signs of a broken format. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — the text you paste is not saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded to us; there are no accounts, cookies, or analytics vendors. The one request this page can make is to the AI provider you choose, when you press Suggest wording changes with your own key: it carries your resume text and the posting, and nothing else. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>match_run</code>, <code>tailor_run</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing your own client work rather than applying for a role? The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> works a sustainable monthly retainer out of your income goal, capacity, overhead, and utilization — nothing uploaded.</p>
+    <p>Applying to many roles at once? The <a href="../job-application-tracker/">job application tracker</a> keeps your list, shows which follow-ups are due and which sources reply, and never uploads it.</p>
+    <p>Applying as a musician or band rather than for a role? The <a href="../epk-generator/">EPK generator</a> builds the electronic press kit a venue, festival, or blog will ask for instead of a resume — same job, different gatekeeper.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summarize } from "./checker.mjs";
+    import { matchPosting, summarizeMatch } from "./match.mjs";
+    import { tailor } from "./tailor.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      text: $("#resume-text"), status: $("#status"), reportCard: $("#report-card"),
+      headline: $("#headline"), stats: $("#stats"), findings: $("#findings"),
+    };
+
+    const EXAMPLE = `Jordan Rivera
+
+My Journey
+Dedicated operations professional with a passion for logistics.
+
+ Cut pick-time errors 18% by rebuilding the FIFO checklist
+ Trained a team of 12 seasonal hires each peak season
+ Managed nightly reconciliation for a $40k/day register bank
+
+Reach me at jordan.rivera@example.com`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = `<p>No copy-paste artifacts found in what you pasted. This checks format only — see "What this does and doesn't check" below for what it can't see.</p>`;
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${escapeHtml(f.severity)}</span>${escapeHtml(f.title)}</h4>
+          <p>${escapeHtml(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCheck(text) {
+      const result = analyze(text);
+      const { level, text: headline } = summarize(result);
+      els.headline.className = `headline ${level}`;
+      els.headline.textContent = headline;
+      els.stats.innerHTML = `
+        <span>${result.stats.characters.toLocaleString()} characters</span>
+        <span>${result.stats.lines.toLocaleString()} lines</span>
+        <span>${result.stats.highCount} high · ${result.stats.mediumCount} medium · ${result.stats.lowCount} low</span>`;
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => {
+      const text = els.text.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste your resume text above first.</span>`;
+        return;
+      }
+      runCheck(text);
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.text.value = EXAMPLE;
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a resume with icon-font bullets, a non-standard heading, and no phone number.";
+    });
+
+    const EXAMPLE_POSTING = `Operations Coordinator
+
+Responsibilities:
+- Schedule warehouse shifts and manage inventory counts in our WMS
+- Reconcile shipping invoices and report on KPIs
+- Coordinate with carriers and resolve delivery exceptions
+
+Requirements:
+- 3+ years of experience in logistics or operations
+- Proficient in Excel and inventory management
+- Experience with scheduling, forklift certification, and OSHA compliance
+- Strong communication and problem solving skills
+
+Nice to have:
+- Experience with SAP`;
+
+    const chip = (t, cls) => `<li class="chip ${cls}">${escapeHtml(t)}</li>`;
+
+    let lastMatch = null;
+    function runMatch() {
+      const result = matchPosting(els.text.value, $("#posting-text").value);
+      lastMatch = result.ok ? result : null;
+      $("#tailor-card").hidden = !result.ok;
+      $("#tailor-out").replaceChildren();
+      $("#tailor-status").textContent = "";
+      const { level, text } = summarizeMatch(result);
+      const card = $("#match-card");
+      if (!result.ok) {
+        $("#match-status").innerHTML = `<span class="error">${escapeHtml(text)}</span>`;
+        card.hidden = true;
+        return;
+      }
+      $("#match-status").textContent = "";
+      $("#match-headline").className = `headline ${level === "strong" ? "" : level === "partial" ? "medium" : "high"}`;
+      $("#match-headline").textContent = text;
+      $("#match-meter").style.width = result.score + "%";
+      const extra = [];
+      if (result.years) extra.push(`<p><strong>Experience asked for:</strong> ${result.years.required}+ years. ${result.years.stated === null ? "Your resume does not state a number of years." : result.years.meets ? `Your resume states ${result.years.stated}.` : `The most your resume states is ${result.years.stated}.`}</p>`);
+      if (result.degree) extra.push(`<p><strong>Degree asked for:</strong> ${escapeHtml(result.degree.required)}. ${result.degree.meets ? "Your resume mentions one at that level or higher." : "No degree at that level was found in your resume text."}</p>`);
+      $("#match-extra").innerHTML = extra.join("");
+      $("#missing-list").innerHTML = result.missing.length
+        ? result.missing.map((m) => chip(m.term + (m.niceToHave ? " (nice to have)" : ""), m.niceToHave ? "nice" : "miss")).join("")
+        : `<li class="note">Nothing missing.</li>`;
+      $("#matched-list").innerHTML = result.matched.map((m) => chip(m.term, "")).join("") || `<li class="note">None yet.</li>`;
+      card.hidden = false;
+      record("match_run");
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#match").addEventListener("click", () => {
+      if (!els.text.value.trim()) {
+        $("#match-status").innerHTML = `<span class="error">Paste your resume text in step 2 first.</span>`;
+        return;
+      }
+      runMatch();
+    });
+
+    function llm() {
+      const provider = $("#prov").value;
+      if (!provider || !$("#key").value) return {};
+      return { provider, apiKey: $("#key").value, model: $("#model").value.trim() || undefined, baseUrl: $("#base").value.trim() || undefined, browser: true };
+    }
+
+    $("#tailor").addEventListener("click", async () => {
+      if (!lastMatch) return;
+      const out = $("#tailor-out"), status = $("#tailor-status");
+      out.replaceChildren();
+      status.textContent = "Working...";
+      try {
+        const r = await tailor(llm(), els.text.value, $("#posting-text").value, lastMatch);
+        const add = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; out.append(e); return e; };
+        if (r.source === "model") {
+          status.textContent = "Written by your model. These are drafts: keep a change only if it is true of you.";
+          const pre = add("pre", r.text); pre.style.whiteSpace = "pre-wrap";
+          if (r.invented.length) add("p", "Check these numbers: they appear in a suggestion but not in your resume: " + r.invented.join(", ") + ".", "error");
+        } else {
+          status.textContent = r.error ? "The AI call failed (" + r.error + "), so these are the no-key suggestions." : "No AI call was made. These suggestions come from your own text.";
+          const ul = document.createElement("ul");
+          for (const s of r.starter) {
+            const li = document.createElement("li");
+            const b = document.createElement("strong"); b.textContent = s.term; li.append(b, document.createTextNode(": " + s.advice));
+            if (s.line) { const q = document.createElement("div"); q.className = "note"; q.textContent = "Closest line: " + s.line; li.append(q); }
+            ul.append(li);
+          }
+          out.append(ul);
+        }
+        record("tailor_run");
+      } catch (e) { status.textContent = "Could not suggest changes: " + e.message; }
+    });
+
+    $("#load-posting").addEventListener("click", () => {
+      $("#posting-text").value = EXAMPLE_POSTING;
+      $("#match-status").textContent = "Example posting loaded. Paste your resume in step 2, then click Match.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      $("#posting-text").value = "";
+      $("#match-card").hidden = true;
+      els.text.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste your resume text above and click Check my resume.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.anthropic.com, api.openai.com, and generativelanguage.googleapis.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../social-security-benefits-tax-calculator/" data-pf-to="social-security-benefits-tax-calculator">Is my Social Security taxable? Free calculator with the tax torpedo, private</a></li>
+      <li><a href="../social-security-earnings-test-calculator/" data-pf-to="social-security-earnings-test-calculator">Social Security earnings test calculator: how much is withheld if you work? Free, private</a></li>
+      <li><a href="../sponsor-ready/" data-pf-to="sponsor-ready">Sponsor Ready</a></li>
+      <li><a href="../structured-settlement-buyout-calculator/" data-pf-to="structured-settlement-buyout-calculator">What rate is the settlement buyer charging you? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ats-resume-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/?pfEmbed=1&quot; title=&quot;ATS Resume Checker — the copy-paste test, free, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="ats-resume-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/" data-pf-embed-title="ATS Resume Checker — the copy-paste test, free, no sign-up" data-pf-embed-slug="ats-resume-checker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="ats-resume-checker" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="ats-resume-checker" data-pf-link-amount=""></script>
+</body>
+</html>

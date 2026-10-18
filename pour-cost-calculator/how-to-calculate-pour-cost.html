@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Calculate Pour Cost (Formula + Worked Example)</title>
+  <meta name="description" content="The pour cost formula, worked through on a real cocktail recipe: ingredient cost, menu price, the percentage it produces…">
+  <meta property="og:title" content="How to Calculate Pour Cost">
+  <meta property="og:description" content="The formula, worked through on a real cocktail recipe with real bottle costs — not a rounded example.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/how-to-calculate-pour-cost.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the pour cost formula?","acceptedAnswer":{"@type":"Answer","text":"Pour cost percentage = ingredient cost of the drink ÷ menu price, times 100. The ingredient cost is the sum of every liquid that goes into the glass, each priced as (bottle cost ÷ bottle size in ounces) × ounces used. Nothing about labor, garnish, or overhead belongs in it — it is a liquor cost figure, not a full drink-cost figure."}},{"@type":"Question","name":"How do I find the cost per ounce of a bottle?","acceptedAnswer":{"@type":"Answer","text":"Divide what the bottle actually cost (from the invoice, not a rounded guess) by its size in ounces. A 1L bottle is 33.8oz; a 750ml bottle is 25.4oz; a 1.75L handle is 59.2oz. A $24 bottle at 33.8oz costs about $0.71 an ounce, and that per-ounce figure is what every pour size gets multiplied by."}},{"@type":"Question","name":"Is 20% pour cost good?","acceptedAnswer":{"@type":"Answer","text":"20% is a common target for spirits, but it is not a rule — it is a starting point you check your own recipes against. A drink running well under your target has room; a drink running well over it is being sold near or below what it costs once everything else the bar pays for is considered."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241a1a; background: #f3ece4; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #ddccb8; padding: 6px 10px; }
+    code { background: #ece0cf; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #fdf3ea; border: 1px solid #e6cba3; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #8a3b1f; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #6b5646; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/how-to-calculate-pour-cost.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Calculate Pour Cost — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pour-cost-calculator/">Pour Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Calculate Pour Cost</span></span></nav>
+  <p><a href="./">&larr; Back to the pour cost calculator</a></p>
+  <h1>How to calculate pour cost</h1>
+  <p>Pour cost &mdash; also called liquor cost percentage &mdash; is <strong>ingredient cost divided by menu price, as a percentage</strong>. It answers one question: of every dollar a drink sells for, how much of it went to the bottle it came from? The rest of this page works through the formula on a real recipe, not a rounded example.</p>
+
+  <h2>The formula</h2>
+  <p><code>pour cost % = (ingredient cost of the drink ÷ menu price) × 100</code></p>
+  <p>Ingredient cost is the sum of every liquid poured into the glass. Each ingredient's cost is:</p>
+  <p><code>(bottle cost ÷ bottle size in ounces) × ounces used</code></p>
+
+  <h2>Worked example</h2>
+  <p>A margarita-style drink: 1.5oz of a $24 tequila (a 1L, 33.8oz bottle), 0.75oz of a $20 orange liqueur (a 750ml,
+    25.4oz bottle), and 1oz of lime juice from a $6, 32oz bottle &mdash; sold for $12.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Ingredient</th><th>Cost / oz</th><th>Amount used</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td>Tequila ($24 / 33.8oz)</td><td>$0.71</td><td>1.5oz</td><td>$1.07</td></tr>
+      <tr><td>Orange liqueur ($20 / 25.4oz)</td><td>$0.79</td><td>0.75oz</td><td>$0.59</td></tr>
+      <tr><td>Lime juice ($6 / 32oz)</td><td>$0.19</td><td>1oz</td><td>$0.19</td></tr>
+    </tbody>
+  </table></div>
+  <p>Total ingredient cost: <strong>$1.84</strong>. At a $12 menu price, pour cost is <strong>$1.84 ÷ $12 = 15.4%</strong>
+    &mdash; 4.6 points below a common 20% target, and not a problem: a drink running below target has margin room,
+    not a mistake to fix. Priced to land exactly on a 20% target, this exact recipe would sell for <strong>$9.22</strong>
+    &mdash; so at $12 it is currently priced <strong>$2.78 above</strong> what the target alone requires. That number
+    is a margin comparison, not a suggested price change; the market and your own menu decide what to actually charge.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">What a small over-pour does to that number</h2>
+    <p>Free-pouring the tequila a quarter-ounce heavy &mdash; 1.75oz instead of 1.5oz &mdash; adds about
+      <strong>$0.18</strong> to this one drink and moves its pour cost from 15.4% to <strong>16.8%</strong>. That
+      looks small at the register. At 200 of these drinks a week, it is <strong>$35.50 a week</strong>, or
+      <strong>about $1,846 a year</strong> &mdash; liquor that left the bottle and never showed up as a cost <em>or a
+      margin</em> anywhere the menu price could see it.</p>
+  </div>
+
+  <h2>Common bottle sizes, for the cost-per-ounce step</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Bottle</th><th>Ounces</th></tr></thead>
+    <tbody>
+      <tr><td>750ml</td><td>25.4oz</td></tr>
+      <tr><td>1L</td><td>33.8oz</td></tr>
+      <tr><td>1.75L (handle)</td><td>59.2oz</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Do this with your own recipes</h2>
+  <p>The <a href="./">pour cost calculator</a> runs this same arithmetic on your own bottle costs, pour sizes, and
+    menu prices for a spirit-plus-modifier-plus-mixer recipe, sets your own target instead of assuming 20%, and adds
+    the over-pour math above using your own drink volume. Nothing you type leaves your browser.</p>
+  <p>Checking one recipe by hand is a different job from tracking pour cost across a whole bar's inventory
+    automatically &mdash; see how this free calculator compares to <a href="./vs-binwise.html">BinWise</a> and
+    <a href="./vs-wisk.html">WISK</a>, two POS-integrated inventory platforms sold as ongoing subscriptions.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>What is the pour cost formula?</h3>
+  <p>Pour cost percentage = ingredient cost of the drink ÷ menu price, times 100. The ingredient cost is the sum of
+    every liquid that goes into the glass, each priced as (bottle cost ÷ bottle size in ounces) × ounces used.
+    Nothing about labor, garnish, or overhead belongs in it — it is a liquor cost figure, not a full drink-cost
+    figure.</p>
+
+  <h3>How do I find the cost per ounce of a bottle?</h3>
+  <p>Divide what the bottle actually cost (from the invoice, not a rounded guess) by its size in ounces. A 1L bottle
+    is 33.8oz; a 750ml bottle is 25.4oz; a 1.75L handle is 59.2oz. A $24 bottle at 33.8oz costs about $0.71 an ounce,
+    and that per-ounce figure is what every pour size gets multiplied by.</p>
+
+  <h3>Is 20% pour cost good?</h3>
+  <p>20% is a common target for spirits, but it is not a rule — it is a starting point you check your own recipes
+    against. A drink running well under your target has room; a drink running well over it is being sold near or
+    below what it costs once everything else the bar pays for is considered.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator it links to are arithmetic references, not legal,
+      tax, accounting, insurance, alcohol-service, or financial advice, and they do not tell you what to charge or
+      how to run a beverage program. Verify every figure against your own invoices and a qualified professional
+      before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or
+      damage arising from its use.</p>
+    <p>Free and open source &mdash; <a href="LICENSE" rel="noopener">MIT licensed</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../sheep-goat-flock-profit-planner/" data-pf-to="sheep-goat-flock-profit-planner">Is raising sheep or goats profitable? Free flock profit planner</a></li>
+      <li><a href="../shift-cover-optimizer/" data-pf-to="shift-cover-optimizer">Shift-Cover Optimizer — free, private, in your browser</a></li>
+      <li><a href="../shift-roster-builder/" data-pf-to="shift-roster-builder">Shift Roster Builder — free, private, in your browser</a></li>
+      <li><a href="../shift-rotation-schedule-generator/" data-pf-to="shift-rotation-schedule-generator">Rotating shift schedule to calendar, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pour-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pour-cost-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing depreciation recapture by hand | Depreciation Recapture Calculator</title>
+<meta name="description" content="Depreciation recapture on a rental sale has four ways a hand calculation quietly comes out wrong: taxing the whole gain at one capital-gains rate…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/vs-doing-it-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing depreciation recapture by hand | Depreciation Recapture Calculator">
+<meta property="og:description" content="A hand calculation of depreciation recapture has four common failure points. This calculator applies IRC Section 1250's recapture-then-capital-gains order…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the most common mistake when estimating depreciation recapture by hand?","acceptedAnswer":{"@type":"Answer","text":"Taxing the entire gain at your long-term capital-gains rate and skipping the recapture split. IRC Section 1250 pulls the portion of the gain equal to depreciation actually claimed (capped at 25%, taxed at ordinary rates) out of the gain first — only what's left over is taxed at the lower capital-gains rate. Applying one blended rate to the whole gain understates the bill whenever your capital-gains rate is below 25%."}},{"@type":"Question","name":"Why can't recapture just be \"depreciation taken\" times 25%?","acceptedAnswer":{"@type":"Answer","text":"Because unrecaptured Section 1250 gain is capped at the smaller of the depreciation actually claimed or the total gain itself — you cannot recapture more than you gained, even if you claimed more depreciation than that over the years you owned the property (a sale close to break-even after a long holding period). A hand calculation that multiplies the full depreciation figure by 25% without capping it at the gain overstates the tax."}},{"@type":"Question","name":"Does land value matter for this calculation?","acceptedAnswer":{"@type":"Answer","text":"Yes — land is never depreciable, so it should never be subtracted from your adjusted basis as if it were. A hand calculation that treats the full purchase price as depreciable, or forgets to add back capital improvements, produces the wrong adjusted basis and therefore the wrong total gain before recapture is even split out."}},{"@type":"Question","name":"If I do a 1031 exchange, is the boot taxed at my capital-gains rate?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily all of it. Boot — cash or net debt relief you actually receive from the exchange — is recognized gain, and recognized gain is taxed in the same recapture-then-capital-gains order as an outright sale: the recapture portion (up to the depreciation taken, capped at 25%) comes out of the boot first, at ordinary rates, before any remainder is taxed at your capital-gains rate. A hand estimate that applies one capital-gains rate to the whole boot amount understates the tax on a partial exchange."}},{"@type":"Question","name":"Does this calculator know my state's tax on the sale?","acceptedAnswer":{"@type":"Answer","text":"No — neither this calculator nor a hand calculation built from the FAQ here includes state income tax. Most states tax this gain too, often as ordinary income with no capital-gains discount. Both this tool and a manual estimate need your state's own rules added on top; check your state's tax agency or a CPA before relying on either total."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1f5c35; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f5c35; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f5c35; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef2ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a58; }
+  .note, footer { font-size: .86rem; color: #4c5a58; }
+  footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/vs-doing-it-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing depreciation recapture by hand | Depreciation Recapture Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../depreciation-recapture-calculator/">Depreciation Recapture Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing depreciation recapture by hand | Depreciation Recapture Calculator</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing depreciation recapture by hand</h1>
+<p class="lede">Depreciation recapture is arithmetic anyone can do with a calculator or a spreadsheet. The problem is that IRC Section 1250 requires splitting the gain into two pieces taxed at different rates, capping the recapture piece two different ways, and reordering the whole calculation again if any of the proceeds come out of a 1031 exchange as boot &mdash; and a hand calculation that misses any one of those still produces a total that looks reasonable.</p>
+
+<section class="card">
+<h2>Where a hand calculation usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Splitting the gain</td><td>Taxing the whole gain at your capital-gains rate (0/15/20%) and never pulling out the recapture piece, understating the bill whenever that rate is below 25%.</td><td>Splits unrecaptured Section 1250 gain out first, taxed at ordinary rates up to a 25% cap; only the remainder gets your capital-gains rate.</td></tr>
+<tr><td>Capping the recapture amount</td><td>Multiplying total depreciation claimed by 25%, without checking it isn't larger than the gain itself &mdash; overstating the tax after a long hold with a small gain.</td><td>Caps unrecaptured Section 1250 gain at the smaller of depreciation taken or the total gain, every time.</td></tr>
+<tr><td>Computing the adjusted basis</td><td>Depreciating the land value along with the building, or forgetting to add capital improvements back into basis.</td><td>Keeps land value out of the depreciable basis and adds improvements into the adjusted basis before the gain is computed.</td></tr>
+<tr><td>Taxing 1031 boot</td><td>Applying one capital-gains rate to the whole boot amount, skipping the recapture-first order that also applies to a partial exchange.</td><td>Taxes recognized gain from boot in the same recapture-then-capital-gains order as an outright sale, capped at the same two limits.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the most common mistake when estimating depreciation recapture by hand?</h3>
+<p>Taxing the entire gain at your long-term capital-gains rate and skipping the recapture split. IRC Section 1250 pulls the portion of the gain equal to depreciation actually claimed (capped at 25%, taxed at ordinary rates) out of the gain first &mdash; only what's left over is taxed at the lower capital-gains rate. Applying one blended rate to the whole gain understates the bill whenever your capital-gains rate is below 25%.</p>
+<h3>Why can't recapture just be "depreciation taken" times 25%?</h3>
+<p>Because unrecaptured Section 1250 gain is capped at the smaller of the depreciation actually claimed or the total gain itself &mdash; you cannot recapture more than you gained, even if you claimed more depreciation than that over the years you owned the property (a sale close to break-even after a long holding period). A hand calculation that multiplies the full depreciation figure by 25% without capping it at the gain overstates the tax.</p>
+<h3>Does land value matter for this calculation?</h3>
+<p>Yes &mdash; land is never depreciable, so it should never be subtracted from your adjusted basis as if it were. A hand calculation that treats the full purchase price as depreciable, or forgets to add back capital improvements, produces the wrong adjusted basis and therefore the wrong total gain before recapture is even split out.</p>
+<h3>If I do a 1031 exchange, is the boot taxed at my capital-gains rate?</h3>
+<p>Not necessarily all of it. Boot &mdash; cash or net debt relief you actually receive from the exchange &mdash; is recognized gain, and recognized gain is taxed in the same recapture-then-capital-gains order as an outright sale: the recapture portion (up to the depreciation taken, capped at 25%) comes out of the boot first, at ordinary rates, before any remainder is taxed at your capital-gains rate. A hand estimate that applies one capital-gains rate to the whole boot amount understates the tax on a partial exchange.</p>
+<h3>Does this calculator know my state's tax on the sale?</h3>
+<p>No &mdash; neither this calculator nor a hand calculation built from the FAQ here includes state income tax. Most states tax this gain too, often as ordinary income with no capital-gains discount. Both this tool and a manual estimate need your state's own rules added on top; check your state's tax agency or a CPA before relying on either total.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply IRC Section 1250's recapture rule and standard capital-gains brackets to numbers you supply. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional or a qualified intermediary. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your state's tax rules. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../fix-and-flip-deal-analyzer/" data-pf-to="fix-and-flip-deal-analyzer">Fix and Flip Deal Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fleet-repair-or-replace-planner/" data-pf-to="fleet-repair-or-replace-planner">Repair or replace your work truck? — free planner, no sign-up</a></li>
+      <li><a href="../form-5500-late-filing-calculator/" data-pf-to="form-5500-late-filing-calculator">Form 5500 Late Filing Calculator — free, private, in your browser</a></li>
+      <li><a href="../fractional-executive-rate-calculator/" data-pf-to="fractional-executive-rate-calculator">Fractional Executive Rate Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=depreciation-recapture-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="depreciation-recapture-calculator"></script>
+</body>
+</html>

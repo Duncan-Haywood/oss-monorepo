@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager | FIFO Pick Evidence</title>
+<meta name="description" content="Extensiv 3PL Warehouse Manager is a full warehouse-management platform for running client billing, inventory…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/vs-extensiv.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager">
+<meta property="og:description" content="Two different shapes: Extensiv runs a 3PL's whole warehouse operation on one platform. This page is a free…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/vs-extensiv.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Extensiv 3PL Warehouse Manager?","acceptedAnswer":{"@type":"Answer","text":"They solve different problems. Extensiv 3PL Warehouse Manager (formerly 3PL Central) is a full warehouse-management platform built for running a 3PL's whole operation: client billing, inventory records, receiving, pick/pack workflows, and client-facing portals all live in one system, and a FIFO or lot-order report there reflects every transaction the platform has recorded for that client's inventory. It requires the platform, its client and SKU setup, and ongoing data entry to be accurate, and it is built for a 3PL running many clients' inventory through one system of record. This tool does none of that. It takes a single pick-log CSV — order_id, sku, lot, received_at, and picked_at columns already exported or extracted from wherever picks are recorded — and reports, in your browser, which rows picked a newer lot ahead of an older one of the same SKU, and which rows have a missing or ill-formed timestamp. No account, no client setup, and nothing uploaded. A 3PL already running its operation through Extensiv gets FIFO visibility from the platform it already operates in; a warehouse checking one exported log by hand, or without access to a client's Extensiv instance at all, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Extensiv?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Extensiv, Inc. Extensiv and Extensiv 3PL Warehouse Manager are trademarks of Extensiv, Inc., named here only to describe what this tool is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1a2420;background:#f2f1e9}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#3f6e52;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#3f6e52;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#1e332a}.lede{font-size:1.05rem;max-width:64ch;color:#4c584f}section{background:#fff;border:1px solid #d6d2c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1e332a12;margin:1rem 0}h2{margin-top:0;color:#1e332a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d6d2c2;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4c584f}.fine,.note{font-size:.88rem;color:#4c584f}footer{color:#4c584f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../fifo-pick-evidence/">FIFO Pick Evidence</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; FIFO Pick Evidence</a></p>
+<header>
+<h1>FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager</h1>
+<p class="lede">Two different shapes: Extensiv 3PL Warehouse Manager runs a 3PL's whole warehouse operation &mdash; billing, inventory, receiving, and pick/pack &mdash; on one platform. This page is a free, private tool for one question: does a single exported pick log show a FIFO exception, before you raise it with a customer.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Extensiv 3PL Warehouse Manager</strong> (formerly 3PL Central) is a
+  warehouse-management platform built for 3PLs running multiple clients'
+  inventory through one system: client billing, SKU and lot records,
+  receiving, pick/pack workflows, and client-facing reporting all draw on the
+  same underlying data. A FIFO or lot-order view there reflects every
+  transaction the platform has recorded for that client's inventory, and it
+  requires the platform itself, client and SKU setup, and ongoing data entry
+  to produce that view at all. Extensiv's own pricing and current feature set
+  are not repeated here, since this session cannot verify today's figures
+  against Extensiv's current terms; only its well-documented scope as a 3PL
+  warehouse-management platform is described.
+</p>
+<p>
+  This tool does none of what a full WMS does. It has no client records, no
+  SKU database, and no memory between visits. It takes a single pick-log CSV
+  &mdash; <code>order_id</code>, <code>sku</code>, <code>lot</code>,
+  <code>received_at</code>, and <code>picked_at</code> columns, already
+  exported or extracted from wherever picks are recorded &mdash; and reports,
+  entirely in your browser, which rows picked a newer lot ahead of an older
+  one of the same SKU, and which rows have a missing or ill-formed timestamp.
+  It runs free, needs no account and no client set up in advance, and
+  uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run a 3PL and want FIFO or lot-order visibility generated automatically from the same system that runs billing, receiving, and client-facing reporting for every client.</td><td>Extensiv 3PL Warehouse Manager &mdash; that platform-wide view is what it is built for.</td></tr>
+<tr><td>I have one pick log exported as a CSV and want to know if it shows a FIFO exception before a customer audit.</td><td>This tool &mdash; free, instant, private, no account or client setup.</td></tr>
+<tr><td>I don't have access to a client's Extensiv instance, or the warehouse doesn't run Extensiv at all.</td><td>This tool &mdash; it needs only the five columns already in the exported log, nothing else in the system.</td></tr>
+<tr><td>I need the same FIFO check run continuously across every client and SKU, tied to live receiving and pick transactions.</td><td>Extensiv 3PL Warehouse Manager &mdash; built for the ongoing, platform-wide view, not a single log's before-audit check.</td></tr>
+<tr><td>Do I need an account, a configured client, or a SKU database to use the tool?</td><td>This tool: no. Extensiv's FIFO or lot-order reporting runs inside a configured, ongoing warehouse-management platform.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most 3PLs get different value from each: Extensiv (or a comparable WMS) for
+  a running, transaction-backed FIFO view across every client and SKU, and a
+  private tool like this one for an instant, no-login check on one exported
+  log before a customer conversation. This page's own report is one log's
+  exception check, not a warehouse system, an audit conclusion, or a
+  substitute for reviewing the physical pick.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the check runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or Extensiv 3PL Warehouse Manager?</h3>
+<p>They solve different problems. Extensiv 3PL Warehouse Manager (formerly 3PL Central) is a full warehouse-management platform built for running a 3PL's whole operation: client billing, inventory records, receiving, pick/pack workflows, and client-facing portals all live in one system, and a FIFO or lot-order report there reflects every transaction the platform has recorded for that client's inventory. It requires the platform, its client and SKU setup, and ongoing data entry to be accurate, and it is built for a 3PL running many clients' inventory through one system of record. This tool does none of that. It takes a single pick-log CSV &mdash; order_id, sku, lot, received_at, and picked_at columns already exported or extracted from wherever picks are recorded &mdash; and reports, in your browser, which rows picked a newer lot ahead of an older one of the same SKU, and which rows have a missing or ill-formed timestamp. No account, no client setup, and nothing uploaded. A 3PL already running its operation through Extensiv gets FIFO visibility from the platform it already operates in; a warehouse checking one exported log by hand, or without access to a client's Extensiv instance at all, is in the right place here.</p>
+<h3>Is this page affiliated with Extensiv?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Extensiv, Inc. Extensiv and Extensiv 3PL Warehouse Manager are trademarks of Extensiv, Inc., named here only to describe what this tool is and is not.</p>
+<p class="note">
+  Open <a href="./">FIFO Pick Evidence</a> to check your own log, or see <a href="./what-counts-as-a-fifo-exception.html">what counts as a FIFO exception</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your pick log is never uploaded, and this page makes no live comparison against Extensiv &mdash; it is a static page describing publicly documented facts.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../mechanics-lien-deadline-calculator/" data-pf-to="mechanics-lien-deadline-calculator">Mechanics Lien Deadline Calculator — free, 5 states</a></li>
+      <li><a href="../meta-catalog-csv-check/" data-pf-to="meta-catalog-csv-check">Meta Catalog CSV Check — free, private, in your browser</a></li>
+      <li><a href="../mt940-statement-check/" data-pf-to="mt940-statement-check">MT940 Statement Check — free, private, in your browser</a></li>
+      <li><a href="../nis2-scope-checker/" data-pf-to="nis2-scope-checker">NIS2 scope checker: is your company an essential or important entity? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=fifo-pick-evidence">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="fifo-pick-evidence"></script>
+</body></html>

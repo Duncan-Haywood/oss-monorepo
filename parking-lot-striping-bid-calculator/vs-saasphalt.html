@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. SaaSphalt | Parking Lot Striping Bid Calculator</title>
+<meta name="description" content="SaaSphalt is estimating, scheduling, and invoicing software for asphalt contractors, with a striping module and QuickBooks integration…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/vs-saasphalt.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. SaaSphalt">
+<meta property="og:description" content="Two different shapes: SaaSphalt runs an asphalt contractor's estimating, scheduling, and invoicing.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/vs-saasphalt.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or SaaSphalt?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and a striping business of any size may end up using both. SaaSphalt is estimating, scheduling and invoicing software for asphalt contractors, with a module aimed at line-striping work and an integration with QuickBooks, and it is described as customisable to the way a given contractor works. It is sold as an ongoing account for a company. This calculator does one narrower thing: starting from standard and ADA stall counts, handicap symbols, fire lane and curb paint footage, crosswalks, stop bars, arrows, signs, the number of coats, paint coverage and gallons, crew hours, loaded wage and payroll burden, mobilisation and travel, overhead, and target margin, it turns that into the per-job price and the walk-away price below which the lot loses money. It runs free in any browser, keeps no account, and uploads nothing you type. A contractor already running estimates, schedules, invoices and books across paving, sealcoating and striping crews is better served by SaaSphalt or a comparable asphalt platform; a striper who wants an instant, private gut-check on what one lot should cost before opening a business system is in the right place here."}},{"@type":"Question","name":"Can it compare one coat against two before I bid?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that comparison is the reason the coat count is its own input rather than folded into a rate. A second coat roughly doubles the paint and adds crew hours without adding a single stall, so the two bids diverge by an amount that depends on the lot's own mix of stalls, fire lane, and curb. The calculator prices both from the same measurements, alongside comparisons of layout and ADA stall count, so the question a property manager asks — what does the better-looking job actually cost me — has a number rather than a guess. Each variant is checked against the same walk-away price, so a discount offered on the two-coat job cannot quietly fall below cost."}},{"@type":"Question","name":"Is this page affiliated with SaaSphalt?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by SaaSphalt. SaaSphalt is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c1f24;background:#ece8dc}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a5a12;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#55504a}section{background:#fff;border:1px solid #d8d0be;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1c1f240d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d8d0be;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55504a}.fine,.note{font-size:.88rem;color:#55504a}footer{color:#55504a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. SaaSphalt — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../parking-lot-striping-bid-calculator/">Parking Lot Striping Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. SaaSphalt</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Parking Lot Striping Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. SaaSphalt</h1>
+<p class="lede">Two different shapes: SaaSphalt runs an asphalt contractor's estimating, scheduling, invoicing and books across every crew. This page is a free, private worksheet for one question &mdash; what should this one lot cost, given its stalls, fire lane, coats, and paint, before you quote it.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>SaaSphalt</strong> is estimating, scheduling and invoicing
+  software for asphalt contractors, with a module aimed at line-striping
+  work and an integration with QuickBooks, described as customisable to the
+  way a given contractor works. It is sold as an ongoing account for a
+  business, covering the paving, sealcoating and striping sides of a
+  company rather than one trade in isolation. SaaSphalt's own pricing page
+  is not reachable from this session to confirm today's plan names or
+  dollar figures, so none is invented here: only its well-documented
+  identity and category &mdash; asphalt-contractor business software, sold
+  as an ongoing account &mdash; are stated, and no dollar amount for
+  SaaSphalt appears on this page.
+</p>
+<p>
+  This calculator does none of what SaaSphalt does. It does not schedule a
+  crew, raise an invoice, sync to your books, or keep a customer record on
+  a server. It takes one lot's standard and ADA stall counts, handicap
+  symbols, fire lane and curb paint footage, crosswalks, stop bars, arrows
+  and signs, the number of coats, paint coverage and gallons, crew hours,
+  loaded wage and payroll burden, mobilisation and travel, overhead, and
+  target margin, and turns that into the per-job price and the walk-away
+  price below which the lot loses money &mdash; plus side-by-side
+  comparisons of coats, layout and ADA count, a check of whether a price
+  already on the table clears the floor, and a printable customer proposal
+  for that one job. It runs free in any browser, keeps no account, and
+  uploads nothing you type.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I run an asphalt company and need estimating, scheduling, invoicing, and QuickBooks in one system across paving, sealcoating, and striping crews.</td><td>SaaSphalt, or a comparable asphalt platform &mdash; running a whole company is not something this calculator does.</td></tr>
+<tr><td>What should I charge for this one lot, given its stall count, fire lane, and curb footage, before I quote it?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>What does a second coat actually cost me on this specific lot?</td><td>This calculator's coat comparison, priced from the same measurements rather than a rule of thumb.</td></tr>
+<tr><td>How much do the ADA stalls and handicap symbols add over plain stalls?</td><td>This calculator's separate ADA stall, symbol, and layout comparison lines.</td></tr>
+<tr><td>Is the number the property manager is pushing me to still above my walk-away cost once paint and mobilisation are counted?</td><td>This calculator's compare-to-proposed-price check.</td></tr>
+<tr><td>How does the math behind a striping bid actually work?</td><td>This calculator's own <a href="how-much-to-charge-to-stripe-a-parking-lot.html">pricing walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. SaaSphalt is used through a business account.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most striping contractors get different value from each: SaaSphalt (or a
+  comparable asphalt platform) for running estimates, schedules, invoices
+  and books across a whole company, and a private calculator like this one
+  for an instant, no-login gut-check on what one lot should cost before a
+  business system is involved. This page's own figures are a pricing model,
+  not a scheduled job, an invoice, or a signed proposal.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off &mdash; which matters standing on a lot with a tape measure.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or SaaSphalt?</h3>
+<p>They do different jobs, and a striping business of any size may end up using both. SaaSphalt is estimating, scheduling and invoicing software for asphalt contractors, with a module aimed at line-striping work and an integration with QuickBooks, and it is described as customisable to the way a given contractor works. It is sold as an ongoing account for a company. This calculator does one narrower thing: starting from standard and ADA stall counts, handicap symbols, fire lane and curb paint footage, crosswalks, stop bars, arrows, signs, the number of coats, paint coverage and gallons, crew hours, loaded wage and payroll burden, mobilisation and travel, overhead, and target margin, it turns that into the per-job price and the walk-away price below which the lot loses money. It runs free in any browser, keeps no account, and uploads nothing you type. A contractor already running estimates, schedules, invoices and books across paving, sealcoating and striping crews is better served by SaaSphalt or a comparable asphalt platform; a striper who wants an instant, private gut-check on what one lot should cost before opening a business system is in the right place here.</p>
+<h3>Can it compare one coat against two before I bid?</h3>
+<p>Yes, and that comparison is the reason the coat count is its own input rather than folded into a rate. A second coat roughly doubles the paint and adds crew hours without adding a single stall, so the two bids diverge by an amount that depends on the lot's own mix of stalls, fire lane, and curb. The calculator prices both from the same measurements, alongside comparisons of layout and ADA stall count, so the question a property manager asks &mdash; what does the better-looking job actually cost me &mdash; has a number rather than a guess. Each variant is checked against the same walk-away price, so a discount offered on the two-coat job cannot quietly fall below cost.</p>
+<h3>Is this page affiliated with SaaSphalt?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by SaaSphalt. SaaSphalt is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Parking Lot Striping Bid Calculator</a> to price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not structural, construction, building-code, legal, tax, financial, traffic-engineering, or ADA advice, and it does not tell you what to charge. Verify every figure against your own payroll, paint tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against SaaSphalt &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../asphalt-driveway-pave-bid-calculator/" data-pf-to="asphalt-driveway-pave-bid-calculator">Asphalt Driveway Paving Bid Calculator</a></li>
+      <li><a href="../asphalt-sealcoat-bid-calculator/" data-pf-to="asphalt-sealcoat-bid-calculator">Asphalt Sealcoating Bid Calculator</a></li>
+      <li><a href="../concrete-bid-calculator/" data-pf-to="concrete-bid-calculator">Concrete Bid Calculator</a></li>
+      <li><a href="../concrete-lifting-bid-calculator/" data-pf-to="concrete-lifting-bid-calculator">Concrete Lifting Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=parking-lot-striping-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="parking-lot-striping-bid-calculator"></script>
+</body></html>

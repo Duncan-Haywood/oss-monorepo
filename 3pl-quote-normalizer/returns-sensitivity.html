@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>When Do 3PL Return Fees Make In-House Cheaper?</title>
+  <meta name="description" content="Sweep a 3PL quote across return rates to see when return handling and restocking fees flip the decision back to in-house fulfillment.">
+  <meta property="og:title" content="When do 3PL return fees make in-house cheaper?">
+  <meta property="og:description" content="See the return rate where a 3PL quote loses to in-house, and whether a monthly minimum is hiding that line.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When do 3PL return fees make in-house cheaper?","acceptedAnswer":{"@type":"Answer","text":"Raise the assumed return rate while holding the rest of the rate card fixed. The quote flips when return handling plus restocking, on top of the other monthly lines, exceeds your in-house cost per order. A monthly minimum can hide that growth until returns push the subtotal above the floor."}}]}</script>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:900px;margin:auto;padding:24px;background:#f4f1ea;color:#17212b}
+    main,.card{background:#fff;padding:24px;border-radius:14px}
+    h1{color:#123b36;line-height:1.15}
+    form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    label{font-weight:700;font-size:.9rem}
+    input,button{display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:5px;font:inherit}
+    input{border:1px solid #a9b4af;border-radius:7px}
+    button{border:0;border-radius:8px;background:#c05430;color:#fff;font-weight:700;cursor:pointer}
+    button.secondary{background:#e8eee9;color:#123b36}
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    th,td{text-align:right;padding:11px 8px;border-bottom:1px solid #ddd}
+    th:first-child,td:first-child,th:last-child,td:last-child{text-align:left}
+    .winner-3pl{color:#123b36;font-weight:700}
+    .winner-in-house{color:#a52f22;font-weight:700}
+    .insight{background:#eef4f1;border-radius:10px;padding:14px 16px;line-height:1.5;margin-top:16px}
+    .note{color:#52605d;font-size:.9rem}
+    a{color:#123b36;font-weight:700}
+    @media(max-width:700px){body{padding:12px}form{grid-template-columns:1fr}main,.card{padding:16px}}
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/returns-sensitivity.html">
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/returns-sensitivity.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="When do 3PL return fees make in-house cheaper? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../3pl-quote-normalizer/">3PL Quote Normalizer</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">When do 3PL return fees make in-house cheaper?</span></span></nav>
+<main>
+  <p class="note">FULFILLMENT DECISION TOOL</p>
+  <h1>When do return fees flip a 3PL quote?</h1>
+  <p>A rate card can look cheap at an 8% return rate and expensive after a product line or marketplace mix changes. Hold the rest of the quote still and raise the return rate. The table shows the monthly 3PL total, the returns line, whether a minimum is still hiding that growth, and which option is lower.</p>
+  <section class="card">
+    <form id="inputs">
+      <label>Orders / month<input name="orders" type="number" value="100" min="0" inputmode="decimal"></label>
+      <label>Return handling / order ($)<input name="returnFee" type="number" value="8" min="0" step=".01" inputmode="decimal"></label>
+      <label>Restocking / returned order ($)<input name="restockFee" type="number" value="4" min="0" step=".01" inputmode="decimal"></label>
+      <label>Shipping / order ($)<input name="shipping" type="number" value="8.5" min="0" step=".01" inputmode="decimal"></label>
+      <label>Minimum monthly spend ($)<input name="minimumMonthly" type="number" value="0" min="0" step=".01" inputmode="decimal"></label>
+      <label>In-house cost / order ($)<input name="inHousePerOrder" type="number" value="16" min="0" step=".01" inputmode="decimal"></label>
+    </form>
+    <p class="insight" id="insight" aria-live="polite"></p>
+    <div class="pf-table-scroll"><table>
+      <thead>
+        <tr>
+          <th>Return rate</th>
+          <th>Returns line</th>
+          <th>3PL total</th>
+          <th>True cost / order</th>
+          <th>vs in-house</th>
+          <th>Winner</th>
+          <th>Minimum?</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p><button class="secondary" id="copy" type="button">Copy returns sweep</button></p>
+    <p class="note" id="status">Figures are calculated locally from the assumptions above.</p>
+  </section>
+  <p>
+    <a href="./index.html">Full 3PL quote normalizer</a> ·
+    <a href="./compare.html">Compare two quotes</a> ·
+    <a href="./sensitivity.html">Volume sensitivity</a> ·
+    <a href="./does-long-term-storage-flip-a-3pl-quote.html">Long-term storage</a> ·
+    <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">Restock vs keep</a> ·
+    <a href="./should-i-pay-the-3pl-to-kit.html">Kit vs skip</a>
+  </p>
+  <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p class="note"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p class="note">Everything runs in your browser. Your data is never uploaded, and this product has no accounts, tracking cookies, or analytics vendor. It counts only a local anonymous event when you change this sweep.</p>
+</main>
+<script type="module">
+  import { money, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary } from "./calc.mjs";
+  import { record } from "./usage.mjs";
+
+  const form = document.querySelector("#inputs");
+  const rows = document.querySelector("#rows");
+  const insight = document.querySelector("#insight");
+  const status = document.querySelector("#status");
+  const copy = document.querySelector("#copy");
+  let latest = "";
+
+  function values() {
+    return Object.fromEntries(new FormData(form));
+  }
+
+  function gapLabel(delta) {
+    if (delta === 0) return "Same monthly total";
+    return delta > 0 ? `${money(delta)} cheaper at 3PL` : `${money(Math.abs(delta))} cheaper in-house`;
+  }
+
+  function render() {
+    const input = values();
+    const sweep = returnsSensitivity(input);
+    const flip = returnsFlip(sweep);
+    const mask = returnsMinimumMask(sweep);
+    latest = returnsSensitivitySummary(input);
+    rows.innerHTML = sweep.map((row) => `<tr>
+      <td>${row.returnsRate}%</td>
+      <td>${money(row.returnsCost)}</td>
+      <td>${money(row.total)}</td>
+      <td>${money(row.perOrder)}</td>
+      <td>${gapLabel(row.savingsVsInHouse)}</td>
+      <td class="${row.winner === "3PL" ? "winner-3pl" : "winner-in-house"}">${row.winner}</td>
+      <td>${row.minimumApplied ? "Yes" : "No"}</td>
+    </tr>`).join("");
+    const flipText = flip.kind === "already-in-house"
+      ? `In-house is already lower at ${flip.rate}% returns. Return fees are not why this quote loses.`
+      : flip.kind === "stays-3pl"
+        ? `3PL stays lower through ${flip.rate}% returns at these assumptions.`
+        : `3PL stays lower until ${flip.rate}% returns, where in-house is lower by ${money(Math.abs(flip.gap))} per month.`;
+    const maskText = mask.masked
+      ? mask.unmaskedAt == null
+        ? ` A monthly minimum is still hiding return-fee growth through ${mask.maskedThrough}%.`
+        : ` A monthly minimum hides return-fee growth through ${mask.maskedThrough}%. The quote starts rising again at ${mask.unmaskedAt}%.`
+      : " No monthly minimum is hiding the returns line.";
+    insight.textContent = flipText + maskText;
+    status.textContent = "Figures are calculated locally from the assumptions above.";
+  }
+
+  form.addEventListener("input", render);
+  form.addEventListener("change", () => record("returns_sensitivity_viewed"));
+  copy.addEventListener("click", async () => {
+    try {
+      if (!latest) render();
+      if (navigator.clipboard) await navigator.clipboard.writeText(latest);
+      else throw new Error("clipboard unavailable");
+      copy.textContent = "Copied";
+      record("returns_sensitivity_copied");
+    } catch {
+      copy.textContent = "Copy unavailable; select the insight manually";
+    }
+  });
+  render();
+</script>
+  <h2>Common questions</h2>
+  <h3>When do 3PL return fees make in-house cheaper?</h3>
+  <p>Raise the assumed return rate while holding the rest of the rate card fixed. The quote flips when return handling plus restocking, on top of the other monthly lines, exceeds your in-house cost per order. A monthly minimum can hide that growth until returns push the subtotal above the floor.</p>
+
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=3pl-quote-normalizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="3pl-quote-normalizer"></script>
+</body>
+</html>

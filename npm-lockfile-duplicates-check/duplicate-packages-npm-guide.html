@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Remove Duplicate Packages from node_modules (npm dedupe and overrides)</title>
+  <meta name="description" content="A practical guide to duplicate dependencies in package-lock.json: why npm installs several versions of one package, what npm dedupe fixes…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/duplicate-packages-npm-guide.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to remove duplicate packages from node_modules","about":"Duplicate dependency versions in package-lock.json","author":{"@type":"Organization","name":"npm Lockfile Duplicates Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/duplicate-packages-npm-guide.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Remove Duplicate Packages from node_modules (npm dedupe and overrides)">
+<meta property="og:description" content="A practical guide to duplicate dependencies in package-lock.json: why npm installs several versions of one package, what npm dedupe fixes…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Remove Duplicate Packages from node_modules (npm dedupe and overrides) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../npm-lockfile-duplicates-check/">Why is node_modules installing the same package five times?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Remove Duplicate Packages from node_modules (npm dedupe and overrides)</span></span></nav>
+  <p><a href="./">← npm Lockfile Duplicates Check</a></p>
+  <h1>How to remove duplicate packages from node_modules</h1>
+  <p>npm installs one copy of a package when every dependant accepts the same version. When two dependants need versions that cannot be the same, it nests a second copy under one of them. A large app can end up with dozens of these.</p>
+
+  <h2>The two kinds this tool reports</h2>
+  <ul>
+    <li><strong>same-major</strong> — for example 2.0.0 and 2.1.3. The copies are usually compatible, so <code>npm dedupe</code> can often move one version up the tree and drop the other. Fix these first.</li>
+    <li><strong>cross-major</strong> — for example 3.9.0 and 4.3.4. These are different APIs. Fix by upgrading the dependant that holds the old one, or by pinning with an <code>overrides</code> entry in <code>package.json</code> and testing.</li>
+  </ul>
+
+  <h2>Checklist</h2>
+  <ol>
+    <li>Run the check on <code>package-lock.json</code>, once with devDependencies and once with <code>--no-dev</code>: only what you ship affects users.</li>
+    <li>Run <code>npm dedupe</code>, then the check again. Same-major entries should shrink.</li>
+    <li>For a cross-major copy, look at who requires the old version (the report names the dependant) and check whether a newer release of that dependant moves to the new major.</li>
+    <li>Use <code>overrides</code> only when you can test the result; forcing a version a dependant was not built for can break it silently.</li>
+    <li>Add <code>node dupes-check.mjs --max-same-major 0</code> to CI so dedupable copies cannot creep back.</li>
+  </ol>
+
+  <h2>What this does not tell you</h2>
+  <p>A lockfile records versions, not sizes, so the count of extra copies is not a byte count. Some duplicates are harmless and some, such as two copies of a library with global state, matter a lot. The list is for review; it is not a finding that anything is broken.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not engineering advice of record. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../backup-file-exposure-check/" data-pf-to="backup-file-exposure-check">Backup File Exposure Checker</a></li>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=npm-lockfile-duplicates-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="npm-lockfile-duplicates-check"></script>
+</body>
+</html>

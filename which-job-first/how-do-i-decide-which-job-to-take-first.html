@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Do I Decide Which Job To Take First?</title>
+  <meta name="description" content="More work booked than weeks to do it in? A practical way to put a contractor's job list in order — what actually decides the order…">
+  <meta property="og:title" content="How Do I Decide Which Job To Take First?">
+  <meta property="og:description" content="Scoring every job out of ten gives you twelve near-identical numbers. Comparing two jobs at a time gives you an order you can act on.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/which-job-first/how-do-i-decide-which-job-to-take-first.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide which job to take first?","acceptedAnswer":{"@type":"Answer","text":"Stop trying to rate each job on its own and compare them two at a time instead. Write down every job you could take in the next few weeks, then repeatedly ask yourself one question: of these two, which would I rather have started? Each answer is a judgement you can actually make, because you are weighing two concrete jobs against each other rather than against an imaginary standard. The order falls out of the answers. The free ranker on this site runs that process for you and stops as soon as the order is settled."}},{"@type":"Question","name":"Why does scoring each job out of ten not work?","acceptedAnswer":{"@type":"Answer","text":"Because the scale drifts while you use it. By the time you reach the seventh job you are scoring against a standard that has already moved from where it was on the first, and there is nothing to anchor it. The usual result is a column of sevens and eights that tells you nothing, so you end up picking by gut anyway after doing the paperwork. Comparing a pair has no scale to drift: you either want that job started before this one or you do not."}},{"@type":"Question","name":"What should actually decide the order of my jobs?","acceptedAnswer":{"@type":"Answer","text":"Whatever you would be unhappy to have got wrong in six weeks. In practice that is usually margin per day on site rather than margin per job, when the money lands relative to when you pay for materials, how much of a day travel and setup eat, whether the work fits the crew and the weather you have now, what is already blocked waiting on a permit or a supplier, and how much a given client costs you in chasing and rework. You do not have to write these down or weight them. Holding two jobs side by side is what lets you feel the trade-off between them in one judgement."}},{"@type":"Question","name":"How many comparisons does it take to order a list of jobs?","acceptedAnswer":{"@type":"Answer","text":"Far fewer than every possible pair. Ordering twelve jobs by comparing all of them against each other would take sixty-six questions; a merge sort settles the same twelve in about thirty-four, because once it knows a job beats one group it never asks about that group again. Eight jobs take roughly twenty-two questions and twenty-five jobs take about ninety. That is a coffee break, not an afternoon."}},{"@type":"Question","name":"What if the finished order looks wrong to me?","acceptedAnswer":{"@type":"Answer","text":"Treat that as the useful part rather than as a failure. A ranking assembled from your own answers can only look wrong if some of those answers disagreed with each other, and the usual reason is a factor you had not admitted was driving you — a client you do not want to work for again, or a job you keep deferring because you are not sure you priced it right. Finding that out is worth more than the list. Move the job by hand and note why."}},{"@type":"Question","name":"Should I always work the list in order?","acceptedAnswer":{"@type":"Answer","text":"No. An order tells you what to start next when you are free to choose, and there are good reasons not to be: a job with a hard date, a customer you have already promised, weather that suits one job this week and not the next, or a crew that can run two small jobs in the time one big one takes. Use the order as the default and override it deliberately. The value is in having a default at all, so that the overriding is a decision instead of the whole process."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#1b2027; --muted:#5c6672; --paper:#f4f2ee; --card:#fffefb; --accent:#1f6f5c; --line:#dcd7cd; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 system-ui,sans-serif; }
+    main { max-width:720px; margin:auto; padding:32px 20px 60px; }
+    h1 { font:700 clamp(1.9rem,5vw,3rem)/1.05 Georgia,serif; letter-spacing:-.03em; margin:0 0 14px; }
+    h2 { font:700 1.35rem Georgia,serif; margin-top:2em; } h3 { font:700 1.05rem Georgia,serif; margin:1.8em 0 .3em; }
+    a { color:var(--accent); }
+    .cta { display:inline-block; margin:10px 0 0; padding:11px 16px; border-radius:8px; background:var(--ink); color:#fff; text-decoration:none; font-weight:700; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px; margin-top:24px; }
+    table { border-collapse:collapse; width:100%; margin-top:10px; font-size:.95rem; }
+    th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); }
+    th { font-weight:700; }
+    footer { margin-top:2.5em; color:var(--muted); font-size:.85rem; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/which-job-first/how-do-i-decide-which-job-to-take-first.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/which-job-first/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Do I Decide Which Job To Take First? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../which-job-first/">Which Job First? — rank your job list by picking one at a time</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Do I Decide Which Job To Take First?</span></span></nav>
+<main>
+  <p><a href="./">&larr; Which Job First &mdash; free job priority ranker</a></p>
+  <h1>How do I decide which job to take first?</h1>
+  <p>Having more work available than weeks to do it in is a good problem, right up until you have to pick. The list on the whiteboard is all real work, all of it wants doing, and the honest answer to &ldquo;is this a good job?&rdquo; is yes for nearly every line on it. That question is the wrong one. The one that has an answer is <strong>which of these two would I rather have started?</strong></p>
+  <p><a class="cta" href="./">Open the free job priority ranker</a></p>
+
+  <h2>Why the scoring sheet does not help</h2>
+  <p>The standard advice is to score each job on margin, effort and risk, add the columns up and sort. It sounds rigorous and it usually produces a column of sevens and eights.</p>
+  <p><strong>The scale drifts as you use it.</strong> Whatever a 7 meant on the first job, it does not mean the same thing by the seventh, because there is nothing holding it in place. You are rating each job against a standard that lives only in your head and has been moving all the way down the page.</p>
+  <p><strong>Everything worth taking scores well.</strong> If a job were obviously bad it would not be on the list. So the scores cluster, the differences between them are inside the noise of your own rating, and the sorted result is close to arbitrary.</p>
+  <p><strong>The trade-offs are the whole point and scoring hides them.</strong> A job that pays well but is ninety minutes away, against one that pays less and is round the corner &mdash; that comparison is a real judgement with a real answer. Splitting it into two numbers on separate rows throws away exactly the thing you were trying to decide.</p>
+
+  <h2>Compare two at a time instead</h2>
+  <p>Pairwise comparison inverts the problem. Instead of asking what a job is worth in the abstract, you hold two of them side by side and answer one question: which would you rather have started? You do not have to explain the answer or break it into factors. Margin, travel, cash timing, crew fit and how much the client will cost you in phone calls all fold into a single preference, which is the form your experience is actually stored in.</p>
+  <p>Do enough of those and an order emerges. The trick is doing far fewer than every possible pair: twelve jobs have sixty-six pairs, which nobody is going to sit through. A merge sort gets the same twelve into order in roughly thirty-four questions, because once it knows a job sits above a group it stops asking about the rest of that group. Eight jobs take about twenty-two questions; twenty-five take about ninety.</p>
+  <p>You can run this on paper with index cards. <a href="./">The ranker on this site</a> runs it in the browser, keeps count, lets you undo a misclick, and saves an unfinished run so a phone call does not cost you the progress.</p>
+
+  <h2>What is really deciding it</h2>
+  <p>You do not need to weight these, and the method above works precisely because you do not have to. But it helps to know what tends to be doing the work when you pick, so you can notice when one of them is quietly running the whole show:</p>
+  <ul>
+    <li><strong>Margin per day on site, not margin per job.</strong> A $9,000 job over eight days and a $4,000 job over three days are not in the order the totals suggest.</li>
+    <li><strong>When the money lands.</strong> A deposit up front against net-30 on completion is a different job to your bank account, whatever the invoice says.</li>
+    <li><strong>Travel and mobilisation.</strong> Two hours of driving and a setup is most of a chargeable morning, every day the job runs.</li>
+    <li><strong>What the weather and the calendar allow.</strong> Exterior work has a season; some jobs can wait for it and some cannot.</li>
+    <li><strong>What is blocked anyway.</strong> A job waiting on a permit, a survey or a long-lead part is not a candidate for next week however good it is.</li>
+    <li><strong>Who the client is.</strong> Chasing, scope creep and rework are real costs that never appear on the quote.</li>
+    <li><strong>What it leads to.</strong> A small job for a builder who has ten more is not the same as a one-off, and both of them look identical on a scoring sheet.</li>
+  </ul>
+
+  <h2>A worked example</h2>
+  <p>Five jobs on the board. Scored out of ten they would all land between 6 and 8, which is why the sheet does not help. Compared in pairs, the picture separates quickly:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Job</th><th>Value</th><th>Days</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Ross kitchen rewire</td><td>$4,200</td><td>4</td><td>Deposit paid, client ready</td></tr>
+      <tr><td>Mill St deck rebuild</td><td>$9,500</td><td>9</td><td>Waiting on a permit</td></tr>
+      <tr><td>Cedar fence, 40 ft</td><td>$2,600</td><td>2</td><td>Round the corner</td></tr>
+      <tr><td>Bathroom retile, Hill Rd</td><td>$5,100</td><td>6</td><td>Net 30, 50 minutes away</td></tr>
+      <tr><td>Garage door opener</td><td>$700</td><td>0.5</td><td>Repeat client, sends referrals</td></tr>
+    </tbody>
+  </table></div>
+  <p>Asked head to head, the deck loses to almost everything despite being the biggest number, because it cannot start. The fence beats the retile on margin per day and travel even though it is half the money. The opener beats nothing on value and still gets done early, because half a day for a client who keeps sending work is cheap. An order like <em>opener, Ross, fence, retile, deck</em> comes out of five or six comparisons, and it is defensible in a way the scoring sheet never was: every step of it is a preference you stated.</p>
+  <p>The point is not that these figures are yours. It is that the order is not the order of the values in column two, and no amount of staring at column two would have told you that.</p>
+
+  <h2>When an order is not the answer</h2>
+  <p>Ordering assumes the constraint is your time and that you are free to choose. Sometimes it is not. If everything on the list is profitable and the list keeps growing, the problem is capacity, and the decisions worth making are about subcontracting, a second crew, or raising prices until the list stops growing &mdash; not about sequencing. If two jobs at the bottom have been at the bottom for three months, they are not last; they are declined, and telling the client so is a kindness. An order is also not a commitment: a hard date or a promise you already made overrides it, and it should.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Try it on your own list</h2>
+    <p>Paste the jobs you could take, answer the this-or-that questions, and get the work order back. It runs entirely in your browser &mdash; nothing is uploaded, there is no account, and the share link carries only the list, never your answers.</p>
+    <p><a class="cta" href="./">Open the free ranker</a></p>
+  </div>
+
+  <h2>Common questions</h2>
+  <h3>How do I decide which job to take first?</h3>
+  <p>Stop trying to rate each job on its own and compare them two at a time instead. Write down every job you could take in the next few weeks, then repeatedly ask yourself one question: of these two, which would I rather have started? Each answer is a judgement you can actually make, because you are weighing two concrete jobs against each other rather than against an imaginary standard. The order falls out of the answers. The free ranker on this site runs that process for you and stops as soon as the order is settled.</p>
+  <h3>Why does scoring each job out of ten not work?</h3>
+  <p>Because the scale drifts while you use it. By the time you reach the seventh job you are scoring against a standard that has already moved from where it was on the first, and there is nothing to anchor it. The usual result is a column of sevens and eights that tells you nothing, so you end up picking by gut anyway after doing the paperwork. Comparing a pair has no scale to drift: you either want that job started before this one or you do not.</p>
+  <h3>What should actually decide the order of my jobs?</h3>
+  <p>Whatever you would be unhappy to have got wrong in six weeks. In practice that is usually margin per day on site rather than margin per job, when the money lands relative to when you pay for materials, how much of a day travel and setup eat, whether the work fits the crew and the weather you have now, what is already blocked waiting on a permit or a supplier, and how much a given client costs you in chasing and rework. You do not have to write these down or weight them. Holding two jobs side by side is what lets you feel the trade-off between them in one judgement.</p>
+  <h3>How many comparisons does it take to order a list of jobs?</h3>
+  <p>Far fewer than every possible pair. Ordering twelve jobs by comparing all of them against each other would take sixty-six questions; a merge sort settles the same twelve in about thirty-four, because once it knows a job beats one group it never asks about that group again. Eight jobs take roughly twenty-two questions and twenty-five jobs take about ninety. That is a coffee break, not an afternoon.</p>
+  <h3>What if the finished order looks wrong to me?</h3>
+  <p>Treat that as the useful part rather than as a failure. A ranking assembled from your own answers can only look wrong if some of those answers disagreed with each other, and the usual reason is a factor you had not admitted was driving you &mdash; a client you do not want to work for again, or a job you keep deferring because you are not sure you priced it right. Finding that out is worth more than the list. Move the job by hand and note why.</p>
+  <h3>Should I always work the list in order?</h3>
+  <p>No. An order tells you what to start next when you are free to choose, and there are good reasons not to be: a job with a hard date, a customer you have already promised, weather that suits one job this week and not the next, or a crew that can run two small jobs in the time one big one takes. Use the order as the default and override it deliberately. The value is in having a default at all, so that the overriding is a decision instead of the whole process.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. Nothing here is financial, legal, or business advice, and it does not replace your own judgement. A ranking reflects only the answers you gave it; you are responsible for reviewing it before acting on it, and for the commitments you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="./">Use the ranker</a> &middot; <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../grazing-lease-rate-calculator/" data-pf-to="grazing-lease-rate-calculator">Grazing Lease Rate Calculator — free, private</a></li>
+      <li><a href="../handyman-minimum-job-calculator/" data-pf-to="handyman-minimum-job-calculator">Handyman Minimum Job Calculator — free, private, in your browser</a></li>
+      <li><a href="../hay-sale-price-calculator/" data-pf-to="hay-sale-price-calculator">Hay Sale Price Calculator — free, private</a></li>
+      <li><a href="../home-service-lead-roi-analyzer/" data-pf-to="home-service-lead-roi-analyzer">Home Service Lead ROI Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=which-job-first">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="which-job-first"></script>
+</body>
+</html>

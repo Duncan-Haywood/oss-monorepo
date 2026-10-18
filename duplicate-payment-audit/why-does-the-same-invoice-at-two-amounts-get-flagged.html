@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Does the Same Invoice Number at Two Different Amounts Get Flagged? | Duplicate Payment Audit</title>
+  <meta name="description" content="A duplicate payment isn't always the same amount twice. When the same invoice number gets paid at two different amounts…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/why-does-the-same-invoice-at-two-amounts-get-flagged.html">
+  <meta property="og:title" content="Why Does the Same Invoice Number at Two Different Amounts Get Flagged?">
+  <meta property="og:description" content="Invoice INV-88120 paid $2,450.00, then paid again at $245.00 -- same invoice, different amount. Not an exact duplicate, but worth a second look.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the same invoice number at two different amounts get flagged at all?","acceptedAnswer":{"@type":"Answer","text":"Because the same vendor paying the same invoice number twice is unusual regardless of the amount -- a real invoice normally gets paid once. A different amount on the second payment means it is not a clean exact-duplicate (same invoice, same amount), so it is ranked medium confidence rather than high, and the tool tells you to check for a partial payment or a data-entry error rather than calling it a duplicate outright."}},{"@type":"Question","name":"What does the worked example actually show?","acceptedAnswer":{"@type":"Answer","text":"Cascade Freight Lines' invoice INV-88120 was paid $2,450.00 on 2026-03-05, then paid again, same invoice number, at $245.00 on 2026-03-09. That tenfold difference is exactly the kind of gap a dropped decimal or a mistyped digit produces -- worth checking against the original bill before assuming either payment was correct."}},{"@type":"Question","name":"Could this be a legitimate partial payment instead of an error?","acceptedAnswer":{"@type":"Answer","text":"Yes -- a vendor invoice split across two payments (a deposit and a balance, for example) will also produce this exact pattern: same invoice number, two different amounts. The tool cannot tell a legitimate installment apart from a duplicate paid at the wrong amount from the CSV alone, which is why this tier is medium confidence and says to check, not high confidence saying to refund."}},{"@type":"Question","name":"How is this different from the exact-duplicate tier?","acceptedAnswer":{"@type":"Answer","text":"The exact-duplicate tier is the same vendor, same invoice number, and the same amount paid twice -- as clean a duplicate as a CSV can show, so it is ranked high confidence. This tier drops the amount match: same vendor and invoice number, but two different amounts, which could be a duplicate paid inconsistently, a partial payment, or a typo, so it is ranked one tier below and phrased as a question rather than a finding."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The CSV you check never leaves your browser -- there is no upload, no account, and no copy kept once you close the tab. Anonymous feature counts are local-only, contain no financial data, and can be turned off from the calculator's own page."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}
+    body{max-width:760px;margin:auto;padding:2rem 1rem 4rem}
+    a{color:#8a4a26;overflow-wrap:anywhere}
+    h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.08;margin:.2rem 0 1rem;color:#17324d}
+    h2{color:#17324d;margin-top:2rem}
+    h3{margin:1.4rem 0 .3rem;font-size:1rem}
+    table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+    th,td{text-align:left;border-bottom:1px solid #d8d2c8;padding:.55rem;vertical-align:top}
+    th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5d6973}
+    .cta{display:inline-block;margin:.5rem 0 1.2rem;padding:.7rem 1rem;border-radius:8px;background:#af6035;color:#fff;text-decoration:none;font-weight:700}
+    .note{font-size:.88rem;color:#5d6973}
+    footer{margin-top:2.5rem;border-top:1px solid #d8d2c8;padding-top:1rem;font-size:.88rem;color:#4d5963}
+    @media(max-width:700px){table{font-size:.85rem}}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/why-does-the-same-invoice-at-two-amounts-get-flagged.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why Does the Same Invoice Number at Two Different Amounts Get Flagged? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../duplicate-payment-audit/">Duplicate Payment Audit</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why Does the Same Invoice Number at Two Different Amounts Get Flagged?</span></span></nav>
+  <p><a href="./">&larr; Duplicate payment audit</a></p>
+  <h1>Why does the same invoice number at two different amounts get flagged?</h1>
+  <p>
+    Most people picture a duplicate payment as the exact same amount going
+    out twice. It doesn't have to be. When the same vendor's invoice number
+    shows up on two payments for <strong>different</strong> amounts, that is
+    still worth a second look -- it just means something other than a
+    clean, exact repeat, so this tool ranks it medium confidence and tells
+    you what to check rather than calling it a duplicate outright.
+  </p>
+  <p><a class="cta" href="./">Open the free duplicate payment audit</a></p>
+
+  <h2>Worked example</h2>
+  <p>This is the exact pattern in the tool's own bundled worked example (click "Load a worked example" on the calculator to see it):</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Vendor</th><th scope="col">Invoice</th><th scope="col">Date</th><th scope="col">Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Cascade Freight Lines</td><td>INV-88120</td><td>2026-03-05</td><td>$2,450.00</td></tr>
+      <tr><td>Cascade Freight Lines</td><td>INV-88120</td><td>2026-03-09</td><td>$245.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>Same vendor, same invoice number, four days apart -- but the second payment is exactly a tenth of the first. That specific ratio is a signature worth recognizing: a dropped decimal point or a mistyped digit produces exactly this kind of gap. The tool's own reasoning for this pair:</p>
+  <p class="note">"Cascade Freight Lines: invoice INV-88120 was paid twice at different amounts ($2450.00 on 2026-03-05, $245.00 on 2026-03-09) — check for a partial payment or a data-entry error."</p>
+  <p>It does not tell you which one happened -- a genuine $245.00 partial payment and a $245.00 typo of a $2,450.00 bill produce the identical two rows in a CSV. Pulling the original invoice PDF is the only way to tell them apart.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why does the same invoice number at two different amounts get flagged at all?</h3>
+  <p>Because the same vendor paying the same invoice number twice is unusual regardless of the amount -- a real invoice normally gets paid once. A different amount on the second payment means it is not a clean exact-duplicate (same invoice, same amount), so it is ranked medium confidence rather than high, and the tool tells you to check for a partial payment or a data-entry error rather than calling it a duplicate outright.</p>
+  <h3>What does the worked example actually show?</h3>
+  <p>Cascade Freight Lines' invoice INV-88120 was paid $2,450.00 on 2026-03-05, then paid again, same invoice number, at $245.00 on 2026-03-09. That tenfold difference is exactly the kind of gap a dropped decimal or a mistyped digit produces -- worth checking against the original bill before assuming either payment was correct.</p>
+  <h3>Could this be a legitimate partial payment instead of an error?</h3>
+  <p>Yes -- a vendor invoice split across two payments (a deposit and a balance, for example) will also produce this exact pattern: same invoice number, two different amounts. The tool cannot tell a legitimate installment apart from a duplicate paid at the wrong amount from the CSV alone, which is why this tier is medium confidence and says to check, not high confidence saying to refund.</p>
+  <h3>How is this different from the exact-duplicate tier?</h3>
+  <p>The exact-duplicate tier is the same vendor, same invoice number, and the same amount paid twice -- as clean a duplicate as a CSV can show, so it is ranked high confidence. This tier drops the amount match: same vendor and invoice number, but two different amounts, which could be a duplicate paid inconsistently, a partial payment, or a typo, so it is ranked one tier below and phrased as a question rather than a finding.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The CSV you check never leaves your browser -- there is no upload, no account, and no copy kept once you close the tab. Anonymous feature counts are local-only, contain no financial data, and can be turned off from the calculator's own page.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, or accounting advice, and do not replace a qualified professional. This does not determine that any payment was fraudulent, wrongful, or actually duplicated -- it flags a statistical pattern in your own data for your review. <strong>You are responsible for reviewing and verifying its output</strong> against your vendor statements and accounting records before requesting a refund, credit, or correction from anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Files are never uploaded, and no copy of your data is kept once you close the tab.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+    <p><a href="./">Back to the calculator</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../lot-split-calculator/" data-pf-to="lot-split-calculator">Sell the lot whole or split it?</a></li>
+      <li><a href="../market-event-picker/" data-pf-to="market-event-picker">Which markets and festivals should you work?</a></li>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=duplicate-payment-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="duplicate-payment-audit"></script>
+</body>
+</html>

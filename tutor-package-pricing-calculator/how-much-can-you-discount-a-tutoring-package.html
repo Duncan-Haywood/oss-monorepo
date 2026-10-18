@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Much Can You Discount a Tutoring Package? | Tutor Package Pricing Guide</title>
+<meta name="description" content="A tutoring package discount below your no-show rate protects revenue, but with a makeup owed it still costs you hourly pay -- by about the discount percentage…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/how-much-can-you-discount-a-tutoring-package.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How much can you discount a tutoring package?">
+<meta property="og:description" content="Keeping your discount below your no-show rate protects revenue. It does not protect your hourly pay if you owe a makeup on a miss -- that drops by about the…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"If my package discount is smaller than my no-show rate, am I safe?","acceptedAnswer":{"@type":"Answer","text":"Your package revenue is protected at that point — it will match or beat pay-per-session revenue. Your effective hourly pay is not protected. With a makeup owed on every miss, the package pays your discounted per-session rate on every hour, whatever your no-show rate is, so a 10% discount still costs you about 10% of your hourly pay even when your no-show rate is also 10%."}},{"@type":"Question","name":"Why does the no-show rate not set a safe floor for hourly pay too?","acceptedAnswer":{"@type":"Answer","text":"Because with a makeup owed, every package session is eventually worked no matter how many were missed the first time — so package hours always equal the full session count, and package hourly pay always equals the discounted per-session rate. Pay-per-session hourly pay is unaffected by the no-show rate for the same reason in reverse: a missed slot is simply unpaid and unworked, so revenue and hours shrink together and the rate per hour stays at your full single-session price. The no-show rate changes which one wins on revenue. It does not change the hourly math at all."}},{"@type":"Question","name":"What actually protects my hourly pay, then?","acceptedAnswer":{"@type":"Answer","text":"Two things, and only these two. Charge no discount at all, so the package's per-session rate equals your single-session price. Or stop owing a makeup on a miss, so a package no-show frees the same hour a pay-per-session no-show would — package hours then match pay-per-session hours exactly, and the package only ever wins, on revenue, without touching your hourly rate."}},{"@type":"Question","name":"Does a bigger package justify a bigger discount?","acceptedAnswer":{"@type":"Answer","text":"Not on the hourly-pay math. Package size does not appear in the effective-hourly comparison at all — ten sessions or thirty at the same discount and the same makeup policy cost you the same percentage of hourly pay. A bigger package only changes how much total revenue is riding on that same percentage."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#16213a;background:#f4f5f0}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#0b5da3;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#12406b}
+h2{font-size:1.15rem;margin:0 0 10px;color:#12406b}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#31394a}
+.card{background:#fff;border:1px solid #dde1da;border-radius:14px;padding:22px;box-shadow:0 8px 24px #12406b10;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e4e7e0;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#4c5a68}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:8px;background:#12406b;color:#fffdf8;text-decoration:none;font-weight:650}
+.note,footer{font-size:.86rem;color:#4c5a68}
+footer{margin-top:28px;border-top:1px solid #dde1da;padding-top:16px}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/how-much-can-you-discount-a-tutoring-package.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much can you discount a tutoring package? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tutor-package-pricing-calculator/">Tutor Package Pricing Calculator — package vs. pay-per-session, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much can you discount a tutoring package?</span></span></nav>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>How much can you discount a tutoring package before it costs you money?</h1>
+<p class="lede">The instinct is to keep a package discount at or below your no-show rate, so the guaranteed revenue covers what the discount gives up. That protects revenue. It does not protect your <strong>hourly pay</strong> if you owe a makeup on a missed session &mdash; that drops by about the discount percentage no matter what your no-show rate is, and the two worked examples below show why.</p>
+<p><a class="cta" href="./">Open the free tutor package pricing calculator</a></p>
+
+<section class="card">
+<h2>The rule the calculator applies</h2>
+<p>With a makeup owed on a miss, every package session is eventually worked, however many were missed the first time. So package hours always equal the full session count, and package effective hourly pay always equals your discounted per-session rate &mdash; full stop. Pay-per-session hourly pay does not move with your no-show rate either, for the opposite reason: a missed slot is simply unpaid and unworked, so revenue and hours shrink together and the rate per hour stays at your full single-session price. The no-show rate decides which pricing model wins on raw revenue. It has no say at all in which one pays more per hour.</p>
+</section>
+
+<section class="card">
+<h2>Worked example: a 25% discount against a 10% no-show rate</h2>
+<p>A tutor charges $60 per single session and sells a 10-session package for $450 &mdash; a 25% per-session discount. About 10% of booked sessions are no-shows, and a missed package session is always made up rather than forfeited. Sessions run 60 minutes with no extra prep or travel time.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col"></th><th scope="col">Pay-per-session</th><th scope="col">Package</th></tr></thead>
+<tbody>
+<tr><td>Revenue for this block</td><td>$540.00</td><td>$450.00</td></tr>
+<tr><td>Hours actually worked</td><td>9.00</td><td>10.00</td></tr>
+<tr><td>Effective hourly pay</td><td>$60.00/hr</td><td>$45.00/hr</td></tr>
+</tbody>
+</table></div>
+<p>Here the 25% discount is deeper than the 10% no-show rate, so the package loses on both lines: $90.00 less revenue and $15.00 less per hour than simply charging $60 per session and letting a no-show free that slot.</p>
+</section>
+
+<section class="card">
+<h2>Worked example: the discount matched exactly to the no-show rate</h2>
+<p>Same tutor, same 10% no-show rate and makeup policy &mdash; but this time the package is priced at $540 for those 10 sessions, a 10% discount that exactly matches the no-show rate, which is the boundary most pricing advice treats as "safe."</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col"></th><th scope="col">Pay-per-session</th><th scope="col">Package</th></tr></thead>
+<tbody>
+<tr><td>Revenue for this block</td><td>$540.00</td><td>$540.00</td></tr>
+<tr><td>Hours actually worked</td><td>9.00</td><td>10.00</td></tr>
+<tr><td>Effective hourly pay</td><td>$60.00/hr</td><td>$54.00/hr</td></tr>
+</tbody>
+</table></div>
+<p>Revenue is now identical &mdash; the discount no longer costs the tutor anything on that line. Hourly pay still is not: $54.00 an hour against $60.00 an hour, a $6.00 gap that matches the 10% discount almost exactly. Matching the discount to the no-show rate fixes the revenue problem. It does nothing for the hourly one, because with a makeup owed the package still pays its discounted rate on every one of the 10 hours, while pay-per-session's rate per hour never depended on the no-show rate to begin with.</p>
+</section>
+
+<section class="card">
+<h2>What actually protects your hourly pay</h2>
+<p>Only two changes touch the hourly number at all. <strong>Charge no discount</strong> &mdash; price the package at exactly the single-session rate times the session count, and package hourly pay equals pay-per-session hourly pay exactly. Or <strong>stop owing a makeup</strong> on a missed package session: a forfeited miss frees the same hour under either pricing model, so package hours match pay-per-session hours exactly and the package only ever wins, on revenue, without ever touching your rate per hour. Anything short of one of those two changes leaves the discount sitting in your hourly pay, whatever it does to your no-show math.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>If my package discount is smaller than my no-show rate, am I safe?</h3>
+<p>Your package revenue is protected at that point &mdash; it will match or beat pay-per-session revenue. Your effective hourly pay is not protected. With a makeup owed on every miss, the package pays your discounted per-session rate on every hour, whatever your no-show rate is, so a 10% discount still costs you about 10% of your hourly pay even when your no-show rate is also 10%.</p>
+<h3>Why does the no-show rate not set a safe floor for hourly pay too?</h3>
+<p>Because with a makeup owed, every package session is eventually worked no matter how many were missed the first time &mdash; so package hours always equal the full session count, and package hourly pay always equals the discounted per-session rate. Pay-per-session hourly pay is unaffected by the no-show rate for the same reason in reverse: a missed slot is simply unpaid and unworked, so revenue and hours shrink together and the rate per hour stays at your full single-session price. The no-show rate changes which one wins on revenue. It does not change the hourly math at all.</p>
+<h3>What actually protects my hourly pay, then?</h3>
+<p>Two things, and only these two. Charge no discount at all, so the package's per-session rate equals your single-session price. Or stop owing a makeup on a miss, so a package no-show frees the same hour a pay-per-session no-show would &mdash; package hours then match pay-per-session hours exactly, and the package only ever wins, on revenue, without touching your hourly rate.</p>
+<h3>Does a bigger package justify a bigger discount?</h3>
+<p>Not on the hourly-pay math. Package size does not appear in the effective-hourly comparison at all &mdash; ten sessions or thirty at the same discount and the same makeup policy cost you the same percentage of hourly pay. A bigger package only changes how much total revenue is riding on that same percentage.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply arithmetic to numbers you supply, to one representative block of sessions; they are not legal, tax, or financial advice. <strong>You are responsible for verifying anything here against your own package policy.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>See <a href="./vs-a-spreadsheet.html">this calculator vs. a spreadsheet</a> for the case where prep and travel time are added on top of these worked examples.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../voiceover-project-rate-calculator/" data-pf-to="voiceover-project-rate-calculator">Voice-Over Project Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../wholesale-real-estate-offer-calculator/" data-pf-to="wholesale-real-estate-offer-calculator">Wholesale real estate offer calculator</a></li>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tutor-package-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tutor-package-pricing-calculator"></script>
+</body>
+</html>

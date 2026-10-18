@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Court Reporter Transcript Pricing Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free deposition transcript pricing calculator for freelance court reporters: turn page count, turnaround, travel, copies…">
+  <meta property="og:title" content="Court Reporter Transcript Pricing Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn page count, turnaround, travel, copies, and exhibits into a deposition transcript invoice total and an effective hourly rate…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Court Reporter Transcript Pricing Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a deposition transcript invoice total from page count, per-page rate, turnaround multiplier, certified copies, exhibits, rough draft, realtime, appearance fee, and travel, shows the effective hourly rate for the job, copies the result out as a plain-text invoice summary, and checks whether an agency's flat per-page offer meets a reporter's own target hourly rate once travel and production time are counted. Entirely client-side; nothing is uploaded.","featureList":"Deposition transcript invoice total, turnaround multiplier by tier, certified copy and exhibit fees, effective hourly rate, copy a plain-text invoice summary, agency flat-offer hourly-rate check against a target rate, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do freelance court reporters price a deposition transcript?","acceptedAnswer":{"@type":"Answer","text":"Most freelance reporters bill a flat appearance fee for showing up, plus a per-page rate for the transcript itself. The per-page rate is usually multiplied for faster turnaround (expedited, daily, or same-day), and certified copies, exhibits, a rough draft, realtime feed, and travel are billed as separate line items on top."}},{"@type":"Question","name":"How much more does expedited or daily turnaround cost?","acceptedAnswer":{"@type":"Answer","text":"There is no single industry-wide multiplier -- it varies by reporter, agency, and jurisdiction. This calculator starts with illustrative defaults (expedited about 1.5x the ordinary rate, daily about 2x, same-day or hourly about 3x) that you can edit to match your own rate card before it reaches the invoice total."}},{"@type":"Question","name":"How do I check whether an agency's flat offer is worth taking?","acceptedAnswer":{"@type":"Answer","text":"Divide the agency's total pay (page count times its offered rate, plus any flat appearance fee) by your total hours on the job -- travel both ways, time at the appearance, and production time. That effective hourly rate is what the assignment actually pays, which a per-page headline rate alone does not show. The agency offer check on this page does that division and compares it to a target hourly rate you set."}},{"@type":"Question","name":"Does this calculator know my state's official transcript-rate schedule?","acceptedAnswer":{"@type":"Answer","text":"No. It only multiplies the rates, page counts, and multipliers you enter -- it does not know any court's official transcript-rate schedule, any agency's contracted rate, or which fees a specific bar or client will accept. Check your own state's rules and any governing contract before invoicing."}},{"@type":"Question","name":"Is this legal or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals the numbers you enter -- it does not determine what a client owes, does not know your state's transcript-rate rules, and is not a substitute for reviewing your own rate card, contract, or a qualified professional's advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .price.warn { color: #9a3412; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Court Reporter Transcript Pricing Calculator — free, no sign-up","item":"https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Court Reporter Transcript Pricing Calculator — free, no sign-up — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Court Reporter Transcript Pricing Calculator — free, no sign-up</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">COURT REPORTER TRANSCRIPT PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should this deposition invoice actually total?</h1>
+    <p>Two calculators for the arithmetic every freelance court reporter and
+    deposition stenographer does before sending an invoice: turn page count,
+    turnaround speed, travel, copies, and exhibits into an invoice total and
+    an effective hourly rate, and check whether an agency's flat per-page
+    offer is worth the day once travel and production time are counted. Both
+    run entirely in this browser.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Deposition transcript invoice</h2>
+    <div class="grid">
+      <div>
+        <label for="pages">Page count (estimated or final)</label>
+        <input type="number" id="pages" min="0" step="1" placeholder="e.g. 120" inputmode="numeric">
+      </div>
+      <div>
+        <label for="page-rate">Ordinary per-page rate ($)</label>
+        <input type="number" id="page-rate" min="0" step="0.01" placeholder="e.g. 4.50" inputmode="decimal">
+      </div>
+      <div>
+        <label for="turnaround">Turnaround</label>
+        <select id="turnaround"></select>
+      </div>
+      <div>
+        <label for="multiplier">Turnaround multiplier (editable)</label>
+        <input type="number" id="multiplier" min="0" step="0.05" value="1" inputmode="decimal">
+      </div>
+      <div>
+        <label for="appearance-fee">Appearance fee ($, flat)</label>
+        <input type="number" id="appearance-fee" min="0" step="0.01" placeholder="e.g. 75" inputmode="decimal">
+      </div>
+      <div>
+        <label for="copies">Certified copies (count)</label>
+        <input type="number" id="copies" min="0" step="1" placeholder="e.g. 1" inputmode="numeric">
+      </div>
+      <div>
+        <label for="copy-rate">Copy rate per page ($)</label>
+        <input type="number" id="copy-rate" min="0" step="0.01" placeholder="e.g. 0.90" inputmode="decimal">
+      </div>
+      <div>
+        <label for="exhibits">Exhibits (count)</label>
+        <input type="number" id="exhibits" min="0" step="1" placeholder="e.g. 4" inputmode="numeric">
+      </div>
+      <div>
+        <label for="exhibit-rate">Fee per exhibit ($)</label>
+        <input type="number" id="exhibit-rate" min="0" step="0.01" placeholder="e.g. 10" inputmode="decimal">
+      </div>
+      <div>
+        <label for="rough-draft">Rough draft / ASCII fee ($, flat)</label>
+        <input type="number" id="rough-draft" min="0" step="0.01" placeholder="e.g. 0" inputmode="decimal">
+      </div>
+      <div>
+        <label for="realtime-rate">Realtime rate per page ($)</label>
+        <input type="number" id="realtime-rate" min="0" step="0.01" placeholder="e.g. 1.00" inputmode="decimal">
+      </div>
+      <div>
+        <label for="travel-miles">Travel (miles, round trip)</label>
+        <input type="number" id="travel-miles" min="0" step="1" placeholder="e.g. 40" inputmode="numeric">
+      </div>
+      <div>
+        <label for="mileage-rate">Mileage rate ($/mile)</label>
+        <input type="number" id="mileage-rate" min="0" step="0.01" placeholder="e.g. 0.67" inputmode="decimal">
+      </div>
+      <div>
+        <label for="hours-worked">Total hours (travel + appearance + production)</label>
+        <input type="number" id="hours-worked" min="0" step="0.25" placeholder="e.g. 5" inputmode="decimal">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="realtime-requested">
+      <label for="realtime-requested">Realtime was requested for this job</label>
+    </div>
+    <p>
+      <button type="button" id="calculate-invoice">Calculate invoice</button>
+      <button type="button" class="secondary" id="load-invoice-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-invoice">Clear</button>
+    </p>
+    <p class="note" id="invoice-status">Enter the page count and per-page rate at minimum, then click Calculate invoice.</p>
+  </section>
+
+  <section class="card" id="invoice-report" aria-live="polite" hidden>
+    <h2>Invoice total</h2>
+    <p class="stats" id="invoice-stats"></p>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
+      <tbody id="invoice-body"></tbody>
+    </table></div>
+    <div id="invoice-findings"></div>
+    <button type="button" id="copy-summary">Copy invoice summary</button>
+    <p class="note" id="copy-summary-status">Copies the line items, the total, and the "arithmetic only" note as plain text to paste into an invoice or email.</p>
+    <div id="summary-fallback" hidden>
+      <label class="note" for="summary-text">Select and copy the summary:</label>
+      <textarea id="summary-text" rows="12" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Agency offer check</h2>
+    <p class="note">Many assignments come through an agency quoting one flat
+    number instead of billing the client directly. This divides that offer
+    by your total hours on the job so you can compare it to your own target
+    hourly rate before accepting.</p>
+    <div class="grid">
+      <div>
+        <label for="agency-pages">Page count (estimated)</label>
+        <input type="number" id="agency-pages" min="0" step="1" placeholder="e.g. 80" inputmode="numeric">
+      </div>
+      <div>
+        <label for="agency-page-rate">Agency's per-page rate ($)</label>
+        <input type="number" id="agency-page-rate" min="0" step="0.01" placeholder="e.g. 2.25" inputmode="decimal">
+      </div>
+      <div>
+        <label for="agency-appearance-fee">Agency's flat appearance fee ($)</label>
+        <input type="number" id="agency-appearance-fee" min="0" step="0.01" placeholder="e.g. 0" inputmode="decimal">
+      </div>
+      <div>
+        <label for="agency-hours">Total hours (travel + appearance + production)</label>
+        <input type="number" id="agency-hours" min="0" step="0.25" placeholder="e.g. 4" inputmode="decimal">
+      </div>
+      <div>
+        <label for="target-rate">Your target hourly rate ($/hr)</label>
+        <input type="number" id="target-rate" min="0" step="1" placeholder="e.g. 50" inputmode="numeric">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-agency-offer">Check this offer</button>
+      <button type="button" class="secondary" id="load-agency-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-agency">Clear</button>
+    </p>
+    <p class="note" id="agency-status">Enter the agency's offer and your total hours, then click Check this offer.</p>
+  </section>
+
+  <section class="card" id="agency-report" aria-live="polite" hidden>
+    <h2>Agency offer result</h2>
+    <p class="stats" id="agency-stats"></p>
+    <div id="agency-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>Both calculators total the numbers you enter — page counts, rates,
+    multipliers, fees, and hours. Neither one knows any court's official
+    transcript-rate schedule, an agency's contracted rate, or which fees a
+    specific bar or client will accept. Treat the output as the arithmetic
+    behind your own invoice or acceptance decision, not a determination of
+    what a client owes or what a contract requires.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do freelance court reporters price a deposition transcript?</h3>
+    <p>Most freelance reporters bill a flat appearance fee for showing up, plus a per-page rate for the transcript itself. The per-page rate is usually multiplied for faster turnaround (expedited, daily, or same-day), and certified copies, exhibits, a rough draft, realtime feed, and travel are billed as separate line items on top.</p>
+    <h3>How much more does expedited or daily turnaround cost?</h3>
+    <p>There is no single industry-wide multiplier -- it varies by reporter, agency, and jurisdiction. This calculator starts with illustrative defaults (expedited about 1.5x the ordinary rate, daily about 2x, same-day or hourly about 3x) that you can edit to match your own rate card before it reaches the invoice total.</p>
+    <h3>How do I check whether an agency's flat offer is worth taking?</h3>
+    <p>Divide the agency's total pay (page count times its offered rate, plus any flat appearance fee) by your total hours on the job -- travel both ways, time at the appearance, and production time. That effective hourly rate is what the assignment actually pays, which a per-page headline rate alone does not show. The agency offer check on this page does that division and compares it to a target hourly rate you set.</p>
+    <h3>Does this calculator know my state's official transcript-rate schedule?</h3>
+    <p>No. It only multiplies the rates, page counts, and multipliers you enter -- it does not know any court's official transcript-rate schedule, any agency's contracted rate, or which fees a specific bar or client will accept. Check your own state's rules and any governing contract before invoicing.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. This calculator only totals the numbers you enter -- it does not determine what a client owes, does not know your state's transcript-rate rules, and is not a substitute for reviewing your own rate card, contract, or a qualified professional's advice.</p>
+  </section>
+
+  <p class="note">Weighing an offer and not sure whether the rate itself is any
+  good? <a href="what-is-a-good-per-page-rate-for-a-court-reporter.html">What is
+  a good per-page rate for a court reporter?</a> works through why the same
+  $4.50 a page can pay $68 an hour on one deposition and $112 on another, and
+  why a higher rate is not automatically the better job.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your own rate card, state rules, and any governing contract. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>invoice_calculated</code>, <code>agency_offer_checked</code>, <code>summary_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the summary puts it on your clipboard and nowhere else — the text is built in this browser and is never sent anywhere. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing a mobile notary signing instead of a deposition transcript? The <a href="../notary-trip-quote/">notary trip quote calculator</a> prices travel, printing, waiting, and after-hours work the same way — nothing uploaded.</p>
+    <p>Also booking the sign language interpreter for the same deposition or hearing? The <a href="../sign-language-interpreter-rate-calculator/">sign language interpreter rate calculator</a> prices that assignment — hours, a booking minimum, travel, and an after-hours differential — nothing uploaded.</p>
+    <p><a href="./vs-spreadsheet-or-guessing.html">This calculator vs. a spreadsheet or a guess under a deadline</a> — what a blank spreadsheet gives you and what it doesn't.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeTranscriptInvoice, computeAgencyOfferCheck, formatInvoiceSummary, TURNAROUND_TIERS } from "./calculator.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      if (findings.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    // --- Turnaround select, wired to the editable multiplier field ---
+
+    const turnaroundEl = $("#turnaround");
+    const multiplierEl = $("#multiplier");
+    turnaroundEl.innerHTML = TURNAROUND_TIERS
+      .map((t) => `<option value="${t.id}" data-multiplier="${t.multiplier}">${t.label}</option>`)
+      .join("");
+    turnaroundEl.addEventListener("change", () => {
+      const tier = TURNAROUND_TIERS.find((t) => t.id === turnaroundEl.value);
+      if (tier) multiplierEl.value = tier.multiplier;
+    });
+
+    // --- Deposition transcript invoice ---
+
+    const invoiceEls = {
+      pages: $("#pages"), pageRate: $("#page-rate"), multiplier: multiplierEl,
+      appearanceFee: $("#appearance-fee"), copies: $("#copies"), copyRate: $("#copy-rate"),
+      exhibits: $("#exhibits"), exhibitRate: $("#exhibit-rate"), roughDraft: $("#rough-draft"),
+      realtimeRequested: $("#realtime-requested"), realtimeRate: $("#realtime-rate"),
+      travelMiles: $("#travel-miles"), mileageRate: $("#mileage-rate"), hoursWorked: $("#hours-worked"),
+      status: $("#invoice-status"), report: $("#invoice-report"), stats: $("#invoice-stats"),
+      body: $("#invoice-body"), findings: $("#invoice-findings"),
+      copyStatus: $("#copy-summary-status"), fallback: $("#summary-fallback"), textarea: $("#summary-text"),
+    };
+
+    // Held from the last calculate so the copy button can never hand out a
+    // summary that disagrees with the table above it. Recomputing from the
+    // live inputs on click would do exactly that: edit a field, do not
+    // press Calculate, press Copy, and the invoice says something the
+    // screen does not. Same shape as the share.mjs allowlist drift CLAUDE.md
+    // records, applied here to this tool's own copy button.
+    let lastInvoice = null;
+
+    function runInvoiceCalculate() {
+      const input = {
+        pages: Number(invoiceEls.pages.value),
+        pageRate: Number(invoiceEls.pageRate.value),
+        turnaroundMultiplier: Number(invoiceEls.multiplier.value),
+        copies: Number(invoiceEls.copies.value),
+        copyRatePerPage: Number(invoiceEls.copyRate.value),
+        exhibitsCount: Number(invoiceEls.exhibits.value),
+        exhibitRate: Number(invoiceEls.exhibitRate.value),
+        roughDraftFee: Number(invoiceEls.roughDraft.value),
+        realtimeRequested: invoiceEls.realtimeRequested.checked,
+        realtimeRatePerPage: Number(invoiceEls.realtimeRate.value),
+        appearanceFee: Number(invoiceEls.appearanceFee.value),
+        travelMiles: Number(invoiceEls.travelMiles.value),
+        mileageRate: Number(invoiceEls.mileageRate.value),
+        hoursWorked: Number(invoiceEls.hoursWorked.value),
+      };
+      const result = computeTranscriptInvoice(input);
+
+      const rows = [
+        ["Appearance fee", result.appearanceFee],
+        ["Travel", result.travelFee],
+        ["Transcript fee", result.transcriptFee],
+        ["Certified copies", result.copiesFee],
+        ["Exhibits", result.exhibitsFee],
+        ["Rough draft / ASCII", result.roughDraftFee],
+        ["Realtime", result.realtimeFee],
+      ].filter(([, amount]) => amount > 0);
+      invoiceEls.body.innerHTML = rows.map(([label, amount]) => `<tr><td>${label}</td><td>${money(amount)}</td></tr>`).join("")
+        || `<tr><td colspan="2">No line items yet — enter values above.</td></tr>`;
+
+      const hourlyNote = result.effectiveHourlyRate !== null
+        ? ` Effective hourly rate: <strong>${money(result.effectiveHourlyRate)}/hr</strong>.`
+        : "";
+      invoiceEls.stats.innerHTML = `<strong>Total invoice: <span class="price">${money(result.totalInvoice)}</span></strong>.${hourlyNote}`;
+      renderFindings(invoiceEls.findings, result.findings);
+      const turnaroundLabel = TURNAROUND_TIERS.find((t) => t.id === turnaroundEl.value)?.label ?? "";
+      lastInvoice = { result, pages: input.pages, turnaroundLabel };
+      invoiceEls.fallback.hidden = true;
+      invoiceEls.copyStatus.textContent = COPY_HINT;
+      invoiceEls.report.hidden = false;
+      invoiceEls.status.textContent = "";
+      record("invoice_calculated");
+      invoiceEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const COPY_HINT = 'Copies the line items, the total, and the "arithmetic only" note as plain text to paste into an invoice or email.';
+
+    $("#copy-summary").addEventListener("click", async () => {
+      if (!lastInvoice) {
+        invoiceEls.copyStatus.innerHTML = `<span class="error">Calculate the invoice first, then copy the summary.</span>`;
+        return;
+      }
+      const text = formatInvoiceSummary(lastInvoice.result, { pages: lastInvoice.pages, turnaroundLabel: lastInvoice.turnaroundLabel });
+      invoiceEls.textarea.value = text;
+      try {
+        // Absent over plain http, in some embedded webviews, and whenever the
+        // permission is refused -- so the textarea below is the route that
+        // always works, not a nicety. Revealing it on failure means the
+        // summary is never unreachable, only one step further away.
+        await navigator.clipboard.writeText(text);
+        invoiceEls.fallback.hidden = true;
+        invoiceEls.copyStatus.textContent = "Summary copied. Paste it into your invoice or email — read it once before sending.";
+      } catch {
+        invoiceEls.fallback.hidden = false;
+        invoiceEls.copyStatus.textContent = "This browser blocked the clipboard. The summary is in the box below — select it and copy.";
+        invoiceEls.textarea.focus();
+        invoiceEls.textarea.select();
+      }
+      record("summary_copied");
+    });
+
+    $("#calculate-invoice").addEventListener("click", () => {
+      if (!invoiceEls.pages.value) {
+        invoiceEls.status.innerHTML = `<span class="error">Enter the page count above first.</span>`;
+        return;
+      }
+      runInvoiceCalculate();
+    });
+
+    $("#load-invoice-example").addEventListener("click", () => {
+      invoiceEls.pages.value = "120";
+      invoiceEls.pageRate.value = "4.50";
+      turnaroundEl.value = "daily";
+      invoiceEls.multiplier.value = "2";
+      invoiceEls.appearanceFee.value = "75";
+      invoiceEls.copies.value = "1";
+      invoiceEls.copyRate.value = "0.90";
+      invoiceEls.exhibits.value = "4";
+      invoiceEls.exhibitRate.value = "10";
+      invoiceEls.roughDraft.value = "0";
+      invoiceEls.realtimeRequested.checked = false;
+      invoiceEls.realtimeRate.value = "";
+      invoiceEls.travelMiles.value = "40";
+      invoiceEls.mileageRate.value = "0.67";
+      invoiceEls.hoursWorked.value = "5";
+      runInvoiceCalculate();
+      record("example_loaded");
+      invoiceEls.status.textContent = "Worked example: a 120-page daily-turnaround deposition with one certified copy, four exhibits, and 40 miles of travel.";
+    });
+
+    $("#clear-invoice").addEventListener("click", () => {
+      for (const el of [
+        invoiceEls.pages, invoiceEls.pageRate, invoiceEls.appearanceFee, invoiceEls.copies,
+        invoiceEls.copyRate, invoiceEls.exhibits, invoiceEls.exhibitRate, invoiceEls.roughDraft,
+        invoiceEls.realtimeRate, invoiceEls.travelMiles, invoiceEls.mileageRate, invoiceEls.hoursWorked,
+      ]) el.value = "";
+      invoiceEls.realtimeRequested.checked = false;
+      turnaroundEl.selectedIndex = 0;
+      invoiceEls.multiplier.value = "1";
+      invoiceEls.report.hidden = true;
+      // Drop the held invoice with the inputs that produced it, so a copy
+      // after a clear cannot hand out the cleared job's figures.
+      lastInvoice = null;
+      invoiceEls.fallback.hidden = true;
+      invoiceEls.textarea.value = "";
+      invoiceEls.copyStatus.textContent = COPY_HINT;
+      invoiceEls.status.textContent = "Enter the page count and per-page rate at minimum, then click Calculate invoice.";
+    });
+
+    // --- Agency offer check ---
+
+    const agencyEls = {
+      pages: $("#agency-pages"), pageRate: $("#agency-page-rate"), appearanceFee: $("#agency-appearance-fee"),
+      hours: $("#agency-hours"), target: $("#target-rate"),
+      status: $("#agency-status"), report: $("#agency-report"), stats: $("#agency-stats"), findings: $("#agency-findings"),
+    };
+
+    function runAgencyCheck() {
+      const result = computeAgencyOfferCheck({
+        pages: Number(agencyEls.pages.value),
+        agencyPageRate: Number(agencyEls.pageRate.value),
+        agencyAppearanceFee: Number(agencyEls.appearanceFee.value),
+        hoursWorked: Number(agencyEls.hours.value),
+        targetHourlyRate: Number(agencyEls.target.value),
+      });
+
+      const hourlyText = result.effectiveHourlyRate !== null ? `${money(result.effectiveHourlyRate)}/hr` : "— (enter hours)";
+      const priceClass = result.meetsTarget === false ? "price warn" : "price";
+      agencyEls.stats.innerHTML = `Agency total pay: ${money(result.agencyTotalPay)}. <strong>Effective rate: <span class="${priceClass}">${hourlyText}</span></strong>`;
+      renderFindings(agencyEls.findings, result.findings);
+      agencyEls.report.hidden = false;
+      agencyEls.status.textContent = "";
+      record("agency_offer_checked");
+      agencyEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check-agency-offer").addEventListener("click", () => {
+      if (!agencyEls.pages.value && !agencyEls.appearanceFee.value) {
+        agencyEls.status.innerHTML = `<span class="error">Enter the agency's offer above first.</span>`;
+        return;
+      }
+      runAgencyCheck();
+    });
+
+    $("#load-agency-example").addEventListener("click", () => {
+      agencyEls.pages.value = "80";
+      agencyEls.pageRate.value = "2.25";
+      agencyEls.appearanceFee.value = "0";
+      agencyEls.hours.value = "4";
+      agencyEls.target.value = "50";
+      runAgencyCheck();
+      record("example_loaded");
+      agencyEls.status.textContent = "Worked example: an 80-page assignment at $2.25/page through an agency, 4 hours total, against a $50/hr target.";
+    });
+
+    $("#clear-agency").addEventListener("click", () => {
+      for (const el of [agencyEls.pages, agencyEls.pageRate, agencyEls.appearanceFee, agencyEls.hours, agencyEls.target]) el.value = "";
+      agencyEls.report.hidden = true;
+      agencyEls.status.textContent = "Enter the agency's offer and your total hours, then click Check this offer.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../event-rental-inventory-payback-calculator/" data-pf-to="event-rental-inventory-payback-calculator">Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</a></li>
+      <li><a href="../event-seating-chart-optimizer/" data-pf-to="event-seating-chart-optimizer">Event Seating Chart Optimizer — free, private, in your browser</a></li>
+      <li><a href="../exemption-certificate-audit-check/" data-pf-to="exemption-certificate-audit-check">Which of your tax-exempt sales have no certificate? Find out before the auditor does</a></li>
+      <li><a href="../farrier-visit-pricing-calculator/" data-pf-to="farrier-visit-pricing-calculator">Farrier pricing calculator: what to charge per horse and per stop. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=court-reporter-transcript-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/?pfEmbed=1&quot; title=&quot;Court Reporter Transcript Pricing Calculator — free, no sign-up — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="court-reporter-transcript-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/" data-pf-embed-title="Court Reporter Transcript Pricing Calculator — free, no sign-up" data-pf-embed-slug="court-reporter-transcript-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="court-reporter-transcript-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

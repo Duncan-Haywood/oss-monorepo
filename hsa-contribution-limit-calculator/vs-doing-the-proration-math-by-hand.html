@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing the HSA proration math by hand | HSA Contribution Limit Calculator</title>
+<meta name="description" content="Working out a prorated 2026 HSA limit by hand means multiplying the annual figure by eligible months over 12 -- and then remembering to do the same division to…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing the HSA proration math by hand | HSA Contribution Limit Calculator">
+<meta property="og:description" content="A hand check of a prorated 2026 HSA limit usually gets the base limit right and the age-55 catch-up wrong…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the age-55 catch-up prorated the same way as the base HSA limit?","acceptedAnswer":{"@type":"Answer","text":"Yes, under the ordinary monthly-proration method -- and this is the step a manual check most often skips. The $1,000 catch-up is fixed by statute rather than adjusted for inflation, which reads as if it were a flat add-on regardless of how many months you were eligible. It isn't: for someone eligible 6 of 12 months, the catch-up itself is prorated to $500, on top of the prorated base limit. A hand calculation that adds the full $1,000 catch-up to a correctly prorated base limit overstates the total by the unprorated portion of the catch-up."}},{"@type":"Question","name":"What's the most common way a manual proration ends up wrong?","acceptedAnswer":{"@type":"Answer","text":"Prorating the base limit correctly and then adding the full, unprorated age-55 catch-up on top of it. For family coverage with 6 eligible months and the catch-up, the correct total is $4,875 ($4,375 base plus a prorated $500 catch-up) -- a hand check that forgets to prorate the catch-up lands on $5,375 instead, $500 too high."}},{"@type":"Question","name":"Why would someone contribute the full annual limit under the last-month rule instead of the prorated amount?","acceptedAnswer":{"@type":"Answer","text":"Because the last-month rule is a genuine, separate election, not a rounding shortcut: anyone HSA-eligible on December 1 of the tax year may contribute the full annual limit even if eligible for only part of the year, catch-up included at its full, unprorated amount. It is not the same total as a proration mistake that happens to look similar -- it is the correct total for a real election that comes with its own separate condition, the testing period below."}},{"@type":"Question","name":"What is easy to miss about the last-month rule's testing period when checking it by hand?","acceptedAnswer":{"@type":"Answer","text":"That the extra amount is conditional, not final, until the testing period ends. Electing the last-month rule requires staying HSA-eligible through December 31 of the following year. If eligibility lapses before then for a reason other than death or disability, the amount contributed beyond what ordinary proration would have allowed becomes taxable income in the year eligibility lapsed, plus a 10% additional tax. A hand check that stops at \"I get the full limit this year\" and never carries the condition forward has only computed half the rule."}},{"@type":"Question","name":"Does checking my own HDHP deductible and out-of-pocket maximum by hand carry the same risk?","acceptedAnswer":{"@type":"Answer","text":"It has its own separate failure point: mixing up the self-only and family bounds. For 2026 the deductible floor is $1,700 self-only versus $3,400 family, and the out-of-pocket ceiling is $8,500 self-only versus $17,000 family -- a plan checked against the wrong coverage type's bounds can read as HDHP-qualified when it isn't, or the reverse."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. doing the HSA proration math by hand | HSA Contribution Limit Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../hsa-contribution-limit-calculator/">HSA Contribution Limit Calculator — free, 2026</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. doing the HSA proration math by hand | HSA Contribution Limit Calculator</span></span></nav>
+<p class="note"><a href="index.html">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing the HSA proration math by hand</h1>
+<p class="lede">Prorating a 2026 HSA contribution limit is arithmetic anyone can do with the right figures: the annual limit times eligible months over 12. The part a hand check most often gets wrong isn't the base limit -- it's remembering that the age-55 catch-up gets the same treatment, and that the last-month rule is a different election with its own separate condition, not just a bigger number.</p>
+
+<section class="card">
+<h2>Where a manual check usually goes wrong</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake doing it by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Prorating the age-55 catch-up</td><td>Adding the full, unprorated $1,000 catch-up to a correctly prorated base limit, because the catch-up is fixed by statute and reads as a flat add-on rather than something that also scales with eligible months.</td><td>Prorates the catch-up by the same eligible-months fraction as the base limit, unless the last-month rule applies.</td></tr>
+<tr><td>Choosing proration vs. the last-month rule</td><td>Treating "I was eligible on December 1" as a bonus on top of the prorated amount rather than a full replacement of it, or reaching for it without checking eligibility on that specific date.</td><td>Applies the last-month rule as an alternative to proration, only when you say you were (or will be) eligible on December 1, 2026.</td></tr>
+<tr><td>Carrying the last-month rule's testing period forward</td><td>Stopping at "I get the full limit this year" and not tracking that it depends on staying HSA-eligible through December 31, 2027.</td><td>States the testing-period consequence -- taxable income plus a 10% additional tax if eligibility lapses early -- every time the last-month rule applies.</td></tr>
+<tr><td>Matching the HDHP deductible/out-of-pocket bounds to the right coverage type</td><td>Checking a plan's deductible or out-of-pocket maximum against the wrong coverage type's 2026 figures (self-only vs. family), which can flip whether a plan reads as HDHP-qualified.</td><td>Applies the 2026 self-only or family bounds you selected -- deductible &ge; $1,700/$3,400, out-of-pocket &le; $8,500/$17,000 -- to the same coverage type as the contribution limit.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Worked example: family coverage, 6 of 12 months eligible, age 55+</h2>
+<p>This is the calculator's own shipped "load example" scenario -- open the calculator and click it to see the same numbers.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Quantity</th><th scope="col">Correct (this calculator)</th><th scope="col">Common hand-check error</th></tr></thead>
+<tbody>
+<tr><td>Base limit (family, 6/12 months)</td><td>$8,750.00 &times; 6/12 = <strong>$4,375.00</strong></td><td>$4,375.00 (same -- this step is usually done correctly)</td></tr>
+<tr><td>Age-55 catch-up</td><td>$1,000.00 &times; 6/12 = <strong>$500.00</strong> (also prorated)</td><td>$1,000.00 (left unprorated)</td></tr>
+<tr><td>Total 2026 contribution limit</td><td><strong>$4,875.00</strong></td><td>$5,375.00 -- $500.00 too high</td></tr>
+</tbody>
+</table></div>
+<p>For comparison, the same coverage and age electing the last-month rule instead of proration (eligible on December 1, 2026) correctly totals <strong>$9,750.00</strong> -- the full $8,750.00 family limit plus the full, unprorated $1,000.00 catch-up -- which is a different election with a testing-period condition attached, not a bigger version of the proration mistake above.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Is the age-55 catch-up prorated the same way as the base HSA limit?</h3>
+<p>Yes, under the ordinary monthly-proration method -- and this is the step a manual check most often skips. The $1,000 catch-up is fixed by statute rather than adjusted for inflation, which reads as if it were a flat add-on regardless of how many months you were eligible. It isn't: for someone eligible 6 of 12 months, the catch-up itself is prorated to $500, on top of the prorated base limit. A hand calculation that adds the full $1,000 catch-up to a correctly prorated base limit overstates the total by the unprorated portion of the catch-up.</p>
+<h3>What's the most common way a manual proration ends up wrong?</h3>
+<p>Prorating the base limit correctly and then adding the full, unprorated age-55 catch-up on top of it. For family coverage with 6 eligible months and the catch-up, the correct total is $4,875 ($4,375 base plus a prorated $500 catch-up) -- a hand check that forgets to prorate the catch-up lands on $5,375 instead, $500 too high.</p>
+<h3>Why would someone contribute the full annual limit under the last-month rule instead of the prorated amount?</h3>
+<p>Because the last-month rule is a genuine, separate election, not a rounding shortcut: anyone HSA-eligible on December 1 of the tax year may contribute the full annual limit even if eligible for only part of the year, catch-up included at its full, unprorated amount. It is not the same total as a proration mistake that happens to look similar -- it is the correct total for a real election that comes with its own separate condition, the testing period below.</p>
+<h3>What is easy to miss about the last-month rule's testing period when checking it by hand?</h3>
+<p>That the extra amount is conditional, not final, until the testing period ends. Electing the last-month rule requires staying HSA-eligible through December 31 of the following year. If eligibility lapses before then for a reason other than death or disability, the amount contributed beyond what ordinary proration would have allowed becomes taxable income in the year eligibility lapsed, plus a 10% additional tax. A hand check that stops at "I get the full limit this year" and never carries the condition forward has only computed half the rule.</p>
+<h3>Does checking my own HDHP deductible and out-of-pocket maximum by hand carry the same risk?</h3>
+<p>It has its own separate failure point: mixing up the self-only and family bounds. For 2026 the deductible floor is $1,700 self-only versus $3,400 family, and the out-of-pocket ceiling is $8,500 self-only versus $17,000 family -- a plan checked against the wrong coverage type's bounds can read as HDHP-qualified when it isn't, or the reverse.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published 2026 IRS figures to numbers you supply. They are not tax, legal, or financial advice, and do not replace a qualified tax professional or IRS Publication 969. <strong>You are responsible for reviewing and verifying the output before relying on it</strong>, and for confirming your own HSA eligibility before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="index.html">Back to the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mega-backdoor-roth-calculator/" data-pf-to="mega-backdoor-roth-calculator">Mega Backdoor Roth 401(k) Calculator</a></li>
+      <li><a href="../merchant-cash-advance-true-cost-calculator/" data-pf-to="merchant-cash-advance-true-cost-calculator">Merchant Cash Advance True Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../meta-ads-fatigue-analyzer/" data-pf-to="meta-ads-fatigue-analyzer">Meta Ads Fatigue Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../mileage-deduction-method-calculator/" data-pf-to="mileage-deduction-method-calculator">Mileage Deduction Method Calculator — free, 2026</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hsa-contribution-limit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="hsa-contribution-limit-calculator"></script>
+</body>
+</html>

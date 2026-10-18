@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat quote by house size | Pest Control Bid Calculator</title>
+<meta name="description" content="Pest control accounts are shopped by a flat quarterly rate tied to house size. That rate cannot see the stop: rodent stations, interior work…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat quote by house size">
+<meta property="og:description" content="An exterior-only spray and an eight-rodent-station account at a similar-sized house look the same on a house-size chart and take very different crew time.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat quote by house size get a pest control bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because house size only measures the building's footprint, not what the stop actually takes to run. An exterior-only spray at a house takes about 1.03 crew-hours with the drive. An eight-station rodent account at a similar-sized house next door -- same exterior spray, plus eight bait stations to check every visit -- takes about 1.57 crew-hours, roughly half again as long, because stations and interior work do not scale with square footage."}},{"@type":"Question","name":"What does a flat quote by house size usually miss?","acceptedAnswer":{"@type":"Answer","text":"Which services are actually on the stop, how many rodent or insect stations there are, and the drive. A flat house-size rate has no line for eight stations versus zero, no line for interior crack-and-crevice work versus exterior-only, and no line for a 22-minute one-way drive that is 44 minutes on every visit -- often more than a third of a short stop."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own shipped cost inputs: an exterior-only spray costs $45.27 to run per recurring visit and this calculator prices it at $60.36 -- $241.45 a year on a quarterly account. An eight-station rodent account at a similar-sized house costs $77.32 per visit to run and prices at $103.09 -- $412.36 a year. Quoting the rodent account at the exterior-only house-size rate of $60.36 a visit is $16.96 below that visit's own break-even cost, and $170.92 a year short of this calculator's price at a 25% target margin -- before the operator has done a single free station install."}},{"@type":"Question","name":"Is a flat quote by house size ever a reasonable shorthand?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of similar stops -- the same services and roughly the same drive as the account the rate was learned on -- a house-size number can land close. The risk is quoting a station-heavy or interior account the same way sight unseen, because the rate does not know which services are on the stop or how far the drive is until the route is built, and by then the house-size number has often already been quoted."}},{"@type":"Question","name":"Does this calculator know my local labor rates or chemical costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market or your supplier's chemical and station pricing. It takes each service's on-site minutes and material cost, station counts, one-way drive time, and your own wage, payroll burden, vehicle cost, overhead, and target margin, and turns that into crew-hours and a price for this stop -- the arithmetic a flat house-size rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef3ef; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1a6b3c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5666; }
+  section { background: #fff; border: 1px solid #d0dcd0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d0dcd0; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+  .fine, .note { font-size: .88rem; color: #4a5666; }
+  footer { color: #4a5666; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat quote by house size — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pest-control-bid-calculator/">Pest Control Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat quote by house size</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Pest Control Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat quote by house size</h1>
+<p class="lede">Pest control accounts are shopped by a flat quarterly rate tied to house size. That rate cannot see the stop &mdash; rodent stations, interior work, and drive time do not scale with square footage, and an eight-station account can take half again as long as a plain exterior spray next door.</p>
+</header>
+<section>
+<h2>What a flat quote by house size is</h2>
+<p>
+A rate by house size is the fastest number to give over the phone: hear the
+square footage or bedroom count, read back a quarterly price. It is also the
+unit homeowners already compare between competing bids, because every
+competitor quotes the same way.
+</p>
+<p>
+The rate behind it was learned from a specific stop &mdash; a given set of
+services, station count, and drive &mdash; and then reused for the next
+house of that size that calls in, whether or not that next stop shares any
+of those.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter each
+service on the stop with its on-site minutes and material cost, rodent and
+insect station counts, one-way drive time, and your own wage, payroll
+burden, vehicle cost, overhead, and target margin. It prices the stop as
+its own hours and cost lines &mdash; for what is actually on the route,
+not a rate carried over from a house of the same size.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat house-size rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same rate for an exterior-only spray and an eight-station rodent account at the same size house, even though stations are most of the difference.</td>
+<td>Prices each service's on-site minutes and material separately, so eight rodent stations add real hours, not a guess.</td>
+</tr>
+<tr>
+<td>Has no line for interior crack-and-crevice work versus exterior-only &mdash; both get the same house-size rate.</td>
+<td>Prices interior and exterior services as their own line items.</td>
+</tr>
+<tr>
+<td>Has no line for drive time at all, even though a 22-minute one-way drive is 44 minutes on every visit.</td>
+<td>Prices the round-trip drive into every recurring visit and reports the effective hourly rate once it is included.</td>
+</tr>
+<tr>
+<td>Bills every frequency the same way, with no line for how many visits it takes to recover a waived initial treatment.</td>
+<td>Reports the initial and recurring invoice separately and how many later visits recover a waived initial.</td>
+</tr>
+<tr>
+<td>Gives the technician a number to quote, not a number to check a quote against.</td>
+<td>Reports the recurring price and the break-even cost alongside it, so a house-size rate can be scored against real cost before you match it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Same size house, two different stops</h2>
+<p>
+Using this calculator's own shipped cost inputs &mdash; $20 hourly wage,
+30% burden, $8 vehicle cost per visit, 15% overhead, 25% target margin,
+a 22-minute one-way drive, billed quarterly:
+</p>
+<p>
+An <strong>exterior-only</strong> perimeter spray takes
+<strong>1.03 crew-hours</strong> with the drive, costs
+<strong>$45.27</strong> to run, and this calculator prices the recurring
+visit at <strong>$60.36</strong> &mdash; <strong>$241.45</strong> a year.
+</p>
+<p>
+An <strong>eight-station rodent account</strong> at a similar-sized house
+&mdash; the same exterior spray, plus <strong>eight bait stations</strong>
+to check every visit &mdash; takes <strong>1.57 crew-hours</strong>,
+costs <strong>$77.32</strong> to run, and this calculator prices it at
+<strong>$103.09</strong> &mdash; <strong>$412.36</strong> a year.
+Quoting the rodent account at the exterior-only house-size rate of
+<strong>$60.36</strong> a visit is <strong>$16.96 below that visit's own
+break-even cost</strong> &mdash; before counting the
+<strong>$170.92</strong> it falls short of this calculator's own annual
+price at a 25% target margin. Same-size house, roughly half again the
+crew time, and a rate learned on the exterior-only stop loses money the
+moment eight stations are added.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat quote by house size get a pest control bid wrong?</h3>
+<p>Because house size only measures the building's footprint, not what the stop actually takes to run. An exterior-only spray at a house takes about 1.03 crew-hours with the drive. An eight-station rodent account at a similar-sized house next door -- same exterior spray, plus eight bait stations to check every visit -- takes about 1.57 crew-hours, roughly half again as long, because stations and interior work do not scale with square footage.</p>
+<h3>What does a flat quote by house size usually miss?</h3>
+<p>Which services are actually on the stop, how many rodent or insect stations there are, and the drive. A flat house-size rate has no line for eight stations versus zero, no line for interior crack-and-crevice work versus exterior-only, and no line for a 22-minute one-way drive that is 44 minutes on every visit -- often more than a third of a short stop.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own shipped cost inputs: an exterior-only spray costs $45.27 to run per recurring visit and this calculator prices it at $60.36 -- $241.45 a year on a quarterly account. An eight-station rodent account at a similar-sized house costs $77.32 per visit to run and prices at $103.09 -- $412.36 a year. Quoting the rodent account at the exterior-only house-size rate of $60.36 a visit is $16.96 below that visit's own break-even cost, and $170.92 a year short of this calculator's price at a 25% target margin -- before the operator has done a single free station install.</p>
+<h3>Is a flat quote by house size ever a reasonable shorthand?</h3>
+<p>For a narrow band of similar stops -- the same services and roughly the same drive as the account the rate was learned on -- a house-size number can land close. The risk is quoting a station-heavy or interior account the same way sight unseen, because the rate does not know which services are on the stop or how far the drive is until the route is built, and by then the house-size number has often already been quoted.</p>
+<h3>Does this calculator know my local labor rates or chemical costs?</h3>
+<p>No. It has no data on your local labor market or your supplier's chemical and station pricing. It takes each service's on-site minutes and material cost, station counts, one-way drive time, and your own wage, payroll burden, vehicle cost, overhead, and target margin, and turns that into crew-hours and a price for this stop -- the arithmetic a flat house-size rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Pest Control Bid Calculator</a> to price your own stop, or read <a href="how-much-to-charge.html">how much to charge for pest control</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a treatment is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and your state's pest control licensing board, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mold-remediation-bid-calculator/" data-pf-to="mold-remediation-bid-calculator">Mold Remediation Bid Calculator</a></li>
+      <li><a href="../moving-bid-calculator/" data-pf-to="moving-bid-calculator">Moving Company Bid Calculator</a></li>
+      <li><a href="../pet-grooming-bid-calculator/" data-pf-to="pet-grooming-bid-calculator">Pet Grooming Bid Calculator</a></li>
+      <li><a href="../pressure-washing-bid-calculator/" data-pf-to="pressure-washing-bid-calculator">Pressure Washing Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pest-control-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pest-control-bid-calculator"></script>
+</body></html>

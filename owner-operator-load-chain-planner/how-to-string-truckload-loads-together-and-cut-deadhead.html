@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to String Truckload Loads Together and Cut Deadhead</title>
+  <meta name="description" content="How an owner-operator can choose the next load by what it adds to the whole stretch: empty miles, waiting for pickup windows…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/how-to-string-truckload-loads-together-and-cut-deadhead.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I string loads together as an owner-operator?", "acceptedAnswer": {"@type": "Answer", "text": "Pick the next load by what it adds to the whole stretch, not by its posted rate per mile: the empty miles to reach its pickup, the hours spent waiting for its window and the rest you must take are paid out of the same week. On the worked list the best three-load chain earns $454.36 more than taking the highest-paying rate per loaded mile first."}}, {"@type": "Question", "name": "How do I reduce deadhead miles?", "acceptedAnswer": {"@type": "Answer", "text": "Choose loads whose drop is close to the next pickup, and price the empty run into every candidate. A $1,180 Memphis to Chicago load pays $2.04 per loaded mile but $1.20 per mile once its 404 empty miles are counted; it still belongs in the plan because it sits on the way to a better load home."}}, {"@type": "Question", "name": "What is the lowest rate I should accept for a load?", "acceptedAnswer": {"@type": "Answer", "text": "The walk-away rate: the rate at which the load only just beats the best plan without it. In the worked list the Dallas to Atlanta load posts at $2,350.00 and is worth taking down to $2,264.63, so there is $85.37 of room to counter."}}, {"@type": "Question", "name": "Do rest rules change which loads to take?", "acceptedAnswer": {"@type": "Answer", "text": "They can. With the 11-hour drive and 10-hour rest rule turned off, the same list looks $486.60 better and picks a five-load plan that the rest rule makes impossible. Turning the rule off flatters the plan; the tool shows both so you can see what the clock costs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #1d3a2f; }
+    h2 { color: #1d3a2f; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/how-to-string-truckload-loads-together-and-cut-deadhead.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to String Truckload Loads Together and Cut Deadhead">
+<meta property="og:description" content="How an owner-operator can choose the next load by what it adds to the whole stretch: empty miles, waiting for pickup windows…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to String Truckload Loads Together and Cut Deadhead — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../owner-operator-load-chain-planner/">Which loads should you chain, and what's the lowest rate each is worth?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to String Truckload Loads Together and Cut Deadhead</span></span></nav>
+  <p class="note"><a href="./">Owner Operator Load Chain Planner</a> · guide</p>
+  <h1>How to string truckload loads together and cut deadhead</h1>
+  <p>Short answer: <strong>choose the next load by what it adds to the whole stretch, not by its posted rate per mile</strong>. The empty run to its pickup, the hours you wait for its window to open and the rest you are forced to take are all paid out of the same week. The <a href="./">planner</a> searches every set and order of the loads on your shortlist and returns the best chain, the loads to leave and the lowest rate each one is worth.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> The rates, fuel price, speeds and time windows are illustrative, not market rates, not a route plan and not a forecast. Distances are straight-line miles between approximate city centres times a road factor of 1.2. Replace them with your own.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li>A chain earns the pay of each load less its extras (tolls, lumper), less every mile driven, loaded and empty, at fuel per mile plus your other per-mile costs (6.5 mpg at $3.90 and $0.25 a mile in the worked list).</li>
+    <li>Between loads you drive empty to the next pickup. If you arrive before its window opens you wait; if after it closes, the load is impossible. A delivery deadline you cannot meet makes it impossible too.</li>
+    <li>Driving adds a rest: after 11 hours of driving the clock adds 10 hours, and a wait of 10 hours or more counts as that rest. This is a simplified rule, not a log.</li>
+    <li>Fixed costs run on the clock. Over a window you are free for, they are the same whichever chain you pick; per day they punish a chain that waits.</li>
+    <li>The best chain comes from a dynamic programme over (set of loads, last load) that keeps every state not beaten on clock, drive hours and profit. There is no assumed order, and the tests check it against every ordered subset.</li>
+  </ol>
+
+  <h2>A worked shortlist</h2>
+  <p>Eleven loads out of Dallas with 120 hours free: defaults of 50 mph, 2 hours at each stop, 6.5 mpg, $3.90 a gallon, $0.25 a mile for everything else and $150 a day of fixed cost.</p>
+  <ul>
+    <li>The best chain is <strong>Dallas to Atlanta, Memphis to Chicago, Chicago to Dallas</strong>: $5,630.00 gross on 2,813 miles, <strong>$3,174.19</strong> of profit before fixed costs over 118.3 hours, with 14 percent of the miles empty. It includes 5 forced rests.</li>
+    <li>Taking the highest posted rate per loaded mile first, then the next that still pays, ends at <strong>$2,719.83</strong>. The best chain is <strong>$454.36</strong> better.</li>
+    <li>Memphis to Chicago posts $1,180.00 and looks thin at $2.04 per loaded mile; counting 404 empty miles to reach it it is $1.20 per mile. It still belongs, because without it the best plan is worth $454.36 less. Its walk-away rate is <strong>$725.64</strong>.</li>
+    <li>The Dallas to Atlanta load posts $2,350.00 and has a walk-away of <strong>$2,264.63</strong>: counter down to that and it still beats the alternative; ask for less and you are better off with another plan. That is $85.37 of room.</li>
+    <li>The Houston to Memphis load is the near-miss: forcing it into the plan costs <strong>$85.37</strong> against the best chain. A small rate bump, or a closer start, turns it into a buy.</li>
+    <li>Fuel at $5.00 a gallon keeps the same chain and cuts its profit to <strong>$2,698.20</strong>; the chain is not sensitive to it, the money is.</li>
+  </ul>
+
+  <h2>What the rest rule is worth</h2>
+  <p>With the drive and rest rule off, the same list returns a five-load plan worth <strong>$3,660.79</strong> in 106.5 hours, <strong>$486.60</strong> more than the plan above. That plan cannot be run under the 11-hour rule you set; the gap is what the clock costs. Plan with the rule you actually drive under, not the one that flatters the shortlist.</p>
+
+  <h2>Per day, or total in the window</h2>
+  <p>Maximising <em>total</em> profit inside the hours you are free asks which loads fill the window best. Maximising <em>per day</em> asks which chain is worth most for each day it takes, which suits a driver who can re-plan afterwards; on the worked list a single Dallas to Atlanta load comes out at <strong>$1,221.02</strong> a day, ahead of any longer chain. Neither is a forecast; both are your numbers multiplied out.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Rates the broker has actually quoted you, fuel surcharge included, not the posted ask.</li>
+    <li>Real pickup windows and delivery deadlines, in hours after you are ready.</li>
+    <li>Your own costs per mile and per day. If you have a load's own miles, enter them.</li>
+  </ol>
+  <p>The driving-time rules that apply to you, weight, permits, insurance and whether a load is safe to accept come first and are yours to check.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I string loads together as an owner-operator?</h3>
+  <p>Pick the next load by what it adds to the whole stretch, not by its posted rate per mile: the empty miles to reach its pickup, the hours spent waiting for its window and the rest you must take are paid out of the same week. On the worked list the best three-load chain earns $454.36 more than taking the highest-paying rate per loaded mile first.</p>
+  <h3>How do I reduce deadhead miles?</h3>
+  <p>Choose loads whose drop is close to the next pickup, and price the empty run into every candidate. A $1,180 Memphis to Chicago load pays $2.04 per loaded mile but $1.20 per mile once its 404 empty miles are counted; it still belongs in the plan because it sits on the way to a better load home.</p>
+  <h3>What is the lowest rate I should accept for a load?</h3>
+  <p>The walk-away rate: the rate at which the load only just beats the best plan without it. In the worked list the Dallas to Atlanta load posts at $2,350.00 and is worth taking down to $2,264.63, so there is $85.37 of room to counter.</p>
+  <h3>Do rest rules change which loads to take?</h3>
+  <p>They can. With the 11-hour drive and 10-hour rest rule turned off, the same list looks $486.60 better and picks a five-load plan that the rest rule makes impossible. Turning the rule off flatters the plan; the tool shows both so you can see what the clock costs.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal, insurance, safety or hours-of-service advice, and it is not a market rate, route plan or forecast. You are responsible for verifying its output, for the numbers you enter, for the driving-time rules, permits, insurance and safety requirements that apply to you and each load, and for which loads you accept. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../vector-db-cost-calculator/" data-pf-to="vector-db-cost-calculator">Vector Database Cost Calculator</a></li>
+      <li><a href="../warehouse-slotting-optimizer/" data-pf-to="warehouse-slotting-optimizer">Warehouse slotting optimizer</a></li>
+      <li><a href="../3pl-invoice-audit-checker/" data-pf-to="3pl-invoice-audit-checker">3PL Invoice Audit Checker</a></li>
+      <li><a href="../3pl-quote-normalizer/" data-pf-to="3pl-quote-normalizer">3PL Quote Normalizer</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=owner-operator-load-chain-planner">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="owner-operator-load-chain-planner"></script>
+</body>
+</html>

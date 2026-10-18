@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entry Door Bid Calculator vs. a Flat $1,200 Special | Worked Comparison</title>
+  <meta name="description" content="You already see the published '$1,200 installed' entry-door special. Here is exactly what that one number hides…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/vs-a-flat-1200-special.html">
+  <meta property="og:title" content="Entry Door Bid Calculator vs. a Flat $1,200 Special">
+  <meta property="og:description" content="The flat $1,200 special is fine for a brochure. Here is what it hides once the opening is real: sidelights, rot, brickmold, and a storm door scale…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a flat $1,200 special wrong?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not go away. A brochure or a yard sign needs one number, and \"$1,200 installed\" is a fine headline price. The point of this page is not that the flat number is wrong — it is that the flat number is the same whether the opening is a square 36-inch steel prehung or a fiberglass unit with two sidelights, a transom, eight feet of jamb rot, brickmold, a storm door, and a second-story porch roof, and only a full bid separates the two."}},{"@type":"Question","name":"Does the $1,200 special even cover the door it was built for?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped defaults, yes, comfortably. The cheapest preset — a 36-inch steel prehung in a square, rot-free one-story opening — comes out to $959.55 in total cost before any profit is added, so the flat $1,200 special clears it by $240.45, just $211.11 short of this calculator's own $1,411.11 target-margin price."}},{"@type":"Question","name":"How much worse does it get on a harder job?","acceptedAnswer":{"@type":"Answer","text":"A fiberglass unit with two sidelights and a transom, eight feet of jamb rot, brickmold, a storm door, a smart-lock prep, paint, and a second-story porch roof costs $4,942.35 on this calculator's own defaults — $3,742.35 more than the flat $1,200 special, before a dollar of profit. Sidelights, rot repair, brickmold, and a storm door do not live inside a per-door special."}},{"@type":"Question","name":"Does the calculator replace the flat special?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not trying to. The flat number is what you advertise to get the call. This calculator is what you run once you know the configuration, material, rot, squareness, and extras, to check whether that job's version of \"the $1,200 door\" still covers the opening — and, on a job far enough from the brochure opening, whether it needs a real bid instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2b2218; background: #efe6d8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a4b2a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d4c4ae; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #8a4b2a; }
+    .note { font-size: .9rem; color: #5c4d3d; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #8a4b2a; color: #fdf6ec; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 32px; font-size: .85rem; color: #5c4d3d; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/vs-a-flat-1200-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Entry Door Bid Calculator vs. a Flat $1,200 Special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../entry-door-bid-calculator/">Entry Door Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Entry Door Bid Calculator vs. a Flat $1,200 Special</span></span></nav>
+  <p><a href="index.html">&larr; Entry door bid calculator</a></p>
+  <h1>This calculator vs. a flat $1,200 special</h1>
+  <p>Names no specific product or company. This compares a free calculator against the generic
+    pricing habit every entry-door shop competes with: one flat number &mdash; commonly a "$1,200
+    installed" special &mdash; advertised the same regardless of configuration, material, rot, or
+    extras.</p>
+
+  <h2>First &mdash; the flat special is right, and you should have one</h2>
+  <p>A brochure or a yard sign needs a number before anyone has seen the opening. "$1,200
+    installed" is a perfectly fine headline price, and no calculator replaces having one. What
+    follows is not an argument that the flat number is wrong. It is what that same number stops
+    showing you the moment an opening is real and you know its configuration, material, rot, and
+    extras.</p>
+
+  <h2>The worked example</h2>
+  <p>Both rows below are this calculator's own built-in starting jobs &mdash; the two ends of its
+    catalogue &mdash; priced at its own shipped shop rates: a $42/hr crew wage, 32% burden, $85
+    travel and equipment, 16% overhead, a 32% target margin. The only thing that changes between
+    them is the job.</p>
+
+  <div class="scroll">
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Question</th><th>The brochure opening &mdash; 36" steel prehung, square, one story</th><th>Where the special loses &mdash; fiberglass, 2 sidelights, 8 ft rot, brickmold, storm, 2nd story</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What the flat special charges</strong></td>
+          <td>$1,200 &mdash; the door</td>
+          <td>$1,200 &mdash; the door, unchanged</td>
+        </tr>
+        <tr>
+          <td><strong>Extras past the brochure hang</strong></td>
+          <td>None &mdash; square opening, no rot, no sidelights</td>
+          <td>2 sidelights, a transom, 8 ft of jamb rot, brickmold, a storm door, smart-lock prep, paint, a 2nd-story porch roof</td>
+        </tr>
+        <tr>
+          <td><strong>Total crew hours</strong></td>
+          <td>5.00 h</td>
+          <td>21.35 h &mdash; more than 4&times; the crew time</td>
+        </tr>
+        <tr>
+          <td><strong>Material cost</strong></td>
+          <td>$465.00</td>
+          <td>$2,992.00 &mdash; sidelights, rot repair, brickmold, and a storm door do not live in a per-door special</td>
+        </tr>
+        <tr>
+          <td><strong>Total cost before any profit</strong></td>
+          <td>$959.55 &mdash; well under the $1,200 flat special</td>
+          <td>$4,942.35 &mdash; far above the $1,200 flat special</td>
+        </tr>
+        <tr>
+          <td><strong>What the $1,200 flat special actually nets</strong></td>
+          <td>$240.45 above cost &mdash; a real margin, though still under the calculator's own 32% target</td>
+          <td>&minus;$3,742.35 &mdash; a loss more than three times the flat price itself</td>
+        </tr>
+        <tr>
+          <td><strong>This calculator's price at a 32% target margin</strong></td>
+          <td>$1,411.11</td>
+          <td>$7,268.16 &mdash; $5,857.05 more than the brochure opening, for the same $1,200 headline</td>
+        </tr>
+        <tr>
+          <td><strong>Effective crew rate the $1,200 flat special actually pays</strong></td>
+          <td>$240.00/hr (5.00 billed hours)</td>
+          <td>$56.21/hr &mdash; a 77% cut from the brochure opening, at the identical advertised price</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>The two places the flat special goes quiet</h2>
+
+  <h3>1. Sidelights, rot, and extras never separate from the door</h3>
+  <p>A flat special answers "what do I charge for a door," not "how much rot, glass, and trim this
+    opening needs." Both live inside the same $1,200 either way. The calculator splits them out
+    &mdash; no extras on the brochure opening, $2,992.00 of material on the harder job &mdash; so
+    sidelights, rot repair, brickmold, and a storm door are visible numbers instead of one flat
+    guess that happened to work out on a good day.</p>
+
+  <h3>2. The same advertised price does not scale with the opening</h3>
+  <p>This is the one that costs real money. The flat special charges $1,200 whether the opening is
+    the brochure door or the hardest job in the catalogue, but the cost behind it is not the same
+    &mdash; on this calculator's own defaults, the brochure opening clears the flat price by
+    $240.45, and the harder job runs $3,742.35 over it. A shop quoting "the $1,200 special" on
+    every call can sell every job on the price sheet and still lose money on the ones that turn
+    out to need sidelights and rot repair, with nothing on the ad to say so.</p>
+
+  <h2>When the flat special is still the better tool</h2>
+  <p>For advertising, it plainly is. A yard sign or a brochure cannot show a live calculator, and a
+    homeowner calling for a price wants one number, not a form. The sensible arrangement is both:
+    run the flat special to get the call, then run this calculator once you know the
+    configuration, material, rot, squareness, and extras, to check whether that job's version of
+    "the $1,200 door" still covers the opening &mdash; and, on a job far enough from the brochure
+    opening, whether it needs a real bid instead.</p>
+
+  <p class="note">Every figure on this page is this calculator's own worked example, computed from
+    its own built-in starting jobs and shipped default shop rates, not a claim about any real
+    shop's business or an industry benchmark. Your rates, wages, and overhead will produce
+    different numbers &mdash; the point is which numbers to produce, not what they should come out
+    to.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Is a flat $1,200 special wrong?</h3>
+  <p>No, and it should not go away. A brochure or a yard sign needs one number, and "$1,200
+    installed" is a fine headline price. The point of this page is not that the flat number is
+    wrong &mdash; it is that the flat number is the same whether the opening is a square 36-inch
+    steel prehung or a fiberglass unit with two sidelights, a transom, eight feet of jamb rot,
+    brickmold, a storm door, and a second-story porch roof, and only a full bid separates the
+    two.</p>
+
+  <h3>Does the $1,200 special even cover the door it was built for?</h3>
+  <p>On this calculator's own shipped defaults, yes, comfortably. The cheapest preset &mdash; a
+    36-inch steel prehung in a square, rot-free one-story opening &mdash; comes out to $959.55 in
+    total cost before any profit is added, so the flat $1,200 special clears it by $240.45, just
+    $211.11 short of this calculator's own $1,411.11 target-margin price.</p>
+
+  <h3>How much worse does it get on a harder job?</h3>
+  <p>A fiberglass unit with two sidelights and a transom, eight feet of jamb rot, brickmold, a
+    storm door, a smart-lock prep, paint, and a second-story porch roof costs $4,942.35 on this
+    calculator's own defaults &mdash; $3,742.35 more than the flat $1,200 special, before a dollar
+    of profit. Sidelights, rot repair, brickmold, and a storm door do not live inside a per-door
+    special.</p>
+
+  <h3>Does the calculator replace the flat special?</h3>
+  <p>No, and it is not trying to. The flat number is what you advertise to get the call. This
+    calculator is what you run once you know the configuration, material, rot, squareness, and
+    extras, to check whether that job's version of "the $1,200 door" still covers the opening
+    &mdash; and, on a job far enough from the brochure opening, whether it needs a real bid
+    instead.</p>
+
+  <p>
+    <a class="cta" href="index.html">Bid your own door &rarr;</a><br>
+    <a href="how-much-to-charge-to-replace-a-front-door.html">How much to charge to replace a front door &rarr;</a>
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../window-replacement-bid-calculator/" data-pf-to="window-replacement-bid-calculator">Window Replacement Bid Calculator</a></li>
+      <li><a href="../automatic-driveway-gate-bid-calculator/" data-pf-to="automatic-driveway-gate-bid-calculator">Automatic Driveway Gate Bid Calculator</a></li>
+      <li><a href="../egress-window-bid-calculator/" data-pf-to="egress-window-bid-calculator">Egress Window Bid Calculator</a></li>
+      <li><a href="../garage-door-bid-calculator/" data-pf-to="garage-door-bid-calculator">Garage Door Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=entry-door-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="entry-door-bid-calculator"></script>
+</body>
+</html>

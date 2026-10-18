@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Cache Poisoning Check vs. reviewing workflows by eye</title>
+  <meta name="description" content="Reading a workflow file for a fork-writable cache or an unscoped restore-keys fallback catches the obvious case.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/vs-checking-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Cache Poisoning Check vs. reviewing workflows by eye">
+  <meta property="og:description" content="A careful read of one workflow file can spot an obvious fork-writable actions/cache step. It has a harder time with the save/restore variant distinction…">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/vs-checking-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reviewing a workflow for cache poisoning by eye actually catch?","acceptedAnswer":{"@type":"Answer","text":"A reviewer who knows the pattern will catch the obvious case: a pull_request_target or workflow_run workflow with a bare actions/cache step a few lines below the trigger. That recognition is real, and this tool checks the same two conditions -- an untrusted trigger and a cache-writing step -- rather than a wider or different rule."}},{"@type":"Question","name":"Why is the save/restore variant distinction easy to get wrong by eye?","acceptedAnswer":{"@type":"Answer","text":"actions/cache/restore only reads -- it cannot write a poisoned entry no matter what triggered the job, so flagging it would be a false alarm. A bare actions/cache or actions/cache/save step does write. A reviewer scanning quickly for the string actions/cache under a fork trigger can easily flag the restore-only step as risky, or worse, skim past a bare actions/cache step assuming it only reads because a nearby step in the same job happens to say \"restore\" in a comment or variable name. This tool parses the actual step reference -- actions/cache, actions/cache/save, or actions/cache/restore -- and applies the write-capable rule only to the first two."}},{"@type":"Question","name":"Why is unscoped restore-keys easy to miss even on an ordinary push workflow?","acceptedAnswer":{"@type":"Answer","text":"The instinct when hunting for cache poisoning is to search for pull_request_target or workflow_run first, then look at what's inside. But restore-keys risk has nothing to do with which trigger fired the job doing the restoring -- it depends on whether anything else in the repository, including an unrelated and unprivileged job, can write a cache entry under the same key prefix. A reviewer who filters by trigger first will skip every ordinary push or pull_request workflow's cache step without a second look, which is exactly where an adopted prefix collision shows up. This tool flags restore-keys on any cache step regardless of trigger, because the risk lives on the restoring side, not the triggering side."}},{"@type":"Question","name":"Does a clean result from this tool mean my cache usage is safe?","acceptedAnswer":{"@type":"Answer","text":"No. It checks two specific, well-documented patterns in one workflow file at a time. It does not catch the cache: input on actions/setup-node, actions/setup-python, actions/setup-java, or actions/setup-go, and it does not correlate a cache write in one workflow file with a restore in another -- both real ways a repository's cache usage can still be exploitable after a clean scan."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #9a3412; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Actions Cache Poisoning Check vs. reviewing workflows by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-cache-poisoning-check/">Can a fork PR poison your GitHub Actions cache?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Actions Cache Poisoning Check vs. reviewing workflows by eye</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Cache Poisoning Check</a></p>
+    <h1>Actions Cache Poisoning Check vs. reviewing workflows by eye</h1>
+    <p class="lede">Reading a workflow file for these two patterns is a real skill, and an experienced reviewer catches
+      the obvious case every time. This page names no product or company -- "reviewing by eye" is the generic habit
+      every maintainer already has, not a competing tool.</p>
+
+    <section class="card">
+      <h2>Where a careful read holds up, and where it slips</h2>
+      <p>
+        A bare <code>actions/cache</code> step sitting right below a <code>pull_request_target:</code> trigger is
+        easy to spot once you know the shape. Two things are harder to hold in your head while scanning a real
+        workflow file: <code>actions/cache</code> has three call shapes -- bare (reads and writes),
+        <code>/save</code> (writes only), and <code>/restore</code> (reads only) -- and only the first two can
+        actually poison anything, so a rule that flags every <code>actions/cache</code> string either raises a
+        false alarm on a read-only restore or, worse, gets tuned so loosely a real write-capable step slips past.
+        And <code>restore-keys</code> risk is not about the trigger at all: it depends on whether anything else in
+        the repository can write an entry under the same key prefix, which means the natural instinct -- filter for
+        <code>pull_request_target</code> or <code>workflow_run</code> first, then look inside -- skips over every
+        ordinary <code>push</code> workflow's cache step, which is exactly where a prefix collision is adopted.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reviewing by eye</th><th scope="col">This tool</th></tr></thead>
+        <tbody>
+          <tr><td>Bare <code>actions/cache</code> step under a <code>pull_request_target</code> trigger</td><td>Easy to catch</td><td>Catches it the same way</td></tr>
+          <tr><td><code>actions/cache/restore</code> step under the same trigger</td><td>Easy to flag by mistake -- it only reads, so it cannot write a poisoned entry</td><td>Parses the step variant and applies the write-capable rule only to bare and <code>/save</code></td></tr>
+          <tr><td><code>actions/cache/save</code> step under a fork trigger</td><td>Easy to skim past assuming "save" sounds routine, unlike a bare cache step</td><td>Treated the same as a bare step -- both write</td></tr>
+          <tr><td><code>restore-keys</code> on a workflow triggered by <code>pull_request_target</code>/<code>workflow_run</code></td><td>Caught, since the reviewer is already looking at this file for fork-trigger risk</td><td>Caught the same way</td></tr>
+          <tr><td><code>restore-keys</code> on an ordinary <code>push</code>-to-<code>main</code> workflow</td><td>Easy to skip entirely -- nothing about the trigger looks untrusted, so the file doesn't get a second look</td><td>Flagged regardless of trigger, since the risk depends on who else can write the shared key prefix, not on what triggered the restore</td></tr>
+          <tr><td>A repository with a dozen workflow files, each with its own cache step</td><td>Re-reading all of them for both patterns, every time a workflow changes, is tedious and easy to shortcut</td><td>Paste as many files as you have, or run <code>check.py</code> across the whole directory</td></tr>
+          <tr><td>Blocking a newly-added finding before it merges</td><td>Depends on a human noticing it in review</td><td><code>check.py --fail-on-risk</code> gives a real exit code from the same classification, wired into your own CI</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary, not competing: this tool does not replace the judgment that decides
+        whether a flagged cache step is actually reachable from an attacker in your specific setup -- it replaces
+        the tedious, error-prone part, which is remembering which cache-action variant writes and checking every
+        file's <code>restore-keys</code> regardless of what triggered it.</p>
+      <p><a class="cta" href="./">Run the free cache poisoning check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does reviewing a workflow for cache poisoning by eye actually catch?</h3>
+      <p>A reviewer who knows the pattern will catch the obvious case: a <code>pull_request_target</code> or <code>workflow_run</code> workflow with a bare <code>actions/cache</code> step a few lines below the trigger. That recognition is real, and this tool checks the same two conditions -- an untrusted trigger and a cache-writing step -- rather than a wider or different rule.</p>
+      <h3>Why is the save/restore variant distinction easy to get wrong by eye?</h3>
+      <p><code>actions/cache/restore</code> only reads -- it cannot write a poisoned entry no matter what triggered the job, so flagging it would be a false alarm. A bare <code>actions/cache</code> or <code>actions/cache/save</code> step does write. A reviewer scanning quickly for the string <code>actions/cache</code> under a fork trigger can easily flag the restore-only step as risky, or worse, skim past a bare <code>actions/cache</code> step assuming it only reads because a nearby step in the same job happens to say "restore" in a comment or variable name. This tool parses the actual step reference -- <code>actions/cache</code>, <code>actions/cache/save</code>, or <code>actions/cache/restore</code> -- and applies the write-capable rule only to the first two.</p>
+      <h3>Why is unscoped restore-keys easy to miss even on an ordinary push workflow?</h3>
+      <p>The instinct when hunting for cache poisoning is to search for <code>pull_request_target</code> or <code>workflow_run</code> first, then look at what's inside. But <code>restore-keys</code> risk has nothing to do with which trigger fired the job doing the restoring -- it depends on whether anything else in the repository, including an unrelated and unprivileged job, can write a cache entry under the same key prefix. A reviewer who filters by trigger first will skip every ordinary <code>push</code> or <code>pull_request</code> workflow's cache step without a second look, which is exactly where an adopted prefix collision shows up. This tool flags <code>restore-keys</code> on any cache step regardless of trigger, because the risk lives on the restoring side, not the triggering side.</p>
+      <h3>Does a clean result from this tool mean my cache usage is safe?</h3>
+      <p>No. It checks two specific, well-documented patterns in one workflow file at a time. It does not catch the <code>cache:</code> input on <code>actions/setup-node</code>, <code>actions/setup-python</code>, <code>actions/setup-java</code>, or <code>actions/setup-go</code>, and it does not correlate a cache write in one workflow file with a restore in another -- both real ways a repository's cache usage can still be exploitable after a clean scan.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against cache poisoning, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against anything -- it is a static page describing a generic manual-review habit, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../agent-permission-config-check/" data-pf-to="agent-permission-config-check">Is your AI coding agent's permission config over-broad?</a></li>
+      <li><a href="../ai-coding-plan-cost-calculator/" data-pf-to="ai-coding-plan-cost-calculator">Is your AI coding plan actually cheaper than the API?</a></li>
+      <li><a href="../ai-crawler-access-check/" data-pf-to="ai-crawler-access-check">Which AI crawlers can actually read your site?</a></li>
+      <li><a href="../android-data-safety-check/" data-pf-to="android-data-safety-check">Android Data Safety Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-cache-poisoning-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-cache-poisoning-check"></script>
+</body></html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. Lighthouse | PWA Installability Checker</title>
+<meta name="description" content="Lighthouse is Google's open-source auditing tool -- built into Chrome DevTools and runnable via CLI or PageSpeed Insights -- and it needs a real…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/vs-lighthouse.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Lighthouse">
+<meta property="og:description" content="Different shapes of the same question: Lighthouse audits performance, accessibility, SEO, best practices, and PWA installability together…">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Lighthouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reach for Lighthouse when you want the full picture: performance, accessibility, best practices, SEO, and PWA installability scored together against a page you name, using a real Chrome instance driving the page the way a visitor's browser would. Reach for this checker when you only want the installability question answered -- manifest present and parseable, a name, an installable display mode, a secure origin, a reachable icon -- without installing or launching Chrome at all, for example on a CI runner with no browser image or on a machine where Puppeteer's download is unwelcome." }
+    },
+    {
+      "@type": "Question",
+      "name": "Lighthouse is free too. What does this add?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Being free is not the difference -- Lighthouse is Google's open-source project under an Apache-2.0 licence, and running it costs nothing. What differs is the dependency and the scope. Lighthouse drives a real Chrome or Chromium instance (via chrome-launcher or Puppeteer) to produce its report, which is a real download and a real browser process to keep current. This checker is a zero-dependency Node script: it fetches your page's HTML, its manifest, and its icons with plain HTTP requests, classifies the result against the same documented installability criteria, and needs nothing beyond Node itself. It also does only that one job -- it has no performance, accessibility, or SEO score to produce or to keep out of your way." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace running Lighthouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Lighthouse's installable-manifest audit is one line item inside a much larger report, and that larger report is doing real work this checker does not attempt -- performance timing, accessibility rules, and the rest of Lighthouse's PWA and best-practices checks, all measured against a page rendered in an actual browser. This checker reads the same manifest and icon criteria Lighthouse's own documentation describes and reports on nothing else. Run Lighthouse for the full audit; run this when installability is the one question and a browser is the one thing you would rather not install." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Google or Lighthouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Google, and Lighthouse and Chrome are trademarks of Google LLC, named here only to describe what this checker is and is not. The description of Lighthouse and its installable-manifest audit on this page is drawn from Google's own public documentation; check web.dev and the Lighthouse repository for what the current release covers." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/vs-lighthouse.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Lighthouse — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pwa-installability-check/">PWA Installability Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Lighthouse</span></span></nav>
+<p><a href="index.html">&larr; PWA Installability Checker</a></p>
+
+<h1>This checker vs. Lighthouse</h1>
+
+<p>
+  <strong>Lighthouse</strong> is Google's open-source auditing tool for web pages, built into
+  Chrome DevTools and also runnable from the command line, as an npm package, or through
+  <a href="https://pagespeed.web.dev/" rel="nofollow noopener">PageSpeed Insights</a>. Point it at
+  a URL and it drives a real Chrome (or Chromium) instance to score the page across several
+  categories -- performance, accessibility, best practices, SEO, and, among its PWA-related audits,
+  <code>installable-manifest</code>: the same manifest, name, display-mode, secure-origin, and icon
+  checks this tool runs. Lighthouse's own documentation on
+  <a href="https://developer.chrome.com/docs/lighthouse/pwa/installable-manifest/" rel="nofollow noopener">web.dev</a>
+  describes that audit in detail.
+</p>
+
+<p>
+  That is a much broader tool doing a much broader job, and it needs a browser to do it: Lighthouse
+  launches Chrome (via <code>chrome-launcher</code> or Puppeteer) to render the page before it can
+  audit anything, which means a Chrome or Chromium binary has to exist on whatever machine runs it.
+  This checker does one narrower thing without that dependency. It is a zero-dependency Node
+  command that fetches your page's HTML, the <code>&lt;link rel="manifest"&gt;</code> it points at,
+  the manifest JSON, and every icon the manifest lists, using plain HTTP requests -- no browser, no
+  rendering, no screenshot. It classifies the result against the documented installability criteria
+  and stops there. It has no performance timing, no accessibility rules, and no SEO score.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Get a full picture of a page -- performance, accessibility, best practices, SEO, and PWA checks together, rendered the way a visitor's browser sees it.</td>
+      <td>Lighthouse -- this checker only ever answers the installability question.</td>
+    </tr>
+    <tr>
+      <td>Find out whether a page's manifest and icons clear Chrome's documented installability criteria, without installing or launching a browser.</td>
+      <td>This checker -- one Node command, plain HTTP requests, a plain-English report.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in CI on a manifest regression, on a runner image with no Chrome and no Puppeteer download budget.</td>
+      <td>This checker -- zero dependencies beyond Node, and it never launches a browser.</td>
+    </tr>
+    <tr>
+      <td>Audit rendered performance, layout shift, or real accessibility violations that only show up once the page runs.</td>
+      <td>Lighthouse -- this checker never renders the page, so it cannot see anything that depends on rendering.</td>
+    </tr>
+    <tr>
+      <td>See the install prompt fire in an actual browser session, or capture a full audit report with scores and a trace.</td>
+      <td>Lighthouse (or Chrome DevTools' own Lighthouse panel) -- this checker only classifies a probe's JSON output, never a live page.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These compose rather than compete. A reasonable setup runs this checker on every commit that
+  touches a manifest or an icon asset -- cheap, no browser, fails fast and names the exact field --
+  and keeps a full Lighthouse run for the broader audit that only a rendered page can answer.
+  Neither one replaces the other.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or Lighthouse?</h3>
+<p>Reach for Lighthouse when you want the full picture: performance, accessibility, best practices, SEO, and PWA installability scored together against a page you name, using a real Chrome instance driving the page the way a visitor's browser would. Reach for this checker when you only want the installability question answered -- manifest present and parseable, a name, an installable display mode, a secure origin, a reachable icon -- without installing or launching Chrome at all, for example on a CI runner with no browser image or on a machine where Puppeteer's download is unwelcome.</p>
+
+<h3>Lighthouse is free too. What does this add?</h3>
+<p>Being free is not the difference -- Lighthouse is Google's open-source project under an Apache-2.0 licence, and running it costs nothing. What differs is the dependency and the scope. Lighthouse drives a real Chrome or Chromium instance (via chrome-launcher or Puppeteer) to produce its report, which is a real download and a real browser process to keep current. This checker is a zero-dependency Node script: it fetches your page's HTML, its manifest, and its icons with plain HTTP requests, classifies the result against the same documented installability criteria, and needs nothing beyond Node itself. It also does only that one job -- it has no performance, accessibility, or SEO score to produce or to keep out of your way.</p>
+
+<h3>Does this replace running Lighthouse?</h3>
+<p>No. Lighthouse's installable-manifest audit is one line item inside a much larger report, and that larger report is doing real work this checker does not attempt -- performance timing, accessibility rules, and the rest of Lighthouse's PWA and best-practices checks, all measured against a page rendered in an actual browser. This checker reads the same manifest and icon criteria Lighthouse's own documentation describes and reports on nothing else. Run Lighthouse for the full audit; run this when installability is the one question and a browser is the one thing you would rather not install.</p>
+
+<h3>Is this page affiliated with Google or Lighthouse?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Google, and Lighthouse and Chrome are trademarks of Google LLC, named here only to describe what this checker is and is not. The description of Lighthouse and its installable-manifest audit on this page is drawn from Google's own public documentation; check web.dev and the Lighthouse repository for what the current release covers.</p>
+
+<p><a href="index.html">&larr; Back to the PWA Installability Checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at the manifest fields,
+  display mode, secure origin, and icon reachability behind Chrome's documented installability
+  criteria. It is not a full Lighthouse audit, does not render the page, and cannot see a criterion
+  browsers might add in the future.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not engineering advice, and it does not replace testing the
+  actual install prompt in a real browser. <strong>You are responsible for reviewing and
+  verifying its output before relying on it.</strong> To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+      <li><a href="../soc2-readiness-checker/" data-pf-to="soc2-readiness-checker">SOC 2 Readiness Checker — free, private, no signup</a></li>
+      <li><a href="../social-preview-check/" data-pf-to="social-preview-check">Social Preview Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pwa-installability-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pwa-installability-check"></script>
+</body>
+</html>

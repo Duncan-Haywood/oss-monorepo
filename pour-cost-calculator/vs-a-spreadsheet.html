@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a spreadsheet | Pour Cost Calculator</title>
+<meta name="description" content="A spreadsheet can divide recipe cost by menu price fine. Where it quietly goes wrong: a half-filled modifier or mixer priced as free…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet divides cost by price fine. It won't flag a half-filled mixer line, solve backward for the price a target pour cost needs…">
+<meta property="og:url" content="./vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't pour cost just ingredient cost divided by menu price?","acceptedAnswer":{"@type":"Answer","text":"That division is trivial and a spreadsheet does it fine once every ingredient cost is already in a cell. What a plain spreadsheet does not do on its own is decide what a half-entered modifier or mixer line means — a blank cell just computes as zero, which prices that ingredient as free rather than flagging that the entry is unfinished."}},{"@type":"Question","name":"Why does a partially filled modifier or mixer line matter?","acceptedAnswer":{"@type":"Answer","text":"A recipe slot has three fields — bottle cost, bottle size, and the amount poured — and all three blank means the recipe genuinely skips that ingredient, which is a normal, valid entry. One or two filled in is different: it is a bottle cost typed in with no pour size next to it, which a spreadsheet formula either errors on or silently treats as zero. This calculator tells the two cases apart and asks you to finish or clear the slot instead of guessing which one you meant."}},{"@type":"Question","name":"What does solving backward for the target price actually save you?","acceptedAnswer":{"@type":"Answer","text":"Most spreadsheets go one direction: type a menu price, get a pour cost percentage. Hitting a specific target percentage from there means typing a different price, checking the percentage, and typing again until it lands — trial and error with the same formula. This calculator solves the arithmetic in the other direction too: enter the target percentage and it shows the exact price this recipe, at its current ingredient cost, would need to hit it, in one pass."}},{"@type":"Question","name":"Why does a small over-pour matter enough to compute a whole year of it?","acceptedAnswer":{"@type":"Answer","text":"A quarter-ounce over a 1.5oz pour looks generous on any single ticket, not expensive — a spreadsheet that only prices one drink at a time never shows the other side of it. Multiplied by the primary spirit's cost per ounce and the drinks actually poured in a week, then by 52 weeks, the same over-pour becomes a specific dollar figure across a year, which is the number that makes it worth fixing rather than shrugging at."}},{"@type":"Question","name":"Does this replace a beverage program's own cost spreadsheet or POS reports?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or POS report that tracks every recipe, every price change, and every ordering period over a season is still the right tool for that ongoing record. This page answers one recipe at a time — what its real pour cost is, what price it would need to hit a target, and what a stated over-pour on it is costing across a year — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+<style>
+  :root{color-scheme:light dark;--bg:#ffffff;--fg:#1a1a1a;--muted:#5a5a5a;--border:#d8d8d8;--accent:#8a3b1f;--panel:#f7f7f8}
+  @media (prefers-color-scheme: dark){:root{--bg:#14161a;--fg:#eaeaea;--muted:#a3a3a3;--border:#33363c;--panel:#1d2026;--accent:#ff9d6e}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  main{max-width:800px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  a{color:var(--accent);overflow-wrap:anywhere}
+  .eyebrow{font-weight:700;font-size:.9rem}
+  h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.1;margin:.4rem 0;letter-spacing:-.02em}
+  .lede{font-size:1.05rem;max-width:64ch;color:var(--muted)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  h2{font-size:1.15rem;margin-top:0}
+  h3{font-size:1rem;margin-bottom:.3rem}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .fine,.note{font-size:.88rem;color:var(--muted)}
+  footer{border-top:1px solid var(--border);margin-top:2rem;padding-top:1.5rem;font-size:.86rem;color:var(--muted)}
+  footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../pour-cost-calculator/">Pour Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Pour Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A spreadsheet can subtract cost from price fine. Where it quietly goes wrong: a half-filled modifier or mixer priced as free instead of flagged, no way to solve backward from a target percentage to the price it needs, and no annualized figure for what a small over-pour costs across a year of shifts.</p>
+</header>
+
+<section>
+<h2>What each one actually does</h2>
+<p>
+  A lot of beverage programs already reach for a spreadsheet: one column per
+  ingredient cost, a formula that sums them, another that divides the total
+  by the menu price. That arithmetic is trivial and a spreadsheet does it
+  fine, for a recipe that is fully typed in. What it does not do on its own
+  is <strong>catch the mistakes that actually change the number</strong>: a
+  modifier or mixer line started but not finished, a target percentage that
+  has to be reached by guessing at prices one at a time, and a small
+  over-pour that never gets turned into what it costs across a real
+  drink volume.
+</p>
+<p>
+  This calculator takes one recipe &mdash; a primary spirit plus an optional
+  modifier and mixer, each priced by bottle cost, bottle size, and the
+  amount poured &mdash; and works out the pour cost percentage, the price
+  this exact recipe would need to hit a target you set, and the weekly and
+  annual cost of a stated over-pour on the primary spirit across your own
+  drink volume. It runs free in any browser, keeps no account, and nothing
+  you type is uploaded.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's this recipe's pour cost, given its ingredient costs and menu price?</td><td>Either one &mdash; a spreadsheet divides fine, once every cost is entered.</td></tr>
+<tr><td>I typed a modifier's bottle cost but forgot its pour size. What happens?</td><td>This calculator &mdash; flags the unfinished line instead of quietly pricing it as free.</td></tr>
+<tr><td>What price does this recipe need to hit an 20% pour cost target?</td><td>This calculator &mdash; solves backward for the price in one pass, no trial and error.</td></tr>
+<tr><td>What is a quarter-ounce over-pour on the well spirit actually costing across a year?</td><td>This calculator's over-pour section &mdash; annualized from your own drinks-per-week figure.</td></tr>
+<tr><td>How do I calculate pour cost by hand, with the formula and a worked example?</td><td>This calculator's <a href="how-to-calculate-pour-cost.html">worked walkthrough</a>.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No, on either &mdash; but this calculator needs no formulas to build or maintain.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  Most beverage programs get different value from each: an ongoing
+  spreadsheet or POS export for tracking every recipe and every price change
+  over a season, and a page like this one for an instant, no-login check on
+  one recipe's real pour cost, the price it would take to hit a target, and
+  what an over-pour on it is really costing before or without ever building
+  a formula. This page's own figures are an arithmetic comparison built from
+  what you typed in, not a substitute for your own cost records.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded.</p>
+</section>
+
+<section>
+<h2>A worked example</h2>
+<p>
+  A well spirit at $22 a 750ml (25.4oz) bottle, poured at 1.5oz, mixed with
+  5oz from a $4 mixer bottle, sold at $7 with a 20% target: the recipe's
+  real pour cost is <strong>27.0%</strong>, 7.0 points above target, so
+  hitting 20% at this exact recipe cost would take a menu price of
+  <strong>$9.45</strong>, not $7.00. Nothing about that math needs a new
+  spreadsheet formula &mdash; it needs the division run backward, which a
+  cell built for the forward direction does not do on its own.
+</p>
+<p>
+  Add a quarter-ounce over-pour on the well spirit and the same recipe's
+  pour cost moves to 30.1%. Across 400 drinks a week that is
+  <strong>$86.61 a week</strong>, or about <strong>$4,504 a year</strong>,
+  in liquor the $7 price never accounted for &mdash; a figure no single
+  ticket, and no spreadsheet built one drink at a time, shows on its own.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Isn't pour cost just ingredient cost divided by menu price?</h3>
+<p>That division is trivial and a spreadsheet does it fine once every ingredient cost is already in a cell. What a plain spreadsheet does not do on its own is decide what a half-entered modifier or mixer line means &mdash; a blank cell just computes as zero, which prices that ingredient as free rather than flagging that the entry is unfinished.</p>
+<h3>Why does a partially filled modifier or mixer line matter?</h3>
+<p>A recipe slot has three fields &mdash; bottle cost, bottle size, and the amount poured &mdash; and all three blank means the recipe genuinely skips that ingredient, which is a normal, valid entry. One or two filled in is different: it is a bottle cost typed in with no pour size next to it, which a spreadsheet formula either errors on or silently treats as zero. This calculator tells the two cases apart and asks you to finish or clear the slot instead of guessing which one you meant.</p>
+<h3>What does solving backward for the target price actually save you?</h3>
+<p>Most spreadsheets go one direction: type a menu price, get a pour cost percentage. Hitting a specific target percentage from there means typing a different price, checking the percentage, and typing again until it lands &mdash; trial and error with the same formula. This calculator solves the arithmetic in the other direction too: enter the target percentage and it shows the exact price this recipe, at its current ingredient cost, would need to hit it, in one pass.</p>
+<h3>Why does a small over-pour matter enough to compute a whole year of it?</h3>
+<p>A quarter-ounce over a 1.5oz pour looks generous on any single ticket, not expensive &mdash; a spreadsheet that only prices one drink at a time never shows the other side of it. Multiplied by the primary spirit's cost per ounce and the drinks actually poured in a week, then by 52 weeks, the same over-pour becomes a specific dollar figure across a year, which is the number that makes it worth fixing rather than shrugging at.</p>
+<h3>Does this replace a beverage program's own cost spreadsheet or POS reports?</h3>
+<p>No. A spreadsheet or POS report that tracks every recipe, every price change, and every ordering period over a season is still the right tool for that ongoing record. This page answers one recipe at a time &mdash; what its real pour cost is, what price it would need to hit a target, and what a stated over-pour on it is costing across a year &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+<p class="note">Open the <a href="./">Pour Cost Calculator</a> to check your own recipe, or read <a href="how-to-calculate-pour-cost.html">how to calculate pour cost</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, alcohol-service, or financial advice, and it does not tell you what to charge or how to run your beverage program. It is arithmetic on the numbers you type. Verify every figure against your own invoices, POS reports, and accounts, and against a qualified professional, before relying on it or pricing a menu with it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your data is never uploaded. Free and open source &mdash; the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../sheep-goat-flock-profit-planner/" data-pf-to="sheep-goat-flock-profit-planner">Is raising sheep or goats profitable? Free flock profit planner</a></li>
+      <li><a href="../shift-cover-optimizer/" data-pf-to="shift-cover-optimizer">Shift-Cover Optimizer — free, private, in your browser</a></li>
+      <li><a href="../shift-roster-builder/" data-pf-to="shift-roster-builder">Shift Roster Builder — free, private, in your browser</a></li>
+      <li><a href="../shift-rotation-schedule-generator/" data-pf-to="shift-rotation-schedule-generator">Rotating shift schedule to calendar, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pour-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="pour-cost-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet</title>
+  <meta name="description" content="A Whatnot seller running a show with a dozen lots usually builds a spreadsheet for commission, the $1,500 category cap, and processing on the checkout total.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html">
+  <meta property="og:title" content="Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same commission, cap, and processing formulas this calculator does. What it does not do on its own is apply the right category cap…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Commission on the hammer, the $1,500 cap on TCG/comics/sports/coins, processing on the checkout total (item plus buyer-paid shipping and tax) plus $0.30, and the free-shipping comparison are all ordinary arithmetic you can put in a spreadsheet. Building it means copying Whatnot's published rates into the right cells and remembering to re-check the cap on every lot near $1,500, category by category."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Apply the category cap for you. A spreadsheet formula that charges commission on the full hammer keeps overstating the fee on every graded card, coin roll, or sports lot over $1,500 until someone notices and patches the cell — this calculator applies the cap by category preset, so a $2,400 graded lot is never charged as if the cap didn't exist. It also runs the charge-it / bake-it-in / eat-it free-shipping comparison in one view and produces a shareable link that carries the whole lot instead of a file to keep in sync between a phone during a live show and a laptop afterward."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a wrinkle this calculator does not model — a bundled multi-item lot, a promo credit, or a fee structure from a plan this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields and the right cap for a single lot moving through a standard Whatnot sale."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices or costs."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2333; background: #f6f2fa; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: -.04em; line-height: 1.1; color: #3a1f52; }
+    h2 { font-size: 1.15rem; color: #3a1f52; }
+    section.card { background: #fffef9; border: 1px solid #ddd2ea; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #2c14400d; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd2ea; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4f68; }
+    .note { font-size: .9rem; color: #5c4f68; }
+    footer { margin-top: 28px; font-size: .82rem; color: #53485f; }
+    footer a { color: #7a1fa2; }
+    footer p { margin: .6rem 0; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../whatnot-seller-payout/">Whatnot Seller Payout Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet</span></span></nav>
+  <p class="note"><a href="./">&larr; Whatnot Seller Payout Calculator</a></p>
+  <h1>Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet</h1>
+  <p>A seller who runs more than one Whatnot show usually ends up with a spreadsheet: a cell for the commission rate, one for the $1,500 category cap, a processing formula on the checkout total, and a new row whenever the show mixes categories &mdash; a TCG lot at 8% up to the cap, a coin roll at 4%, a pallet at 4% with no cap at all. Each formula is ordinary arithmetic. Remembering which cap applies to which lot, and re-deriving the free-shipping tradeoff every time a buyer asks, is the part that gets skipped when the next lot is already live.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every formula this calculator runs &mdash; commission on the hammer, the $1,500 cap by category, processing on item plus buyer-paid shipping and tax plus $0.30, and the charge-it / bake-it-in / eat-it free-shipping comparison. Building it means typing Whatnot's published rates into the right cells and adding a cap check for every category the show touches, then updating it whenever Whatnot's published rates change.</p>
+  <p><strong>This calculator</strong> keeps the four category presets, the cap, and the free-shipping comparison on one screen, so a TCG lot near $1,500 and a no-cap pallet in the same show use the same worksheet instead of two. A shareable link carries the full scenario in the URL, so a number checked on a phone mid-show is the same link opened on a laptop afterward.</p>
+  <div style="overflow-x:auto">
+  <div class="pf-table-scroll"><table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>What's left after commission and processing on this lot?</td><td>This calculator's payout panel &mdash; one screen, the right cap applied.</td></tr>
+  <tr><td>Does charging for shipping or baking it into the price leave more?</td><td>This calculator's free-shipping comparison, not a third spreadsheet tab.</td></tr>
+  <tr><td>My situation has a wrinkle this calculator doesn't model (a bundled lot, a promo credit).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+  <tr><td>I want the hammer bid a resale lot needs to hit a target payout.</td><td>This calculator's target-leftover mode, solved for you instead of goal-seeked by hand.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table></div>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. Commission on the hammer, the $1,500 cap on TCG/comics/sports/coins, processing on the checkout total (item plus buyer-paid shipping and tax) plus $0.30, and the free-shipping comparison are all ordinary arithmetic you can put in a spreadsheet. Building it means copying Whatnot's published rates into the right cells and remembering to re-check the cap on every lot near $1,500, category by category.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Apply the category cap for you. A spreadsheet formula that charges commission on the full hammer keeps overstating the fee on every graded card, coin roll, or sports lot over $1,500 until someone notices and patches the cell — this calculator applies the cap by category preset, so a $2,400 graded lot is never charged as if the cap didn't exist. It also runs the charge-it / bake-it-in / eat-it free-shipping comparison in one view and produces a shareable link that carries the whole lot instead of a file to keep in sync between a phone during a live show and a laptop afterward.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when your situation has a wrinkle this calculator does not model — a bundled multi-item lot, a promo credit, or a fee structure from a plan this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields and the right cap for a single lot moving through a standard Whatnot sale.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices or costs.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these payouts in a spreadsheet, not a competing calculator. Open <a href="./">the Whatnot Seller Payout Calculator</a>, or see <a href="how-much-does-whatnot-take.html">how much does Whatnot take per sale</a> for a worked example.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device and is never uploaded anywhere.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../business-insurance-policy-reader/" data-pf-to="business-insurance-policy-reader">Check your business insurance policy for gaps and client-contract limits. Free, private</a></li>
+      <li><a href="../card-grading-submission-picker/" data-pf-to="card-grading-submission-picker">Which cards are worth sending to a grader, and which should you sell raw?</a></li>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+      <li><a href="../clearance-markdown-planner/" data-pf-to="clearance-markdown-planner">Clearance Markdown Planner — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=whatnot-seller-payout">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="whatnot-seller-payout"></script>
+</body>
+</html>

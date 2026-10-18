@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Are My Tests Flaky in CI? — Common Causes</title>
+  <meta name="description" content="The common causes of flaky tests in CI — timing and race conditions, shared/leaked state, real network calls, and ordering dependencies…">
+  <meta property="og:title" content="Why are my tests flaky in CI?">
+  <meta property="og:description" content="The common causes of flaky tests — timing, shared state, real network calls, test order — and what to check for each…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/why-are-my-tests-flaky-in-ci.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a test pass locally but fail intermittently in CI?","acceptedAnswer":{"@type":"Answer","text":"CI runners are usually slower and more resource-constrained than a laptop, and often run tests in parallel across more workers. That surfaces timing assumptions (a fixed sleep instead of an actual wait condition), shared state between tests running concurrently, and real network or filesystem calls that a local run's warm cache or already-open connection was hiding."}},{"@type":"Question","name":"What's the difference between a flaky test and a broken test?","acceptedAnswer":{"@type":"Answer","text":"A broken test fails every time under the same conditions — that is a real regression in the code or the test. A flaky test fails sometimes and passes other times with no code change in between — the test or its environment is nondeterministic. Treating a broken test as flaky (retrying until green) ships a real bug; treating a flaky test as broken (blaming the last commit) wastes time bisecting a change that did nothing."}},{"@type":"Question","name":"Should I just retry flaky tests until they pass?","acceptedAnswer":{"@type":"Answer","text":"As a short-term unblock for a release, sometimes. As a permanent policy, no — a suite where flaky tests are silently retried stops being a signal at all, since a real regression that also happens to race can pass on retry too. Track which tests are flaky and fix the highest-value ones; a rerun-until-green CI step should be a visible, counted exception, not silent default behavior."}},{"@type":"Question","name":"How do I find out which of my tests are actually flaky before I start debugging?","acceptedAnswer":{"@type":"Answer","text":"Run the suite (or the reruns your CI already does) at least twice and compare pass/fail per test — a test that flips is flaky, a test that fails every time is a real bug. The free Flaky Test Finder tool on this site does exactly that from JUnit XML reports you already have, with no signup and nothing uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 8px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    code { background: #f7f9fb; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 10px 16px; border-radius: 8px; text-decoration: none; margin-top: 6px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/why-are-my-tests-flaky-in-ci.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why are my tests flaky in CI? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../flaky-test-finder/">Which of your tests are actually flaky?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why are my tests flaky in CI?</span></span></nav>
+  <header>
+    <p class="note">FLAKY TEST FINDER · GUIDE</p>
+    <h1>Why are my tests flaky in CI?</h1>
+    <p>"Flaky" means a test fails sometimes and passes other times with no code change in between. It is different from a broken test, which fails every time — see the first question below for why that distinction matters before you start debugging anything.</p>
+  </header>
+
+  <section class="card">
+    <h2>Find out which tests are actually flaky first</h2>
+    <p>Guessing from memory ("I think it's the checkout test") wastes time on the wrong one. Compare two or more runs and let the pass/fail pattern tell you — free, runs in your browser, nothing uploaded.</p>
+    <a class="cta" href="index.html">Open Flaky Test Finder →</a>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a test pass locally but fail intermittently in CI?</h3>
+    <p>CI runners are usually slower and more resource-constrained than a laptop, and often run tests in parallel across more workers. That surfaces timing assumptions (a fixed sleep instead of an actual wait condition), shared state between tests running concurrently, and real network or filesystem calls that a local run's warm cache or already-open connection was hiding.</p>
+    <h3>What's the difference between a flaky test and a broken test?</h3>
+    <p>A broken test fails every time under the same conditions — that is a real regression in the code or the test. A flaky test fails sometimes and passes other times with no code change in between — the test or its environment is nondeterministic. Treating a broken test as flaky (retrying until green) ships a real bug; treating a flaky test as broken (blaming the last commit) wastes time bisecting a change that did nothing.</p>
+    <h3>Should I just retry flaky tests until they pass?</h3>
+    <p>As a short-term unblock for a release, sometimes. As a permanent policy, no — a suite where flaky tests are silently retried stops being a signal at all, since a real regression that also happens to race can pass on retry too. Track which tests are flaky and fix the highest-value ones; a rerun-until-green CI step should be a visible, counted exception, not silent default behavior.</p>
+    <h3>How do I find out which of my tests are actually flaky before I start debugging?</h3>
+    <p>Run the suite (or the reruns your CI already does) at least twice and compare pass/fail per test — a test that flips is flaky, a test that fails every time is a real bug. The free Flaky Test Finder tool on this site does exactly that from JUnit XML reports you already have, with no signup and nothing uploaded.</p>
+  </section>
+
+  <section class="card">
+    <h2>The four causes that account for most flaky tests</h2>
+
+    <h3>1. Timing and race conditions</h3>
+    <p>A fixed <code>sleep(1)</code> instead of waiting for an actual condition (an element to appear, a job to finish, a lock to release) works on a fast machine and fails on a loaded CI runner. Look for hardcoded delays and replace them with a poll-until-true or an explicit wait on the real event.</p>
+
+    <h3>2. Shared or leaked state between tests</h3>
+    <p>A global variable, a database row, or a file on disk that one test writes and does not clean up can make a later test pass or fail depending on execution order or whether tests run in parallel. This is the most common cause when a test only fails when run alongside the full suite, never in isolation.</p>
+
+    <h3>3. Real network or filesystem calls</h3>
+    <p>A test that hits a real API, a real DNS lookup, or a real disk write inherits that dependency's own reliability — a slow upstream service, a rate limit, or a transient DNS failure will show up as an intermittent test failure that has nothing to do with your code. Mock the boundary in unit tests; keep real calls to a smaller, explicitly-flagged integration suite.</p>
+
+    <h3>4. Test order and parallelism assumptions</h3>
+    <p>A test suite that assumes it always runs in file order, or that test IDs are assigned sequentially, breaks the moment a test runner shards or randomizes execution — which most CI systems now do by default to cut wall-clock time. Randomize test order locally on purpose to surface this before CI does.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is general guidance, not a diagnosis of your specific test suite. <strong>You are responsible for reviewing and verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=flaky-test-finder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="flaky-test-finder"></script>
+</body>
+</html>

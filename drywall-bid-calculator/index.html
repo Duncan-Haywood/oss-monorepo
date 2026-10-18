@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drywall Bid Calculator — Price the Finish Level, Not Sheets</title>
+  <meta name="description" content="Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — not a flat price per square foot.">
+  <meta property="og:title" content="Drywall Bid Calculator">
+  <meta property="og:description" content="Bid drywall the way the trade does — hang is the cheap half. Finish level, texture, height, and openings decide whether the job pays.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Drywall Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-room wall and ceiling takeoff, waste and sheet count, finish levels 0-5, texture, height multiplier, tear-out, opening labor, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this drywall estimate include?","acceptedAnswer":{"@type":"Answer","text":"Each room’s wall and optional ceiling area net of openings, a waste percentage rolled into a sheet count, hang labor by board type, finish labor by level, texture labor and material, tear-off of existing drywall when you flag it, add-ons like stilts or extra corner bead, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between finish level 4 and finish level 5?","acceptedAnswer":{"@type":"Answer","text":"Level 4 is the typical paint-ready residential job; level 5 is a full skim coat used where critical or raking light would otherwise show joint lines. The tool applies more finish hours and more mud per 100 square feet as the level goes up — these are ballpark starting hours, not a production standard."}},{"@type":"Question","name":"Does choosing Type X board mean the wall is fire-rated?","acceptedAnswer":{"@type":"Answer","text":"No. Type X is priced here only as a material choice with its own waste percentage and hours. The tool does not evaluate or certify any fire rating, which depends on the full wall assembly and a building inspector’s sign-off, not on the board alone."}},{"@type":"Question","name":"Why does ceiling height matter if I’m not hanging the ceiling?","acceptedAnswer":{"@type":"Answer","text":"Taller walls take longer to hang and finish even at the same square footage, so rooms over 8, 10, and 12 feet get a labor multiplier applied room by room. A 12-foot great room will not inflate the hours for an 8-foot closet in the same job."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Inputs and business details are optionally saved in this browser’s local storage, and a share link encodes only the quote fields in the page’s URL hash, not sent to us."}},{"@type":"Question","name":"How is the sheet count estimated?","acceptedAnswer":{"@type":"Answer","text":"Net hung area — walls plus any ceiling, minus openings — gets your waste percentage added, and that billable area is then divided by the sheet size you pick and rounded up, so the estimate is always a whole number of sheets you can actually order."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c221c; background: #e8eee6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3d6b2c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
+    section { background: #f6faf4; border: 1px solid #c5d3bf; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a1a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b4a; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a8b8a4; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .room-row { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .room-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5c6b58; }
+    .room-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .ceiling-check { display: flex; gap: 6px; align-items: center; font-weight: 550; padding-bottom: 8px; }
+    .ceiling-check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b8a4; background: #eef4ea; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c221c; }
+    button:hover { background: #e2ecdc; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .checks { display: grid; gap: 8px; margin: 4px 0 0; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    .result { position: sticky; top: 15px; background: #24331f; color: #f3f8f0; border-color: #24331f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #8fbf6a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b4a; }
+    footer a { color: #3d6b2c; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #d5e8c4; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .room-head { display: none; }
+      .room-row { grid-template-columns: 1fr 1fr; border: 1px solid #d5e0cf; border-radius: 9px; padding: 11px; }
+      .room-row label { font-size: .78rem; gap: 5px; }
+      .room-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .room-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4d5b4a; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #24331f; --pr-accent: #3d6b2c;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Drywall Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Drywall Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<link rel="stylesheet" href="../pf-invalid.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Drywall Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage, payroll burden, overhead on direct cost and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR DRYWALL CONTRACTORS</p>
+    <h1>Bid the finish level, not the sheets.</h1>
+    <p>Hanging is the cheap half. A basement hang-and-texture special is not the same job as a Level 5 skim under a skylight, and a flat price per square foot cannot see the difference. Price the rooms, the waste, the height, the openings, and the finish — then see the walk-away number before a $1.50-a-foot special eats the week.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for drywall?</a> &middot; <a href="./vs-buildxact.html">This calculator vs. Buildxact</a> &middot; <a href="./vs-a-flat-price-per-square-foot.html">This calculator vs. a flat price per square foot</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The rooms</h2>
+        <p class="hint">One row per room. Length × width × height makes the walls; check ceiling when you are hanging it. Openings come off the total below — do not pre-subtract them here or you will double-count.</p>
+        <div class="room-row room-head" aria-hidden="true">
+          <span>Room</span><span>Length (ft)</span><span>Width (ft)</span><span>Height (ft)</span><span>Ceiling</span><span></span>
+        </div>
+        <div id="rooms"></div>
+        <button type="button" id="addRoom">+ Add a room</button>
+      </section>
+
+      <section>
+        <h2>The job</h2>
+        <div class="fields">
+          <label>Board
+            <select id="boardType">
+              <option value="half-4x8" selected>1/2&quot; regular 4×8</option>
+              <option value="typex-4x8">5/8&quot; Type X 4×8</option>
+              <option value="green-4x8">Moisture-resistant 4×8</option>
+              <option value="half-4x12">1/2&quot; regular 4×12</option>
+              <option value="other">Other / custom rates</option>
+            </select>
+          </label>
+          <label>Finish level
+            <select id="finishLevel">
+              <option value="0">0 — hang only</option>
+              <option value="1">1 — fire-tape</option>
+              <option value="2">2 — thin coat (under tile)</option>
+              <option value="3">3 — two coats (heavy texture)</option>
+              <option value="4" selected>4 — paint-ready</option>
+              <option value="5">5 — full skim / critical lighting</option>
+            </select>
+          </label>
+          <label>Texture
+            <select id="textureType">
+              <option value="none" selected>Smooth (no texture)</option>
+              <option value="orange-peel">Orange peel</option>
+              <option value="knockdown">Knockdown</option>
+              <option value="skip-trowel">Skip trowel</option>
+            </select>
+          </label>
+          <label>Opening area (sq ft) <input id="openingSqFt" type="number" min="0" step="1" value="86" inputmode="numeric"></label>
+          <label>Opening count (doors + windows) <input id="openingCount" type="number" min="0" step="1" value="7" inputmode="numeric"></label>
+          <label>Waste (%) <input id="wastePercent" type="number" min="0" step="0.5" value="10" inputmode="decimal"></label>
+          <label>Hang hours / 100 sq ft <input id="hangHoursPer100" type="number" min="0" step="0.05" value="1.15" inputmode="decimal"></label>
+          <label>Board material / 100 sq ft <input id="materialPer100" type="number" min="0" step="1" value="48" inputmode="numeric"></label>
+          <label>Sheet size (sq ft) <input id="sheetSqFt" type="number" min="1" step="1" value="32" inputmode="numeric"></label>
+          <label>Tape lf / hung sq ft <input id="tapeLfPerSqFt" type="number" min="0" step="0.01" value="0.42" inputmode="decimal"></label>
+          <label>Texture hours / 100 sq ft <input id="textureHoursPer100" type="number" min="0" step="0.05" value="0" inputmode="decimal"></label>
+          <label>Texture material / 100 sq ft <input id="textureMaterialPer100" type="number" min="0" step="0.5" value="0" inputmode="decimal"></label>
+          <label>Tear-out hours / 100 sq ft <input id="tearOffHoursPer100" type="number" min="0" step="0.1" value="1.6" inputmode="decimal"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="12" inputmode="decimal"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="32" inputmode="numeric"></label>
+        </div>
+        <div class="checks">
+          <label><input id="tearOff" type="checkbox"> Tear out existing drywall</label>
+          <label><input id="addOn-stilts" type="checkbox"> Stilts / scaffold for this job</label>
+          <label><input id="addOn-cornerBead" type="checkbox"> Extra corner bead beyond a typical takeoff</label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Finish levels follow the Gypsum Association idea (0 hang-only through 5 full skim) as a time budget you can edit — not a specification, inspection, or a finding that any wall is fire-rated, permitted, or paint-ready. Waste covers cuts and damaged sheets. Height over 8 ft multiplies hang, finish, and texture hours on that room.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Hanger / finisher hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="34" inputmode="decimal"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32" inputmode="decimal"></label>
+          <label>Setup / breakdown (hours) <input id="setupHours" type="number" min="0" step="0.05" value="0.75" inputmode="decimal"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="4" inputmode="decimal"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="75" inputmode="numeric"></label>
+          <label>Dumpster (if tearing out) <input id="dumpsterCost" type="number" min="0" step="5" value="425" inputmode="numeric"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16" inputmode="decimal"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="26" inputmode="decimal"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 4200" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation (stilts, lifts, and tear-out are not cheap), liability insurance, and paid time off. A hanger paid $34 often costs more than $44 on the wall. Underestimating that is how a $1.50-a-foot special loses money.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Net hung / billable / sheets</dt><dd id="squares"></dd>
+        <dt>Finish level</dt><dd id="finish"></dd>
+        <dt>Hang hours</dt><dd id="hangHours"></dd>
+        <dt>Finish hours</dt><dd id="finishHours"></dd>
+        <dt>Texture + tear-out + openings</dt><dd id="extraHours"></dd>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours (round trip)</dt><dd id="travelHours"></dd>
+        <dt>Total labor hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Board material</dt><dd id="boardMat"></dd>
+        <dt>Tape, mud, texture</dt><dd id="mudMat"></dd>
+        <dt>Add-on parts</dt><dd id="parts"></dd>
+        <dt>Dumpster + trip</dt><dd id="trip"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per hung sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hung area goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material figures are common ballpark numbers, not a Gypsum Association table, a code specification, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any wall is fire-rated, permitted, or paint-ready.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Plumbline Drywall LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Hang and finish 1,200 sq ft to Level 4&#10;Knockdown texture on the ceilings"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Priming and painting&#10;Electrical or plumbing rough-in"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Dust contained with plastic and a negative-air machine."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this drywall estimate include?</h3>
+      <p>Each room&rsquo;s wall and optional ceiling area net of openings, a waste percentage rolled
+        into a sheet count, hang labor by board type, finish labor by level, texture labor and
+        material, tear-off of existing drywall when you flag it, add-ons like stilts or extra corner
+        bead, and overhead and margin on top.</p>
+
+      <h3>What&rsquo;s the difference between finish level 4 and finish level 5?</h3>
+      <p>Level 4 is the typical paint-ready residential job; level 5 is a full skim coat used where
+        critical or raking light would otherwise show joint lines. The tool applies more finish hours
+        and more mud per 100 square feet as the level goes up &mdash; these are ballpark starting hours,
+        not a production standard.</p>
+
+      <h3>Does choosing Type X board mean the wall is fire-rated?</h3>
+      <p>No. Type X is priced here only as a material choice with its own waste percentage and hours.
+        The tool does not evaluate or certify any fire rating, which depends on the full wall assembly
+        and a building inspector&rsquo;s sign-off, not on the board alone.</p>
+
+      <h3>Why does ceiling height matter if I&rsquo;m not hanging the ceiling?</h3>
+      <p>Taller walls take longer to hang and finish even at the same square footage, so rooms over 8,
+        10, and 12 feet get a labor multiplier applied room by room. A 12-foot great room will not
+        inflate the hours for an 8-foot closet in the same job.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        Inputs and business details are optionally saved in this browser&rsquo;s local storage, and a
+        share link encodes only the quote fields in the page&rsquo;s URL hash, not sent to us.</p>
+
+      <h3>How is the sheet count estimated?</h3>
+      <p>Net hung area &mdash; walls plus any ceiling, minus openings &mdash; gets your waste percentage
+        added, and that billable area is then divided by the sheet size you pick and rounded up, so the
+        estimate is always a whole number of sheets you can actually order.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a wall may be hung or finished. It is not a manufacturer, building-code, fire-rating, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, room sizes, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p>Pricing popcorn ceiling removal that needs a Level 4 or Level 5 skim instead of a hang-and-finish? The <a href="../popcorn-ceiling-bid-calculator/">popcorn ceiling bid calculator</a> prices scrape, skim, and access &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, BOARD_PRESETS, TEXTURE_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
+
+    const COST_IDS = [
+      'openingSqFt','openingCount','wastePercent','hangHoursPer100','materialPer100',
+      'sheetSqFt','tapeLfPerSqFt','finishLevel','textureHoursPer100','textureMaterialPer100',
+      'tearOffHoursPer100','milesOneWay','speedMph','hourlyWage','burdenRate','setupHours',
+      'minOnSiteHours','tripFee','dumpsterCost','otherCost','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const BOARD_RATE_IDS = ['wastePercent', 'hangHoursPer100', 'materialPer100', 'sheetSqFt', 'tapeLfPerSqFt'];
+    const TEXTURE_RATE_IDS = ['textureHoursPer100', 'textureMaterialPer100'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_ROOMS = [
+      { name: 'Great room', lengthFt: 20, widthFt: 16, heightFt: 9, includeCeiling: true },
+      { name: 'Bedroom', lengthFt: 12, widthFt: 12, heightFt: 8, includeCeiling: true },
+      { name: 'Bath', lengthFt: 8, widthFt: 6, heightFt: 8, includeCeiling: true },
+    ];
+
+    const roomsHost = el('rooms');
+    let rowSeq = 0;
+
+    function addRoomRow(room) {
+      const id = `r${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'room-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Room</span><input class="r-name" id="${id}-name" type="text"></label>
+        <label for="${id}-len"><span class="lbl">Length (ft)</span><input class="r-len" id="${id}-len" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label for="${id}-wid"><span class="lbl">Width (ft)</span><input class="r-wid" id="${id}-wid" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label for="${id}-ht"><span class="lbl">Height (ft)</span><input class="r-ht" id="${id}-ht" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label class="ceiling-check" for="${id}-ceil"><input class="r-ceil" id="${id}-ceil" type="checkbox"><span class="lbl">Hang ceiling</span></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this room</span></button>`;
+      row.querySelector('.r-name').value = room.name || '';
+      row.querySelector('.r-len').value = room.lengthFt;
+      row.querySelector('.r-wid').value = room.widthFt;
+      row.querySelector('.r-ht').value = room.heightFt;
+      row.querySelector('.r-ceil').checked = room.includeCeiling !== false;
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('room_removed');
+        update();
+      });
+      roomsHost.append(row);
+    }
+
+    function readRooms() {
+      return [...roomsHost.querySelectorAll('.room-row')].map(row => ({
+        name: row.querySelector('.r-name').value,
+        lengthFt: row.querySelector('.r-len').value,
+        widthFt: row.querySelector('.r-wid').value,
+        heightFt: row.querySelector('.r-ht').value,
+        includeCeiling: row.querySelector('.r-ceil').checked,
+      }));
+    }
+
+    function readAddOns() {
+      return ADD_ON_PRESETS.map(preset => ({
+        ...preset,
+        enabled: el(`addOn-${preset.id}`).checked,
+      }));
+    }
+
+    function readInput() {
+      return {
+        rooms: readRooms(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        tearOff: el('tearOff').checked,
+        addOns: readAddOns(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyBoardPreset(force) {
+      const preset = BOARD_PRESETS.find(item => item.id === el('boardType').value);
+      if (!preset) return;
+      BOARD_RATE_IDS.forEach(id => {
+        const field = el(id);
+        if (force || !field.dataset.edited) {
+          field.value = preset[id];
+          delete field.dataset.edited;
+        }
+      });
+    }
+
+    function applyTexturePreset(force) {
+      const preset = TEXTURE_PRESETS.find(item => item.id === el('textureType').value);
+      if (!preset) return;
+      TEXTURE_RATE_IDS.forEach(id => {
+        const field = el(id);
+        if (force || !field.dataset.edited) {
+          field.value = preset[id];
+          delete field.dataset.edited;
+        }
+      });
+    }
+
+    const OUTPUT_IDS = [
+      'squares','finish','hangHours','finishHours','extraHours','onSiteHours','travelHours',
+      'totalHours','labor','boardMat','mudMat','parts','trip','overhead','cost','profit',
+      'perSqFt','hourlyRate','breakEven',
+    ];
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      OUTPUT_IDS.forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * A preset id off a stranger's URL, put back on its select.
+     *
+     * Two rules, both learned from shipped defects. It is checked against the
+     * options this page actually offers, because a fragment is the one part of
+     * these pages a stranger writes and the value ends up on a document the
+     * contractor prints. And it is assigned *without* dispatching `change`:
+     * that handler re-stamps the preset's own rates over whatever is in the
+     * form, which on arrival would replace the sender's typed sheet price with
+     * the preset's — the failure `amazon-fba-calculator` shipped when it
+     * carried its placement presets by dispatching.
+     *
+     * Returns false when the link carried nothing usable, so the caller can
+     * fall back to reconstructing the choice from the rates that did travel.
+     */
+    function applySharedChoice(id, value) {
+      if (typeof value !== 'string' || value === '') return false;
+      const select = el(id);
+      if (!select) return false;
+      if (![...select.options].some(option => option.value === value)) return false;
+      select.value = value;
+      return true;
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (payload.tearOff !== undefined) el('tearOff').checked = Boolean(payload.tearOff);
+      if (Array.isArray(payload.addOns)) {
+        ADD_ON_PRESETS.forEach(preset => {
+          const match = payload.addOns.find(item => item.id === preset.id);
+          if (match) el(`addOn-${preset.id}`).checked = match.enabled !== false;
+        });
+      }
+      if (Array.isArray(payload.rooms) && payload.rooms.length) {
+        roomsHost.innerHTML = '';
+        payload.rooms.forEach(addRoomRow);
+      }
+      if (!applySharedChoice('boardType', payload.boardType)) {
+        const board = BOARD_PRESETS.find(preset =>
+          Number(preset.hangHoursPer100) === Number(payload.hangHoursPer100) &&
+          Number(preset.wastePercent) === Number(payload.wastePercent) &&
+          Number(preset.materialPer100) === Number(payload.materialPer100) &&
+          Number(preset.sheetSqFt) === Number(payload.sheetSqFt)
+        );
+        el('boardType').value = board ? board.id : 'other';
+      }
+      if (!applySharedChoice('textureType', payload.textureType)) {
+        const texture = TEXTURE_PRESETS.find(preset =>
+          Number(preset.hoursPer100) === Number(payload.textureHoursPer100) &&
+          Number(preset.materialPer100) === Number(payload.textureMaterialPer100)
+        );
+        el('textureType').value = texture ? texture.id : 'none';
+      }
+      [...BOARD_RATE_IDS, ...TEXTURE_RATE_IDS].forEach(id => {
+        if (payload[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.rooms.length === 0) {
+        clearOutputs('Add a room to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one room above and the area split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('squares').textContent = `${result.netHungSqFt.toFixed(0)} / ${result.billableSqFt.toFixed(0)} sq ft / ${result.estimatedSheets} sheets`;
+      el('finish').textContent = result.finishLabel;
+      el('hangHours').textContent = `${result.hangHours.toFixed(2)} h`;
+      el('finishHours').textContent = `${result.finishHours.toFixed(2)} h${result.finishShareOfLabor === null ? '' : ` (${result.finishShareOfLabor.toFixed(0)}% of hang+finish+texture)`}`;
+      el('extraHours').textContent = `${(result.textureHours + result.tearOffHours + result.openingHours).toFixed(2)} h`;
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('boardMat').textContent = money(result.boardMaterial);
+      el('mudMat').textContent = money(result.tapeMudMaterial + result.textureMaterial);
+      el('parts').textContent = money(result.addOnParts);
+      el('trip').textContent = money(result.dumpster + result.tripFee);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerHungSqFt === null ? 'n/a' : `${money(result.pricePerHungSqFt)}/ft²`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.rooms.filter(room => room.hungSqFt > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No room has area yet — set length, width, and height above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.hungSqFt - a.hungSqFt)
+          .map(room => `<li><span>${room.name} (${room.lengthFt}×${room.widthFt}×${room.heightFt}${room.includeCeiling ? ', ceiling' : ''})</span><span>${room.areaShare.toFixed(0)}% of hung area</span>
+            <span class="bar"><span style="width:${room.areaShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const rooms = result.rooms
+        .filter(room => room.hungSqFt > 0)
+        .map(room => `- ${room.name}: ${room.lengthFt} × ${room.widthFt} × ${room.heightFt} ft (${room.hungSqFt.toFixed(0)} sq ft hung${room.includeCeiling ? ', ceiling' : ''})`)
+        .join('\n');
+      const extras = [
+        result.tearOff ? 'tear-out' : null,
+        ...result.addOns.map(item => item.label),
+      ].filter(Boolean).join('; ');
+      return [
+        'DRYWALL QUOTE',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Net hung: ${result.netHungSqFt.toFixed(0)} sq ft → ${result.billableSqFt.toFixed(0)} billable sq ft at ${result.wastePercent}% waste (${result.estimatedSheets} sheets)`,
+        `Finish: ${result.finishLabel}`,
+        `Labor: ${result.totalHours.toFixed(2)} hours (${result.hangHours.toFixed(2)} hang + ${result.finishHours.toFixed(2)} finish + ${result.textureHours.toFixed(2)} texture)`,
+        extras ? `Scope extras: ${extras}` : 'Scope extras: none',
+        '',
+        'ROOMS',
+        rooms || '- No rooms entered',
+        '',
+        'This is a draft for review. Confirm measurements, waste, finish level, access, insurance, taxes, and all pricing before sending. It is not a manufacturer, code, fire-rating, or paint-readiness inspection.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * What the link carries: the priced job, plus the two preset choices that
+     * describe it. Kept out of `readInput` so `calculateBid` is still handed
+     * only the figures it computes with.
+     */
+    function readShareInput() {
+      return {
+        ...readInput(),
+        boardType: el('boardType').value,
+        textureType: el('textureType').value,
+      };
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readShareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addRoom').addEventListener('click', () => {
+      addRoomRow({ name: '', lengthFt: 12, widthFt: 10, heightFt: 8, includeCeiling: true });
+      count('room_added');
+      update();
+    });
+
+    el('boardType').addEventListener('change', () => {
+      applyBoardPreset(true);
+      count('bid_calculated');
+      update();
+    });
+    el('textureType').addEventListener('change', () => {
+      applyTexturePreset(true);
+      count('bid_calculated');
+      update();
+    });
+    BOARD_RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+    });
+    TEXTURE_RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+    });
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    ['tearOff', ...ADD_ON_PRESETS.map(preset => `addOn-${preset.id}`)].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
+    if (shared) applyShare(shared);
+    if (!roomsHost.querySelector('.room-row')) STARTING_ROOMS.forEach(addRoomRow);
+    if (!shared) {
+      applyBoardPreset(false);
+      applyTexturePreset(false);
+    }
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'drywall-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Finish level is judged under normal lighting; critical or raking light may show variation that a higher finish level is required to avoid.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Hang {estimatedSheets~0} sheets — {netHungSqFt~0} sq ft of wall and ceiling",
+        "Tape and finish to {finishLabel}",
+        "{tapeLf~0} lf of taped joints and corners",
+        {
+          "line": "Texture: {textureLabel}",
+          "when": "textureLabel"
+        },
+        {
+          "line": "Cut and trim {openingCount} opening{openingCount+s}",
+          "when": "openingCount"
+        },
+        {
+          "line": "Tear out and dispose of the existing board",
+          "when": "tearOff"
+        },
+        "Sand, clean up the dust, and leave the surfaces ready for primer"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "textureLabel": el('textureType')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Drywall — {netHungSqFt~0} sq ft, {finishLabel}'], proposalFields(result))[0] || 'Drywall — sq ft,',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../flooring-bid-calculator/" data-pf-to="flooring-bid-calculator">Flooring Bid Calculator</a></li>
+      <li><a href="../hardwood-refinishing-bid-calculator/" data-pf-to="hardwood-refinishing-bid-calculator">Hardwood Refinishing Bid Calculator</a></li>
+      <li><a href="../home-elevator-bid-calculator/" data-pf-to="home-elevator-bid-calculator">Home Elevator Bid Calculator</a></li>
+      <li><a href="../home-staging-bid-calculator/" data-pf-to="home-staging-bid-calculator">Home Staging Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=drywall-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/?pfEmbed=1&quot; title=&quot;Drywall Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="drywall-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/" data-pf-embed-title="Drywall Bid Calculator" data-pf-embed-slug="drywall-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:hourlyWage,burdenRate:burdenRate,overheadRate:overheadRate,targetMargin:targetMargin"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="drywall-bid-calculator" data-pf-jobs-amount="#price"></script>
+<script type="module" src="../pf-invalid.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flag Keeper — Free Self-Hosted Feature Flags</title>
+  <meta name="description" content="A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments…">
+  <meta property="og:title" content="Flag Keeper — self-hosted feature flags">
+  <meta property="og:description" content="Sticky percentage rollouts, targeting rules, segments, prerequisites, audit log. MIT, one Node process, no per-seat or per-MAU fee.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/flag-keeper/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Flag Keeper", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source feature flags: percentage rollouts that stay sticky, targeting rules, segments, prerequisites, kill switches and an audit log. One Node process with a JSON file, a local-evaluation SDK, and a browser rollout simulator."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use LaunchDarkly, Flagsmith, Unleash, GrowthBook or PostHog flags?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted flag services are polished and the right call if you want a team dashboard, SSO and an experimentation suite; they price by seats or monthly active users. Unleash and Flagsmith are open source but come with a database and several services to run. Flag Keeper is MIT and one Node process with a JSON file: percentage rollouts, targeting rules, segments, prerequisites, a kill switch and an audit log. It has no visual dashboard yet; you manage flags with the API or a JSON file in git."}}, {"@type": "Question", "name": "Will a user keep their variant when I widen a rollout from 10% to 30%?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A user's bucket is a stable hash of the flag key and their id, and a rollout fills buckets in order, so widening only turns people on and never takes the feature away from anyone who had it. The Compare box above lists exactly who flips before you save, and the server has the same check at POST /v1/admin/impact."}}, {"@type": "Question", "name": "What happens to my app if the flag server goes down?", "acceptedAnswer": {"@type": "Answer", "text": "With the backend SDK in local mode your app evaluates in-process from the last config it fetched, so an outage does not change anyone's variant. In remote mode, or when the server was never reachable, every check returns the fallback value you pass in, and the SDK never throws."}}, {"@type": "Question", "name": "Is it safe to put a key in my web or mobile app?", "acceptedAnswer": {"@type": "Answer", "text": "Use the CLIENT_KEY there. It can only ask what a given user gets, it cannot read your rules, targets or segments, and it cannot edit anything. The SERVER_KEY reads the full config and belongs in your backend; the ADMIN_KEY edits flags and should only be in your own tooling. Do not send personal data you do not need as targeting attributes."}}, {"@type": "Question", "name": "Can I use it for A/B tests?", "acceptedAnswer": {"@type": "Answer", "text": "It assigns users to variants consistently, including multivariate splits bucketed by account instead of user, and it counts how often each variant was served. It does not compute statistical significance or record conversions; send the variant to your analytics tool and analyse there."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; }
+    td.bar div { background: #1f45c4; height: 12px; border-radius: 6px; min-width: 2px; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #a11; font-weight: 600; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Flag Keeper — self-hosted feature flags","item":"https://duncan-haywood.github.io/monorepo-projects/flag-keeper/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/flag-keeper/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/flag-keeper/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Flag Keeper — self-hosted feature flags — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/self-hosted/">Self-hosted business apps</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Flag Keeper — self-hosted feature flags</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <main>
+  <h1>Roll out a feature to 10% of users, and know exactly who gets it.</h1>
+  <p>Flag Keeper is an open-source alternative to LaunchDarkly and Flagsmith for small teams. Percentage rollouts stay sticky (widening 10% to 30% never takes the feature from anyone), rules target by plan, country or app version, segments and prerequisites compose, and a kill switch is one request. Try your flags first: the page runs the same engine as the server, in your browser, and uploads nothing.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. See what a rollout does to your users</h2>
+    <label for="cfg">Flag config (JSON)</label>
+    <textarea id="cfg" spellcheck="false">{
+  "salt": "change-me",
+  "segments": {
+    "internal": { "description": "Our own team", "conditions": [{ "attr": "email", "op": "endsWith", "value": "@example.com" }] },
+    "beta-testers": { "description": "Opted into the beta", "include": ["user-1001", "user-1002"] }
+  },
+  "flags": {
+    "new-checkout": {
+      "key": "new-checkout",
+      "description": "Redesigned checkout. Staff first, beta testers, then 10% of everyone else; widen the rollout weight to ship it.",
+      "enabled": true,
+      "rules": [
+        { "id": "staff", "if": [{ "op": "inSegment", "value": ["internal", "beta-testers"] }], "serve": { "variant": "on" } },
+        { "id": "not-legacy-app", "if": [{ "attr": "appVersion", "op": "semverLt", "value": "3.2.0" }], "serve": { "variant": "off" } }
+      ],
+      "fallthrough": { "rollout": [{ "variant": "on", "weight": 10 }, { "variant": "off", "weight": 90 }] }
+    },
+    "pricing-page-test": {
+      "key": "pricing-page-test",
+      "description": "Three pricing page layouts. Bucketed by account so everyone in a team sees the same page.",
+      "enabled": true,
+      "variants": { "control": "pricing-v1", "tiers": "pricing-v2", "calculator": "pricing-v3", "off": "pricing-v1" },
+      "fallthrough": { "bucketBy": "account", "rollout": [{ "variant": "control", "weight": 34 }, { "variant": "tiers", "weight": 33 }, { "variant": "calculator", "weight": 33 }] }
+    },
+    "ai-summaries": {
+      "key": "ai-summaries",
+      "description": "Needs the new checkout's data model, so it is off wherever new-checkout is off.",
+      "enabled": true,
+      "prerequisites": [{ "flag": "new-checkout", "variant": "on" }],
+      "rules": [{ "id": "paid", "if": [{ "attr": "plan", "op": "in", "value": ["pro", "team"] }], "serve": { "variant": "on" } }],
+      "fallthrough": { "variant": "off" }
+    },
+    "kill-switch-exports": {
+      "key": "kill-switch-exports",
+      "description": "Flip to off to stop CSV exports during an incident. On by default.",
+      "enabled": true,
+      "fallthrough": { "variant": "on" }
+    }
+  }
+}</textarea>
+    <label for="flagkey">Flag to test</label>
+    <input id="flagkey" value="new-checkout">
+    <label for="ctx">Attributes shared by the users you test (JSON; <code>key</code> is added for you)</label>
+    <textarea id="ctx" spellcheck="false" style="min-height:70px">{ "email": "someone@gmail.com", "appVersion": "3.4.0", "plan": "pro" }</textarea>
+    <label for="users">How many simulated users</label>
+    <input id="users" type="number" min="100" max="100000" value="10000" inputmode="decimal">
+    <button id="run" type="button">Simulate</button>
+    <p class="note" id="sum" role="status" aria-live="polite"></p>
+    <div class="pf-table-scroll"><table><thead><tr><th scope="col">Variant</th><th scope="col">Users</th><th scope="col">Share</th><th scope="col"></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="why"></p>
+  </section>
+
+  <section class="card" aria-labelledby="cmp">
+    <h2 id="cmp">2. Before you save a change: who flips?</h2>
+    <p>Paste the config you are about to ship. The page lists how many of the same simulated users would get a different variant, and which way.</p>
+    <label for="cfg2">Proposed config (JSON)</label>
+    <textarea id="cfg2" spellcheck="false">{
+  "salt": "change-me",
+  "segments": {
+    "internal": {
+      "description": "Our own team",
+      "conditions": [
+        {
+          "attr": "email",
+          "op": "endsWith",
+          "value": "@example.com"
+        }
+      ]
+    },
+    "beta-testers": {
+      "description": "Opted into the beta",
+      "include": [
+        "user-1001",
+        "user-1002"
+      ]
+    }
+  },
+  "flags": {
+    "new-checkout": {
+      "key": "new-checkout",
+      "description": "Redesigned checkout. Staff first, beta testers, then 10% of everyone else; widen the rollout weight to ship it.",
+      "enabled": true,
+      "rules": [
+        {
+          "id": "staff",
+          "if": [
+            {
+              "op": "inSegment",
+              "value": [
+                "internal",
+                "beta-testers"
+              ]
+            }
+          ],
+          "serve": {
+            "variant": "on"
+          }
+        },
+        {
+          "id": "not-legacy-app",
+          "if": [
+            {
+              "attr": "appVersion",
+              "op": "semverLt",
+              "value": "3.2.0"
+            }
+          ],
+          "serve": {
+            "variant": "off"
+          }
+        }
+      ],
+      "fallthrough": {
+        "rollout": [
+          {
+            "variant": "on",
+            "weight": 30
+          },
+          {
+            "variant": "off",
+            "weight": 70
+          }
+        ]
+      }
+    },
+    "pricing-page-test": {
+      "key": "pricing-page-test",
+      "description": "Three pricing page layouts. Bucketed by account so everyone in a team sees the same page.",
+      "enabled": true,
+      "variants": {
+        "control": "pricing-v1",
+        "tiers": "pricing-v2",
+        "calculator": "pricing-v3",
+        "off": "pricing-v1"
+      },
+      "fallthrough": {
+        "bucketBy": "account",
+        "rollout": [
+          {
+            "variant": "control",
+            "weight": 34
+          },
+          {
+            "variant": "tiers",
+            "weight": 33
+          },
+          {
+            "variant": "calculator",
+            "weight": 33
+          }
+        ]
+      }
+    },
+    "ai-summaries": {
+      "key": "ai-summaries",
+      "description": "Needs the new checkout's data model, so it is off wherever new-checkout is off.",
+      "enabled": true,
+      "prerequisites": [
+        {
+          "flag": "new-checkout",
+          "variant": "on"
+        }
+      ],
+      "rules": [
+        {
+          "id": "paid",
+          "if": [
+            {
+              "attr": "plan",
+              "op": "in",
+              "value": [
+                "pro",
+                "team"
+              ]
+            }
+          ],
+          "serve": {
+            "variant": "on"
+          }
+        }
+      ],
+      "fallthrough": {
+        "variant": "off"
+      }
+    },
+    "kill-switch-exports": {
+      "key": "kill-switch-exports",
+      "description": "Flip to off to stop CSV exports during an incident. On by default.",
+      "enabled": true,
+      "fallthrough": {
+        "variant": "on"
+      }
+    }
+  }
+}</textarea>
+    <button id="cmpbtn" type="button">Compare with the config above</button>
+    <p class="note" id="cmpout" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/flag-keeper
+ADMIN_KEY=$(openssl rand -hex 16) SERVER_KEY=$(openssl rand -hex 16) CLIENT_KEY=$(openssl rand -hex 16) \
+FLAGS_FILE=examples/flags.json node server.mjs
+
+curl -X POST localhost:8080/v1/evaluate -H "Authorization: Bearer $CLIENT_KEY" \
+  -d '{"flag":"new-checkout","context":{"key":"user-42","plan":"pro"}}'
+
+# in your app (Node 18+ or a browser), served by your own server:
+import { createClient } from "https://flags.example.com/sdk.mjs";
+const flags = createClient({ url: "https://flags.example.com", key: CLIENT_KEY });
+if (await flags.isOn("new-checkout", { key: user.id, plan: user.plan })) { /* new path */ }</pre>
+    <p class="note">Backends can pass <code>mode: "local"</code> and the <code>SERVER_KEY</code> to evaluate in-process from a cached config, so a flag-server outage changes nothing. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use LaunchDarkly, Flagsmith, Unleash, GrowthBook or PostHog flags?</h3>
+    <p>Hosted flag services are polished and the right call if you want a team dashboard, SSO and an experimentation suite; they price by seats or monthly active users. Unleash and Flagsmith are open source but come with a database and several services to run. Flag Keeper is MIT and one Node process with a JSON file: percentage rollouts, targeting rules, segments, prerequisites, a kill switch and an audit log. It has no visual dashboard yet; you manage flags with the API or a JSON file in git.</p>
+    <h3>Will a user keep their variant when I widen a rollout from 10% to 30%?</h3>
+    <p>Yes. A user's bucket is a stable hash of the flag key and their id, and a rollout fills buckets in order, so widening only turns people on and never takes the feature away from anyone who had it. The Compare box above lists exactly who flips before you save, and the server has the same check at POST /v1/admin/impact.</p>
+    <h3>What happens to my app if the flag server goes down?</h3>
+    <p>With the backend SDK in local mode your app evaluates in-process from the last config it fetched, so an outage does not change anyone's variant. In remote mode, or when the server was never reachable, every check returns the fallback value you pass in, and the SDK never throws.</p>
+    <h3>Is it safe to put a key in my web or mobile app?</h3>
+    <p>Use the CLIENT_KEY there. It can only ask what a given user gets, it cannot read your rules, targets or segments, and it cannot edit anything. The SERVER_KEY reads the full config and belongs in your backend; the ADMIN_KEY edits flags and should only be in your own tooling. Do not send personal data you do not need as targeting attributes.</p>
+    <h3>Can I use it for A/B tests?</h3>
+    <p>It assigns users to variants consistently, including multivariate splits bucketed by account instead of user, and it counts how often each variant was served. It does not compute statistical significance or record conversions; send the variant to your analytics tool and analyse there.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../drip-keeper/">Drip Keeper</a> sends lifecycle email, <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a pre-launch referral waitlist, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs an uptime page and <a href="../webhook-relay/">Webhook Relay</a> delivers your webhooks.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. A feature flag changes what your users see: you are responsible for testing flag changes, for the data you send as targeting attributes, and for any privacy notice or consent your users are owed. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
+  </main>
+  <script type="module">
+    import { simulate, impact, validateConfig } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const read = (id, what) => { try { return JSON.parse($(id).value); } catch (e) { throw new Error(`${what} is not valid JSON: ${e.message}`); } };
+    const load = (id, what) => { const c = read(id, what), errs = validateConfig(c); if (errs.length) throw new Error(`${what}: ${errs.slice(0, 3).join("; ")}`); return c; };
+    const users = () => Math.min(100000, Math.max(100, Number($("users").value) || 10000));
+    $("run").addEventListener("click", () => {
+      $("rows").innerHTML = ""; $("sum").className = "note"; $("why").textContent = "";
+      try {
+        const cfg = load("cfg", "Flag config"), flag = $("flagkey").value.trim();
+        if (!cfg.flags[flag]) throw new Error(`There is no flag called "${flag}". Flags: ${Object.keys(cfg.flags).join(", ")}`);
+        const r = simulate(cfg, flag, { users: users(), attrs: read("ctx", "Attributes") });
+        for (const [v, n] of Object.entries(r.byVariant).sort((a, b) => b[1] - a[1])) {
+          const tr = document.createElement("tr"), pct = (100 * n) / r.users;
+          [v, n.toLocaleString(), pct.toFixed(1) + "%"].forEach((c) => { const td = document.createElement("td"); td.textContent = c; tr.append(td); });
+          const bar = document.createElement("td"), d = document.createElement("div"); bar.className = "bar"; d.style.width = pct + "%"; bar.append(d); tr.append(bar); $("rows").append(tr);
+        }
+        $("sum").textContent = `${r.users.toLocaleString()} simulated users (user-1 to user-${r.users}) evaluated against "${flag}".`;
+        $("why").textContent = "Why: " + Object.entries(r.byReason).map(([k, n]) => `${k} ${n.toLocaleString()}`).join(", ");
+        record("simulate");
+      } catch (e) { $("sum").className = "err"; $("sum").textContent = e.message; }
+    });
+    $("cmpbtn").addEventListener("click", () => {
+      $("cmpout").className = "note";
+      try {
+        const a = load("cfg", "Flag config"), b = load("cfg2", "Proposed config"), flag = $("flagkey").value.trim();
+        if (!a.flags[flag] || !b.flags[flag]) throw new Error(`"${flag}" must exist in both configs.`);
+        const r = impact(a, b, flag, { users: users(), attrs: read("ctx", "Attributes") });
+        const moves = Object.entries(r.moves).map(([m, n]) => `${n.toLocaleString()} would go ${m}`).join("; ");
+        $("cmpout").textContent = r.changed ? `${r.changed.toLocaleString()} of ${r.users.toLocaleString()} users (${(100 * r.changed / r.users).toFixed(1)}%) change variant: ${moves}.` : `No one changes variant across ${r.users.toLocaleString()} users.`;
+        record("compare");
+      } catch (e) { $("cmpout").className = "err"; $("cmpout").textContent = e.message; }
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../slot-keeper/" data-pf-to="slot-keeper">Slot Keeper — a booking page you host yourself</a></li>
+      <li><a href="../status-keeper/" data-pf-to="status-keeper">status-keeper — your own status page, free</a></li>
+      <li><a href="../support-desk/" data-pf-to="support-desk">Support Desk — a help desk you host yourself</a></li>
+      <li><a href="../survey-keeper/" data-pf-to="survey-keeper">Survey Keeper — an NPS survey that says why the score is what it is</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=flag-keeper">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/flag-keeper/?pfEmbed=1&quot; title=&quot;Flag Keeper — self-hosted feature flags — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="flag-keeper"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/flag-keeper/" data-pf-embed-title="Flag Keeper — self-hosted feature flags" data-pf-embed-slug="flag-keeper"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="flag-keeper" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="flag-keeper" data-pf-link-amount=""></script>
+</body>
+</html>

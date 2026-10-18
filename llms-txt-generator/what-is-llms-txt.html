@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is llms.txt, and Do You Need One?</title>
+  <meta name="description" content="What the llms.txt convention actually is, why it exists alongside robots.txt and sitemap.xml rather than replacing either, what belongs in it…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/what-is-llms-txt.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does llms.txt replace robots.txt or sitemap.xml?","acceptedAnswer":{"@type":"Answer","text":"No. robots.txt controls crawler access, sitemap.xml lists every URL that should be indexed, and llms.txt is a curated, short map of the pages that actually explain a site or product — a different job from either, and a site can have all three at once."}},{"@type":"Question","name":"Do you need one?","acceptedAnswer":{"@type":"Answer","text":"It helps most on documentation sites, API references, and developer-facing tools where there is real depth to summarize and a real audience (including AI coding assistants) that benefits from a shortcut past the marketing pages. A five-page brochure site has little to gain."}},{"@type":"Question","name":"What should not go in it?","acceptedAnswer":{"@type":"Answer","text":"Everything your sitemap already lists is the wrong scope — llms.txt is meant to be curated and short, not exhaustive. Leave out marketing pages, legal boilerplate, and anything not meant to inform an assistant answering a question about the product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 14px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/what-is-llms-txt.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="What Is llms.txt, and Do You Need One?">
+<meta property="og:description" content="What the llms.txt convention actually is, why it exists alongside robots.txt and sitemap.xml rather than replacing either, what belongs in it…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Is llms.txt, and Do You Need One? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../llms-txt-generator/">Build a valid llms.txt for your site, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What Is llms.txt, and Do You Need One?</span></span></nav>
+  <a class="back" href="./">&larr; Back to the llms.txt generator</a>
+  <h1>What is llms.txt, and do you need one?</h1>
+
+  <p><a href="https://llmstxt.org/" rel="noopener"><code>llms.txt</code></a> is a proposal from Answer.AI (published by Jeremy Howard) for a plain-text Markdown file at <code>/llms.txt</code> that gives an AI assistant a short, curated map of a site's most useful pages. The convention is not a web standard, and no browser or search engine is required to read it — it exists because some AI tools already fetch it when they encounter it, and more documentation platforms (several static-site generators and docs hosts) have started publishing one by default.</p>
+
+  <h2>How it differs from robots.txt and sitemap.xml</h2>
+  <p>These three files answer different questions, and a site can have all three at once:</p>
+  <ul>
+    <li><strong>robots.txt</strong> — "which crawlers may fetch which paths." An access rule, not a content summary.</li>
+    <li><strong>sitemap.xml</strong> — "every URL that exists and should be indexed." Exhaustive and machine-generated, not curated.</li>
+    <li><strong>llms.txt</strong> — "the handful of pages that actually explain this site or product." Curated and short by design — the opposite of exhaustive.</li>
+  </ul>
+  <p>If you already publish a sitemap with hundreds of URLs, llms.txt is not a second copy of it — pasting your whole sitemap in verbatim (which this tool's sitemap mode makes easy to do by accident) defeats the point. The <a href="./#mode-list">page-list tab</a> is the better starting point for most sites: hand-pick the pages that matter.</p>
+
+  <h2>The shape the convention describes</h2>
+  <pre class="cmd"><code># Site or Project Name
+
+&gt; One-sentence summary of what this is.
+
+## Docs
+- [Getting started](https://example.com/docs/start): what this page covers
+- [API reference](https://example.com/docs/api)
+
+## Optional
+- [Changelog](https://example.com/changelog)</code></pre>
+  <p>An H1 title, an optional blockquote summary, then any number of "## Section" headings each holding Markdown link bullets. The convention's own suggestion is an "## Optional" section at the end for links that can be skipped first if an assistant has limited context to spend — this generator lets you name any section, including that one.</p>
+
+  <p>A docs site with a few hundred pages, several formats of the same content, or a lot of historical/versioned material is exactly the case the convention was written for.</p>
+
+  <h2>Keeping it current</h2>
+  <p>An llms.txt that links to a page you deleted, or omits a major new doc, is worse than not having one — the same "a guard nobody runs is worth less than no guard" problem any generated artifact has. If you regenerate it from a sitemap or docs tree on every deploy (the CLI is built for exactly that — see the main page), it can't go stale the way a hand-maintained one will.</p>
+
+  <h2>Frequently asked questions</h2>
+  <h3>Does llms.txt replace robots.txt or sitemap.xml?</h3>
+  <p>No. robots.txt controls crawler access, sitemap.xml lists every URL that should be indexed, and llms.txt is a curated, short map of the pages that actually explain a site or product — a different job from either, and a site can have all three at once.</p>
+  <h3>Do you need one?</h3>
+  <p>It helps most on documentation sites, API references, and developer-facing tools where there is real depth to summarize and a real audience (including AI coding assistants) that benefits from a shortcut past the marketing pages. A five-page brochure site has little to gain.</p>
+  <h3>What should not go in it?</h3>
+  <p>Everything your sitemap already lists is the wrong scope — llms.txt is meant to be curated and short, not exhaustive. Leave out marketing pages, legal boilerplate, and anything not meant to inform an assistant answering a question about the product.</p>
+
+  <p><a href="./">Build one now &rarr;</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational, not a specification. Confirm anything load-bearing against <a href="https://llmstxt.org/" rel="noopener">llmstxt.org</a> itself, which may change.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../pg-stat-statements-analyzer/" data-pf-to="pg-stat-statements-analyzer">pg_stat_statements Analyzer — free, private, paste-the-output</a></li>
+      <li><a href="../pinned-actions-check/" data-pf-to="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+      <li><a href="../pip-audit-triage/" data-pf-to="pip-audit-triage">Which pip-audit findings actually matter?</a></li>
+      <li><a href="../postgres-explain-analyzer/" data-pf-to="postgres-explain-analyzer">Why is my Postgres query slow? Paste the plan.</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=llms-txt-generator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="llms-txt-generator"></script>
+</body>
+</html>

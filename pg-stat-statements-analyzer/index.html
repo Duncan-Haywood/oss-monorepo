@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pg_stat_statements Analyzer — Find the Postgres Queries Using the Most Time</title>
+  <meta name="description" content="Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time…">
+  <meta property="og:title" content="pg_stat_statements Analyzer — free, private, paste-the-output">
+  <meta property="og:description" content="The few query shapes behind most of your Postgres load, with N+1, cache and temp-file flags. Nothing is uploaded.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "pg_stat_statements Analyzer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the output of one read-only query against pg_stat_statements and see which Postgres query shapes use the most database time, plus N+1 suspects, cache misses, temp-file spills and slow calls. Runs in your browser; nothing is uploaded and it never connects to your database.", "featureList": "Slowest queries by total time, query shape merging, N+1 suspect finder, cache hit ratio, temp file spill finder, payoff estimate"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find the slowest queries in Postgres?", "acceptedAnswer": {"@type": "Answer", "text": "Enable the pg_stat_statements extension, run the query on this page, and paste the CSV here. Queries are ranked by total execution time, which is what the database actually spent, not by how slow one call felt. A query that takes 2 ms but runs three million times costs more than one that takes two seconds and runs ten times."}}, {"@type": "Question", "name": "What does pg_stat_statements measure?", "acceptedAnswer": {"@type": "Answer", "text": "For every normalised query shape it keeps the number of calls, total and mean execution time, rows, shared-buffer hits and reads, temp-file blocks and (on Postgres 13 and later) WAL bytes. The counters accumulate since the last reset, so a busy week and a quiet week can look the same. Reset them before a test if you want a clean window."}}, {"@type": "Question", "name": "What is an N+1 suspect?", "acceptedAnswer": {"@type": "Answer", "text": "A single-row SELECT that runs far more often than anything else, returns about one row per call and takes only a millisecond or two. The tool cannot see your application, so it only says the pattern fits. If one page load or API request issues the lookup in a loop, batching the ids into one query with = ANY($1) or a join usually removes most of the calls."}}, {"@type": "Question", "name": "Why are several entries merged into one?", "acceptedAnswer": {"@type": "Answer", "text": "pg_stat_statements stores a separate entry for each length of an IN list and each number of VALUES rows, so one query can be spread over dozens of entries. This tool merges entries that differ only in those lengths, comments or parameter numbering, and tells you how many it merged."}}, {"@type": "Question", "name": "Does the tool connect to my database?", "acceptedAnswer": {"@type": "Answer", "text": "No. You run one read-only query and paste the result. The text is parsed in your browser and is not sent anywhere. Query text can contain table names and, if the application did not parameterise a value, literal data, so look at the paste before you share it with anyone."}}, {"@type": "Question", "name": "What does it not see?", "acceptedAnswer": {"@type": "Answer", "text": "Query plans, indexes, lock waits, what the application does around a query, replicas, and how long the counters have been collecting. A flag is a reason to run EXPLAIN (ANALYZE, BUFFERS) on that query, not a diagnosis."}}, {"@type": "Question", "name": "Is this database advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies fixed rules to the text you provide. You are responsible for checking its output and for any change you make to your database."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+      .code { font: 12px ui-monospace, monospace; word-break: break-word; }
+    .bar { height: 8px; border-radius: 4px; background: #2a6b8e; min-width: 2px; }
+    .pill.cold { background: #e3e9ef; color: #1f4a5d; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"pg_stat_statements Analyzer — free, private, paste-the-output","item":"https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="pg_stat_statements Analyzer — free, private, paste-the-output — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">pg_stat_statements Analyzer — free, private, paste-the-output</span></span></nav>
+  <header>
+    <p class="note">PG_STAT_STATEMENTS ANALYZER · RUNS IN YOUR BROWSER · NEVER TOUCHES YOUR DATABASE</p>
+    <h1>Which few queries are behind most of your Postgres load?</h1>
+    <p>Run <strong>one read-only query</strong> against <code>pg_stat_statements</code>, paste the output, and get the query shapes ranked by <strong>total database time</strong>, the ones that look like <strong>N+1 loops</strong>, miss cache or spill to temp files, and what fixing the top few would be worth.</p>
+    <p class="note">The text is read in this browser tab. No connection string, no credentials, no upload. Query text is what you paste, so glance at it before sharing the result.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Run this query</h2>
+    <p class="note">Read-only. Needs the <code>pg_stat_statements</code> extension (on by default on most managed Postgres). Postgres 13 or later; on 12 or earlier replace <code>total_exec_time</code>, <code>mean_exec_time</code> and <code>stddev_exec_time</code> with <code>total_time</code>, <code>mean_time</code> and <code>stddev_time</code> and drop <code>wal_bytes</code>.</p>
+    <textarea id="query" readonly spellcheck="false" aria-label="The query to run" style="min-height:260px"></textarea>
+    <p><button type="button" class="secondary" id="copy-query">Copy the query</button></p>
+    <p class="note">In psql: <code>\copy ( …query… ) TO 'statements.csv' WITH CSV HEADER</code>. Any SQL client's "export as CSV" works.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste the result</h2>
+    <label for="file">Choose the CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="queryid,query,calls,total_exec_time,mean_exec_time,stddev_exec_time,rows,shared_blks_hit,shared_blks_read,temp_blks_read,temp_blks_written,wal_bytes"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>Where the time goes</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">#</th><th class="n" scope="col">Share</th><th class="n" scope="col">Cumulative</th><th class="n" scope="col">Total</th><th class="n" scope="col">Calls</th><th class="n" scope="col">Mean</th><th scope="col">Query</th><th scope="col">Flags</th></tr></thead><tbody id="ranked"></tbody></table></div></div>
+    <h3>What to look at first</h3>
+    <div id="findings"></div>
+    <h3>What fixing the top queries would be worth</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">If the top …</th><th class="n" scope="col">were 2× faster</th><th class="n" scope="col">were 10× faster</th></tr></thead><tbody id="payoff"></tbody></table></div></div>
+    <p class="note">Share of total database time saved, assuming nothing else changes. It is arithmetic on the counters, not a forecast.</p>
+    <h3>Tables touched by the most time</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Table</th><th class="n" scope="col">Query shapes</th><th class="n" scope="col">Time in queries touching it</th><th class="n" scope="col">Calls</th></tr></thead><tbody id="tables"></tbody></table></div></div>
+    <p class="note">Tables are read from FROM, JOIN, UPDATE and INTO clauses and are approximate. A query touching two tables counts toward both, so these rows do not add up to the total.</p>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download ranking as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Ranking</strong> — by total execution time. Entries that differ only in IN-list length, VALUES row count, comments or parameter numbers are merged into one shape.</li>
+      <li><strong>Hot</strong> — 5% or more of all database time.</li>
+      <li><strong>Chatty (N+1 suspect)</strong> — a SELECT with at least 1,000 calls and at least 10% of all calls, 2 ms or less per call and about one row per call.</li>
+      <li><strong>Cold</strong> — at least 100 MB read into shared buffers and a hit ratio below 95%. Reads can still be served by the OS cache.</li>
+      <li><strong>Temp spill</strong> — at least 10 MB written to temporary files.</li>
+      <li><strong>Slow</strong> — 250 ms or more per call over at least 10 calls. <strong>Swings</strong> — standard deviation at least 3× the mean (mean 10 ms or more). <strong>Many rows</strong> — 10,000 or more rows per call.</li>
+      <li><strong>Reconciles.</strong> Shares add to 100%, and merged calls and time equal the sum of the entries they came from.</li>
+      <li><strong>Not modelled:</strong> plans, indexes, locks, the application, replicas, and how long the counters have been collecting. Treat each flag as a reason to run EXPLAIN (ANALYZE, BUFFERS), not as a diagnosis.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find the slowest queries in Postgres?</h3>
+    <p>Enable the pg_stat_statements extension, run the query on this page, and paste the CSV here. Queries are ranked by total execution time, which is what the database actually spent, not by how slow one call felt. A query that takes 2 ms but runs three million times costs more than one that takes two seconds and runs ten times.</p>
+    <h3>What does pg_stat_statements measure?</h3>
+    <p>For every normalised query shape it keeps the number of calls, total and mean execution time, rows, shared-buffer hits and reads, temp-file blocks and (on Postgres 13 and later) WAL bytes. The counters accumulate since the last reset, so a busy week and a quiet week can look the same. Reset them before a test if you want a clean window.</p>
+    <h3>What is an N+1 suspect?</h3>
+    <p>A single-row SELECT that runs far more often than anything else, returns about one row per call and takes only a millisecond or two. The tool cannot see your application, so it only says the pattern fits. If one page load or API request issues the lookup in a loop, batching the ids into one query with = ANY($1) or a join usually removes most of the calls.</p>
+    <h3>Why are several entries merged into one?</h3>
+    <p>pg_stat_statements stores a separate entry for each length of an IN list and each number of VALUES rows, so one query can be spread over dozens of entries. This tool merges entries that differ only in those lengths, comments or parameter numbering, and tells you how many it merged.</p>
+    <h3>Does the tool connect to my database?</h3>
+    <p>No. You run one read-only query and paste the result. The text is parsed in your browser and is not sent anywhere. Query text can contain table names and, if the application did not parameterise a value, literal data, so look at the paste before you share it with anyone.</p>
+    <h3>What does it not see?</h3>
+    <p>Query plans, indexes, lock waits, what the application does around a query, replicas, and how long the counters have been collecting. A flag is a reason to run EXPLAIN (ANALYZE, BUFFERS) on that query, not a diagnosis.</p>
+    <h3>Is this database advice?</h3>
+    <p>No. It applies fixed rules to the text you provide. You are responsible for checking its output and for any change you make to your database.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Its findings are leads to investigate, not diagnoses. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any change you make to your database. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with or endorsed by the PostgreSQL Global Development Group. “PostgreSQL” and “Postgres” are trademarks of their respective owners. Also see the <a href="../postgres-index-auditor/">Postgres index auditor</a>, the <a href="../postgres-explain-analyzer/">Postgres EXPLAIN analyzer</a> and the <a href="../sql-migration-lock-check/">SQL migration lock check</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, humanBytes, humanMs, toCsv, QUERY } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const pct = (x) => `${(x * 100).toFixed(x >= 0.1 ? 0 : 1)}%`;
+    let last = [];
+    $("#query").value = QUERY;
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.statements);
+      const s = r.summary;
+      last = r.families;
+      $("#report-stats").innerHTML = `${s.statements} entries${s.merged ? ` merged into <strong>${s.families}</strong> query shapes` : ""} used <strong>${humanMs(s.totalMs)}</strong> over ${s.totalCalls.toLocaleString("en-US")} calls. The top shape is <strong>${pct(s.topShare)}</strong> of the time and <strong>${s.k80}</strong> shape${s.k80 === 1 ? "" : "s"} account for 80%.${s.hitRatio === null ? "" : ` Overall cache hit ratio ${(s.hitRatio * 100).toFixed(1)}%.`}${s.tempBytes ? ` ${humanBytes(s.tempBytes)} written to temp files.` : ""}`;
+      $("#ranked").innerHTML = r.families.slice(0, 25).map((f, i) => `<tr><td>${i + 1}</td><td class="n">${pct(f.share)}<div class="bar" style="width:${Math.max(2, f.share * 100)}%"></div></td><td class="n">${pct(f.cumShare)}</td><td class="n">${humanMs(f.total)}</td><td class="n">${f.calls.toLocaleString("en-US")}</td><td class="n">${humanMs(f.mean)}</td><td class="code">${esc(f.sample.slice(0, 240))}${f.variants > 1 ? ` <em>(${f.variants} entries merged)</em>` : ""}</td><td>${f.flags.map((x) => `<span class="pill ${x.code === "hot" ? "high" : x.code === "cold" ? "cold" : "medium"}">${x.code}</span>`).join("")}</td></tr>`).join("");
+      $("#findings").innerHTML = r.findings.slice(0, 10).map((f) => `<div class="finding"><h4>${pct(f.share)} of time · <span class="code">${esc(f.sample.slice(0, 200))}</span></h4>${f.flags.map((x) => `<p><span class="pill ${x.code === "hot" ? "high" : "medium"}">${x.code}</span><strong>${x.title}.</strong> ${x.detail} ${x.next}</p>`).join("")}</div>`).join("") || "<p>Nothing crossed a threshold.</p>";
+      $("#payoff").innerHTML = r.payoff.map((p) => `<tr><th scope="row">${p.top} quer${p.top === 1 ? "y" : "ies"}</th><td class="n">${pct(p.ifTwiceAsFast)}</td><td class="n">${pct(p.ifTenTimesFaster)}</td></tr>`).join("");
+      $("#tables").innerHTML = r.tables.slice(0, 10).map((t) => `<tr><th scope="row">${esc(t.table)}</th><td class="n">${t.queries}</td><td class="n">${humanMs(t.total)}</td><td class="n">${t.calls.toLocaleString("en-US")}</td></tr>`).join("") || '<tr><td colspan="4">No table names found.</td></tr>';
+      $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      status.textContent = `Read ${n.statements.length} entries.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic shop database with orders, users and events."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#copy-query").addEventListener("click", async (e) => { try { await navigator.clipboard.writeText($("#query").value); e.target.textContent = "Copied"; } catch { $("#query").select(); e.target.textContent = "Select and copy by hand"; } });
+    $("#download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "pg-stat-statements-ranking.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+      <li><a href="../k8s-requests-rightsizer/" data-pf-to="k8s-requests-rightsizer">Are your Kubernetes requests wasting money?</a></li>
+      <li><a href="../k8s-resource-limits-check/" data-pf-to="k8s-resource-limits-check">Will this container take down its whole node?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pg-stat-statements-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/?pfEmbed=1&quot; title=&quot;pg_stat_statements Analyzer — free, private, paste-the-output — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pg-stat-statements-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/" data-pf-embed-title="pg_stat_statements Analyzer — free, private, paste-the-output" data-pf-embed-slug="pg-stat-statements-analyzer"></script>
+</body>
+</html>

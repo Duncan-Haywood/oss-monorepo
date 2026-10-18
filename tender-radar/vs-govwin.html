@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tender Radar vs. GovWin IQ</title>
+  <meta name="description" content="GovWin IQ, from Deltek, is an account-based platform for finding public-sector opportunities and tracking who else bids on them.">
+  <meta property="og:title" content="Tender Radar vs. GovWin IQ">
+  <meta property="og:description" content="Two different jobs: GovWin IQ finds public-sector opportunities as an ongoing account. Tender Radar filters a CSV export you already have into a shortlist…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tender-radar/vs-govwin.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Tender Radar or GovWin IQ?","acceptedAnswer":{"@type":"Answer","text":"Often both, for different jobs. GovWin IQ, from Deltek, is a government-contracting intelligence platform for finding public-sector opportunities and tracking agency and competitor history, run as an ongoing account. Tender Radar does none of that. It takes a CSV export of notices you already have — from a portal, from GovWin IQ, or from anywhere else — and filters it by trade, minimum value, and deadline into a shortlist you can read in minutes, entirely in your browser, with no account and nothing uploaded. A contractor who needs to discover and forecast public-sector opportunities is better served by GovWin IQ or a comparable platform; a contractor who already has a list of notices and wants it cut down to what is worth an afternoon is in the right place here."}},{"@type":"Question","name":"Does GovWin IQ filter a tender list by trade, value, and deadline the way Tender Radar does?","acceptedAnswer":{"@type":"Answer","text":"GovWin IQ's own search and saved-opportunity tooling can narrow what it surfaces, but turning an arbitrary CSV export you already hold into a fast, private, deadline-ordered shortlist is not that platform's job any more than opportunity discovery and agency-spending research are Tender Radar's job. Some contractors use GovWin IQ or a comparable service to find and export notices, then run that export through Tender Radar before reading any of them closely; neither tool replaces the other."}},{"@type":"Question","name":"Is this page affiliated with GovWin IQ?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Deltek, Inc. or GovWin IQ. GovWin IQ is a trademark of its owner, named here only to describe what Tender Radar is and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #20252b; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.06; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #b4482f; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #20252b; color: #f7f3ec; text-decoration: none; font-weight: 650; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; margin: 1em 0; }
+    th, td { border-bottom: 1px solid #d9d2c5; padding: .5rem .45rem; text-align: left; vertical-align: top; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d9d2c5; padding-top: 16px; font-size: .85rem; color: #646e76; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tender-radar/vs-govwin.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tender-radar/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tender Radar vs. GovWin IQ — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tender-radar/">Tender Radar | Public tender shortlist tool</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tender Radar vs. GovWin IQ</span></span></nav>
+  <p><a href="./">← Tender Radar</a></p>
+  <h1>Tender Radar vs. GovWin IQ</h1>
+  <p>Two different jobs: GovWin IQ, from Deltek, is an account-based platform for finding public-sector opportunities and tracking who else bids on them. Tender Radar is a free, private browser tool for a narrower job — turning a CSV export you already have into a deadline-ordered shortlist, before you spend an afternoon reading notices that were never going to fit your trade or your floor value.</p>
+  <p><a class="cta" href="./">Open the free tender shortlist tool</a></p>
+
+  <h2>What each tool is for</h2>
+  <p><strong>GovWin IQ</strong> is a government-contracting intelligence platform built by Deltek for contractors who sell into the public sector: opportunity discovery and forecasting, incumbent and competitor tracking, and agency spending history, run as an ongoing account. GovWin IQ's own pricing and current feature list are not reachable from this session to confirm, so no dollar figure or plan name for GovWin IQ is stated here — only its well-documented identity and category, an account-based public-sector opportunity and competitive-intelligence platform.</p>
+  <p>Tender Radar does none of what GovWin IQ does. It does not find opportunities, forecast agency spending, or track competitors. It takes a CSV export you already have — <code>title, buyer, deadline, category, value, url</code> — and filters it by trade (matching several spellings of the same trade in one pass), a minimum contract value, and deadline runway, entirely in your browser, with no account and nothing uploaded. Your pasted CSV and filter settings are saved to your own browser's local storage so the shortlist workflow is there again next time you open the page.</p>
+
+  <div class="pf-table-scroll"><table>
+    <caption>Where to answer each question.</caption>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>I need to find public-sector opportunities and see who else usually bids on them.</td><td>GovWin IQ, or a comparable platform &mdash; opportunity discovery is not something Tender Radar does.</td></tr>
+      <tr><td>I already have a list of notices. Which ones are actually worth reading closely?</td><td>Tender Radar &mdash; free, instant, private, no account.</td></tr>
+      <tr><td>The same trade is spelled three different ways across my export. Can I catch all of them in one filter?</td><td>Tender Radar's trade filter takes a comma-separated list of spellings and matches any of them.</td></tr>
+      <tr><td>How has this agency awarded similar contracts in the past?</td><td>GovWin IQ, or a comparable research platform &mdash; Tender Radar only sorts and filters the export you give it.</td></tr>
+      <tr><td>Do I need to create an account or sign up to use the tool?</td><td>Tender Radar: no. GovWin IQ is used through a Deltek account.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Most public-sector contractors get different value from each: GovWin IQ (or a comparable platform) for finding and forecasting opportunities as an ongoing account, and a private tool like Tender Radar for cutting a CSV export — from that platform or any portal — down to a deadline-ordered shortlist in minutes. Once a notice survives the shortlist, the <a href="../tender-bid-readiness/">bid readiness checker</a> covers the paperwork go/no-go on it; Tender Radar's own findings are a shortlist, not a market forecast or a competitor record.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I use Tender Radar or GovWin IQ?</h3>
+  <p>Often both, for different jobs. GovWin IQ, from Deltek, is a government-contracting intelligence platform for finding public-sector opportunities and tracking agency and competitor history, run as an ongoing account. Tender Radar does none of that. It takes a CSV export of notices you already have — from a portal, from GovWin IQ, or from anywhere else — and filters it by trade, minimum value, and deadline into a shortlist you can read in minutes, entirely in your browser, with no account and nothing uploaded. A contractor who needs to discover and forecast public-sector opportunities is better served by GovWin IQ or a comparable platform; a contractor who already has a list of notices and wants it cut down to what is worth an afternoon is in the right place here.</p>
+  <h3>Does GovWin IQ filter a tender list by trade, value, and deadline the way Tender Radar does?</h3>
+  <p>GovWin IQ's own search and saved-opportunity tooling can narrow what it surfaces, but turning an arbitrary CSV export you already hold into a fast, private, deadline-ordered shortlist is not that platform's job any more than opportunity discovery and agency-spending research are Tender Radar's job. Some contractors use GovWin IQ or a comparable service to find and export notices, then run that export through Tender Radar before reading any of them closely; neither tool replaces the other.</p>
+  <h3>Is this page affiliated with GovWin IQ?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Deltek, Inc. or GovWin IQ. GovWin IQ is a trademark of its owner, named here only to describe what Tender Radar is and is not.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, procurement, tax, or financial advice. It does not determine whether you are eligible to bid or whether a bid is compliant, and filtering is a plain text match over data you supply that can both miss listings and keep irrelevant ones. Verify every listing, requirement, deadline, and declaration against the original source before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your CSV is never uploaded, and this page makes no live comparison against GovWin IQ — it is a static page describing publicly documented facts. Only anonymous local usage counts are kept on the tool itself, and you can turn that off with the button in its footer.</p>
+    <p><a href="./">Use Tender Radar</a> · <a href="LICENSE" rel="noopener">Licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Support on GitHub Sponsors</a> (optional; the tool stays free either way)</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../hunting-lease-income-calculator/" data-pf-to="hunting-lease-income-calculator">Hunting Lease Income Calculator — free, private</a></li>
+      <li><a href="../hvac-repair-tier-price-calculator/" data-pf-to="hvac-repair-tier-price-calculator">What should Good, Better and Best HVAC repair options cost?</a></li>
+      <li><a href="../invoice-aging-late-payer-analyzer/" data-pf-to="invoice-aging-late-payer-analyzer">Invoice Aging &amp; Late Payer Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../job-margin-variance/" data-pf-to="job-margin-variance">Job Cost Variance Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tender-radar">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tender-radar"></script>
+</body>
+</html>

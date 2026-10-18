@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Calculate Net Proceeds From Selling A House, With An Example</title>
+  <meta name="description" content="How to work out what you keep when you sell a house: commissions, closing costs, mortgage payoff and the capital gains exclusion…">
+  <meta property="og:title" content="How To Calculate Net Proceeds From Selling A House">
+  <meta property="og:description" content="A seller net sheet worked line by line on a $450,000 sale, with the capital gains home sale exclusion. Free, private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/how-to-calculate-net-proceeds-from-selling-a-house.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a seller net sheet?","acceptedAnswer":{"@type":"Answer","text":"A seller net sheet is an estimate of the money you will receive at closing after the sale price is reduced by commissions, closing costs, concessions and your mortgage payoff. This page walks through building one and the calculator does it for you."}},{"@type":"Question","name":"How much of the sale price do sellers typically keep?","acceptedAnswer":{"@type":"Answer","text":"After commissions and closing costs, sellers typically lose about 6 to 10 percent of the price before their mortgage payoff, so a 450,000 dollar sale usually leaves 405,000 to 423,000 dollars to pay the mortgage and take home."}},{"@type":"Question","name":"Does the buyer's agent commission come out of the seller's proceeds?","acceptedAnswer":{"@type":"Answer","text":"Usually the seller pays it only if the listing or purchase contract says so. Since 2024 rule changes, buyer agent compensation is negotiated and no longer fixed by the listing, so the calculator has a separate field you can set to zero."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #2a4aa6; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5daea; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #2a4aa6; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #444d63; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/how-to-calculate-net-proceeds-from-selling-a-house.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How To Calculate Net Proceeds From Selling A House — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../home-sale-net-proceeds-calculator/">Home Sale Net Proceeds Calculator — what you really walk away with</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How To Calculate Net Proceeds From Selling A House</span></span></nav>
+  <p><a href="./">&larr; Home sale net proceeds calculator</a></p>
+  <h1>How to calculate net proceeds from selling a house</h1>
+  <p>Net proceeds are the money left after everything the sale costs and after your mortgage is paid off. Take the sale price, subtract each cost, and what remains is the cash you receive at closing. Here is a $450,000 sale worked line by line. <strong>Cash at closing comes to $206,450</strong>.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+  <h2>The example sale</h2>
+  <div class="pf-table-scroll"><table>
+    <tbody>
+      <tr><td>Sale price</td><td>$450,000</td></tr>
+      <tr><td>Mortgage payoff</td><td>$212,000</td></tr>
+      <tr><td>Each agent commission, 2.5%</td><td>$11,250</td></tr>
+      <tr><td>Title and escrow, 1%</td><td>$4,500</td></tr>
+      <tr><td>Transfer tax, 0.5%</td><td>$2,250</td></tr>
+      <tr><td>Other costs</td><td>$500</td></tr>
+      <tr><td>Prorated property tax</td><td>$1,800</td></tr>
+    </tbody>
+  </table></div>
+  <h2>Step 1: add up the selling costs</h2>
+  <p>Two commissions of $11,250 are $22,500. Add $4,500 for title and escrow, $2,250 for transfer tax and $500 of other costs: <strong>$29,750</strong>, which is 6.6% of the price.</p>
+  <h2>Step 2: subtract the payoff and prorations</h2>
+  <p>$450,000 &minus; $29,750 &minus; $212,000 &minus; $1,800 = <strong>$206,450</strong> cash at closing.</p>
+  <h2>Step 3: check whether the sale is taxed</h2>
+  <p>Say the home cost $120,000 plus $4,000 of buying costs and $25,000 of improvements, so the basis is $149,000. The amount realized is $450,000 &minus; $29,750 = $420,250, so the gain is <strong>$271,250</strong>. A single filer who lived there two of the last five years excludes $250,000, leaving $21,250 taxable. With $95,000 of other income and a 4% state rate, the estimated tax is <strong>$4,037.50</strong>.</p>
+  <h2>Step 4: the net after tax and prep</h2>
+  <p>$206,450 &minus; $3,500 of prep before listing &minus; $4,037.50 of tax = <strong>$198,912.50</strong>.</p>
+  <h2>Working backwards from a target</h2>
+  <p>Every cost scales with the price, so wanting $250,000 at closing does not mean listing at $250,000 plus the payoff. In this example the sale price has to be about <strong>$496,578</strong>. The calculator solves for that price. It also compares offers: a higher price with a large concession can leave you with less than a clean lower offer.</p>
+  <p><a class="cta" href="./">Run your own numbers</a></p>
+  <h2>Common questions</h2>
+  <h3>What is a seller net sheet?</h3>
+  <p>A seller net sheet is an estimate of the money you will receive at closing after the sale price is reduced by commissions, closing costs, concessions and your mortgage payoff. This page walks through building one and the calculator does it for you.</p>
+  <h3>How much of the sale price do sellers typically keep?</h3>
+  <p>After commissions and closing costs, sellers typically lose about 6 to 10 percent of the price before their mortgage payoff, so a 450,000 dollar sale usually leaves 405,000 to 423,000 dollars to pay the mortgage and take home.</p>
+  <h3>Does the buyer's agent commission come out of the seller's proceeds?</h3>
+  <p>Usually the seller pays it only if the listing or purchase contract says so. Since 2024 rule changes, buyer agent compensation is negotiated and no longer fixed by the listing, so the calculator has a separate field you can set to zero.</p>
+  <footer>
+    <p>Arithmetic on invented numbers, not tax, legal or real estate advice; your closing disclosure and a tax professional decide what you net and owe. No warranty. Free, best-effort hosting with no SLA. Not affiliated with any brokerage, title company or lender.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../bandcamp-sales-report-analyzer/" data-pf-to="bandcamp-sales-report-analyzer">Bandcamp Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../brand-deal-rate-calculator/" data-pf-to="brand-deal-rate-calculator">Brand Deal Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../candle-batch-cost-calculator/" data-pf-to="candle-batch-cost-calculator">Candle Batch Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../car-lease-deal-checker/" data-pf-to="car-lease-deal-checker">Car Lease Deal Checker — money factor to APR and lease vs buy</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=home-sale-net-proceeds-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="home-sale-net-proceeds-calculator"></script>
+</body>
+</html>

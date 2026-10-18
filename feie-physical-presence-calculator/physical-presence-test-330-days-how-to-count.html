@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The 330-Day Physical Presence Test: How to Count It</title>
+  <meta name="description" content="A worked physical presence test example: 347 full foreign days in the best 12-month window, 17 to spare, 330 first reached on 2025-09-04…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/feie-physical-presence-calculator/physical-presence-test-330-days-how-to-count.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I count a full day abroad?","acceptedAnswer":{"@type":"Answer","text":"A full day is a 24-hour period from midnight to midnight spent in a foreign country. The day you fly out and the day you land are not full days, and neither are days over international waters or in the United States."}},{"@type":"Question","name":"Does the 12-month period have to be a calendar year?","acceptedAnswer":{"@type":"Answer","text":"No. It can start on any day. Try every start date and use the one with the most full foreign days, which is what the calculator does."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on invented dates. Check Form 2555 instructions or a qualified professional. No warranty."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/feie-physical-presence-calculator/physical-presence-test-330-days-how-to-count.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="The 330-Day Physical Presence Test: How to Count It">
+<meta property="og:description" content="A worked physical presence test example: 347 full foreign days in the best 12-month window, 17 to spare, 330 first reached on 2025-09-04…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/feie-physical-presence-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The 330-Day Physical Presence Test: How to Count It — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../feie-physical-presence-calculator/">Have you been abroad 330 days yet?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">The 330-Day Physical Presence Test: How to Count It</span></span></nav>
+  <p class="note"><a href="./">FEIE Physical Presence Calculator</a> · guide</p>
+  <h1>The 330-day physical presence test: how to count it</h1>
+  <p>Short answer: <strong>you need 330 full days in a foreign country inside some 12-month period, and the period can start on any day.</strong> That leaves at most 35 days of the 365 for travel and the United States.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented dates.</strong> Not tax, legal or immigration advice. The foreign earned income exclusion has further requirements, including a tax home in a foreign country and foreign earned income. Check the current IRS figures.</p>
+
+  <h2>A worked example</h2>
+  <p>Four stays in Lisbon: 2024-09-15 to 2025-01-20, 2025-02-03 to 2025-05-30, 2025-06-12 to 2025-09-28 and 2025-10-05 to present (as of 2026-02-28), with $95,000 of foreign earned income for 2025.</p>
+  <ul>
+    <li>The best 12-month window runs <strong>2025-02-03 to 2026-02-02</strong> and holds <strong>347</strong> full foreign days: <strong>17</strong> more than the 330 needed, so <strong>35</strong> days of that window could be spent elsewhere.</li>
+    <li>The first date any 12-month span holds 330 foreign days is <strong>2025-09-04</strong>.</li>
+    <li>For 2025 the exclusion limit entered is $130,000. All 365 days of 2025 fall in a qualifying span, so the prorated limit is $130,000.00 and the whole $95,000.00 is excluded.</li>
+  </ul>
+
+  <h2>How to keep your count honest</h2>
+  <ul>
+    <li>Use full days only: remove the days you flew in or out of each stay.</li>
+    <li>Keep passport stamps, boarding passes and a calendar for every trip.</li>
+    <li>A short US trip eats into your 35 spare days; list each stay separately and see which window still holds 330.</li>
+    <li>Prorating: if your qualifying period covers only part of the tax year, the limit is cut by the share of the year it covers.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>How do I count a full day abroad?</h3>
+  <p>A full day is a 24-hour period from midnight to midnight spent in a foreign country. The day you fly out and the day you land are not full days, and neither are days over international waters or in the United States.</p>
+  <h3>Does the 12-month period have to be a calendar year?</h3>
+  <p>No. It can start on any day. Try every start date and use the one with the most full foreign days, which is what the calculator does.</p>
+  <h3>Is this tax advice?</h3>
+  <p>No. It is arithmetic on invented dates. Check Form 2555 instructions or a qualified professional. No warranty.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not tax, legal or immigration advice. Not affiliated with the IRS or any tax preparer or expat service. Best-effort hosting, no SLA.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../trial-conversion-timing-analyzer/" data-pf-to="trial-conversion-timing-analyzer">Trial Conversion Timing Analyzer — free, private, in your browser</a></li>
+      <li><a href="../trump-account-calculator/" data-pf-to="trump-account-calculator">Trump Account Calculator — free growth and withdrawal estimator</a></li>
+      <li><a href="../turo-earnings-report-analyzer/" data-pf-to="turo-earnings-report-analyzer">Turo Earnings Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../us-freelancer-tax-set-aside-calculator/" data-pf-to="us-freelancer-tax-set-aside-calculator">US Freelancer Tax Set-Aside Calculator 2026. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=feie-physical-presence-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="feie-physical-presence-calculator"></script>
+</body>
+</html>

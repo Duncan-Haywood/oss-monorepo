@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. PRGX | Duplicate Payment Audit</title>
+  <meta name="description" content="How this free, one-time duplicate-payment CSV checker differs from PRGX, the accounts-payable recovery-audit firm many Fortune 500 companies use on a…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/vs-prgx.html">
+  <meta property="og:title" content="This tool vs. PRGX | Duplicate Payment Audit">
+  <meta property="og:description" content="PRGX runs contingency-fee recovery audits across an entire enterprise AP ledger. This page is a free…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or hire PRGX?","acceptedAnswer":{"@type":"Answer","text":"They serve different scales. PRGX is a recovery-audit firm that runs contingency-fee audits across an entire enterprise's accounts-payable ledger, typically for large companies — PRGX's own materials describe roughly a third of the largest Fortune 500 companies as clients. That kind of engagement needs a data feed, a signed contract, and a team reviewing results, which is not realistic for a small business checking one export. This page is a free, one-time, self-serve check: choose a CSV, get a list of likely duplicate vendor payments to review yourself, with nothing uploaded and no engagement to set up."}},{"@type":"Question","name":"Does PRGX only catch duplicate payments?","acceptedAnswer":{"@type":"Answer","text":"No — duplicate payments are one category among several. PRGX's published guides describe recovery audits also finding missed early-payment discounts, pricing and tax errors, and other under- or over-billing across a client's full supplier spend, not only exact or near-duplicate payments. This tool does the one thing its name says: it flags likely duplicate or double vendor payments in the CSV you give it. It does not check pricing terms, discount capture, or tax treatment."}},{"@type":"Question","name":"Is PRGX free?","acceptedAnswer":{"@type":"Answer","text":"Not in the way this tool is. PRGX's own site describes its recovery audits as typically self-funding or contingency-based: the fee comes out of what is actually recovered, and if nothing is recovered, no fee is owed — but reaching a recovery means a real audit engagement with a firm reviewing your data. This calculator has no engagement and no fee of any kind, contingent or otherwise. It is a free static page: nothing is billed, and nothing you upload leaves your browser, because nothing is uploaded anywhere."}},{"@type":"Question","name":"Is this page affiliated with PRGX?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by PRGX Global, Inc. PRGX is a trademark of its owner, named here only to describe the kind of service this free tool is a smaller, self-serve alternative to."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182230; background: #f4f1eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #17324d; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; color: #17324d; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d2c8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5d6973; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #af6035; color: #fff; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5d6973; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5d6973; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/vs-prgx.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tool vs. PRGX | Duplicate Payment Audit — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../duplicate-payment-audit/">Duplicate Payment Audit</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tool vs. PRGX | Duplicate Payment Audit</span></span></nav>
+  <p><a href="./">&larr; Duplicate payment audit</a></p>
+  <h1>This tool vs. PRGX</h1>
+  <p>
+    <a href="https://www.prgx.com/" rel="nofollow noopener">PRGX</a> is a
+    recovery-audit firm: it reviews a client's accounts-payable transaction
+    history for overpayments, duplicate payments, missed early-payment
+    discounts, and pricing or tax errors, then helps recover what it finds.
+    Engagements are typically self-funding or contingency-based &mdash; the
+    fee comes out of what is actually recovered, and PRGX says no recovery
+    means no payment is owed. PRGX's own materials describe roughly a third
+    of the largest Fortune 500 companies as clients, which is the scale this
+    kind of audit is built for: a data feed into PRGX's systems, a signed
+    engagement, and a team reviewing the results across an entire
+    enterprise's supplier spend.
+  </p>
+  <p>
+    That makes PRGX the right choice for <strong>a full recovery-audit
+    engagement across an entire company's accounts-payable history</strong>,
+    covering more than duplicate payments. This page answers a narrower,
+    faster question: <strong>does this one CSV export contain likely
+    duplicate vendor payments worth a closer look</strong> &mdash; with no
+    engagement, no contract, and nothing uploaded.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I run a large company and want a full recovery audit across all supplier spend &mdash; duplicate payments, missed discounts, pricing and tax errors.</td>
+        <td>PRGX's contingency-fee recovery-audit service.</td>
+      </tr>
+      <tr>
+        <td>I have one CSV export of vendor payments and want to know if any look like duplicates, right now.</td>
+        <td>This tool &mdash; upload the CSV, get a review list immediately, nothing installed or engaged.</td>
+      </tr>
+      <tr>
+        <td>My business is too small for a recovery-audit engagement, but I still want to check for double payments before writing one off.</td>
+        <td>This tool &mdash; free, one-time, self-serve.</td>
+      </tr>
+      <tr>
+        <td>Can I check my own export without a contract, a fee, or handing my data to a firm?</td>
+        <td>This tool &mdash; a static page, nothing uploaded, no fee of any kind.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <a class="cta" href="./">Check your ledger now</a>
+  <p>
+    This tool needs no account, no engagement, and nothing installed: it is
+    a static page, the check runs in your browser, and the CSV you choose
+    never leaves your device.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tool or hire PRGX?</h3>
+  <p>They serve different scales. PRGX is a recovery-audit firm that runs contingency-fee audits across an entire enterprise's accounts-payable ledger, typically for large companies &mdash; PRGX's own materials describe roughly a third of the largest Fortune 500 companies as clients. That kind of engagement needs a data feed, a signed contract, and a team reviewing results, which is not realistic for a small business checking one export. This page is a free, one-time, self-serve check: choose a CSV, get a list of likely duplicate vendor payments to review yourself, with nothing uploaded and no engagement to set up.</p>
+  <h3>Does PRGX only catch duplicate payments?</h3>
+  <p>No &mdash; duplicate payments are one category among several. PRGX's published guides describe recovery audits also finding missed early-payment discounts, pricing and tax errors, and other under- or over-billing across a client's full supplier spend, not only exact or near-duplicate payments. This tool does the one thing its name says: it flags likely duplicate or double vendor payments in the CSV you give it. It does not check pricing terms, discount capture, or tax treatment.</p>
+  <h3>Is PRGX free?</h3>
+  <p>Not in the way this tool is. PRGX's own site describes its recovery audits as typically self-funding or contingency-based: the fee comes out of what is actually recovered, and if nothing is recovered, no fee is owed &mdash; but reaching a recovery means a real audit engagement with a firm reviewing your data. This calculator has no engagement and no fee of any kind, contingent or otherwise. It is a free static page: nothing is billed, and nothing you upload leaves your browser, because nothing is uploaded anywhere.</p>
+  <h3>Is this page affiliated with PRGX?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by PRGX Global, Inc. PRGX is a trademark of its owner, named here only to describe the kind of service this free tool is a smaller, self-serve alternative to.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. It does not determine that any payment was fraudulent, wrongful, or actually duplicated. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. Files are never uploaded, so there is nothing of yours to back up or lose.</p>
+    <p>Free and open source. If it caught a duplicate payment, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../lot-split-calculator/" data-pf-to="lot-split-calculator">Sell the lot whole or split it?</a></li>
+      <li><a href="../market-event-picker/" data-pf-to="market-event-picker">Which markets and festivals should you work?</a></li>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=duplicate-payment-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="duplicate-payment-audit"></script>
+</body>
+</html>

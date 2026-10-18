@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This tracker vs. tracking thresholds in a spreadsheet | Economic Nexus Threshold Tracker</title>
+<meta name="description" content="You can build a spreadsheet with all 51 jurisdictions' economic-nexus figures yourself. This free tracker already has them…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tracker vs. tracking thresholds in a spreadsheet">
+<meta property="og:description" content="A spreadsheet can hold the same 51 figures this tracker does. Typing all of them in correctly, and keeping the AND/OR logic right for the 16 states that have…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just build a spreadsheet to track this instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every figure this tracker uses — each state's dollar threshold, its transaction-count test where one exists, and whether that test is combined with an AND or an OR — is public information you can type into a spreadsheet yourself. Building it means transcribing all 51 jurisdictions correctly, including the roughly sixteen that pair a transaction count onto the dollar figure, and updating any cell a state changes (Illinois dropped its 200-transaction alternative entirely as of 2026-01-01)."}},{"@type":"Question","name":"What does a spreadsheet not do that this tracker does?","acceptedAnswer":{"@type":"Answer","text":"Keep the AND/OR logic right without you re-deriving it per state. Connecticut and New York require both the dollar figure and a transaction count together (AND) — most other transaction-count states need only one or the other (OR). A spreadsheet formula that treats every state the same way will misjudge Connecticut or New York specifically. This tracker also states outright when it needs a transaction count it doesn't have, rather than defaulting to a silent guess, and it already knows which states levy no sales tax at all so a large number there never reads as crossed."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you want to do more with the numbers than check a threshold — combine nexus tracking with other tax reporting, chart your trailing sales over time, or keep a running history from filing period to filing period. This tracker holds only what you've entered right now; a spreadsheet you build and save yourself can be extended to do anything you can formula your way into."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the tracker runs entirely in your browser. Whatever you enter is saved to this browser's local storage between visits and never sent to a server, the same as a spreadsheet file that never leaves your own computer."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #17251f; background: #f5f1e8; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #b44f2f; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #b44f2f; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #b44f2f; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fffdf8; border: 1px solid #d9d2c4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3c2e1812; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eef2ec; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5b6b63; }
+  .note, footer, .fine { font-size: .86rem; color: #5b6b63; }
+  footer { margin-top: 28px; border-top: 1px solid #d9d2c4; padding-top: 16px; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This tracker vs. tracking thresholds in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../economic-nexus-threshold-tracker/">Economic Nexus Threshold Tracker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This tracker vs. tracking thresholds in a spreadsheet</span></span></nav>
+<p class="note"><a href="./">&larr; back to the tracker</a></p>
+<h1>This tracker vs. tracking thresholds in a spreadsheet</h1>
+<p class="lede">Every figure this tracker uses is public: each state's dollar threshold, its transaction-count test where one exists, and whether that test is combined with an AND or an OR. A spreadsheet can hold the same 51 rows. Transcribing them correctly, keeping the AND/OR logic right for the states that pair the two tests, and noticing when a state changes its rule is the part that gets skipped when you need an answer today.</p>
+
+<section class="card">
+<h2>What each approach actually does</h2>
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Job</th><th scope="col">A spreadsheet you build</th><th scope="col">This tracker</th></tr></thead>
+<tbody>
+<tr><td>Where the 51 jurisdictions' figures come from</td><td>You look each one up and type it in, then keep it current yourself.</td><td>Already built in, compiled from named, dated sources.</td></tr>
+<tr><td>Handling the ~16 states with a transaction-count test</td><td>You have to notice which states pair it with AND vs. OR and write two different formulas.</td><td>Applies the right rule per state automatically.</td></tr>
+<tr><td>A state that requires both figures together but you've only entered sales</td><td>A formula that isn't written to catch this will silently return crossed or not-crossed either way.</td><td>Says outright it needs a transaction count before it will guess.</td></tr>
+<tr><td>A state with no sales tax at all</td><td>You have to remember to exclude Alaska, Delaware, Montana, New Hampshire, and Oregon or a large number there reads as crossed.</td><td>Already knows those five states have no threshold to cross.</td></tr>
+<tr><td>Cost</td><td>Free, but your time to build and keep it correct.</td><td>Free.</td></tr>
+<tr><td>Where your sales data goes</td><td>Wherever you save the file.</td><td>Nowhere — stays in your browser's local storage, never uploaded.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Can I just build a spreadsheet to track this instead?</h3>
+<p>Yes. Every figure this tracker uses &mdash; each state's dollar threshold, its transaction-count test where one exists, and whether that test is combined with an AND or an OR &mdash; is public information you can type into a spreadsheet yourself. Building it means transcribing all 51 jurisdictions correctly, including the roughly sixteen that pair a transaction count onto the dollar figure, and updating any cell a state changes (Illinois dropped its 200-transaction alternative entirely as of 2026-01-01).</p>
+<h3>What does a spreadsheet not do that this tracker does?</h3>
+<p>Keep the AND/OR logic right without you re-deriving it per state. Connecticut and New York require both the dollar figure and a transaction count together (AND) &mdash; most other transaction-count states need only one or the other (OR). A spreadsheet formula that treats every state the same way will misjudge Connecticut or New York specifically. This tracker also states outright when it needs a transaction count it doesn't have, rather than defaulting to a silent guess, and it already knows which states levy no sales tax at all so a large number there never reads as crossed.</p>
+<h3>Is a spreadsheet ever the better choice?</h3>
+<p>Yes, if you want to do more with the numbers than check a threshold &mdash; combine nexus tracking with other tax reporting, chart your trailing sales over time, or keep a running history from filing period to filing period. This tracker holds only what you've entered right now; a spreadsheet you build and save yourself can be extended to do anything you can formula your way into.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No account and no network requests &mdash; the tracker runs entirely in your browser. Whatever you enter is saved to this browser's local storage between visits and never sent to a server, the same as a spreadsheet file that never leaves your own computer.</p>
+<p class="fine">This page names no specific product &mdash; it compares against the generic method of tracking economic-nexus thresholds in a spreadsheet, not a competing tool.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked tracker are not legal, tax, or financial advice, and threshold figures are compiled from secondary sources, not an independent fifty-state statute review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The tracker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the tracker</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../square-sales-to-journal/" data-pf-to="square-sales-to-journal">Square sales to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../stripe-payout-to-journal/" data-pf-to="stripe-payout-to-journal">Stripe payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../teachable-payout-to-journal/" data-pf-to="teachable-payout-to-journal">Teachable transactions to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../time-tracker/" data-pf-to="time-tracker">Time Tracker — free billable hours timer, no signup</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=economic-nexus-threshold-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="economic-nexus-threshold-tracker"></script>
+</body>
+</html>

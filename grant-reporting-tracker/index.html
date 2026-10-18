@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Grant Reporting Deadline Tracker for Small Nonprofits</title>
+  <meta name="description" content="Track nonprofit grant reporting deadlines, restricted balances, and award review status in a private browser-based tracker. No account or upload required.">
+  <meta property="og:title" content="Grant Reporting Tracker for Small Nonprofits">
+  <meta property="og:description" content="A private, free grant deadline and reporting review queue that runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grant Reporting Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based grant reporting deadline tracker for small nonprofits."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is the next report date calculated?","acceptedAnswer":{"@type":"Answer","text":"Award date plus the reporting interval you entered, in months, unless a report has been filed — then it is the last filed date plus the interval instead, so a multi-year award keeps rolling forward rather than staying pinned to its first-ever due date. Set that anchor either by filling in Last report filed when you add the award, or by pressing Filed today on its row in the queue once you have actually sent the report. A 31 January anchor reporting every month lands on 28 February rather than rolling into March, so the interval stays consistent even when it crosses a shorter month."}},{"@type":"Question","name":"When does a report count as \"Due soon\" versus \"Overdue\"?","acceptedAnswer":{"@type":"Answer","text":"Due soon means the next report date is within 30 days of today. Overdue means that date has already passed. Anything further out shows On track. The comparison uses your own device's local date, not a server's clock."}},{"@type":"Question","name":"What is the restricted balance?","acceptedAnswer":{"@type":"Answer","text":"Award amount minus what you have recorded as spent. It is arithmetic on the two numbers you entered, not a determination of what a funder will allow as an eligible expense."}},{"@type":"Question","name":"Do the sample grants use real award data?","acceptedAnswer":{"@type":"Answer","text":"No. \"Load sample grants\" generates three placeholder awards timed relative to today's date so you can see one overdue, one due soon, and one on-track row before entering your own awards. Nothing about them is fetched or saved anywhere."}},{"@type":"Question","name":"Is this a substitute for my grant agreement's reporting requirements?","acceptedAnswer":{"@type":"Answer","text":"No. The queue is a planning aid built from dates and amounts you supply. It does not read your award agreement, determine allowable costs, or confirm a funder's actual deadline — check the agreement and your grant professional for that."}},{"@type":"Question","name":"Where is my grant data stored?","acceptedAnswer":{"@type":"Answer","text":"In this browser's local storage only. Nothing is uploaded to a server, and closing the tab does not lose your awards — they are still there next time you open the page on the same device and browser."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:1050px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:720px; font:700 clamp(2.2rem,6vw,4.5rem)/.98 Georgia,serif; letter-spacing:-.04em; margin:0 0 16px; } h2 { font:700 1.5rem Georgia,serif; } .intro { max-width:700px; color:var(--muted); font-size:1.12rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:700px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #3c2e1812; } .row { display:grid; grid-template-columns:repeat(7,1fr); gap:12px; align-items:end; } label { display:grid; gap:5px; color:var(--muted); font-size:.88rem; } input { width:100%; padding:11px; border:1px solid #bdb4a5; border-radius:8px; font:inherit; color:var(--ink); background:white; } button { border:0; border-radius:8px; padding:12px 16px; font-weight:700; cursor:pointer; background:var(--ink); color:white; } button.secondary { background:#e7dfd0; color:var(--ink); } button.danger { background:#fff; color:#a42c22; border:1px solid #a42c22; padding:6px 10px; font-weight:600; } button.rowaction { padding:6px 10px; font-weight:600; } .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; } th,td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); } th { color:var(--muted); font-size:.8rem; text-transform:uppercase; } .status { font-weight:700; } .overdue { color:#a42c22; } .soon { color:#9a6100; } .privacy { font-size:.9rem; color:var(--muted); } footer { margin-top:32px; color:var(--muted); font-size:.85rem; } @media(max-width:800px) { .row { grid-template-columns:repeat(2,1fr); } .row button { grid-column:span 2; } table { font-size:.9rem; } th:nth-child(2),td:nth-child(2) { display:none; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Grant Reporting Tracker for Small Nonprofits","item":"https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Grant Reporting Tracker for Small Nonprofits — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Grant Reporting Tracker for Small Nonprofits</span></span></nav><main>
+  <h1>Know which grant report needs attention next.</h1>
+  <p class="intro">A private deadline tracker for small nonprofits managing several awards in spreadsheets. Add your own award dates and reporting intervals, then get a review queue you can export.</p>
+  <p class="value"><strong>After using this, you can now</strong> see upcoming and overdue grant reporting work with the remaining restricted balance, which used to take a hand-maintained spreadsheet. See <a href="when-is-my-grant-report-due.html">how the review queue is sorted</a> with a worked example, <a href="vs-granthub.html">how this compares to GrantHub</a> if you are weighing a paid grant-management subscription, or <a href="vs-tracking-grants-in-a-spreadsheet.html">how it compares to tracking grants in a spreadsheet</a> if you already keep one.</p>
+  <p class="privacy">Also tracking pending applications alongside awarded grants, or weighing a grant writer against cash a late report puts at risk? The <a href="../grant-deadline-tracker/">grant deadline tracker</a> keeps those deadlines next to award balances — nothing uploaded.</p>
+  <section class="card"><h2>Add a grant award</h2><p class="privacy">Awards are saved only in this browser so your review queue is still here next time.</p><form id="grant-form"><div class="row">
+    <label>Grant name<input name="name" required placeholder="Community garden"></label><label>Funder<input name="funder" placeholder="Local foundation"></label><label>Award date<input name="awardDate" type="date" required></label><label>Report every (months)<input name="intervalMonths" type="number" min="1" step="1" value="6" required inputmode="numeric"></label><label>Last report filed (optional)<input name="lastReportFiled" type="date"></label><label>Award amount<input name="awardAmount" type="number" min="0" step="0.01" value="0" required inputmode="decimal"></label><label>Spent so far<input name="spentAmount" type="number" min="0" step="0.01" value="0" required inputmode="decimal"></label>
+  </div><div class="actions"><button type="submit">Add grant</button><button class="secondary" type="button" id="sample">Load sample grants</button> <button class="secondary" type="button" id="clear">Clear all saved awards</button></div></form></section>
+  <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h2>Review queue</h2><div><button class="secondary" id="review">Review grants</button> <button class="secondary" id="export">Export CSV</button></div></div><p id="empty" class="privacy">No awards yet. Add the first one above, or load sample grants to see how the queue reads.</p><p id="sample-note" class="privacy" role="status" hidden></p><div style="overflow:auto"><div class="pf-table-scroll"><table hidden id="table"><thead><tr><th>Grant</th><th>Funder</th><th>Last filed</th><th>Next report</th><th>Status</th><th>Restricted balance</th><th></th></tr></thead><tbody></tbody></table></div></div></section>
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Grant information stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is the next report date calculated?</h3>
+    <p>Award date plus the reporting interval you entered, in months, unless a report has been filed — then it is the last filed date plus the interval instead, so a multi-year award keeps rolling forward rather than staying pinned to its first-ever due date. Set that anchor either by filling in Last report filed when you add the award, or by pressing Filed today on its row in the queue once you have actually sent the report. A 31 January anchor reporting every month lands on 28 February rather than rolling into March, so the interval stays consistent even when it crosses a shorter month.</p>
+    <h3>When does a report count as "Due soon" versus "Overdue"?</h3>
+    <p>Due soon means the next report date is within 30 days of today. Overdue means that date has already passed. Anything further out shows On track. The comparison uses your own device's local date, not a server's clock.</p>
+    <h3>What is the restricted balance?</h3>
+    <p>Award amount minus what you have recorded as spent. It is arithmetic on the two numbers you entered, not a determination of what a funder will allow as an eligible expense.</p>
+    <h3>Do the sample grants use real award data?</h3>
+    <p>No. "Load sample grants" generates three placeholder awards timed relative to today's date so you can see one overdue, one due soon, and one on-track row before entering your own awards. Nothing about them is fetched or saved anywhere.</p>
+    <h3>Is this a substitute for my grant agreement's reporting requirements?</h3>
+    <p>No. The queue is a planning aid built from dates and amounts you supply. It does not read your award agreement, determine allowable costs, or confirm a funder's actual deadline — check the agreement and your grant professional for that.</p>
+    <h3>Where is my grant data stored?</h3>
+    <p>In this browser's local storage only. Nothing is uploaded to a server, and closing the tab does not lose your awards — they are still there next time you open the page on the same device and browser.</p>
+  </section>
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.<p class="support">Free and open source. If it kept a report deadline from slipping, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'grant-reporting-tracker-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { reviewAll, toCsv, loadGrants, sampleGrants, removeGrant, markReportFiled } from './calc.mjs';
+  const form=document.querySelector('#grant-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='grant-tracker-awards';
+  const readGrants=()=>{try{return loadGrants(localStorage.getItem(storageKey));}catch{return [];}};
+  const saveGrants=()=>{try{localStorage.setItem(storageKey,JSON.stringify(grants));}catch{} };
+  let grants=readGrants();
+  const track=(event)=>{if(document.querySelector('#usage').checked&&!navigator.doNotTrack&&!navigator.globalPrivacyControl){try{const key='grant-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
+  const render=()=>{const rows=reviewAll(grants); tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.funder)}</td><td>${escapeHtml(r.lastReportFiled||'—')}</td><td>${r.nextReport||'Check date'}</td><td class="status ${r.status==='Overdue'?'overdue':r.status==='Due soon'?'soon':''}">${r.status}</td><td>${Number(r.restrictedBalance).toFixed(2)}</td><td><button type="button" class="secondary rowaction" data-filed="${r.sourceIndex}">Filed today</button> <button type="button" class="danger" data-remove="${r.sourceIndex}">Remove</button></td></tr>`).join(''); table.hidden=!rows.length; empty.hidden=!!rows.length; return rows;};
+  const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));grants.push(data);saveGrants();form.reset();form.intervalMonths.value=6;render();track('grant_added');}); document.querySelector('#review').onclick=()=>{render();track('reviewed');}; document.querySelector('#clear').onclick=()=>{grants=[];try{localStorage.removeItem(storageKey);}catch{} note('');render();};
+  // Loading the example never touches real awards: with anything already in the
+  // tracker it declines and says so, rather than merging three fictional grants
+  // into a list the user would then export to a board.
+  const note=(text)=>{const el=document.querySelector('#sample-note');el.textContent=text;el.hidden=!text;};
+  document.querySelector('#sample').onclick=()=>{if(grants.length){note('The tracker already has awards in it. Clear all saved awards first if you want to see the sample.');return;}grants=sampleGrants();saveGrants();note('Showing three sample awards — one overdue, one due within the month, one on track. Clear all saved awards to remove them.');render();track('sample_loaded');}; document.querySelector('#export').onclick=()=>{const rows=reviewAll(grants);const blob=new Blob([toCsv(rows)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='grant-review-queue.csv';a.click();URL.revokeObjectURL(a.href);track('exported');};
+  // "Filed today" stamps the visitor's own local date, matching the clock the
+  // Overdue/Due soon comparison already uses, so the row it produces is the
+  // one the queue then reads.
+  const todayLocal=()=>{const n=new Date();return [n.getFullYear(),String(n.getMonth()+1).padStart(2,'0'),String(n.getDate()).padStart(2,'0')].join('-');};
+  tbody.addEventListener('click',event=>{const filed=event.target.closest('[data-filed]');if(filed){grants=markReportFiled(grants,Number(filed.dataset.filed),todayLocal());saveGrants();note('Report recorded as filed today — the next due date has rolled forward one interval.');render();track('report_filed');return;}const button=event.target.closest('[data-remove]');if(!button)return;grants=removeGrant(grants,Number(button.dataset.remove));saveGrants();render();track('grant_removed');});
+  render();
+
+</script><aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../eu-einvoicing-mandate-checker/" data-pf-to="eu-einvoicing-mandate-checker">EU e-invoicing mandate checker: your receive and issue dates by country. Free, private</a></li>
+      <li><a href="../eu-espr-readiness-checker/" data-pf-to="eu-espr-readiness-checker">EU ESPR checker: unsold-clothes destruction ban, disclosure table, Digital Product Passport. Free, private</a></li>
+      <li><a href="../eu-green-claims-checker/" data-pf-to="eu-green-claims-checker">EU green claims checker: is your eco-friendly claim banned from 27 September 2026? Free, private</a></li>
+      <li><a href="../eu-green-claims-copy-scanner/" data-pf-to="eu-green-claims-copy-scanner">EU green claims checker: is your eco-friendly copy now illegal? Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=grant-reporting-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/?pfEmbed=1&quot; title=&quot;Grant Reporting Tracker for Small Nonprofits — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="grant-reporting-tracker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/" data-pf-embed-title="Grant Reporting Tracker for Small Nonprofits" data-pf-embed-slug="grant-reporting-tracker"></script>
+</body></html>

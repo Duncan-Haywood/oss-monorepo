@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of the minimum rod diameter in millimetres needed to reach a target first natural frequency from 20 to 150 hertz with a 0.3 kilogram carriage, for steel, aluminium, hardwood and printed PLA, with a dashed line at the 12 mm holder limit: steel stays under it up to 60 hertz, aluminium up to 40 hertz, and hardwood only at 20 hertz">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-rodmodes: rod diameter for a target frequency (M = 0.3 kg)</text>
+<line x1="64" x2="624" y1="247.1" y2="247.1" stroke="#ddd"/><text x="58" y="251.1" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="256.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="369.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="511.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">150</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">target frequency (Hz)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">minimum diameter (mm)</text>
+<line x1="64" x2="624" y1="228.6" y2="228.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,309.6 256.6,272.3 369.3,248.1 511.3,216.7 624.0,189.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="256.6" cy="272.3" r="3" fill="#c0392b"/>
+<circle cx="369.3" cy="248.1" r="3" fill="#c0392b"/>
+<circle cx="511.3" cy="216.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="189.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">steel</text>
+<polyline points="64.0,284.8 256.6,247.1 369.3,225.3 511.3,195.7 624.0,171.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="284.8" r="3" fill="#1f6fb2"/>
+<circle cx="256.6" cy="247.1" r="3" fill="#1f6fb2"/>
+<circle cx="369.3" cy="225.3" r="3" fill="#1f6fb2"/>
+<circle cx="511.3" cy="195.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="171.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">aluminium</text>
+<polyline points="64.0,235.6 256.6,199.4 369.3,177.8 511.3,149.8 624.0,126.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="235.6" r="3" fill="#2e8b57"/>
+<circle cx="256.6" cy="199.4" r="3" fill="#2e8b57"/>
+<circle cx="369.3" cy="177.8" r="3" fill="#2e8b57"/>
+<circle cx="511.3" cy="149.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="126.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">hardwood</text>
+<polyline points="64.0,197.6 256.6,158.3 369.3,134.0 511.3,100.1 624.0,70.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="197.6" r="3" fill="#8e44ad"/>
+<circle cx="256.6" cy="158.3" r="3" fill="#8e44ad"/>
+<circle cx="369.3" cy="134.0" r="3" fill="#8e44ad"/>
+<circle cx="511.3" cy="100.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">printed-PLA</text>
+</svg>

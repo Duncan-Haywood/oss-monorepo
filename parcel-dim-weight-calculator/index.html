@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dimensional Weight Calculator | What Your Parcel Actually Bills At</title>
+  <meta name="description" content="Work out the billable weight of a parcel from its box size, weight and DIM divisor — then see the box size that stops you paying for air…">
+  <meta property="og:title" content="Dimensional Weight Calculator">
+  <meta property="og:description" content="A private DIM weight calculator for online sellers and shippers: billable weight, how many pounds of it are air, and the box size that stops the penalty.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Parcel Dimensional Weight Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Billable weight from box dimensions and actual weight, any DIM divisor, per-package and multi-package totals, pounds of air paid for, the cube ceiling and box height that end the dimensional penalty, girth and longest-side surcharge flags, carrier dimension rounding, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 940px; margin: 0 auto; padding: 34px 18px; }
+    header { max-width: 720px; margin-bottom: 24px; }
+    .eyebrow { color: #0f5a6e; font-weight: 800; letter-spacing: .1em; font-size: .78rem; }
+    h1 { font-size: clamp(2.1rem, 6.5vw, 4rem); line-height: .98; letter-spacing: -.055em; margin: 8px 0 16px; }
+    p { line-height: 1.5; }
+    a { color: #0f5a6e; }
+    .grid { display: grid; grid-template-columns: 1fr .9fr; gap: 18px; align-items: start; }
+    section { background: #ffffff; border: 1px solid #ccd6e0; border-radius: 16px; padding: 21px; margin-bottom: 18px; box-shadow: 0 8px 22px #1d273310; }
+    h2 { margin: 0 0 5px; font-size: 1.2rem; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    .hint { color: #4a5563; font-size: .88rem; margin-top: 0; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    label { display: grid; gap: 5px; font-weight: 650; font-size: .88rem; }
+    input[type=number] { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid #8c99a6; border-radius: 8px; font: inherit; background: white; color: #1d2733; }
+    .check { display: flex; gap: 8px; align-items: flex-start; margin-top: 13px; font-weight: 650; font-size: .88rem; }
+    .check input { margin-top: 2px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f5a6e; color: #ffffff; font: inherit; font-weight: 750; cursor: pointer; }
+    button.secondary { background: #dde6ee; color: #143c4a; }
+    button[disabled] { opacity: .55; cursor: not-allowed; }
+    .actions { display: flex; gap: 9px; margin-top: 17px; flex-wrap: wrap; }
+    .result { background: #16303d; color: #f2f6f8; border-color: #16303d; position: sticky; top: 14px; }
+    .result .hint { color: #c3d3db; }
+    .result a { color: inherit; text-decoration: underline; }
+    .weight { font-size: 4.3rem; line-height: 1; color: #ffc46b; font-weight: 850; letter-spacing: -.07em; margin: 13px 0 4px; }
+    .result dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 0; }
+    dt, dd { margin: 0; }
+    dd { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .levers { margin: 14px 0 4px; display: grid; gap: 9px; }
+    .lever { margin: 0; font-size: .9rem; line-height: 1.45; color: #e7eef2; border-left: 3px solid #7fa8b8; padding-left: 11px; }
+    .lever:empty { display: none; }
+    .lever b { color: #ffc46b; }
+    .lever .warn { color: #ffdcae; display: block; margin-top: 3px; }
+    .flag { margin: 12px 0 0; font-size: .86rem; line-height: 1.45; border-left: 4px solid #ffc46b; padding-left: 11px; color: #ffeed6; }
+    .flag:empty { display: none; }
+    .notice { border-left: 4px solid #ffc46b; padding-left: 11px; font-size: .86rem; color: #d9e5eb; margin-bottom: 0; }
+    footer { color: #4a5563; font-size: .8rem; margin-top: 22px; }
+    footer button { background: transparent; color: #0f5a6e; padding: 0; font-size: inherit; font-weight: 650; text-decoration: underline; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Dimensional Weight Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is dimensional weight?","acceptedAnswer":{"@type":"Answer","text":"It is the weight a carrier assigns to the space your package takes up, so that a box of pillows does not travel for the price of a box of bolts. Take the cubic inches of the carton and divide by a number in the contract called the DIM divisor. The carrier then bills the greater of that figure and what the package actually weighs, rounded up to the next whole pound. A trailer runs out of room long before it runs out of payload, which is why the space is what gets priced."}},{"@type":"Question","name":"What is a DIM divisor, and which one applies to me?","acceptedAnswer":{"@type":"Answer","text":"It is the constant that converts cubic inches into pounds, and it is the single most valuable number in a parcel agreement. A bigger divisor means a smaller dimensional weight and a cheaper bill. The published US domestic figure for the major carriers has been 139, but negotiated accounts routinely carry 166, 194 or 250, and the divisor can differ between ground and air on the same account. This page defaults to 139 and lets you change it, because the right answer is on your rate agreement rather than in any calculator."}},{"@type":"Question","name":"Why is my shipping cost higher than the weight on the scale?","acceptedAnswer":{"@type":"Answer","text":"Because you are not being billed on the scale. If the carton prices above the goods, the dimensional figure wins and the difference is air you are paying to move. This page names that gap in pounds rather than leaving it as a ratio, because the number that changes a decision is how many pounds of nothing are on the invoice. A four pound item in a sixteen by twelve by ten inch carton bills at fourteen pounds at a 139 divisor: ten of those pounds are empty space."}},{"@type":"Question","name":"What size box stops me paying for air?","acceptedAnswer":{"@type":"Answer","text":"Any box whose cube is below your actual weight multiplied by the divisor. The page works that ceiling out and states it in cubic inches, and where the footprint allows it, also as a packed height on the carton you already have. Sometimes the honest answer is that no height reaches it, because the length and width alone already price above the goods. In that case the page says so instead of telling you to pack a mug flat, since a smaller footprint is the only thing that would work."}},{"@type":"Question","name":"Should I round the dimensions?","acceptedAnswer":{"@type":"Answer","text":"Usually yes, and the checkbox is on by default. Carriers measure each side and round it to a whole inch before multiplying, so a carton measuring twelve and a half inches on every side is cubed as thirteen. Rounding after the multiplication instead of before gives a different and smaller answer, which is how an estimate and an invoice end up disagreeing. Turn it off if your service prices on exact measurements."}},{"@type":"Question","name":"What are the girth and surcharge warnings?","acceptedAnswer":{"@type":"Answer","text":"Girth is the strap-around measurement that parcel surcharge tables are written in: the longest side plus twice each of the other two. Above certain lengths and girths a package stops being ordinary and picks up additional handling, then a large package surcharge, then refusal as a parcel altogether. The page flags which band the carton falls in from its dimensions alone. It deliberately does not quote a dollar figure, because those amounts are rate card terms that change and would go stale here."}},{"@type":"Question","name":"Does this work for several packages at once?","acceptedAnswer":{"@type":"Answer","text":"Yes, for identical ones. Each package is rated on its own and rounded up on its own, so the total is the per package billable weight times the count. That matters more than it sounds: adding the cubes together and dividing once would quietly lose the round up on every package, which is exactly the sort of small error that makes an estimate disagree with an invoice. If your cartons differ, run each configuration separately."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests. The arithmetic runs entirely in your browser and nothing about your packages is sent anywhere. The usage counter is a local, opt out tally of which features were used, never your dimensions or weights."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dimensional Weight Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Dimensional Weight Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR ONLINE SELLERS, MAKERS AND ANYONE WHO SHIPS BOXES</p>
+    <h1>The box decides the bill, not the item.</h1>
+    <p>Parcel carriers charge on the greater of what a package weighs and what the space it occupies is priced at. Enter the carton and the goods, and you will see the billable weight, how many pounds of it are air, and the box size at which the penalty stops.</p>
+    <p><a href="./how-dimensional-weight-is-billed.html">How dimensional weight is billed, and why the box wins</a></p>
+    <p><a href="./vs-guessing-the-box-size.html">Still eyeballing which box is too big? Here's what a guess can't see.</a></p>
+    <p><a href="./vs-shipstation.html">Already use ShipStation? Here is what this worksheet adds before you rate-shop.</a></p>
+  </header>
+  <main class="grid">
+    <section>
+      <h2>Your package</h2>
+      <p class="hint">Outside dimensions of the packed carton, in inches. Weight is per package.</p>
+      <div class="fields">
+        <label>Length (inches)<input id="length" type="number" min="0.1" step="0.1" value="16" inputmode="decimal"></label>
+        <label>Width (inches)<input id="width" type="number" min="0.1" step="0.1" value="12" inputmode="decimal"></label>
+        <label>Height (inches)<input id="height" type="number" min="0.1" step="0.1" value="10" inputmode="decimal"></label>
+        <label>Actual weight (lb)<input id="weight" type="number" min="0.01" step="0.01" value="4" inputmode="decimal"></label>
+        <label>DIM divisor<input id="divisor" type="number" min="1" step="1" value="139" inputmode="numeric"></label>
+        <label>Identical packages<input id="packages" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+      </div>
+      <label class="check"><input id="roundDimensions" type="checkbox" checked> Round each side to the nearest whole inch, as most carriers measure</label>
+      <div class="actions">
+        <button id="copy" type="button">Copy estimate</button>
+        <button id="target" type="button">Copy box target</button>
+        <button id="share" type="button">Copy shareable link</button>
+        <button class="secondary" id="reset" type="button">Reset example</button>
+      </div>
+      <p id="status" class="hint" role="status"></p>
+    </section>
+    <section class="result" aria-live="polite"><h2>Billable weight</h2>
+      <p class="hint">What the rate is looked up at</p>
+      <div class="weight" id="billable">14 lb</div>
+      <p id="billedOn">Billed on dimensional weight</p>
+      <div class="levers"><p class="lever" id="leverHeadline"></p><p class="lever" id="leverDetail"></p></div>
+      <p class="flag" id="flag"></p>
+      <dl>
+        <dt>Dimensional weight</dt><dd id="dimWeight">13.81 lb</dd>
+        <dt>Actual weight</dt><dd id="actualWeight">4 lb</dd>
+        <dt>Cube</dt><dd id="cube">1,920 in³</dd>
+        <dt>Girth (L + 2×(W+H))</dt><dd id="girth">60″</dd>
+        <dt id="totalLabel">Total, 1 package</dt><dd id="total">14 lb</dd>
+      </dl>
+      <p class="notice">A planning estimate, not a quote. Divisors, rounding rules, surcharge thresholds and minimum billable weights are contract terms that differ by carrier, service and account. Verify against your own rate agreement before you price a listing.</p>
+    </section>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What is dimensional weight?</h3>
+      <p>It is the weight a carrier assigns to the space your package takes up, so that a box of pillows does not travel for the price of a box of bolts. Take the cubic inches of the carton and divide by a number in the contract called the DIM divisor. The carrier then bills the greater of that figure and what the package actually weighs, rounded up to the next whole pound. A trailer runs out of room long before it runs out of payload, which is why the space is what gets priced.</p>
+
+      <h3>What is a DIM divisor, and which one applies to me?</h3>
+      <p>It is the constant that converts cubic inches into pounds, and it is the single most valuable number in a parcel agreement. A bigger divisor means a smaller dimensional weight and a cheaper bill. The published US domestic figure for the major carriers has been 139, but negotiated accounts routinely carry 166, 194 or 250, and the divisor can differ between ground and air on the same account. This page defaults to 139 and lets you change it, because the right answer is on your rate agreement rather than in any calculator.</p>
+
+      <h3>Why is my shipping cost higher than the weight on the scale?</h3>
+      <p>Because you are not being billed on the scale. If the carton prices above the goods, the dimensional figure wins and the difference is air you are paying to move. This page names that gap in pounds rather than leaving it as a ratio, because the number that changes a decision is how many pounds of nothing are on the invoice. A four pound item in a sixteen by twelve by ten inch carton bills at fourteen pounds at a 139 divisor: ten of those pounds are empty space.</p>
+
+      <h3>What size box stops me paying for air?</h3>
+      <p>Any box whose cube is below your actual weight multiplied by the divisor. The page works that ceiling out and states it in cubic inches, and where the footprint allows it, also as a packed height on the carton you already have. Sometimes the honest answer is that no height reaches it, because the length and width alone already price above the goods. In that case the page says so instead of telling you to pack a mug flat, since a smaller footprint is the only thing that would work.</p>
+
+      <h3>Should I round the dimensions?</h3>
+      <p>Usually yes, and the checkbox is on by default. Carriers measure each side and round it to a whole inch before multiplying, so a carton measuring twelve and a half inches on every side is cubed as thirteen. Rounding after the multiplication instead of before gives a different and smaller answer, which is how an estimate and an invoice end up disagreeing. Turn it off if your service prices on exact measurements.</p>
+
+      <h3>What are the girth and surcharge warnings?</h3>
+      <p>Girth is the strap-around measurement that parcel surcharge tables are written in: the longest side plus twice each of the other two. Above certain lengths and girths a package stops being ordinary and picks up additional handling, then a large package surcharge, then refusal as a parcel altogether. The page flags which band the carton falls in from its dimensions alone. It deliberately does not quote a dollar figure, because those amounts are rate card terms that change and would go stale here.</p>
+
+      <h3>Does this work for several packages at once?</h3>
+      <p>Yes, for identical ones. Each package is rated on its own and rounded up on its own, so the total is the per package billable weight times the count. That matters more than it sounds: adding the cubes together and dividing once would quietly lose the round up on every package, which is exactly the sort of small error that makes an estimate disagree with an invoice. If your cartons differ, run each configuration separately.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests. The arithmetic runs entirely in your browser and nothing about your packages is sent anywhere. The usage counter is a local, opt out tally of which features were used, never your dimensions or weights.</p>
+
+      <h3>Are my numbers saved, and can I share them?</h3>
+      <p>Your last entry is kept in this browser's local storage, so a refresh or a visit tomorrow restores it, and nothing is uploaded. Copy shareable link puts the same figures in the page's URL fragment, after the hash, so sending that link to a co packer or a 3PL rep opens this page with the identical package already worked out. A link takes priority over a saved draft when you open one.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output against your own carrier agreement or a qualified logistics professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send — never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></p>
+    <p>Shipping a pallet rather than a parcel? LTL is priced on density bands instead of a divisor — the <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> works that one out, and nothing is uploaded there either.</p>
+    <p>Choosing a whole set of cartons rather than checking one? The <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a> picks which box sizes to stock for your order mix and shows what each extra size saves &mdash; nothing uploaded.</p>
+    <p>Already shipped and billed? The <a href="../parcel-late-delivery-refund-finder/">parcel late-delivery refund finder</a> reads your carrier shipment report and lists late parcels you may be able to claim a refund on.</p>
+    <p>Free and open source. If it saved you a carton size you would have kept buying, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { calculateBillableWeight } from './calc.mjs';
+    import { leverText } from './levers.mjs';
+    import { recordUsage, clearUsage, usageAllowed } from './usage.mjs';
+    import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS, BOOLEAN_FIELD_IDS } from './share.mjs';
+
+    const el = id => document.getElementById(id);
+    const storageKey = 'parcel-dim-weight-draft';
+    const DEFAULTS = { length: 16, width: 12, height: 10, weight: 4, divisor: 139, packages: 1, roundDimensions: true };
+    let countedSignature = '';
+
+    function currentInputs() {
+      const inputs = Object.fromEntries(NUMBER_FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of BOOLEAN_FIELD_IDS) inputs[id] = el(id).checked;
+      return inputs;
+    }
+    // Both copy buttons paste the levers, so both read them from the same place
+    // the panel does rather than scraping the rendered text.
+    function leverLines() {
+      try { return leverText(calculateBillableWeight(currentInputs())).plain; } catch { return []; }
+    }
+
+    // A link wins over a saved draft: opening a link someone sent means seeing
+    // their package, not the last one costed on this device.
+    const fromLink = decodeInputs(location.hash);
+    let restored = fromLink;
+    if (Object.keys(fromLink).length === 0) {
+      try { restored = JSON.parse(localStorage.getItem(storageKey) || 'null') || {}; } catch { restored = {}; }
+    }
+    for (const id of NUMBER_FIELD_IDS) {
+      if (Object.prototype.hasOwnProperty.call(restored, id)) el(id).value = restored[id];
+    }
+    for (const id of BOOLEAN_FIELD_IDS) {
+      if (typeof restored[id] === 'boolean') el(id).checked = restored[id];
+    }
+
+    const lb = value => `${value.toLocaleString('en-US')} lb`;
+
+    function update(count = true) {
+      try {
+        const result = calculateBillableWeight(currentInputs());
+        el('status').textContent = '';
+        el('billable').textContent = lb(result.billableWeight);
+        el('billedOn').textContent = result.billedOn === 'dimensional'
+          ? 'Billed on dimensional weight — the box, not the goods'
+          : 'Billed on actual weight — the goods, not the box';
+        const levers = leverText(result);
+        el('leverHeadline').innerHTML = levers.headline;
+        el('leverDetail').innerHTML = levers.detail;
+        el('target').disabled = levers.plain.length === 0;
+        el('flag').textContent = result.flags.length ? result.flags[0].text : '';
+        el('dimWeight').textContent = `${result.dimWeight.toFixed(2)} lb`;
+        el('actualWeight').textContent = lb(result.actualWeight);
+        el('cube').textContent = `${Math.round(result.cube).toLocaleString('en-US')} in³`;
+        el('girth').textContent = `${result.girth.toFixed(0)}″`;
+        el('totalLabel').textContent = `Total, ${result.packages} package${result.packages === 1 ? '' : 's'}`;
+        el('total').textContent = lb(result.totalBillableWeight);
+        try { localStorage.setItem(storageKey, JSON.stringify(currentInputs())); } catch {}
+        if (location.hash) history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
+        const signature = JSON.stringify(currentInputs());
+        if (count && signature !== countedSignature) { recordUsage('weight_calculated'); countedSignature = signature; }
+      } catch {
+        el('billable').textContent = '--';
+        el('billedOn').textContent = 'No estimate until the inputs are valid';
+        for (const id of ['dimWeight', 'actualWeight', 'cube', 'girth', 'total']) el(id).textContent = '--';
+        el('leverHeadline').innerHTML = '';
+        el('leverDetail').innerHTML = '';
+        el('flag').textContent = '';
+        el('target').disabled = true;
+        el('status').textContent = 'Enter positive dimensions, weight and divisor, and a whole number of packages.';
+        return false;
+      }
+      return true;
+    }
+
+    for (const id of [...NUMBER_FIELD_IDS, ...BOOLEAN_FIELD_IDS]) {
+      el(id).addEventListener('input', () => update());
+      el(id).addEventListener('change', () => update());
+    }
+
+    el('copy').addEventListener('click', async () => {
+      if (!update(false)) return;
+      const text = [
+        `Billable weight: ${el('billable').textContent} per package (${el('totalLabel').textContent.toLowerCase()}: ${el('total').textContent})`,
+        `Dimensional: ${el('dimWeight').textContent} · Actual: ${el('actualWeight').textContent} · Cube: ${el('cube').textContent} · Girth: ${el('girth').textContent}`,
+        ...leverLines(),
+        el('flag').textContent,
+        'Planning estimate only; verify against your carrier agreement.',
+      ].filter(Boolean).join('\n');
+      try { await navigator.clipboard.writeText(text); el('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); }
+      catch { el('status').textContent = 'Copy is unavailable in this browser.'; }
+    });
+
+    // A separate button, because what gets sent to a packer or a box supplier is
+    // the target carton, not the classification — and it is the only signal that
+    // anyone acts on the lever rather than reading it.
+    el('target').addEventListener('click', async () => {
+      if (!update(false)) return;
+      const lines = leverLines();
+      if (lines.length === 0) return;
+      const text = `${el('length').value}″ x ${el('width').value}″ x ${el('height').value}″ at ${el('weight').value} lb — bills at ${el('billable').textContent} (divisor ${el('divisor').value}).\n${lines.join('\n')}\nPlanning estimate only; verify against your carrier agreement.`;
+      try { await navigator.clipboard.writeText(text); el('status').textContent = 'Box target copied.'; recordUsage('box_target_copied'); }
+      catch { el('status').textContent = 'Copy is unavailable in this browser.'; }
+    });
+
+    el('reset').addEventListener('click', () => {
+      for (const [id, value] of Object.entries(DEFAULTS)) {
+        if (typeof value === 'boolean') el(id).checked = value; else el(id).value = value;
+      }
+      countedSignature = '';
+      update(false);
+    });
+
+    const paintUsage = () => { el('clearUsage').textContent = usageAllowed() ? 'Clear local usage count' : 'Local usage counting is off'; };
+    el('clearUsage').addEventListener('click', () => { clearUsage(); el('status').textContent = 'Local usage count cleared.'; paintUsage(); });
+    // Say so on arrival too: the choice survives, and the control said nothing
+    // about it until the visitor clicked again.
+    paintUsage();
+
+    el('share').addEventListener('click', async () => {
+      history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
+      try { await navigator.clipboard.writeText(location.href); el('status').textContent = 'Link copied — it reopens this page with the same package.'; }
+      catch { el('status').textContent = 'Link is in your address bar — copy it to share these numbers.'; }
+    });
+
+    update(false);
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../fleet-ev-vs-diesel-tco-calculator/" data-pf-to="fleet-ev-vs-diesel-tco-calculator">Is an electric fleet cheaper than diesel? Free TCO calculator</a></li>
+      <li><a href="../form-2290-hvut-calculator/" data-pf-to="form-2290-hvut-calculator">Form 2290 HVUT Calculator — free, private</a></li>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=parcel-dim-weight-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/?pfEmbed=1&quot; title=&quot;Dimensional Weight Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="parcel-dim-weight-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/" data-pf-embed-title="Dimensional Weight Calculator" data-pf-embed-slug="parcel-dim-weight-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="parcel-dim-weight-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

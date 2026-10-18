@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a CDN by GB Delivered</title>
+  <meta name="description" content="Why CDN bills jump with bandwidth, why regional tiers and flat fees compare differently, and what to cut before switching vendor.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/how-to-choose-a-cdn-by-gb-delivered.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do CDN prices differ so much at the same bandwidth?", "acceptedAnswer": {"@type": "Answer", "text": "Some CDNs bill pure per-GB with a regional price table (Fastly, CloudFront, Google Cloud CDN), some undercut hard on the per-GB rate with a small monthly minimum (Bunny, KeyCDN), while Cloudflare sells flat plans under fair-use terms and is not priced per GB here. At 10 TB a month the cheapest and most expensive list prices in the calculator differ by roughly $1,100 a month."}}, {"@type": "Question", "name": "What matters more than the per-GB price?", "acceptedAnswer": {"@type": "Answer", "text": "Cache hit rate and where your visitors are. Long cache lifetimes, fingerprinted assets, compressed images and video and modern formats cut delivered GB more than switching vendor, and regions such as Asia, South America and Australia can cost several times the North America rate on pay-as-you-go CDNs."}}, {"@type": "Question", "name": "When should I switch CDN vendors?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration: DNS and certificate changes, cache-rule and header parity, purge and signed-URL integration, and a staged rollout. Run the calculator with your growth rate and your regional mix before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/how-to-choose-a-cdn-by-gb-delivered.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Choose a CDN by GB Delivered">
+<meta property="og:description" content="Why CDN bills jump with bandwidth, why regional tiers and flat fees compare differently, and what to cut before switching vendor.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Choose a CDN by GB Delivered — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cdn-bandwidth-pricing-calculator/">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Choose a CDN by GB Delivered</span></span></nav>
+  <p><a href="./">← CDN Bandwidth Pricing Calculator</a></p>
+  <h1>How to choose a CDN by GB delivered</h1>
+  <p>Put your GB delivered per month and growth rate into the <a href="./">calculator</a> to price Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do CDN prices differ so much at the same bandwidth?</h2>
+  <p>Some CDNs bill pure per-GB with a regional price table (Fastly, CloudFront, Google Cloud CDN), some undercut hard on the per-GB rate with a small monthly minimum (Bunny, KeyCDN), while Cloudflare sells flat plans under fair-use terms and is not priced per GB here. At 10 TB a month the cheapest and most expensive list prices in the calculator differ by roughly $1,100 a month.</p>
+  <h2>What matters more than the per-GB price?</h2>
+  <p>Cache hit rate and where your visitors are. Long cache lifetimes, fingerprinted assets, compressed images and video and modern formats cut delivered GB more than switching vendor, and regions such as Asia, South America and Australia can cost several times the North America rate on pay-as-you-go CDNs.</p>
+  <h2>When should I switch CDN vendors?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: DNS and certificate changes, cache-rule and header parity, purge and signed-URL integration, and a staged rollout. Run the calculator with your growth rate and your regional mix before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support is optional.</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../actions-runtime-deprecation-check/" data-pf-to="actions-runtime-deprecation-check">Which of your GitHub Actions steps run on a deprecated Node runtime?</a></li>
+      <li><a href="../actions-schedule-check/" data-pf-to="actions-schedule-check">Will your GitHub Actions schedule cron actually run when you think it will?</a></li>
+      <li><a href="../actions-secret-leak-check/" data-pf-to="actions-secret-leak-check">Does your GitHub Actions workflow leak a secret GitHub's own masking can't catch?</a></li>
+      <li><a href="../actions-secrets-inherit-check/" data-pf-to="actions-secrets-inherit-check">Does secrets: inherit hand your secrets to the wrong workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cdn-bandwidth-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cdn-bandwidth-pricing-calculator"></script>
+</body>
+</html>

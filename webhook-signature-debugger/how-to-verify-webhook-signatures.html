@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Verify Webhook Signatures Correctly: Raw Body, HMAC and Replay Protection</title>
+  <meta name="description" content="How Stripe, GitHub, Shopify, Slack and Standard Webhooks sign requests, why verification fails when the body is parsed first…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/how-to-verify-webhook-signatures.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to verify webhook signatures correctly","about":"HMAC webhook signature verification","author":{"@type":"Organization","name":"Webhook Signature Debugger"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/how-to-verify-webhook-signatures.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How to Verify Webhook Signatures Correctly: Raw Body, HMAC and Replay Protection">
+<meta property="og:description" content="How Stripe, GitHub, Shopify, Slack and Standard Webhooks sign requests, why verification fails when the body is parsed first…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to Verify Webhook Signatures Correctly: Raw Body, HMAC and Replay Protection — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../webhook-signature-debugger/">Why is my webhook signature failing?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to Verify Webhook Signatures Correctly: Raw Body, HMAC and Replay Protection</span></span></nav>
+  <p><a href="./">← Webhook Signature Debugger</a></p>
+  <h1>How to verify webhook signatures correctly</h1>
+  <p>A webhook endpoint is a public URL that accepts requests from anyone. The signature is the only thing that says a request came from the provider. Nearly every "signature verification failed" ticket is one of three things: the body was changed before hashing, the secret is not the one for this endpoint, or the timestamp check rejected an old request.</p>
+
+  <h2>What each provider signs</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Provider</th><th>Header</th><th>Signed string</th><th>Encoding</th></tr>
+    <tr><td>Stripe</td><td><code>Stripe-Signature: t=…,v1=…</code></td><td><code>t + "." + body</code></td><td>hex, HMAC-SHA256</td></tr>
+    <tr><td>GitHub</td><td><code>X-Hub-Signature-256: sha256=…</code></td><td>body</td><td>hex</td></tr>
+    <tr><td>Shopify</td><td><code>X-Shopify-Hmac-Sha256</code></td><td>body</td><td>base64</td></tr>
+    <tr><td>Slack</td><td><code>X-Slack-Signature: v0=…</code></td><td><code>"v0:" + timestamp + ":" + body</code></td><td>hex</td></tr>
+    <tr><td>Standard Webhooks</td><td><code>webhook-signature: v1,…</code></td><td><code>id + "." + timestamp + "." + body</code></td><td>base64; key is the base64-decoded part of <code>whsec_…</code></td></tr>
+  </table></div>
+
+  <h2>Why the raw body matters</h2>
+  <p>An HMAC changes completely if one byte changes. If your framework parses the JSON and you hash <code>JSON.stringify(req.body)</code>, key order, whitespace and Unicode escapes may differ from what was sent. Read the unparsed bytes: <code>express.raw({ type: "application/json" })</code> on that route, <code>await request.text()</code> in Next.js route handlers and Workers, <code>request.get_data()</code> in Flask. Also check for middleware that trims or re-encodes the body.</p>
+
+  <h2>Checklist for a correct verifier</h2>
+  <ol>
+    <li>Hash the raw bytes, using the provider's signed-string recipe above.</li>
+    <li>Compare with a constant-time function (<code>crypto.timingSafeEqual</code>, <code>hmac.compare_digest</code>), not <code>==</code>.</li>
+    <li>Reject timestamps more than about five minutes from your clock, where the provider signs one.</li>
+    <li>Accept any one of several signatures when a secret is being rotated.</li>
+    <li>Use the secret for this exact endpoint and environment; store it outside source control.</li>
+    <li>Return 2xx quickly and process asynchronously; make handlers idempotent, since providers retry.</li>
+  </ol>
+
+  <h2>Using the debugger</h2>
+  <p>Paste headers, raw body and secret into <a href="./">the tool</a>. If the signature fails but a variation matches (compact versus pretty JSON, trailing newline, CRLF, whitespace in the secret), it says which, and that points at the layer in your stack that altered the bytes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general information about a debugging technique, not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../caption-quality-check/" data-pf-to="caption-quality-check">Caption Quality Checker</a></li>
+      <li><a href="../cargo-audit-triage/" data-pf-to="cargo-audit-triage">Which cargo audit findings actually matter?</a></li>
+      <li><a href="../cdn-bandwidth-pricing-calculator/" data-pf-to="cdn-bandwidth-pricing-calculator">What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?</a></li>
+      <li><a href="../chrome-extension-permission-check/" data-pf-to="chrome-extension-permission-check">Chrome Extension Permission Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=webhook-signature-debugger">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="webhook-signature-debugger"></script>
+</body>
+</html>

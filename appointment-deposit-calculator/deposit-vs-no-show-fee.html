@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deposit or no-show fee — which should I charge? | Appointment Deposit Calculator</title>
+  <meta name="description" content="A deposit is collected before the appointment and applied to the price. A no-show fee is charged after a missed one.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/deposit-vs-no-show-fee.html">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Deposit or no-show fee — which should I charge?">
+  <meta property="og:description" content="A deposit secures cash before the appointment happens. A no-show fee only exists if the appointment doesn't happen.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge a deposit or a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. A deposit is collected at booking, before you know whether the customer will show — on this calculator's defaults, $150 at 25% is a $37.50 deposit applied to the price, leaving a $112.50 balance due at the appointment. A no-show fee is only charged after the appointment is missed, and only exists as a policy you enforce afterward. A deposit secures cash and commitment up front; a no-show fee compensates you after the fact for a slot that already went empty."}},{"@type":"Question","name":"Can I use both a deposit and a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"Yes, and many service businesses do: the deposit is applied to the final price if the customer shows, and forfeited (acting as the no-show fee) if they cancel late or do not show. That is what this calculator's policy draft describes under its cancellation-notice window. A separate, larger no-show fee on top of a forfeited deposit is unusual and should be disclosed clearly before booking."}},{"@type":"Question","name":"Which one actually gets paid?","acceptedAnswer":{"@type":"Answer","text":"A deposit is easier to collect, because it is taken while the customer is still booking and motivated to secure the slot. A no-show fee is charged after the fact, often against a saved card, and is harder to collect and more likely to be disputed. If cash-in-hand before the appointment matters more than punishing a no-show after it, a deposit is the more reliable mechanism."}},{"@type":"Question","name":"Does a deposit stop no-shows?","acceptedAnswer":{"@type":"Answer","text":"It changes who books, not just who shows. On this calculator's defaults, requiring a 25% deposit is modeled as keeping 93% of the 12 weekly bookings you'd otherwise get — 11.16 a week — and collecting $21,762 a year in deposits at that rate. Those deposits are not profit: they are revenue you would have billed anyway, collected earlier. What the deposit is actually worth is the difference it makes to the year, which on those defaults plus a 15%-to-5% no-show improvement is $4,223.70, with break-even at an 88.3% booking rate. Some prospective customers who would have booked without a deposit will not book with one; the calculator asks you to estimate that trade-off rather than assuming it away."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#1c2430;background:#f6f4ef}body{max-width:760px;margin:auto;padding:32px 18px}h1{font-size:clamp(1.9rem,5.5vw,3rem);line-height:1;letter-spacing:-.04em}p,li{line-height:1.55}a{color:#1d5b8a}footer{font-size:.82rem;color:#54595f;margin-top:28px}.eyebrow{color:#1d5b8a;font-weight:750;letter-spacing:.08em;font-size:.8rem}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{text-align:left;border-bottom:1px solid #d8d3c8;padding:8px 10px;vertical-align:top}th{font-size:.85rem;color:#54595f}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/deposit-vs-no-show-fee.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Deposit or no-show fee — which should I charge? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appointment-deposit-calculator/">Appointment Deposit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Deposit or no-show fee — which should I charge?</span></span></nav>
+  <p class="eyebrow">APPOINTMENT DEPOSIT CALCULATOR</p>
+  <h1>Deposit or no-show fee — which should I charge?</h1>
+  <p>Both exist to protect a slot on your calendar, but they act at different moments. A deposit is collected when the appointment is booked, before you know how it will go. A no-show fee is only charged afterward, and only if the appointment is missed. Confusing the two leads to the wrong policy — and sometimes to advertising a "no-show fee" that customers never actually see, because nothing was collected up front to enforce it against.</p>
+
+  <h2>Side by side</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th></th><th>Deposit</th><th>No-show fee</th></tr>
+    <tr><td>Collected</td><td>At booking, before the appointment</td><td>After a missed appointment, if at all</td></tr>
+    <tr><td>Applies to</td><td>The service price (reduces the balance due)</td><td>Nothing — it is a separate charge for the missed slot</td></tr>
+    <tr><td>Reliability</td><td>Easier: customer is motivated to secure the slot</td><td>Harder: charged after the fact, often disputed</td></tr>
+    <tr><td>Effect on bookings</td><td>Can turn away price-sensitive prospects before they book</td><td>No effect on booking volume; only affects no-shows</td></tr>
+    <tr><td>What it costs you</td><td>The bookings it turns away — which is the whole cost, so break-even is a booking rate, not a fee size</td><td>Nothing in bookings; the cost is the share you never manage to collect</td></tr>
+    <tr><td>This portfolio's tool</td><td>This calculator</td><td><a href="../no-show-fee-calculator/">No-Show &amp; Cancellation Fee Calculator</a></td></tr>
+  </table></div>
+
+  <h2>What the numbers look like</h2>
+  <p>On this calculator's defaults — a $150 service, a 25% deposit — the deposit is <strong>$37.50</strong>, applied to the price, leaving a <strong>$112.50</strong> balance due at the appointment. That $37.50 is in hand whether or not the customer eventually shows. At 12 bookings a week and an assumed 93% booking rate once the deposit is required, that is <strong>11.16 bookings a week</strong> and <strong>$21,762 a year</strong> in deposits collected.</p>
+  <p><strong>That $21,762 is not extra money, and it is the number most easily misread on this page.</strong> A deposit is applied to the service total rather than added to it, so the deposits collected in a year are revenue that would have been billed anyway, taken earlier. The question of whether a deposit leaves you better off is a different sum, and the calculator now does it: on the same defaults, plus a 15% no-show rate today and 5% once a deposit is required, a year comes to <strong>$79,560 with no deposit</strong> against <strong>$83,783.70 with one</strong> — <strong>$4,223.70 better</strong>, with break-even at an <strong>88.3% booking rate</strong>. Keep more than 88.3% of today's bookings and the deposit is ahead; keep less and it is behind.</p>
+  <p>A no-show fee has no equivalent up-front number, because nothing is collected until a slot is actually missed. Its size is usually set as a share of the service price — the sibling calculator defaults to 100% of a $75 service, so $75 — but whether it is ever paid depends on being able to charge a card on file after the fact, and on local rules about that.</p>
+  <p>The two tools answer the two halves and neither repeats the other. This calculator asks whether requiring a deposit is worth what it costs you in bookings. The <a href="../no-show-fee-calculator/">No-Show &amp; Cancellation Fee Calculator</a> takes the no-shows as given and asks how much of that lost revenue each policy claws back — a fee charged afterward, a forfeited deposit, or a deposit plus the remainder — at an enforcement rate you set for how often an after-the-fact charge actually gets paid. If you are choosing whether to have a deposit at all, start here; if you have decided and want to know which recovery policy collects most, start there.</p>
+  <p><a href="index.html">Open the deposit calculator</a> to model your own price, booking volume, expected booking rate, and no-show rates.</p>
+
+  <h2>What this is not</h2>
+  <ul>
+    <li>Not advice on which policy to run, or that you must run either one.</li>
+    <li>Not a legal reading of what fees or deposits your jurisdiction or payment processor allow — check both before publishing a policy.</li>
+    <li>Not a claim that a deposit prevents no-shows; it changes who books, and the calculator's booking-rate input is your own estimate of that effect, not a guarantee.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>Should I charge a deposit or a no-show fee?</h3>
+  <p>They answer different questions. A deposit is collected at booking, before you know whether the customer will show — on this calculator's defaults, $150 at 25% is a $37.50 deposit applied to the price, leaving a $112.50 balance due at the appointment. A no-show fee is only charged after the appointment is missed, and only exists as a policy you enforce afterward. A deposit secures cash and commitment up front; a no-show fee compensates you after the fact for a slot that already went empty.</p>
+  <h3>Can I use both a deposit and a no-show fee?</h3>
+  <p>Yes, and many service businesses do: the deposit is applied to the final price if the customer shows, and forfeited (acting as the no-show fee) if they cancel late or do not show. That is what this calculator's policy draft describes under its cancellation-notice window. A separate, larger no-show fee on top of a forfeited deposit is unusual and should be disclosed clearly before booking.</p>
+  <h3>Which one actually gets paid?</h3>
+  <p>A deposit is easier to collect, because it is taken while the customer is still booking and motivated to secure the slot. A no-show fee is charged after the fact, often against a saved card, and is harder to collect and more likely to be disputed. If cash-in-hand before the appointment matters more than punishing a no-show after it, a deposit is the more reliable mechanism.</p>
+  <h3>Does a deposit stop no-shows?</h3>
+  <p>It changes who books, not just who shows. On this calculator's defaults, requiring a 25% deposit is modeled as keeping 93% of the 12 weekly bookings you'd otherwise get — 11.16 a week — and collecting $21,762 a year in deposits at that rate. Those deposits are not profit: they are revenue you would have billed anyway, collected earlier. What the deposit is actually worth is the difference it makes to the year, which on those defaults plus a 15%-to-5% no-show improvement is $4,223.70, with break-even at an 88.3% booking rate. Some prospective customers who would have booked without a deposit will not book with one; the calculator asks you to estimate that trade-off rather than assuming it away.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="index.html">Back to the deposit calculator</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+      <li><a href="../equipment-lease-buyout-calculator/" data-pf-to="equipment-lease-buyout-calculator">Equipment lease buyout calculator</a></li>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appointment-deposit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appointment-deposit-calculator"></script>
+</body>
+</html>

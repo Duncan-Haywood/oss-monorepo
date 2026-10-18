@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party</title>
+  <meta name="description" content="Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers. Enter the package price, children, party length, hosts…">
+  <meta property="og:title" content="Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party">
+  <meta property="og:description" content="Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers. Enter the package price, children, party length, hosts…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kids Birthday Party Package Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers: true profit per birthday party, margin, profit per room hour, the lowest package price for a target margin, break-even parties a year, and a two-package comparison. Runs in your browser; nothing is uploaded.","featureList":"birthday party package pricing calculator, trampoline park party profit, play cafe party pricing, price per child party package, open play revenue lost to parties, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a kids birthday party package so it makes money?","acceptedAnswer":{"@type":"Answer","text":"Count the room hours, not the party hours: the party plus setup and cleanup, with every host paid for all of them. Add food and drink and the goodie bag for every child, supplies, card fees, the open-play revenue the floor or room would have earned during the party, and a share of your yearly rent, insurance and utilities. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest package price."}},{"@type":"Question","name":"Why does a sold-out Saturday of birthday parties still lose money?","acceptedAnswer":{"@type":"Answer","text":"Because the cheapest-looking costs repeat on every party. Two hosts for a three-hour room block, pizza and goodie bags for twelve children, and an open-play customer the room could have served all land on a package priced from the pizza cost, and a share of rent lands on each party whether or not the calendar is full."}},{"@type":"Question","name":"What is the open-play cost of a birthday party?","acceptedAnswer":{"@type":"Answer","text":"If the party closes a jump area or takes tables from walk-in guests, the margin those guests would have paid during the party hours is given up. Enter it per party hour (zero if the party room is separate and walk-in traffic is unaffected) and the calculator adds it to the party's cost."}},{"@type":"Question","name":"Should I sell a basic or a deluxe package?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per party and profit per room hour. When Saturday slots are the limit, the package with the higher profit per room hour fills the room better, even if another package makes more by itself."}},{"@type":"Question","name":"How many parties a year does a venue need to cover its fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Take what one party earns above its direct costs, which is everything except the yearly rent, insurance and utilities share, and divide the yearly total by that. The calculator shows the parties a year needed and the profit at the number you actually run."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this tax, insurance or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Your insurance, waivers, permits, payroll and sales tax depend on where you operate. Check with an accountant or your insurer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party","item":"https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">KIDS BIRTHDAY PARTY PACKAGE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a birthday party package really make? True profit, margin and the lowest price</h1>
+    <p>For trampoline parks, bounce gyms, play cafes and family entertainment centers. Type the package price and what the party takes. The tool counts <strong>every host hour including setup and cleanup, food and goodies for every child, card fees, the open-play revenue the party displaces and your yearly rent and insurance</strong>, then shows profit per party and per room hour, the <strong>lowest package price that earns your target margin</strong>, and the parties a year you need to cover fixed costs.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-does-a-kids-birthday-party-package-really-make.html">how much does a kids birthday party package really make</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The package</h2>
+    <div class="row3">
+      <div><label for="pr">Package price you charge ($)</label><input type="number" id="pr" min="0" step="10" max="50000" value="449" inputmode="numeric"></div>
+      <div><label for="kd">Children included</label><input type="number" id="kd" min="1" step="1" max="500" value="12" inputmode="numeric"></div>
+      <div><label for="ph">Party length (hours)</label><input type="number" id="ph" min="0.25" step="0.25" max="24" value="2" inputmode="decimal"></div>
+      <div><label for="su">Setup and cleanup (hours, before and after)</label><input type="number" id="su" min="0" step="0.25" max="24" value="1" inputmode="decimal"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Hosts</h2>
+    <div class="row3">
+      <div><label for="hs">Party hosts working the party</label><input type="number" id="hs" min="0" step="1" max="50" value="2" inputmode="numeric"></div>
+      <div><label for="wg">Host hourly pay ($)</label><input type="number" id="wg" min="0.5" step="0.5" max="500" value="16" inputmode="decimal"></div>
+      <div><label for="bd">Payroll tax and workers comp (%)</label><input type="number" id="bd" min="0" step="1" max="100" value="10" inputmode="numeric"></div>
+    </div>
+    <h2 style="margin-top:20px">3. What the party costs to run</h2>
+    <div class="row3">
+      <div><label for="fk">Food and drink per child ($)</label><input type="number" id="fk" min="0" step="0.25" max="500" value="4.5" inputmode="decimal"></div>
+      <div><label for="gk">Goodie bag, socks or favors per child ($)</label><input type="number" id="gk" min="0" step="0.25" max="500" value="1.5" inputmode="decimal"></div>
+      <div><label for="sp">Plates, decor and supplies per party ($)</label><input type="number" id="sp" min="0" step="1" max="10000" value="18" inputmode="numeric"></div>
+      <div><label for="pc">Card fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3" inputmode="decimal"></div>
+      <div><label for="dp">Open-play margin given up per party hour ($)</label><input type="number" id="dp" min="0" step="1" max="10000" value="30" inputmode="numeric"></div>
+    </div>
+    <p class="note">Open-play margin given up: what walk-in guests would have paid you, after their own costs, in an hour the party uses your floor or tables. Enter 0 if the party room is separate and walk-in traffic is unaffected.</p>
+    <h2 style="margin-top:20px">4. Your year</h2>
+    <div class="row3">
+      <div><label for="af">Yearly rent, insurance and utilities ($)</label><input type="number" id="af" min="0" step="500" max="5000000" value="60000" inputmode="numeric"></div>
+      <div><label for="py">Parties per year</label><input type="number" id="py" min="1" step="1" max="20000" value="420" inputmode="numeric"></div>
+      <div><label for="tm">Margin you want (%)</label><input type="number" id="tm" min="0" step="1" max="90" value="25" inputmode="numeric"></div>
+    </div>
+    <button type="button" id="solve">Check this party</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this party.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><div class="pf-table-scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per party</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>5. Compare with a second package</h2>
+    <p class="note">Package A is everything above. Package B shares your wages, fees, open-play cost and yearly overhead, and has its own price, children, party length, setup, hosts and per-child costs.</p>
+    <div class="row3">
+      <div><label for="bpr">Package B: price ($)</label><input type="number" id="bpr" min="0" step="10" max="50000" value="319" inputmode="numeric"></div>
+      <div><label for="bkd">Package B: children included</label><input type="number" id="bkd" min="1" step="1" max="500" value="8" inputmode="numeric"></div>
+      <div><label for="bph">Package B: party length (hours)</label><input type="number" id="bph" min="0.25" step="0.25" max="24" value="1.25" inputmode="decimal"></div>
+      <div><label for="bsu">Package B: setup and cleanup (hours)</label><input type="number" id="bsu" min="0" step="0.25" max="24" value="1" inputmode="decimal"></div>
+      <div><label for="bhs">Package B: hosts</label><input type="number" id="bhs" min="0" step="1" max="50" value="1" inputmode="numeric"></div>
+      <div><label for="bfk">Package B: food and drink per child ($)</label><input type="number" id="bfk" min="0" step="0.25" max="500" value="3.5" inputmode="decimal"></div>
+      <div><label for="bgk">Package B: goodies per child ($)</label><input type="number" id="bgk" min="0" step="0.25" max="500" value="1" inputmode="decimal"></div>
+    </div>
+    <button type="button" id="compare">Compare the two packages</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Party costs:</strong> host pay (hosts × (party hours + setup and cleanup hours) × pay × (1 + payroll burden)), food and goodies for every child, supplies, card fees on the whole price, the open-play margin given up (party hours × the hourly figure you enter), and a fixed share: yearly rent, insurance and utilities ÷ parties per year. <strong>True profit</strong> is the price minus those costs, before tax.</p>
+    <p><strong>Lowest price:</strong> the costs that do not depend on price, divided by (1 − card fees − target margin). The test suite checks that charging exactly that amount earns the target margin for hundreds of random parties. <strong>Break-even parties:</strong> yearly overhead ÷ what one party earns above its direct costs.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a kids birthday party package so it makes money?</h3>
+    <p>Count the room hours, not the party hours: the party plus setup and cleanup, with every host paid for all of them. Add food and drink and the goodie bag for every child, supplies, card fees, the open-play revenue the floor or room would have earned during the party, and a share of your yearly rent, insurance and utilities. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest package price.</p>
+    <h3>Why does a sold-out Saturday of birthday parties still lose money?</h3>
+    <p>Because the cheapest-looking costs repeat on every party. Two hosts for a three-hour room block, pizza and goodie bags for twelve children, and an open-play customer the room could have served all land on a package priced from the pizza cost, and a share of rent lands on each party whether or not the calendar is full.</p>
+    <h3>What is the open-play cost of a birthday party?</h3>
+    <p>If the party closes a jump area or takes tables from walk-in guests, the margin those guests would have paid during the party hours is given up. Enter it per party hour (zero if the party room is separate and walk-in traffic is unaffected) and the calculator adds it to the party's cost.</p>
+    <h3>Should I sell a basic or a deluxe package?</h3>
+    <p>Compare profit per party and profit per room hour. When Saturday slots are the limit, the package with the higher profit per room hour fills the room better, even if another package makes more by itself.</p>
+    <h3>How many parties a year does a venue need to cover its fixed costs?</h3>
+    <p>Take what one party earns above its direct costs, which is everything except the yearly rent, insurance and utilities share, and divide the yearly total by that. The calculator shows the parties a year needed and the profit at the number you actually run.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this tax, insurance or business advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Your insurance, waivers, permits, payroll and sales tax depend on where you operate. Check with an accountant or your insurer.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, insurance or financial advice. <strong>Use at your own risk.</strong> Check taxes, insurance, waivers, permits and your contracts with an accountant or adviser.</p>
+    <p><strong>Independent.</strong> Not affiliated with any venue chain, franchise, party-booking platform or trade association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>party_run</code>, <code>example_loaded</code>, <code>packages_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tool: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>, for inflatable rental businesses.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareJobs, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleJob } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"price":"pr","kids":"kd","partyHours":"ph","setupHours":"su","hosts":"hs","wage":"wg","burdenPct":"bd","foodPerKid":"fk","goodsPerKid":"gk","supplies":"sp","processPct":"pc","displacedPerHour":"dp","annualFixed":"af","partiesPerYear":"py","targetMargin":"tm"};
+    const B = {"price":"bpr","kids":"bkd","partyHours":"bph","setupHours":"bsu","hosts":"bhs","foodPerKid":"bfk","goodsPerKid":"bgk"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "true profit per party, before tax"], [pct(R.margin), "margin"], [cents(R.profitPerRoomHour), "profit per room hour"], [cents(R.minPrice), "lowest package price for your margin"], [cents(R.minPricePerKid), "lowest price per child"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Package price", cents(R.revenue)), row("Price per child", cents(R.pricePerKid)), row("Room hours (party plus setup and cleanup)", R.roomHours.toFixed(2)), row("Host pay", cents(R.labor)), row("Food and drink", cents(R.food)), row("Goodies", cents(R.goods)),
+        row("Supplies", cents(R.supplies)), row("Card fees", cents(R.processing)), row("Open-play margin given up", cents(R.displaced)), row("Yearly overhead share", cents(R.fixedShare)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("<strong>True profit per party</strong>", "<strong>" + cents(R.profit) + "</strong>"),
+        row("Lowest package price for your margin", cents(R.minPrice)),
+        row("Break-even parties a year", R.breakevenParties === null ? "n/a" : R.breakevenParties.toFixed(0)),
+        row("Profit a year at your party count", money(R.annualProfit)),
+      ].join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareJobs(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per party</th><th class="num">Package A</th><th class="num">Package B</th></tr></thead><tbody>' +
+        line("Price", (x) => cents(x.revenue)) + line("Room hours", (x) => x.roomHours.toFixed(2)) + line("Total costs", (x) => cents(x.costs)) + line("True profit", (x) => cents(x.profit)) + line("Margin", (x) => pct(x.margin)) +
+        line("Profit per room hour", (x) => cents(x.profitPerRoomHour)) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("party_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleJob()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a twelve-child party package, invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("packages_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("party-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("party-scenario.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.job) fillMap(B, out.job); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../band-tour-profit-planner/" data-pf-to="band-tour-profit-planner">Band Tour Profit Planner — free, private, in your browser</a></li>
+      <li><a href="../bed-bug-heat-treatment-price-calculator/" data-pf-to="bed-bug-heat-treatment-price-calculator">Bed Bug Heat Treatment Bid Calculator — free, private</a></li>
+      <li><a href="../bike-shop-repair-profit-calculator/" data-pf-to="bike-shop-repair-profit-calculator">Bike Shop Repair Profit Calculator — free, private</a></li>
+      <li><a href="../birth-doula-package-pricing-calculator/" data-pf-to="birth-doula-package-pricing-calculator">Birth doula package pricing calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=kids-birthday-party-package-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/?pfEmbed=1&quot; title=&quot;Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="kids-birthday-party-package-profit-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/" data-pf-embed-title="Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party" data-pf-embed-slug="kids-birthday-party-package-profit-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="kids-birthday-party-package-profit-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="kids-birthday-party-package-profit-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

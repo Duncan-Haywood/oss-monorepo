@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cheapest Meal Plan Optimizer — lowest-cost diet for your targets</title>
+  <meta name="description" content="Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets…">
+  <meta property="og:title" content="Cheapest Meal Plan Optimizer — free, private, in your browser">
+  <meta property="og:description" content="What is the cheapest way to hit your protein and calories? Edit the prices, set targets, get a daily plan…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cheapest Meal Plan Optimizer", "applicationCategory": "HealthApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter foods with prices and nutrition per serving, set calorie, protein, fat, carb and fibre targets, and the optimizer finds the cheapest daily servings that meet them, with the cost of each extra target. A minimum-cost diet linear program that runs entirely in your browser; nothing is uploaded.", "featureList": "Cheapest meal plan, budget meal planner, minimum cost diet, grocery cost optimizer, high protein on a budget, linear programming, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make the cheapest meal plan that still hits my protein and calories?", "acceptedAnswer": {"@type": "Answer", "text": "List the foods you can buy with the price of one serving and the nutrition in that serving, set a calorie range, a protein minimum and any fat, carb or fibre bounds, and the optimizer finds the servings per day with the lowest cost that meets all of them. It solves a linear program, the classic minimum-cost diet problem, then rounds to whole or half servings with branch and bound."}}, {"@type": "Question", "name": "Are the prices and nutrition numbers real?", "acceptedAnswer": {"@type": "Answer", "text": "The starter foods carry approximate generic nutrition and example prices only. Prices vary by store, region and week, so edit the price on every line to what you pay, and check the nutrition against the label of what you actually buy. The result is only as good as the numbers you put in."}}, {"@type": "Question", "name": "Why is the cheapest plan so repetitive?", "acceptedAnswer": {"@type": "Answer", "text": "Because a cost minimiser has no taste. If lentils and oats are the cheapest way to get calories and protein, it will use a lot of them. Lower the maximum servings per food, delete foods you will not eat, or add foods you like, and rerun it to see what variety costs."}}, {"@type": "Question", "name": "What does 'extra cost per 10 g of protein' mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is how much more the cheapest plan costs per day if you raise the protein minimum by 10 g, holding everything else. A target that adds nothing is not binding on this menu."}}, {"@type": "Question", "name": "Why will it not build a plan under 1,200 calories?", "acceptedAnswer": {"@type": "Answer", "text": "A very low intake needs a clinician or registered dietitian, not an optimizer. The tool refuses to plan below 1,200 calories a day, and it is not suitable for children, pregnancy, eating disorders, diabetes or other medical conditions."}}, {"@type": "Question", "name": "Is this nutrition or medical advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you give it. It does not know your health, allergies or needs, and it is not a substitute for a doctor or registered dietitian."}}, {"@type": "Question", "name": "Is my food list uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. To keep or send your list, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2d17; background: #f5f8f0; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #3f6d1a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b4a12; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b4a12; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5d3a; }
+    .card { background: #fff; border: 1px solid #d5e2c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b4a1212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7f58; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3f6d1a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4eed8; color: #2b4a12; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf4e3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #2b4a12; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5e2c8; }
+    table.t th { color: #2b4a12; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #b7d19b; border-radius: 12px; padding: 10px 12px; background: #f9fcf5; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #2b4a12; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e2c8; padding-top: 16px; }
+    .ghost { color: #4a5d3a; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Cheapest Meal Plan Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cheapest Meal Plan Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Cheapest Meal Plan Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">CHEAPEST MEAL PLAN OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the cheapest way to hit your protein and calories?</h1>
+    <p>List the <strong>foods you can buy</strong> with a price and nutrition per serving, set your <strong>targets</strong>, and a linear-programming solver finds the <strong>lowest-cost servings per day</strong> that meet them. It also tells you <strong>what each extra target costs</strong>, so you can see where the money goes.</p>
+    <p class="note">The starter list uses <strong>approximate generic nutrition and example prices</strong>: edit every price to what you pay. New to this? Read <a href="./how-to-eat-high-protein-on-a-budget.html">how to eat high-protein on a budget, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Foods</h2>
+    <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional) | servings per pack (optional)</label>
+    <textarea id="foods" spellcheck="false" style="min-height:260px" placeholder="Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7"></textarea>
+    <h2 style="margin-top:18px">2. Daily targets</h2>
+    <div class="row3"><div><label for="kmin">Calories, minimum</label><input id="kmin" inputmode="decimal" value="2000"></div><div><label for="kmax">Calories, maximum</label><input id="kmax" inputmode="decimal" value="2300"></div><div><label for="pmin">Protein minimum (g)</label><input id="pmin" inputmode="decimal" value="100"></div><div><label for="fmin">Fat minimum (g)</label><input id="fmin" inputmode="decimal" value="45"></div><div><label for="fmax">Fat maximum (g)</label><input id="fmax" inputmode="decimal" value="80"></div><div><label for="cmin">Carbs minimum (g)</label><input id="cmin" inputmode="decimal" value=""></div><div><label for="cmax">Carbs maximum (g)</label><input id="cmax" inputmode="decimal" value=""></div><div><label for="fibmin">Fibre minimum (g)</label><input id="fibmin" inputmode="decimal" value="28"></div><div><label for="dmax">Default max servings per food</label><input id="dmax" inputmode="decimal" value="4"></div><div><label for="share">Most calories from one food (%)</label><input id="share" inputmode="decimal" value="" placeholder="no limit"></div></div>
+    <label for="step">Servings come in</label>
+    <select id="step"><option value="0.5">half servings</option><option value="1">whole servings</option><option value="0.25">quarter servings</option><option value="0">any amount (continuous)</option></select>
+    <button type="button" id="analyze">Find the cheapest plan</button>
+    <button type="button" class="secondary" id="load-example">Load the starter foods</button>
+    <button type="button" class="secondary" id="share-link">Copy share link</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your foods and targets, then click Find the cheapest plan.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Cheapest plan</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t" id="plan"><thead><tr><th>Food</th><th class="n">Servings / day</th><th class="n">Cost / day</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Nutrition of the plan</h3>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t" id="totals"><thead><tr><th>Nutrient</th><th class="n">Plan</th><th class="n">Your bounds</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>What each target costs</h3>
+    <ul id="marginal"></ul>
+    <h3>Cost as the protein minimum rises</h3>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t" id="frontier"><thead><tr><th class="n">Protein minimum</th><th class="n">Cheapest cost / day</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Shopping list for the week</h3>
+    <p class="note" id="grocery-note"></p>
+    <div style="overflow-x:auto"><div class="pf-table-scroll"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download the plan (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Model:</strong> choose servings x for each food to minimise the sum of price times servings, subject to each nutrient total staying within your bounds and each food staying under its serving cap. That is a linear program, solved with a two-phase simplex that cannot cycle.</p>
+    <p><strong>Whole and half servings:</strong> a continuous answer can say 1.37 servings of oats, so when you pick a step the solver uses branch and bound to find the cheapest plan in that step, and shows how far it is from the continuous lower bound.</p>
+    <p><strong>What each target costs:</strong> it re-solves with one minimum raised (by 100 kcal, 10 g of protein, 10 g of carbs or fat, or 5 g of fibre) and reports the extra cost. The rule-of-thumb comparison keeps adding the food that closes the most of the remaining shortfall per dollar.</p>
+    <p><strong>Not modelled:</strong> vitamins and minerals, allergies, taste and variety beyond the serving caps, cooking time, waste, pack sizes and sales. The cheapest plan is often monotonous; lower the caps or drop foods to see what variety costs. Unverified against real shopping: checked against exhaustive search on 60 random small menus and by an independent verifier on every plan.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make the cheapest meal plan that still hits my protein and calories?</h3>
+    <p>List the foods you can buy with the price of one serving and the nutrition in that serving, set a calorie range, a protein minimum and any fat, carb or fibre bounds, and the optimizer finds the servings per day with the lowest cost that meets all of them. It solves a linear program, the classic minimum-cost diet problem, then rounds to whole or half servings with branch and bound.</p>
+    <h3>Are the prices and nutrition numbers real?</h3>
+    <p>The starter foods carry approximate generic nutrition and example prices only. Prices vary by store, region and week, so edit the price on every line to what you pay, and check the nutrition against the label of what you actually buy. The result is only as good as the numbers you put in.</p>
+    <h3>Why is the cheapest plan so repetitive?</h3>
+    <p>Because a cost minimiser has no taste. If lentils and oats are the cheapest way to get calories and protein, it will use a lot of them. Lower the maximum servings per food, delete foods you will not eat, or add foods you like, and rerun it to see what variety costs.</p>
+    <h3>What does 'extra cost per 10 g of protein' mean?</h3>
+    <p>It is how much more the cheapest plan costs per day if you raise the protein minimum by 10 g, holding everything else. A target that adds nothing is not binding on this menu.</p>
+    <h3>Why will it not build a plan under 1,200 calories?</h3>
+    <p>A very low intake needs a clinician or registered dietitian, not an optimizer. The tool refuses to plan below 1,200 calories a day, and it is not suitable for children, pregnancy, eating disorders, diabetes or other medical conditions.</p>
+    <h3>Is this nutrition or medical advice?</h3>
+    <p>No. It does arithmetic on the numbers you give it. It does not know your health, allergies or needs, and it is not a substitute for a doctor or registered dietitian.</p>
+    <h3>Is my food list uploaded or stored?</h3>
+    <p>No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. To keep or send your list, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, dietary, nutrition, legal, tax or financial advice and does not replace a doctor or registered dietitian. It is not suitable for children, pregnancy, eating disorders, diabetes or any condition that needs medical nutrition guidance, and it will not plan under 1,200 calories a day. Nutrition and prices come from what you type or edit; the starter values are approximate generic figures and example prices. You are responsible for checking labels and verifying the plan before you follow it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any retailer, brand, diet programme or nutrition service, and none is named or ranked here. The example prices are illustrative, not quotes.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere except in a share link you choose to copy.</p>
+    <p>Everything runs in your browser. Your food list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../production-mix-optimizer/">production mix optimizer</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let last = null;
+    const LABEL = { kcal: "Calories", protein: "Protein", carbs: "Carbs", fat: "Fat", fiber: "Fibre" };
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+    const val = (id) => $(id).value.trim();
+
+    function read() {
+      const f = parseFoods($("#foods").value);
+      const spec = { foods: f.foods, kcalMin: val("#kmin"), kcalMax: val("#kmax"), proteinMin: val("#pmin"), fatMin: val("#fmin"), fatMax: val("#fmax"), carbsMin: val("#cmin"), carbsMax: val("#cmax"), fiberMin: val("#fibmin"), defaultMax: Number(val("#dmax")), step: Number($("#step").value), daysPerWeek: 7, maxShare: val("#share") };
+      return { spec, errors: f.errors };
+    }
+
+    function run() {
+      const { spec, errors } = read();
+      const all = [...errors, ...validateSpec(spec)];
+      if (all.length) {
+        status.textContent = all[0];
+        $("#report").hidden = false;
+        $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+        for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier"]) $(id + " tbody").innerHTML = "";
+        $("#verdict").textContent = "";
+        last = null;
+        return false;
+      }
+      const res = solve(spec);
+      $("#report").hidden = false;
+      if (res.status !== "optimal") {
+        $("#notices").innerHTML = `<div class="bad">No plan meets every bound with these foods and caps. Loosen a minimum, raise the serving caps, finer servings, or add foods.</div>`;
+        for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier"]) $(id + " tbody").innerHTML = "";
+        $("#verdict").textContent = "";
+        last = null; status.textContent = "No feasible plan."; return false;
+      }
+      const problems = verifyPlan(spec, res);
+      last = { spec, res };
+      $("#notices").innerHTML = problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "";
+      $("#big").innerHTML = [
+        [money2(res.cost), "per day"],
+        [money2(res.weekly), "per week"],
+        [String(res.items.length), "foods used"],
+        [res.greedy.feasible ? money2(res.greedy.cost) : "—", res.greedy.feasible ? "shopper's rule of thumb, per day" : "rule of thumb cannot meet the targets"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      const saved = res.greedy.feasible && res.greedy.cost > res.cost + 1e-9 ? ` That is ${money2(res.greedy.cost - res.cost)} a day below the rule-of-thumb basket.` : "";
+      $("#verdict").textContent = `${res.exact ? "This is the cheapest plan in the serving step you chose." : "Best plan found; the search stopped early."} ${res.cost - res.bound > 0.005 ? `It sits ${money2(res.cost - res.bound)} above the continuous lower bound because of the serving step.` : ""}${saved}`;
+      $("#plan tbody").innerHTML = res.items.map((it) => `<tr><td>${esc(it.name)}</td><td class="n">${fmt(it.servings, 2)}</td><td class="n">${money2(it.cost)}</td></tr>`).join("");
+      const b = bounds(spec);
+      $("#totals tbody").innerHTML = NUTRIENTS.map((k, i) => {
+        const [mn, mx] = b[k];
+        const rng = mn === null && mx === null ? "—" : `${mn === null ? "" : "≥ " + fmt(mn)}${mn !== null && mx !== null ? " and " : ""}${mx === null ? "" : "≤ " + fmt(mx)}`;
+        return `<tr><td>${LABEL[k]} (${UNITS[k]})</td><td class="n">${fmt(res.totals[i], 0)}</td><td class="n">${rng}</td></tr>`;
+      }).join("");
+      const lines = Object.entries(res.marginal).map(([k, m]) => m === null ? "" : `<li>${LABEL[k]}: ${m.extra < 0.0005 ? "raising the minimum by " + m.per + " " + UNITS[k] + " costs nothing extra on this menu (not binding)" : "each extra " + m.per + " " + UNITS[k] + " of the minimum costs about " + money2(m.extra) + " more per day"}</li>`).join("");
+      $("#marginal").innerHTML = lines || "<li>No minimums set.</li>";
+      const pm = spec.proteinMin === "" ? 100 : Number(spec.proteinMin);
+      const fr = proteinFrontier(spec, [0.6, 0.8, 1, 1.25, 1.5].map((m) => Math.round(pm * m)));
+      $("#frontier tbody").innerHTML = fr.map((r) => `<tr><td class="n">${r.protein} g</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td></tr>`).join("");
+      const gl = groceryList(spec, res);
+      const anyPack = gl.lines.some((l) => l.packs !== null);
+      $("#grocery tbody").innerHTML = gl.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.servings, 1)}</td><td class="n">${l.packs === null ? "—" : l.packs + " × " + fmt(l.pack, 1)}</td><td class="n">${l.packs === null ? "—" : fmt(l.leftover, 1)}</td><td class="n">${money2(l.spend)}</td></tr>`).join("") + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td class="n"><strong>${money2(gl.spend)}</strong></td></tr>`;
+      $("#grocery-note").textContent = anyPack ? (gl.extra > 0.005 ? `Buying whole packs costs ${money2(gl.extra)} more than the plan's ${money2(res.weekly)} a week; the leftover keeps for next week.` : `Your pack sizes divide the week evenly: no waste.`) : "Add a ninth column, servings per pack, to a food line (for example 10 for a 500 g bag at 50 g a serving) to see whole packs and leftovers.";
+      status.textContent = "Done. Check the nutrition against labels, then download the plan.";
+      return true;
+    }
+
+    const later = (fn) => setTimeout(fn, 0);
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      $("#foods").value = SAMPLE_FOODS;
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Starter foods: approximate generic nutrition and example prices. Edit the prices to what you pay."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      $("#foods").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared.";
+    });
+    const FIELD_ID = { kmin: "#kmin", kmax: "#kmax", pmin: "#pmin", fmin: "#fmin", fmax: "#fmax", cmin: "#cmin", cmax: "#cmax", fibmin: "#fibmin", dmax: "#dmax", share: "#share", step: "#step" };
+    $("#share-link").addEventListener("click", async () => {
+      const fields = {};
+      for (const k of SHARE_FIELDS) fields[k] = $(FIELD_ID[k]).value.trim();
+      const url = location.href.split("#")[0] + "#" + encodeShare($("#foods").value, fields);
+      history.replaceState(null, "", url);
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It holds your food list and targets in the address itself; nothing is uploaded."; }
+      catch { status.textContent = "Copy the address from your browser's address bar: it now holds your food list and targets."; }
+    });
+    if (location.hash.length > 1) {
+      const shared = decodeShare(location.hash);
+      if (shared.foods) {
+        $("#foods").value = shared.foods;
+        for (const k of SHARE_FIELDS) if (k in shared.fields) $(FIELD_ID[k]).value = shared.fields[k];
+        status.textContent = "Loaded the food list and targets from the link. Check every price, then click Find the cheapest plan.";
+      }
+    }
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([planCsv(last.spec, last.res)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "cheapest-meal-plan.csv"; a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true;
+    });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../substack-subscriber-export-analyzer/" data-pf-to="substack-subscriber-export-analyzer">Substack Subscriber Export Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../support-staffing-planner/" data-pf-to="support-staffing-planner">How many agents does your support queue need, and what is the cheapest schedule?</a></li>
+      <li><a href="../syndication-waterfall-calculator/" data-pf-to="syndication-waterfall-calculator">Syndication Waterfall Calculator — free</a></li>
+      <li><a href="../tax-loss-harvesting-calculator/" data-pf-to="tax-loss-harvesting-calculator">Tax-Loss Harvesting Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cheap-meal-plan-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/?pfEmbed=1&quot; title=&quot;Cheapest Meal Plan Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="cheap-meal-plan-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/" data-pf-embed-title="Cheapest Meal Plan Optimizer — free, private, in your browser" data-pf-embed-slug="cheap-meal-plan-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="cheap-meal-plan-optimizer" data-pf-jobs-amount=""></script>
+</body>
+</html>

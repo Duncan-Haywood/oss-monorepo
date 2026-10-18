@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Expected calibration error versus number of rounds for adaptive and iid outcomes, with the worst-case bound">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Calibration error of the information-free hedger (stylised)</text>
+<line x1="64" x2="624" y1="307.1" y2="307.1" stroke="#ddd"/><text x="58" y="311.1" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="259.8" y2="259.8" stroke="#ddd"/><text x="58" y="263.8" text-anchor="end" font-family="sans-serif" font-size="11">0.02</text>
+<line x1="64" x2="624" y1="197.3" y2="197.3" stroke="#ddd"/><text x="58" y="201.3" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="150.0" y2="150.0" stroke="#ddd"/><text x="58" y="154.0" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="102.7" y2="102.7" stroke="#ddd"/><text x="58" y="106.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="40.1" y2="40.1" stroke="#ddd"/><text x="58" y="44.1" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">250</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4000</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">rounds T</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">expected calibration error (log scale)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,178.0 344.0,245.1 624.0,304.4"/>
+<circle cx="64.0" cy="178.0" r="2.5" fill="#c0392b"/>
+<circle cx="344.0" cy="245.1" r="2.5" fill="#c0392b"/>
+<circle cx="624.0" cy="304.4" r="2.5" fill="#c0392b"/>
+<line x1="76" x2="100" y1="58" y2="58" stroke="#c0392b" stroke-width="2"/><text x="106" y="62" font-family="sans-serif" font-size="11">adaptive, K=10</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,154.2 344.0,228.6 624.0,295.2"/>
+<circle cx="64.0" cy="154.2" r="2.5" fill="#1f6fb2"/>
+<circle cx="344.0" cy="228.6" r="2.5" fill="#1f6fb2"/>
+<circle cx="624.0" cy="295.2" r="2.5" fill="#1f6fb2"/>
+<line x1="76" x2="100" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="106" y="78" font-family="sans-serif" font-size="11">adaptive, K=20</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,151.4 344.0,187.4 624.0,212.5"/>
+<circle cx="64.0" cy="151.4" r="2.5" fill="#2e8b57"/>
+<circle cx="344.0" cy="187.4" r="2.5" fill="#2e8b57"/>
+<circle cx="624.0" cy="212.5" r="2.5" fill="#2e8b57"/>
+<line x1="76" x2="100" y1="90" y2="90" stroke="#2e8b57" stroke-width="2"/><text x="106" y="94" font-family="sans-serif" font-size="11">iid(0.7), K=10</text>
+<polyline fill="none" stroke="#8e44ad" stroke-width="2" points="64.0,59.6 344.0,81.9 624.0,96.8"/>
+<circle cx="64.0" cy="59.6" r="2.5" fill="#8e44ad"/>
+<circle cx="344.0" cy="81.9" r="2.5" fill="#8e44ad"/>
+<circle cx="624.0" cy="96.8" r="2.5" fill="#8e44ad"/>
+<line x1="76" x2="100" y1="106" y2="106" stroke="#8e44ad" stroke-width="2"/><text x="106" y="110" font-family="sans-serif" font-size="11">worst-case bound, K=10</text>
+</svg>

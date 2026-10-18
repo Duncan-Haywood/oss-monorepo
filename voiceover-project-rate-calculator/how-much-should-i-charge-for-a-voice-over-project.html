@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Should I Charge For A Voice-Over Project? (Worked Example)</title>
+  <meta name="description" content="A 150-word commercial script prices from $45 to $180 depending on usage term alone. Worked through on real numbers -- script pricing by usage term…">
+  <meta property="og:title" content="How much should I charge for a voice-over project?">
+  <meta property="og:description" content="The same 150-word script prices at $45 for internal use and $180 for a full buyout -- worked through on real numbers, plus audiobook per-finished-hour pricing.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/how-much-should-i-charge-for-a-voice-over-project.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a voice-over project?","acceptedAnswer":{"@type":"Answer","text":"It depends on the script's length, how you price it (per word or per finished minute), and -- critically -- how the buyer plans to use the recording. A 150-word script at $0.30 a word has a base fee of $45.00, but the same script can reasonably run anywhere from $45.00 (internal-only use) to $180.00 (a full buyout) once the usage-term multiplier is applied -- a 4x spread on identical work."}},{"@type":"Question","name":"Why does the usage term change the price so much?","acceptedAnswer":{"@type":"Answer","text":"A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year -- the recording is identical, but what the buyer is licensing is completely different. Rate-guide convention prices usage in tiers for exactly this reason: internal use at the base rate, web use at roughly 1.3x, regional broadcast at roughly 1.8x, national broadcast at roughly 2.75x, and a full buyout at roughly 4x."}},{"@type":"Question","name":"How is an audiobook priced differently from a commercial script?","acceptedAnswer":{"@type":"Answer","text":"Per finished hour (PFH), the audiobook industry's own convention, most visibly used by ACX -- not per word and not per session hour. A finished hour is estimated from manuscript word count using a commonly cited conversion of roughly 9,300 words per finished hour, then priced against that estimate. A 75,000-word manuscript at $250 per finished hour comes out to roughly 8.06 finished hours and a $2,016.13 narration fee."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1a22; background: #f2f1f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; color: #38306b; }
+    h2 { margin-top: 1.6em; color: #38306b; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92rem; }
+    th, td { text-align: left; border-bottom: 1px solid #d6d3e6; padding: 6px 10px; }
+    code { background: #e5e2f2; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #ece9f8; border: 1px solid #c2bce0; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #38306b; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #514c68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/how-much-should-i-charge-for-a-voice-over-project.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much should I charge for a voice-over project? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../voiceover-project-rate-calculator/">Voice-Over Project Rate Calculator — free, no sign-up</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much should I charge for a voice-over project?</span></span></nav>
+  <p><a href="./">&larr; Back to the voice-over project rate calculator</a></p>
+  <h1>How much should I charge for a voice-over project?</h1>
+  <p>It depends on length, how you price it, and -- more than most narrators price for -- how the buyer plans to
+    use the recording. The rest of this page works through both pricing shapes on real numbers, not rounded
+    examples.</p>
+
+  <h2>Script-based work: base fee, then a usage multiplier</h2>
+  <p>Commercial, e-learning, IVR, explainer, and animation scripts are priced per word or per finished minute, then
+    scaled by usage/licensing term. Take a 150-word script at $0.30 a word:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Figure</th><th>Arithmetic</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Base fee</td><td>150 words &times; $0.30</td><td>$45.00</td></tr>
+      <tr><td>Finished minutes (at 150 wpm)</td><td>150 &divide; 150</td><td>1.00 min</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The same $45.00 base fee, every usage term</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Usage term</th><th>Multiplier</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>Internal / training use only</td><td>1.0&times;</td><td>$45.00</td></tr>
+        <tr><td>Web / unrestricted digital use</td><td>1.3&times;</td><td>$58.50</td></tr>
+        <tr><td>Regional broadcast</td><td>1.8&times;</td><td>$81.00</td></tr>
+        <tr><td>National broadcast</td><td>2.75&times;</td><td>$123.75</td></tr>
+        <tr><td>Full buyout (all media, in perpetuity)</td><td>4.0&times;</td><td>$180.00</td></tr>
+      </tbody>
+    </table></div>
+    <p>A <strong>$135.00 spread</strong> on identical recorded audio, from usage term alone -- the recording does
+      not change; what the buyer is licensing does.</p>
+  </div>
+
+  <h2>Audiobook narration: per finished hour, not per word</h2>
+  <p>A 75,000-word manuscript, narrated at a rate of $250 per finished hour, with no separate editing/proofing/
+    mastering fee:</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th>Figure</th><th>Arithmetic</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Estimated finished hours</td><td>75,000 &divide; 9,300</td><td>8.06 hours</td></tr>
+      <tr><td>Narration fee</td><td>8.06 &times; $250</td><td>$2,016.13</td></tr>
+      <tr><td>Effective rate per word</td><td>$2,016.13 &divide; 75,000</td><td>$0.03</td></tr>
+    </tbody>
+  </table></div>
+  <p>9,300 words per finished hour is a commonly cited rule of thumb, not a fixed conversion -- a slower, more
+    heavily produced narration style yields fewer finished hours per manuscript word, and a faster one yields more.</p>
+
+  <h2>Do this with your own project</h2>
+  <p>The <a href="./">voice-over project rate calculator</a> runs this same arithmetic on your own script or
+    manuscript, your own rate, and your own usage term or editing fee, plus optional rush and exclusivity add-ons
+    for script work. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>How much should I charge for a voice-over project?</h3>
+  <p>It depends on the script's length, how you price it (per word or per finished minute), and -- critically -- how the buyer plans to use the recording. A 150-word script at $0.30 a word has a base fee of $45.00, but the same script can reasonably run anywhere from $45.00 (internal-only use) to $180.00 (a full buyout) once the usage-term multiplier is applied -- a 4x spread on identical work.</p>
+
+  <h3>Why does the usage term change the price so much?</h3>
+  <p>A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year -- the recording is identical, but what the buyer is licensing is completely different. Rate-guide convention prices usage in tiers for exactly this reason: internal use at the base rate, web use at roughly 1.3x, regional broadcast at roughly 1.8x, national broadcast at roughly 2.75x, and a full buyout at roughly 4x.</p>
+
+  <h3>How is an audiobook priced differently from a commercial script?</h3>
+  <p>Per finished hour (PFH), the audiobook industry's own convention, most visibly used by ACX -- not per word and not per session hour. A finished hour is estimated from manuscript word count using a commonly cited conversion of roughly 9,300 words per finished hour, then priced against that estimate. A 75,000-word manuscript at $250 per finished hour comes out to roughly 8.06 finished hours and a $2,016.13 narration fee.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator it links to are not financial or business advice,
+      and they do not replace a qualified professional. Figures here are starting points from commonly cited
+      rate-guide conventions, not a quote, guarantee, or valuation performed on your behalf. Verify every figure
+      against your own market and negotiate your own project terms. To the maximum extent permitted by law, the
+      authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source &mdash; <a href="LICENSE" rel="noopener">MIT licensed</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is entirely optional.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../youtube-sponsorship-rate-calculator/" data-pf-to="youtube-sponsorship-rate-calculator">YouTube Sponsorship Rate Calculator — free, no sign-up</a></li>
+      <li><a href="../3d-print-price-calculator/" data-pf-to="3d-print-price-calculator">3D Print Price Calculator</a></li>
+      <li><a href="../401k-plan-fee-calculator/" data-pf-to="401k-plan-fee-calculator">401(k) Plan Fee Calculator — free, private</a></li>
+      <li><a href="../ad-slot-sell-through-planner/" data-pf-to="ad-slot-sell-through-planner">Should you raise your sponsorship price? Free sell-through planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=voiceover-project-rate-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="voiceover-project-rate-calculator"></script>
+</body>
+</html>

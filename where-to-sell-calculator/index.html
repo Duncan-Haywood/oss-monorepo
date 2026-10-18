@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where to Sell Calculator — eBay vs Etsy vs Amazon</title>
+  <meta name="description" content="Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b32a8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='18' width='4' height='7' rx='1'/%3E%3Crect x='14' y='13' width='4' height='12' rx='1'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+  <meta property="og:title" content="Where to Sell Calculator — compare marketplace fees on one item">
+  <meta property="og:description" content="One item, every channel. See what eBay, Etsy, Amazon, Mercari, Reverb, your own store, and a direct sale each leave you after fees and returns…">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Where to Sell Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, orders needed to cover a monthly plan, expected monthly profit, break-even price, price needed to match the best channel, price needed to reach a target profit, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to sell on eBay or Etsy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the item, because the two fee shapes are different rather than one simply being lower. eBay charges a percentage of the order total that normally includes payment processing, plus a small fixed fee. Etsy charges a per-listing fee whether or not the item sells, a transaction percentage, and a separate payment-processing percentage and fixed fee. On a low-priced item the per-listing and fixed fees matter most; on a high-priced item the percentages dominate. Enter your own numbers above — this page does no more than the arithmetic on the rates you give it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I compare marketplace fees fairly?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Put the same item through every channel with the same cost of goods, then make three adjustments most comparisons skip. Spread any monthly subscription over the orders you actually expect that month. Count per-listing fees, which are charged whether or not the item sells. And compare the price each channel needs to reach the same profit, not just the fee percentage, because a channel with higher fees can still win if you can list higher there."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does selling on my own store beat a marketplace?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On fees alone an own store usually wins, because there is no marketplace commission — only card processing and the monthly plan spread over your orders. What it does not include is the buyers. Put the number of sales you actually expect on each channel in that channel's panel: a store that keeps more per sale can still lose the month to a marketplace that sells more units. The honest comparison is the fee gap against the volume each channel can carry."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I sell on the cheapest channel or the fastest one?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A channel that keeps more per sale can still lose if the item sits longer. Divide what you keep by how many days you expect that channel to take to sell, and compare cash per day — not just cash per sale. The days are your estimate, not a marketplace statistic. Replace the illustrative starting points with how long your last similar listings actually took."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do marketplace returns change which channel is cheapest?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They can. A completed sale on Amazon can look better than eBay once you list a few dollars higher, then lose once you count Amazon's higher return rate, return postage, and units that cannot be sold again. This page ranks channels on expected keep after the return rate you enter — turn that overlay off to see the sold-sale ranking only. Rates are inputs, not a published marketplace schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I sell where I make the most per sale or where it sells fastest?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Those are two different questions and they often have different answers. What you keep per sale only matters if the item sells; a channel that pays more but clears one listing in three inside your horizon can be worth less per month of shelf than a cheaper channel that clears two in three quickly. This page ranks both ways side by side: what you keep if it sells, and what one listing is worth per 30 days of shelf once you count sell-through, time to sale, listing fees charged again on renewal, and the cash tied up while it waits. Where the two rankings disagree you are choosing between margin and turnover, and the tool says so rather than picking for you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I work out what a listing is worth per month?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Take what you keep if it sells, subtract any listing fee charged again while it waits and the cost of the cash tied up in the item, and weight that by how often listings like it actually sell inside the period you would leave it up. The listings that do not sell still cost renewal fees and carry. Divide the result by the average days the listing occupies — shorter when it sells quickly — and multiply by thirty. That per-month figure, not the fee percentage, is what compares a fast channel against a rich one on the same inventory dollar."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #191430; background: #eeecf8; }
+    /* Secondary ink: captions, notes, status lines, column headings — text that
+       should recede without becoming unreadable. It is a token rather than a
+       literal because this page has two backgrounds, and the shade that reads
+       on one is invisible on the other. #574d80 on the cream page is 6.4:1;
+       the same value inside the dark .verdict panel is 2.06:1, which is what
+       an audit caught twice. Redeclaring the token wherever the background
+       changes means anything added later inherits the readable shade instead
+       of repeating the bug. */
+    :root { --muted-ink: #574d80; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4b32a8; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+    /* Grid and flex children default to a min-width of their content, which
+       lets the wide results table push the whole page sideways on a phone.
+       The table is allowed to scroll inside .scroller; the page is not. */
+    .layout > * { min-width: 0; }
+    section { background: #fff; border: 1px solid #d0cbe8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c164010; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a49bd0; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    /* A group caption inside the field grid. Deliberately not a <label>: it
+       labels no control, and a label without one is noise to a screen reader. */
+    .group-heading { font-weight: 700; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: #4b32a8; margin: 6px 0 0; }
+    .check { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .check input { width: auto; }
+    .verdict { background: #241a52; color: #f5f2ff; border-color: #241a52; --muted-ink: #a49cc4; }
+    .verdict a { color: #c9bcff; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 2px; }
+    .negative { color: #ffb0a2; } .positive { color: #bdf0c6; }
+    .verdict .note { font-size: .85rem; opacity: .85; }
+    /* Sits inside the dark verdict panel, so it borrows that palette rather
+       than defining a second one. */
+    .continue { margin: 14px 0 2px; padding-top: 12px; border-top: 1px solid #4a3d8f; }
+    .continue p { margin: 0 0 8px; font-size: .85rem; opacity: .85; }
+    .continue ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .continue li { margin: 0; }
+    .continue a {
+      display: inline-block; padding: 7px 12px; border: 1px solid #4a3d8f;
+      border-radius: 8px; text-decoration: none; font-size: .88rem; font-weight: 600;
+    }
+    .continue a:hover, .continue a:focus { border-color: #c9bcff; text-decoration: underline; }
+    .continue a .who { opacity: .8; font-weight: 500; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 640px; }
+    th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-ink); }
+    /* The results table sits inside the dark verdict panel, so the winning row
+       is marked with a lighter shade of that panel rather than a light tint,
+       which would leave light text on a light background. */
+    tbody tr.best { background: #3b2c80; }
+    tbody tr.fastest:not(.best) { background: #322764; }
+    tbody tr.best th::after { content: " · best"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
+    tbody tr.fastest:not(.best) th::after { content: " · faster / day"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
+    tbody tr.best.fastest th::after { content: " · best · faster / day"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
+    td.money { font-variant-numeric: tabular-nums; }
+    /* On a wide screen the column heading carries the label, so the per-cell
+       label is redundant. It stays in the markup (rather than being generated
+       by CSS) so that in card mode below it is real text every assistive
+       technology reads, not decorative ::before content. */
+    .cell-label { display: none; }
+    /* The shelf-time table sits on a white section rather than inside the dark
+       verdict panel, so its leading row needs a light tint — the dark .best
+       shade would put light text on light background here. */
+    tbody tr.shelf-best { background: #f0ecff; }
+    tbody tr.shelf-best th::after { content: " · fastest earner"; color: #4b32a8; font-weight: 700; font-size: .8rem; }
+    .shelf-verdict { font-size: 1.05rem; font-weight: 600; margin: 0 0 14px; }
+    .shelf-verdict .flip { color: #7a2410; }
+    /* .negative is tuned for the dark panel; on white it needs real contrast. */
+    td.negative-ink { color: #a3271b; }
+    .rates { margin-top: 18px; }
+    details { border: 1px solid #ded9f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #faf9ff; }
+    summary { cursor: pointer; font-weight: 650; }
+    details .fields { margin-top: 12px; grid-template-columns: repeat(3, 1fr); }
+    details p.note { font-size: .84rem; color: var(--muted-ink); margin: 8px 0 0; }
+    .error { color: #b3241c; font-weight: 650; }
+    .verdict .error { color: #ffb0a2; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #a49bd0; background: #fff; cursor: pointer; }
+    button:hover { background: #f0ecff; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .status { font-size: .85rem; color: var(--muted-ink); min-height: 1.3em; }
+    .faq { margin-top: 18px; }
+    .faq h3 { margin-bottom: 4px; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
+    footer a { color: #4b32a8; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .fields, details .fields { grid-template-columns: 1fr; } }
+
+    /* Fourteen keep columns and ten shelf columns do not fit a phone. Rather
+       than leave the seller dragging a table sideways — losing the channel
+       name, which is the row's only anchor, as soon as they scroll — each
+       row becomes a card with the channel as its heading and every figure on
+       its own labelled line. "Where should I sell this?" is a question asked
+       while standing over the item, so the phone layout is the one that has
+       to read well. */
+    @media (max-width: 700px) {
+      .scroller { overflow-x: visible; }
+      table { min-width: 0; }
+      table, tbody, tbody tr, tbody th, tbody td { display: block; width: auto; }
+      /* A table-caption inside a block-display table shrink-wraps to its
+         longest word and renders as a one-word-wide column of text. */
+      caption { display: block; width: auto; }
+      /* Hidden visually, kept for assistive technology and for the caption's
+         reading order; each cell carries its own label in card mode. */
+      thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      tbody tr {
+        border: 1px solid #4a3d99; border-radius: 10px;
+        padding: 4px 12px 8px; margin-bottom: 10px; background: #2c2064;
+      }
+      tbody tr.best { background: #3b2c80; border-color: #7a67e0; }
+      tbody tr.fastest:not(.best) { background: #322764; }
+      tbody th[scope="row"] {
+        font-size: 1.05rem; padding: 9px 0 7px;
+        border-bottom: 1px solid #4a3d99; margin-bottom: 3px;
+      }
+      tbody td {
+        display: flex; justify-content: space-between; align-items: baseline;
+        gap: 12px; padding: 5px 0; border-bottom: none; text-align: right;
+      }
+      .cell-label { display: inline; font-size: .82rem; color: #c3b9ee; text-align: left; }
+      .cell-value { font-variant-numeric: tabular-nums; }
+      /* The shelf-time table sits on white. Reuse the card shape, invert the
+         palette so light text is not left on a light card. */
+      .rates tbody tr {
+        /* These cards re-light the background *inside* the dark verdict
+           panel, so they take the page's secondary ink back rather than the
+           panel's. The token is redeclared in the same rule as the background
+           it belongs to, so the two cannot drift apart. */
+        background: #f7f5ff; border-color: #c9c0ee; color: #191430; --muted-ink: #574d80;
+      }
+      .rates tbody tr.shelf-best { background: #ebe6ff; border-color: #4b32a8; }
+      .rates tbody th[scope="row"] { border-bottom-color: #d0cbe8; }
+      .rates .cell-label { color: var(--muted-ink); }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Where to Sell Calculator — compare marketplace fees on one item","item":"https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Where to Sell Calculator — compare marketplace fees on one item — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Where to Sell Calculator — compare marketplace fees on one item</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR PEOPLE SELLING THE SAME ITEM IN MORE THAN ONE PLACE</p>
+    <h1>One item. Every channel. See where the money actually lands.</h1>
+    <p>
+      Enter what an item cost you and what you would sell it for, once. This
+      compares what <strong>eBay, Etsy, Amazon, Mercari, your own store and a
+      direct sale</strong> each leave you after their fees — plus <strong>Reverb</strong>,
+      switched off until you turn it on because it only applies to musical
+      instruments and audio gear — including the per-listing
+      fees and monthly plans that flat “X% fee” comparisons skip — then applies
+      each channel’s return rate so a high-return marketplace cannot win on a
+      completed sale and lose you money in the real mix. When you sell more
+      units on one channel than another, it also ranks expected monthly cash,
+      not just the single sale. It divides what you keep by how many days you
+      expect that channel to take, so a slower no-fee sale does not
+      automatically beat a faster marketplace. Then it asks the question fees
+      alone cannot answer: <strong>how often does it actually sell there</strong>,
+      and what is one listing worth per month of shelf once you count that.
+      Everything runs in this page; nothing is
+      uploaded.
+    </p>
+    <p>Already cross-listing everywhere? <a href="./vs-vendoo.html">This tool vs. Vendoo</a> — different jobs, and most resellers want both.</p>
+    <p>Running inventory across ten-plus marketplaces already? <a href="./vs-list-perfectly.html">This tool vs. List Perfectly</a> — same split: List Perfectly runs the catalog, this decides where a new item belongs first.</p>
+    <p>Posting through a browser extension instead? <a href="./vs-crosslist.html">This tool vs. Crosslist</a> — same split: Crosslist posts the listing everywhere, this decides where it belongs first.</p>
+    <p>Been opening each marketplace’s own fee calculator instead? <a href="vs-each-marketplaces-own-calculator.html">Here is what that comparison misses</a> — and why you should still check theirs before you price the listing.</p>
+  </header>
+
+  <main class="layout">
+    <section aria-labelledby="item-heading">
+      <h2 id="item-heading">Your item</h2>
+      <div class="fields">
+        <label>Sale price <input id="price" type="number" min="0" step="0.01" value="48" inputmode="decimal"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6" inputmode="decimal"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5" inputmode="decimal"></label>
+        <label>What you paid for the item <input id="itemCost" type="number" min="0" step="0.01" value="14" inputmode="decimal"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1" inputmode="decimal"></label>
+        <label>Other per-item cost <input id="otherCost" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+        <label class="span2">Orders you expect per month
+          <input id="monthlyOrders" type="number" min="0" step="1" value="100" inputmode="numeric">
+        </label>
+        <label class="span2">Target profit per item
+          <input id="targetProfit" type="number" min="0" step="0.01" value="" placeholder="Leave blank to skip this column" inputmode="decimal">
+        </label>
+        <label class="span2">Typical days to sell if a channel has no pace of its own
+          <input id="daysToSell" type="number" min="0" step="1" value="" placeholder="Leave blank to use each channel’s own days" inputmode="numeric">
+        </label>
+        <label class="span2 check">
+          <input id="includeSubscription" type="checkbox" checked>
+          Spread monthly plans over those orders
+        </label>
+        <label class="span2 check">
+          <input id="includeReturns" type="checkbox" checked>
+          Rank by expected keep after returns
+        </label>
+        <p class="span2 group-heading">If it does not sell</p>
+        <label>How long you will leave it listed (days)
+          <input id="horizonDays" type="number" min="1" step="1" value="90" inputmode="numeric">
+        </label>
+        <label>Your cash is worth (% a year)
+          <input id="capitalCostPct" type="number" min="0" step="0.5" value="12" inputmode="decimal">
+        </label>
+        <label class="span2">Value you still have if it does not sell (% of item cost)
+          <input id="unsoldRecoveryPct" type="number" min="0" max="100" step="1" value="100" inputmode="numeric">
+        </label>
+      </div>
+      <p class="note" style="font-size:.84rem;color:var(--muted-ink)">
+        These apply to every channel. Anything a particular channel does
+        differently — a higher price on Etsy, no postage on a local sale —
+        goes in that channel’s own panel below the table.
+      </p>
+      <div class="actions">
+        <button id="reset" type="button">Reset everything</button>
+        <button id="share" type="button">Copy share link</button>
+        <button id="downloadCsv" type="button">Download comparison CSV</button>
+      </div>
+      <p id="share-status" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="verdict" aria-labelledby="verdict-heading">
+      <h2 id="verdict-heading">Where to sell it</h2>
+      <div id="live" aria-live="polite">
+        <div id="bestLabel">—</div>
+        <div id="bestProfit" class="hero-number">$—</div>
+        <p id="spread" class="note"></p>
+        <p id="speedNote" class="note speed-note" hidden></p>
+      </div>
+      <fieldset class="rank-by">
+        <legend>Rank by</legend>
+        <label class="check"><input type="radio" name="rankBy" value="profit" checked> What you keep per sale</label>
+        <label class="check"><input type="radio" name="rankBy" value="profitPerDay"> What you keep per day of waiting</label>
+      </fieldset>
+      <!-- Populated by handoff.mjs. This page answers "which channel"; the
+           channel's own calculator answers "and what does a promoted listing,
+           a return, or free shipping do to that number". Retyping the item is
+           what stops people crossing over, so the link carries it. -->
+      <nav id="continue" class="continue" aria-label="Continue with this item" hidden></nav>
+      <div class="scroller">
+        <div class="pf-table-scroll"><table>
+          <caption class="note" style="text-align:left;padding-bottom:8px" id="tableCaption">
+            Same item on every channel, ranked by expected keep after returns
+            unless you turn that overlay off.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Channel</th>
+              <th scope="col">Price</th>
+              <th scope="col">Fees</th>
+              <th scope="col">You keep</th>
+              <th scope="col" title="Expected keep after the channel's return rate, return postage, unsellable units, and unrefunded fees.">After returns</th>
+              <th scope="col" title="How much the return mix costs versus a completed sale.">Return drag</th>
+              <th scope="col">Margin</th>
+              <th scope="col" title="Profit as a percentage of the cash you laid out to source, pack and ship.">Return on cash</th>
+              <th scope="col">Gives up</th>
+              <th scope="col" title="Per-sale profit times the sales you expect on this channel this month.">Monthly keep</th>
+              <th scope="col" title="Your estimate of how long this listing sits before it sells. Replace the illustrative starting points with your last similar listings.">Days to sell</th>
+              <th scope="col" title="What you keep divided by days to sell. Empty when you have not given a pace.">You keep / day</th>
+              <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
+              <th scope="col" title="Minimum whole orders needed to recover a monthly plan.">Orders to cover plan</th>
+              <th scope="col">Price to match best</th>
+              <th scope="col" title="Item price needed to keep the target profit entered above. Blank until you enter one.">Price for target profit</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </div>
+      <p class="note">
+        <strong>Break-even price</strong> is how low you can list before the
+        sale costs you money — your floor when you discount, and it differs by
+        channel because the fee shapes do. It is shown in red where your
+        current price is already under it.
+        <strong>Return on cash</strong> is profit against what you actually
+        laid out to source, pack and ship; fees come out of the sale rather
+        than your pocket, so they are not counted as invested. It reads “—”
+        when nothing was invested.
+        <strong>Monthly keep</strong> is that per-sale profit times the sales
+        you expect on this channel. Leave the per-channel field blank to use
+        the shared monthly-orders figure; fill it in when one channel actually
+        sells more than another. A monthly plan is spread over that same
+        number, so a $39 store plan on 20 sales is $1.95 a sale, not $0.39.
+        <strong>You keep / day</strong> is what that sale leaves you divided
+        by the days you expect it to take. A no-fee local sale can still lose
+        if the item sits for weeks while a marketplace sells next week. Days
+        are your estimate — the shipped numbers are illustrative starting
+        points, not a marketplace’s sell-through.
+        <strong>After returns</strong> is the expected keep once some share of
+        orders come back — return postage, units you cannot list again, and
+        fees the channel does not refund. <strong>Return drag</strong> is the
+        gap between a completed sale and that expected keep.
+        <strong>Orders to cover plan</strong> is the minimum whole-order volume
+        needed to recover a channel’s monthly subscription from this item’s
+        profit before that plan. “—” means the item’s unit economics cannot
+        recover the plan at any volume; “0” means the channel has no monthly
+        plan.
+      </p>
+      <p class="note">
+        Transparent arithmetic from the rates you entered — not any
+        marketplace’s current published schedule. Rates vary by category,
+        country, plan and account. Check yours against a recent statement.
+      </p>
+    </section>
+  </main>
+
+  <section class="rates" aria-labelledby="shelf-heading">
+    <h2 id="shelf-heading">And how often does it actually sell there?</h2>
+    <p id="shelfVerdict" class="shelf-verdict" aria-live="polite">—</p>
+    <div class="scroller">
+      <div class="pf-table-scroll"><table>
+        <caption class="note" style="text-align:left;padding-bottom:8px">
+          The same channels ranked on what one <em>listing</em> is worth per 30
+          days of shelf, not on what one <em>sale</em> is worth.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" data-table="shelf">Channel</th>
+            <th scope="col" data-table="shelf" title="Share of listings like this that sell inside your horizon.">Sells within horizon</th>
+            <th scope="col" data-table="shelf" title="Typical days to sell on this channel when it does sell.">Days to sell</th>
+            <th scope="col" data-table="shelf" title="What you keep on this channel if it sells — the figure from the table above.">If it sells</th>
+            <th scope="col" data-table="shelf" title="Listing fees charged again while it waits, plus the cost of the cash tied up, if it never sells.">If it does not</th>
+            <th scope="col" data-table="shelf" title="Sell-through weighted average of the two outcomes, after renewal fees and carrying cost.">One listing is worth</th>
+            <th scope="col" data-table="shelf" title="Average days the listing occupies, sold or not.">Days on the shelf</th>
+            <th scope="col" data-table="shelf" title="Listing value spread over the shelf days it occupies. This is the column the ranking uses.">Per 30 days</th>
+            <th scope="col" data-table="shelf" title="Cash per 30 days of shelf this channel gives up against the fastest earner.">Gives up</th>
+            <th scope="col" data-table="shelf" title="Sell-through this channel would need to earn as much per 30 days as the leader. Blank where no sell-through can catch it.">Sell-through to match</th>
+          </tr>
+        </thead>
+        <tbody id="shelfRows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" style="font-size:.86rem;color:#4a4270">
+      <strong>One listing is worth</strong> weights what you keep if it sells
+      against what it costs you if it does not — renewal listing fees for as
+      long as it sits, and your cash tied up in the item meanwhile. Postage,
+      packaging and fulfilment are not double counted here; they are already
+      in the sale figures above and only happen on a sale.
+      <strong>Per 30 days</strong> divides that by the shelf the listing
+      actually occupies, which is what lets a cheaper, faster channel beat a
+      richer, slower one on the same inventory dollar.
+      <strong>Sell-through to match</strong> is how often this channel would
+      have to sell to earn the leader’s rate — read it as a test of your own
+      estimate, not a target.
+      <a href="does-it-actually-sell-there.html">A worked example of the flip →</a>
+    </p>
+    <p class="note" style="font-size:.86rem;color:#4a4270">
+      Sell-through and time to sale are the two numbers here you should
+      replace first. They vary more by <em>category</em> than by channel — a
+      graded card and a dining table do not share a sell-through — and the
+      shipped defaults are illustrative, not measured. Your own sold-listing
+      history is the better source.
+    </p>
+  </section>
+
+  <section class="rates" aria-labelledby="rates-heading">
+    <h2 id="rates-heading">Each channel’s rates and costs</h2>
+    <p style="margin-top:0;font-size:.9rem;color:#4a4270">
+      Opened defaults are illustrative US rates, not a live fee schedule.
+      Replace them with the rates on your own statements — that is what makes
+      the comparison yours rather than a generic estimate.
+    </p>
+    <div id="channelPanels"></div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this does, and what it does not</h2>
+    <h3>Three things flat fee comparisons get wrong</h3>
+    <p>
+      A per-listing fee is charged whether or not the item sells, so it hurts
+      most on cheap items. A monthly plan is only a real per-order cost once
+      you spread it over the orders you actually expect — at ten orders a month
+      a $39 plan is $3.90 an order, at two hundred it is 20¢. The fee
+      percentage is not the decision: what matters is the price each channel
+      needs to leave you the same money, which is the last column above. And
+      the highest profit per sale is not the decision either if one channel
+      sells in a week and another sits for a month —
+      <strong>you keep / day</strong> is that comparison.
+      <a href="etsy-vs-ebay-fees.html">eBay vs Etsy fees on the same item</a>
+      works one example through in full, and
+      <a href="reverb-vs-ebay-for-gear.html">Reverb vs eBay for selling gear</a>
+      works an $800 guitar through the case where the two answers disagree —
+      the cheaper channel pays more per sale and less per month of shelf.
+    </p>
+    <h3>Margin is not the same question as turnover</h3>
+    <p>
+      A fee comparison ranks a sale. A seller with stock ranks a <em>listing</em>.
+      Those come apart the moment two channels do not sell the same item equally
+      often: at the shipped defaults Etsy keeps more per completed sale than eBay
+      and is worth roughly a third as much per month of shelf, because a 35%
+      sell-through leaves most listings still sitting — paying renewal fees and
+      tying up the cash — when eBay has already cleared two in three.
+      The second table ranks that way, and
+      <a href="does-it-actually-sell-there.html">where the two rankings disagree</a>
+      works one example through in full.
+    </p>
+    <h3>What it deliberately leaves out</h3>
+    <p>
+      Fees are not the only difference between channels. A marketplace fee buys
+      you demand you would otherwise have to create. Put your own expected
+      sales in each channel’s panel to see when volume flips the ranking.
+      Days-to-sell is your estimate of that demand, not a measured sell-through
+      rate, and the page still has no way to know how many buyers each channel
+      puts in front of <em>you</em> — sell-through and time to sale are numbers
+      you supply, not measurements. Returns are an input the same way: each
+      channel has a rate, return postage, a still-sellable share, and a
+      fee-refund share you can replace with your own report.
+      <a href="returns-change-the-ranking.html">Returns can flip the ranking</a>
+      works one Amazon-vs-eBay example through in full.
+      Read the fee, volume, cash-per-day, return and shelf-time gaps as inputs
+      to the decision, not the decision. It does not recommend a price, a
+      channel, or a business model, and it is not tax, financial or business
+      advice.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Is it cheaper to sell on eBay or Etsy?</h3>
+  <p>It depends on the item, because the two fee shapes are different rather than one simply being lower. eBay charges a percentage of the order total that normally includes payment processing, plus a small fixed fee. Etsy charges a per-listing fee whether or not the item sells, a transaction percentage, and a separate payment-processing percentage and fixed fee. On a low-priced item the per-listing and fixed fees matter most; on a high-priced item the percentages dominate. Enter your own numbers above — this page does no more than the arithmetic on the rates you give it.</p>
+  <h3>How do I compare marketplace fees fairly?</h3>
+  <p>Put the same item through every channel with the same cost of goods, then make three adjustments most comparisons skip. Spread any monthly subscription over the orders you actually expect that month. Count per-listing fees, which are charged whether or not the item sells. And compare the price each channel needs to reach the same profit, not just the fee percentage, because a channel with higher fees can still win if you can list higher there.</p>
+  <h3>Does selling on my own store beat a marketplace?</h3>
+  <p>On fees alone an own store usually wins, because there is no marketplace commission — only card processing and the monthly plan spread over your orders. What it does not include is the buyers. Put the number of sales you actually expect on each channel in that channel's panel: a store that keeps more per sale can still lose the month to a marketplace that sells more units. The honest comparison is the fee gap against the volume each channel can carry.</p>
+  <h3>Should I sell on the cheapest channel or the fastest one?</h3>
+  <p>A channel that keeps more per sale can still lose if the item sits longer. Divide what you keep by how many days you expect that channel to take to sell, and compare cash per day — not just cash per sale. The days are your estimate, not a marketplace statistic. Replace the illustrative starting points with how long your last similar listings actually took.</p>
+  <h3>Do marketplace returns change which channel is cheapest?</h3>
+  <p>They can. A completed sale on Amazon can look better than eBay once you list a few dollars higher, then lose once you count Amazon's higher return rate, return postage, and units that cannot be sold again. This page ranks channels on expected keep after the return rate you enter — turn that overlay off to see the sold-sale ranking only. Rates are inputs, not a published marketplace schedule.</p>
+  <h3>Should I sell where I make the most per sale or where it sells fastest?</h3>
+  <p>Those are two different questions and they often have different answers. What you keep per sale only matters if the item sells; a channel that pays more but clears one listing in three inside your horizon can be worth less per month of shelf than a cheaper channel that clears two in three quickly. This page ranks both ways side by side: what you keep if it sells, and what one listing is worth per 30 days of shelf once you count sell-through, time to sale, listing fees charged again on renewal, and the cash tied up while it waits. Where the two rankings disagree you are choosing between margin and turnover, and the tool says so rather than picking for you.</p>
+  <h3>How do I work out what a listing is worth per month?</h3>
+  <p>Take what you keep if it sells, subtract any listing fee charged again while it waits and the cost of the cash tied up in the item, and weight that by how often listings like it actually sell inside the period you would leave it up. The listings that do not sell still cost renewal fees and carry. Divide the result by the average days the listing occupies — shorter when it sells quickly — and multiply by thirty. That per-month figure, not the fee percentage, is what compares a fast channel against a rich one on the same inventory dollar.</p>
+
+  <footer>
+    <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name (<code>comparison_calculated</code>, <code>channel_rates_edited</code>, <code>channel_toggled</code>, <code>subscription_toggled</code>, <code>channel_volume_edited</code>, <code>returns_compared</code>, <code>shelf_time_compared</code>, <code>share_link_copied</code>, <code>handoff_ebay</code>, <code>handoff_etsy</code>, <code>handoff_amazon</code>, <code>handoff_reverb</code>, <code>handoff_own-store</code>, <code>handoff_tiktok</code>, <code>handoff_whatnot</code>, <code>handoff_poshmark</code>, <code>handoff_stockx</code>, <code>handoff_mercari</code>, <code>handoff_depop</code>, <code>handoff_facebook-marketplace</code>, <code>handoff_walmart</code>) and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it stopped you listing in the wrong place, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../amazon-fba-calculator/">Amazon FBA vs FBM calculator</a> · <a href="../reverb-fee-calculator/">Reverb fee calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a> · <a href="../tiktok-shop-fee-calculator/">TikTok Shop fee calculator</a> · <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> · <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> · <a href="../stockx-seller-payout-calculator/">StockX seller payout calculator</a> · <a href="../mercari-fee-calculator/">Mercari fee calculator</a> · <a href="../depop-fee-calculator/">Depop fee calculator</a> · <a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace fee calculator</a> · <a href="../walmart-marketplace-calculator/">Walmart Marketplace calculator</a>.</p>
+    <p>Comparing headline fees across channels that include Walmart and TikTok Shop first? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks those six channels from one set of inputs, then points at the deeper per-channel calculators.</p>
+  </footer>
+
+  <style>
+    .rank-by { border: 1px solid #cfc7e8; border-radius: 10px; padding: 10px 14px; margin: 14px 0 4px; display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: center; }
+    .rank-by legend { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-ink); padding: 0 4px; }
+    .rank-by label { font-size: .88rem; font-weight: 600; }
+    .speed-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #fff5e2; border: 1px solid #d9a441; color: #5d4108; }
+  </style>
+  <script type="module">
+    import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { comparisonCsv } from "./export.mjs";
+    import { decodeComparison, encodeComparison } from "./share.mjs";
+    import { handoffsForResults } from "./handoff.mjs";
+    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+
+    const SHARED_FIELDS = [
+      "price", "shippingCharged", "shippingCost", "itemCost",
+      "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
+      "horizonDays", "capitalCostPct", "unsoldRecoveryPct", "targetProfit",
+    ];
+    // Per-channel fields, in the order they appear in each channel's panel.
+    const CHANNEL_FIELDS = [
+      { key: "price", label: "Price on this channel", step: "0.01" },
+      { key: "shippingCharged", label: "Shipping charged", step: "0.01" },
+      { key: "shippingCost", label: "Shipping you pay", step: "0.01" },
+      { key: "fulfilmentCost", label: "Fulfilment / FBA cost", step: "0.01" },
+      { key: "commissionRate", label: "Commission (%)", step: "0.01" },
+      { key: "paymentRate", label: "Payment processing (%)", step: "0.01" },
+      { key: "paymentFixed", label: "Payment fixed fee", step: "0.01" },
+      { key: "perListingFee", label: "Per-listing fee", step: "0.01" },
+      { key: "monthlyFee", label: "Monthly plan", step: "0.01" },
+      { key: "adRate", label: "Ads / promoted (%)", step: "0.01" },
+      { key: "expectedMonthlySales", label: "Expected sales / month on this channel", step: "1" },
+      { key: "returnRate", label: "Return rate (%)", step: "0.1" },
+      { key: "returnShippingCost", label: "Return shipping you pay", step: "0.01" },
+      { key: "resellableRate", label: "Still sellable (%)", step: "1" },
+      { key: "feeRefundRate", label: "Fees refunded on return (%)", step: "1" },
+      { key: "sellThroughPct", label: "Sells within horizon (%)", step: "1" },
+      { key: "daysToSell", label: "Days to sell when it does", step: "1" },
+      { key: "listingRenewalDays", label: "Listing renews every (days, 0 = never)", step: "1" },
+    ];
+    const SAVE_KEY = "where-to-sell-inputs";
+    // A minus sign belongs in front of the currency, not between the sign and
+    // the digits: "$-0.41" reads as a typo, and the shelf-time table shows a
+    // negative in every row of "if it does not sell".
+    const money = (value) => (value < 0 ? `−$${Math.abs(value).toFixed(2)}` : `$${value.toFixed(2)}`);
+
+    // Deep-ish clone so editing a channel never mutates the shipped presets.
+    const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
+    let channels = freshChannels();
+
+    function readShared() {
+      const shared = Object.fromEntries(
+        SHARED_FIELDS.map((id) => [id, document.getElementById(id).value]),
+      );
+      shared.includeSubscription = document.getElementById("includeSubscription").checked;
+      shared.rankBy = document.querySelector('input[name="rankBy"]:checked')?.value ?? "profit";
+      shared.includeReturns = document.getElementById("includeReturns").checked;
+      return shared;
+    }
+
+    function optedOut() {
+      return document.getElementById("usageOptOut").checked;
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ shared: readShared(), channels }));
+      } catch {
+        // Saving is a convenience; a blocked or full storage must not stop the
+        // calculator from working.
+      }
+    }
+
+    function restore() {
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      } catch {
+        saved = null;
+      }
+      if (!saved || typeof saved !== "object") return;
+      if (saved.shared) {
+        for (const id of SHARED_FIELDS) {
+          if (saved.shared[id] !== undefined) document.getElementById(id).value = saved.shared[id];
+        }
+        if (saved.shared.includeSubscription !== undefined) {
+          document.getElementById("includeSubscription").checked = Boolean(saved.shared.includeSubscription);
+        }
+        const savedRank = document.querySelector(`input[name="rankBy"][value="${saved.shared.rankBy}"]`);
+        if (savedRank) savedRank.checked = true;
+        if (saved.shared.includeReturns !== undefined) {
+          document.getElementById("includeReturns").checked = Boolean(saved.shared.includeReturns);
+        }
+      }
+      // Merge onto the current presets by id, so a channel added in a later
+      // version still appears for someone with older saved input.
+      if (Array.isArray(saved.channels)) {
+        channels = freshChannels().map((channel) => {
+          const stored = saved.channels.find((candidate) => candidate?.id === channel.id);
+          return stored ? mergeChannelValues(channel, stored) : channel;
+        });
+      }
+    }
+
+    // Saved state and shared links are untrusted data. Take only the numeric
+    // fields this form edits, and keep the preset's own label and explanatory
+    // copy local — those are ours to render, not something a link may supply.
+    function mergeChannelValues(channel, incoming) {
+      const values = Object.fromEntries(
+        CHANNEL_FIELDS.map(({ key }) => {
+          const raw = incoming[key];
+          const value = raw === undefined || raw === "" ? null : Number(raw);
+          return [key, value];
+        }).filter(([, value]) => Number.isFinite(value) && value >= 0),
+      );
+      // A record that says nothing about `enabled` must not switch a channel
+      // on: "Other channel" ships off, and silence is not consent to include it.
+      const enabled = incoming.enabled === undefined
+        ? channel.enabled !== false
+        : incoming.enabled !== false;
+      return { ...channel, ...values, enabled };
+    }
+
+    function restoreSharedLink() {
+      // Fragment first, then the legacy query string. Links built before this
+      // page moved off `?c=` are already in people's inboxes and must keep
+      // opening to the sender's numbers; only the write side changed.
+      const value =
+        new URLSearchParams(window.location.hash.replace(/^#/, "")).get("c") ??
+        new URLSearchParams(window.location.search).get("c");
+      const shared = decodeComparison(value);
+      if (!shared) return false;
+      for (const id of SHARED_FIELDS) {
+        if (shared.shared[id] !== undefined) document.getElementById(id).value = shared.shared[id];
+      }
+      document.getElementById("includeSubscription").checked = shared.includeSubscription;
+      const linkedRank = document.querySelector(`input[name="rankBy"][value="${shared.rankBy}"]`);
+      if (linkedRank) linkedRank.checked = true;
+      document.getElementById("includeReturns").checked = shared.includeReturns;
+      if (shared.channels.length) {
+        channels = freshChannels().map((channel) => {
+          const incoming = shared.channels.find((candidate) => candidate.id === channel.id);
+          return incoming ? mergeChannelValues(channel, incoming) : channel;
+        });
+      }
+      return true;
+    }
+
+    function renderPanels() {
+      document.getElementById("channelPanels").innerHTML = channels.map((channel, index) => `
+        <details data-index="${index}">
+          <summary>${channel.label}${channel.enabled === false ? " — not compared" : ""}</summary>
+          <label class="check" style="margin-top:10px">
+            <input type="checkbox" data-index="${index}" data-enable="1" ${channel.enabled === false ? "" : "checked"}>
+            Compare this channel
+          </label>
+          ${channel.note ? `<p class="note">${channel.note}</p>` : ""}
+          <div class="fields">
+            ${CHANNEL_FIELDS.map((field) => `
+              <label>${field.label}
+                <input type="number" min="0" step="${field.step}" data-index="${index}" data-key="${field.key}"
+                       value="${channel[field.key] ?? ""}"${field.key === "expectedMonthlySales" ? ` placeholder="${document.getElementById("monthlyOrders").value || "shared"}"` : ""} inputmode="decimal">
+              </label>`).join("")}
+          </div>
+        </details>`).join("");
+
+      for (const input of document.querySelectorAll("#channelPanels input[data-key]")) {
+        input.addEventListener("input", (event) => {
+          const { index, key } = event.target.dataset;
+          channels[Number(index)][key] = event.target.value;
+          update();
+        });
+        input.addEventListener("change", (event) => {
+          const eventName = event.target.dataset.key === "expectedMonthlySales"
+            ? "channel_volume_edited"
+            : "channel_rates_edited";
+          recordUsage(localStorage, optedOut(), eventName);
+          save();
+        });
+      }
+      for (const toggle of document.querySelectorAll("#channelPanels input[data-enable]")) {
+        toggle.addEventListener("change", (event) => {
+          const index = Number(event.target.dataset.index);
+          channels[index].enabled = event.target.checked;
+          // Re-render so the summary line reflects what is in the comparison
+          // without the seller having to open the panel to check.
+          const openIndexes = [...document.querySelectorAll("#channelPanels details[open]")]
+            .map((el) => el.dataset.index);
+          renderPanels();
+          for (const openIndex of openIndexes) {
+            const el = document.querySelector(`#channelPanels details[data-index="${openIndex}"]`);
+            if (el) el.open = true;
+          }
+          update();
+          recordUsage(localStorage, optedOut(), "channel_toggled");
+          save();
+        });
+      }
+    }
+
+    function showError(message) {
+      document.getElementById("bestLabel").textContent = "Check the inputs";
+      const profit = document.getElementById("bestProfit");
+      profit.textContent = message;
+      profit.className = "hero-number error";
+      profit.style.fontSize = "1.1rem";
+      document.getElementById("spread").textContent = "";
+      document.getElementById("rows").innerHTML = "";
+      document.getElementById("shelfVerdict").textContent = "";
+      document.getElementById("shelfRows").innerHTML = "";
+    }
+
+    // Built with DOM nodes rather than innerHTML: a channel label is free text
+    // the reader can edit, and this is the one place it would be re-parsed as
+    // markup.
+    function renderContinue(results, shared) {
+      const nav = document.getElementById("continue");
+      const offers = handoffsForResults(results, shared);
+      nav.textContent = "";
+
+      if (offers.length === 0) {
+        nav.hidden = true;
+        return;
+      }
+
+      const intro = document.createElement("p");
+      intro.textContent = offers.length === 1
+        ? "Keep going with this item — no retyping:"
+        : "Keep going with this item on any of these — no retyping:";
+      nav.appendChild(intro);
+
+      const list = document.createElement("ul");
+      for (const offer of offers) {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = offer.href;
+        link.appendChild(document.createTextNode(
+          `${offer.isBest ? "Open the winner in the " : "Open the "}${offer.label}`,
+        ));
+        if (!offer.isBest) {
+          const who = document.createElement("span");
+          who.className = "who";
+          who.textContent = ` (${offer.channelLabel})`;
+          link.appendChild(who);
+        }
+        // The counter records that a handoff happened and to where — an event
+        // name and the day, never the item. It is what will say whether this
+        // link is worth keeping once the site is public.
+        link.addEventListener("click", () => {
+          recordUsage(localStorage, optedOut(), `handoff_${offer.channel}`);
+        });
+        item.appendChild(link);
+        list.appendChild(item);
+      }
+      nav.appendChild(list);
+      nav.hidden = false;
+    }
+
+    // One [label, value, class, title] tuple per value column. Below ~700px
+    // the table is restyled into one card per channel and the same declaration
+    // supplies the label printed beside each figure. Declaring both here keeps
+    // the card labels and the <thead> headings from drifting.
+    function resultCells(result, comparison) {
+      return [
+        ["Price", money(result.price), ""],
+        ["Fees", money(result.feeTotal), ""],
+        ["You keep", money(result.profit), ""],
+        ["After returns", money(result.expectedProfit), ""],
+        ["Return drag", money(result.returnDrag), ""],
+        ["Margin", `${result.margin.toFixed(1)}%`, ""],
+        ["Return on cash", result.roi === null ? "—" : `${result.roi.toFixed(0)}%`, ""],
+        ["Gives up", result.isBest ? "—" : money(result.gapVsBest), ""],
+        ["Monthly keep", `${money(result.monthlyProfit)}${comparison.rankingsDiverge && result.isBestMonthly ? " · best month" : ""}`, ""],
+        ["Days to sell", result.daysToSell === null ? "—" : String(result.daysToSell), ""],
+        ["You keep / day", result.profitPerDay === null ? "—" : money(result.profitPerDay), "", result.monthlyProfitAtVelocity === null ? "" : `About ${money(result.monthlyProfitAtVelocity)} in a 30-day month at this pace.`],
+        ["Break-even price", money(result.breakEvenPrice), result.price < result.breakEvenPrice ? " negative" : ""],
+        ["Orders to cover plan", result.ordersToCoverPlan === null ? "—" : String(result.ordersToCoverPlan), ""],
+        ["Price to match best", result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest), ""],
+        ["Price for target profit", result.priceForTargetProfit === null ? "—" : money(result.priceForTargetProfit), ""],
+      ];
+    }
+
+    function shelfCells(result) {
+      return [
+        ["Sells within horizon", `${result.velocity.sellThroughPct.toFixed(0)}%`, ""],
+        ["Days to sell", result.velocity.daysToSell.toFixed(0), ""],
+        ["If it sells", money(result.velocity.soldValue), ""],
+        ["If it does not", money(result.velocity.unsoldValue), result.velocity.unsoldValue < 0 ? " negative-ink" : ""],
+        ["One listing is worth", money(result.velocity.listedValue), ""],
+        ["Days on the shelf", result.velocity.shelfDays.toFixed(0), ""],
+        ["Per 30 days", money(result.velocity.valuePer30Days), ""],
+        ["Gives up", result.isShelfBest ? "—" : money(result.shelfGapVsBest), ""],
+        ["Sell-through to match", result.sellThroughToMatchBest === null ? "—" : `${result.sellThroughToMatchBest.toFixed(1)}%`, ""],
+      ];
+    }
+
+    function renderCells(cells) {
+      return cells.map(([label, value, cls, title]) =>
+        `<td class="money${cls}"${title ? ` title="${title}"` : ""}><span class="cell-label">${label}</span><span class="cell-value">${value}</span></td>`
+      ).join("");
+    }
+
+    function update() {
+      let comparison;
+      try {
+        comparison = compareChannels(channels, readShared());
+      } catch (error) {
+        showError(error.message);
+        return;
+      }
+
+      const profit = document.getElementById("bestProfit");
+      profit.style.fontSize = "";
+      // The headline follows the chosen ranking; a hero that names the
+      // profit winner above a table sorted by speed just reads as a bug.
+      const leader = comparison.results.find((result) => result.rank === 1);
+      const bySpeed = comparison.rankBy === "profitPerDay" && leader.profitPerDay !== null;
+      document.getElementById("bestLabel").textContent = bySpeed
+        ? `Best per day of waiting: ${leader.label} — you keep`
+        : comparison.includeReturns
+          ? `Best after returns: ${comparison.best.label} — expected keep`
+          : `Best on fees: ${comparison.best.label} — you keep`;
+      renderSpeedNote(comparison);
+      document.getElementById("tableCaption").textContent = comparison.rankBy === "profitPerDay"
+        ? "Same item on every channel, ranked by what you keep per day of waiting."
+        : "Same item on every channel, ranked by expected keep after returns unless you turn that overlay off.";
+      const headline = bySpeed ? leader.profitPerDay : comparison.best.profit;
+      profit.textContent = bySpeed ? `${money(headline)} / day` : money(headline);
+      profit.className = `hero-number ${headline < 0 ? "negative" : "positive"}`;
+      const feeNote = comparison.spread > 0
+        ? `${money(comparison.spread)} separates the best channel from the worst on this one item — ${comparison.best.margin.toFixed(1)}% ${comparison.includeReturns ? "expected " : ""}margin at the top.`
+        : "Every channel leaves you the same on this item.";
+      const velocity = comparison.bestOnVelocity;
+      const velocityNote = !velocity
+        ? " Enter days to sell when you have a pace, and the table will rank cash per day as well as cash per sale."
+        : velocity.id === comparison.best.id
+          ? ` ${velocity.label} also keeps the most per day (${money(velocity.profitPerDay)}), about ${money(velocity.monthlyProfitAtVelocity)} in a 30-day month at that pace.`
+          : ` ${velocity.label} keeps less per sale but more per day (${money(velocity.profitPerDay)}) if it sells in ${velocity.daysToSell} days — about ${money(velocity.monthlyProfitAtVelocity)} in a 30-day month. Fee-best is not always the listing to wait on.`;
+      let spreadText = feeNote + velocityNote;
+      if (comparison.rankingsDiverge) {
+        spreadText =
+          `${comparison.bestMonthly.label} keeps ${money(comparison.bestMonthly.monthlyProfit)} / month at ${comparison.bestMonthly.expectedMonthlySales} sales — more than ${comparison.best.label}, even though ${comparison.best.label} wins a single sale. Volume is part of the decision.`
+          + velocityNote;
+      } else if (comparison.volumesDiffer) {
+        spreadText = feeNote
+          + ` Monthly keep still sits with ${comparison.bestMonthly.label} at ${money(comparison.bestMonthly.monthlyProfit)}.`
+          + velocityNote;
+      }
+      document.getElementById("spread").textContent = spreadText;
+
+      renderContinue(comparison.results, readShared());
+
+      document.getElementById("rows").innerHTML = comparison.results
+        .slice()
+        .sort((a, b) => a.rank - b.rank)
+        .map((result) => `
+          <tr class="${result.isBest ? "best" : ""}${result.isBestOnVelocity ? " fastest" : ""}">
+            <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
+            ${renderCells(resultCells(result, comparison))}
+          </tr>`).join("");
+
+      const shelf = comparison.shelf;
+      document.getElementById("shelfVerdict").innerHTML = shelf.agrees
+        ? `<strong>${shelf.label}</strong> wins both ways — best keep on a sale
+           and the most per month of shelf at ${money(shelf.valuePer30Days)} per
+           30 days. Nothing to trade off here.`
+        : `<span class="flip">The two rankings disagree.</span>
+           <strong>${comparison.best.label}</strong> keeps the most on a sale, but
+           <strong>${shelf.label}</strong> earns the most per month of shelf —
+           ${money(shelf.valuePer30Days)} per 30 days at
+           ${shelf.sellThroughPct.toFixed(0)}% sell-through inside
+           ${shelf.horizonDays.toFixed(0)} days. You are choosing between margin
+           and turnover.`;
+
+      document.getElementById("shelfRows").innerHTML = comparison.results
+        .slice()
+        .sort((a, b) => a.shelfRank - b.shelfRank)
+        .map((result) => `
+          <tr class="${result.isShelfBest ? "shelf-best" : ""}">
+            <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
+            ${renderCells(shelfCells(result))}
+          </tr>`).join("");
+    }
+
+    // The whole point of the holding-period column is the case where it
+    // disagrees with the profit ranking. Say so in words when it does, and stay
+    // quiet when it does not — an always-on line would be noise.
+    function renderSpeedNote(comparison) {
+      const note = document.getElementById("speedNote");
+      if (!comparison.speedChangesTheAnswer) {
+        note.hidden = true;
+        note.textContent = "";
+        return;
+      }
+      const fast = comparison.fastestReturn;
+      const slow = comparison.results.find((result) => result.id === comparison.best.id);
+      const turnover = fast.cashTurnsPerYear === null || slow.cashTurnsPerYear === null
+        ? ""
+        : ` At those speeds the same cash goes round ${fast.cashTurnsPerYear.toFixed(0)} times a year there `
+          + `against ${slow.cashTurnsPerYear.toFixed(0)}.`;
+      note.hidden = false;
+      note.textContent =
+        `${comparison.best.label} nets more per sale, but ${fast.label} sells in ${fast.daysToSell} days and earns `
+        + `${money(fast.profitPerDay)} a day of waiting against ${money(slow.profitPerDay)}.${turnover}`;
+    }
+
+    // The shelf-time inputs get their own signal so adoption of the turnover
+    // view is separable from ordinary fee use — the counter is how we learn
+    // whether sellers use it at all. Event names only; never values.
+    const SHELF_FIELDS = new Set(["horizonDays", "capitalCostPct", "unsoldRecoveryPct"]);
+    for (const id of SHARED_FIELDS) {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, optedOut(), SHELF_FIELDS.has(id) ? "shelf_time_compared" : "comparison_calculated");
+        save();
+      });
+    }
+    for (const radio of document.querySelectorAll('input[name="rankBy"]')) {
+      radio.addEventListener("change", () => {
+        update();
+        recordUsage(localStorage, optedOut(), "ranked_by_speed");
+        save();
+      });
+    }
+    document.getElementById("includeSubscription").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, optedOut(), "subscription_toggled");
+      save();
+    });
+    document.getElementById("includeReturns").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, optedOut(), "returns_compared");
+      save();
+    });
+    document.getElementById("usageOptOut").addEventListener("change", (event) => {
+      writeOptOut(localStorage, event.target.checked);
+    });
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      if (!copied) throw new Error("copy failed");
+    }
+    document.getElementById("share").addEventListener("click", async () => {
+      const status = document.getElementById("share-status");
+      try {
+        compareChannels(channels, readShared());
+        // The fragment, not the query string: a `?` reaches the server on
+        // every load and rides the `Referer` header of any outbound click,
+        // so the assurance printed below ("it contains your assumptions")
+        // would otherwise be true of the link's text and false of the wire.
+        // Same `c=` + already-escaped payload shape as before, so the decode
+        // level on the reading side is unchanged.
+        const url = new URL(window.location.href);
+        url.search = "";
+        url.hash = `c=${encodeComparison(readShared(), channels)}`;
+        if (navigator.clipboard?.writeText) {
+          try {
+            await navigator.clipboard.writeText(url.href);
+            status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+          } catch {
+            fallbackCopy(url.href);
+            status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+          }
+        } else {
+          fallbackCopy(url.href);
+          status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+        }
+        recordUsage(localStorage, optedOut(), "share_link_copied");
+      } catch (error) {
+        status.textContent = error.message || "Fix the inputs before creating a share link.";
+      }
+    });
+    document.getElementById("downloadCsv").addEventListener("click", () => {
+      const status = document.getElementById("share-status");
+      try {
+        const comparison = compareChannels(channels, readShared());
+        const blob = new Blob([comparisonCsv(comparison)], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "where-to-sell-comparison.csv";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        recordUsage(localStorage, optedOut(), "comparison_csv_downloaded");
+        status.textContent = "Comparison CSV downloaded. It contains calculated results, not usage data.";
+      } catch (error) {
+        status.textContent = error.message || "Fix the inputs before downloading a comparison.";
+      }
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch {
+        // Nothing to clear.
+      }
+      channels = freshChannels();
+      const defaults = {
+        price: 48, shippingCharged: 6, shippingCost: 5, itemCost: 14,
+        packagingCost: 1, otherCost: 0, monthlyOrders: 100, daysToSell: "",
+        horizonDays: 90, capitalCostPct: 12, unsoldRecoveryPct: 100,
+        targetProfit: "",
+      };
+      for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+      document.getElementById("includeSubscription").checked = true;
+      document.querySelector('input[name="rankBy"][value="profit"]').checked = true;
+      document.getElementById("includeReturns").checked = true;
+      renderPanels();
+      update();
+    });
+
+    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+    restore();
+    restoreSharedLink();
+    renderPanels();
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../chargeback-ratio-monitor/" data-pf-to="chargeback-ratio-monitor">Chargeback Ratio Monitor — free, private, CSV in your browser</a></li>
+      <li><a href="../clearance-markdown-planner/" data-pf-to="clearance-markdown-planner">Clearance Markdown Planner — free, private, in your browser</a></li>
+      <li><a href="../commercial-lease-abstract-reader/" data-pf-to="commercial-lease-abstract-reader">Commercial lease abstract in seconds — dates, rent schedule, red flags. Free, private</a></li>
+      <li><a href="../course-launch-revenue-calculator/" data-pf-to="course-launch-revenue-calculator">Course Launch Revenue Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=where-to-sell-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/?pfEmbed=1&quot; title=&quot;Where to Sell Calculator — compare marketplace fees on one item — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="where-to-sell-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/" data-pf-embed-title="Where to Sell Calculator — compare marketplace fees on one item" data-pf-embed-slug="where-to-sell-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="where-to-sell-calculator" data-pf-jobs-amount="#bestProfit"></script>
+</body>
+</html>

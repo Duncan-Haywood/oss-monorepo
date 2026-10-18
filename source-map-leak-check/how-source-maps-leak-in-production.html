@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Source Maps Leak In Production (And How To Fix Each Way)</title>
+<meta name="description" content="The four common ways a production deployment ends up serving a publicly readable JavaScript source map…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/how-source-maps-leak-in-production.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to stop a production build from exposing its source map",
+  "description": "Four common causes of a publicly readable production source map, and the specific fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Set the right devtool mode for production, not the dev default",
+      "text": "Many bundler starter configs ship the same devtool setting for both dev and prod. webpack's plain 'source-map' mode (and Vite's default build.sourcemap: true) writes a full map with sourcesContent and references it from the script with a sourceMappingURL comment -- exactly what you want in development, and exactly what you don't want served publicly. Use 'hidden-source-map' (webpack) or an equivalent hidden/upload-only mode: it still produces a map you can upload to an error-tracking service for real stack traces, but never adds the sourceMappingURL comment to the shipped script, so a visitor's browser has no reference to follow."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Don't let the CI pipeline copy .map files into the deploy artifact",
+      "text": "Even with the right devtool mode, a build step that copies the whole dist/ or build/ directory to the CDN or server will ship any .map file that still exists on disk. Exclude *.map from the deploy step, or delete/upload-and-delete .map files as a discrete step after the error-tracking upload and before the deploy step runs."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Block .map requests at the server or CDN, as a second layer",
+      "text": "Defense in depth: even if a map file exists in the deploy artifact by accident, a server or CDN rule that returns 404 (or 403) for any path ending in .map means the reference in the script leads nowhere. This is the difference this tool's 'blocked' result reports -- a script still carries the comment, but the file itself is not actually reachable."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check third-party and vendor bundles too, not just your own code",
+      "text": "A vendor chunk (a bundled copy of a UI library, an analytics SDK, or similar) can carry its own sourceMappingURL comment independently of your own build config, especially if it was published to your bundle pre-built. Run the check against every script tag the page actually loads, not just the entry bundle you wrote."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { font-size: 1.15rem; margin-top: 1.8rem; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/how-source-maps-leak-in-production.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="How Source Maps Leak In Production (And How To Fix Each Way)">
+<meta property="og:description" content="The four common ways a production deployment ends up serving a publicly readable JavaScript source map…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Source Maps Leak In Production (And How To Fix Each Way) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../source-map-leak-check/">Source Map Leak Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Source Maps Leak In Production (And How To Fix Each Way)</span></span></nav>
+<p><a href="index.html">← Back to the Source Map Leak Checker</a></p>
+<h1>How source maps leak in production</h1>
+<p>
+  A source map only becomes a problem when a <em>production</em> deployment leaves it publicly
+  reachable. There are four common, independent ways that happens, and each has its own fix --
+  fixing one does not fix the others.
+</p>
+
+<h2>1. The dev devtool setting shipped to production</h2>
+<p>
+  Many starter configs use the same <code>devtool</code> (webpack) or <code>build.sourcemap</code>
+  (Vite) setting for both dev and prod builds. webpack's plain <code>'source-map'</code> mode
+  writes a full map with <code>sourcesContent</code> and adds a
+  <code>//# sourceMappingURL=</code> comment to the shipped script -- exactly what you want on your
+  own machine, and exactly what you don't want served publicly.
+</p>
+<pre><code>// webpack.config.js
+module.exports = {
+  devtool: process.env.NODE_ENV === 'production'
+    ? 'hidden-source-map'   // map is still generated, but no comment references it
+    : 'eval-source-map',    // fast, full detail, dev only
+};</code></pre>
+<p>
+  <code>hidden-source-map</code> still produces a real map you can upload to an error-tracking
+  service (Sentry and similar all support this) for real stack traces on production errors --
+  it just never adds the reference a browser (or this checker) would follow.
+</p>
+
+<h2>2. The deploy step copies .map files it shouldn't</h2>
+<p>
+  Even with the right <code>devtool</code> mode, a build step that copies the whole output
+  directory to the CDN or server will ship any <code>.map</code> file still sitting on disk.
+  Exclude it explicitly:
+</p>
+<pre><code># rsync example
+rsync -av --exclude='*.map' dist/ user@host:/var/www/app/</code></pre>
+
+<h2>3. No server/CDN rule blocking .map as a second layer</h2>
+<p>
+  Defense in depth: even if a map ends up in the deploy artifact by accident, a rule that returns
+  404 for any path ending in <code>.map</code> means the script's own reference leads nowhere.
+  This is the "blocked" result this checker reports as the healthy outcome when a reference exists
+  but the file itself is not actually served.
+</p>
+<pre><code># nginx example
+location ~ \.map$ {
+  return 404;
+}</code></pre>
+
+<h2>4. A vendor or third-party bundle carries its own reference</h2>
+<p>
+  A pre-built vendor chunk -- a bundled UI library, an analytics SDK, anything pulled in as a
+  finished artifact rather than compiled from your own source -- can carry its own
+  <code>sourceMappingURL</code> comment independently of your build config. Check every script tag
+  the page actually loads, not just the entry bundle you wrote yourself.
+</p>
+
+<p>
+  Run the <a href="index.html">Source Map Leak Checker</a> against your production URL (or paste
+  the specific script URLs) to see which of these, if any, apply to your deployment right now.
+  Only run it against a site you own or are authorised to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review. You are responsible for reviewing and verifying its guidance before relying on it. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../supabase-rls-check/" data-pf-to="supabase-rls-check">Supabase RLS Exposure Checker</a></li>
+      <li><a href="../terraform-plan-blast-radius-check/" data-pf-to="terraform-plan-blast-radius-check">Which of these resources is your terraform apply about to destroy?</a></li>
+      <li><a href="../terraform-plan-cost-estimate/" data-pf-to="terraform-plan-cost-estimate">What will this terraform apply add to the monthly AWS bill?</a></li>
+      <li><a href="../terraform-plan-secret-exposure-check/" data-pf-to="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=source-map-leak-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="source-map-leak-check"></script>
+</body>
+</html>

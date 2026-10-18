@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I repair or replace this appliance? | Service-call vs remaining years</title>
+  <meta name="description" content="A $635 dryer repair on a machine with three years left costs $211.75 a year. A $799 replacement that lasts ten costs $79.90 a year.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/should-i-repair-or-replace-this-appliance.html">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Should I repair or replace this appliance?">
+  <meta property="og:description" content="Compare one service-call quote against remaining years on the repaired unit versus a replacement, and what you keep if they decline.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I repair or replace this appliance?","acceptedAnswer":{"@type":"Answer","text":"On the calculator defaults a $635.25 repair target on a machine expected to last three more years costs $211.75 per remaining year. A $799 replacement expected to last ten years costs $79.90 per year. Replace is $131.85 a year cheaper for the customer. Finishing the repair still leaves the technician $115.57 more than walking with a $75 diagnostic. Those are planning figures from the rates you type, not a recommendation."}},{"@type":"Question","name":"When does the repair still beat replace?","acceptedAnswer":{"@type":"Answer","text":"If the repaired unit is expected to last eight years, the same $635.25 quote falls to $79.41 per year and undercuts the $79.90 replacement. The repair then beats replace for both the customer and the technician's book."}},{"@type":"Question","name":"What if I sell or install the replacement?","acceptedAnswer":{"@type":"Answer","text":"Add what you keep on that replacement. At $150, walking with the $75 diagnostic plus the replacement leaves $225, which beats the $190.57 repair profit. Recommend replace on those numbers."}},{"@type":"Question","name":"Is this the same as a boiler repair-versus-replace bid?","acceptedAnswer":{"@type":"Answer","text":"No. A boiler bid prices winters of patch calls against replacing the plant. This page prices one appliance service-call quote against remaining years on that machine."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#20252b;background:#f5f1e9}body{max-width:760px;margin:auto;padding:32px 18px}h1{font-size:clamp(2rem,6vw,3.4rem);line-height:.95;letter-spacing:-.05em}p,li{line-height:1.55}a{color:#9a4a22}footer{font-size:.82rem;color:#534c44;margin-top:28px}.eyebrow{color:#9a4a22;font-weight:750;letter-spacing:.08em;font-size:.8rem}
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/should-i-repair-or-replace-this-appliance.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I repair or replace this appliance? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../appliance-repair-quote-calculator/">Appliance Repair Quote Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I repair or replace this appliance?</span></span></nav>
+  <p class="eyebrow">APPLIANCE REPAIR QUOTE CALCULATOR</p>
+  <h1>Should I repair or replace this appliance?</h1>
+  <p>A technician on a driveway already has the quote. The harder question is whether to send it. A $635 dryer repair on a twelve-year-old machine can still be the honest number for this visit and the wrong number for the next three years.</p>
+  <p>This page does not appraise remaining life. It divides the quote you already built by the years you expect that repair to buy, then divides a replacement price by the years you expect the new machine to last. Side by side it also shows what you keep if they take the repair versus what you keep if they pay the diagnostic and walk.</p>
+  <h2>The default driveway</h2>
+  <p>On the calculator defaults — half an hour of diagnosis, 1.5 hours of repair, half an hour of travel, $80 loaded labor, a $35 trip, $120 of parts at 25% markup, a 5% callback reserve, 10% overhead, and a 30% target — the quote is <strong>$635.25</strong>. Three remaining years on that machine is <strong>$211.75 per year</strong>. A $799 replacement that lasts ten years is <strong>$79.90 per year</strong>. Replace is $131.85 a year cheaper for the customer.</p>
+  <p>You still keep $190.57 if they take the repair, and $75 if they pay the diagnostic and leave. The honest tension is the point: the repair still pays you more, and it still costs the customer more per remaining year.</p>
+  <h2>When the repair flips back</h2>
+  <p>Give the repaired unit eight years instead of three. The same $635.25 falls to $79.41 a year and undercuts the $79.90 replacement. Both books then point at finishing the repair. Sell or install the replacement for $150 and the default three-year driveway flips the other way: you keep $225 walking, and replace wins for both of you.</p>
+  <p><a href="index.html">Open the quote calculator</a> and change the years. The table updates from the same numbers you already typed.</p>
+  <h2>What this is not</h2>
+  <ul>
+    <li>Not a remaining-life appraisal, a manufacturer warranty reading, or a safety inspection.</li>
+    <li>Not the same decision as a boiler winters-of-patches bid. That tool prices repeated call-backs against replacing the plant. This one prices a single service call.</li>
+    <li>Not advice to sell a replacement or to finish a repair. The rates are inputs.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>Should I repair or replace this appliance?</h3>
+  <p>On the calculator defaults a $635.25 repair target on a machine expected to last three more years costs $211.75 per remaining year. A $799 replacement expected to last ten years costs $79.90 per year. Replace is $131.85 a year cheaper for the customer. Finishing the repair still leaves the technician $115.57 more than walking with a $75 diagnostic. Those are planning figures from the rates you type, not a recommendation.</p>
+  <h3>When does the repair still beat replace?</h3>
+  <p>If the repaired unit is expected to last eight years, the same $635.25 quote falls to $79.41 per year and undercuts the $79.90 replacement. The repair then beats replace for both the customer and the technician's book.</p>
+  <h3>What if I sell or install the replacement?</h3>
+  <p>Add what you keep on that replacement. At $150, walking with the $75 diagnostic plus the replacement leaves $225, which beats the $190.57 repair profit. Recommend replace on those numbers.</p>
+  <h3>Is this the same as a boiler repair-versus-replace bid?</h3>
+  <p>No. A boiler bid prices winters of patch calls against replacing the plant. This page prices one appliance service-call quote against remaining years on that machine.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="index.html">Back to the calculator</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ev-charger-bid-calculator/" data-pf-to="ev-charger-bid-calculator">EV Charger Installation Bid Calculator</a></li>
+      <li><a href="../furnace-bid-calculator/" data-pf-to="furnace-bid-calculator">Furnace Bid Calculator</a></li>
+      <li><a href="../hvac-maintenance-contract-calculator/" data-pf-to="hvac-maintenance-contract-calculator">HVAC Maintenance Contract Pricing Calculator</a></li>
+      <li><a href="../mini-split-bid-calculator/" data-pf-to="mini-split-bid-calculator">Mini-Split Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=appliance-repair-quote-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="appliance-repair-quote-calculator"></script>
+</body>
+</html>

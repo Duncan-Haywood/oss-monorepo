@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>1099 vs W-2 Worker Classification Checker — Free, Private</title>
+  <meta name="description" content="Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test…">
+  <meta property="og:title" content="Is your 1099 contractor really an employee? Free checker">
+  <meta property="og:description" content="Answer sixteen questions about how you work with someone and see how the IRS, DOL and ABC tests read it, what to change…">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234a3aa8'/%3E%3Cpath d='M9 17l5 5 9-12' stroke='%23fff' stroke-width='3.5' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Worker Classification Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Screens a working relationship against the IRS common-law test, the DOL economic reality test and the ABC test, shows which facts point to employee status, and estimates back payroll tax and overtime exposure as a range. Illustrative only. Runs in your browser.", "featureList": "IRS common-law test, DOL economic reality test, ABC test by prong, back-tax and overtime exposure range, what to change list, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a worker a contractor if they signed a contractor agreement?", "acceptedAnswer": {"@type": "Answer", "text": "No. The label in the contract does not decide it. The IRS, the Department of Labor and state agencies look at how the relationship works in practice: who controls the work, who carries the financial risk, and whether the worker runs an independent business."}}, {"@type": "Question", "name": "What is the ABC test?", "acceptedAnswer": {"@type": "Answer", "text": "Several states, including California, Massachusetts and New Jersey, presume a worker is an employee unless the hiring business shows three things: the worker is free from its control (A), the work is outside its usual course of business (B), and the worker is independently established in that trade (C). Failing any one prong makes the worker an employee for those laws."}}, {"@type": "Question", "name": "What does misclassifying a worker cost?", "acceptedAnswer": {"@type": "Answer", "text": "Back payroll taxes, usually the employer share of Social Security and Medicare plus a share of the amounts that should have been withheld, unpaid overtime if hours went over 40 a week and sometimes an equal amount in liquidated damages, plus state taxes, interest and penalties. This tool estimates the federal tax and overtime pieces as a range."}}, {"@type": "Question", "name": "Is this legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an illustrative screening checklist. Whether a particular worker is an employee depends on the facts and on the law of your state, so check the answer with an employment lawyer or a tax professional before you rely on it or change how you pay anyone."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f3f9; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #4a3aa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b2266; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b2266; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #dcd9ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b226610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b3d6; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .rowline { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; border-top: 1px solid #ece9f5; padding: 8px 0 12px; }
+    .rowline label { margin: 4px 0 2px; font-size: .82rem; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a3aa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e8e5f6; color: #2b2266; }
+    button.small { padding: 7px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece9f5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #ece9f5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e6e3f4; color: #2b2266; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 10px 0 4px; border: 1px solid #dcd9ea; }
+    .bar span { display: block; height: 100%; }
+    .legend { font-size: .82rem; color: #4c5268; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd9ea; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Is your 1099 contractor really an employee? Free checker","item":"https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Is your 1099 contractor really an employee? Free checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Is your 1099 contractor really an employee? Free checker</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="note">WORKER CLASSIFICATION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your 1099 contractor legally an employee?</h1>
+    <p>Answer sixteen yes/no questions about how you actually work with someone. You get a read on the IRS test, the Department of Labor test and the state ABC test, the facts that push toward employee status, and a range for what a misclassification could cost in back payroll tax and unpaid overtime.</p>
+    <p class="note">Screening checklist, not a ruling. Use "Not sure" when you do not know: it is never counted in your favour.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="h-facts">
+      <h2 id="h-facts">1. How the work really happens</h2>
+      <div id="questions"></div>
+      <button type="button" id="run">Check classification</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+      <button type="button" class="secondary" id="reset">Clear</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-exposure">
+      <h2 id="h-exposure">2. What a misclassification could cost</h2>
+      <div class="grid">
+        <div><label for="annual-pay">Annual pay to one worker ($)</label><input id="annual-pay" type="number" min="0" step="1000" value="60000" inputmode="numeric"></div>
+        <div><label for="hours">Hours worked per week</label><input id="hours" type="number" min="1" max="100" step="1" value="45" inputmode="numeric"></div>
+        <div><label for="years">Years classified this way</label><input id="years" type="number" min="0" max="10" step="1" value="2" inputmode="numeric"></div>
+        <div><label for="workers">Workers in the same situation</label><input id="workers" type="number" min="1" max="500" step="1" value="1" inputmode="numeric"></div>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" id="filed" checked><label for="filed">I filed 1099s for this pay</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="flat" checked><label for="flat">Pay was the same no matter how many hours (no overtime premium paid)</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="willful"><label for="willful">An agency could call it willful (three-year look-back)</label></div>
+    </section>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is a worker a contractor if they signed a contractor agreement?</h3>
+      <p>No. The label in the contract does not decide it. The IRS, the Department of Labor and state agencies look at how the relationship works in practice: who controls the work, who carries the financial risk, and whether the worker runs an independent business.</p>
+      <h3>What is the ABC test?</h3>
+      <p>Several states, including California, Massachusetts and New Jersey, presume a worker is an employee unless the hiring business shows three things: the worker is free from its control (A), the work is outside its usual course of business (B), and the worker is independently established in that trade (C). Failing any one prong makes the worker an employee for those laws.</p>
+      <h3>What does misclassifying a worker cost?</h3>
+      <p>Back payroll taxes, usually the employer share of Social Security and Medicare plus a share of the amounts that should have been withheld, unpaid overtime if hours went over 40 a week and sometimes an equal amount in liquidated damages, plus state taxes, interest and penalties. This tool estimates the federal tax and overtime pieces as a range.</p>
+      <h3>Is this legal advice?</h3>
+      <p>No. It is an illustrative screening checklist. Whether a particular worker is an employee depends on the facts and on the law of your state, so check the answer with an employment lawyer or a tax professional before you rely on it or change how you pay anyone.</p>
+    </section>
+
+    <section class="card">
+      <h2>What this does not cover</h2>
+      <p>State-specific tests beyond ABC, industry carve-outs (for example the many statutory exemptions in California's AB 5), the IRS Voluntary Classification Settlement Program, the Section 530 safe harbor, state unemployment and workers' compensation, penalties and interest, the Social Security wage base, minimum wage and meal-break claims, and joint-employer questions. A lawyer or tax professional can tell you which of these apply to you.</p>
+      <p>Related tools: the <a href="../employment-contract-checker/">employment contract checker</a>, the <a href="../freelance-contract-checker/">freelance contract checker</a> and the <a href="../employee-cost-calculator/">employee cost calculator</a>, for what a reclassified worker costs on payroll.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an employment lawyer or a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { QUESTIONS, evaluate, topFlags, exposure, money, percent } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const VERDICT = { employee: ["high", "Leans employee"], contractor: ["info", "Leans contractor"], mixed: ["medium", "Mixed"], insufficient: ["medium", "Not enough answers"] };
+
+    let group = "";
+    $("questions").innerHTML = QUESTIONS.map((q) => {
+      const head = q.group !== group ? `<h3>${esc(q.group)}</h3>` : "";
+      group = q.group;
+      return `${head}<div class="rowline"><div style="grid-column:1/-1"><label for="q-${q.id}">${esc(q.text)}</label>
+        <select id="q-${q.id}"><option value="unsure">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select></div></div>`;
+    }).join("");
+
+    const answers = () => Object.fromEntries(QUESTIONS.map((q) => [q.id, $("q-" + q.id).value]));
+
+    const EXAMPLE = { sets_how: "yes", sets_hours: "yes", trains: "no", supervises: "no", can_subcontract: "no", own_tools: "yes", own_expenses: "yes", profit_loss: "no", paid_time: "yes", benefits: "no", indefinite: "yes", exclusive: "yes", other_clients: "no", core_work: "yes", business_entity: "no", skill_initiative: "yes" };
+
+    function run() {
+      const a = answers();
+      const ev = evaluate(a);
+      const ex = exposure({ annualPay: $("annual-pay").value, hoursPerWeek: $("hours").value, years: $("years").value, workers: $("workers").value, filed1099: $("filed").checked, paidFlatNoOvertime: $("flat").checked, willful: $("willful").checked });
+      let h = "";
+      for (const k of ["irs", "dol", "abc"]) {
+        const r = ev.results[k];
+        const [cls, label] = VERDICT[r.verdict];
+        h += `<div class="finding"><h4><span class="pill ${cls}">${label}</span>${esc(r.name)}</h4><p class="note">${esc(r.scope)}. ${esc(r.note)}</p>`;
+        if (r.share !== null && r.share !== undefined) h += `<p>Weight of the facts pointing to employee: ${percent(r.share)} (${r.answered} of ${r.count} questions answered).</p>`;
+        if (k === "abc") h += "<ul>" + Object.values(r.prongs).map((p) => `<li>${p.shown ? "Shown" : p.blockers.length ? "Not met" : "Not shown (unanswered)"} — ${esc(p.label)}</li>`).join("") + "</ul>";
+        h += "</div>";
+      }
+      const flags = topFlags(a);
+      h += `<div class="finding"><h4>Facts doing the most damage</h4>` + (flags.length ? "<ol>" + flags.map((q) => `<li>${esc(q.text)}</li>`).join("") + "</ol><p class=\"note\">Changing the real working arrangement, not the paperwork, is what moves these. Ask a lawyer before restructuring.</p>" : "<p>No answer points to employee status.</p>") + "</div>";
+      if (ex.error) h += `<p class="error">${esc(ex.error)}</p>`;
+      else h += `<div class="finding"><h4>Illustrative exposure</h4><p class="stats">${money(ex.low)} to ${money(ex.high)}</p><table><tbody>
+        <tr><th>Back payroll tax (reduced §3509 rates, ${percent(ex.taxRate)} of pay)</th><td class="n">${money(ex.payrollTax)}</td></tr>
+        <tr><th>Federal unemployment tax</th><td class="n">${money(ex.futa)}</td></tr>
+        <tr><th>Unpaid overtime (${ex.otHours} h/week over 40, ${ex.flsaYears} yr look-back)</th><td class="n">${money(ex.owedOvertime)}</td></tr>
+        <tr><th>Liquidated damages (high case)</th><td class="n">${money(ex.liquidated)}</td></tr>
+        <tr><th>Full-rate FICA instead of §3509 (high case)</th><td class="n">${money(ex.fullFica)}</td></tr></tbody></table>
+        <p class="note">A range, not a prediction. State taxes, penalties, interest and state wage law are not included.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("check_run");
+    }
+
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { for (const [k, v] of Object.entries(EXAMPLE)) $("q-" + k).value = v; record("example_loaded"); run(); });
+    $("reset").addEventListener("click", () => { for (const q of QUESTIONS) $("q-" + q.id).value = "unsure"; $("out").hidden = true; });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../law-firm-realization-rate-calculator/" data-pf-to="law-firm-realization-rate-calculator">Law Firm Realization Rate Calculator — free, private</a></li>
+      <li><a href="../league-schedule-generator/" data-pf-to="league-schedule-generator">League Schedule Generator — free, private, in your browser</a></li>
+      <li><a href="../lien-waiver-checker/" data-pf-to="lien-waiver-checker">Check a lien waiver before you sign it — free, private</a></li>
+      <li><a href="../massage-therapist-profit-calculator/" data-pf-to="massage-therapist-profit-calculator">Massage Therapist Profit Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=worker-classification-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/?pfEmbed=1&quot; title=&quot;Is your 1099 contractor really an employee? Free checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="worker-classification-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/" data-pf-embed-title="Is your 1099 contractor really an employee? Free checker" data-pf-embed-slug="worker-classification-checker"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="worker-classification-checker" data-pf-jobs-amount=""></script>
+</body>
+</html>

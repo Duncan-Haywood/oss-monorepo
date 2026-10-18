@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Turo Earnings Report Analyzer — Profit per Car After Fees and Costs</title>
+  <meta name="description" content="Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo's fee, cleaning, fuel…">
+  <meta property="og:title" content="Turo Earnings Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-car and per-trip profit after Turo's fee and your real costs, with utilization and net per rented day. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Turo Earnings Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Turo host earnings or trip history CSV into per-vehicle and per-trip profit after Turo's fee, cleaning, fuel and delivery costs and fixed monthly costs, with utilization, revenue per rented day and cars losing money. Runs entirely in your browser; the file is never uploaded.", "featureList": "Profit per vehicle, profit per trip, utilization, revenue per rented day, net per day, break-even utilization, cars losing money, weekday and booking length findings, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know which of my Turo cars actually makes money?", "acceptedAnswer": {"@type": "Answer", "text": "Export your earnings or trip history from Turo (or keep a sheet with a vehicle, trip start and end, status, trip price and earnings) and drop it here. The tool takes what Turo paid you on each trip, subtracts the cleaning, fuel and delivery cost you enter, then subtracts each car's monthly loan, insurance and depreciation for the months in the period. What is left is that car's net, shown with its utilization and net per rented day. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What is utilization and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "Utilization is rented days divided by days in the period. A car with a high daily rate can still lose money if it sits idle most of the month, because loan, insurance and depreciation are charged whether or not it is rented. The tool also shows the utilization each car needs to break even at the contribution per day it actually earned."}}, {"@type": "Question", "name": "Does the tool know Turo's fee?", "acceptedAnswer": {"@type": "Answer", "text": "Only what your file says. If the file has a Turo fee column, or both a trip price and your earnings, the fee is read from it. If it has only a trip price, the tool applies the fee percentage you enter (default 25%) and says so. Turo's share depends on your plan and how far ahead the guest booked, so check the figure against your own Host Hub."}}, {"@type": "Question", "name": "How are cancelled trips handled?", "acceptedAnswer": {"@type": "Answer", "text": "A cancelled trip with no payout is left out and counted. A cancelled trip that paid you something, such as a cancellation fee, counts as revenue with no rented days and no cleaning, fuel or delivery cost."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Turo exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Vehicle, Trip start, Trip end, Status, Trip price and Earnings always works."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you type and does not replace your own judgement or a qualified tax or insurance adviser. It is independent of Turo and is not affiliated with or endorsed by Turo Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Turo Earnings Report Analyzer — free, private, CSV in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Turo Earnings Report Analyzer — free, private, CSV in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Turo Earnings Report Analyzer — free, private, CSV in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">TURO EARNINGS REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Turo cars actually makes money?</h1>
+    <p>Drop in your <strong>Turo earnings or trip history CSV</strong> and get <strong>profit per car and per trip after Turo's fee</strong>, your cleaning, fuel and delivery costs, and each car's monthly loan, insurance and depreciation, with <strong>utilization, revenue per rented day and the cars losing money</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Turo: not affiliated with or endorsed by Turo Inc. Column names are matched by alias from memory of Turo exports; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your earnings file</h2>
+    <p class="note">Needs a <strong>Trip start</strong> date and an amount: <strong>Earnings</strong> (what Turo paid you) and/or <strong>Trip price</strong>. Used when present: <strong>Vehicle</strong> (or Year, Make, Model), <strong>Trip end</strong>, <strong>Trip days</strong>, <strong>Status</strong> (cancelled trips are handled), <strong>Turo fee</strong>, and <strong>Cleaning cost</strong>, <strong>Fuel cost</strong>, <strong>Delivery cost</strong> columns. US and day-first dates, comma, tab and semicolon files, quoted fields and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Reservation ID,Vehicle,Trip start,Trip end,Status,Trip price,Earnings"></textarea>
+    <div class="grid">
+      <div><label for="feemode">Amounts in the file are</label><select id="feemode"><option value="auto">Detect (fee column, price minus earnings, or price only)</option><option value="gross">Before Turo's fee: apply the percentage below</option><option value="net">My payout after Turo's fee</option></select></div>
+      <div><label for="feepct">Turo fee % (only when the file has no fee)</label><input type="number" id="feepct" min="0" max="100" step="any" value="25" inputmode="decimal"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your costs</h2>
+    <p class="note">Per-trip costs apply to every completed trip unless the file has its own cost column with a value for that trip. Monthly costs are charged for each car for every month in the period, so an idle car still pays them.</p>
+    <div class="grid">
+      <div><label for="cleaning">Cleaning per trip</label><input type="number" id="cleaning" min="0" step="any" placeholder="e.g. 25" inputmode="decimal"></div>
+      <div><label for="fuel">Fuel or charging per trip</label><input type="number" id="fuel" min="0" step="any" placeholder="e.g. 12" inputmode="decimal"></div>
+      <div><label for="delivery">Delivery cost per trip</label><input type="number" id="delivery" min="0" step="any" placeholder="e.g. 0" inputmode="decimal"></div>
+      <div><label for="loan">Loan or lease payment per car, per month</label><input type="number" id="loan" min="0" step="any" placeholder="e.g. 350" inputmode="decimal"></div>
+      <div><label for="insurance">Insurance per car, per month</label><input type="number" id="insurance" min="0" step="any" placeholder="e.g. 150" inputmode="decimal"></div>
+      <div><label for="depreciation">Depreciation and upkeep per car, per month</label><input type="number" id="depreciation" min="0" step="any" placeholder="e.g. 150" inputmode="decimal"></div>
+    </div>
+    <label for="fixedlist">Different monthly cost for particular cars (optional)</label>
+    <textarea id="fixedlist" spellcheck="false" placeholder="One car per line: name, total monthly cost, months (optional)&#10;Civic, 650&#10;F-150, 900, 2"></textarea>
+    <p class="note">A line replaces the three monthly figures above for that car. The name can be part of the vehicle name in the file (“Civic” matches “2021 Honda Civic”); leave commas out of names. The optional third number is how many months the car was yours in the period.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By vehicle</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Vehicle</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Days rented</th><th class="n" scope="col">Utilization</th><th class="n" scope="col">Paid to you</th><th class="n" scope="col">Per-trip costs</th><th class="n" scope="col">Fixed costs</th><th class="n" scope="col">Net</th><th class="n" scope="col">Revenue / day</th><th class="n" scope="col">Net / day</th><th class="n" scope="col">Break-even util.</th></tr></thead><tbody id="by-car"></tbody></table></div></div>
+    <h3>By start weekday</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Day</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Days</th><th class="n" scope="col">Paid to you</th><th class="n" scope="col">After per-trip costs</th><th class="n" scope="col">Per day</th></tr></thead><tbody id="by-weekday"></tbody></table></div></div>
+    <h3>By booking length</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Length</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Days</th><th class="n" scope="col">Paid to you</th><th class="n" scope="col">After per-trip costs</th><th class="n" scope="col">Per day</th></tr></thead><tbody id="by-length"></tbody></table></div></div>
+    <h3>Ten trips with the lowest profit after per-trip costs</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Start</th><th scope="col">Vehicle</th><th class="n" scope="col">Days</th><th class="n" scope="col">Trip price</th><th class="n" scope="col">Paid to you</th><th class="n" scope="col">Per-trip costs</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="worst"></tbody></table></div></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download vehicle table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Paid to you</strong> is what Turo paid the host on each trip. Turo's fee is the trip price minus that, read from the file's fee column, or from price minus earnings, or applied as the percentage you enter when the file has only a price.</li>
+      <li><strong>Reconciles.</strong> The per-vehicle rows add up to the totals at the top, and per-vehicle net is payout minus per-trip costs minus fixed costs.</li>
+      <li><strong>Per-trip costs</strong> are the cleaning, fuel and delivery amounts from the file or your defaults. Cancelled trips carry none.</li>
+      <li><strong>Fixed costs</strong> are monthly loan, insurance and depreciation times the months in the period (days divided by 30.44), or the months you give for a car. Depreciation is your own estimate.</li>
+      <li><strong>Utilization</strong> is rented days over days in the period. A trip counts all of its days on the day it starts, and days come from the Trip days column or the whole 24-hour blocks between start and end.</li>
+      <li><strong>Weekday and booking length</strong> are read from the file's own clock and ranked only with five or more trips. Per-day figures there are before fixed costs.</li>
+      <li><strong>Not modelled:</strong> damage claims and their recovery, tolls and tickets, taxes, mileage or extras fees beyond what the file's price already includes, protection-plan costs beyond what you type, your own time, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know which of my Turo cars actually makes money?</h3>
+    <p>Export your earnings or trip history from Turo (or keep a sheet with a vehicle, trip start and end, status, trip price and earnings) and drop it here. The tool takes what Turo paid you on each trip, subtracts the cleaning, fuel and delivery cost you enter, then subtracts each car's monthly loan, insurance and depreciation for the months in the period. What is left is that car's net, shown with its utilization and net per rented day. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What is utilization and why does it matter?</h3>
+    <p>Utilization is rented days divided by days in the period. A car with a high daily rate can still lose money if it sits idle most of the month, because loan, insurance and depreciation are charged whether or not it is rented. The tool also shows the utilization each car needs to break even at the contribution per day it actually earned.</p>
+    <h3>Does the tool know Turo's fee?</h3>
+    <p>Only what your file says. If the file has a Turo fee column, or both a trip price and your earnings, the fee is read from it. If it has only a trip price, the tool applies the fee percentage you enter (default 25%) and says so. Turo's share depends on your plan and how far ahead the guest booked, so check the figure against your own Host Hub.</p>
+    <h3>How are cancelled trips handled?</h3>
+    <p>A cancelled trip with no payout is left out and counted. A cancelled trip that paid you something, such as a cancellation fee, counts as revenue with no rented days and no cleaning, fuel or delivery cost.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Turo exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Vehicle, Trip start, Trip end, Status, Trip price and Earnings always works.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file and the costs you type and does not replace your own judgement or a qualified tax or insurance adviser. It is independent of Turo and is not affiliated with or endorsed by Turo Inc.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Turo.</strong> Turo is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Turo Inc. or any other platform in any way. Column names are matched by alias from memory of Turo exports and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing one trip rather than a history? See the <a href="../turo-host-payout-calculator/">Turo host payout calculator</a> for the plan and booking-window fee matrix.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null ? "–" : money(v));
+    const num = (id) => Number($(id).value) || 0;
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value) });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.trips, { cleaning: num("#cleaning"), fuel: num("#fuel"), delivery: num("#delivery"), loan: num("#loan"), insurance: num("#insurance"), depreciation: num("#depreciation"), fixedList: $("#fixedlist").value, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.trips} trips across ${s.cars} vehicle(s), ${dateStr(s.from)} to ${dateStr(s.to)} (${s.periodDays} days). Trip price ${cur}${money(s.gross)}, Turo fee ${cur}${money(s.fee)}, paid to you ${cur}${money(s.payout)}, per-trip costs ${cur}${money(s.variable)}, fixed costs ${cur}${money(s.fixedCost)}, <strong>net ${cur}${money(s.net)}</strong>. Fleet utilization ${pct(s.utilization)}, revenue per rented day ${cur}${rate(s.revenuePerDay)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-car").innerHTML = r.byCar.map((c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.trips}</td><td class="n">${c.days}</td><td class="n">${pct(c.utilization)}</td><td class="n">${money(c.payout)}</td><td class="n">${money(c.variable)}</td><td class="n">${money(c.fixedCost)}</td><td class="n">${money(c.net)}</td><td class="n">${rate(c.revenuePerDay)}</td><td class="n">${rate(c.netPerDay)}</td><td class="n">${c.breakEvenUtilization === null ? "–" : pct(c.breakEvenUtilization)}</td></tr>`).join("");
+      const grp = (rows) => rows.length ? rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.trips}</td><td class="n">${g.days}</td><td class="n">${money(g.payout)}</td><td class="n">${money(g.contribution)}</td><td class="n">${rate(g.contributionPerDay)}</td></tr>`).join("") : `<tr><td colspan="6">No completed trips.</td></tr>`;
+      $("#by-weekday").innerHTML = grp(r.byWeekday);
+      $("#by-length").innerHTML = grp(r.byLength);
+      $("#worst").innerHTML = r.worstTrips.length ? r.worstTrips.map((t) => `<tr><td>${dateStr(t.t)}</td><td>${esc(t.vehicle)}</td><td class="n">${t.days}</td><td class="n">${money(t.gross)}</td><td class="n">${money(t.payout)}</td><td class="n">${money(t.variable)}</td><td class="n">${money(t.contribution)}</td></tr>`).join("") : `<tr><td colspan="7">No completed trips.</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      notes.push({ column: "Turo fee read from the file's fee column.", difference: "Turo fee taken as trip price minus earnings.", percent: `Turo fee not in the file: ${$("#feepct").value || 0}% applied to the amount.`, none: "The file has no fee information, so the amount is treated as your payout." }[n.feeSource]);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.trips.length} trips.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (!$("#loan").value && !$("#insurance").value && !$("#depreciation").value) { $("#loan").value = 350; $("#insurance").value = 150; $("#depreciation").value = 150; }
+      if (!$("#cleaning").value) $("#cleaning").value = 25;
+      if (!$("#fuel").value) $("#fuel").value = 12;
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic trips for three made-up cars with sample costs filled in. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["vehicle,trips,days_rented,utilization,paid_to_you,per_trip_costs,fixed_costs,net,revenue_per_day,net_per_day"].concat(last.byCar.map((c) => [q(c.label), c.trips, c.days, c.utilization.toFixed(3), c.payout.toFixed(2), c.variable.toFixed(2), c.fixedCost.toFixed(2), c.net.toFixed(2), f(c.revenuePerDay), f(c.netPerDay)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "turo-profit-by-vehicle.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../equipment-lease-vs-buy-calculator/" data-pf-to="equipment-lease-vs-buy-calculator">Equipment Lease vs Buy Calculator</a></li>
+      <li><a href="../equipment-rental-break-even/" data-pf-to="equipment-rental-break-even">Equipment Rental Break-Even Calculator</a></li>
+      <li><a href="../era-835-underpayment-finder/" data-pf-to="era-835-underpayment-finder">835 ERA Underpayment Finder — free, private, in your browser</a></li>
+      <li><a href="../espp-tax-calculator/" data-pf-to="espp-tax-calculator">ESPP Tax Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=turo-earnings-report-analyzer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/?pfEmbed=1&quot; title=&quot;Turo Earnings Report Analyzer — free, private, CSV in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="turo-earnings-report-analyzer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/" data-pf-embed-title="Turo Earnings Report Analyzer — free, private, CSV in your browser" data-pf-embed-slug="turo-earnings-report-analyzer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="turo-earnings-report-analyzer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="turo-earnings-report-analyzer" data-pf-link-amount=""></script>
+</body>
+</html>

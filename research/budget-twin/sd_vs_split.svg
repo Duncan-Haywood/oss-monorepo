@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Standard deviation of the log mean-wait estimate against the share of budget spent on real data: predicted and simulated values agree and are lowest near the optimal split of about 0.8">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Error of a fitted twin vs share of budget spent on real data (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0.0</text>
+<line x1="64" x2="624" y1="270.4" y2="270.4" stroke="#ddd"/><text x="58" y="274.4" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="212.8" y2="212.8" stroke="#ddd"/><text x="58" y="216.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="155.2" y2="155.2" stroke="#ddd"/><text x="58" y="159.2" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="97.6" y2="97.6" stroke="#ddd"/><text x="58" y="101.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<text x="134.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="274.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="414.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.809</text>
+<text x="554.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.95</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">share of budget spent on real data f</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">sd of ln(estimate)</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="134.0,118.9 274.0,193.2 414.0,213.4 554.0,191.5"/>
+<circle cx="134.0" cy="118.9" r="3" fill="#2e8b57"/>
+<circle cx="274.0" cy="193.2" r="3" fill="#2e8b57"/>
+<circle cx="414.0" cy="213.4" r="3" fill="#2e8b57"/>
+<circle cx="554.0" cy="191.5" r="3" fill="#2e8b57"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#2e8b57" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">predicted (delta method)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="134.0,98.2 274.0,187.5 414.0,211.6 554.0,199.0"/>
+<circle cx="134.0" cy="98.2" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="187.5" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="211.6" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="199.0" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="90" y2="90" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="94" font-family="sans-serif" font-size="11">simulated</text>
+</svg>

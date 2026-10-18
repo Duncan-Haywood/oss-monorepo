@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Much to Charge for Dog Boarding | Facility Pricing Guide</title>
+<meta name="description" content="Why a flat nightly rate is the wrong way to price dog boarding: a worked $28.75/night example, why a second dog isn't double, the long-stay discount trap…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="How much to charge for dog boarding">
+<meta property="og:description" content="A worked example prices a 3-night stay at $28.75/night from real staff time, supplies, and overhead. Here is the math, and why a flat rate hides it.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/how-much-to-charge-for-dog-boarding.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for dog boarding per night?","acceptedAnswer":{"@type":"Answer","text":"There is no single right answer, because a nightly rate hides four separate costs: staff time, supplies, facility overhead, and the margin you need to keep. A worked example with 30 minutes of staff time at an $18/hour wage, $4 of supplies, and $10 of allocated overhead costs $23.00 per dog-day to deliver, and prices at $28.75/night with a 25 percent margin. Your own numbers will differ, and that is the point: the rate has to come from your costs, not from what a competitor posts."}},{"@type":"Question","name":"Should a second dog from the same family cost twice as much?","acceptedAnswer":{"@type":"Answer","text":"No, and pricing it that way loses multi-dog bookings. A second dog in the same reservation adds handling effort but not a second kennel run, a second cleaning cycle, or a second staff trip, so charging a full second stay overprices the easiest booking a facility gets. A 10 percent multi-dog discount on the example above turns two dogs for three nights into $163.88 instead of $172.50 -- an $8.63 discount that keeps the family's business without giving away margin on the parts of the stay that really did double."}},{"@type":"Question","name":"Why discount long stays, and why only past a threshold?","acceptedAnswer":{"@type":"Answer","text":"A long stay is worth discounting because it fills a calendar for one booking instead of several, and it competes with weekly rates other facilities already offer. But the first several nights of any stay cost exactly the same to deliver as a short one, so discounting the whole stay gives away margin you never needed to. In the worked example, a 10-night stay bills the first 7 nights at the full $28.75 rate and only the remaining 3 at a 10 percent discount -- $8.63 off a $287.50 flat total, landing at $278.88."}},{"@type":"Question","name":"Why isn't a nightly rate enough to know if my facility is profitable?","acceptedAnswer":{"@type":"Answer","text":"Because a nightly rate prices one dog for one night, and a facility's profit depends on how many of its runs are actually filled across a whole month. A 12-run facility with $6,000 in fixed monthly costs and a $45 average realized rate needs 52.1 percent occupancy just to break even -- roughly 187.5 of its 360 monthly dog-day slots. At a more realistic 65 percent occupancy it clears that with room to spare, turning a $1,488.00 monthly profit; at 30 percent it falls 22.1 points short of break-even and loses $2,544.00 for the month at the same rate. The rate alone cannot tell you which of those two months you are having."}},{"@type":"Question","name":"Does this replace pricing software or a booking platform?","acceptedAnswer":{"@type":"Answer","text":"No. This tool has no booking, no calendar, no payment processing, and no client messaging -- it only prices a reservation and checks occupancy math. Plenty of facilities run a booking or kennel-management platform for scheduling and use a separate calculation, like this one, to decide what to actually charge."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#1d2a1d;background:#eef7ec;--accent:#255c1f;--line:#cfe8c7}
+body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.04em;margin:.2em 0;color:var(--accent)}
+h2{color:var(--accent);font-size:1.15rem;margin-top:1.7em}
+h3{font-size:1rem;margin-top:1.4em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--line)}
+th{color:var(--accent)}
+a{color:var(--accent)}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700}
+.key{border-left:4px solid var(--accent);background:#dff2d8;padding:12px 15px;margin:1.2em 0}
+footer{border-top:1px solid var(--line);padding-top:18px;margin-top:2em;font-size:.85rem;color:#4b6b45}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/how-much-to-charge-for-dog-boarding.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much to charge for dog boarding — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../dog-boarding-daycare-pricing/">Dog Boarding &amp; Daycare Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much to charge for dog boarding</span></span></nav>
+<p><a href="./">&larr; Dog boarding &amp; daycare pricing calculator</a></p>
+<h1>How much to charge for dog boarding</h1>
+<p>Search this question and you get a range: twenty-five to seventy-five dollars a night, more for large dogs or cities. The range is not wrong, and it is not usable, because it hides the four things that actually decide whether a night pays: staff time, supplies, overhead, and the margin you need to keep running.</p>
+<p><a class="cta" href="./">Open the free boarding &amp; daycare calculator</a></p>
+
+<h2>What one night actually costs to deliver</h2>
+<p>Thirty minutes of staff time &mdash; feeding, potty breaks, play, cleaning the run &mdash; at an $18/hour wage is $9.00. Add $4.00 of food, bedding, and cleaning supplies, and a $10.00 share of rent, utilities, and insurance allocated to that one dog-day, and the true cost to deliver one night is $23.00 before you have kept a dollar.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Line</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Staff labor (0.5 hr &times; $18/hr)</td><td>$9.00</td></tr>
+<tr><td>Supplies</td><td>$4.00</td></tr>
+<tr><td>Overhead allocated</td><td>$10.00</td></tr>
+<tr><td>Cost to deliver</td><td>$23.00</td></tr>
+<tr><td>Margin (25%)</td><td>$5.75</td></tr>
+<tr><td><strong>Price per night</strong></td><td><strong>$28.75</strong></td></tr>
+<tr><td>3-night reservation</td><td>$86.25</td></tr>
+</tbody>
+</table></div>
+<p>That $28.75 is not a market rate and does not have to match what any other facility charges &mdash; it is what your own staff time, supplies, and overhead actually require. Raise the wage, the overhead share, or the margin, and the number moves; that is the calculator working as intended, not a flaw in it.</p>
+
+<h2>Why a second dog isn't a second full price</h2>
+<p>A second dog from the same family shares the run, the feeding trip, and most of the potty-break time the first dog already accounts for. Charging a full second stay overprices the easiest booking a facility gets &mdash; the one that needs no second kennel and no second cleaning cycle.</p>
+<div class="key"><p><strong>Two dogs for three nights at a 10% multi-dog discount is $163.88, not $172.50.</strong> The $8.63 discount reflects the real extra cost of a second dog far better than doubling the price does, and it is often the difference between keeping a multi-dog family's business and losing it to a facility that already discounts.</p></div>
+
+<h2>The long-stay discount trap</h2>
+<p>A long stay is worth discounting &mdash; it fills a run for one booking instead of several, and it competes with the weekly rate other facilities already advertise. But discounting the <em>whole</em> stay gives away margin on nights that cost exactly the same to deliver as a short booking. The fix is a threshold: discount only the nights beyond it.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Nights</th><th>At full rate</th><th>At discount</th><th>Discount</th><th>Total</th></tr></thead>
+<tbody>
+<tr><td>10 (threshold 7, 10% off past it)</td><td>7 &times; $28.75</td><td>3 &times; $25.88</td><td>$8.63</td><td><strong>$278.88</strong></td></tr>
+</tbody>
+</table></div>
+<p>A flat 10% off the whole 10-night stay would have priced it at $258.75 &mdash; $20.13 less than the threshold-based discount recovers, for exactly the same booking. The nights every stay has in common should not subsidize the discount meant to win the long ones.</p>
+
+<h2>What a nightly rate can't tell you: occupancy</h2>
+<p>Pricing one reservation well is half the question. The other half is whether the facility as a whole is profitable, which depends on how many of its runs are actually filled across a month &mdash; not on any single stay's price.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Kennel/run count</td><td>12</td></tr>
+<tr><td>Monthly dog-day capacity (12 runs &times; 30 days)</td><td>360</td></tr>
+<tr><td>Fixed monthly costs</td><td>$6,000.00</td></tr>
+<tr><td>Average realized rate</td><td>$45.00</td></tr>
+<tr><td>Variable cost per dog-day</td><td>$13.00</td></tr>
+<tr><td><strong>Break-even occupancy</strong></td><td><strong>52.1%</strong> (187.5 dog-days)</td></tr>
+</tbody>
+</table></div>
+<p>At a projected 65% occupancy (234.0 dog-days), the facility clears break-even and nets a $1,488.00 monthly profit. At 30% occupancy (108.0 dog-days) with the same rate, it falls 22.1 points short of break-even and loses $2,544.00 for the month. Two very different months, one nightly rate &mdash; occupancy is the variable a per-stay price alone cannot see.</p>
+
+<h2>Common questions</h2>
+<h3>How much should I charge for dog boarding per night?</h3><p>There is no single right answer, because a nightly rate hides four separate costs: staff time, supplies, facility overhead, and the margin you need to keep. A worked example with 30 minutes of staff time at an $18/hour wage, $4 of supplies, and $10 of allocated overhead costs $23.00 per dog-day to deliver, and prices at $28.75/night with a 25 percent margin. Your own numbers will differ, and that is the point: the rate has to come from your costs, not from what a competitor posts.</p>
+<h3>Should a second dog from the same family cost twice as much?</h3><p>No, and pricing it that way loses multi-dog bookings. A second dog in the same reservation adds handling effort but not a second kennel run, a second cleaning cycle, or a second staff trip, so charging a full second stay overprices the easiest booking a facility gets. A 10 percent multi-dog discount on the example above turns two dogs for three nights into $163.88 instead of $172.50 -- an $8.63 discount that keeps the family's business without giving away margin on the parts of the stay that really did double.</p>
+<h3>Why discount long stays, and why only past a threshold?</h3><p>A long stay is worth discounting because it fills a calendar for one booking instead of several, and it competes with weekly rates other facilities already offer. But the first several nights of any stay cost exactly the same to deliver as a short one, so discounting the whole stay gives away margin you never needed to. In the worked example, a 10-night stay bills the first 7 nights at the full $28.75 rate and only the remaining 3 at a 10 percent discount -- $8.63 off a $287.50 flat total, landing at $278.88.</p>
+<h3>Why isn't a nightly rate enough to know if my facility is profitable?</h3><p>Because a nightly rate prices one dog for one night, and a facility's profit depends on how many of its runs are actually filled across a whole month. A 12-run facility with $6,000 in fixed monthly costs and a $45 average realized rate needs 52.1 percent occupancy just to break even -- roughly 187.5 of its 360 monthly dog-day slots. At a more realistic 65 percent occupancy it clears that with room to spare, turning a $1,488.00 monthly profit; at 30 percent it falls 22.1 points short of break-even and loses $2,544.00 for the month at the same rate. The rate alone cannot tell you which of those two months you are having.</p>
+<h3>Does this replace pricing software or a booking platform?</h3><p>No. This tool has no booking, no calendar, no payment processing, and no client messaging -- it only prices a reservation and checks occupancy math. Plenty of facilities run a booking or kennel-management platform for scheduling and use a separate calculation, like this one, to decide what to actually charge.</p>
+
+<h2>Run it on your own facility</h2>
+<p>The calculator prices one reservation from your own staff time, supplies, overhead, and discounts, and checks whether your kennel/run occupancy clears a monthly break-even. It runs entirely in your browser.</p>
+<p><a class="cta" href="./">Open the free boarding &amp; daycare calculator</a></p>
+<p>Weighing this against just matching a competitor's posted rate? See <a href="vs-a-flat-nightly-rate.html">this calculator vs. a flat nightly rate</a>.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This guide and the calculator it describes are provided free and as-is, without warranty of any kind, express or implied. They are not financial, tax, accounting, insurance, or legal advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Every rate above is an input, not a market rate or a recommendation: the worked examples use illustrative figures, and your own wages, overhead, and local market are what make a price right for you. Everything runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mobile-welding-job-price-calculator/" data-pf-to="mobile-welding-job-price-calculator">What should I charge for a mobile welding job? Free calculator</a></li>
+      <li><a href="../mrr-waterfall-calculator/" data-pf-to="mrr-waterfall-calculator">MRR Waterfall Calculator</a></li>
+      <li><a href="../music-teacher-studio-profit-calculator/" data-pf-to="music-teacher-studio-profit-calculator">Music Teacher Studio Profit Calculator — free, private</a></li>
+      <li><a href="../nail-tech-booth-rent-calculator/" data-pf-to="nail-tech-booth-rent-calculator">Booth rent, commission or employee: what does a nail tech really take home per hour worked?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=dog-boarding-daycare-pricing">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="dog-boarding-daycare-pricing"></script>
+</body>
+</html>

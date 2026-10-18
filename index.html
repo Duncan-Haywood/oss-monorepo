@@ -1,0 +1,2426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
+  <title>Open Tools and Research | Free Tools, Self-Hostable Apps &amp; Research</title>
+  <meta name="description" content="1279 free, open-source products: browser tools, self-hostable business apps and command-line checks, plus 554 research projects.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico" sizes="16x16">
+  <!-- Feed autodiscovery. This is how a reader, and every aggregator that
+       accepts a site URL rather than a feed URL, finds the feed at all. -->
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Open Tools and Research">
+  <meta property="og:description" content="Free, open-source tools, self-hostable business apps and research: use them in your browser or run your own copy.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Open Tools and Research — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/","description":"Free, open-source browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"mainEntity":{"@type":"ItemList","numberOfItems":14,"itemListElement":[{"@type":"ListItem","position":1,"name":"Self-hosted business apps (30)","url":"https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/"},{"@type":"ListItem","position":2,"name":"Marketplace seller tools (113)","url":"https://duncan-haywood.github.io/monorepo-projects/c/marketplace/"},{"@type":"ListItem","position":3,"name":"Trade \u0026 contractor bids (187)","url":"https://duncan-haywood.github.io/monorepo-projects/c/trades/"},{"@type":"ListItem","position":4,"name":"Restaurant, bar \u0026 food truck pricing (69)","url":"https://duncan-haywood.github.io/monorepo-projects/c/food-service/"},{"@type":"ListItem","position":5,"name":"Service business pricing \u0026 quotes (196)","url":"https://duncan-haywood.github.io/monorepo-projects/c/services/"},{"@type":"ListItem","position":6,"name":"Logistics, freight \u0026 cloud cost (36)","url":"https://duncan-haywood.github.io/monorepo-projects/c/logistics/"},{"@type":"ListItem","position":7,"name":"Compliance checks \u0026 evidence records (116)","url":"https://duncan-haywood.github.io/monorepo-projects/c/evidence/"},{"@type":"ListItem","position":8,"name":"UK tax, pay \u0026 benefits (54)","url":"https://duncan-haywood.github.io/monorepo-projects/c/uk-tax/"},{"@type":"ListItem","position":9,"name":"Back-office money \u0026 contracts (213)","url":"https://duncan-haywood.github.io/monorepo-projects/c/backoffice/"},{"@type":"ListItem","position":10,"name":"CI checks \u0026 developer gates (173)","url":"https://duncan-haywood.github.io/monorepo-projects/c/ci/"},{"@type":"ListItem","position":11,"name":"Creator \u0026 solo earner income (88)","url":"https://duncan-haywood.github.io/monorepo-projects/c/solo-earner/"},{"@type":"ListItem","position":12,"name":"More free tools (4)","url":"https://duncan-haywood.github.io/monorepo-projects/c/more/"},{"@type":"ListItem","position":13,"name":"Self-hostable apps (32)","url":"https://duncan-haywood.github.io/monorepo-projects/c/apps/"},{"@type":"ListItem","position":14,"name":"Command-line tools (175)","url":"https://duncan-haywood.github.io/monorepo-projects/c/cli/"}]}}</script>
+  <link rel="stylesheet" href="pf-site.css">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      /* One step quieter than --muted, and the quietest ink on this page.
+         It exists because the de-emphasis it provides used to be spelled as an
+         opacity, which is not a colour and therefore cannot be checked:
+         --muted at .65 renders #89919c on the white panel, 3.18:1, under the
+         4.5:1 WCAG AA needs for body-size text. Naming the tint makes it a
+         value contrast.mjs can measure. */
+      --soft: #656e78;
+      --hero-2: #3b5bdb;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
+              --soft: #8d9aab; --hero-2: #8ea2ff; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); }
+    [hidden] { display: none !important; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 8px 16px 64px; }
+    .skip { position: absolute; left: -999px; top: 8px; background: var(--panel); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+    .skip:focus { left: 8px; }
+    .hero { background:
+              radial-gradient(1000px 420px at 85% -10%, color-mix(in srgb, var(--hero-2) 22%, transparent), transparent 70%),
+              radial-gradient(800px 400px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+              var(--bg);
+            border-bottom: 1px solid var(--line); }
+    .hero-inner { max-width: 1120px; margin: 0 auto; padding: clamp(36px, 7vw, 80px) 16px clamp(32px, 5vw, 52px); }
+    .eyebrow, .section-eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .12em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+    h1 { font-size: clamp(2rem, 5.2vw, 3.5rem); line-height: 1.05; letter-spacing: -.04em;
+         margin: 0 0 16px; max-width: 22ch; text-wrap: balance; }
+    .lede { font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.6; color: var(--muted); margin: 0; max-width: 64ch; }
+    /* The search is the front door's main control, so it sits in the hero. */
+    .search { margin: 28px 0 0; max-width: 720px; scroll-margin-top: 16px; }
+    .search label { display: block; font-size: .9rem; font-weight: 650; margin-bottom: 8px; }
+    .search-row { display: flex; gap: 8px; }
+    .search input { flex: 1 1 auto; min-width: 0; padding: 14px 16px; font: inherit; font-size: 1.05rem;
+                    border: 1px solid var(--line); border-radius: 12px;
+                    background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .search button { font: inherit; font-weight: 650; padding: 0 18px; border-radius: 12px; cursor: pointer;
+                     border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .search-hint { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    .count { font-size: .88rem; color: var(--muted); margin: 14px 0 0; }
+    .closest { font-size: .88rem; color: var(--ink); margin: 14px 0 0; }
+    .results { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+    .results[hidden] { display: none; }
+    .results li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .results li:hover { border-color: var(--accent); }
+    .results a { font-weight: 650; color: var(--ink); text-decoration: none; }
+    .results a:hover, .results a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .results .r-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 2px; }
+    .results p { margin: 4px 0 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
+    .results-more button { font: inherit; font-size: .9rem; font-weight: 650; color: var(--accent);
+                           background: none; border: 0; padding: 8px 0; cursor: pointer; text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; margin: 14px 0 0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 32px 0 0; max-width: 820px;
+             border: 1px solid var(--line); border-radius: 14px; background: var(--panel); overflow: hidden; }
+    .stats div { padding: 14px 16px; border-left: 1px solid var(--line); }
+    .stats div:first-child { border-left: 0; }
+    .stats dt { font-size: .8rem; color: var(--muted); }
+    .stats dd { margin: 4px 0 0; font-size: 1.55rem; font-weight: 750; letter-spacing: -.03em;
+                font-variant-numeric: tabular-nums; }
+    .stats dd a { color: var(--ink); text-decoration: none; }
+    .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stats div:nth-child(3) { border-left: 0; }
+      .stats div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
+    .band { margin-top: 56px; scroll-margin-top: 16px; }
+    .band h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.03em; line-height: 1.15; margin: 0 0 8px; }
+    .band-lede { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
+    /* The category grid: the browse path for a visitor who cannot name the tool. */
+    .cats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+    .cat { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 14px; padding: 18px 18px 16px; }
+    .cat:hover { border-color: var(--accent); }
+    .cat h3 { margin: 0 0 6px; font-size: 1.1rem; letter-spacing: -.01em; }
+    .cat h3 a { color: var(--ink); text-decoration: none; }
+    .cat h3 a:hover, .cat h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .cat-blurb { margin: 0 0 10px; font-size: .9rem; color: var(--muted); line-height: 1.5; }
+    .cat-examples { list-style: none; margin: 0 0 12px; padding: 0; flex: 1; }
+    .cat-examples li { margin: 0; padding: 5px 0; border-top: 1px solid var(--line); font-size: .9rem; line-height: 1.35; }
+    .cat-examples a { color: var(--ink); text-decoration: none; }
+    .cat-examples a:hover, .cat-examples a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .cat-all { font-weight: 650; font-size: .9rem; text-decoration: none; }
+    .cat-all:hover { text-decoration: underline; }
+    .featured { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .featured a { font-weight: 650; color: var(--ink); text-decoration: none; }
+    .featured a:hover, .featured a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .featured .f-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 3px; }
+    .featured p { margin: 6px 0 0; font-size: .87rem; color: var(--muted); line-height: 1.5; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 22px; }
+    .pillar { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
+              background: var(--panel); color: var(--ink); text-decoration: none;
+              transition: border-color .15s, transform .15s; }
+    .pillar:hover, .pillar:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+    .pillar h3 { margin: 0 0 8px; font-size: 1.1rem; letter-spacing: -.01em; }
+    .pillar p { margin: 0 0 16px; color: var(--muted); line-height: 1.6; font-size: .93rem; flex: 1; }
+    .pillar-more { font-weight: 650; color: var(--accent); font-size: .92rem; }
+    .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
+                  font-size: .9rem; color: var(--muted); }
+    .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
+    .research-featured { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px;
+                         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .research-featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+                            padding: 12px 14px; font-weight: 600; line-height: 1.4; }
+    .research-featured a { color: var(--ink); text-decoration: none; }
+    .research-featured a:hover { color: var(--accent); text-decoration: underline; }
+    .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+    .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
+                         text-decoration: none; color: var(--ink); background: var(--panel); }
+    .research-themes a:hover { border-color: var(--accent); }
+    .research-themes span { color: var(--soft); font-weight: 500; font-size: .9em; margin-left: 2px; }
+    .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+             border: 1px solid var(--line); border-radius: 13px; }
+    .yours h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .yours p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .yours ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .yours li { margin: 0; }
+    .yours li a { display: inline-block; border: 1px solid var(--line); border-radius: 999px;
+                  padding: 7px 14px; font-size: .88rem; font-weight: 600;
+                  color: var(--ink); text-decoration: none; background: var(--bg); }
+    .yours li a:hover, .yours li a:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .yours .times { display: block; font-size: .72rem; color: var(--muted); margin-top: 3px; padding-left: 4px; }
+    .bids { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 13px; }
+    .bids h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .bids p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .bids ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .bids li { margin: 0; }
+    .bids li a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+                 border: 1px solid var(--line); border-radius: 11px; padding: 9px 13px;
+                 color: var(--ink); text-decoration: none; background: var(--bg); }
+    .bids li a:hover, .bids li a:focus-visible { border-color: var(--accent); }
+    .bids li a:hover .bid-name, .bids li a:focus-visible .bid-name { color: var(--accent); }
+    .bids .bid-name { font-size: .92rem; font-weight: 650; }
+    .bids .bid-amount { font-size: .86rem; font-weight: 650; white-space: nowrap;
+      font-variant-numeric: tabular-nums; }
+    .bids .bid-amount[hidden] { display: none; }
+    .bids .bid-where { font-size: .8rem; color: var(--muted); }
+    .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
+    /* Not muted, unlike every other line of prose in this panel: it is the
+       sentence the section is worth opening for. */
+    .bids .bid-summary { color: var(--ink); font-weight: 600; margin: 0 0 12px; }
+    .bids .bid-state { font-size: .74rem; border: 1px solid var(--line); border-radius: 999px;
+                       padding: 1px 8px; color: var(--muted); }
+    /* The one row state that is asking for something. */
+    .bids .bid-state[data-state="waiting"] { color: var(--accent); border-color: var(--accent); }
+    /* A quiet quote keeps the waiting colour and carries the word "Chase"
+       beside it rather than a second hue, so the distinction survives a
+       monochrome print and reads for a visitor who cannot separate colours. */
+    .bids .bid-state[data-state="quiet"] { color: var(--accent); border-color: var(--accent);
+                                           font-weight: 700; }
+    .bids .bid-chase-tag { font-size: .74rem; font-weight: 700; letter-spacing: .03em;
+                           border: 1px solid var(--accent); border-radius: 999px;
+                           padding: 1px 8px; color: var(--accent); white-space: nowrap; }
+    .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                       border-left: 3px solid var(--accent); background: var(--bg);
+                       border-radius: 0 8px 8px 0; font-size: .85rem; }
+    /* All four standing readings share one rule, in the muted border rather
+       than the accent one: the chase line is asking the contractor to do
+       something today, and these are standing readings about their pricing. */
+    .bids .bid-pricing,
+    .bids .bid-win-rate,
+    .bids .bid-trend,
+    .bids .bid-keep,
+    .bids .bid-mix { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                     border-left: 3px solid var(--line); background: var(--bg);
+                     border-radius: 0 8px 8px 0; font-size: .85rem; }
+    .bids li a:has(.bid-state[data-state="won"]) .bid-name,
+    .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
+    .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+    .bids .bid-more button { font: inherit; font-size: .82rem; color: var(--accent);
+                             background: none; border: 0; padding: 0; cursor: pointer;
+                             text-decoration: underline; }
+    /* A bid name is a customer's name or their street address. It is the
+       visitor's own data on their own device, but it has no place on a sheet
+       they hand to somebody else. */
+    @media print { .bids { display: none; } }
+    footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
+             font-size: .87rem; line-height: 1.6; color: var(--muted); }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 20px 0 6px; }
+    footer a { color: var(--accent); }
+    .support { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+               padding: 15px 18px; margin-top: 26px; }
+    .optout { margin-top: 18px; font-size: .84rem; }
+    .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
+                      border-radius: 9px; border: 1px solid var(--line); background: var(--panel);
+                      color: var(--ink); margin-bottom: 10px; }
+    .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                      border: 1px solid var(--accent); background: var(--accent);
+                      color: var(--accent-ink); cursor: pointer; }
+    .offline button[disabled] { opacity: .6; cursor: progress; }
+    .offline #offline-status:empty { display: none; }
+    .offline #offline-status { margin: 10px 0 0; font-size: .85rem; }
+    .backup p { margin: 8px 0 0; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .backup .backup-actions { display: flex; flex-wrap: wrap; align-items: center;
+                              gap: 8px 12px; margin-top: 12px; }
+    .backup .backup-actions label { font-size: .85rem; font-weight: 650; color: var(--ink); }
+    .backup button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                     border: 1px solid var(--accent); background: var(--accent);
+                     color: var(--accent-ink); cursor: pointer; }
+    .backup input[type=file] { font: inherit; font-size: .85rem; max-width: 100%; }
+    .backup .backup-note { font-size: .82rem; }
+    .backup #backup-status:empty { display: none; }
+    .backup #backup-status { margin: 10px 0 0; font-size: .85rem; color: var(--ink); }
+    /* Same reason the saved-bid list is hidden in print: the counts here are
+       about a customer list, and the sheet a homeowner receives is not where
+       that belongs. */
+    @media print { .backup { display: none; } }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="./" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="c/">Tools</a><a data-pfs-nav="research" href="research/">Research</a><a data-pfs-nav="writing" href="writing/">Writing</a><a data-pfs-nav="deploy" href="deploy/">Deploy your own</a><a data-pfs-nav="about" href="about/">About</a></span></span></nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Open source · MIT licensed · Built in public</p>
+      <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
+      <p class="lede">
+        Open Tools and Research is an open portfolio of business software and research:
+        focused tools that run entirely in your browser, self-hostable apps a small
+        business can deploy into its own cloud account, and reproducible research
+        with its code and tests. No accounts, no paywalls, and no data leaving your hands.
+      </p>
+
+      <!-- The search runs over a JSON index of every tool and research project
+           (search-index.json), fetched when a visitor first types. Without
+           JavaScript the category grid below is the way in: every tool is on
+           its category's page. -->
+      <form class="search" id="search" role="search" action="./" method="get">
+        <label for="q">Search 1279 tools and 554 research projects</label>
+        <div class="search-row">
+          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
+                 autocomplete="off" spellcheck="false">
+          <button type="submit">Search</button>
+        </div>
+        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
+        <p class="count" id="count" aria-live="polite"></p>
+        <p class="closest" id="closest" hidden></p>
+        <ol class="results" id="results" hidden></ol>
+        <p class="results-more" id="results-more" hidden></p>
+        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="c/">browse by category</a>.</p>
+      </form>
+
+      <dl class="stats" id="overview">
+        <div><dt>Browser tools</dt><dd><a href="c/">1072</a></dd></div>
+        <div><dt>Self-hostable apps</dt><dd><a href="c/apps/">32</a></dd></div>
+        <div><dt>Command-line tools</dt><dd><a href="c/cli/">175</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="research/">554</a></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+    <!-- Filled in by script from the saved bids on this device. Above everything
+         else deliberately: a contractor whose customer just rang back wants the
+         job, not the tool that priced it. -->
+    <section class="bids" id="bids" hidden>
+      <h2>Your saved bids</h2>
+      <p>
+        Bids you saved in any tool on this site, newest first. Opening one takes
+        you to the tool that priced it with your saved bids showing, ready to
+        restore. These are kept in this browser only — never uploaded, and
+        clearing your browser data clears them, so download a backup below if
+        they matter. Mark one won or lost in the tool that priced it and it
+        stops counting as waiting here — and once a few have been decided, this
+        page says how often your quotes are landing, whether that is the same
+        across the tools you use or one trade pulling it down, and once a trade
+        has a longer history, whether it has been landing differently lately
+        than it used to. Add what a won job came to once it was delivered and
+        it also says which of your trades keeps the most of what it charges —
+        and whether that is the same trade your quotes actually land on, which
+        is the one thing no single tool here can tell you.
+      </p>
+      <!-- How many quotes are still out, and how long the oldest has been.
+           See followUpSentence. -->
+      <p class="bid-summary" id="bidsSummary" hidden></p>
+      <!-- How long this contractor's customers take to answer, read across
+           every tool, which is the only place it can usually be read at all. -->
+      <p class="bid-chase" id="bidsChase" hidden></p>
+      <!-- How their pricing is landing, pooled the same way, in percentages
+           only. See pricingSentence. -->
+      <p class="bid-pricing" id="bidsPricing" hidden></p>
+      <!-- How often the quotes land at all. See winRateSentence. -->
+      <p class="bid-win-rate" id="bidsWinRate" hidden></p>
+      <!-- Whether what they changed is working. See trendSentence. -->
+      <p class="bid-trend" id="bidsTrend" hidden></p>
+      <!-- Which of their trades the finished work is worth doing. See keepSentence. -->
+      <p class="bid-keep" id="bidsKeep" hidden></p>
+      <!-- The two lines above, crossed. See mixSentence. -->
+      <p class="bid-mix" id="bidsMix" hidden></p>
+      <ul id="bidsList"></ul>
+      <p class="bid-more" id="bidsMore" hidden></p>
+    </section>
+
+    <!-- Directly under the list it backs up, and deliberately still drawn when
+         that list is empty: the browser with no saved bids is exactly the one
+         where "restore from a backup" is the only thing that helps. -->
+    <section class="support backup" id="backup-box" hidden>
+      <strong id="backup-title">Move your saved bids to another browser</strong>
+      <p id="backup-copy">
+        Saved bids live in this browser only. Download them as a file to keep a
+        copy, or to open them on your laptop, your phone, or a new device.
+      </p>
+      <p class="backup-actions">
+        <button type="button" id="backup-download" hidden>Download a backup</button>
+      </p>
+      <p class="backup-actions">
+        <label for="backup-file">Restore from a backup file</label>
+        <input type="file" id="backup-file" accept="application/json,.json">
+      </p>
+      <p class="backup-note">
+        The file holds the job names and numbers you typed, so keep it
+        somewhere you would keep a customer list. Restoring adds to what is
+        already here and never deletes a bid.
+      </p>
+      <p id="backup-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Filled in by script from counts held on this device; a visitor with no
+         history, no storage, or an opt-out never sees it. -->
+    <section class="yours" id="yours" hidden>
+      <h2>Pick up where you left off</h2>
+      <p>
+        The tools you have opened in this browser, most used first. This list is
+        built from a count kept on your own device — it is never uploaded, and
+        clearing your browser data clears it.
+      </p>
+      <ul id="yoursList"></ul>
+    </section>
+
+    <section class="band" id="browse" aria-labelledby="browse-h">
+      <p class="section-eyebrow">Browse</p>
+      <h2 id="browse-h">Tools by the job they do</h2>
+      <p class="band-lede">1279 free tools in 12 sections. Each section's page lists every tool in it, grouped and filterable. <a href="c/">See every section →</a></p>
+      <ul class="cats">
+        <li class="cat">
+          <h3><a href="c/self-hosted/" data-category="self-hosted">Self-hosted business apps</a></h3>
+          <p class="cat-blurb">Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition…</p>
+          <ul class="cat-examples">
+            <li><a href="error-keeper/" data-tool="error-keeper">Error Keeper</a></li>
+            <li><a href="cancel-flow/" data-tool="cancel-flow">Cancel Flow</a></li>
+            <li><a href="changelog-keeper/" data-tool="changelog-keeper">Changelog Keeper</a></li>
+            <li><a href="churn-radar/" data-tool="churn-radar">Churn Radar</a></li>
+          </ul>
+          <a class="cat-all" href="c/self-hosted/">All 30 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/marketplace/" data-category="marketplace">Marketplace seller tools</a></h3>
+          <p class="cat-blurb">Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.</p>
+          <ul class="cat-examples">
+            <li><a href="ebay-fee-calculator/" data-tool="ebay-fee-calculator">eBay Fee &amp; Profit Calculator</a></li>
+            <li><a href="amazon-fba-calculator/" data-tool="amazon-fba-calculator">Amazon FBA vs FBM Profit Calculator</a></li>
+            <li><a href="shopify-fee-calculator/" data-tool="shopify-fee-calculator">Shopify Fee Calculator</a></li>
+            <li><a href="etsy-profit-calculator/" data-tool="etsy-profit-calculator">Etsy Profit Calculator</a></li>
+          </ul>
+          <a class="cat-all" href="c/marketplace/">All 113 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/trades/" data-category="trades">Trade &amp; contractor bids</a></h3>
+          <p class="cat-blurb">Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost…</p>
+          <ul class="cat-examples">
+            <li><a href="freelance-retainer-calculator/" data-tool="freelance-retainer-calculator">Freelance Retainer Pricing Calculator</a></li>
+            <li><a href="boiler-replacement-bid-calculator/" data-tool="boiler-replacement-bid-calculator">Boiler Replacement Bid Calculator</a></li>
+            <li><a href="auto-repair-effective-labor-rate/" data-tool="auto-repair-effective-labor-rate">Effective Labor Rate Calculator for Auto Repair Shops</a></li>
+            <li><a href="quote-margin-check/" data-tool="quote-margin-check">Quote Margin Check</a></li>
+          </ul>
+          <a class="cat-all" href="c/trades/">All 187 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/food-service/" data-category="food-service">Restaurant, bar &amp; food truck pricing</a></h3>
+          <p class="cat-blurb">What a plate, a pour, or a booked event actually earns once food cost, waste, and the hours behind it are in the arithmetic…</p>
+          <ul class="cat-examples">
+            <li><a href="shift-roster-builder/" data-tool="shift-roster-builder">Shift Roster Builder</a></li>
+            <li><a href="menu-engineering-calculator/" data-tool="menu-engineering-calculator">Menu Engineering Calculator</a></li>
+            <li><a href="pour-cost-calculator/" data-tool="pour-cost-calculator">Pour Cost Calculator</a></li>
+            <li><a href="food-truck-event-margin-calculator/" data-tool="food-truck-event-margin-calculator">Food Truck Event &amp; Catering Margin Calculator</a></li>
+          </ul>
+          <a class="cat-all" href="c/food-service/">All 69 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/services/" data-category="services">Service business pricing &amp; quotes</a></h3>
+          <p class="cat-blurb">Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.</p>
+          <ul class="cat-examples">
+            <li><a href="league-schedule-generator/" data-tool="league-schedule-generator">League Schedule Generator</a></li>
+            <li><a href="atm-route-margin/" data-tool="atm-route-margin">ATM Route Margin Calculator</a></li>
+            <li><a href="bounce-house-rental-calculator/" data-tool="bounce-house-rental-calculator">Bounce House Rental Calculator</a></li>
+            <li><a href="apparel-decoration-price-calculator/" data-tool="apparel-decoration-price-calculator">Screen Printing &amp; Embroidery Price Calculator</a></li>
+          </ul>
+          <a class="cat-all" href="c/services/">All 196 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/logistics/" data-category="logistics">Logistics, freight &amp; cloud cost</a></h3>
+          <p class="cat-blurb">Normalise a quote, audit a bill, or size a transfer window before you sign for it.</p>
+          <ul class="cat-examples">
+            <li><a href="3pl-quote-normalizer/" data-tool="3pl-quote-normalizer">3PL Quote Normalizer</a></li>
+            <li><a href="cloud-egress-calculator/" data-tool="cloud-egress-calculator">Cloud Egress Cost Calculator</a></li>
+            <li><a href="freight-accessorial-auditor/" data-tool="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+            <li><a href="owner-operator-cpm-calculator/" data-tool="owner-operator-cpm-calculator">Owner Operator Cost Per Mile Calculator</a></li>
+          </ul>
+          <a class="cat-all" href="c/logistics/">All 36 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/evidence/" data-category="evidence">Compliance checks &amp; evidence records</a></h3>
+          <p class="cat-blurb">Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.</p>
+          <ul class="cat-examples">
+            <li><a href="einvoice-preflight/" data-tool="einvoice-preflight">E-invoice Preflight</a></li>
+            <li><a href="grant-deadline-tracker/" data-tool="grant-deadline-tracker">Grant Deadline Tracker for Small Nonprofits</a></li>
+            <li><a href="shopify-a11y-evidence/" data-tool="shopify-a11y-evidence">Shopify Accessibility Evidence Report</a></li>
+            <li><a href="1099-vendor-tracker/" data-tool="1099-vendor-tracker">1099-NEC Vendor Tracker</a></li>
+          </ul>
+          <a class="cat-all" href="c/evidence/">All 116 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/uk-tax/" data-category="uk-tax">UK tax, pay &amp; benefits</a></h3>
+          <p class="cat-blurb">Take-home pay, Self Assessment, dividends, IR35, VAT, pensions, statutory pay and the 100k trap…</p>
+          <ul class="cat-examples">
+            <li><a href="uk-capital-allowances-calculator/" data-tool="uk-capital-allowances-calculator">Capital allowances calculator: what can I deduct for equipment? Free, private</a></li>
+            <li><a href="uk-tax-free-childcare-calculator/" data-tool="uk-tax-free-childcare-calculator">Childcare costs after free hours and Tax-Free Childcare: free, private calculator</a></li>
+            <li><a href="uk-company-car-tax-calculator/" data-tool="uk-company-car-tax-calculator">Company car tax calculator: what will this car cost me in tax? Free, private</a></li>
+            <li><a href="uk-directors-loan-s455-calculator/" data-tool="uk-directors-loan-s455-calculator">Director's loan s455 calculator: how much tax and by when? Free, private</a></li>
+          </ul>
+          <a class="cat-all" href="c/uk-tax/">All 54 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/backoffice/" data-category="backoffice">Back-office money &amp; contracts</a></h3>
+          <p class="cat-blurb">Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.</p>
+          <ul class="cat-examples">
+            <li><a href="invoice-payment-terms-calculator/" data-tool="invoice-payment-terms-calculator">Invoice Payment Terms Calculator</a></li>
+            <li><a href="appointment-deposit-calculator/" data-tool="appointment-deposit-calculator">Appointment Deposit Calculator</a></li>
+            <li><a href="state-residency-day-counter/" data-tool="state-residency-day-counter">State Residency Day Counter</a></li>
+            <li><a href="cam-reconciliation-check/" data-tool="cam-reconciliation-check">CAM Reconciliation Check</a></li>
+          </ul>
+          <a class="cat-all" href="c/backoffice/">All 213 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/ci/" data-category="ci">CI checks &amp; developer gates</a></h3>
+          <p class="cat-blurb">Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning…</p>
+          <ul class="cat-examples">
+            <li><a href="canonical-tag-check/" data-tool="canonical-tag-check">Canonical Tag Checker</a></li>
+            <li><a href="cloud-bucket-exposure-check/" data-tool="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+            <li><a href="terraform-plan-secret-exposure-check/" data-tool="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+            <li><a href="social-preview-check/" data-tool="social-preview-check">Social Preview Checker</a></li>
+          </ul>
+          <a class="cat-all" href="c/ci/">All 173 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/solo-earner/" data-category="solo-earner">Creator &amp; solo earner income</a></h3>
+          <p class="cat-blurb">What one person actually earns from their own work — a print, an ad slot, a delivery shift, a repo, a job application.</p>
+          <ul class="cat-examples">
+            <li><a href="gig-driver-net-pay-calculator/" data-tool="gig-driver-net-pay-calculator">Gig Driver Net Pay Calculator</a></li>
+            <li><a href="overtime-pay-calculator/" data-tool="overtime-pay-calculator">Overtime Pay Calculator</a></li>
+            <li><a href="3d-print-price-calculator/" data-tool="3d-print-price-calculator">3D Print Price Calculator</a></li>
+            <li><a href="ats-resume-checker/" data-tool="ats-resume-checker">ATS Resume Checker</a></li>
+          </ul>
+          <a class="cat-all" href="c/solo-earner/">All 88 tools →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/more/" data-category="more">More free tools</a></h3>
+          <p class="cat-blurb">Everything else that runs entirely in your browser.</p>
+          <ul class="cat-examples">
+            <li><a href="ai-engineering-academy/" data-tool="ai-engineering-academy">Free Electronics Calculators</a></li>
+            <li><a href="jwt-security-check/" data-tool="jwt-security-check">JWT Security Check</a></li>
+            <li><a href="world-clock-widget/" data-tool="world-clock-widget">What time is it there</a></li>
+            <li><a href="aid-award-letter-comparator/" data-tool="aid-award-letter-comparator">Compare college financial aid offers by what you will really pay</a></li>
+          </ul>
+          <a class="cat-all" href="c/more/">All 4 tools →</a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="band" id="types" aria-labelledby="types-h">
+      <p class="section-eyebrow">By type</p>
+      <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
+      <ul class="cats">
+        <li class="cat">
+          <h3><a href="c/apps/" data-category="apps">Self-hostable apps</a></h3>
+          <p class="cat-blurb">Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.</p>
+          <ul class="cat-examples">
+            <li><a href="einvoice-preflight/" data-tool="einvoice-preflight">E-invoice Preflight</a></li>
+            <li><a href="error-keeper/" data-tool="error-keeper">Error Keeper</a></li>
+            <li><a href="rfp-compliance-matrix/" data-tool="rfp-compliance-matrix">RFP Compliance Matrix Generator</a></li>
+            <li><a href="cancel-flow/" data-tool="cancel-flow">Cancel Flow</a></li>
+          </ul>
+          <a class="cat-all" href="c/apps/">All 32 apps →</a>
+        </li>
+        <li class="cat">
+          <h3><a href="c/cli/" data-category="cli">Command-line tools</a></h3>
+          <p class="cat-blurb">Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.</p>
+          <ul class="cat-examples">
+            <li><a href="terraform-plan-secret-exposure-check/" data-tool="terraform-plan-secret-exposure-check">Did your Terraform plan just print a secret in plaintext?</a></li>
+            <li><a href="docker-base-image-pin-check/" data-tool="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+            <li><a href="pinned-actions-check/" data-tool="pinned-actions-check">Are your GitHub Actions pinned to a commit SHA?</a></li>
+            <li><a href="llms-txt-generator/" data-tool="llms-txt-generator">Build a valid llms.txt for your site, free</a></li>
+          </ul>
+          <a class="cat-all" href="c/cli/">All 175 command-line tools →</a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="band" id="featured" aria-labelledby="featured-h">
+      <p class="section-eyebrow">Featured</p>
+      <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
+      <ul class="featured">
+        <li><a href="invoice-payment-terms-calculator/" data-tool="invoice-payment-terms-calculator">Invoice Payment Terms Calculator</a><span class="f-cat">Back-office money &amp; contracts</span><p>Calculate invoice due dates, when cash actually lands on your client's payment run, late-fee scenarios, cash-flow exposure, whether a 2/10 Net 30 discount still beats waiting, and…</p></li>
+        <li><a href="league-schedule-generator/" data-tool="league-schedule-generator">League Schedule Generator — free, private, in your browser</a><span class="f-cat">Service business pricing &amp; quotes</span><p>Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout…</p></li>
+        <li><a href="freelance-retainer-calculator/" data-tool="freelance-retainer-calculator">Freelance Retainer Pricing Calculator</a><span class="f-cat">Trade &amp; contractor bids</span><p>Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your…</p></li>
+        <li><a href="canonical-tag-check/" data-tool="canonical-tag-check">Canonical Tag Checker</a><span class="f-cat">CI checks &amp; developer gates</span><p>Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical…</p></li>
+        <li><a href="einvoice-preflight/" data-tool="einvoice-preflight">E-invoice Preflight — catch defects before submission</a><span class="f-cat">Compliance checks &amp; evidence records</span><p>Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does…</p></li>
+        <li><a href="ebay-fee-calculator/" data-tool="ebay-fee-calculator">eBay Fee &amp; Profit Calculator</a><span class="f-cat">Marketplace seller tools</span><p>Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund…</p></li>
+      </ul>
+    </section>
+
+    <section class="band" id="research" aria-labelledby="research-h">
+      <p class="section-eyebrow">Open research</p>
+      <h2 id="research-h">554 reproducible research projects</h2>
+      <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design and robotics, each with runnable code, tests and a written result. <a href="research/">Browse all research →</a></p>
+      <ul class="research-featured">
+        <li><a href="research/decentralized-verification-markets/">Peer-prediction markets for decentralized ML training verification</a></li>
+        <li><a href="research/market-routing/">Markets as routers: LMSR = Hedge, quadratic potential = sparsemax</a></li>
+        <li><a href="research/verification-game/">Economics of refereed verification</a></li>
+      </ul>
+      <p class="research-themes"><a href="research/#scoring">Proper scoring &amp; elicitation <span>27</span></a> <a href="research/#effort">Effort &amp; peer prediction <span>9</span></a> <a href="research/#games">Verification games &amp; slashing <span>18</span></a> <a href="research/#detection">Detection &amp; tolerances <span>12</span></a> <a href="research/#routing">Markets as routers <span>11</span></a> <a href="research/#markets">Prediction-market design <span>9</span></a> <a href="research/#contributions">Paying contributors <span>8</span></a> <a href="research/#systems">Decentralised training systems <span>21</span></a> <a href="research/#twins">Digital twins &amp; sim-to-real <span>137</span></a> <a href="research/#chip">LLM chip design loops <span>25</span></a> <a href="research/#robofab">Robot manufacturing loops <span>45</span></a> <a href="research/#ambient">Ambient AI assistant <span>34</span></a> <a href="research/#selfrep">Self-replicating manufacturing <span>28</span></a> <a href="research/#simdesign">Simulation-first design <span>48</span></a> <a href="research/#garment">Engineered clothing <span>38</span></a> <a href="research/#accel">Task-specific AI accelerators <span>18</span></a> <a href="research/#eda">Algorithmic chip-design loops <span>13</span></a> <a href="research/#osrobot">Open-source purpose-built robots <span>12</span></a> <a href="research/#swe">The software-engineering loop <span>14</span></a> <a href="research/#mimic">Adversarial human imitation <span>11</span></a> <a href="research/#house">Open-source residential construction <span>16</span></a></p>
+    </section>
+
+    <section class="band" id="more" aria-labelledby="more-h">
+      <p class="section-eyebrow">Also here</p>
+      <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
+      <div class="pillar-grid">
+        <a class="pillar" href="deploy/">
+          <h3>Deploy your own copy</h3>
+          <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
+          <span class="pillar-more">Deploy your own →</span>
+        </a>
+        <a class="pillar" href="guides/">
+          <h3>Guides and comparisons</h3>
+          <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
+          <span class="pillar-more">Read the guides →</span>
+        </a>
+        <a class="pillar" href="engineering/">
+          <h3>Built in public</h3>
+          <p>What shipped this week, what CI caught, and what each automated run cost, from the repository's own records.</p>
+          <span class="pillar-more">Engineering status →</span>
+        </a>
+      </div>
+      <ul class="principles">
+        <li>No accounts or sign-up</li>
+        <li>No tracking cookies</li>
+        <li>MIT licence throughout</li>
+        <li>Every change in <a href="dev/">public history</a></li>
+      </ul>
+    </section>
+
+    <div class="support offline" id="offline-box" hidden>
+      <strong>Going somewhere without signal?</strong>
+      <p id="offline-copy">
+        Save one category of tools to this device and they all keep working
+        with no connection. Nothing is uploaded either way.
+      </p>
+      <select id="offline-category" aria-label="Category to save for offline">
+        <option value="self-hosted">Self-hosted business apps — about 0.6 MB</option>
+        <option value="marketplace">Marketplace seller tools — about 2.2 MB</option>
+        <option value="trades-paid">Getting paid &amp; job margin — about 1 MB</option>
+        <option value="trades-cleaning">Cleaning, restoration &amp; insulation — about 1 MB</option>
+        <option value="trades-roof">Roofing, siding &amp; gutters — about 0.5 MB</option>
+        <option value="trades-openings">Windows, doors &amp; garage — about 0.4 MB</option>
+        <option value="trades-mep">HVAC, plumbing &amp; electrical — about 0.7 MB</option>
+        <option value="trades-interior">Interior finishes &amp; remodels — about 0.8 MB</option>
+        <option value="trades-site">Concrete, masonry &amp; site work — about 0.5 MB</option>
+        <option value="trades-outdoor">Landscape, deck &amp; pool — about 0.7 MB</option>
+        <option value="food-service">Restaurant, bar &amp; food truck pricing — about 1 MB</option>
+        <option value="services">Service business pricing &amp; quotes — about 2.9 MB</option>
+        <option value="logistics">Logistics, freight &amp; cloud cost — about 0.6 MB</option>
+        <option value="evidence">Compliance checks &amp; evidence records — about 2.1 MB</option>
+        <option value="uk-tax">UK tax, pay &amp; benefits — about 0.7 MB</option>
+        <option value="backoffice">Back-office money &amp; contracts — about 3.4 MB</option>
+        <option value="ci">CI checks &amp; developer gates — about 2.7 MB</option>
+        <option value="solo-earner">Creator &amp; solo earner income — about 1.3 MB</option>
+        <option value="more">More free tools — about 0.1 MB</option>
+      </select>
+      <button type="button" id="offline-save">Save this category for offline</button>
+      <p id="offline-status" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="support">
+      <strong>Free, and staying free.</strong> If one of these saved you money,
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsoring on GitHub</a>
+      is welcome and entirely optional — nothing here is gated behind it, and
+      declining changes nothing about what the tools do.
+    </div>
+
+    <footer>
+
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="optout">
+        <label><input type="checkbox" id="optout"> Don't count my visit</label>
+      </p>
+      <p>
+        Open source — every tool is a static page, and one you have opened keeps
+        working with no connection.
+      </p>
+      <p class="pfs-foot"><a href="c/">All tools by category</a><span aria-hidden="true"> · </span><a href="research/">Research</a><span aria-hidden="true"> · </span><a href="writing/">Writing</a><span aria-hidden="true"> · </span><a href="guides/">Guides</a><span aria-hidden="true"> · </span><a href="compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+    </footer>
+  </main>
+
+  <script type="module">
+    // Anonymous, aggregate, local-only counting — same convention every tool
+    // in this portfolio uses. It records that a hub visit happened and which
+    // tool slugs were opened. It never records who, and it never leaves the
+    // device.
+    const KEY = 'portfolio-hub-usage';
+    const OPT_OUT = 'portfolio-hub-optout';
+    const optout = document.getElementById('optout');
+
+    function honorsBrowserSignal() {
+      try {
+        return navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true;
+      } catch { return false; }
+    }
+    function optedOut() {
+      try { return localStorage.getItem(OPT_OUT) === '1'; } catch { return true; }
+    }
+    function record(event) {
+      if (optedOut() || honorsBrowserSignal()) return;
+      try {
+        const current = JSON.parse(localStorage.getItem(KEY) || '{}');
+        current[event] = (current[event] || 0) + 1;
+        current.last_day = new Date().toISOString().slice(0, 10);
+        localStorage.setItem(KEY, JSON.stringify(current));
+      } catch { /* private mode, storage disabled — counting is not worth an error */ }
+    }
+
+    try { optout.checked = optedOut(); } catch { /* ignore */ }
+    optout.addEventListener('change', () => {
+      try { localStorage.setItem(OPT_OUT, optout.checked ? '1' : '0'); } catch { /* ignore */ }
+    });
+
+    record('hub_visited');
+    for (const link of document.querySelectorAll('[data-tool]')) {
+      link.addEventListener('click', () => record('tool_opened:' + link.dataset.tool));
+    }
+
+    // ---- The search index -------------------------------------------------
+    //
+    // Fetched from this site's own origin the first time something needs it
+    // (a query, or a saved bid to label), never on a bare visit: a visitor who
+    // only browses the categories pays nothing for it. It is the same kind of
+    // request as opening any page here, and carries nothing about the visitor.
+    const SEARCH_INDEX = 'search-index.json';
+    // Slug -> index record for every tool, filled when the index arrives. The
+    // saved-bid list and "pick up where you left off" name a tool from here.
+    let TOOLS = new Map();
+    let indexReady = false;
+    let indexLoad = null;
+    function loadIndex() {
+      if (!indexLoad) {
+        indexLoad = fetch(SEARCH_INDEX)
+          .then((response) => {
+            if (!response.ok) throw new Error('index ' + response.status);
+            return response.json();
+          })
+          .then((data) => {
+            data.items.forEach((item, i) => {
+              item.i = i;
+              if (!item.g) item.g = item.n;
+              if (!item.u) item.u = item.s + '/';
+            });
+            data.stop = new Set(data.stopwords);
+            TOOLS = new Map(data.items.filter((item) => item.k !== 'research').map((item) => [item.s, item]));
+            indexReady = true;
+            return data;
+          });
+        // A failed load (offline, say) is retried on the next keystroke rather
+        // than remembered as the answer.
+        indexLoad.catch(() => { indexLoad = null; });
+      }
+      return indexLoad;
+    }
+
+    // ---- Search -----------------------------------------------------------
+    const q = document.getElementById('q');
+    const form = document.getElementById('search');
+    const count = document.getElementById('count');
+    const empty = document.getElementById('empty');
+    const closest = document.getElementById('closest');
+    const resultsList = document.getElementById('results');
+    const resultsMore = document.getElementById('results-more');
+    // How many near-misses to offer when nothing matches every word. Enough to
+    // be a real second chance on a phone, short enough that the list is still
+    // a suggestion rather than the catalogue back again.
+    const CLOSEST_LIMIT = 8;
+    // How many results to draw before a "Show all" button.
+    const RESULTS_SHOWN = 20;
+    let searchCounted = false;
+
+    // Injected from build.mjs rather than written twice: a stemmer that
+    // disagreed with its tests would be a search bug nothing could catch.
+    function searchVariants(word) {
+  // Each suffix comes off the original word, never off an already-stripped
+  // form -- chaining would take "processing" to "proces" and then "proc".
+  const SUFFIXES = ['s', 'es', 'ing', 'ings', 'er', 'ers', 'ian', 'ians'];
+  const forms = [word];
+  for (const suffix of SUFFIXES) {
+    if (!word.endsWith(suffix)) continue;
+    const stem = word.slice(0, -suffix.length);
+    // Four characters is the floor, measured rather than guessed. At three,
+    // "trees" also yields "tre" and drags in trench, tread and treatment --
+    // ten hits where two are about trees. Four keeps every plural that has a
+    // tool behind it and drops the stems that have stopped being words.
+    if (stem.length >= 4) forms.push(stem);
+  }
+  return [...new Set(forms)];
+}
+
+    // Likewise injected rather than reimplemented: the weights below decide
+    // what a visitor sees first, and a copy that drifted from the tested one
+    // would be a ranking bug with a green suite.
+    function searchScore(nameIndex, searchIndex, forms, boundary) {
+  const hit = (index, word) =>
+    boundary ? (' ' + index).includes(' ' + word) : index.includes(word);
+  let score = 0;
+  for (const variants of forms) {
+    if (variants.some((word) => hit(nameIndex, word))) score += 4;
+    else if (variants.some((word) => hit(searchIndex, word))) score += 1;
+  }
+  const nameWords = nameIndex ? nameIndex.split(' ').filter(Boolean).length : 0;
+  return score + 1 / (2 + nameWords);
+}
+
+    // Every query word must hit, so "ebay return" narrows to the eBay tool
+    // instead of finding nothing because those two words are never adjacent.
+    // A word matches at a token boundary, which is what makes a half-typed
+    // "backspl" still find the backsplash calculator.
+    const matches = (index, forms, boundary) =>
+      forms.every((variants) =>
+        variants.some((word) =>
+          boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+
+    // The query is normalised exactly as the index was: a word the index never
+    // stores can never match, so keeping it would force every query containing
+    // it down to zero hits. The stopword list ships with the index it was cut
+    // from, so the two cannot disagree.
+    const normalise = (text, stop) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length >= 2 && !stop.has(word))
+        .map(searchVariants);
+
+    // The ranked answer for one query: every item that matches every word,
+    // best first — or, when nothing matches every word, or nothing that
+    // matched was named or aliased for it, the closest few by the same score,
+    // labelled as approximate. People type sentences ("new roof estimate");
+    // requiring the visitor to guess the keyword is the page's job, not theirs.
+    // One confident wrong answer ("install water heater" finding only the
+    // boiler calculator, which happens to say "install") is worse than none,
+    // which is what the data-strong test guards. Scored at a token boundary
+    // even where the loose pass is in force, so "air" does not score inside
+    // "stair", "chair" and "repair".
+    function rank(data, forms) {
+      const items = data.items;
+      const boundary = items.some((item) => matches(item.x, forms, true));
+      const hits = items.filter((item) => matches(item.x, forms, boundary));
+      let list = hits.map((item) => ({ item, value: searchScore(item.n, item.x, forms, boundary) }));
+      const strongly = (item) =>
+        forms.some((variants) => variants.some((word) => (' ' + item.g).includes(' ' + word)));
+      let closestFor = 0;
+      if (hits.length === 0 || !hits.some(strongly)) {
+        const hitSet = new Set(hits);
+        const partial = items
+          .map((item) => ({ item, value: searchScore(item.n, item.x, forms, true) }))
+          // A whole word has to land somewhere. Below that the score is only
+          // the name-length tie-break, which every item has.
+          .filter(({ value }) => value >= 1)
+          .sort((a, b) => b.value - a.value || a.item.i - b.item.i)
+          .slice(0, CLOSEST_LIMIT);
+        // Only when it offers something the strict pass did not: for a
+        // one-word query the two sets are the same by construction, and
+        // labelling an exact answer approximate would be the page lying.
+        if (partial.some(({ item }) => !hitSet.has(item))) {
+          list = partial;
+          closestFor = partial.length;
+        }
+      }
+      list.sort((a, b) => b.value - a.value || a.item.i - b.item.i);
+      return { list, closestFor, exact: hits.length };
+    }
+
+    function drawResults(data, ranked, all) {
+      resultsList.replaceChildren();
+      const shown = all ? ranked.list : ranked.list.slice(0, RESULTS_SHOWN);
+      for (const { item } of shown) {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = item.u;
+        link.textContent = item.t;
+        if (item.k !== 'research') {
+          link.dataset.tool = item.s;
+          link.addEventListener('click', () => record('tool_opened:' + item.s));
+        } else {
+          link.addEventListener('click', () => record('research_opened_from_search'));
+        }
+        const where = document.createElement('span');
+        where.className = 'r-cat';
+        where.textContent = (data.cats[item.c] || '') +
+          (item.k === 'app' ? ' · self-hostable app' : item.k === 'cli' ? ' · command-line tool' : '');
+        const blurb = document.createElement('p');
+        blurb.textContent = item.d;
+        li.append(link, where, blurb);
+        resultsList.append(li);
+      }
+      resultsList.hidden = shown.length === 0;
+      resultsMore.replaceChildren();
+      resultsMore.hidden = shown.length >= ranked.list.length;
+      if (!resultsMore.hidden) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Show all ' + ranked.list.length + ' results';
+        button.addEventListener('click', () => drawResults(data, ranked, true));
+        resultsMore.append(button);
+      }
+    }
+
+    function clearResults() {
+      resultsList.replaceChildren();
+      resultsList.hidden = true;
+      resultsMore.hidden = true;
+      closest.hidden = true;
+      empty.hidden = true;
+      count.textContent = '';
+    }
+
+    async function runSearch() {
+      const text = q.value.trim();
+      // Keep the address in step, so a result list can be shared or reloaded,
+      // and the header's search box on every other page lands here with it.
+      try {
+        const url = new URL(location.href);
+        if (text) url.searchParams.set('q', text); else url.searchParams.delete('q');
+        history.replaceState(null, '', url);
+      } catch { /* a sandboxed frame may refuse; the search still works */ }
+      if (!text) { clearResults(); return; }
+      let data;
+      try {
+        data = await loadIndex();
+      } catch {
+        count.textContent = 'Search could not load. Every tool is listed on its category page below.';
+        return;
+      }
+      if (q.value.trim() !== text) return; // a newer keystroke owns the page
+      const forms = normalise(text, data.stop);
+      if (!forms.length) { clearResults(); return; }
+      if (!searchCounted) { searchCounted = true; record('hub_search_used'); }
+      const ranked = rank(data, forms);
+      drawResults(data, ranked, false);
+      empty.hidden = ranked.list.length !== 0;
+      closest.hidden = ranked.closestFor === 0;
+      closest.textContent = ranked.closestFor === 0
+        ? ''
+        : (ranked.exact === 0
+          ? 'No tool matches every word. Closest ' + ranked.closestFor + ':'
+          : 'No tool is named for that. Closest ' + ranked.closestFor + ':');
+      count.textContent = ranked.closestFor
+        ? ''
+        : ranked.list.length + ' result' + (ranked.list.length === 1 ? '' : 's') + ' of ' + data.items.length;
+    }
+
+    q.addEventListener('input', runSearch);
+    // Warm the index the moment the box is focused, so the first keystroke
+    // usually finds it already here.
+    q.addEventListener('focus', () => { loadIndex().catch(() => {}); }, { once: true });
+    form.addEventListener('submit', (event) => { event.preventDefault(); runSearch(); });
+    {
+      const initial = new URLSearchParams(location.search).get('q');
+      if (initial) {
+        q.value = initial;
+        runSearch();
+        form.scrollIntoView({ block: 'start' });
+      }
+    }
+
+    // Thirty-seven tools is a lot to search through when you came back for the
+    // one you used last week. Every tool page already records a tool_viewed
+    // count for its own slug on this device, so the hub can lead with the tools
+    // this browser actually uses without asking anyone to sign in and without a
+    // byte leaving the machine. Counting is what makes the shortcut possible,
+    // which is also the honest argument for the counting.
+    //
+    // tool_viewed and not tool_opened: a visit counts however the visitor
+    // arrived, and most of them arrive from a search result rather than here.
+    function yourTools(limit = 6) {
+      // No counts exist for someone who opted out or whose browser asked not to
+      // be counted, so there is nothing to show and nothing to decide.
+      if (optedOut() || honorsBrowserSignal()) return [];
+
+      let counts;
+      try { counts = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return []; }
+      if (!counts || typeof counts !== 'object') return [];
+
+      const used = [];
+      for (const [event, value] of Object.entries(counts)) {
+        const slug = /^tool_viewed:(.*)$/.exec(event)?.[1];
+        // Every tool on this site shares one origin, so any page on it can write
+        // to this key. Take a slug only in the shape the build produces, and
+        // build the link from that — never from the stored string as given.
+        if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Number.isFinite(value) || value <= 0) continue;
+        used.push([slug, value]);
+      }
+
+      return used
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, limit);
+    }
+
+    function showYourTools() {
+      const section = document.getElementById('yours');
+      const list = document.getElementById('yoursList');
+      const mine = yourTools();
+      list.replaceChildren();
+
+      for (const [slug, times] of mine) {
+        // Only offer a tool the site actually publishes: a slug left behind by
+        // a tool that has since been renamed or withdrawn would 404. The
+        // search index is the list of what ships, and names each tool.
+        const tool = TOOLS.get(slug);
+        if (!tool) continue;
+
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = slug + '/';
+        link.textContent = tool.t || slug;
+        link.addEventListener('click', () => record('tool_opened:' + slug));
+
+        const meta = document.createElement('span');
+        meta.className = 'times';
+        meta.textContent = times === 1 ? 'opened once' : 'opened ' + times + ' times';
+
+        item.append(link, meta);
+        list.append(item);
+      }
+
+      section.hidden = list.childElementCount === 0;
+    }
+
+    // Turning counting off should take the shortcut away with it, in the same
+    // click rather than on the next visit.
+    optout.addEventListener('change', showYourTools);
+
+    // The saved-bid index.
+    //
+    // Saved bids are stored per tool and restored per tool — a bid never
+    // crosses tools, because the form it was priced on is the only form it
+    // fits. What was left unanswered is "which tool was it?": the store is a
+    // single key on this one origin, so the hub has held every visitor's whole
+    // bid list all along and showed none of it. On Friday, when the customer
+    // rings back, that is the difference between one click and remembering
+    // which of 162 calculators priced the job on Tuesday.
+    //
+    // Deliberately not gated on the opt-out, unlike "pick up where you left
+    // off" above. That list is derived from counts, so opting out of counting
+    // genuinely empties it. These are the visitor's own saved documents; the
+    // tool pages show them to someone who has opted out, and the hub hiding
+    // them would look like data loss. Only the counting below is gated.
+    const BIDS_KEY = 'portfolio-saved-bids';
+
+    // The same function bodies the calculator band runs and the tests here
+    // exercise, embedded rather than re-written — so the hub and the tool can
+    // never disagree about how old a waiting bid is, or about whether what a
+    // tool put on screen reads as a figure at all. See BID_FOLLOW_UP_HELPERS.
+    //
+    // Declared here rather than relied on from the backup block further down:
+    // that block also carries this function, but it is assigned after
+    // showSavedBids() has already run once on load.
+var MIN_RESPONSE_SAMPLE = 3;
+var bidWaitingDays = function bidWaitingDays(at, nowMs) {
+var t = Date.parse(at);
+if (t !== t) return null;
+var days = Math.floor((nowMs - t) / 86400000);
+return days < 0 ? 0 : days;
+};
+var bidWaitingPhrase = function bidWaitingPhrase(days) {
+if (typeof days !== 'number' || !(days > 0)) return '';
+return 'waiting ' + days + (days === 1 ? ' day' : ' days');
+};
+var followUpSentence = function followUpSentence(rows, nowMs) {
+if (!rows || !rows.length) return '';
+var waiting = 0;
+var won = 0;
+var lost = 0;
+var oldest = -1;
+for (var i = 0; i < rows.length; i++) {
+var row = rows[i];
+if (!row || typeof row !== 'object') continue;
+if (row.outcome === 'won') { won++; continue; }
+if (row.outcome === 'lost') { lost++; continue; }
+waiting++;
+var days = bidWaitingDays(row.at, nowMs);
+if (days !== null && days > oldest) oldest = days;
+}
+var parts = [];
+if (waiting > 0) {
+var ago = oldest < 0 ? '' : oldest === 0 ? 'today' : oldest === 1 ? '1 day ago' : oldest + ' days ago';
+if (waiting === 1) {
+parts.push('1 bid is waiting on an answer' + (ago ? ', saved ' + ago : '') + '.');
+} else {
+var tail = !ago ? '' : oldest === 0 ? ', all saved today' : ', the oldest saved ' + ago;
+parts.push(waiting + ' bids are waiting on an answer' + tail + '.');
+}
+}
+var decided = won + lost;
+if (decided > 0) {
+parts.push('You have won ' + won + ' of the ' + decided + ' you have heard back on.');
+}
+return parts.join(' ');
+};
+var bidResponseDays = function bidResponseDays(bid) {
+if (!bid || typeof bid !== 'object') return null;
+if (bid.outcome !== 'won' && bid.outcome !== 'lost') return null;
+var priced = Date.parse(bid.at);
+var answered = Date.parse(bid.decidedAt);
+if (priced !== priced || answered !== answered) return null;
+var days = Math.floor((answered - priced) / 86400000);
+return days < 0 ? 0 : days;
+};
+var responseWindow = function responseWindow(bids) {
+if (!bids || !bids.length) return null;
+var answered = 0;
+var low = 0;
+var high = 0;
+for (var i = 0; i < bids.length; i++) {
+var days = bidResponseDays(bids[i]);
+if (days === null) continue;
+if (answered === 0 || days < low) low = days;
+if (answered === 0 || days > high) high = days;
+answered++;
+}
+if (answered < MIN_RESPONSE_SAMPLE) return null;
+return { answered: answered, low: low, high: high };
+};
+var isQuietBid = function isQuietBid(bid, seen, nowMs) {
+if (!seen) return false;
+if (!bid || typeof bid !== 'object') return false;
+if (bid.outcome === 'won' || bid.outcome === 'lost') return false;
+var waited = bidWaitingDays(bid.at, nowMs);
+return waited !== null && waited > seen.high;
+};
+var chaseSentence = function chaseSentence(bids, nowMs) {
+var seen = responseWindow(bids);
+if (!seen) return '';
+var answered = seen.answered;
+var low = seen.low;
+var high = seen.high;
+var quiet = 0;
+for (var w = 0; w < bids.length; w++) {
+if (isQuietBid(bids[w], seen, nowMs)) quiet++;
+}
+var spread = low === high
+? (low === 0 ? 'came back the same day' : 'came back in ' + low + (low === 1 ? ' day' : ' days'))
+: 'came back in ' + low + ' to ' + high + ' days';
+var out = 'The ' + answered + ' bids you have heard back on ' + spread + '.';
+if (quiet > 0) {
+out += ' ' + quiet + ' still waiting ' + (quiet === 1 ? 'has' : 'have') +
+' been out longer than that.';
+}
+return out;
+};
+    // The record shape itself, for the reason it exists -- see
+    // BID_RECORD_HELPERS and savedBids() below. It carries
+    // normalizeHeadlineAmount, so it stands in for the BID_AMOUNT_HELPER this
+    // block used to emit here.
+var EXCLUDED_FIELD_IDS = new Set(["usageOptOut","usage","clientName","clientAddress","companyName","companyAddress","companyPhone","companyEmail","companyLicense"]);
+var EXCLUDED_ID_PREFIX = "pf-";
+var BID_OUTCOMES = ["won","lost"];
+var MAX_LOST_TO = 1000000000;
+var normalizeBidName = function normalizeBidName(value) {
+if (typeof value !== 'string') return '';
+return value.replace(/\s+/g, ' ').trim().slice(0, 60);
+};
+var normalizeOutcome = function normalizeOutcome(value) {
+return BID_OUTCOMES.indexOf(value) === -1 ? null : value;
+};
+var normalizeLostTo = function normalizeLostTo(value) {
+var text = typeof value === 'number' && Number.isFinite(value) ? String(value) : value;
+if (typeof text !== 'string') return '';
+text = text.replace(/[\s ,]/g, '').replace(/^[$£€]/, '');
+if (!/^\d+(\.\d{1,2})?$/.test(text)) return '';
+var amount = Number(text);
+if (!(amount > 0) || amount > MAX_LOST_TO) return '';
+return String(amount);
+};
+var normalizeJobCost = function normalizeJobCost(value) {
+return normalizeLostTo(value);
+};
+var normalizeHeadlineAmount = function normalizeHeadlineAmount(value) {
+if (typeof value !== 'string') return '';
+var text = value.replace(/\s+/g, ' ').trim();
+if (text.length === 0 || text.length > 32) return '';
+if (!/[$£€]/.test(text)) return '';
+if (!/[1-9]/.test(text)) return '';
+return text;
+};
+var isExcludedId = (id) =>
+!id || id.startsWith(EXCLUDED_ID_PREFIX) || EXCLUDED_FIELD_IDS.has(id);
+var normalizeBid = function normalizeBid(entry) {
+if (!entry || typeof entry !== 'object') return null;
+const name = normalizeBidName(entry.name);
+if (!name) return null;
+const at = typeof entry.at === 'string' && entry.at ? entry.at : null;
+if (!at) return null;
+const source = entry.fields;
+if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+const fields = {};
+let kept = 0;
+for (const [id, value] of Object.entries(source)) {
+if (isExcludedId(id)) continue;
+if (typeof value !== 'string' && typeof value !== 'boolean') continue;
+if (typeof value === 'string' && value.length > 2000) continue;
+fields[id] = value;
+kept++;
+}
+if (kept === 0) return null;
+const bid = { name, at, fields };
+const amount = normalizeHeadlineAmount(entry.amount);
+if (amount) bid.amount = amount;
+const outcome = normalizeOutcome(entry.outcome);
+if (outcome) {
+bid.outcome = outcome;
+if (typeof entry.decidedAt === 'string' && entry.decidedAt) bid.decidedAt = entry.decidedAt;
+if (outcome === 'lost') {
+const lostTo = normalizeLostTo(entry.lostTo);
+if (lostTo) bid.lostTo = lostTo;
+}
+if (outcome === 'won') {
+const cost = normalizeJobCost(entry.cost);
+if (cost) bid.cost = cost;
+}
+}
+return bid;
+};
+    // The cross-tool pricing reading. After BID_RECORD_HELPERS because
+    // bidAmountValue calls normalizeHeadlineAmount.
+var MIN_CROSS_TOOL_SAMPLE = 3;
+var MAX_LOST_TO = 1000000000;
+var MIN_WIN_RATE_SAMPLE = 5;
+var MIN_WIN_RATE_PER_TOOL = 4;
+var WIN_RATE_SPLIT_POINTS = 40;
+var MIN_KEEP_PER_TOOL = 2;
+var MIN_KEEP_TOOLS = 2;
+var KEEP_SPREAD_POINTS = 15;
+var MIN_MIX_TOOLS = 2;
+var MIN_TREND_PER_HALF = 4;
+var TREND_SPLIT_POINTS = 40;
+var normalizeLostTo = function normalizeLostTo(value) {
+var text = typeof value === 'number' && Number.isFinite(value) ? String(value) : value;
+if (typeof text !== 'string') return '';
+text = text.replace(/[\s ,]/g, '').replace(/^[$£€]/, '');
+if (!/^\d+(\.\d{1,2})?$/.test(text)) return '';
+var amount = Number(text);
+if (!(amount > 0) || amount > MAX_LOST_TO) return '';
+return String(amount);
+};
+var normalizeJobCost = function normalizeJobCost(value) {
+return normalizeLostTo(value);
+};
+var bidAmountValue = function bidAmountValue(display) {
+var text = normalizeHeadlineAmount(display);
+if (!text) return null;
+if ((text.match(/[$£€]/g) || []).length !== 1) return null;
+var found = /([-−]?)\s*([$£€])\s*(\d[\d,]*(?:\.\d+)?)/.exec(text);
+if (!found) return null;
+var digits = found[3];
+if (digits.indexOf(',') !== -1 && !/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(digits)) return null;
+var sign = found[1] === '' ? 1 : -1;
+return {
+currency: found[2],
+value: sign * Number(digits.replace(/,/g, '')),
+text: (sign < 0 ? '-' : '') + found[2] + digits,
+};
+};
+var pricingSentence = function pricingSentence(bids) {
+if (!bids || !bids.length) return '';
+var percents = [];
+var slugs = [];
+for (var i = 0; i < bids.length; i++) {
+var bid = bids[i];
+if (!bid || typeof bid !== 'object') continue;
+if (bid.outcome !== 'lost') continue;
+var went = normalizeLostTo(bid.lostTo);
+if (!went) continue;
+var parsed = bidAmountValue(bid.amount);
+if (!parsed || parsed.value <= 0) continue;
+percents.push(((parsed.value - Number(went)) / Number(went)) * 100);
+if (typeof bid.slug === 'string' && bid.slug && slugs.indexOf(bid.slug) === -1) {
+slugs.push(bid.slug);
+}
+}
+if (percents.length < MIN_CROSS_TOOL_SAMPLE) return '';
+var total = 0;
+var closest = percents[0];
+var notOver = 0;
+for (var p = 0; p < percents.length; p++) {
+total += percents[p];
+if (percents[p] < closest) closest = percents[p];
+if (percents[p] <= 0) notOver++;
+}
+var average = total / percents.length;
+var across = 'Across the ' + percents.length + ' bids you lost' +
+(slugs.length > 1 ? ' on ' + slugs.length + ' tools' : '') +
+' where you know the winning price, ';
+var centre;
+var rounded = Math.round(average);
+if (rounded === 0) {
+centre = across + 'yours came within 1% of what they went for.';
+} else if (rounded > 0) {
+centre = across + 'yours averaged ' + rounded + '% over.';
+} else {
+centre = across + 'yours averaged ' + -rounded + '% under.';
+}
+var edge;
+if (notOver === percents.length) {
+edge = 'None of them went to a cheaper bid, so price is not what decided these.';
+} else if (notOver > 0) {
+edge = notOver + ' of them went to a bid no cheaper than yours, so price alone has not ' +
+'been deciding these.';
+} else {
+var near = Math.round(closest);
+edge = near === 0
+? 'The closest was within 1% of it.'
+: 'The closest was ' + near + '% over.';
+}
+return centre + ' ' + edge;
+};
+var winRateSentence = function winRateSentence(bids) {
+if (!bids || !bids.length) return '';
+var won = 0;
+var decided = 0;
+var slugs = [];
+var byTool = {};
+for (var i = 0; i < bids.length; i++) {
+var bid = bids[i];
+if (!bid || typeof bid !== 'object') continue;
+if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+decided++;
+if (bid.outcome === 'won') won++;
+var slug = typeof bid.slug === 'string' ? bid.slug : '';
+if (!slug) continue;
+if (slugs.indexOf(slug) === -1) slugs.push(slug);
+if (!byTool[slug]) {
+byTool[slug] = { slug: slug, won: 0, decided: 0, label: slug };
+var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+if (label) byTool[slug].label = label;
+}
+byTool[slug].decided++;
+if (bid.outcome === 'won') byTool[slug].won++;
+}
+if (decided < MIN_WIN_RATE_SAMPLE) return '';
+var rate = Math.round((won / decided) * 100);
+var centre = 'You have won ' + won + ' of ' + decided + ' decided bids — ' + rate + '%' +
+(slugs.length > 1 ? ', across ' + slugs.length + ' tools' : '') + '.';
+var ranked = [];
+for (var s = 0; s < slugs.length; s++) {
+var tool = byTool[slugs[s]];
+if (tool.decided < MIN_WIN_RATE_PER_TOOL) continue;
+tool.rate = (tool.won / tool.decided) * 100;
+ranked.push(tool);
+}
+ranked.sort(function (a, b) {
+return b.rate - a.rate || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+});
+var edge = 'A win rate moves with which jobs you choose to quote as much as with what you ' +
+'charge, so this is where to start looking rather than a verdict on your prices.';
+if (ranked.length > 1) {
+var best = ranked[0];
+var worst = ranked[ranked.length - 1];
+if (best.rate - worst.rate >= WIN_RATE_SPLIT_POINTS) {
+edge = best.label + ' is winning ' + best.won + ' of ' + best.decided + '; ' +
+worst.label + ', ' + worst.won + ' of ' + worst.decided +
+'. That gap sits in one trade rather than across your prices.';
+}
+}
+return centre + ' ' + edge;
+};
+var keepSentence = function keepSentence(bids) {
+if (!bids || !bids.length) return '';
+var slugs = [];
+var byTool = {};
+for (var i = 0; i < bids.length; i++) {
+var bid = bids[i];
+if (!bid || typeof bid !== 'object') continue;
+if (bid.outcome !== 'won') continue;
+var cost = normalizeJobCost(bid.cost);
+if (!cost) continue;
+var parsed = bidAmountValue(bid.amount);
+if (!parsed) continue;
+if (!(parsed.value > 0)) continue;
+var slug = typeof bid.slug === 'string' ? bid.slug : '';
+if (!slug) continue;
+if (!byTool[slug]) {
+slugs.push(slug);
+byTool[slug] = { slug: slug, label: slug, currency: parsed.currency, jobs: 0,
+charged: 0, spent: 0, mixed: false };
+var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+if (label) byTool[slug].label = label;
+}
+var tool = byTool[slug];
+if (parsed.currency !== tool.currency) tool.mixed = true;
+tool.jobs++;
+tool.charged += parsed.value;
+tool.spent += Number(cost);
+}
+var ranked = [];
+for (var s = 0; s < slugs.length; s++) {
+var candidate = byTool[slugs[s]];
+if (candidate.mixed) continue;
+if (candidate.jobs < MIN_KEEP_PER_TOOL) continue;
+if (!(candidate.charged > 0)) continue;
+candidate.share = ((candidate.charged - candidate.spent) / candidate.charged) * 100;
+ranked.push(candidate);
+}
+if (ranked.length < MIN_KEEP_TOOLS) return '';
+ranked.sort(function (a, b) {
+return b.share - a.share || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+});
+var best = ranked[0];
+var worst = ranked[ranked.length - 1];
+var counted = 0;
+for (var r = 0; r < ranked.length; r++) counted += ranked[r].jobs;
+var centre = 'Of the ' + counted + ' finished jobs you have costed, across ' + ranked.length +
+' tools, ' + best.label + ' kept the most: ' + Math.round(best.share) + '% of what you ' +
+'charged on ' + best.jobs + '; ' + worst.label + ' kept ' + Math.round(worst.share) +
+'% on ' + worst.jobs + '.';
+var edge;
+if (worst.share < 0) {
+edge = 'That is below what those jobs cost you to deliver, so winning more of that work ' +
+'is what makes the year worse — it is the one trade to re-cost before you quote it again.';
+} else if (best.share - worst.share >= KEEP_SPREAD_POINTS) {
+edge = 'That gap is in which work you take rather than across your prices, so a rise on ' +
+'every quote you write would land on the wrong end of it.';
+} else {
+edge = 'Your trades are keeping much the same share, so this moves with your costs and ' +
+'your prices rather than with which work you chase. It can only see the jobs you costed ' +
+'— a trade you have not costed is missing here, not average.';
+}
+return centre + ' ' + edge;
+};
+var mixSentence = function mixSentence(bids) {
+if (!bids || !bids.length) return '';
+var slugs = [];
+var byTool = {};
+for (var i = 0; i < bids.length; i++) {
+var bid = bids[i];
+if (!bid || typeof bid !== 'object') continue;
+if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+var slug = typeof bid.slug === 'string' ? bid.slug : '';
+if (!slug) continue;
+if (!byTool[slug]) {
+slugs.push(slug);
+byTool[slug] = { slug: slug, label: slug, decided: 0, won: 0, jobs: 0,
+charged: 0, spent: 0, currency: '', mixed: false };
+var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+if (label) byTool[slug].label = label;
+}
+var tool = byTool[slug];
+tool.decided++;
+if (bid.outcome !== 'won') continue;
+tool.won++;
+var cost = normalizeJobCost(bid.cost);
+if (!cost) continue;
+var parsed = bidAmountValue(bid.amount);
+if (!parsed) continue;
+if (!(parsed.value > 0)) continue;
+if (!tool.currency) tool.currency = parsed.currency;
+else if (parsed.currency !== tool.currency) tool.mixed = true;
+tool.jobs++;
+tool.charged += parsed.value;
+tool.spent += Number(cost);
+}
+var ranked = [];
+for (var s = 0; s < slugs.length; s++) {
+var candidate = byTool[slugs[s]];
+if (candidate.mixed) continue;
+if (candidate.decided < MIN_WIN_RATE_PER_TOOL) continue;
+if (candidate.jobs < MIN_KEEP_PER_TOOL) continue;
+if (!(candidate.charged > 0)) continue;
+candidate.rate = (candidate.won / candidate.decided) * 100;
+candidate.share = ((candidate.charged - candidate.spent) / candidate.charged) * 100;
+ranked.push(candidate);
+}
+if (ranked.length < MIN_MIX_TOOLS) return '';
+var byKeep = ranked.slice().sort(function (a, b) {
+return b.share - a.share || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+});
+var byRate = ranked.slice().sort(function (a, b) {
+return b.rate - a.rate || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+});
+var payer = byKeep[0];
+var leanest = byKeep[byKeep.length - 1];
+var lander = byRate[0];
+var rarest = byRate[byRate.length - 1];
+function landing(tool) {
+return tool.won + ' of ' + tool.decided;
+}
+function keeping(tool) {
+return Math.round(tool.share) + '% on ' + tool.jobs;
+}
+function leading(tool) {
+return tool.label + ' lands ' + landing(tool) + ' quotes and keeps ' +
+Math.round(tool.share) + '% of what it charged on the ' + tool.jobs + ' you costed';
+}
+if (payer.slug !== lander.slug) {
+if (lander.rate - payer.rate < WIN_RATE_SPLIT_POINTS) return '';
+if (payer.share - lander.share < KEEP_SPREAD_POINTS) return '';
+return 'The work you win is not the work that pays: ' + leading(lander) + '; ' +
+payer.label + ' lands ' + landing(payer) + ' and keeps ' + keeping(payer) + '. ' +
+'That is what underpricing looks like from the inside: the trade you land most is ' +
+'worth a price rise before it is worth more of your time, and the one that keeps most ' +
+'is worth chasing at a number you would have turned down. It can see that a trade ' +
+'keeps less, never why — so re-cost it before you re-price it.';
+}
+if (lander.rate - rarest.rate < WIN_RATE_SPLIT_POINTS) return '';
+if (payer.share - leanest.share < KEEP_SPREAD_POINTS) return '';
+var other = leanest.slug === rarest.slug
+? leanest.label + ' lands ' + landing(leanest) + ' and keeps ' + keeping(leanest)
+: rarest.label + ' lands ' + landing(rarest) + ' and ' + leanest.label + ' keeps ' +
+keeping(leanest);
+return 'The work you win is also the work that pays: ' + leading(lander) + ', where ' +
+other + '. ' +
+'That is the one pairing here worth answering with more selling rather than a price ' +
+'change, because the quotes already land and the finished jobs already keep. It says ' +
+'nothing about how much of that work there is to be sold.';
+};
+var trendSplit = function trendSplit(bids) {
+if (!bids || !bids.length) return null;
+var decided = [];
+for (var i = 0; i < bids.length; i++) {
+var bid = bids[i];
+if (!bid || typeof bid !== 'object') continue;
+if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+var at = typeof bid.at === 'string' ? bid.at : '';
+if (!at) continue;
+var t = Date.parse(at);
+if (t !== t) continue;
+decided.push({ t: t, at: at, won: bid.outcome === 'won',
+name: typeof bid.name === 'string' ? bid.name : '' });
+}
+var half = Math.floor(decided.length / 2);
+if (half < MIN_TREND_PER_HALF) return null;
+decided.sort(function (a, b) {
+return a.t - b.t || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+});
+var earlier = decided.slice(0, half);
+var later = decided.slice(decided.length - half);
+var earlierWon = 0;
+var laterWon = 0;
+for (var e = 0; e < half; e++) {
+if (earlier[e].won) earlierWon++;
+if (later[e].won) laterWon++;
+}
+var move = ((laterWon - earlierWon) / half) * 100;
+if (Math.abs(move) < TREND_SPLIT_POINTS) return null;
+return { half: half, earlierWon: earlierWon, laterWon: laterWon, move: move,
+turnedAt: later[0].at };
+};
+var trendDetail = function trendDetail(split, nowMs) {
+var counts = split.laterWon + ' of ' + split.half + ' on the ' + split.half +
+' most recent, against ' + split.earlierWon + ' of ' + split.half + ' before them.';
+var since = bidWaitingDays(split.turnedAt, nowMs);
+var when = since === null || !(since > 0)
+? ''
+: ' The recent half starts ' + since + (since === 1 ? ' day' : ' days') + ' back.';
+var edge = ' Both halves hold the same number of bids, so the counts read straight across — ' +
+'but they are two halves of one trade\u2019s own book, and a slow season or a run of ' +
+'unusual jobs moves this as much as a price does. It says where to look, not what changed.';
+return counts + when + edge;
+};
+var trendDirection = function trendDirection(move) {
+return move < 0 ? 'less' : 'more';
+};
+var trendSentence = function trendSentence(rows, nowMs) {
+if (!rows || !rows.length) return '';
+var byTool = {};
+var slugs = [];
+for (var i = 0; i < rows.length; i++) {
+var row = rows[i];
+if (!row || typeof row !== 'object') continue;
+var slug = typeof row.slug === 'string' ? row.slug : '';
+if (!slug) continue;
+if (!byTool[slug]) {
+byTool[slug] = { slug: slug, label: slug, bids: [] };
+var label = typeof row.label === 'string' ? row.label.trim() : '';
+if (label) byTool[slug].label = label;
+slugs.push(slug);
+}
+byTool[slug].bids.push(row);
+}
+var best = null;
+for (var s = 0; s < slugs.length; s++) {
+var tool = byTool[slugs[s]];
+var split = trendSplit(tool.bids);
+if (!split) continue;
+if (!best ||
+Math.abs(split.move) > Math.abs(best.split.move) ||
+(Math.abs(split.move) === Math.abs(best.split.move) && tool.slug < best.slug)) {
+best = { slug: tool.slug, label: tool.label, split: split };
+}
+}
+if (!best) return '';
+return best.label + ' has been landing ' + trendDirection(best.split.move) +
+' often than it was: ' + trendDetail(best.split, nowMs);
+};
+
+    // How many rows are shown before the list is cut. A contractor keeps up to
+    // 25 bids per tool, so a busy one crosses this easily — hence the count
+    // below rather than a silent truncation.
+    const BIDS_SHOWN = 8;
+
+    function savedBids() {
+      let parsed;
+      try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return []; }
+      const bids = parsed && typeof parsed === 'object' ? parsed.bids : null;
+      if (!bids || typeof bids !== 'object') return [];
+
+      const rows = [];
+      for (const [slug, list] of Object.entries(bids)) {
+        // Any page on this origin can write this key, so a slug is used only in
+        // the shape the build produces and the link is built from that — never
+        // from the stored string as given. Same rule as yourTools() above.
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Array.isArray(list)) continue;
+        for (const entry of list) {
+          // normalizeBid itself, not a paraphrase of it. This loop used to be
+          // a hand copy, and the copy went stale three times in a row: a field
+          // added in jobs.mjs and not here was silently dropped on the way to
+          // every hub reading that needed it, and the reading then returned ''
+          // forever with nothing failing anywhere. decidedAt did it to
+          // chaseSentence, lostTo to pricingSentence, cost to keepSentence.
+          //
+          // The rule the backup panel already follows (see BID_RECORD_HELPERS)
+          // now covers the hub too: the browser gets the tested definition
+          // through Function.prototype.toString, so anything added to a bid
+          // from here on arrives here without a second edit — and cannot be
+          // validated differently on the way.
+          const bid = normalizeBid(entry);
+          if (!bid) continue;
+          // The fields are the job itself — thirty to forty form values, kept
+          // so the band can put the whole bid back. Nothing on this page reads
+          // them, and they are the only part of the record that is large, so
+          // they are the one key dropped. Everything else rides across by
+          // spread, which is what stops this going stale again.
+          const { fields, ...row } = bid;
+          // outcome is absent rather than null on a bid still waiting, which
+          // is what lets a bid saved before outcomes existed read as waiting
+          // without migrating. The readings test it for truthiness, so the
+          // absent key and the old explicit null behave alike.
+          rows.push({ slug, ...row });
+        }
+      }
+
+      // Newest first, with slug and name breaking ties so two bids saved in the
+      // same second cannot swap places between renders.
+      rows.sort((a, b) =>
+        b.at.localeCompare(a.at) || a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name));
+      // Every row, uncut. The caller decides how many to draw, and says so.
+      return rows;
+    }
+
+    let bidsExpanded = false;
+    let chaseShown = '';
+    let pricingShown = '';
+    let winRateShown = '';
+    let trendShown = '';
+    let keepShown = '';
+    let mixShown = '';
+
+    function showSavedBids() {
+      const section = document.getElementById('bids');
+      // Rows are named from the search index; until it is here there is
+      // nothing to name them with. A restore from backup lands here first on a
+      // page that never needed the index, so fetch it and come back.
+      if (!indexReady) {
+        if (savedBids().length) loadIndex().then(showSavedBids, () => {});
+        return;
+      }
+      const list = document.getElementById('bidsList');
+      const more = document.getElementById('bidsMore');
+      list.replaceChildren();
+      more.replaceChildren();
+
+      // Only offer a tool the hub is actually showing: a bid left behind by a
+      // tool since renamed or withdrawn would link to a 404. The bid stays on
+      // disk — jobs.mjs keeps unknown slugs for exactly this reason — it is
+      // just not offered a link that goes nowhere.
+      //
+      // Filtered before the cut, not after, so the count below is a count of
+      // rows the visitor could actually open.
+      const rows = [];
+      for (const row of savedBids()) {
+        const tool = TOOLS.get(row.slug);
+        // The tool's own name, taken from the search index entry the row was
+        // matched to rather than off the bid: the slug is what storage
+        // carries, and "deck-bid-calculator" is not what a contractor calls
+        // the thing. Read here, once per row, so winRateSentence stays a pure
+        // function of its rows and can be tested without a document.
+        if (tool) {
+          rows.push({
+            ...row,
+            label: tool.t || row.slug,
+          });
+        }
+      }
+
+      const now = Date.now();
+
+      // Counted over every row, not the eight drawn: "3 bids are waiting" must
+      // mean three on this device, or the number contradicts the "Show all"
+      // button directly beneath it.
+      const summary = document.getElementById('bidsSummary');
+      const sentence = followUpSentence(rows, now);
+      summary.textContent = sentence;
+      summary.hidden = sentence === '';
+
+      // Same rule, and the same reason: the window is read off every bid on the
+      // device, not off the eight this page happens to draw.
+      const chase = document.getElementById('bidsChase');
+      const chasing = chaseSentence(rows, now);
+      chase.textContent = chasing;
+      chase.hidden = chasing === '';
+      // Counted when the reading changes rather than on every render, so
+      // pressing "Show all" is not a second reading. record() is already silent
+      // under DNT/GPC and the opt-out, and carries no name and no slug.
+      if (chasing !== '' && chasing !== chaseShown) {
+        chaseShown = chasing;
+        record('saved_bid_chase_shown');
+      }
+
+      // How the pricing is landing, pooled across every tool. Read off every
+      // row for the same reason the two lines above are: this is a statement
+      // about the contractor's whole book, and computing it from the eight rows
+      // the page happens to draw would make it change when they press "Show
+      // all".
+      const pricing = document.getElementById('bidsPricing');
+      const priced = pricingSentence(rows);
+      pricing.textContent = priced;
+      pricing.hidden = priced === '';
+      // Counted on change rather than on every render, as the chase line is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, and no figure.
+      if (priced !== '' && priced !== pricingShown) {
+        pricingShown = priced;
+        record('saved_bid_pricing_shown');
+      }
+
+      // How often the quotes land, over the same whole book and for the same
+      // reason: computing it from the eight rows drawn would make the rate
+      // change when the visitor pressed "Show all", which is the one thing a
+      // rate must not do.
+      const winRate = document.getElementById('bidsWinRate');
+      const rated = winRateSentence(rows);
+      winRate.textContent = rated;
+      winRate.hidden = rated === '';
+      // Counted on change rather than on every render, as the two lines above
+      // are. record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no tool and no figure — only that a reading
+      // was drawn, which is what says whether the feature is worth its bytes.
+      if (rated !== '' && rated !== winRateShown) {
+        winRateShown = rated;
+        record('saved_bid_win_rate_shown');
+      }
+
+      // Whether what this contractor changed is working, read off the same
+      // whole book — and here the "every row, not the eight drawn" rule is
+      // load-bearing in a way it is not above: this reading splits a tool's
+      // bids into an older and a newer half, and the eight rows the page draws
+      // are the newest, so computing it from them would compare the recent
+      // half against itself.
+      const trend = document.getElementById('bidsTrend');
+      const trending = trendSentence(rows, now);
+      trend.textContent = trending;
+      trend.hidden = trending === '';
+      // Counted on change, as every line above is. record() is already silent
+      // under DNT/GPC and the opt-out, and this carries no name, no slug, no
+      // trade, no figure and no direction — only that the reading drew, which
+      // is what says whether a book here is long enough to have a history.
+      if (trending !== '' && trending !== trendShown) {
+        trendShown = trending;
+        record('saved_bid_trend_shown');
+      }
+
+      // Which trades the finished work is worth doing, over the same whole
+      // book and for the same reason as every line above: a share that moved
+      // when the visitor pressed "Show all" would be a different claim about
+      // their business each time they looked at it.
+      const keep = document.getElementById('bidsKeep');
+      const keeping = keepSentence(rows);
+      keep.textContent = keeping;
+      keep.hidden = keeping === '';
+      // Counted on change rather than on every render, as the three lines
+      // above are. record() is already silent under DNT/GPC and the opt-out,
+      // and this carries no name, no slug, no trade and no figure — only that
+      // the reading was drawn at all, which is the signal that says whether
+      // contractors are costing their finished jobs.
+      if (keeping !== '' && keeping !== keepShown) {
+        keepShown = keeping;
+        record('saved_bid_keep_shown');
+      }
+
+      // Whether the work that lands is the work that pays — the two readings
+      // directly above, crossed. Off the same whole book for the same reason
+      // they are: a mix that changed when the visitor pressed "Show all" would
+      // be telling them to raise a different price each time they looked.
+      const mix = document.getElementById('bidsMix');
+      const mixed = mixSentence(rows);
+      mix.textContent = mixed;
+      mix.hidden = mixed === '';
+      // Counted on change rather than on every render, as every line above is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no trade, no figure and not even which of
+      // the two branches drew — only that a book here was long enough on both
+      // halves at once to cross them, which is the one thing the reading's
+      // sample bars make worth knowing.
+      if (mixed !== '' && mixed !== mixShown) {
+        mixShown = mixed;
+        record('saved_bid_mix_shown');
+      }
+
+      const seen = responseWindow(rows);
+
+      // Which rows to draw: the newest BIDS_SHOWN, plus every quote that has
+      // gone quiet wherever it falls in the list.
+      //
+      // A quiet bid is an old bid by definition, so the plain cut hid precisely
+      // the rows the chase line directly above had just asked the contractor to
+      // act on — the page said "2 have been out longer than that" and then
+      // showed eight rows, none of them the two.
+      //
+      // Order is left alone. A surfaced row keeps its place in the newest-first
+      // list rather than being promoted to the top: this section is the index
+      // the copy says it is, used to find the job whose customer just rang, and
+      // resorting it around a second purpose would cost that one.
+      const drawn = bidsExpanded
+        ? rows
+        : rows.filter((row, i) => i < BIDS_SHOWN || isQuietBid(row, seen, now));
+
+      for (const row of drawn) {
+        const { slug, name, at, amount, outcome, label: toolName } = row;
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        // The anchor jobs.mjs answers: the band opens and scrolls into view, so
+        // the visitor arrives at their bid list rather than at the top of a
+        // calculator. The bid's name is never put in the URL — it is a
+        // customer's name, and a fragment lands in browser history and in
+        // anything the visitor shares.
+        link.href = slug + '/#pf-jobs';
+
+        const label = document.createElement('span');
+        label.className = 'bid-name';
+        // textContent, never innerHTML: the name is typed by the visitor and
+        // read back out of storage any page on this origin can write.
+        label.textContent = name;
+
+        // What the tool came to. The index has always been able to say where a
+        // bid lives and how long it has been out; without this it could not say
+        // the one thing the contractor is actually being asked on the phone.
+        // The row names its tool two spans along, which is what fixes the
+        // meaning: a quote on the trade calculators, profit per unit on the
+        // seller-fee ones. Absent where the tool has no headline figure — see
+        // pageHeadlineAmountSelector — so the row is built around it missing.
+        const figure = document.createElement('span');
+        figure.className = 'bid-amount';
+        figure.textContent = amount || '';
+        figure.hidden = !amount;
+
+        const where = document.createElement('span');
+        where.className = 'bid-where';
+        where.textContent = toolName || slug;
+
+        const when = document.createElement('span');
+        when.className = 'bid-when';
+        when.textContent = at.slice(0, 10);
+
+        // Every row says which of the three states it is in, including the
+        // waiting ones with no age yet. A badge only on the old bids would
+        // leave the rest looking untracked, and the visitor could not tell a
+        // bid saved this morning from one this feature had failed to read.
+        const state = document.createElement('span');
+        state.className = 'bid-state';
+        // A quote that has outlived every answer this contractor has ever had
+        // is a fourth state, and it is the one worth a word rather than a date:
+        // "Waiting 19 days" reads as tracked, "Chase" reads as owed. The tool
+        // pages mark the same rows off the same window; this page is where the
+        // window usually exists at all, since three answered bids is a
+        // threshold a contractor working six calculators clears in none of them
+        // and easily across all of them.
+        const quiet = isQuietBid(row, seen, now);
+        state.dataset.state = outcome || (quiet ? 'quiet' : 'waiting');
+        state.textContent = outcome
+          ? outcome === 'won' ? 'Won' : 'Lost'
+          : bidWaitingPhrase(bidWaitingDays(at, now)) || 'Waiting';
+
+        // Before the date, which bid-when's auto margin pushes to the far right:
+        // the tag qualifies the state beside it rather than ending the row.
+        const tag = [];
+        if (quiet) {
+          const chaseTag = document.createElement('span');
+          chaseTag.className = 'bid-chase-tag';
+          // Says what to do rather than what happened, like the band's own tag.
+          chaseTag.textContent = 'Chase';
+          tag.push(chaseTag);
+        }
+        link.append(label, figure, where, state, ...tag, when);
+        // The event carries no name and no slug — how often the index is used,
+        // never for what. record() is already silent under DNT/GPC and the
+        // opt-out.
+        link.addEventListener('click', () => record('saved_bid_followed'));
+
+        item.append(link);
+        list.append(item);
+      }
+
+      // Never a silent cut. The section says "bids you saved in any tool", so a
+      // list that quietly stopped at eight would be stating something the page
+      // contradicts — and the contractor looking for the job they saved three
+      // weeks ago would conclude the tool had forgotten it.
+      const hidden = rows.length - drawn.length;
+      more.hidden = hidden === 0;
+      if (hidden > 0) {
+        // The newest ones, counted separately from the quiet ones pulled up
+        // past them: "showing the 10 most recent" would be false the moment a
+        // row older than the tenth is on screen, and this section's whole
+        // contract is that it never states a number the page contradicts.
+        const recent = Math.min(rows.length, BIDS_SHOWN);
+        const surfaced = drawn.length - recent;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Show all ' + rows.length;
+        button.addEventListener('click', () => {
+          bidsExpanded = true;
+          record('saved_bid_index_expanded');
+          showSavedBids();
+        });
+        more.append(
+          document.createTextNode(
+            'Showing the ' + recent + ' most recent of ' + rows.length + ' saved bids' +
+            (surfaced > 0
+              ? ', plus ' + surfaced + ' that ' + (surfaced === 1 ? 'has' : 'have') + ' gone quiet. '
+              : '. ')),
+          button,
+        );
+      }
+
+      section.hidden = list.childElementCount === 0;
+      if (!section.hidden && !bidsExpanded) record('saved_bid_index_shown');
+    }
+
+    // Both lists name their tools from the search index, which this page does
+    // not otherwise load until someone searches. Fetch it now only when this
+    // browser has something to show: a saved bid, or a tool it has opened.
+    try {
+      const hasBids = Object.keys((JSON.parse(localStorage.getItem(BIDS_KEY) || '{}') || {}).bids || {}).length > 0;
+      const hasViews = /"tool_viewed:/.test(localStorage.getItem(KEY) || '');
+      if (hasBids || hasViews) {
+        loadIndex().then(() => { showYourTools(); showSavedBids(); }, () => {});
+      }
+    } catch { /* storage unavailable: nothing saved to show */ }
+
+    // Backup and restore for saved bids.
+    //
+    // The saved-bid feature stands on one localStorage key in one browser. That
+    // is the right shape for a site with nothing to upload to, and it means a
+    // cleared browser, a replaced phone, or a storage policy that evicts a site
+    // nobody opened for a week takes every bid with it. This is the way out
+    // that does not need an account or a server: a file the visitor holds.
+    const backupBox = document.getElementById('backup-box');
+    const backupTitle = document.getElementById('backup-title');
+    const backupCopy = document.getElementById('backup-copy');
+    const backupDownload = document.getElementById('backup-download');
+    const backupFile = document.getElementById('backup-file');
+    const backupStatus = document.getElementById('backup-status');
+    const RATES_KEY = 'portfolio-shop-rates';
+    const BACKUP_KIND = "monorepo-projects/saved-bids";
+    const BACKUP_VERSION = 1;
+    const MAX_SAVED_BIDS = 25;
+    const MAX_BACKUP_BYTES = 2000000;
+    const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
+    // The four shop-rate fields rates.mjs carries between tools, with the same
+    // ceilings: a backup restores the rates bar, not an arbitrary map of values
+    // a file claims are rates, and never a value a calculator would then
+    // reject.
+    const RATE_FIELDS = [{"id":"hourlyWage","max":100000},{"id":"burdenRate","max":500},{"id":"overheadRate","max":500},{"id":"targetMargin","max":99.9}];
+
+    // normalizeBid() and mergeBids(), as this repository's tests run them.
+    // Embedded rather than transcribed: the hand-written pair that stood here
+    // predated bid outcomes and silently dropped every won/lost decision
+    // through a backup round trip. See BACKUP_MERGE_HELPERS.
+var EXCLUDED_FIELD_IDS = new Set(["usageOptOut","usage","clientName","clientAddress","companyName","companyAddress","companyPhone","companyEmail","companyLicense"]);
+var EXCLUDED_ID_PREFIX = "pf-";
+var BID_OUTCOMES = ["won","lost"];
+var MAX_LOST_TO = 1000000000;
+var normalizeBidName = function normalizeBidName(value) {
+if (typeof value !== 'string') return '';
+return value.replace(/\s+/g, ' ').trim().slice(0, 60);
+};
+var normalizeOutcome = function normalizeOutcome(value) {
+return BID_OUTCOMES.indexOf(value) === -1 ? null : value;
+};
+var normalizeLostTo = function normalizeLostTo(value) {
+var text = typeof value === 'number' && Number.isFinite(value) ? String(value) : value;
+if (typeof text !== 'string') return '';
+text = text.replace(/[\s ,]/g, '').replace(/^[$£€]/, '');
+if (!/^\d+(\.\d{1,2})?$/.test(text)) return '';
+var amount = Number(text);
+if (!(amount > 0) || amount > MAX_LOST_TO) return '';
+return String(amount);
+};
+var normalizeJobCost = function normalizeJobCost(value) {
+return normalizeLostTo(value);
+};
+var normalizeHeadlineAmount = function normalizeHeadlineAmount(value) {
+if (typeof value !== 'string') return '';
+var text = value.replace(/\s+/g, ' ').trim();
+if (text.length === 0 || text.length > 32) return '';
+if (!/[$£€]/.test(text)) return '';
+if (!/[1-9]/.test(text)) return '';
+return text;
+};
+var isExcludedId = (id) =>
+!id || id.startsWith(EXCLUDED_ID_PREFIX) || EXCLUDED_FIELD_IDS.has(id);
+var normalizeBid = function normalizeBid(entry) {
+if (!entry || typeof entry !== 'object') return null;
+const name = normalizeBidName(entry.name);
+if (!name) return null;
+const at = typeof entry.at === 'string' && entry.at ? entry.at : null;
+if (!at) return null;
+const source = entry.fields;
+if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+const fields = {};
+let kept = 0;
+for (const [id, value] of Object.entries(source)) {
+if (isExcludedId(id)) continue;
+if (typeof value !== 'string' && typeof value !== 'boolean') continue;
+if (typeof value === 'string' && value.length > 2000) continue;
+fields[id] = value;
+kept++;
+}
+if (kept === 0) return null;
+const bid = { name, at, fields };
+const amount = normalizeHeadlineAmount(entry.amount);
+if (amount) bid.amount = amount;
+const outcome = normalizeOutcome(entry.outcome);
+if (outcome) {
+bid.outcome = outcome;
+if (typeof entry.decidedAt === 'string' && entry.decidedAt) bid.decidedAt = entry.decidedAt;
+if (outcome === 'lost') {
+const lostTo = normalizeLostTo(entry.lostTo);
+if (lostTo) bid.lostTo = lostTo;
+}
+if (outcome === 'won') {
+const cost = normalizeJobCost(entry.cost);
+if (cost) bid.cost = cost;
+}
+}
+return bid;
+};
+var bidKey = (bid) => bid.name;
+var withDecision = function withDecision(base, decided) {
+const { lostTo, cost, ...rest } = base;
+const kept = decided.outcome === 'lost' ? decided.lostTo || lostTo : '';
+const spent = decided.outcome === 'won' ? decided.cost || cost : '';
+return {
+...rest,
+outcome: decided.outcome,
+...(decided.decidedAt ? { decidedAt: decided.decidedAt } : {}),
+...(kept ? { lostTo: kept } : {}),
+...(spent ? { cost: spent } : {}),
+};
+};
+var resolveBidPair = function resolveBidPair(mine, theirs) {
+const base = theirs.at > mine.at ? theirs : mine;
+const other = base === theirs ? mine : theirs;
+if (base.outcome && other.outcome) {
+const keep = (other.decidedAt ?? '') > (base.decidedAt ?? '') ? other : base;
+if (keep === base) return base;
+return withDecision(base, keep);
+}
+const decided = base.outcome ? base : other.outcome ? other : null;
+if (!decided || decided === base) return base;
+return withDecision(base, decided);
+};
+var mergeBids = function mergeBids(current, incoming) {
+const result = {};
+let added = 0;
+let replaced = 0;
+let unchanged = 0;
+let dropped = 0;
+const slugs = new Set([
+...Object.keys(current ?? {}),
+...Object.keys(incoming ?? {}),
+]);
+for (const slug of slugs) {
+const mine = (current?.[slug] ?? []).map(normalizeBid).filter(Boolean);
+const theirs = (incoming?.[slug] ?? []).map(normalizeBid).filter(Boolean);
+const byName = new Map();
+for (const bid of mine) {
+const existing = byName.get(bidKey(bid));
+byName.set(bidKey(bid), existing ? resolveBidPair(existing, bid) : bid);
+}
+for (const bid of theirs) {
+const existing = byName.get(bidKey(bid));
+if (!existing) {
+byName.set(bidKey(bid), bid);
+added++;
+continue;
+}
+const kept = resolveBidPair(existing, bid);
+byName.set(bidKey(bid), kept);
+if (kept === existing) unchanged++;
+else replaced++;
+}
+const merged = [...byName.values()].sort(
+(a, b) => b.at.localeCompare(a.at) || a.name.localeCompare(b.name),
+);
+if (merged.length > MAX_SAVED_BIDS) dropped += merged.length - MAX_SAVED_BIDS;
+const kept = merged.slice(0, MAX_SAVED_BIDS);
+if (kept.length > 0) result[slug] = kept;
+}
+return { bids: result, added, replaced, unchanged, dropped };
+};
+
+    function readBidStore() {
+      let parsed;
+      try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return {}; }
+      const bids = parsed && typeof parsed === 'object' ? parsed.bids : null;
+      if (!bids || typeof bids !== 'object' || Array.isArray(bids)) return {};
+      const out = {};
+      for (const [slug, list] of Object.entries(bids)) {
+        if (!SLUG_RE.test(slug) || !Array.isArray(list)) continue;
+        const kept = list.map((entry) => normalizeBid(entry)).filter(Boolean).slice(0, MAX_SAVED_BIDS);
+        if (kept.length > 0) out[slug] = kept;
+      }
+      return out;
+    }
+
+    function countBids(store) {
+      let total = 0;
+      for (const list of Object.values(store)) total += list.length;
+      return total;
+    }
+
+    function showBackup() {
+      if (!backupBox) return;
+      backupBox.hidden = false;
+      const total = countBids(readBidStore());
+      backupDownload.hidden = total === 0;
+      if (total === 0) {
+        backupTitle.textContent = 'Bids saved on another browser?';
+        backupCopy.textContent =
+          'If you saved bids on another device and downloaded a backup file there, ' +
+          'open it here to bring them across. Nothing is uploaded — the file is read ' +
+          'in this browser.';
+      } else {
+        backupTitle.textContent = 'Move your saved bids to another browser';
+        backupCopy.textContent =
+          'Saved bids live in this browser only. Download ' +
+          (total === 1 ? 'your saved bid' : 'all ' + total + ' saved bids') +
+          ' as a file to keep a copy, or to open them on your laptop, your phone, ' +
+          'or a new device.';
+      }
+    }
+
+    if (backupBox) {
+      showBackup();
+
+      backupDownload.addEventListener('click', () => {
+        const at = new Date().toISOString();
+        const payload = { kind: BACKUP_KIND, v: BACKUP_VERSION, at: at, bids: readBidStore() };
+        try {
+          const raw = localStorage.getItem(RATES_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          const rates = parsed && typeof parsed === 'object'
+            ? (parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed) : null;
+          if (rates) payload.rates = rates;
+        } catch { /* a bad rates key is not a reason to refuse the bids */ }
+
+        // A Blob and an object URL: the file is assembled in the page and never
+        // travels anywhere. Revoked on the next frame so the browser can free it
+        // once the download has started.
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'saved-bids-' + at.slice(0, 10) + '.json';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+
+        const count = countBids(payload.bids);
+        backupStatus.textContent = 'Downloaded ' + count +
+          (count === 1 ? ' saved bid' : ' saved bids') +
+          '. Keep it somewhere you would keep a customer list.';
+        // How often the backup is taken, never what is in it.
+        record('bids_backup_downloaded');
+      });
+
+      backupFile.addEventListener('change', async () => {
+        const file = backupFile.files && backupFile.files[0];
+        if (!file) return;
+        backupStatus.textContent = 'Reading…';
+        let text = '';
+        try {
+          text = await file.text();
+        } catch {
+          backupStatus.textContent = 'That file could not be read.';
+          record('bids_backup_rejected');
+          backupFile.value = '';
+          return;
+        }
+
+        const parsed = parseBackupText(text);
+        if (!parsed.ok) {
+          backupStatus.textContent = parsed.error;
+          record('bids_backup_rejected');
+          backupFile.value = '';
+          return;
+        }
+
+        const merged = mergeBids(readBidStore(), parsed.bids);
+        try {
+          localStorage.setItem(BIDS_KEY, JSON.stringify({ v: 1, bids: merged.bids }));
+        } catch {
+          backupStatus.textContent =
+            'This browser would not store the bids — it may be out of space, or in a ' +
+            'private window. Nothing was changed.';
+          record('bids_backup_rejected');
+          backupFile.value = '';
+          return;
+        }
+
+        // Shop rates are the visitor's own business numbers and every trade
+        // calculator prefills from them. A restore that overwrote the ones set
+        // in this browser would silently reprice every tool from a file, so the
+        // rates are taken only where there are none to lose, and the status
+        // line says which happened.
+        let ratesApplied = false;
+        let ratesKept = false;
+        if (parsed.rates) {
+          let existing = null;
+          try { existing = localStorage.getItem(RATES_KEY); } catch { /* ignore */ }
+          if (existing) {
+            ratesKept = true;
+          } else {
+            try {
+              localStorage.setItem(RATES_KEY, JSON.stringify({ v: 1, rates: parsed.rates }));
+              ratesApplied = true;
+            } catch { /* ignore: the bids are the point */ }
+          }
+        }
+
+        backupStatus.textContent = restoreSummaryText({
+          added: merged.added,
+          replaced: merged.replaced,
+          unchanged: merged.unchanged,
+          dropped: merged.dropped,
+          skipped: parsed.skipped,
+          ratesKept: ratesKept,
+          ratesApplied: ratesApplied,
+        });
+        record('bids_backup_restored');
+        backupFile.value = '';
+        // The list above has to redraw now: being told twelve bids arrived and
+        // shown the same eight rows reads as a restore that did not happen.
+        bidsExpanded = false;
+        showSavedBids();
+        showBackup();
+      });
+    }
+
+    function parseBackupText(text) {
+      if (typeof text !== 'string' || text.trim() === '') {
+        return { ok: false, error: 'That file is empty.' };
+      }
+      if (text.length > MAX_BACKUP_BYTES) {
+        return { ok: false, error: 'That file is too large to be a backup from this site.' };
+      }
+      let parsed;
+      try { parsed = JSON.parse(text); } catch {
+        return { ok: false, error: 'That file is not a backup from this site.' };
+      }
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return { ok: false, error: 'That file is not a backup from this site.' };
+      }
+      if (parsed.kind !== BACKUP_KIND) {
+        return { ok: false, error: 'That file is not a backup from this site.' };
+      }
+      if (parsed.v !== BACKUP_VERSION) {
+        return { ok: false, error: 'That backup was written by a different version of ' +
+          'this site and cannot be read here.' };
+      }
+      const source = parsed.bids && typeof parsed.bids === 'object' && !Array.isArray(parsed.bids)
+        ? parsed.bids : null;
+      if (!source) return { ok: false, error: 'That backup holds no saved bids.' };
+      const entries = Object.entries(source);
+      if (entries.length > 500) {
+        return { ok: false, error: 'That file is not a backup from this site.' };
+      }
+
+      const bids = {};
+      let skipped = 0;
+      for (const [slug, list] of entries) {
+        if (!SLUG_RE.test(slug)) {
+          skipped += Array.isArray(list) ? list.length : 1;
+          continue;
+        }
+        if (!Array.isArray(list)) { skipped += 1; continue; }
+        const kept = [];
+        for (const entry of list) {
+          const bid = normalizeBid(entry);
+          if (bid) kept.push(bid); else skipped++;
+        }
+        if (kept.length > 0) bids[slug] = kept;
+      }
+      if (countBids(bids) === 0) {
+        return { ok: false, error: skipped > 0
+          ? 'That backup holds no saved bids this site can read.'
+          : 'That backup holds no saved bids.' };
+      }
+      let rates = null;
+      if (parsed.rates && typeof parsed.rates === 'object' && !Array.isArray(parsed.rates)) {
+        const clean = {};
+        for (const field of RATE_FIELDS) {
+          const value = parsed.rates[field.id];
+          if (value === '' || value === null || value === undefined) continue;
+          const num = typeof value === 'number' ? value : Number(String(value).trim());
+          if (!Number.isFinite(num) || num < 0 || num > field.max) continue;
+          clean[field.id] = num;
+        }
+        if (Object.keys(clean).length > 0) rates = clean;
+      }
+      return { ok: true, bids: bids, rates: rates, skipped: skipped,
+        at: typeof parsed.at === 'string' ? parsed.at : null };
+    }
+
+    function restoreSummaryText(counts) {
+      const bidWord = (n) => (n === 1 ? '1 bid' : n + ' bids');
+      const parts = [];
+      if (counts.added) parts.push(bidWord(counts.added) + ' added');
+      if (counts.replaced) parts.push(bidWord(counts.replaced) + ' updated to the newer version');
+      if (counts.unchanged) parts.push(bidWord(counts.unchanged) + ' already here');
+      if (parts.length === 0) parts.push('nothing new to add');
+      let text = 'Restored: ' + parts.join(', ') + '.';
+      if (counts.skipped) {
+        text += ' ' + counts.skipped + ' entr' + (counts.skipped === 1 ? 'y' : 'ies') +
+          ' in the file could not be read and ' +
+          (counts.skipped === 1 ? 'was' : 'were') + ' left out.';
+      }
+      if (counts.dropped) {
+        text += ' ' + bidWord(counts.dropped) + ' went over the ' + MAX_SAVED_BIDS +
+          '-per-tool limit and the oldest ' +
+          (counts.dropped === 1 ? 'was' : 'were') + ' dropped.';
+      }
+      if (counts.ratesApplied) text += ' Your shop rates were restored too.';
+      else if (counts.ratesKept) {
+        text += ' The shop rates already set in this browser were kept — ' +
+          'this never overwrites them.';
+      }
+      return text;
+    }
+
+
+    // Offline saving is offered only where it can actually work, so the button
+    // never appears and then fails.
+    const box = document.getElementById('offline-box');
+    const category = document.getElementById('offline-category');
+    const save = document.getElementById('offline-save');
+    const status = document.getElementById('offline-status');
+
+    function savedCategories() {
+      try {
+        return JSON.parse(localStorage.getItem('portfolio-offline-saved') || '[]');
+      } catch { return []; }
+    }
+
+    // Re-run on load and on every selection change, so switching categories
+    // in the picker doesn't leave a stale "Save again" from whichever one was
+    // saved last.
+    function refreshForSelection() {
+      if (savedCategories().includes(category.value)) {
+        save.textContent = 'Save again';
+        status.textContent = 'Saved on this device.';
+      } else {
+        save.textContent = 'Save this category for offline';
+        status.textContent = '';
+      }
+    }
+
+    if ('serviceWorker' in navigator && box && category) {
+      box.hidden = false;
+      // Whether a hub visitor takes the offline offer is the question this
+      // feature exists to answer, so it goes through the same local,
+      // opt-out-respecting counter as every other hub event.
+      record('offline_offer_shown');
+      refreshForSelection();
+      category.addEventListener('change', refreshForSelection);
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        const data = event.data || {};
+        if (data.type === 'cache-all-progress') {
+          status.textContent = 'Saving ' + data.done + ' of ' + data.total + '…';
+        } else if (data.type === 'cache-all-complete') {
+          save.disabled = false;
+          save.textContent = 'Save again';
+          status.textContent = data.failed
+            ? 'Saved, except ' + data.failed + ' file(s). Try again on a better connection.'
+            : 'Saved. This category now opens with no connection.';
+          record(data.failed ? 'offline_saved_partial' : 'offline_saved');
+          try {
+            const saved = savedCategories();
+            if (!saved.includes(category.value)) saved.push(category.value);
+            localStorage.setItem('portfolio-offline-saved', JSON.stringify(saved));
+          } catch { /* ignore */ }
+        }
+      });
+
+      save.addEventListener('click', async () => {
+        save.disabled = true;
+        status.textContent = 'Starting…';
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const worker = navigator.serviceWorker.controller || registration.active;
+          if (!worker) throw new Error('no worker');
+          worker.postMessage({ type: 'cache-all', category: category.value });
+        } catch {
+          save.disabled = false;
+          status.textContent = 'Could not start. Reload the page and try again.';
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>

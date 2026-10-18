@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sponsor Ready — free GitHub Sponsors readiness checklist</title>
+  <meta name="description" content="Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors…" />
+  <meta property="og:title" content="Sponsor Ready" />
+  <meta property="og:description" content="Paste a public repo. Get a ranked list of sponsorship signals to fix first. Runs in your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sponsor Ready","applicationCategory":"DeveloperApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a high score mean GitHub will approve me for Sponsors?","acceptedAnswer":{"@type":"Answer","text":"No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub. See all 10 signals ranked by weight, with the one-line fix for each."}},{"@type":"Question","name":"Why did my scan fail with a rate-limit error?","acceptedAnswer":{"@type":"Answer","text":"Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit."}},{"@type":"Question","name":"Can I check a private repository?","acceptedAnswer":{"@type":"Answer","text":"No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it."}},{"@type":"Question","name":"Does it store or send the name of the repo I scanned anywhere?","acceptedAnswer":{"@type":"Answer","text":"Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like \"a scan happened\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Can I share a link to a scan result?","acceptedAnswer":{"@type":"Answer","text":"Yes. After a scan, \"Copy link to this result\" puts the repo name in the page's own URL fragment (the part after #), which browsers never send to any server — opening the link just re-runs the same public scan in the recipient's own browser. It only works for public repos, so it never reveals anything that a visit to the repo's GitHub page would not already show."}}]}</script>
+
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Sponsor Ready","item":"https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sponsor Ready — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Sponsor Ready</span></span></nav>
+  <main class="page">
+    <header class="hero">
+      <h1>Sponsor Ready</h1>
+      <p class="tagline">
+        Free checklist for GitHub Sponsors readiness. Paste a public repo,
+        get a ranked list of what's missing — no signup, nothing stored
+        here.
+      </p>
+    </header>
+
+    <form id="scan-form" class="scan-form">
+      <label for="repo-input" class="visually-hidden">GitHub repo (owner/name or URL)</label>
+      <input
+        id="repo-input"
+        name="repo"
+        type="text"
+        placeholder="owner/repo or https://github.com/owner/repo"
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Check repo</button>
+    </form>
+
+    <p class="example-line">
+      Not sure what to paste?
+      <button type="button" id="example-repo" class="link-button">Run it on this tool's own repo</button>
+      — it scores the project Sponsor Ready lives in, so you can see the
+      checklist before pointing it at your own work.
+    </p>
+
+    <p id="loading" class="loading" hidden>Checking…</p>
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="results" class="results" aria-live="polite"></div>
+
+    <section class="disclaimer">
+      <h2>What this is and isn't</h2>
+      <ul>
+        <li>
+          Every check runs in <em>your</em> browser, calling GitHub's public
+          API directly. This site has no server and stores nothing about
+          the repos you check.
+        </li>
+        <li>
+          This is an informational heuristic against publicly documented
+          signals — it is <strong>not affiliated with GitHub</strong> and
+          does not guarantee any sponsorship outcome. It never tells you
+          to enable GitHub Sponsors.
+        </li>
+        <li>
+          Only anonymous, aggregate usage counts (for example "a scan
+          happened") may be recorded locally — never which repo you scanned.
+        </li>
+      </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does a high score mean GitHub will approve me for Sponsors?</h3>
+      <p>No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub. <a href="github-sponsors-readiness-checklist.html">See all 10 signals ranked by weight</a>, with the one-line fix for each. If you already use GitHub's own Community Standards page, <a href="vs-github-community-standards.html">here is how the two differ</a> — this reads the same community-profile data and then asks a different question.</p>
+      <h3>Why did my scan fail with a rate-limit error?</h3>
+      <p>Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit.</p>
+      <h3>Can I check a private repository?</h3>
+      <p>No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it.</p>
+      <h3>Does it store or send the name of the repo I scanned anywhere?</h3>
+      <p>Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like "a scan happened" may be recorded locally, with an opt-out below.</p>
+      <h3>Can I share a link to a scan result?</h3>
+      <p>Yes. After a scan, "Copy link to this result" puts the repo name in the page's own URL fragment (the part after #), which browsers never send to any server — opening the link just re-runs the same public scan in the recipient's own browser. It only works for public repos, so it never reveals anything that a visit to the repo's GitHub page would not already show.</p>
+    </section>
+
+    <footer class="footer">
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+      <p>The checklist runs in your browser. Your scan target is sent only to api.github.com. We count only anonymous local feature events, never people or repo names, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checklist.</p>
+      <p>
+        Part of the Free small-business calculators portfolio.
+      </p>
+    <p>Also earning from affiliate links on a blog? The <a href="../affiliate-disclosure-checker/">affiliate disclosure checker</a> finds the affiliate links in a post and checks whether a disclosure appears before the first one.</p></footer>
+  </main>
+
+  <script src="scoring.js"></script>
+  <script src="usage.js"></script>
+  <script src="app.js"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to api.github.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../retreat-profit-pricing-calculator/" data-pf-to="retreat-profit-pricing-calculator">Retreat and workshop profit calculator</a></li>
+      <li><a href="../roommate-rent-splitter/" data-pf-to="roommate-rent-splitter">Roommate Rent Splitter — fair rent for unequal rooms</a></li>
+      <li><a href="../rush-job-sequencer/" data-pf-to="rush-job-sequencer">Rush job sequencer</a></li>
+      <li><a href="../schengen-90-180-day-calculator/" data-pf-to="schengen-90-180-day-calculator">Schengen 90/180 day calculator: days left and last exit date. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sponsor-ready">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/?pfEmbed=1&quot; title=&quot;Sponsor Ready — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sponsor-ready"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/" data-pf-embed-title="Sponsor Ready" data-pf-embed-slug="sponsor-ready"></script>
+</body>
+</html>

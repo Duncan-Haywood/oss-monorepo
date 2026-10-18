@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OpenAPI Breaking Change Check vs. oasdiff</title>
+  <meta name="description" content="oasdiff is an open-source Go CLI and GitHub Action that detects 755 documented kinds of OpenAPI change, breaking and non-breaking…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-oasdiff.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="OpenAPI Breaking Change Check vs. oasdiff">
+  <meta property="og:description" content="oasdiff is a broad, installable Go CLI with 755 documented change rules and its own GitHub Action.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-oasdiff.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or oasdiff?","acceptedAnswer":{"@type":"Answer","text":"They overlap on the common cases -- a removed operation, a parameter that became required, a narrowed type -- and differ sharply in depth and packaging. oasdiff is an open-source, Apache-2.0-licensed Go CLI (installed with go install, Homebrew, Docker, or a pre-built binary from its releases page) that reads OpenAPI 3.0, 3.1, or 3.2 documents in YAML or JSON and, per its own documentation, recognizes 755 distinct kinds of change -- breaking and non-breaking together -- including differences buried inside request and response body JSON Schemas. This tool checks 12 of the most common operation, parameter, and request-body-flag changes only, runs entirely in your browser on JSON you paste, and cannot read YAML or diff a body schema. If you need the deepest available diff, YAML support, or a GitHub Action that reviews every pull request automatically, oasdiff is the right tool. If you want a fast, no-install answer to the common-case question on two JSON files you already have open, this is the narrower tool for that."}},{"@type":"Question","name":"Does oasdiff catch more than this tool does?","acceptedAnswer":{"@type":"Answer","text":"Yes, considerably more. oasdiff's own documentation lists 755 distinct recognized changes, spanning far past operations and parameters into request and response body schemas, headers, security requirements, and more -- ground this tool's shallow structural comparison does not cover at all. This tool implements 12 change kinds: an operation removed or added, a parameter that is new, removed, or newly required, a parameter's declared type changed, an enum value added or removed, a parameter newly or no-longer restricted to an enum, and a request body's required flag changing either direction. Every one of those also appears in oasdiff's catalogue; the difference is that oasdiff's catalogue keeps going well beyond them."}},{"@type":"Question","name":"Why use a narrower browser tool if oasdiff already covers deep schema changes?","acceptedAnswer":{"@type":"Answer","text":"Two reasons this tool exists alongside it. First, oasdiff is a Go binary you install and then point at files on disk (or wire into CI via its GitHub Action); this tool is a page you open and paste two JSON documents into, which is faster when you just want one quick answer and have not set up a CLI or don't want to install a new binary for a single check. Second, a report spanning 755 possible change kinds is a different shape of answer than a short table naming exactly which operation, parameter, or request-body flag changed and how -- when the question is only the common-case one, this tool's narrower output is faster to read."}},{"@type":"Question","name":"Does this tool read YAML specs the way oasdiff does?","acceptedAnswer":{"@type":"Answer","text":"No. oasdiff reads OpenAPI documents in either YAML or JSON. This tool -- both the browser page and the CLI script -- reads OpenAPI 3.0.x/3.1.x JSON only, and explicitly rejects a Swagger 2.0 document rather than misreading it. If your spec is YAML, convert it to JSON first with any OpenAPI tool's own export or a YAML-to-JSON converter before pasting it here, or use oasdiff directly on the YAML file."}},{"@type":"Question","name":"Is this page affiliated with oasdiff or its maintainers?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by oasdiff or its maintainers. oasdiff is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation at oasdiff.com and its source repository at github.com/oasdiff/oasdiff."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    code { overflow-wrap: break-word; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="OpenAPI Breaking Change Check vs. oasdiff — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../openapi-breaking-change-check/">Did this API version break existing clients?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">OpenAPI Breaking Change Check vs. oasdiff</span></span></nav>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; OpenAPI Breaking Change Check</a></p>
+    <h1>OpenAPI Breaking Change Check vs. oasdiff</h1>
+    <p class="lede">Overlapping ground, very different depth and packaging. oasdiff is an installable,
+      open-source Go CLI with 755 documented change rules reaching deep into request and response body
+      schemas. This tool checks 12 of the most common operation, parameter, and request-body changes, on
+      JSON you paste, free, with nothing to install and no network call of its own.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>oasdiff</strong> (<code>github.com/oasdiff/oasdiff</code>) is an open-source,
+        Apache-2.0-licensed CLI written in Go, installed with <code>go install
+        github.com/oasdiff/oasdiff@latest</code>, its Homebrew formula, a Docker image, or a pre-built
+        binary from its releases page. It reads OpenAPI 3.0, 3.1, or 3.2 documents in either YAML or JSON,
+        and its <code>oasdiff breaking base.yaml revision.yaml</code> command exits 0 when no breaking
+        change is found and 1 when one is. Per its own documentation it recognizes 755 distinct kinds of
+        change, breaking and non-breaking together -- including differences buried inside request and
+        response body JSON Schemas, well past the operation/parameter level -- and can print the result as
+        text, JSON, YAML, Markdown, or HTML. It also ships an official GitHub Action
+        (<code>oasdiff/oasdiff-action</code>) that runs the same check on every pull request and posts a
+        side-by-side review comment.
+      </p>
+      <p>
+        <strong>This checker</strong> does a narrower slice of that and nothing else: you paste two OpenAPI
+        3.0/3.1 <em>JSON</em> documents, and it lists every operation removed or added, every parameter that
+        is new, removed, or newly required, every parameter type change or enum-value change, and every
+        request body that gained or lost its <code>required</code> flag -- 12 change kinds in total. It does
+        not read YAML, and it does not look inside a request or response body's schema beyond that one
+        required flag. It runs entirely in your browser, needs no install, and makes no network call of any
+        kind under any configuration.
+      </p>
+      <div class="table-wrap">
+      <div class="pf-table-scroll"><table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I need every documented kind of change, including ones buried inside a request or response body's JSON Schema.</td><td>oasdiff -- 755 documented change rules cover that depth; this tool's 12 do not.</td></tr>
+          <tr><td>My spec is in YAML, not JSON.</td><td>oasdiff reads YAML directly. This tool reads JSON only -- convert first.</td></tr>
+          <tr><td>I want an automatic review comment posted on every pull request that touches the spec.</td><td>oasdiff's own GitHub Action is built for exactly that; this tool has none.</td></tr>
+          <tr><td>I just want to know if the two JSON files in front of me have an operation, parameter, or request-body change, right now, with nothing to install.</td><td>This checker -- paste both, click Check, get the table.</td></tr>
+          <tr><td>I want this specific check to fail my CI automatically.</td><td>Either: oasdiff's own exit code (0/1) in a CI step, or this tool's <code>--fail-on-breaking</code> for the narrower question specifically.</td></tr>
+          <tr><td>I don't want to install a Go binary or add a new GitHub Action just to check one pair of files.</td><td>This checker -- it is a page, not a package.</td></tr>
+        </tbody>
+      </table></div>
+      </div>
+      <p class="note">The two are complementary, not competing: a team can run oasdiff in CI for full-depth coverage across every pull request and still reach for this tool the moment the question is "does this one pasted pair of JSON files have a common-case breaking change" without installing anything.</p>
+      <p><a class="cta" href="./">Run the free breaking-change check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or oasdiff?</h3>
+      <p>They overlap on the common cases -- a removed operation, a parameter that became required, a narrowed type -- and differ sharply in depth and packaging. oasdiff is an open-source, Apache-2.0-licensed Go CLI (installed with <code>go install</code>, Homebrew, Docker, or a pre-built binary from its releases page) that reads OpenAPI 3.0, 3.1, or 3.2 documents in YAML or JSON and, per its own documentation, recognizes 755 distinct kinds of change -- breaking and non-breaking together -- including differences buried inside request and response body JSON Schemas. This tool checks 12 of the most common operation, parameter, and request-body-flag changes only, runs entirely in your browser on JSON you paste, and cannot read YAML or diff a body schema. If you need the deepest available diff, YAML support, or a GitHub Action that reviews every pull request automatically, oasdiff is the right tool. If you want a fast, no-install answer to the common-case question on two JSON files you already have open, this is the narrower tool for that.</p>
+      <h3>Does oasdiff catch more than this tool does?</h3>
+      <p>Yes, considerably more. oasdiff's own documentation lists 755 distinct recognized changes, spanning far past operations and parameters into request and response body schemas, headers, security requirements, and more -- ground this tool's shallow structural comparison does not cover at all. This tool implements 12 change kinds: an operation removed or added, a parameter that is new, removed, or newly required, a parameter's declared type changed, an enum value added or removed, a parameter newly or no-longer restricted to an enum, and a request body's required flag changing either direction. Every one of those also appears in oasdiff's catalogue; the difference is that oasdiff's catalogue keeps going well beyond them.</p>
+      <h3>Why use a narrower browser tool if oasdiff already covers deep schema changes?</h3>
+      <p>Two reasons this tool exists alongside it. First, oasdiff is a Go binary you install and then point at files on disk (or wire into CI via its GitHub Action); this tool is a page you open and paste two JSON documents into, which is faster when you just want one quick answer and have not set up a CLI or don't want to install a new binary for a single check. Second, a report spanning 755 possible change kinds is a different shape of answer than a short table naming exactly which operation, parameter, or request-body flag changed and how -- when the question is only the common-case one, this tool's narrower output is faster to read.</p>
+      <h3>Does this tool read YAML specs the way oasdiff does?</h3>
+      <p>No. oasdiff reads OpenAPI documents in either YAML or JSON. This tool -- both the browser page and the CLI script -- reads OpenAPI 3.0.x/3.1.x JSON only, and explicitly rejects a Swagger 2.0 document rather than misreading it. If your spec is YAML, convert it to JSON first with any OpenAPI tool's own export or a YAML-to-JSON converter before pasting it here, or use oasdiff directly on the YAML file.</p>
+      <h3>Is this page affiliated with oasdiff or its maintainers?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by oasdiff or its maintainers. oasdiff is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation at oasdiff.com and its source repository at github.com/oasdiff/oasdiff.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a full compatibility audit and does not replace a qualified reviewer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The JSON you paste is never uploaded, and this page makes no live comparison against oasdiff -- it is a static page describing category facts sourced from oasdiff's own public documentation, not a live scan of any spec. We count only anonymous local feature events, never people or spec content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../claude-code-subagent-check/" data-pf-to="claude-code-subagent-check">Claude Code Subagent Check</a></li>
+      <li><a href="../claude-skill-scaffold-generator/" data-pf-to="claude-skill-scaffold-generator">Claude Skill Scaffold Generator</a></li>
+      <li><a href="../cloud-bucket-exposure-check/" data-pf-to="cloud-bucket-exposure-check">Cloud Bucket Exposure Checker</a></li>
+      <li><a href="../cloudflare-bill-estimator/" data-pf-to="cloudflare-bill-estimator">What will your Cloudflare bill be, and what cuts it most?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=openapi-breaking-change-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="openapi-breaking-change-check"></script>
+</body></html>

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Biohazard Cleanup Cost | Container Rounding and Decon-Cycle PPE, Worked</title>
+  <meta name="description" content="How much does biohazard cleanup cost is not day rate plus pounds times a hazmat rate. Regulated waste is billed per whole container and PPE per decon cycle…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/how-much-does-biohazard-cleanup-cost.html">
+  <meta property="og:title" content="How much does biohazard cleanup cost">
+  <meta property="og:description" content="A 15-pound scene and a 55-pound scene can both round up to a container the per-pound rate never sees. Here is the arithmetic, worked.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does biohazard cleanup cost?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own verified defaults (2 technicians, 5 hours each, 55 lb of regulated waste), a job prices around $1,374.67 — direct cost $1,031.00 plus a 25% target margin. A smaller scene (1 technician, 2 hours, 15 lb of waste) still prices around $697.33, mostly because disposal and PPE do not shrink in proportion to the scene."}},{"@type":"Question","name":"Why does a small scene still cost close to a minimum job fee?","acceptedAnswer":{"@type":"Answer","text":"Because regulated-waste disposal is billed per whole container, not per pound. A 15-pound job still needs one 40-pound-capacity container at the full per-container price ($110 on this calculator's defaults) — the same charge a 40-pound job would pay — so a per-pound estimate ($41.25 for 15 lb) undercounts a small job by a much larger percentage than a large one."}},{"@type":"Question","name":"How much does a multi-day or multi-break job add in PPE cost alone?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's defaults, raising decon cycles from 1 to 2 per technician (a break, an equipment run, or a shift change that forces re-entry) raises PPE cost from $76.00 to $152.00 for the same 2-technician crew — $76.00 more, because PPE is priced per re-entry, not per head, and used PPE cannot be re-donned."}},{"@type":"Question","name":"Does a bigger waste estimate cost proportionally more?","acceptedAnswer":{"@type":"Answer","text":"Not exactly. Raising waste from 55 lb to 155 lb on this calculator's defaults raises disposal from $220.00 (2 containers) to $440.00 (4 containers) — exactly double, because 155 lb happens to need exactly double the containers. A waste estimate that lands just over a container boundary, rather than exactly on one, pays for a whole extra container's worth of unused capacity."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #151a24; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #0e2a5c; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4a5468; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5468; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/how-much-does-biohazard-cleanup-cost.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does biohazard cleanup cost — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../biohazard-cleanup-bid-calculator/">Biohazard Cleanup Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does biohazard cleanup cost</span></span></nav>
+  <p><a href="./">&larr; Biohazard cleanup bid calculator</a></p>
+  <h1>How much does biohazard cleanup cost?</h1>
+  <p>
+    Less than the scene's size decides, and more than "day rate plus a
+    per-pound hazmat fee" captures. Two costs move the price on their own
+    terms &mdash; regulated waste billed per whole container, and PPE billed
+    per decon cycle &mdash; and both are worked out below with this
+    calculator's own verified numbers.
+  </p>
+  <h2>A small scene still pays close to the container's full price</h2>
+  <p>
+    A licensed regulated-waste hauler charges per container picked up, not
+    per pound. On this calculator's defaults, a 40-pound-capacity container
+    costs $110 to have hauled &mdash; whether it holds 40 pounds or 4. A
+    small scene generating just 15 pounds of waste still needs one whole
+    container, so its disposal line is $110.00, not the $41.25 a linear
+    per-pound rate ($110 / 40 lb &times; 15 lb) would suggest. That gap is
+    about 167% of the naive figure, and it does not shrink for a small job
+    &mdash; it grows, because a small job has less other cost to absorb it.
+  </p>
+  <h2>Doubling the waste can double the disposal cost exactly, or not at all</h2>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Biohazard waste</th><th scope="col">Containers needed</th><th scope="col">Disposal cost</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>15 lb</td><td>1</td><td>$110.00</td></tr>
+      <tr><td>55 lb (default)</td><td>2</td><td>$220.00</td></tr>
+      <tr><td>155 lb</td><td>4</td><td>$440.00</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">
+    155 lb happens to divide evenly into 40-lb containers with room to
+    spare, so its disposal cost is exactly double the 55-lb job's. That is
+    a coincidence of the numbers, not a rule &mdash; a waste estimate that
+    lands just past a container boundary (41 lb, or 121 lb) pays for a
+    whole extra container's worth of capacity nobody uses. Estimate waste
+    generously rather than exactly on a boundary, because rounding only
+    ever runs one direction: up.
+  </p>
+  <h2>PPE is priced per re-entry, not per technician</h2>
+  <p>
+    Used PPE cannot be re-donned, so a technician who leaves the
+    contaminated area for a break, to run equipment out, or across a shift
+    change needs a fresh set to go back in. On this calculator's defaults,
+    a 2-technician crew at one decon cycle each needs 2 PPE sets ($76.00
+    total). The same crew at two decon cycles each &mdash; one break,
+    say &mdash; needs 4 sets ($152.00), exactly double, because PPE scales
+    with re-entries, not headcount. A per-head PPE estimate misses that
+    entire second cycle.
+  </p>
+  <h2>What this is not</h2>
+  <p>
+    This is arithmetic on the rates and estimates you type. It does not
+    know your regulated-waste hauler's actual per-container price, your
+    state or OSHA bloodborne-pathogen decon requirements, or whether a job
+    is billable to insurance. Replace every default with your own hauler
+    invoice and PPE order before quoting.
+  </p>
+  <a class="cta" href="./">Price your own job now</a>
+  <h2>Common questions</h2>
+  <h3>How much does biohazard cleanup cost?</h3>
+  <p>On this calculator's own verified defaults (2 technicians, 5 hours each, 55 lb of regulated waste), a job prices around $1,374.67 &mdash; direct cost $1,031.00 plus a 25% target margin. A smaller scene (1 technician, 2 hours, 15 lb of waste) still prices around $697.33, mostly because disposal and PPE do not shrink in proportion to the scene.</p>
+  <h3>Why does a small scene still cost close to a minimum job fee?</h3>
+  <p>Because regulated-waste disposal is billed per whole container, not per pound. A 15-pound job still needs one 40-pound-capacity container at the full per-container price ($110 on this calculator's defaults) &mdash; the same charge a 40-pound job would pay &mdash; so a per-pound estimate ($41.25 for 15 lb) undercounts a small job by a much larger percentage than a large one.</p>
+  <h3>How much does a multi-day or multi-break job add in PPE cost alone?</h3>
+  <p>On this calculator's defaults, raising decon cycles from 1 to 2 per technician (a break, an equipment run, or a shift change that forces re-entry) raises PPE cost from $76.00 to $152.00 for the same 2-technician crew &mdash; $76.00 more, because PPE is priced per re-entry, not per head, and used PPE cannot be re-donned.</p>
+  <h3>Does a bigger waste estimate cost proportionally more?</h3>
+  <p>Not exactly. Raising waste from 55 lb to 155 lb on this calculator's defaults raises disposal from $220.00 (2 containers) to $440.00 (4 containers) &mdash; exactly double, because 155 lb happens to need exactly double the containers. A waste estimate that lands just over a container boundary, rather than exactly on one, pays for a whole extra container's worth of unused capacity.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it helped you price a job, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../spray-foam-bid-calculator/" data-pf-to="spray-foam-bid-calculator">Spray Foam Bid Calculator</a></li>
+      <li><a href="../upholstery-shop-job-profit-calculator/" data-pf-to="upholstery-shop-job-profit-calculator">Upholstery Shop Job Profit Calculator — free, private</a></li>
+      <li><a href="../vehicle-wrap-bid-calculator/" data-pf-to="vehicle-wrap-bid-calculator">Vehicle Wrap Bid Calculator</a></li>
+      <li><a href="../wildlife-exclusion-bid-calculator/" data-pf-to="wildlife-exclusion-bid-calculator">Wildlife Exclusion Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=biohazard-cleanup-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="biohazard-cleanup-bid-calculator"></script>
+</body>
+</html>

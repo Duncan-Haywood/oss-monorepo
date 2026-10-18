@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About these tools | Open Tools and Research</title>
+  <meta name="description" content="Who makes these 1279 free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/about/">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="About these tools">
+  <meta property="og:description" content="Who makes these 1279 free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/about/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Open Tools and Research — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"AboutPage","name":"About these tools","url":"https://duncan-haywood.github.io/monorepo-projects/about/","description":"Who makes these 1279 free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"About these tools","item":"https://duncan-haywood.github.io/monorepo-projects/about/"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              overflow-wrap: anywhere;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+  <link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/" aria-current="page">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">About</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">About</p>
+      <h1>About these tools</h1>
+      <p class="lede">1279 free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and the numbers a user types never leave their device, except on Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay, where the one thing you paste — the lookup target — goes to the public API it checks (raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com) and nowhere else.</p>
+    </header>
+
+    <main class="prose">
+      <h2>What this is</h2>
+      <p>
+        A working set of 1279 small, single-purpose web tools across
+        12 areas — pricing a job, checking what a marketplace sale
+        actually nets, planning cashflow, normalising freight quotes, and
+        assembling the evidence a compliance obligation asks for. Each one
+        exists because the arithmetic behind it is easy to get wrong under time
+        pressure and expensive to get wrong in front of a customer.
+      </p>
+      <p>
+        They are deliberately narrow. A tool here answers one question for one
+        kind of business, rather than being a spreadsheet template that answers
+        none of them well.
+      </p>
+
+      <h2>What happens to what you type</h2>
+      <div class="panel">
+        <h3>Nothing, with 40 documented exceptions below.</h3>
+        <p>
+          Every tool on this site is a static page. The calculation happens in
+          your browser, in JavaScript you can read with your browser's own
+          <em>View Source</em> or developer tools — no build step, no
+          minification, nothing hidden from you. Specifically:
+        </p>
+        <ul>
+          <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
+          <li><strong>Nothing you enter is transmitted, with 40 documented exceptions.</strong> These pages make no network request with your input — no form post, no background beacon — except <a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a>, <a href="../ats-resume-checker/">ATS Resume Checker — the copy-paste test, free, no sign-up</a>, <a href="../caa-record-check/">CAA Record Checker</a>, <a href="../cancel-flow/">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a>, <a href="../changelog-keeper/">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a>, <a href="../churn-radar/">Churn Radar — see who is about to cancel before they do</a>, <a href="../cron-heartbeat/">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</a>, <a href="../deal-keeper/">Deal Keeper — which deals are really at risk, and what will actually close</a>, <a href="../dns-configuration-evidence/">DNS Change Evidence — prove what a DNS change actually did</a>, <a href="../drip-keeper/">Drip Keeper — self-hosted lifecycle email</a>, <a href="../dunning-engine/">Dunning Engine — failed payment recovery for Stripe, self-hosted</a>, <a href="../email-auth-check/">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a>, <a href="../error-keeper/">Error Keeper — know when your app breaks, on your own server</a>, <a href="../feedback-board/">Feedback Board — a Canny alternative you host yourself</a>, <a href="../form-inbox/">Form Inbox — a Formspree alternative you host yourself</a>, <a href="../icp-lens/">ICP Lens — who do your best customers have in common, and who else looks like them?</a>, <a href="../license-keeper/">License Keeper — license keys for Stripe sellers, self-hosted</a>, <a href="../llm-spend-guard/">Would a spend cap have stopped your runaway LLM bill?</a>, <a href="../meter-keeper/">Meter Keeper — self-hosted usage metering for Stripe</a>, <a href="../mrr-pulse/">MRR Pulse — Stripe MRR and churn dashboard, self-hosted</a>, <a href="../pql-radar/">PQL Radar — find the free signups about to become customers</a>, <a href="../proposal-maker/">Proposal Maker — free client proposal generator, no signup</a>, <a href="../pypi-provenance-check/">Which of your PyPI dependencies lack a provenance attestation?</a>, <a href="../recompete-radar/">Which federal contracts in my niche expire next?</a>, <a href="../rev-rec/">Rev Rec — Stripe deferred revenue schedule, self-hosted</a>, <a href="../review-reply-desk/">Review Reply Desk — reply to every review in minutes, free and private</a>, <a href="../rfp-compliance-matrix/">RFP Compliance Matrix Generator</a>, <a href="../sales-call-notes-desk/">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a>, <a href="../sign-keeper/">Sign Keeper — self-hosted e-signature with a verifiable certificate</a>, <a href="../slot-keeper/">Slot Keeper — a booking page you host yourself</a>, <a href="../sponsor-ready/">Sponsor Ready</a>, <a href="../status-keeper/">status-keeper — your own status page, free</a>, <a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a>, <a href="../support-desk/">Support Desk — a help desk you host yourself</a>, <a href="../survey-keeper/">Survey Keeper — an NPS survey that says why the score is what it is</a>, <a href="../testimonial-keeper/">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a>, <a href="../trial-converter/">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a>, <a href="../vscode-extension-drift-check/">Did an extension you already trust just change what it does?</a>, <a href="../waitlist-keeper/">Waitlist Keeper — a self-hosted referral waitlist</a>, and <a href="../webhook-relay/">webhook-relay — keep webhooks safe while your app is down</a>, each of which checks a live public API as its whole job. What you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else on this site; that page explains exactly what is sent.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. Besides the live API calls <a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a>, <a href="../ats-resume-checker/">ATS Resume Checker — the copy-paste test, free, no sign-up</a>, <a href="../caa-record-check/">CAA Record Checker</a>, <a href="../cancel-flow/">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a>, <a href="../changelog-keeper/">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a>, <a href="../churn-radar/">Churn Radar — see who is about to cancel before they do</a>, <a href="../cron-heartbeat/">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</a>, <a href="../deal-keeper/">Deal Keeper — which deals are really at risk, and what will actually close</a>, <a href="../dns-configuration-evidence/">DNS Change Evidence — prove what a DNS change actually did</a>, <a href="../drip-keeper/">Drip Keeper — self-hosted lifecycle email</a>, <a href="../dunning-engine/">Dunning Engine — failed payment recovery for Stripe, self-hosted</a>, <a href="../email-auth-check/">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a>, <a href="../error-keeper/">Error Keeper — know when your app breaks, on your own server</a>, <a href="../feedback-board/">Feedback Board — a Canny alternative you host yourself</a>, <a href="../form-inbox/">Form Inbox — a Formspree alternative you host yourself</a>, <a href="../icp-lens/">ICP Lens — who do your best customers have in common, and who else looks like them?</a>, <a href="../license-keeper/">License Keeper — license keys for Stripe sellers, self-hosted</a>, <a href="../llm-spend-guard/">Would a spend cap have stopped your runaway LLM bill?</a>, <a href="../meter-keeper/">Meter Keeper — self-hosted usage metering for Stripe</a>, <a href="../mrr-pulse/">MRR Pulse — Stripe MRR and churn dashboard, self-hosted</a>, <a href="../pql-radar/">PQL Radar — find the free signups about to become customers</a>, <a href="../proposal-maker/">Proposal Maker — free client proposal generator, no signup</a>, <a href="../pypi-provenance-check/">Which of your PyPI dependencies lack a provenance attestation?</a>, <a href="../recompete-radar/">Which federal contracts in my niche expire next?</a>, <a href="../rev-rec/">Rev Rec — Stripe deferred revenue schedule, self-hosted</a>, <a href="../review-reply-desk/">Review Reply Desk — reply to every review in minutes, free and private</a>, <a href="../rfp-compliance-matrix/">RFP Compliance Matrix Generator</a>, <a href="../sales-call-notes-desk/">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a>, <a href="../sign-keeper/">Sign Keeper — self-hosted e-signature with a verifiable certificate</a>, <a href="../slot-keeper/">Slot Keeper — a booking page you host yourself</a>, <a href="../sponsor-ready/">Sponsor Ready</a>, <a href="../status-keeper/">status-keeper — your own status page, free</a>, <a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a>, <a href="../support-desk/">Support Desk — a help desk you host yourself</a>, <a href="../survey-keeper/">Survey Keeper — an NPS survey that says why the score is what it is</a>, <a href="../testimonial-keeper/">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a>, <a href="../trial-converter/">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a>, <a href="../vscode-extension-drift-check/">Did an extension you already trust just change what it does?</a>, <a href="../waitlist-keeper/">Waitlist Keeper — a self-hosted referral waitlist</a>, and <a href="../webhook-relay/">webhook-relay — keep webhooks safe while your app is down</a> make, above, the only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are — except <a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a>, <a href="../ats-resume-checker/">ATS Resume Checker — the copy-paste test, free, no sign-up</a>, <a href="../caa-record-check/">CAA Record Checker</a>, <a href="../cancel-flow/">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a>, <a href="../changelog-keeper/">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a>, <a href="../churn-radar/">Churn Radar — see who is about to cancel before they do</a>, <a href="../cron-heartbeat/">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</a>, <a href="../deal-keeper/">Deal Keeper — which deals are really at risk, and what will actually close</a>, <a href="../dns-configuration-evidence/">DNS Change Evidence — prove what a DNS change actually did</a>, <a href="../drip-keeper/">Drip Keeper — self-hosted lifecycle email</a>, <a href="../dunning-engine/">Dunning Engine — failed payment recovery for Stripe, self-hosted</a>, <a href="../email-auth-check/">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a>, <a href="../error-keeper/">Error Keeper — know when your app breaks, on your own server</a>, <a href="../feedback-board/">Feedback Board — a Canny alternative you host yourself</a>, <a href="../form-inbox/">Form Inbox — a Formspree alternative you host yourself</a>, <a href="../icp-lens/">ICP Lens — who do your best customers have in common, and who else looks like them?</a>, <a href="../license-keeper/">License Keeper — license keys for Stripe sellers, self-hosted</a>, <a href="../llm-spend-guard/">Would a spend cap have stopped your runaway LLM bill?</a>, <a href="../meter-keeper/">Meter Keeper — self-hosted usage metering for Stripe</a>, <a href="../mrr-pulse/">MRR Pulse — Stripe MRR and churn dashboard, self-hosted</a>, <a href="../pql-radar/">PQL Radar — find the free signups about to become customers</a>, <a href="../proposal-maker/">Proposal Maker — free client proposal generator, no signup</a>, <a href="../pypi-provenance-check/">Which of your PyPI dependencies lack a provenance attestation?</a>, <a href="../recompete-radar/">Which federal contracts in my niche expire next?</a>, <a href="../rev-rec/">Rev Rec — Stripe deferred revenue schedule, self-hosted</a>, <a href="../review-reply-desk/">Review Reply Desk — reply to every review in minutes, free and private</a>, <a href="../rfp-compliance-matrix/">RFP Compliance Matrix Generator</a>, <a href="../sales-call-notes-desk/">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a>, <a href="../sign-keeper/">Sign Keeper — self-hosted e-signature with a verifiable certificate</a>, <a href="../slot-keeper/">Slot Keeper — a booking page you host yourself</a>, <a href="../sponsor-ready/">Sponsor Ready</a>, <a href="../status-keeper/">status-keeper — your own status page, free</a>, <a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a>, <a href="../support-desk/">Support Desk — a help desk you host yourself</a>, <a href="../survey-keeper/">Survey Keeper — an NPS survey that says why the score is what it is</a>, <a href="../testimonial-keeper/">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a>, <a href="../trial-converter/">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a>, <a href="../vscode-extension-drift-check/">Did an extension you already trust just change what it does?</a>, <a href="../waitlist-keeper/">Waitlist Keeper — a self-hosted referral waitlist</a>, and <a href="../webhook-relay/">webhook-relay — keep webhooks safe while your app is down</a>, whose whole point is a live lookup, so it needs the connection back to check anything new.</li>
+        </ul>
+      </div>
+      <p>
+        The one thing that is counted is which tools get opened, as a plain
+        tally that is written to your own browser's local storage and is never
+        sent anywhere. It exists so the next tool built is one people actually
+        opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
+        there is an opt-out checkbox at the foot of
+        <a href="../" data-pf-to="hub">the tool list</a>.
+      </p>
+
+      <h2>Why it is free</h2>
+      <p>
+        Because keeping it free costs almost nothing. A static page has no
+        per-user cost, so there is no usage to meter and no reason to build a
+        paywall around arithmetic. There is no paid tier, no trial, and no
+        feature held back — the version you are using is the whole product.
+      </p>
+      <p>
+        If one of these has saved you money,
+        <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>sponsoring on
+        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        about what any tool does, and nothing here is gated behind it.
+      </p>
+
+      <h2>What these tools are not</h2>
+      <p>
+        They are estimates and working records, not professional advice and not
+        a determination made on anyone's behalf. They do not replace a
+        quantity surveyor, an accountant, a lawyer, or an engineer, and the
+        output of any of them is a starting figure to check against your own
+        numbers before you quote it to a customer or file it anywhere. The full
+        terms are in the footer of this and every other page.
+      </p>
+
+      <h2>Linking to these tools</h2>
+      <p>
+        You do not need permission to link to anything here, quote a page, or
+        screenshot a result — for a forum answer, a trade newsletter, a course
+        handout, or a write-up. Linking straight to the individual tool is more
+        use to a reader than linking to the front page. If it helps, here is
+        the description, already written:
+      </p>
+      <h3>One line</h3>
+      <p class="boiler">1279 free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.</p>
+      <h3>A paragraph</h3>
+      <p class="boiler">Open Tools and Research is a collection of 1279 free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — the numbers a user types never leave their device, except on Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay, where the one thing you paste — the lookup target — goes to the public API it checks (raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com) and nowhere else, and each tool keeps working offline once it has been opened. All 1279 are free with no gated features and no paid tier.</p>
+      <h3>The facts, if you would rather write your own</h3>
+      <ul>
+        <li><strong>1279 tools</strong> across 12 categories, all free, none gated.</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened. <a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a>, <a href="../ats-resume-checker/">ATS Resume Checker — the copy-paste test, free, no sign-up</a>, <a href="../caa-record-check/">CAA Record Checker</a>, <a href="../cancel-flow/">Cancel Flow — save-offer cancellation flow for Stripe, self-hosted</a>, <a href="../changelog-keeper/">Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted</a>, <a href="../churn-radar/">Churn Radar — see who is about to cancel before they do</a>, <a href="../cron-heartbeat/">Cron Heartbeat — dead man's switch for cron jobs, self-hosted</a>, <a href="../deal-keeper/">Deal Keeper — which deals are really at risk, and what will actually close</a>, <a href="../dns-configuration-evidence/">DNS Change Evidence — prove what a DNS change actually did</a>, <a href="../drip-keeper/">Drip Keeper — self-hosted lifecycle email</a>, <a href="../dunning-engine/">Dunning Engine — failed payment recovery for Stripe, self-hosted</a>, <a href="../email-auth-check/">Email Authentication Checker (SPF, DKIM, DMARC, BIMI)</a>, <a href="../error-keeper/">Error Keeper — know when your app breaks, on your own server</a>, <a href="../feedback-board/">Feedback Board — a Canny alternative you host yourself</a>, <a href="../form-inbox/">Form Inbox — a Formspree alternative you host yourself</a>, <a href="../icp-lens/">ICP Lens — who do your best customers have in common, and who else looks like them?</a>, <a href="../license-keeper/">License Keeper — license keys for Stripe sellers, self-hosted</a>, <a href="../llm-spend-guard/">Would a spend cap have stopped your runaway LLM bill?</a>, <a href="../meter-keeper/">Meter Keeper — self-hosted usage metering for Stripe</a>, <a href="../mrr-pulse/">MRR Pulse — Stripe MRR and churn dashboard, self-hosted</a>, <a href="../pql-radar/">PQL Radar — find the free signups about to become customers</a>, <a href="../proposal-maker/">Proposal Maker — free client proposal generator, no signup</a>, <a href="../pypi-provenance-check/">Which of your PyPI dependencies lack a provenance attestation?</a>, <a href="../recompete-radar/">Which federal contracts in my niche expire next?</a>, <a href="../rev-rec/">Rev Rec — Stripe deferred revenue schedule, self-hosted</a>, <a href="../review-reply-desk/">Review Reply Desk — reply to every review in minutes, free and private</a>, <a href="../rfp-compliance-matrix/">RFP Compliance Matrix Generator</a>, <a href="../sales-call-notes-desk/">Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private</a>, <a href="../sign-keeper/">Sign Keeper — self-hosted e-signature with a verifiable certificate</a>, <a href="../slot-keeper/">Slot Keeper — a booking page you host yourself</a>, <a href="../sponsor-ready/">Sponsor Ready</a>, <a href="../status-keeper/">status-keeper — your own status page, free</a>, <a href="../subdomain-takeover-check/">Subdomain Takeover Checker</a>, <a href="../support-desk/">Support Desk — a help desk you host yourself</a>, <a href="../survey-keeper/">Survey Keeper — an NPS survey that says why the score is what it is</a>, <a href="../testimonial-keeper/">Testimonial Keeper — collect testimonials and show a wall of love, self-hosted</a>, <a href="../trial-converter/">Trial Converter — trial-to-paid conversion for Stripe, self-hosted</a>, <a href="../vscode-extension-drift-check/">Did an extension you already trust just change what it does?</a>, <a href="../waitlist-keeper/">Waitlist Keeper — a self-hosted referral waitlist</a>, and <a href="../webhook-relay/">webhook-relay — keep webhooks safe while your app is down</a> are the documented exceptions — see Privacy above.</li>
+        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+        <li><strong>Front page:</strong> <a href="../" data-pf-to="hub">https://duncan-haywood.github.io/monorepo-projects/</a></li>
+      </ul>
+      <p>
+        Please do not describe these as certified, audited, guaranteed, or as
+        professional advice — they are none of those things, and saying so
+        would mislead the person you are recommending them to.
+      </p>
+
+      <h2>Embedding a tool on your own page</h2>
+      <p>
+        Every one of the 1279 tools here can be framed on someone else's
+        page — a trade association's resource page, a supplier's blog post, a
+        forum's sidebar. Open any tool and scroll to the bottom for a
+        ready-made, copyable snippet built from that page's own address and
+        title; there is nothing to write by hand. It always takes this shape:
+      </p>
+      <p class="boiler">&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/&lt;tool-slug&gt;/?pfEmbed=1&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;</p>
+      <ul>
+        <li><strong>Same arithmetic, same disclaimer.</strong> The framed page is the calculator's own page, not a stripped-down copy, so it keeps the tool's full working and its liability notice.</li>
+        <li><strong>Links back.</strong> A framed tool swaps its own site-wide navigation for one line linking back to the full page here, so a visitor can always reach the rest of the site.</li>
+        <li><strong>Adds nothing.</strong> No script, cookie, or request is added by embedding — the framed page runs the same client-side arithmetic described above, on the host's page instead of this one.</li>
+        <li><strong>1400px is a starting height</strong>, not a fit for every form; most hosts adjust it once the embed is on the page.</li>
+      </ul>
+      <p>
+        This needs no permission and no message to us first.
+      </p>
+
+      <h2>For crawlers and assistants</h2>
+      <p>
+        The catalogue is published in machine-readable form so an assistant can
+        cite the right tool rather than guess at one:
+        <a href="../catalog.json">catalog.json</a> lists
+        every tool with its category and description,
+        <a href="../llms.txt">llms.txt</a> is the same
+        catalogue as prose, and
+        <a href="../sitemap.xml">sitemap.xml</a> indexes
+        every published page. Every tool page carries
+        <code>SoftwareApplication</code> structured data. To follow new tools
+        rather than re-read the catalogue, subscribe to the
+        <a href="../feed.xml">Atom feed</a>.
+      </p>
+    </main>
+
+    <section class="siblings">
+      <h2>Browse by trade</h2>
+      <ul>
+        <li><a href="../c/self-hosted/">Self-hosted business apps</a> <span>(30)</span></li>
+        <li><a href="../c/marketplace/">Free marketplace seller fee calculators</a> <span>(113)</span></li>
+        <li><a href="../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../c/services/">Free pricing calculators for service businesses</a> <span>(196)</span></li>
+        <li><a href="../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../c/evidence/">Free compliance check and evidence record tools</a> <span>(116)</span></li>
+        <li><a href="../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(54)</span></li>
+        <li><a href="../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(213)</span></li>
+        <li><a href="../c/ci/">Free CI checks and developer gates</a> <span>(173)</span></li>
+        <li><a href="../c/solo-earner/">Creator &amp; solo earner income</a> <span>(88)</span></li>
+        <li><a href="../c/more/">More free small-business calculators</a> <span>(4)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Meter Keeper, MRR Pulse, PQL Radar, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Call Notes Desk, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, stripe.com, proxy.local, pypi.org, api.usaspending.gov, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../research/">Research</a><span aria-hidden="true"> · </span><a href="../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+    </footer>
+  </div>
+  <!-- The same local-only counter every other page loads. An About page that
+       nobody reaches is a different problem from one that is reached and does
+       not send anyone on to a tool, and only the cross_tool_click half of this
+       tells them apart. -->
+  <script src="../pf-site.js" data-pf-slug="about" defer></script>
+</body>
+</html>

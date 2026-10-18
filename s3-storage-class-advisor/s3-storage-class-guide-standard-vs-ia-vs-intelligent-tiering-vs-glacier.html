@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S3 Storage Classes Compared: Standard vs IA vs Intelligent-Tiering vs Glacier</title>
+  <meta name="description" content="What each S3 storage class really costs once the 128 KB minimum, retrieval fees and 30/90-day minimum durations are counted…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/s3-storage-class-guide-standard-vs-ia-vs-intelligent-tiering-vs-glacier.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Standard-IA always cheaper than Standard?", "acceptedAnswer": {"@type": "Answer", "text": "No. It stores for about 46% less per GB but bills a 128 KB minimum per object, 30 days minimum, and $0.01 per GB retrieved. Small objects, frequently read data and short-lived objects usually cost more there."}}, {"@type": "Question", "name": "When does Intelligent-Tiering win?", "acceptedAnswer": {"@type": "Answer", "text": "When objects are at least 128 KB and you cannot predict which ones go cold. You pay $0.0025 per 1,000 objects per month to monitor, but there are no retrieval fees and cold data drops to cheaper tiers automatically. For 100 million small objects the monitoring fee alone can exceed the saving."}}, {"@type": "Question", "name": "Why not put everything in Glacier Instant Retrieval?", "acceptedAnswer": {"@type": "Answer", "text": "It stores at about $0.004 per GB but charges $0.03 per GB retrieved and $0.01 per 1,000 GETs, with a 90-day minimum and 128 KB minimum object size. It wins for data read once or twice a year and loses badly on anything read regularly."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/s3-storage-class-guide-standard-vs-ia-vs-intelligent-tiering-vs-glacier.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="S3 Storage Classes Compared: Standard vs IA vs Intelligent-Tiering vs Glacier">
+<meta property="og:description" content="What each S3 storage class really costs once the 128 KB minimum, retrieval fees and 30/90-day minimum durations are counted…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="S3 Storage Classes Compared: Standard vs IA vs Intelligent-Tiering vs Glacier — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s3-storage-class-advisor/">Is your S3 bucket in the wrong storage class?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">S3 Storage Classes Compared: Standard vs IA vs Intelligent-Tiering vs Glacier</span></span></nav>
+  <p class="note"><a href="./">S3 Storage Class Advisor</a> · guide</p>
+  <h1>S3 storage classes compared: Standard vs IA vs Intelligent-Tiering vs Glacier</h1>
+  <p>Short answer: the per-GB price is the smallest part of the decision. <strong>Object size, how often you read the data and how long objects live</strong> decide which class is cheapest, and the rows that look cheapest in the price table are the ones most likely to cost more.</p>
+
+  <h2>What each class charges (us-east-1 list prices)</h2>
+  <ul>
+    <li><strong>Standard:</strong> $0.023 per GB-month, $0.0004 per 1,000 GETs, no retrieval fee, no minimums.</li>
+    <li><strong>Standard-IA:</strong> $0.0125 per GB-month, $0.01 per GB retrieved, $0.001 per 1,000 GETs, billed as at least 128 KB per object and at least 30 days.</li>
+    <li><strong>Intelligent-Tiering:</strong> $0.023 / $0.0125 / $0.004 per GB-month for frequent / infrequent / archive-instant data, plus $0.0025 per 1,000 objects monitored. No retrieval fee. Objects under 128 KB are never tiered.</li>
+    <li><strong>Glacier Instant Retrieval:</strong> $0.004 per GB-month, $0.03 per GB retrieved, $0.01 per 1,000 GETs, 128 KB and 90 day minimums.</li>
+  </ul>
+
+  <h2>The three traps</h2>
+  <ol>
+    <li><strong>Small objects.</strong> 100 GB spread over 10 million objects is 10 KB each. IA bills them as 128 KB, so you pay for about 1.2 TB. Moving them is a price increase.</li>
+    <li><strong>Retrieval.</strong> Reading back a quarter of your data every month at $0.01 per GB adds up to more than the storage saving once reads cross roughly a quarter of the stored volume.</li>
+    <li><strong>Short life.</strong> Logs or exports deleted after a week still bill 30 days in IA and 90 in Glacier IR.</li>
+  </ol>
+
+  <h2>Measure your buckets</h2>
+  <ol>
+    <li>In S3 Storage Lens (or an S3 Inventory query in Athena) get GB stored and object count per bucket or prefix.</li>
+    <li>From Storage Lens activity metrics or CloudWatch request metrics get GET requests and GB downloaded per month.</li>
+    <li>Paste one row per bucket or prefix into the <a href="./">advisor</a>, or run <code>node cli.mjs analyze rows.csv</code>.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>Is Standard-IA always cheaper than Standard?</h3>
+  <p>No. It stores for about 46% less per GB but bills a 128 KB minimum per object, 30 days minimum, and $0.01 per GB retrieved. Small objects, frequently read data and short-lived objects usually cost more there.</p>
+  <h3>When does Intelligent-Tiering win?</h3>
+  <p>When objects are at least 128 KB and you cannot predict which ones go cold. You pay $0.0025 per 1,000 objects per month to monitor, but there are no retrieval fees and cold data drops to cheaper tiers automatically. For 100 million small objects the monitoring fee alone can exceed the saving.</p>
+  <h3>Why not put everything in Glacier Instant Retrieval?</h3>
+  <p>It stores at about $0.004 per GB but charges $0.03 per GB retrieved and $0.01 per 1,000 GETs, with a 90-day minimum and 128 KB minimum object size. It wins for data read once or twice a year and loses badly on anything read regularly.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../cookie-security-check/" data-pf-to="cookie-security-check">Cookie Security Checker</a></li>
+      <li><a href="../cors-misconfig-check/" data-pf-to="cors-misconfig-check">CORS Misconfiguration Checker</a></li>
+      <li><a href="../coverage-drop-check/" data-pf-to="coverage-drop-check">Did this PR drop your coverage?</a></li>
+      <li><a href="../cron-dst-drift-check/" data-pf-to="cron-dst-drift-check">Will your cron job survive daylight saving?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s3-storage-class-advisor">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s3-storage-class-advisor"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Breakeven Calf Price per Cwt: What a Cow Really Costs</title>
+  <meta name="description" content="A worked cow-calf example: $830 a cow, 88 percent weaned at 550 lb, a $171.49 per cwt breakeven, and how hay price, weight and weaning rate move it.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/cow-calf-breakeven-price-per-cwt.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a breakeven calf price?", "acceptedAnswer": {"@type": "Answer", "text": "The price per hundredweight at which a cow's calf pays her year's costs. On the default numbers it is $171.49 per cwt: $830 of cost divided by 4.84 cwt of calf weaned per cow exposed."}}, {"@type": "Question", "name": "What matters most, hay, weight or weaning rate?", "acceptedAnswer": {"@type": "Answer", "text": "On these numbers, one extra point of calves weaned is worth $13.75 per cow and one extra pound at weaning $2.20, so five points of weaning rate ($68.75) is worth about the same as 31 lb of weight. A $35 per ton rise in hay costs $70 per cow."}}, {"@type": "Question", "name": "Is this advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on invented numbers; check every figure against your own records. Not financial or veterinary advice. No warranty."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/cow-calf-breakeven-price-per-cwt.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="Breakeven Calf Price per Cwt: What a Cow Really Costs">
+<meta property="og:description" content="A worked cow-calf example: $830 a cow, 88 percent weaned at 550 lb, a $171.49 per cwt breakeven, and how hay price, weight and weaning rate move it.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Breakeven Calf Price per Cwt: What a Cow Really Costs — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../cow-calf-breakeven-calculator/">What calf price do you need to break even on a cow?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Breakeven Calf Price per Cwt: What a Cow Really Costs</span></span></nav>
+  <p class="note"><a href="./">Cow-Calf Breakeven Calculator</a> · guide</p>
+  <h1>Breakeven calf price per cwt: what a cow really costs, and why hay and weaning rate decide it</h1>
+  <p>Short answer: <strong>divide a cow's yearly cost by the hundredweight of calf she actually weans.</strong> The <a href="./">calculator</a> does it for your own numbers and shows which line to attack first.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> Not financial, tax or veterinary advice. Costs and prices belong to your operation and your market. No warranty.</p>
+
+  <h2>A worked cow</h2>
+  <p>Two tons of hay at $140, $60 supplement, $200 pasture, $35 health, $45 bull, $90 labor and equipment, $60 other, and a 12 percent replacement rate on $1,800 cows that sell as culls at 1,300 lb and $100 per cwt.</p>
+  <ul>
+    <li>Cost per cow exposed: <strong>$830.00</strong>, of which hay is $280.00, <strong>33.7%</strong>.</li>
+    <li>She weans 88 percent of the time at 550 lb: <strong>4.84 cwt</strong> sold at $250.00 brings <strong>$1,210.00</strong>, a margin of <strong>$380.00</strong>, or $38,000.00 over 100 cows.</li>
+    <li>Breakeven calf price: <strong>$171.49</strong> per cwt. Breakeven weight at $250.00: <strong>377 lb</strong>.</li>
+  </ul>
+
+  <h2>Hay is the line that moves</h2>
+  <p>At 2 tons per cow each $10 per ton is $20 per cow. Hay at $210 (1.5x) cuts the margin to <strong>$240.00</strong> and lifts breakeven to <strong>$200.41</strong>; at $280 (2x) the margin is <strong>$100.00</strong> and breakeven is <strong>$229.34</strong>.</p>
+
+  <h2>Weight and weaning rate</h2>
+  <p>Each extra pound at weaning is worth <strong>$2.20</strong> per cow, each point of calves weaned <strong>$13.75</strong>. Five points more weaned (93 percent) lifts the margin to $448.75 and drops breakeven to $162.27. A dry year, with hay at $220, calves at $200 and 82 percent weaned, turns it into a loss of <strong>$88.00</strong> per cow, $8,800.00 over 100, with breakeven at <strong>$219.51</strong>. Try it with the <em>dry-year herd</em> button in the <a href="./">calculator</a>.</p>
+
+  <h2>How to measure your own numbers</h2>
+  <ul>
+    <li>Weaned per cow exposed: calves sold or weaned divided by cows put with the bull, not by cows that calved.</li>
+    <li>Hay: weigh sample bales and count what you feed, waste included.</li>
+    <li>Replacement: what a bred replacement costs less what a cull cow sells for, times the share you replace.</li>
+  </ul>
+
+  <h2>Common questions</h2>
+  <h3>What is a breakeven calf price?</h3>
+  <p>The price per hundredweight at which a cow's calf pays her year's costs. On the default numbers it is $171.49 per cwt: $830 of cost divided by 4.84 cwt of calf weaned per cow exposed.</p>
+  <h3>What matters most, hay, weight or weaning rate?</h3>
+  <p>On these numbers, one extra point of calves weaned is worth $13.75 per cow and one extra pound at weaning $2.20, so five points of weaning rate ($68.75) is worth about the same as 31 lb of weight. A $35 per ton rise in hay costs $70 per cow.</p>
+  <h3>Is this advice?</h3>
+  <p>No. It is arithmetic on invented numbers; check every figure against your own records. Not financial or veterinary advice. No warranty.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. Not financial, tax, legal, veterinary or business advice. Not affiliated with, endorsed by or sponsored by any cattle association or market. You are responsible for verifying anything before relying on it.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../mosquito-control-program-pricing-calculator/" data-pf-to="mosquito-control-program-pricing-calculator">Mosquito control program pricing calculator</a></li>
+      <li><a href="../no-show-fee-calculator/" data-pf-to="no-show-fee-calculator">No-Show &amp; Cancellation Fee Calculator</a></li>
+      <li><a href="../plumber-flat-rate-price-calculator/" data-pf-to="plumber-flat-rate-price-calculator">What should a plumbing job cost at a flat rate?</a></li>
+      <li><a href="../pollination-contract-checker/" data-pf-to="pollination-contract-checker">Pollination Contract Checker — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=cow-calf-breakeven-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="cow-calf-breakeven-calculator"></script>
+</body>
+</html>

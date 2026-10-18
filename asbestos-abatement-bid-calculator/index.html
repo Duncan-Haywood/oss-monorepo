@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asbestos Abatement Bid Calculator — Containment-Class Pricing</title>
+<meta name="description" content="Free bid calculator for licensed asbestos abatement contractors: price a removal job by OSHA/EPA containment class (I/II/III), square footage…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Asbestos Abatement Bid Calculator">
+<meta property="og:description" content="Price an abatement job by what actually drives the cost — containment class, crew hours, air monitoring, and waste disposal…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asbestos Abatement Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local bid calculator for licensed asbestos abatement contractors that prices a removal job from OSHA/EPA containment class, square footage, containment areas, crew and supervisor rates, air monitoring samples, waste disposal volume, permit fees, and a target margin, then compares the result to a flat rate per square foot for the same job.","featureList":"containment-class-driven bid pricing, flat-rate-per-square-foot comparison, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this an asbestos inspection or a substitute for my certification?","acceptedAnswer":{"@type":"Answer","text":"No. This is a pricing worksheet only. It does not perform an asbestos inspection, bulk-sample identification, or air-quality analysis, does not check any federal, state, or local regulatory requirement, and does not replace your own certification, competent-person determination, or professional judgment about scope and liability on a given job."}},{"@type":"Question","name":"Why does the calculator ask for a containment class instead of just square footage?","acceptedAnswer":{"@type":"Answer","text":"Class I friable material needs full containment, a negative-air machine, and a decon chamber, and crews move far slower doing wet removal in full PPE. Class III minor, incidental disturbance of non-friable material can be glovebagged in an afternoon. The labor hours per square foot between the two differ by five to six times, so a flat rate that only sees area gets one of them wrong."}},{"@type":"Question","name":"Why not just quote a flat rate per square foot like a lot of the trade does?","acceptedAnswer":{"@type":"Answer","text":"A flat rate does not see containment class, how many separate work areas need their own setup, or how much air monitoring and waste the job produces. A small, simple Class III job can end up overpriced by a rate calibrated to an average job mix, and a large Class I job can end up badly underpriced. The comparison panel below shows the gap on the job you just priced."}},{"@type":"Question","name":"Does anything about my job or client get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and no job address, client name, or price is ever saved or transmitted. Usage counting only tallies anonymous feature events, and you can turn it off below."}},{"@type":"Question","name":"What if I don't know the exact air monitoring sample count or waste volume before I bid?","acceptedAnswer":{"@type":"Answer","text":"Use your best estimate from a walkthrough, the project specification, or a similar past job of the same containment class and size — the same way you would size up any job. This tool prices the numbers you enter; it does not verify them against a site inspection."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241a14;background:#f7f0e8}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:740px}h1{font-size:clamp(2rem,6vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e4cfb6;border-radius:16px;padding:20px;box-shadow:0 8px 24px #24140810;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #efe0cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a4a1c;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}.checkboxLabel{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650}input,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb98c;border-radius:8px;font:inherit;background:#fffdfb}input[type=checkbox]{width:auto}.result{background:#3d2410;color:#fff;border-color:#3d2410}.result a{color:inherit}.big{font-size:2.5rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#66503c}.result .note{color:#e9d9c7}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{padding:6px 4px;text-align:left}th{font-size:.72rem;color:#8a4a1c}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb98c;background:#fff;cursor:pointer;color:#241a14}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}.warn{color:#9a351d}.ok{color:#8a4a1c}.gapBox{border:1px solid #efe0cd;border-radius:10px;padding:12px;margin-top:10px}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+/* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5854; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3d2410; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Asbestos Abatement Bid Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Asbestos Abatement Bid Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-rates.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Asbestos Abatement Bid Calculator</span></span></nav>
+<section class="pf-rates" hidden data-pf-rates-root>
+  <p class="pf-rates-line">
+    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
+  </p>
+  <div class="pf-rates-panel" id="pf-rates-panel" hidden>
+    <p>Your crew hourly wage and target net margin are the same on every job you bid. Save them once and every trade bid calculator here opens with your numbers instead of a stranger&rsquo;s ballpark.</p>
+    <p class="pf-rates-note">This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.</p>
+    <ul class="pf-rates-list" id="pf-rates-list" hidden></ul>
+    <div class="pf-rates-actions">
+      <button type="button" data-pf-rates="save">Save the rates on this bid</button>
+      <button type="button" data-pf-rates="apply" hidden>Use my saved rates here</button>
+      <button type="button" data-pf-rates="clear" hidden>Forget my rates</button>
+    </div>
+    <p class="pf-rates-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Forgetting them leaves the numbers already on this bid alone.</p>
+  </div>
+</section>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<header><p>FOR LICENSED ASBESTOS ABATEMENT CONTRACTORS</p><h1>Price the job by what actually drives the cost.</h1><p class="lede">A flat rate per square foot doesn't see containment class, how many separate work areas need their own setup, or how much air monitoring and waste disposal the job produces. This free calculator prices a removal job from those numbers instead — then shows exactly how far off a flat per-square-foot rate would have been on the same job.</p></header>
+
+<main class="layout">
+<section><h2>Job details</h2>
+
+<fieldset><legend>Scope &amp; containment</legend><div class="fields">
+<label>Containment class<select id="containmentClass">
+<option value="classI" selected>Class I — friable material</option>
+<option value="classII">Class II — non-friable, releasable</option>
+<option value="classIII">Class III — minor/incidental</option>
+</select></label>
+<label>Square footage<input id="squareFootage" type="number" min="1" step="1" value="400" inputmode="numeric"></label>
+<label>Separate containment areas<input id="containmentAreas" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+</div></fieldset>
+
+<fieldset><legend>Crew &amp; supervision</legend><div class="fields">
+<label>Crew size (workers)<input id="crewSize" type="number" min="1" step="1" value="3" inputmode="numeric"></label>
+<label>Crew rate ($/hr per worker)<input id="crewHourlyRatePerWorker" type="number" min="0" step="1" value="38" inputmode="numeric"></label>
+<label>Supervisor / competent person rate ($/hr)<input id="supervisorHourlyRate" type="number" min="0" step="1" value="58" inputmode="numeric"></label>
+</div></fieldset>
+
+<fieldset><legend>Air monitoring &amp; waste disposal</legend><div class="fields">
+<label>Air monitoring samples<input id="airMonitoringSamples" type="number" min="0" step="1" value="6" inputmode="numeric"></label>
+<label>Cost per sample ($)<input id="airMonitoringCostPerSample" type="number" min="0" step="5" value="65" inputmode="numeric"></label>
+<label>Waste volume (cubic yards)<input id="wasteVolumeCubicYards" type="number" min="0" step="0.25" value="3" inputmode="decimal"></label>
+<label>Disposal fee ($/cubic yard)<input id="disposalFeePerCubicYard" type="number" min="0" step="5" value="145" inputmode="numeric"></label>
+</div></fieldset>
+
+<fieldset><legend>Permit &amp; pricing</legend><div class="fields">
+<label class="checkboxLabel"><input id="requiresPermit" type="checkbox" checked> Requires a NESHAP/local notification permit</label>
+<label>Permit fee ($)<input id="permitFee" type="number" min="0" step="5" value="275" inputmode="numeric"></label>
+<label class="checkboxLabel"><input id="rushJob" type="checkbox"> Rush job (expedited turnaround)</label>
+<label>Rush surcharge (% of cost)<input id="rushSurchargePercentPct" type="number" min="0" max="200" step="5" value="20" inputmode="numeric"></label>
+<label>Target margin on price (%)<input id="targetMarginPercentPct" type="number" min="0" max="90" step="1" value="30" inputmode="numeric"></label>
+<label>Minimum job fee ($)<input id="minimumJobFee" type="number" min="0" step="25" value="650" inputmode="numeric"></label>
+<label>Naive rate to compare ($/sq ft)<input id="naiveRatePerSquareFoot" type="number" min="0" step="0.5" value="8.5" inputmode="decimal"></label>
+</div></fieldset>
+
+<div class="actions"><button type="button" id="reset">Reset to defaults</button><button type="button" id="copyShare">Copy share link</button><span id="shareStatus" class="note" role="status" aria-live="polite"></span></div>
+</section>
+
+<section id="results" class="result" aria-live="polite"><h2>Quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="verdict" class="big">—</div><p id="verdictLine" class="note"></p>
+<dl>
+<dt>Crew labor cost</dt><dd id="crewCostOut"></dd>
+<dt>Supervisor cost</dt><dd id="supervisorCostOut"></dd>
+<dt>Containment setup</dt><dd id="setupCostOut"></dd>
+<dt>Air monitoring</dt><dd id="airCostOut"></dd>
+<dt>Waste disposal</dt><dd id="wasteCostOut"></dd>
+<dt>Permit</dt><dd id="permitCostOut"></dd>
+<dt>Rush surcharge</dt><dd id="rushCostOut"></dd>
+<dt>Total cost</dt><dd id="totalCostOut"></dd>
+</dl>
+<p class="note" id="minimumNote" hidden>Priced at the minimum job fee — the containment/crew math alone came in lower.</p>
+
+<div class="gapBox"><h3>Vs. a flat rate per square foot</h3>
+<dl>
+<dt>Naive flat-rate quote</dt><dd id="naiveQuoteOut"></dd>
+<dt>Gap</dt><dd id="gapOut"></dd>
+</dl>
+<p class="note" id="gapLine"></p>
+</div>
+
+<p class="note">This is a pricing worksheet from the numbers you typed, not an audited estimate, an asbestos inspection, or a check against any regulatory requirement.</p>
+</section>
+<!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Summit Abatement Services LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State Asbestos Contractor License #4471"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30" inputmode="numeric"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Class I asbestos abatement of 400 sq ft of pipe insulation&#10;Containment setup/teardown for 1 work area&#10;Air monitoring and licensed waste disposal"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Post-abatement rebuild or reinsulation&#10;Any material outside the scoped work area"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Work is scheduled around required air-clearance results before re-occupancy."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. There is no account and no server-side storage of any kind — your job details, rates, and price are never saved or sent anywhere, and refreshing the page clears them by design. "Copy share link" encodes your containment class, footage, crew, and cost figures into this page's own URL — nothing is sent to a server, and the link is only ever built and copied in your browser. We count only anonymous local feature events (<code>quote_calculated</code>, <code>reset</code>, <code>share_link_copied</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no job, price, or client figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="optout" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Is this an asbestos inspection or a substitute for my certification?</h3><p>No. This is a pricing worksheet only. It does not perform an asbestos inspection, bulk-sample identification, or air-quality analysis, does not check any federal, state, or local regulatory requirement, and does not replace your own certification, competent-person determination, or professional judgment about scope and liability on a given job.</p>
+<h3>Why does the calculator ask for a containment class instead of just square footage?</h3><p>Class I friable material needs full containment, a negative-air machine, and a decon chamber, and crews move far slower doing wet removal in full PPE. Class III minor, incidental disturbance of non-friable material can be glovebagged in an afternoon. The labor hours per square foot between the two differ by five to six times, so a flat rate that only sees area gets one of them wrong.</p>
+<h3>Why not just quote a flat rate per square foot like a lot of the trade does?</h3><p>A flat rate does not see containment class, how many separate work areas need their own setup, or how much air monitoring and waste the job produces. A small, simple Class III job can end up overpriced by a rate calibrated to an average job mix, and a large Class I job can end up badly underpriced. The comparison panel below shows the gap on the job you just priced.</p>
+<h3>Does anything about my job or client get uploaded?</h3><p>No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and no job address, client name, or price is ever saved or transmitted. Usage counting only tallies anonymous feature events, and you can turn it off below.</p>
+<h3>What if I don't know the exact air monitoring sample count or waste volume before I bid?</h3><p>Use your best estimate from a walkthrough, the project specification, or a similar past job of the same containment class and size — the same way you would size up any job. This tool prices the numbers you enter; it does not verify them against a site inspection.</p>
+</section>
+
+<p class="note">Pricing a residential popcorn-ceiling scrape instead of a licensed abatement job? The <a href="../popcorn-ceiling-bid-calculator/">popcorn ceiling bid calculator</a> prices that scrape-and-skim work and its own pre-1980 asbestos test line item. Shopping a flat rate per square foot against this calculator? See <a href="vs-a-flat-rate-per-square-foot.html">this calculator vs. a flat rate per square foot</a>. Wondering why the same square footage prices so differently by class? Read <a href="how-much-does-asbestos-abatement-cost.html">how much does asbestos abatement cost</a>. Need this job's TRIR or DART rate for a GC's prequalification form? The <a href="../osha-trir-dart-calculator/">OSHA TRIR &amp; DART rate calculator</a> turns your own OSHA 300 log counts into both rates.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not asbestos inspection, environmental, engineering, or legal advice, and it does not replace a qualified licensed contractor's own judgment. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any professional, contractual, or regulatory obligation your work is subject to. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This is a pricing worksheet based on your own assumptions, not an asbestos inspection, a bulk-sample identification, a check against any regulatory requirement, or a substitute for a licensed contractor's own certification or professional judgment.</p><p>MIT licensed. If it helped you bid a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateAbatementBid, naiveFlatRateQuote, pricingGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeShare, decodeShare } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+const el = id => document.getElementById(id);
+function count(event) { recordEvent(event); }
+const money = (n) => {
+  const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const SCALAR_IDS = ['squareFootage', 'containmentAreas', 'crewSize', 'crewHourlyRatePerWorker', 'supervisorHourlyRate', 'airMonitoringSamples', 'airMonitoringCostPerSample', 'wasteVolumeCubicYards', 'disposalFeePerCubicYard', 'permitFee', 'rushSurchargePercentPct', 'targetMarginPercentPct', 'minimumJobFee', 'naiveRatePerSquareFoot'];
+const SELECT_IDS = ['containmentClass'];
+const CHECKBOX_IDS = ['requiresPermit', 'rushJob'];
+const DEFAULT_SCALAR_VALUES = Object.fromEntries(SCALAR_IDS.map(id => [id, el(id).value]));
+const DEFAULT_SELECT_VALUES = Object.fromEntries(SELECT_IDS.map(id => [id, el(id).value]));
+const DEFAULT_CHECKBOX_VALUES = Object.fromEntries(CHECKBOX_IDS.map(id => [id, el(id).checked]));
+let quoteCounted = false;
+
+function readInputs() {
+  return {
+    containmentClass: el('containmentClass').value,
+    squareFootage: el('squareFootage').value,
+    containmentAreas: el('containmentAreas').value,
+    crewSize: el('crewSize').value,
+    crewHourlyRatePerWorker: el('crewHourlyRatePerWorker').value,
+    supervisorHourlyRate: el('supervisorHourlyRate').value,
+    airMonitoringSamples: el('airMonitoringSamples').value,
+    airMonitoringCostPerSample: el('airMonitoringCostPerSample').value,
+    wasteVolumeCubicYards: el('wasteVolumeCubicYards').value,
+    disposalFeePerCubicYard: el('disposalFeePerCubicYard').value,
+    requiresPermit: el('requiresPermit').checked,
+    permitFee: el('permitFee').value,
+    rushJob: el('rushJob').checked,
+    rushSurchargePercent: parseFloat(el('rushSurchargePercentPct').value) / 100,
+    targetMarginPercent: parseFloat(el('targetMarginPercentPct').value) / 100,
+    minimumJobFee: el('minimumJobFee').value,
+    naiveRatePerSquareFoot: el('naiveRatePerSquareFoot').value,
+  };
+}
+
+function update(shouldCount = false) {
+  try {
+    const q = calculateAbatementBid(readInputs());
+    const naiveQuote = naiveFlatRateQuote(readInputs());
+    const gap = pricingGap(readInputs());
+
+    el('errors').hidden = true; el('errors').textContent = ''; el('verdict').hidden = false;
+
+    el('verdict').textContent = money(q.finalPrice);
+    el('verdictLine').textContent = q.minimumApplied
+      ? `Priced at the ${money(q.finalPrice)} minimum job fee.`
+      : `${q.laborHoursTotal.toFixed(1)} worker-hrs across ${el('containmentAreas').value} area(s), at a ${el('targetMarginPercentPct').value}% target margin on price.`;
+
+    el('crewCostOut').textContent = money(q.crewLaborCost);
+    el('supervisorCostOut').textContent = money(q.supervisorCost);
+    el('setupCostOut').textContent = money(q.containmentSetupCost);
+    el('airCostOut').textContent = money(q.airMonitoringCost);
+    el('wasteCostOut').textContent = money(q.wasteDisposalCost);
+    el('permitCostOut').textContent = money(q.permitCost);
+    el('rushCostOut').textContent = money(q.rushSurcharge);
+    el('totalCostOut').textContent = money(q.totalCost);
+    el('minimumNote').hidden = !q.minimumApplied;
+
+    el('naiveQuoteOut').textContent = money(naiveQuote);
+    const gapLabel = gap.percentGap === null ? '—' : `${gap.underpriced ? '+' : ''}${(gap.percentGap * 100).toFixed(0)}%`;
+    el('gapOut').textContent = `${money(gap.dollarGap)} (${gapLabel})`;
+    el('gapLine').textContent = gap.underpriced
+      ? `A flat per-square-foot quote would have left ${money(Math.abs(gap.dollarGap))} on the table on this job.`
+      : `A flat per-square-foot quote would have overcharged this job by ${money(Math.abs(gap.dollarGap))}.`;
+
+    if (shouldCount && !quoteCounted) { count('quote_calculated'); quoteCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('verdict').hidden = true;
+    el('verdictLine').textContent = '';
+    for (const id of ['crewCostOut', 'supervisorCostOut', 'setupCostOut', 'airCostOut', 'wasteCostOut', 'permitCostOut', 'rushCostOut', 'totalCostOut', 'naiveQuoteOut', 'gapOut']) el(id).textContent = '';
+    el('gapLine').textContent = '';
+    el('minimumNote').hidden = true;
+  }
+}
+
+// The proposal panel's terms (`platform/proposal/adopt.mjs`) are not part of
+// SCALAR_IDS/SELECT_IDS/CHECKBOX_IDS, so they are merged in here -- see the
+// matching SHARE_FIELDS entry in share.mjs and `platform/proposal/term-ids.test.mjs`.
+const PROPOSAL_TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+}
+
+async function copyShare() {
+  // readInputs() converts the two percent fields to the decimal fraction
+  // calc.mjs wants (rushSurchargePercent, targetMarginPercent); the share
+  // link carries the raw form fields instead (…Pct) so restoring it writes
+  // straight back into the inputs without re-deriving anything.
+  const hash = encodeShare({
+    ...readInputs(),
+    rushSurchargePercentPct: el('rushSurchargePercentPct').value,
+    targetMarginPercentPct: el('targetMarginPercentPct').value,
+    ...Object.fromEntries(PROPOSAL_TERM_IDS.map(id => [id, el(id).value])),
+  });
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, '', `#${hash}`);
+  count('share_link_copied');
+  el('shareStatus').textContent = 'Share link copied.';
+  setTimeout(() => { el('shareStatus').textContent = ''; }, 2500);
+}
+
+[...SCALAR_IDS, ...SELECT_IDS].forEach(id => el(id).addEventListener('input', () => update(true)));
+CHECKBOX_IDS.forEach(id => el(id).addEventListener('change', () => update(true)));
+el('sponsorLink').addEventListener('click', () => count('sponsor_link_clicked'));
+el('optout').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('reset').addEventListener('click', () => {
+  for (const id of SCALAR_IDS) el(id).value = DEFAULT_SCALAR_VALUES[id];
+  for (const id of SELECT_IDS) el(id).value = DEFAULT_SELECT_VALUES[id];
+  for (const id of CHECKBOX_IDS) el(id).checked = DEFAULT_CHECKBOX_VALUES[id];
+  update(false);
+  count('reset');
+});
+el('copyShare').addEventListener('click', () => {
+  copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+});
+
+// A share link takes priority over whatever is already typed in the form --
+// opening a link someone sent means seeing the job they priced, not the
+// page's own starting defaults.
+const shared = decodeShare(location.hash);
+if (shared) {
+  for (const id of [...SELECT_IDS, ...SCALAR_IDS]) {
+    if (shared[id] !== undefined) el(id).value = shared[id];
+  }
+  for (const id of CHECKBOX_IDS) {
+    if (shared[id] !== undefined) el(id).checked = Boolean(shared[id]);
+  }
+  for (const id of PROPOSAL_TERM_IDS) {
+    if (shared[id] !== undefined) el(id).value = shared[id];
+  }
+}
+
+update(false);
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'asbestos-abatement-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not an asbestos inspection or a substitute for the contractor’s own certification and regulatory compliance.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Perform a {containmentClassLabel} asbestos abatement of {squareFootage} sq ft",
+        {
+          "line": "Set up and tear down containment across {containmentAreas} work area(s)",
+          "when": "containmentAreas"
+        },
+        "Conduct required air monitoring and dispose of waste at a licensed facility",
+        "File required regulatory notification/permit for the work"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "containmentClassLabel": ({"classI":"Class I friable","classII":"Class II non-friable","classIII":"Class III minor/incidental"})[el('containmentClass')?.value],
+        "squareFootage": Number(el('squareFootage')?.value),
+        "containmentAreas": Number(el('containmentAreas')?.value),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.finalPrice,
+        jobTitle: scopeLines(['{containmentClassLabel} abatement — {squareFootage} sq ft'], proposalFields(result))[0] || 'Asbestos abatement job',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateAbatementBid(readInputs());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateAbatementBid(readInputs());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../dryer-vent-bid-calculator/" data-pf-to="dryer-vent-bid-calculator">Dryer Vent Bid Calculator</a></li>
+      <li><a href="../duct-cleaning-bid-calculator/" data-pf-to="duct-cleaning-bid-calculator">Duct Cleaning Bid Calculator</a></li>
+      <li><a href="../gutter-cleaning-bid-calculator/" data-pf-to="gutter-cleaning-bid-calculator">Gutter Cleaning Bid Calculator</a></li>
+      <li><a href="../hoarding-cleanout-bid-calculator/" data-pf-to="hoarding-cleanout-bid-calculator">Hoarding Cleanout Bid Calculator — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=asbestos-abatement-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/?pfEmbed=1&quot; title=&quot;Asbestos Abatement Bid Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="asbestos-abatement-bid-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/" data-pf-embed-title="Asbestos Abatement Bid Calculator" data-pf-embed-slug="asbestos-abatement-bid-calculator"></script>
+<script type="module" src="../pf-rates.js" data-pf-rates-fields="hourlyWage:crewHourlyRatePerWorker,targetMargin:targetMarginPercentPct"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="asbestos-abatement-bid-calculator" data-pf-jobs-amount=""></script>
+</body></html>

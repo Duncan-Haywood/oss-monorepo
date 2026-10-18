@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Freelance Retainer Calculator — Retainer vs Hourly</title>
+  <meta name="description" content="Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Freelance Retainer Pricing Calculator">
+  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price from capacity, then check a client's offered price against that floor.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator that prices a freelance retainer and compares it to hourly billing at 50%, 75%, 100%, and 125% usage."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge a monthly retainer or bill hourly?","acceptedAnswer":{"@type":"Answer","text":"A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block."}},{"@type":"Question","name":"When does a retainer drop below my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr."}},{"@type":"Question","name":"How many hours should a monthly retainer include?","acceptedAnswer":{"@type":"Answer","text":"Include only hours you can deliver inside your billable capacity, and avoid selling more than half of that capacity to one client. Compare 10, 15, 20, 25, and 30 hour packages against the same income goal so you can quote a range instead of one number."}},{"@type":"Question","name":"Should unused retainer hours roll over?","acceptedAnswer":{"@type":"Answer","text":"Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr."}},{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float the monthly revenue target for the days until first cash. Invoicing at month-end plus Net 30 is about 60 days. If you cannot float that amount from savings or other clients, require prepaid or 50% on kickoff."}}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Freelance Retainer Pricing Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Freelance Retainer Pricing Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Freelance Retainer Pricing Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <main class="shell">
+    <header>
+      <p class="eyebrow">INDEPENDENT WORK / PRICING TOOL</p>
+      <h1>Price the retainer around your life, not an arbitrary hourly rate.</h1>
+      <p class="lede">Turn your income goal, real billable capacity, operating costs, and scope buffer into a minimum hourly rate and a client-ready monthly retainer.</p>
+    </header>
+    <section class="workspace" aria-label="Retainer pricing calculator">
+      <form id="calculator" class="card">
+        <h2>Your monthly plan</h2>
+        <div class="grid">
+          <label>Income you want to take home <span data-currency-symbol>$</span><input id="income" type="number" min="0" step="100" value="6000" required inputmode="numeric"></label>
+          <label>Business costs and taxes <span data-currency-symbol>$</span><input id="costs" type="number" min="0" step="100" value="1800" required inputmode="numeric"></label>
+          <label>Available work hours / month <span>hours</span><input id="hours" type="number" min="1" step="1" value="160" required inputmode="numeric"></label>
+          <label>Realistic billable utilization <span>%</span><input id="utilization" type="number" min="1" max="100" step="1" value="65" required inputmode="numeric"></label>
+          <label>Retainer hours included <span>hours</span><input id="retainerHours" type="number" min="1" step="1" value="20" required inputmode="numeric"></label>
+          <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required inputmode="numeric"></label>
+        </div>
+        <fieldset class="subgrid">
+          <legend>The rest of your month <span class="optional">(optional — leave at the defaults to price this client alone)</span></legend>
+          <p class="note">Your hourly floor assumes every billable hour gets sold. These three inputs say what you actually expect to sell, so the goal check below is honest about it.</p>
+          <div class="grid">
+            <label>Other committed revenue / month <span data-currency-symbol>$</span><input id="otherRevenue" type="number" min="0" step="100" value="0" inputmode="numeric"></label>
+            <label>Hours those commitments take <span>hours</span><input id="otherHours" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+            <label>Of the hours still unsold, you expect to bill <span>%</span><input id="fillRate" type="number" min="0" max="100" step="5" value="100" inputmode="numeric"></label>
+          </div>
+        </fieldset>
+        <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <label>When this client pays <select id="paymentTerms"><option value="prepaid">Prepaid on kickoff</option><option value="net15">Invoice on kickoff, Net 15</option><option value="net30">Invoice on kickoff, Net 30</option><option value="arrears15">Invoice at month-end, Net 15</option><option value="arrears30">Invoice at month-end, Net 30</option></select></label>
+        <label>Price they offered (optional) <span data-currency-symbol>$</span><input id="offeredPrice" type="number" min="0" step="25" placeholder="Leave blank if they have not named a number" inputmode="numeric"></label>
+        <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft, including currency and payment terms. A shareable link puts the same numbers in the URL hash so a partner can open the exact plan — nothing is uploaded.</p>
+        <div class="actions">
+          <button type="submit">Calculate sustainable price</button>
+          <button id="share" type="button" class="secondary">Copy shareable link</button>
+        </div>
+        <p id="errors" class="error" role="alert" hidden></p>
+      </form>
+      <section id="results" class="card result" aria-live="polite" hidden>
+        <p class="eyebrow">YOUR FLOOR</p>
+        <p class="price" id="rate">$0</p><p class="muted">minimum sustainable hourly rate</p>
+        <div class="answer"><span>Recommended monthly retainer</span><strong id="retainer">$0</strong></div>
+        <div class="answer"><span>Billable capacity available</span><strong id="capacity">0 hrs</strong></div>
+        <div class="answer"><span>Capacity left after retainer</span><strong id="remaining">0 hrs</strong></div>
+        <div class="answer"><span>Monthly revenue target</span><strong id="target">$0</strong></div>
+        <div class="answer"><span>Payment terms</span><strong id="termsLabel">Prepaid on kickoff</strong></div>
+        <div class="answer"><span>Cash to float until first payment</span><strong id="cashFloat">$0</strong></div>
+        <p id="explanation" class="note"></p>
+        <div id="coverageCompare" class="usage-compare">
+          <h3>Does this retainer actually reach your income goal?</h3>
+          <p class="note">Clearing the hourly floor and reaching the goal are different questions. The floor is the rate that works <em>if the whole month sells</em>. This block prices the part nobody quotes: the hours still unsold.</p>
+          <div class="answer"><span>Sold so far this month</span><strong id="coverageCommitted">$0</strong></div>
+          <div class="answer"><span>Hours still unsold</span><strong id="coverageUnsold">0 hours</strong></div>
+          <div class="answer"><span>Month reaches</span><strong id="coverageExpected">$0</strong></div>
+          <div class="answer"><span>Short of the goal by</span><strong id="coverageShortfall">$0</strong></div>
+          <div class="answer"><span>Fill rate the goal needs</span><strong id="coverageRequiredFill">—</strong></div>
+          <p id="coverageVerdict" class="verdict"></p>
+        </div>
+        <div id="offerCompare" class="usage-compare" hidden>
+          <h3>Their offer against your floor</h3>
+          <p class="note">The floor is the price that covers your take-home, costs, and buffer. Their number is just a number. This block is the gap — not a recommendation to accept or walk away.</p>
+          <div class="answer"><span>They offered</span><strong id="offerAmount">$0</strong></div>
+          <div class="answer"><span>Gap to your floor</span><strong id="offerGap">$0</strong></div>
+          <div class="answer"><span>Effective rate on included hours</span><strong id="offerIncluded">$0</strong></div>
+          <div class="answer"><span>Hours you can still include at the floor</span><strong id="offerHours">0 hours</strong></div>
+          <p id="offerVerdict" class="verdict"></p>
+        </div>
+        <div id="usageCompare" class="usage-compare">
+          <h3>If they use less — or more — than the block</h3>
+          <p class="note">The retainer is a fixed monthly price. Hourly is the same hours at your floor rate. Modeled usage, not a contract interpretation.</p>
+          <div class="answer"><span>Unpaid extras drop below the floor after</span><strong id="usageBreakEven">0 hours</strong></div>
+          <div class="table-wrap">
+            <div class="pf-table-scroll"><table class="usage-table">
+              <caption>Retainer vs hourly at 50%, 75%, 100%, and 125% of included hours</caption>
+              <thead>
+                <tr>
+                  <th scope="col">If they use</th>
+                  <th scope="col">Hours</th>
+                  <th scope="col">You collect</th>
+                  <th scope="col">Hourly would collect</th>
+                  <th scope="col">Effective $/hr</th>
+                  <th scope="col">Covers floor?</th>
+                </tr>
+              </thead>
+              <tbody id="usageRows"></tbody>
+            </table></div>
+          </div>
+          <p id="usageVerdict" class="verdict"></p>
+        </div>
+        <div id="rolloverCompare" class="usage-compare">
+          <h3>If unused hours roll into next month</h3>
+          <p class="note">A light first month that rolls leftover hours into a full second month is unpaid delivery, not a courtesy. Modeled at 50% then 100% of the new block. Cap at the buffer or expire the leftover.</p>
+          <div class="answer"><span>Unused hours after a 50% first month</span><strong id="rolloverUnused">0 hours</strong></div>
+          <div class="table-wrap">
+            <div class="pf-table-scroll"><table class="usage-table">
+              <caption>Expire vs cap-at-buffer vs unlimited one-month rollover. Arithmetic only.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">If the agreement says</th>
+                  <th scope="col">Hours rolled</th>
+                  <th scope="col">Month 2 hours</th>
+                  <th scope="col">Month 2 $/hr</th>
+                  <th scope="col">Covers floor?</th>
+                  <th scope="col">Unpaid gift</th>
+                </tr>
+              </thead>
+              <tbody id="rolloverRows"></tbody>
+            </table></div>
+          </div>
+          <p id="rolloverVerdict" class="verdict"></p>
+        </div>
+        <textarea id="summary" rows="8" readonly aria-label="Copyable proposal summary"></textarea>
+       <div class="actions">
+         <button id="copy" type="button" class="secondary">Copy proposal summary</button>
+         <button id="download" type="button" class="secondary">Download proposal (.txt)</button>
+         <button id="shareResult" type="button" class="secondary">Copy shareable link</button>
+       </div>
+       <span id="copyStatus" role="status"></span>
+      </section>
+    </section>
+    <section id="scenarios" class="card scenarios" aria-live="polite" hidden>
+      <h2>Compare retainer sizes</h2>
+      <p class="note">Same income goal and capacity. Use a smaller package if the hours you typed will not fit this month.</p>
+      <div class="table-wrap">
+        <div class="pf-table-scroll"><table class="usage-table">
+          <caption>Monthly price and leftover capacity for common retainer sizes</caption>
+          <thead>
+            <tr>
+              <th scope="col">Included hours</th>
+              <th scope="col">Monthly price</th>
+              <th scope="col">Effective rate</th>
+              <th scope="col">Capacity left</th>
+              <th scope="col">Share of capacity</th>
+              <th scope="col"><span class="visually-hidden">Choose package</span></th>
+            </tr>
+          </thead>
+          <tbody id="scenarioRows"></tbody>
+        </table></div>
+      </div>
+      <p id="scenarioInsight" class="note"></p>
+    </section>
+    <section class="copy card">
+      <h2>Why this is different from a basic hourly-rate calculator</h2>
+      <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
+      <h2>Common question: this clears my floor — so why am I still short?</h2>
+      <p>Because the floor rate is your revenue target divided by your <em>whole</em> billable capacity: it is the rate that works if every one of those hours sells. On the default plan the $1,725 retainer clears a $75/hr floor and is still only 22% of a $7,800 target — the rest rides on 84 hours nobody has bought yet, at a fill rate of 96.4%. Enter what you already have committed and the share of the rest you honestly expect to bill, and the goal check above prices that assumption instead of hiding it. <a href="will-this-retainer-hit-my-income-goal.html">Why clearing your floor is not reaching your goal</a> works through the numbers.</p>
+      <h2>Common question: how many hours should a retainer include?</h2>
+      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Compare 10, 15, 20, 25, and 30 hour packages on this page, or read the longer answer in <a href="how-many-retainer-hours.html">how many hours a retainer should include</a>. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <h2>Common question: should I sell a retainer or stay hourly?</h2>
+      <p>Price the block first, then look at real usage. If they typically use half the hours, the retainer collects unused-hour cash — and often does not renew. If they can blow past the included hours without billed overage, your effective rate falls below the floor. <a href="retainer-vs-hourly.html">Retainer vs hourly at real usage</a> walks through the default numbers.</p>
+      <h2>Common question: should unused hours roll over?</h2>
+      <p>A leftover hour that rolls into next month is work you deliver without a second invoice. On the default 20-hour block, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 below the floor. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr. <a href="unused-hour-rollover.html">See expire vs cap vs unlimited rollover</a>.</p>
+      <h2>Common question: should I accept Net 30?</h2>
+      <p>A monthly price is not cash in the bank. Invoicing at month-end plus Net 30 means about 60 days before the first payment. If you cannot float that month of take-home and costs from savings or other clients, ask for prepaid. <a href="retainer-payment-terms.html">See how payment terms change the cash you float</a>.</p>
+      <h2>Common question: should I use this or a paid tool like Bonsai?</h2>
+      <p>Different jobs. Bonsai is a paid subscription for running a freelance business end to end — proposals, contracts, invoicing, and time tracking. This calculator answers the narrower question that comes first: what the retainer price should actually be, checked against your hourly floor. <a href="vs-bonsai.html">See this calculator vs. Bonsai</a>.</p>
+      <h2>Common question: should I use this or a paid tool like Harvest?</h2>
+      <p>Different jobs. Harvest is a paid subscription for logging billable hours and invoicing for them after the work starts. This calculator answers the question that comes before any of that: what the retainer price should actually be, checked against your hourly floor. <a href="vs-harvest.html">See this calculator vs. Harvest</a>.</p>
+      <h2>Common question: why not just divide my income goal by my hours?</h2>
+      <p>That division skips two numbers this calculator adds: monthly business costs and a scope buffer. On the default plan it prices a 20-hour retainer at $1,153.85; this calculator, adding $1,800 in costs and a 15% buffer, prices the same block at $1,725.00 &mdash; $571.15 a month left uncovered by the income-only guess. <a href="vs-pricing-from-income-goal-alone.html">See this calculator vs. pricing from income alone</a>.</p>
+    </section>
+  <h2>Common questions</h2>
+  <h3>Should I charge a monthly retainer or bill hourly?</h3>
+  <p>A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block.</p>
+  <h3>When does a retainer drop below my hourly rate?</h3>
+  <p>Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr.</p>
+  <h3>How many hours should a monthly retainer include?</h3>
+  <p>Include only hours you can deliver inside your billable capacity, and avoid selling more than half of that capacity to one client. Compare 10, 15, 20, 25, and 30 hour packages against the same income goal so you can quote a range instead of one number.</p>
+  <h3>Should unused retainer hours roll over?</h3>
+  <p>Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr.</p>
+  <h3>Should I accept Net 30 on a freelance retainer?</h3>
+  <p>Only if you can float the monthly revenue target for the days until first cash. Invoicing at month-end plus Net 30 is about 60 days. If you cannot float that amount from savings or other clients, require prepaid or 50% on kickoff.</p>
+
+    <footer>
+      <p>Pricing one-off manuscript work instead of a retainer? The <a href="../freelance-editor-quote-calculator/">freelance editor quote calculator</a> turns word count, edit level and hourly target into a flat fee and per-word rate.</p>    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. A shareable link stores only the planning fields in the URL hash on the recipient's device. We count only anonymous feature events in this browser (<code>calculate</code>, <code>retainer_usage_compared</code>, <code>unused_hour_rollover_compared</code>, <code>payment-terms-float</code>, <code>scenario_table_viewed</code>, <code>apply-scenario</code>, <code>share-link</code>, copy, download); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Running change orders instead of a retainer? The <a href="../change-order-margin-calculator/">change order margin calculator</a> prices markup, overhead, and contract caps on out-of-scope work &mdash; nothing uploaded.</p>
+      <p>Applying for salaried roles alongside the client work? The <a href="../ats-resume-checker/">ATS resume checker</a> flags the formatting that breaks an applicant-tracking system's parser &mdash; paste the text, nothing uploaded.</p>
+      <p>Leaving a full-time executive role to go fractional? The <a href="../fractional-executive-rate-calculator/">fractional executive rate calculator</a> converts the package you are replacing into a day rate and retainer prices &mdash; nothing uploaded.</p>
+      <p>Already have a time log for the client? The <a href="../freelance-retainer-vs-hourly-calculator/">retainer vs hourly calculator</a> replays a proposed retainer against your own monthly hours instead of an income goal &mdash; nothing uploaded.</p>
+      <p>Pricing a one-off job on Upwork or Fiverr instead of a retainer? The <a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr fee calculator</a> runs the same job price through both platforms' cuts side by side &mdash; nothing uploaded.</p>
+      <p>A freelance writer deciding per-word or flat fee for a single piece, not a retainer? The <a href="../freelance-writer-rate-calculator/">freelance writer rate calculator</a> compares the two by effective hourly rate for one job &mdash; nothing uploaded.</p>
+      <p>Free and open source. If it stopped you from signing an underpriced block, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Waiting on invoices from a client you already bill? The <a href="../invoice-aging-late-payer-analyzer/">invoice aging &amp; late payer analyzer</a> reads your invoice export and shows who owes you, how late, and who always pays slow &mdash; nothing uploaded.</p>
+    <p>Got the client's contract in hand? The <a href="../freelance-contract-checker/">freelance contract checker</a> flags slow payment, unlimited revisions, IP assigned before you are paid and a non-compete before you sign.</p>
+  </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../coi-expiry-gap-checker/" data-pf-to="coi-expiry-gap-checker">COI tracker and gap checker for subcontractor insurance — free, private</a></li>
+      <li><a href="../construction-delay-claim-calculator/" data-pf-to="construction-delay-claim-calculator">Construction Delay Claim Calculator — free, private</a></li>
+      <li><a href="../construction-evidence-log/" data-pf-to="construction-evidence-log">Construction Daily Log Evidence Pack</a></li>
+      <li><a href="../contractor-bid-readiness/" data-pf-to="contractor-bid-readiness">Contractor Bid Readiness Checklist</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=freelance-retainer-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/?pfEmbed=1&quot; title=&quot;Freelance Retainer Pricing Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="freelance-retainer-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/" data-pf-embed-title="Freelance Retainer Pricing Calculator" data-pf-embed-slug="freelance-retainer-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="freelance-retainer-calculator" data-pf-jobs-amount=""></script>
+</body>
+</html>

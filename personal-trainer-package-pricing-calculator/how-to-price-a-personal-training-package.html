@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to Price a Personal Training Package Without Losing Money On It</title>
+<meta name="description" content="A discounted 10-session package can pay $46/hr net after a gym's flat facility fee and a makeup-owed policy, against $63/hr charging full price per session…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/personal-trainer-package-pricing-calculator/how-to-price-a-personal-training-package.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to price a personal training package without losing money on it">
+<meta property="og:description" content="A 22.67% package discount sold to cover a 10% no-show rate, with a makeup owed and a flat facility fee…">
+<meta property="og:url" content="./how-to-price-a-personal-training-package.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a personal training package so it doesn't cost me money?","acceptedAnswer":{"@type":"Answer","text":"Check two things a revenue-only comparison misses: whether your discount is deeper than your real no-show rate once a missed session earns a makeup (every hour still gets worked, at the discounted rate), and whether your gym or studio charges a flat per-session facility fee rather than a percentage cut (a flat fee is a bigger percentage bite out of a discounted package session than out of a full-price one). On this calculator's own worked example — a $75 session, a 10-for-$580 package, 10% no-shows, makeup owed, $12 flat facility fee — the package nets $46.00/hr against $63.00/hr charging full price per session."}},{"@type":"Question","name":"Why does a makeup-owed policy turn a safe-looking discount into a loss?","acceptedAnswer":{"@type":"Answer","text":"Because a no-show that must be made up is not actually saved hours — it is deferred hours. Pay-per-session, a no-show simply frees that slot: 10% no-shows on 10 sessions means 9 hours worked. With a makeup owed, all 10 hours are eventually worked at the discounted rate. A 22.67% package discount sold to cover a 10% no-show rate ends up paid on every hour, not just the ones attended, which is deeper than the risk it was meant to price."}},{"@type":"Question","name":"Why does a flat facility fee hurt a package more than full price?","acceptedAnswer":{"@type":"Answer","text":"A flat fee is the same dollar amount no matter what you billed the client. On the worked example, a $12 facility fee is 16% of a $75 full-price session but 20.69% of the $58 package-equivalent rate — the same fixed fee eats a bigger share of a lower price. A percentage revenue-share cut does not do this: it takes the same share of both, so it scales the comparison down without changing which pricing model wins."}},{"@type":"Question","name":"Does waiving the makeup fix the problem?","acceptedAnswer":{"@type":"Answer","text":"It helps, but does not fully close the gap. On the same worked example, dropping the makeup obligation raises the package's net effective hourly pay from $46.00/hr to $52.44/hr — because a package no-show now frees the same hour a pay-per-session no-show would. It is still below the $63.00/hr of charging full price per session, because the flat facility fee and the discount itself still apply to every hour that is worked."}},{"@type":"Question","name":"What package price would have hit a $45/hr take-home target instead?","acceptedAnswer":{"@type":"Answer","text":"$570 for the same 10-session, makeup-owed, $12-flat-fee package — $10 less than the $580 in the worked example, because $580 already overshoots a $45/hr target by a dollar. This is not a rule of thumb; it is solved directly from your own rate, no-show rate, makeup policy and venue cost each time you run the calculator, since every one of those numbers changes the answer."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#14231d;background:#f2f6f3}
+body{max-width:900px;margin:auto;padding:1.5rem}
+a{color:#146356;overflow-wrap:anywhere}
+.eyebrow{font-weight:700;letter-spacing:.04em;color:#146356;font-size:.85rem}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.08;margin:.3rem 0;max-width:26ch;color:#146356}
+.lede{font-size:1.05rem;max-width:64ch;color:#2c3a32}
+section{background:#fff;border:1px solid #d6e6dd;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #14635610;margin:1rem 0}
+h2{margin-top:0;color:#146356}
+h3{font-size:1rem;margin:18px 0 4px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{border-bottom:1px solid #e7f0eb;padding:.55rem .5rem;text-align:left;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#43564d}
+.fine,footer{font-size:.86rem;color:#43564d}
+footer{margin-top:1.5rem;border-top:1px solid #d6e6dd;padding-top:1rem}
+footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/personal-trainer-package-pricing-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How to price a personal training package without losing money on it — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../personal-trainer-package-pricing-calculator/">Personal Trainer Package Pricing Calculator — package vs. pay-per-session, free</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How to price a personal training package without losing money on it</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Personal Trainer Package Pricing Calculator</a></p>
+<header>
+<h1>How to price a personal training package without losing money on it</h1>
+<p class="lede">A discounted package can guarantee revenue and still pay you worse per hour than charging full price one session at a time. The gap comes from two things a plain revenue comparison skips: what a makeup-owed policy does to hours actually worked, and what a flat facility fee does to a discounted rate.</p>
+</header>
+
+<section>
+<h2>The same client relationship, two pricing models</h2>
+<p>
+A trainer bills <strong>$75</strong> per single session. The same trainer
+also sells a package of <strong>10 sessions for $580</strong> &mdash; a
+22.67% discount off the single-session rate. About 10% of booked sessions
+are no-shows, a missed package session earns a free makeup rather than
+being forfeited, and the gym charges a flat <strong>$12</strong> facility
+fee for every session actually delivered, package or not.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col"></th><th scope="col">Pay-per-session</th><th scope="col">Package (makeup owed)</th></tr>
+</thead>
+<tbody>
+<tr><td>Client billings</td><td>$675.00</td><td>$580.00</td></tr>
+<tr><td>Facility fee owed</td><td>$108.00</td><td>$120.00</td></tr>
+<tr><td>Net take-home</td><td>$567.00</td><td>$460.00</td></tr>
+<tr><td>Hours actually worked</td><td>9.00</td><td>10.00</td></tr>
+<tr><td>Net effective hourly pay</td><td>$63.00/hr</td><td>$46.00/hr</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Same client, same no-show rate, same facility fee. Charging full price per session and letting a no-show simply free that slot nets $17.00/hr more than selling the package at this discount with a makeup owed.</p>
+</section>
+
+<section>
+<h2>Waiving the makeup helps, but doesn't close the gap</h2>
+<p>
+Keep every number the same and change one thing: a missed package session
+is forfeited instead of made up. Net effective hourly pay on the package
+rises from <strong>$46.00/hr to $52.44/hr</strong>, because the package now
+frees the same hour a pay-per-session no-show would. It is still below the
+$63.00/hr of charging full price, because the discount and the flat
+facility fee still apply to every hour that does get worked.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Package policy</th><th scope="col">Hours worked</th><th scope="col">Net effective hourly pay</th></tr>
+</thead>
+<tbody>
+<tr><td>Makeup owed on a miss</td><td>10.00</td><td>$46.00/hr</td></tr>
+<tr><td>No makeup owed (forfeited)</td><td>9.00</td><td>$52.44/hr</td></tr>
+<tr><td>Pay-per-session (for reference)</td><td>9.00</td><td>$63.00/hr</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+
+<section>
+<h2>Solving for a target instead of guessing at a discount</h2>
+<p>
+Rather than pick a package price and see what it nets, this calculator
+solves for the price that clears a take-home target directly. At a
+<strong>$45/hr</strong> target, the same 10-session, makeup-owed, $12-flat-fee
+package would need to be priced at <strong>$570</strong> &mdash; $10 less
+than the $580 in the worked example above, which already overshoots that
+target by a dollar. Change the rate, the no-show rate, the makeup policy, or
+the venue's cost structure, and the target price moves with it; there is no
+fixed rule of thumb that survives every one of those changing independently.
+</p>
+</section>
+
+<section>
+<h2>What this is not</h2>
+<p>This is arithmetic on the rates, discount, no-show rate, makeup policy, and venue cost you type, applied to one representative block of sessions. It does not track which specific client owes a makeup, does not schedule anything, and does not predict any one client's actual attendance. Replace every figure with your own before relying on either number.</p>
+<p class="fine"><strong>No warranty.</strong> This free page is not legal, tax, or financial advice. You are responsible for reviewing and verifying its output before relying on it. It is hosted best-effort with no SLA: it may be slow, broken, moved, or taken offline without notice. Open the <a href="./">package pricing calculator</a> to compare your own numbers.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>How do I price a personal training package so it doesn't cost me money?</h3>
+<p>Check two things a revenue-only comparison misses: whether your discount is deeper than your real no-show rate once a missed session earns a makeup (every hour still gets worked, at the discounted rate), and whether your gym or studio charges a flat per-session facility fee rather than a percentage cut (a flat fee is a bigger percentage bite out of a discounted package session than out of a full-price one). On this calculator's own worked example &mdash; a $75 session, a 10-for-$580 package, 10% no-shows, makeup owed, $12 flat facility fee &mdash; the package nets $46.00/hr against $63.00/hr charging full price per session.</p>
+<h3>Why does a makeup-owed policy turn a safe-looking discount into a loss?</h3>
+<p>Because a no-show that must be made up is not actually saved hours &mdash; it is deferred hours. Pay-per-session, a no-show simply frees that slot: 10% no-shows on 10 sessions means 9 hours worked. With a makeup owed, all 10 hours are eventually worked at the discounted rate. A 22.67% package discount sold to cover a 10% no-show rate ends up paid on every hour, not just the ones attended, which is deeper than the risk it was meant to price.</p>
+<h3>Why does a flat facility fee hurt a package more than full price?</h3>
+<p>A flat fee is the same dollar amount no matter what you billed the client. On the worked example, a $12 facility fee is 16% of a $75 full-price session but 20.69% of the $58 package-equivalent rate &mdash; the same fixed fee eats a bigger share of a lower price. A percentage revenue-share cut does not do this: it takes the same share of both, so it scales the comparison down without changing which pricing model wins.</p>
+<h3>Does waiving the makeup fix the problem?</h3>
+<p>It helps, but does not fully close the gap. On the same worked example, dropping the makeup obligation raises the package's net effective hourly pay from $46.00/hr to $52.44/hr &mdash; because a package no-show now frees the same hour a pay-per-session no-show would. It is still below the $63.00/hr of charging full price per session, because the flat facility fee and the discount itself still apply to every hour that is worked.</p>
+<h3>What package price would have hit a $45/hr take-home target instead?</h3>
+<p>$570 for the same 10-session, makeup-owed, $12-flat-fee package &mdash; $10 less than the $580 in the worked example, because $580 already overshoots a $45/hr target by a dollar. This is not a rule of thumb; it is solved directly from your own rate, no-show rate, makeup policy and venue cost each time you run the calculator, since every one of those numbers changes the answer.</p>
+</section>
+
+<p><a href="./">Open the Personal Trainer Package Pricing Calculator</a> to price your own package, or see <a href="vs-a-spreadsheet.html">this calculator vs. a spreadsheet</a> for what a revenue-only comparison misses.</p>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for the terms of your own package policy and venue agreement. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>This is arithmetic on the numbers you supply for one representative block of sessions, not a scheduling record, not a prediction of any specific client's attendance, and not tax, legal, or financial advice.</p>
+<p>Everything on this page and on the calculator runs in your browser. Nothing you type is ever sent anywhere.</p>
+<p>Free and open source. If this helped, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../small-business-acquisition-calculator/" data-pf-to="small-business-acquisition-calculator">Can I afford to buy this business? DSCR and cash-to-close, free and private</a></li>
+      <li><a href="../social-security-benefits-tax-calculator/" data-pf-to="social-security-benefits-tax-calculator">Is my Social Security taxable? Free calculator with the tax torpedo, private</a></li>
+      <li><a href="../social-security-earnings-test-calculator/" data-pf-to="social-security-earnings-test-calculator">Social Security earnings test calculator: how much is withheld if you work? Free, private</a></li>
+      <li><a href="../sponsor-ready/" data-pf-to="sponsor-ready">Sponsor Ready</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=personal-trainer-package-pricing-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="personal-trainer-package-pricing-calculator"></script>
+</body>
+</html>

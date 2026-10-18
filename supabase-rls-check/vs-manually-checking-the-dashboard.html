@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. checking RLS in the Supabase dashboard by hand | Supabase RLS Exposure Checker</title>
+<meta name="description" content="The Supabase dashboard's Table Editor runs as your own project session and bypasses RLS to show you your data regardless of policy…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/vs-manually-checking-the-dashboard.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking RLS in the Supabase dashboard by hand">
+<meta property="og:description" content="Table Editor shows your data as the project owner, bypassing RLS. Advisor flags RLS switched off, not a policy that's switched on but too broad.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "If I open Table Editor and see rows, doesn't that mean the anon key can read them?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Table Editor runs as your own logged-in project session, which is built to show you your data for management regardless of what RLS would do to an outside request -- that is the whole point of an admin data browser. Seeing rows there tells you the data exists; it tells you nothing about what an unauthenticated anon-key request actually receives. This checker sends that exact request -- the same one any visitor's browser can send -- and reports the real response." }
+    },
+    {
+      "@type": "Question",
+      "name": "Doesn't the Advisor already flag missing RLS?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It flags a table where RLS is switched off entirely, and it is a genuinely useful lint -- but that binary check does not evaluate what an enabled policy's USING clause actually returns. A table can have RLS turned on and still hand the anon role every row, if the policy attached to it is broader than intended (a common shape when a policy is copied from another table, or written as a quick USING (true) during development and never tightened). Advisor's lint reads as clean on that table; this checker does not read the policy at all -- it sends the request and reports what came back." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know a table returning zero rows is actually safe, and not just empty?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Neither the dashboard's own views nor a policy read-through resolves this on their own -- an empty table and a table RLS is correctly blocking look identical from the anon key's side: zero rows, no error. This checker reports that case as its own category, unconfirmed, rather than guessing either way, and names the one way to resolve it: insert one throwaway test row and re-run, or check the row count from the dashboard directly as the table owner." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to be logged into the Supabase project either way?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Table Editor and Advisor both need a project member session -- they are dashboard features. This checker, and its CLI, need only what your own app's client already has: the project URL and the anon key. No account, no login, and the CLI's exit code 1 on any exposed table means it can gate a CI pipeline unattended without holding a dashboard session or a service-role key." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/vs-manually-checking-the-dashboard.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. checking RLS in the Supabase dashboard by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../supabase-rls-check/">Supabase RLS Exposure Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. checking RLS in the Supabase dashboard by hand</span></span></nav>
+<p><a href="index.html">&larr; Supabase RLS exposure checker</a></p>
+
+<h1>This checker vs. checking RLS in the Supabase dashboard by hand</h1>
+
+<p>
+  The Supabase dashboard already gives you two ways to look at RLS: <strong>Table Editor</strong>,
+  which browses your table data, and the <strong>Advisor</strong>, which lints your project's
+  configuration and flags a table with RLS switched off. Both are useful, and both answer a
+  different question than the one this checker answers.
+</p>
+
+<p>
+  This checker sends one capped, read-only GET per table, using the anon key you provide, and
+  reports which tables actually return real rows to that unauthenticated request -- the same
+  request any visitor's browser (or curl) can already send. It does not read your policies, your
+  RLS toggle state, or anything in the dashboard; it only reports what the anon key's own request
+  actually got back.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to find out</th><th scope="col">Where to look</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Is there any table in this project with RLS switched off entirely?</td>
+      <td>Either -- Advisor's lint catches this at a glance if you are logged in, and so does this checker.</td>
+    </tr>
+    <tr>
+      <td>Does a table with RLS <em>enabled</em> still return real rows to the anon key, because its policy is broader than intended?</td>
+      <td>This checker. Advisor's lint is a binary off/on read of the RLS toggle -- it does not evaluate what an enabled policy's <code>USING</code> clause actually returns.</td>
+    </tr>
+    <tr>
+      <td>If I open Table Editor and see data, does that mean the anon key can read it too?</td>
+      <td>No, and neither view answers this on its own. Table Editor runs as your own project session and shows you the data regardless of RLS. This checker sends the anon-key request itself and reports the real response.</td>
+    </tr>
+    <tr>
+      <td>Is a table returning zero rows because RLS is correctly blocking the anon key, or because the table is simply empty?</td>
+      <td>This checker's <code>unconfirmed</code> category names that ambiguity explicitly rather than guessing. Neither dashboard view distinguishes the two either, since both show you the table's real, unfiltered state as its owner.</td>
+    </tr>
+    <tr>
+      <td>Can I run this without a dashboard login, project-member access, or a service-role key?</td>
+      <td>This checker, and its CLI -- the anon key is the only credential it uses, the same one your own app's client already holds.</td>
+    </tr>
+    <tr>
+      <td>Can I gate a deploy on this in CI, unattended, without storing a dashboard session anywhere?</td>
+      <td>This checker's CLI -- exit code <code>1</code> on any exposed table.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These are not a replacement for each other. Advisor is worth reading regularly as a configuration
+  lint, and Table Editor is how you manage your own data day to day. This checker fills the gap
+  between them: what the anon key's own request actually returns, checked the same way after every
+  deploy rather than only when someone remembers to look.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>If I open Table Editor and see rows, doesn't that mean the anon key can read them?</h3>
+<p>No. Table Editor runs as your own logged-in project session, which is built to show you your data for management regardless of what RLS would do to an outside request -- that is the whole point of an admin data browser. Seeing rows there tells you the data exists; it tells you nothing about what an unauthenticated anon-key request actually receives. This checker sends that exact request -- the same one any visitor's browser can send -- and reports the real response.</p>
+
+<h3>Doesn't the Advisor already flag missing RLS?</h3>
+<p>It flags a table where RLS is switched off entirely, and it is a genuinely useful lint -- but that binary check does not evaluate what an enabled policy's <code>USING</code> clause actually returns. A table can have RLS turned on and still hand the anon role every row, if the policy attached to it is broader than intended (a common shape when a policy is copied from another table, or written as a quick <code>USING (true)</code> during development and never tightened). Advisor's lint reads as clean on that table; this checker does not read the policy at all -- it sends the request and reports what came back.</p>
+
+<h3>How do I know a table returning zero rows is actually safe, and not just empty?</h3>
+<p>Neither the dashboard's own views nor a policy read-through resolves this on their own -- an empty table and a table RLS is correctly blocking look identical from the anon key's side: zero rows, no error. This checker reports that case as its own category, <code>unconfirmed</code>, rather than guessing either way, and names the one way to resolve it: insert one throwaway test row and re-run, or check the row count from the dashboard directly as the table owner.</p>
+
+<h3>Do I need to be logged into the Supabase project either way?</h3>
+<p>Table Editor and Advisor both need a project member session -- they are dashboard features. This checker, and its CLI, need only what your own app's client already has: the project URL and the anon key. No account, no login, and the CLI's exit code <code>1</code> on any exposed table means it can gate a CI pipeline unattended without holding a dashboard session or a service-role key.</p>
+
+<p><a href="index.html">&larr; Back to the Supabase RLS exposure checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at one specific,
+  well-documented exposure -- can the anon key read real rows from a table -- using a capped,
+  read-only request per table. It is not a full security assessment and cannot see an exposure
+  outside what the anon key's own schema listing reveals.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any project you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p><strong>This page names no specific competing product.</strong> Table Editor and Advisor are
+  Supabase's own built-in dashboard features, described here only to explain what checking RLS by
+  hand in that dashboard does and does not tell you -- not a company or product this could be
+  mistaken for.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ci-minutes-pricing-calculator/" data-pf-to="ci-minutes-pricing-calculator">What will CI cost at your build-minute volume, and who is cheapest?</a></li>
+      <li><a href="../ci-test-shard-balancer/" data-pf-to="ci-test-shard-balancer">Split your CI tests into evenly timed shards</a></li>
+      <li><a href="../claude-code-hooks-security-check/" data-pf-to="claude-code-hooks-security-check">Claude Code Hooks Security Check</a></li>
+      <li><a href="../claude-code-settings-check/" data-pf-to="claude-code-settings-check">Claude Code Settings Check</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=supabase-rls-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="supabase-rls-check"></script>
+</body>
+</html>

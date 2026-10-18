@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DoorDash Fee Calculator for Restaurants — Delivery Margin</title>
+  <meta name="description" content="Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239a3412'/%3E%3Cpath fill='%23fff7ed' d='M8 20c0-5 4-9 8-9s8 4 8 9v2H8v-2zm4-3h8v2h-8v-2z'/%3E%3C/svg%3E">
+  <meta property="og:title" content="DoorDash fee calculator for restaurants — compare delivery apps on one ticket">
+  <meta property="og:description" content="See what dine-in, pickup, DoorDash, Uber Eats, Grubhub, and your own driver each leave after commission, packaging, and extra labor.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Delivery App Margin Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "DoorDash / Uber Eats / Grubhub commission comparison, dine-in vs pickup vs delivery, packaging and extra labor, menu price to match dine-in, monthly cash given up, copyable decision summary, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does DoorDash take from restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the plan and market. Marketplace commissions commonly land between about 15% and 30% of the order total, and some plans add a separate processing fee. The number that matters is not the headline percentage: packaging, extra bagging minutes, and the price you list on the app all change what you keep. Enter the rate on your own statement above — this page does the arithmetic on the numbers you give it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is DoorDash worth it for a restaurant?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On fees alone, dine-in almost always leaves more than a marketplace order at the same menu price, because the app takes a commission dine-in does not. Whether that is worth it depends on whether the app brings tickets you would not have sold otherwise, and on whether you mark the delivery menu up enough to keep the same cash. This calculator shows the dine-in-matching price and the monthly gap; it does not know your incremental demand."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I price a DoorDash menu to keep dine-in profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Uber Eats take from restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much commission does Grubhub charge restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a1f14; background: #f6efe6; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a3412; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+    .layout > * { min-width: 0; }
+    section { background: #fff; border: 1px solid #e4d4c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a1f1410; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #c4a58a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .check { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .check input { width: auto; }
+    .verdict { background: #3d1f12; color: #fff7ed; border-color: #3d1f12; }
+    .verdict a { color: #fdba74; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 2px; }
+    .negative { color: #fecaca; } .positive { color: #bbf7d0; }
+    .verdict .note { font-size: .85rem; opacity: .85; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 640px; }
+    th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #6b3a22; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: #fdba74; }
+    tbody tr.best { background: #5c2e1a; }
+    tbody tr.best th::after { content: " · best"; color: #fdba74; font-weight: 700; font-size: .8rem; }
+    td.money { font-variant-numeric: tabular-nums; }
+    .rates { margin-top: 18px; }
+    details { border: 1px solid #e4d4c4; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #fffaf4; }
+    summary { cursor: pointer; font-weight: 650; }
+    details .fields { margin-top: 12px; grid-template-columns: repeat(3, 1fr); }
+    details p.note { font-size: .84rem; color: #6b5344; margin: 8px 0 0; }
+    .error { color: #b91c1c; font-weight: 650; }
+    .verdict .error { color: #fecaca; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4a58a; background: #fff; cursor: pointer; color: #2a1f14; }
+    button:hover { background: #fff4ea; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .faq { margin-top: 18px; }
+    .faq h3 { margin-bottom: 4px; }
+    footer { margin-top: 25px; font-size: .82rem; color: #6b5344; }
+    footer a { color: #9a3412; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .fields, details .fields { grid-template-columns: 1fr; } }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"DoorDash fee calculator for restaurants — compare delivery apps on one ticket","item":"https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DoorDash fee calculator for restaurants — compare delivery apps on one ticket — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">DoorDash fee calculator for restaurants — compare delivery apps on one ticket</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT RESTAURANTS AND CAFES</p>
+    <h1>One ticket. Every path. See what DoorDash actually leaves you.</h1>
+    <p>
+      Enter a typical ticket once. This compares what <strong>dine-in, pickup,
+      DoorDash, Uber Eats, Grubhub, and your own driver</strong> each leave
+      after commission, card processing, packaging, and the extra minutes to
+      bag a delivery order — and tells you the delivery-menu price each app
+      needs to match dine-in. Everything runs in this page; nothing is uploaded.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section aria-labelledby="ticket-heading">
+      <h2 id="ticket-heading">Your ticket</h2>
+      <div class="fields">
+        <label>Menu / ticket price <input id="ticketPrice" type="number" min="0" step="0.01" value="32" inputmode="decimal"></label>
+        <label>Food cost on that ticket <input id="foodCost" type="number" min="0" step="0.01" value="9.60" inputmode="decimal"></label>
+        <label>Hourly wage for extra bagging <input id="hourlyWage" type="number" min="0" step="0.01" value="18" inputmode="decimal"></label>
+        <label class="span2">Delivery-app orders you expect per month
+          <input id="monthlyOrders" type="number" min="0" step="1" value="400" inputmode="numeric">
+        </label>
+      </div>
+      <p class="note" style="font-size:.84rem;color:#6b5344">
+        These apply to every path. A higher DoorDash menu price, extra
+        packaging, or your own driver cost goes in that path’s panel below
+        the table.
+      </p>
+      <div class="actions">
+        <button id="reset" type="button">Reset everything</button>
+        <button id="copyLink" type="button">Copy shareable link</button>
+        <span id="linkStatus" class="note" role="status" aria-live="polite"></span>
+      </div>
+      <p class="note" id="restoreNote" hidden></p>
+    </section>
+
+    <section class="verdict" aria-labelledby="verdict-heading">
+      <h2 id="verdict-heading">What you keep</h2>
+      <div id="live" aria-live="polite">
+        <div id="bestLabel">—</div>
+        <div id="bestProfit" class="hero-number">$—</div>
+        <p id="spread" class="note"></p>
+        <p id="monthly" class="note"></p>
+        <div class="actions">
+          <button id="copySummary" type="button">Copy decision summary</button>
+          <span id="copyStatus" class="note" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="scroller">
+        <div class="pf-table-scroll"><table>
+          <caption class="note" style="text-align:left;padding-bottom:8px">
+            Same ticket on every path, ranked by what you keep.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Listed</th>
+              <th scope="col">Fees</th>
+              <th scope="col">You keep</th>
+              <th scope="col">Vs dine-in</th>
+              <th scope="col">Price to match dine-in</th>
+              <th scope="col">Commission to match dine-in</th>
+              <th scope="col">This month vs dine-in</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </div>
+      <p class="note">
+        Transparent arithmetic from the rates you entered — not any app’s
+        current published schedule. Commissions vary by plan, market, and
+        contract. Check yours against a recent payout statement.
+      </p>
+    </section>
+  </main>
+
+  <section class="rates" aria-labelledby="rates-heading">
+    <h2 id="rates-heading">Each path’s rates and costs</h2>
+    <p style="margin-top:0;font-size:.9rem;color:#6b5344">
+      Opened defaults are illustrative US rates, not a live fee schedule.
+      Replace them with the rates on your own statements — that is what makes
+      the comparison yours rather than a generic estimate.
+    </p>
+    <div id="channelPanels"></div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this does, and what it does not</h2>
+    <h3>The headline commission is not the decision</h3>
+    <p>
+      A 27% DoorDash plan on a $32 ticket is $8.64. Packaging and eight extra
+      bagging minutes at $18/hour add another $3.65 the percentage comparison
+      never shows. The decision number is the listed price that leaves you the
+      same cash as dine-in — often around 45% higher on that ticket — and the
+      monthly gap if you do not raise it. Since you cannot always set that
+      price yourself, the table also solves the other side: the commission
+      rate this path would need, at its current listed price, to match
+      dine-in — the number worth having ready when a plan renewal or a
+      lower-commission tier comes up.
+      <a href="doordash-fees-for-restaurants.html">DoorDash fees on one restaurant ticket</a>
+      works the default example through in full, and
+      <a href="doordash-vs-ubereats-fees.html">DoorDash vs Uber Eats fees</a>
+      lines the three delivery apps up against each other on the same ticket.
+    </p>
+    <h3>What it deliberately leaves out</h3>
+    <p>
+      Fees are not the whole decision. An app fee is partly a payment for
+      demand you would otherwise have to create, and this page has no way to
+      know how many of those tickets you would have sold as dine-in or pickup.
+      It also does not model refunds, marketing credits, DashPass discounts
+      you absorb, or occupancy you lose when the kitchen is full of delivery
+      tickets. Read the gap as one input, not the decision. It does not
+      recommend a price, a contract, or a business model, and it is not tax,
+      financial, or business advice.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How much does DoorDash take from restaurants?</h3>
+  <p>It depends on the plan and market. Marketplace commissions commonly land between about 15% and 30% of the order total, and some plans add a separate processing fee. The number that matters is not the headline percentage: packaging, extra bagging minutes, and the price you list on the app all change what you keep. Enter the rate on your own statement above — this page does the arithmetic on the numbers you give it.</p>
+  <h3>Is DoorDash worth it for a restaurant?</h3>
+  <p>On fees alone, dine-in almost always leaves more than a marketplace order at the same menu price, because the app takes a commission dine-in does not. Whether that is worth it depends on whether the app brings tickets you would not have sold otherwise, and on whether you mark the delivery menu up enough to keep the same cash. This calculator shows the dine-in-matching price and the monthly gap; it does not know your incremental demand.</p>
+  <h3>How do I price a DoorDash menu to keep dine-in profit?</h3>
+  <p>Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below.</p>
+  <h3>How much does Uber Eats take from restaurants?</h3>
+  <p>Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash.</p>
+  <h3>How much commission does Grubhub charge restaurants?</h3>
+  <p>Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side.</p>
+
+  <footer>
+    <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. A shareable link encodes only the ticket and channel rates you choose into the address bar — it is never sent anywhere and is not the same as the usage counter. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it stopped you selling delivery at a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Related: <a href="doordash-fees-for-restaurants.html">DoorDash fees for restaurants</a> · <a href="doordash-vs-ubereats-fees.html">DoorDash vs Uber Eats fees</a> · <a href="../no-show-fee-calculator/">No-show fee calculator</a> · <a href="../quote-margin-check/">Quote margin check</a> · <a href="../menu-engineering-calculator/">Menu engineering calculator</a> · <a href="../ghost-kitchen-brand-picker/">Ghost kitchen brand picker</a>.</p>
+    <p class="note">Have a whole payout export instead of one ticket? The <a href="../restaurant-delivery-commission-analyzer/">restaurant delivery commission analyzer</a> reads your DoorDash, Uber Eats or Grubhub CSV and shows your real take rate and losing orders &mdash; nothing uploaded.</p>
+    <p class="note">Already run restaurant point-of-sale software? See <a href="vs-toast.html">this calculator vs. Toast</a>. Tracking tickets in your own sheet? See <a href="vs-a-spreadsheet.html">this calculator vs. a spreadsheet</a>.</p>
+    <p>Pricing a wholesale order instead of a per-ticket delivery menu? The <a href="../faire-wholesale-calculator/">Faire wholesale fee calculator</a> puts one invoice through a marketplace first order, a reorder, Faire Direct, and an off-Faire invoice &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+    import { buildSpec, encodeShare, saveShare, clearShare, restoreShare } from "./share.mjs";
+
+    const SHARED_FIELDS = ["ticketPrice", "foodCost", "hourlyWage", "monthlyOrders"];
+    const CHANNEL_FIELDS = [
+      { key: "listedPrice", label: "Listed price on this path", step: "0.01" },
+      { key: "commissionRate", label: "Commission (%)", step: "0.01" },
+      { key: "paymentRate", label: "Payment processing (%)", step: "0.01" },
+      { key: "paymentFixed", label: "Payment fixed fee", step: "0.01" },
+      { key: "packagingCost", label: "Packaging cost", step: "0.01" },
+      { key: "extraLaborMinutes", label: "Extra labor (minutes)", step: "0.1" },
+      { key: "deliveryCost", label: "Driver / delivery cost", step: "0.01" },
+    ];
+    // What a shareable link and this browser's own save carry between visits
+    // or to a partner — see share.mjs for how. Sourced from the same
+    // SHARED_FIELDS, CHANNEL_FIELDS and CHANNEL_PRESETS the form itself reads
+    // and renders, so a field added to either is shareable the moment it
+    // exists rather than needing a second, hand-kept list here.
+    const SHARE_SPEC = buildSpec(
+      SHARED_FIELDS,
+      CHANNEL_FIELDS.map((field) => field.key),
+      CHANNEL_PRESETS.map((channel) => channel.id),
+    );
+    const money = (value) =>
+      Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
+    const signedMoney = (value) => `${value > 0 ? "−" : ""}${money(Math.abs(value))}`;
+    // A commission rate is only a real answer between 0% (already there at no
+    // commission) and 100% (calculateChannel itself refuses that boundary).
+    // Negative means extra cash — packaging, labor, a driver — already
+    // exceeds the gap, so no commission cut, however deep, gets there;
+    // >=100% means the same thing from the other side, since profit only
+    // falls as commission rises.
+    const commissionMatchText = (pct) =>
+      pct === null
+        ? "—"
+        : pct < 0 || pct >= 100
+        ? "not reachable by rate alone"
+        : `${pct.toFixed(1)}%`;
+
+    const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
+    let channels = freshChannels();
+    let lastComparison = null;
+
+    function readShared() {
+      return Object.fromEntries(
+        SHARED_FIELDS.map((id) => [id, document.getElementById(id).value]),
+      );
+    }
+
+    function optedOut() {
+      return document.getElementById("usageOptOut").checked;
+    }
+
+    // The comparison in the shape a shareable link and this browser's own
+    // save actually carry: each channel's rate fields plus its `enabled`
+    // toggle as a '1'/'0' choice rather than a boolean, because a row cell in
+    // share.mjs's spec is a number or a choice — there is no boolean cell
+    // kind, the same convention `tree-service-bid-calculator` uses for its
+    // per-tree checkboxes.
+    function readSavable() {
+      return {
+        ...readShared(),
+        channels: channels.map((channel) => ({
+          id: channel.id,
+          enabled: channel.enabled === false ? "0" : "1",
+          ...Object.fromEntries(CHANNEL_FIELDS.map((field) => [field.key, channel[field.key]])),
+        })),
+      };
+    }
+
+    function persist() {
+      try {
+        saveShare(localStorage, SHARE_SPEC, readSavable());
+      } catch {
+        // Saving is a convenience; a blocked or full storage must not stop the
+        // calculator from working.
+      }
+    }
+
+    // Puts a restored or shared comparison back on screen. Channels are
+    // matched back to `CHANNEL_PRESETS` by id, so a link built by an older or
+    // newer build — or one missing a channel entirely — can only ever fill in
+    // fields this build knows about; anything else keeps that channel's
+    // shipped default, exactly as the page's own reset does.
+    function applyValues(values) {
+      if (!values || typeof values !== "object") return;
+      for (const id of SHARED_FIELDS) {
+        if (values[id] !== undefined) document.getElementById(id).value = values[id];
+      }
+      if (Array.isArray(values.channels)) {
+        channels = freshChannels().map((channel) => {
+          const stored = values.channels.find((candidate) => candidate?.id === channel.id);
+          if (!stored) return channel;
+          const merged = { ...channel, ...stored, label: channel.label, note: channel.note };
+          if (stored.enabled !== undefined) merged.enabled = stored.enabled !== "0";
+          return merged;
+        });
+      }
+    }
+
+    function renderPanels() {
+      document.getElementById("channelPanels").innerHTML = channels.map((channel, index) => `
+        <details data-index="${index}">
+          <summary>${channel.label}${channel.enabled === false ? " — not compared" : ""}</summary>
+          <label class="check" style="margin-top:10px">
+            <input type="checkbox" data-index="${index}" data-enable="1" ${channel.enabled === false ? "" : "checked"}>
+            Compare this path
+          </label>
+          ${channel.note ? `<p class="note">${channel.note}</p>` : ""}
+          <div class="fields">
+            ${CHANNEL_FIELDS.map((field) => `
+              <label>${field.label}
+                <input type="number" min="0" step="${field.step}" data-index="${index}" data-key="${field.key}"
+                       value="${channel[field.key] ?? ""}" inputmode="decimal">
+              </label>`).join("")}
+          </div>
+        </details>`).join("");
+
+      for (const input of document.querySelectorAll("#channelPanels input[data-key]")) {
+        input.addEventListener("input", (event) => {
+          const { index, key } = event.target.dataset;
+          channels[Number(index)][key] = event.target.value;
+          update();
+        });
+        input.addEventListener("change", () => {
+          recordUsage(localStorage, optedOut(), "channel_rates_edited");
+          persist();
+        });
+      }
+      for (const toggle of document.querySelectorAll("#channelPanels input[data-enable]")) {
+        toggle.addEventListener("change", (event) => {
+          const index = Number(event.target.dataset.index);
+          channels[index].enabled = event.target.checked;
+          const openIndexes = [...document.querySelectorAll("#channelPanels details[open]")]
+            .map((el) => el.dataset.index);
+          renderPanels();
+          for (const openIndex of openIndexes) {
+            const el = document.querySelector(`#channelPanels details[data-index="${openIndex}"]`);
+            if (el) el.open = true;
+          }
+          update();
+          recordUsage(localStorage, optedOut(), "channel_toggled");
+          persist();
+        });
+      }
+    }
+
+    function showError(message) {
+      lastComparison = null;
+      document.getElementById("bestLabel").textContent = "Check the inputs";
+      const profit = document.getElementById("bestProfit");
+      profit.textContent = message;
+      profit.className = "hero-number error";
+      profit.style.fontSize = "1.1rem";
+      document.getElementById("spread").textContent = "";
+      document.getElementById("monthly").textContent = "";
+      document.getElementById("copyStatus").textContent = "";
+      document.getElementById("rows").innerHTML = "";
+    }
+
+    function update() {
+      let comparison;
+      try {
+        comparison = compareChannels(channels, readShared());
+      } catch (error) {
+        showError(error.message);
+        return;
+      }
+      lastComparison = comparison;
+
+      const profit = document.getElementById("bestProfit");
+      profit.style.fontSize = "";
+      document.getElementById("bestLabel").textContent =
+        `Best on this ticket: ${comparison.best.label} — you keep`;
+      profit.textContent = money(comparison.best.profit);
+      profit.className = `hero-number ${comparison.best.profit < 0 ? "negative" : "positive"}`;
+      document.getElementById("spread").textContent = comparison.spread > 0
+        ? `${money(comparison.spread)} separates the best path from the worst on this one ticket — ${comparison.best.margin.toFixed(1)}% margin at the top.`
+        : "Every path leaves you the same on this ticket.";
+
+      const dash = comparison.results.find((result) => result.id === "doordash");
+      if (dash && dash.monthlyGapVsDineIn > 0) {
+        document.getElementById("monthly").textContent =
+          `At ${dash.monthlyOrders} DoorDash orders a month, that path gives up ${money(dash.monthlyGapVsDineIn)} versus dine-in if you do not raise the delivery price.`;
+      } else {
+        document.getElementById("monthly").textContent = "";
+      }
+
+      document.getElementById("rows").innerHTML = comparison.results
+        .slice()
+        .sort((a, b) => a.rank - b.rank)
+        .map((result) => `
+          <tr class="${result.isBest ? "best" : ""}">
+            <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
+            <td class="money">${money(result.listedPrice)}</td>
+            <td class="money">${money(result.feeTotal)}</td>
+            <td class="money">${money(result.profit)}</td>
+            <td class="money">${result.gapVsDineIn === null || result.gapVsDineIn === 0 ? "—" : signedMoney(result.gapVsDineIn)}</td>
+            <td class="money">${result.priceToMatchDineIn === null ? "—" : money(result.priceToMatchDineIn)}</td>
+            <td class="money">${commissionMatchText(result.commissionToMatchDineIn)}</td>
+            <td class="money">${result.monthlyGapVsDineIn === null || result.monthlyGapVsDineIn === 0 ? "—" : signedMoney(result.monthlyGapVsDineIn)}</td>
+          </tr>`).join("");
+    }
+
+    for (const id of SHARED_FIELDS) {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, optedOut(), "comparison_calculated");
+        persist();
+      });
+    }
+    document.getElementById("usageOptOut").addEventListener("change", (event) => {
+      writeOptOut(localStorage, event.target.checked);
+    });
+    document.getElementById("copySummary").addEventListener("click", async () => {
+      if (!lastComparison) {
+        document.getElementById("copyStatus").textContent = " Fix the inputs above before copying.";
+        return;
+      }
+      const ticketPrice = Number(document.getElementById("ticketPrice").value);
+      const monthlyOrders = Number(document.getElementById("monthlyOrders").value);
+      const lines = [
+        "Restaurant delivery margin comparison",
+        document.getElementById("bestLabel").textContent,
+        `Best path keeps ${money(lastComparison.best.profit)} on a ${money(ticketPrice)} ticket (${lastComparison.best.margin.toFixed(1)}% margin).`,
+        `At ${monthlyOrders} expected orders/month, the best path contributes ${money(lastComparison.best.profit * monthlyOrders)} before fixed overhead.`,
+        ...lastComparison.results.slice().sort((a, b) => a.rank - b.rank).map((result) =>
+          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}; commission to match dine-in ${result.commissionToMatchDineIn === null ? "not available" : commissionMatchText(result.commissionToMatchDineIn)}.`),
+        "Rates are operator-entered assumptions. Verify against current statements before relying on this draft.",
+      ];
+      try {
+        await navigator.clipboard.writeText(lines.join("\n"));
+        document.getElementById("copyStatus").textContent = " Summary copied.";
+        recordUsage(localStorage, optedOut(), "summary_copied");
+      } catch {
+        document.getElementById("copyStatus").textContent = " Clipboard unavailable; use the table above.";
+      }
+    });
+
+    document.getElementById("copyLink").addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}#${encodeShare(SHARE_SPEC, readSavable())}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = url;
+        fallback.setAttribute("readonly", "");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.append(fallback);
+        fallback.select();
+        try {
+          document.execCommand("copy");
+        } catch {
+          document.getElementById("linkStatus").textContent = " Copy failed; copy the address bar instead.";
+          fallback.remove();
+          return;
+        }
+        fallback.remove();
+      }
+      document.getElementById("linkStatus").textContent =
+        " Link copied — it reopens this ticket and every path's rates, not just the summary.";
+      recordUsage(localStorage, optedOut(), "link_copied");
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      try {
+        clearShare(localStorage, SHARE_SPEC);
+      } catch {
+        // Nothing to clear.
+      }
+      channels = freshChannels();
+      const defaults = { ticketPrice: 32, foodCost: 9.6, hourlyWage: 18, monthlyOrders: 400 };
+      for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+      document.getElementById("restoreNote").hidden = true;
+      renderPanels();
+      update();
+    });
+
+    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+
+    const restored = restoreShare(SHARE_SPEC, {
+      hash: location.hash,
+      storage: (() => {
+        try {
+          return localStorage;
+        } catch {
+          return null;
+        }
+      })(),
+    });
+    applyValues(restored.values);
+    if (restored.source !== "none") {
+      const note = document.getElementById("restoreNote");
+      note.hidden = false;
+      note.textContent = restored.source === "link"
+        ? "Opened from a shared link — these are the sender’s numbers, not yours."
+        : "Picked up your last comparison from this browser. “Reset everything” clears it.";
+    }
+
+    renderPanels();
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../percentage-rent-audit-checker/" data-pf-to="percentage-rent-audit-checker">Percentage Rent Audit Checker — free</a></li>
+      <li><a href="../phone-repair-shop-profit-calculator/" data-pf-to="phone-repair-shop-profit-calculator">Phone Repair Shop Profit Calculator — free, private</a></li>
+      <li><a href="../poshmark-fee-calculator/" data-pf-to="poshmark-fee-calculator">Poshmark Fee Calculator</a></li>
+      <li><a href="../poshmark-sales-report-analyzer/" data-pf-to="poshmark-sales-report-analyzer">Poshmark Sales Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=delivery-app-margin-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/?pfEmbed=1&quot; title=&quot;DoorDash fee calculator for restaurants — compare delivery apps on one ticket — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="delivery-app-margin-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/" data-pf-embed-title="DoorDash fee calculator for restaurants — compare delivery apps on one ticket" data-pf-embed-slug="delivery-app-margin-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="delivery-app-margin-calculator" data-pf-jobs-amount="#bestProfit"></script>
+</body>
+</html>

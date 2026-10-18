@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What this environment can actually read, and what that costs the pipeline | Development analyses</title>
+<meta name="description" content="Added 2026-08-20 by the thirteenth firing of the screening brief.">
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
+          --ok:#1a7f4b; --warn:#9a6700; --bad:#b42318; --pend:#556275; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542;
+          --accent:#7aa2ff; --ok:#5cc98f; --warn:#e3b341; --bad:#ff8a80; --pend:#a2b0c0; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.75rem; margin:.2em 0 .1em; } h2 { margin-top:2.2em; font-size:1.3rem; } h3 { font-size:1.08rem; }
+  .crumbs { font-size:.85rem; color:var(--muted); } .crumbs a { color:inherit; }
+  .lede, .muted, .meta { color:var(--muted); } .meta { font-size:.85rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-decoration:none; color:inherit; display:block; }
+  a.tile:hover { border-color:var(--accent); }
+  .tile .label { font-size:.8rem; color:var(--muted); } .tile .value { font-size:1.5rem; font-weight:600; } .tile .note { font-size:.75rem; color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; }
+  td code, li code, p code, dd code { overflow-wrap:anywhere; word-break:break-word; }
+  article.doc td, article.doc th { min-width:7em; }
+  table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; font-size:.82rem; color:var(--muted); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
+  .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
+  .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  dl.fields dt { font-weight:600; margin-top:.6em; } dl.fields dd { margin:0 0 0 0; }
+  article.doc { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 22px 22px; overflow-wrap:anywhere; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:.85rem; }
+  code { font-size:.9em; } blockquote { margin:0; padding-left:14px; border-left:3px solid var(--line); color:var(--muted); }
+  footer { margin-top:48px; font-size:.85rem; color:var(--muted); }
+  @media (max-width:640px) { .hide-sm { display:none; } }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span></nav>
+<main>
+<nav class="crumbs"><a href="../../../../">Home</a> › <a href="../../../../dev/">How it is built</a> › <a href="../../">Analyses</a> › Study</nav>
+
+<h1>What this environment can actually read, and what that costs the pipeline</h1>
+<p class="meta">Study · 2026-08-20 · <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research/primary-source-egress/README.md">portfolio/research/primary-source-egress/README.md</a></p>
+<article class="doc">
+<p>Added 2026-08-20 by the thirteenth firing of the screening brief.</p>
+<p><em>Relocated from <code>portfolio/pipeline/primary-source-egress.md</code> when the measurement passes were consolidated into <code>portfolio/research/</code>; the content is unchanged apart from link paths.</em></p>
+<p><strong>This document adds no candidate and changes no score.</strong> It hit the intake gate in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/CLAUDE.md">CLAUDE.md</a>, accepted it, and then measured one thing the previous twelve runs asserted without testing: <em>which hosts this environment can reach.</em> The answer changes how two items on the account owner&#39;s decision queue should be stated, and it identifies a blocker that gates the whole directory rather than one measurement.</p>
+<h3>Why this was worth measuring</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/channel-inventory.md">channel-inventory.md</a> and issue <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/139">#139</a>&#39;s Ask 7 both rest on the same observation, reported independently by four sessions:</p>
+<blockquote><p><code>api.wordpress.org</code>/<code>wordpress.org</code> both still return <code>CONNECT tunnel failed, response 403</code> at the proxy (re-confirmed this session)</p></blockquote>
+<p>That observation is accurate. The inference drawn from it — that WordPress.org is <em>specifically</em> denied, and that unblocking it is &quot;one read-only allowlist entry, no account, no credential, no spend&quot; — does not follow, because <strong>nobody ran a control.</strong></p>
+<p>Running one takes a single command:</p>
+<pre><code>$ curl -sS -o /dev/null https://example.com
+curl: (56) CONNECT tunnel failed, response 403</code></pre>
+<p><code>example.com</code> produces a byte-identical signature. The 403 is not evidence about WordPress.org. It is evidence that this environment denies general web egress, and every host outside one allowed category returns it.</p>
+<h3>The measurement</h3>
+<p>Method matters here, because the two outcomes look similar and mean opposite things. <code>curl</code> reporting exit 56 with <code>http_code=000</code> means the proxy refused the CONNECT — a policy denial, the host was never contacted. An actual HTTP status means the tunnel succeeded and the origin answered, whatever it answered.</p>
+<p><strong>Reachable — CONNECT succeeded, origin answered:</strong></p>
+<div class="scroll"><table><thead><tr><th>Host</th><th>Origin status</th><th>Note</th></tr></thead><tbody><tr><td><code>registry.npmjs.org</code></td><td>200</td><td>in the proxy&#39;s <code>noProxy</code> list — bypasses the proxy entirely</td></tr><tr><td><code>pypi.org</code></td><td>200</td><td><code>noProxy</code></td></tr><tr><td><code>index.crates.io</code></td><td>200</td><td><code>noProxy</code></td></tr><tr><td><code>proxy.golang.org</code></td><td>200</td><td><code>noProxy</code></td></tr><tr><td><code>jsr.io</code></td><td>403</td><td><code>noProxy</code>; 403 is the origin&#39;s own</td></tr><tr><td><code>rubygems.org</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>packagist.org</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>hex.pm</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>nuget.org</code></td><td>301</td><td>allowed by policy</td></tr><tr><td><code>api.github.com</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>cocoapods.org</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>pub.dev</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>metacpan.org</code></td><td>200</td><td>allowed by policy</td></tr><tr><td><code>sourceforge.net</code></td><td>403</td><td>tunnel opened; 403 is the origin&#39;s own (bot protection)</td></tr><tr><td><code>anaconda.org</code></td><td>403</td><td>tunnel opened; 403 is the origin&#39;s own</td></tr></tbody></table></div>
+<p><strong>Denied — <code>CONNECT tunnel failed, response 403</code>:</strong></p>
+<div class="scroll"><table><thead><tr><th>Host</th><th>Why it was on the list</th></tr></thead><tbody><tr><td><code>example.com</code></td><td><strong>the control</strong></td></tr><tr><td><code>wordpress.org</code>, <code>api.wordpress.org</code>, <code>downloads.wordpress.org</code></td><td>Ask 7</td></tr><tr><td><code>formulae.brew.sh</code>, <code>www.raycast.com</code>, <code>obsidian.md</code>, <code>zed.dev</code></td><td>Ask 3, all four</td></tr><tr><td><code>open-vsx.org</code>, <code>marketplace.visualstudio.com</code></td><td>listed as agent-listable channels in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/channel-inventory.md">channel-inventory.md</a></td></tr><tr><td><code>docs.github.com</code></td><td>the GitHub Marketplace requirements page channel-inventory.md flags as unread</td></tr><tr><td><code>shopify.dev</code>, <code>developer.chrome.com</code></td><td>channel terms cited in this directory</td></tr><tr><td><code>libraries.io</code>, <code>deps.dev</code></td><td>cross-registry adoption data</td></tr><tr><td><code>eur-lex.europa.eu</code>, <code>ec.europa.eu</code>, <code>www.ftc.gov</code>, <code>www.w3.org</code>, <code>www.federalregister.gov</code></td><td>the primary sources README.md requires before graduation</td></tr></tbody></table></div>
+<p><code>WebFetch</code> is denied on the same hosts with an explicit <code>EGRESS_BLOCKED</code> error, so this is not a <code>curl</code> configuration artifact. Per <code>/root/.ccr/README.md</code>, a 403 at the proxy is an organization egress-policy denial and is not to be retried or routed around — so nothing here was.</p>
+<h3>What the shape of that list means</h3>
+<p>The allowed set is not an ad-hoc collection of hosts. It is <strong>package registries, as a category</strong> — thirteen of them, across every major language ecosystem, including several no document here has ever asked for. Everything else is denied, including marketplaces, vendor documentation, regulators, and the open web.</p>
+<p>Three consequences follow, in increasing order of importance.</p>
+<h4>1. Ask 7 is real, but it is not the shape it is written in</h4>
+<p>The conclusion stands: WordPress.org cannot be read from here. What changes is the ask. It has been put to the owner as adding one host to an allowlist that presumably already contains similar hosts. It is actually a request to <strong>admit a category the policy currently excludes</strong> — the first non-registry host. That may still be cheap and it may still be the right call, but the owner should price it as a policy exception, not as an increment.</p>
+<p>The four independent &quot;confirmations&quot; of Ask 7 were four observations of the same non-diagnostic signature, which is worth recording as a method note: a session re-confirming a blocked host without a reachable control has not confirmed anything about that host.</p>
+<h4>2. Ask 3 and Ask 7 are one ask</h4>
+<p>Ask 3 requests read-only egress for four public websites; Ask 7 requests it for one. All five are denied by the same rule, for the same reason, and would be granted by the same decision. They sit on the queue as separate items priced separately — Ask 7 as &quot;cheapest on the table,&quot; Ask 3 several rows below it. Merging them costs the owner nothing and removes a row.</p>
+<h4>3. The directory&#39;s own graduation criterion is currently unsatisfiable</h4>
+<p>This is the finding worth the session. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/README.md">README.md</a> sets an explicit gate on every candidate here:</p>
+<blockquote><p>Before any candidate graduates to a venture, the specific obligation dates it depends on must be checked against the actual legislation, and any claim that would appear in customer-facing copy must be verified independently.</p></blockquote>
+<p><code>eur-lex.europa.eu</code>, <code>ec.europa.eu</code>, <code>www.ftc.gov</code>, <code>www.w3.org</code>, and <code>www.federalregister.gov</code> are all denied. The two highest-ranked candidates in this directory — <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/candidates/eaa-remediation-pipeline.md">eaa-remediation-pipeline</a> and <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/candidates/cra-evidence-desk.md">cra-evidence-desk</a> — are built on EU obligation dates that can only be verified at exactly those hosts.</p>
+<p>So the &quot;unverified against primary sources&quot; disclaimer that every document in this directory carries is not a backlog item that a future session will clear. <strong>It is structural.</strong> Under the current policy no session can ever clear it, and therefore no candidate here can ever pass its own graduation gate, regardless of how it scores or how many probes advance.</p>
+<p><code>WebSearch</code> does work, and returns summaries of pages on denied hosts — that is how this directory&#39;s sources were gathered, and it is why every write-up is sourced to vendor blogs and search snippets rather than to legislation. Summaries are good enough to rank candidates against each other. The README already says they are not good enough to act on, which is precisely the standard graduation requires.</p>
+<h3>What this does not claim</h3>
+<ul><li><strong>It does not claim the policy is wrong.</strong> Denying general egress to unattended agent sessions that can push commits and spend budget is a defensible default, and it is the same boundary <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/pipeline/channel-inventory.md">channel-inventory.md</a> endorses for payment rails.</li><li><strong>It does not re-open screening</strong>, add a candidate, change a score, or revisit any verdict. The intake gate applies to this run and was followed.</li><li><strong>It is measured in this session&#39;s environment.</strong> The remote execution environment&#39;s network policy is chosen per-environment by the account owner, so the correct claim is about this configuration, not about the repo. It is consistent with what four prior sessions reported, and with channel-inventory.md&#39;s note that <code>docs.github.com</code> was unreadable.</li><li><strong>It does not change Ask 7&#39;s expected value.</strong> <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/219">#219</a>&#39;s modeled ≈$980/month for WordPress.org is untouched here; only the cost side of that ask is restated.</li></ul>
+<h3>Recommended restatement of the queue</h3>
+<p>Replace Asks 3 and 7 with one item:</p>
+<blockquote><p><strong>Egress: admit non-registry read-only hosts.</strong> Currently the policy allows package registries only. Granting a read-only set — WordPress.org (Ask 7&#39;s measurement), the four category-sizing sites (Ask 3), and the regulator and standards bodies (<code>eur-lex.europa.eu</code>, <code>ec.europa.eu</code>, <code>www.ftc.gov</code>, <code>www.w3.org</code>) — costs no account, no credential, and no spend. It buys the adopter-rate observation Ask 7 was for, <em>and</em> it is the precondition for any candidate in this directory ever clearing its own graduation gate.</p></blockquote>
+<p>The second half of that is new. Every prior cycle has treated primary-source verification as deferred work. It is not deferred; it is blocked, by the same decision that blocks the measurement.</p>
+<h3>Status of the claims</h3>
+<p>Unlike the rest of this directory, the claims here are <strong>primary observations, not secondary sources</strong> — every row in both tables above was produced by running the request from this session. They are reproducible with <code>curl -sS -o /dev/null -w &#39;%{http_code}&#39; https://&lt;host&gt;/</code> and should be re-measured rather than trusted if the environment&#39;s network policy has since changed.</p>
+</article>
+
+<footer>Built from files on <code>main</code> at 2026-10-18T00:33:28.578Z. Every figure links to its source in the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>; nothing here is typed by hand.
+Machine-readable: <a href="../../../../dev/analyses/analyses.json">analyses.json</a>.</footer>
+</main>
+</body>
+</html>

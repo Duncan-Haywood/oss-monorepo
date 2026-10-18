@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consent Change Record vs. comparing the two traces by eye</title>
+<meta name="description" content="Reading a before and after DevTools export side by side and checking which URLs appear in both is the default way to eyeball a consent change.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/vs-comparing-the-traces-by-eye.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Consent Change Record vs. comparing the two traces by eye">
+<meta property="og:description" content="Checking whether a tracker URL still appears in both traces reliably misses a request that fired three times before consent and once after -- it still 'appears…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't comparing two DevTools exports by eye enough?","acceptedAnswer":{"@type":"Answer","text":"It catches a request or storage key that is entirely new, or one that vanishes completely -- both stand out because the URL is simply present or absent. It works less well the moment a tracker fires more than once, which trackers routinely do (a pixel loaded once per section, a script polling on an interval). A URL that appears three times before consent and once after still 'appears in both traces' to a presence check, so it reads as unchanged -- even though two of its three firings actually stopped."}},{"@type":"Question","name":"How easy is it really to miss a reduced-but-not-removed tracker by eye?","acceptedAnswer":{"@type":"Answer","text":"In this tool's own worked example, an analytics endpoint fires three times before a visitor rejects analytics consent and once after. Scanning the after trace for that URL finds it -- it is right there, so a reviewer confirms 'yes, this still fires' or 'no, nothing changed here' without counting instances. The correct finding is neither: two of the three firings stopped and one did not, which only shows up if you count occurrences on each side rather than checking presence."}},{"@type":"Question","name":"Does this tool replace reviewing the traces myself?","acceptedAnswer":{"@type":"Answer","text":"No, and it only diffs the two trace files you give it -- it does not capture traces, crawl a site, or determine whether what it found is compliant with any law. Reviewing what a consent sequence should do in the first place is still your job. This tool exists for the specific, mechanical part of that review most likely to go wrong under a presence-only read: counting occurrences of each request and storage key correctly on both sides."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182522; background: #edf3ed; }
+  body { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; line-height: 1.55; }
+  a { color: #1e40af; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.6vw, 2.3rem); line-height: 1.1; margin: .4rem 0; letter-spacing: -.02em; }
+  h2 { margin-top: 0; font-size: 1.15rem; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  .lede { font-size: 1.05rem; max-width: 62ch; color: #547064; }
+  section { background: #fff; border: 1px solid #c8d8ce; border-radius: 14px; padding: 1.1rem 1.3rem; margin: 1.25rem 0; box-shadow: 0 8px 24px #17382a12; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8e4dd; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #547064; }
+  .fine, .note { font-size: .88rem; color: #547064; }
+  footer { font-size: .86rem; color: #547064; }
+  footer p { margin: .6rem 0; }
+  code { background: #e4ede4; padding: 1px 5px; border-radius: 4px; font-size: .92em; color: #182522; }
+  pre { white-space: pre-wrap; background: #e4ede4; border-radius: 8px; padding: 10px 12px; font-size: .82rem; overflow-x: auto; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/vs-comparing-the-traces-by-eye.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/consent-change-record/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Consent Change Record vs. comparing the two traces by eye — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../consent-change-record/">Consent Change Record</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Consent Change Record vs. comparing the two traces by eye</span></span></nav>
+<main>
+<p><a href="./">&larr; Consent Change Record</a></p>
+<header>
+<h1>Consent Change Record vs. comparing the two traces by eye</h1>
+<p class="lede">Reading a before and after export side by side and checking which URLs show up in both is the default way to eyeball a consent change. It reliably misses a tracker that still fires, just fewer times -- because "still appears in both" and "unchanged" are not the same question. This free tool counts occurrences instead.</p>
+</header>
+<section>
+<h2>What comparing two traces by eye involves</h2>
+<p>
+  Reviewing a consent sequence by hand usually means opening both exports and scanning the after trace for each URL that appeared before: is it still there? Gone? Something new? That works well for a tracker that either fires cleanly in both states or disappears entirely -- both are visible as presence or absence.
+</p>
+<p>
+  It works less well the moment a request fires more than once in one or both traces, which real trackers do routinely -- a pixel loaded once per page section, a script polling on an interval. A URL present three times before consent and once after is still, by a presence check, "in both traces" -- so it reads as unchanged, even though two of its three firings actually stopped. The reverse hides the opposite problem just as easily: a tracker that fired once before and started firing repeatedly after.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">What matters</th><th scope="col">Comparing the traces by eye</th><th scope="col">This tool</th></tr></thead>
+<tbody>
+<tr><td>A request that fires fewer times after consent, without disappearing entirely.</td><td>Reads as unchanged -- the URL is present on both sides, and nothing draws the eye to how many times.</td><td>Counts occurrences per request on each side and reports the surplus as removed.</td></tr>
+<tr><td>A request that starts firing <em>more</em> often after consent.</td><td>Same blind spot in reverse -- presence alone cannot distinguish once from repeatedly.</td><td>Reports the extra occurrences as added, the same counting logic applied both ways.</td></tr>
+<tr><td>A storage key that is genuinely new versus one that was already there.</td><td>Usually visible -- a short list of keys is easy to scan for an unfamiliar name.</td><td>Diffs storage keys the same way as requests, for consistency and a single exported record.</td></tr>
+<tr><td>A source-linked record you can hand to someone else.</td><td>Whatever notes the reviewer happens to write down.</td><td>A downloadable report naming exactly which requests and storage keys changed, and by how much.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Comparing the traces by eye is not wrong -- it is how anyone reviewing a consent sequence starts, and it is right about anything that is purely present or purely absent. What it is not well suited to is a duplicate count, which is exactly the case a script that fires on an interval or per page section produces.</p>
+<p class="note"><a href="./">Open Consent Change Record</a> to compare your own two traces.</p>
+</section>
+<section>
+<h2>The same worked example a presence check would pass</h2>
+<p>Before a visitor rejects analytics consent, an endpoint fires three times. After, it fires once more -- still present, just not three times:</p>
+<pre>BEFORE                                          AFTER
+GET  cdn.example.test/app.js                    GET  cdn.example.test/app.js
+POST analytics.example.test/collect             POST analytics.example.test/collect
+POST analytics.example.test/collect             storage: consent_state, _ga
+POST analytics.example.test/collect
+storage: consent_state</pre>
+<p>
+  Scanning the after trace for <code>analytics.example.test/collect</code> finds it -- it is right there, exactly as it was before. A presence check confirms "still fires" and moves on. Run this tool's own comparator (<code>compareTraces</code>) against the same two traces and it reports <strong>2 removed</strong> requests to that URL (three before, one after -- two firings actually stopped) alongside <strong>one storage key added</strong> (<code>_ga</code>), with the request that still fires once correctly listed as unchanged, not as evidence nothing changed. Every figure here is asserted directly against the comparator's own output, not estimated.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't comparing two DevTools exports by eye enough?</h3>
+<p>It catches a request or storage key that is entirely new, or one that vanishes completely -- both stand out because the URL is simply present or absent. It works less well the moment a tracker fires more than once, which trackers routinely do (a pixel loaded once per section, a script polling on an interval). A URL that appears three times before consent and once after still 'appears in both traces' to a presence check, so it reads as unchanged -- even though two of its three firings actually stopped.</p>
+<h3>How easy is it really to miss a reduced-but-not-removed tracker by eye?</h3>
+<p>In this tool's own worked example, an analytics endpoint fires three times before a visitor rejects analytics consent and once after. Scanning the after trace for that URL finds it -- it is right there, so a reviewer confirms 'yes, this still fires' or 'no, nothing changed here' without counting instances. The correct finding is neither: two of the three firings stopped and one did not, which only shows up if you count occurrences on each side rather than checking presence.</p>
+<h3>Does this tool replace reviewing the traces myself?</h3>
+<p>No, and it only diffs the two trace files you give it -- it does not capture traces, crawl a site, or determine whether what it found is compliant with any law. Reviewing what a consent sequence should do in the first place is still your job. This tool exists for the specific, mechanical part of that review most likely to go wrong under a presence-only read: counting occurrences of each request and storage key correctly on both sides.</p>
+<p class="note">Already checked how this compares to a full consent management platform? See <a href="vs-cookiebot.html">Consent Change Record vs. Cookiebot</a>.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, privacy, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every trace you paste stays on this device. This page names no company or product as a point of comparison -- only the generic habit of comparing two trace exports by eye, which anyone reviewing a consent sequence already does.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental and may be slow, broken, moved, or taken offline without notice. Keep your own copies of any report you export.</p>
+<p>Free and open source. <a href="LICENSE" rel="noopener">MIT licensed</a> &mdash; optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../activecampaign-import-csv-check/" data-pf-to="activecampaign-import-csv-check">ActiveCampaign Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../ada-title-ii-evidence/" data-pf-to="ada-title-ii-evidence">ADA Title II Website Accessibility Evidence Report</a></li>
+      <li><a href="../airbnb-payout-to-journal/" data-pf-to="airbnb-payout-to-journal">Airbnb transaction history to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../backup-verification-evidence/" data-pf-to="backup-verification-evidence">Backup night-over-night trend</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=consent-change-record">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="consent-change-record"></script>
+</body>
+</html>

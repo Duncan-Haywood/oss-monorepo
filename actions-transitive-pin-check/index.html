@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Transitive Pin Check — Does Your Pinned Workflow Load Something Unpinned?</title>
+  <meta name="description" content="Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a…">
+  <meta property="og:title" content="Does your pinned workflow load something unpinned underneath it?">
+  <meta property="og:description" content="Pinning a reusable workflow or composite action to a commit SHA only proves that reference is fixed.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Actions Transitive Pin Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks whether a GitHub Actions reusable workflow or composite action, pinned to a commit SHA at the call site, itself loads a third-party action by a mutable tag underneath. Runs as a zero-dependency CLI or in the browser; fetches only the specific public files a pasted workflow references, from raw.githubusercontent.com."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"If my uses: line is pinned to a commit SHA, isn't that already safe?","acceptedAnswer":{"@type":"Answer","text":"It proves that exact reference cannot be silently repointed. It does not prove anything about what the reusable workflow or composite action at that commit itself does. If that file has its own uses: line pointing at a third-party action by a mutable tag, your workflow still runs whatever code that tag currently resolves to — your SHA pin never sees it, because it only pins the one hop you wrote."}},{"@type":"Question","name":"Is this a real, current gap, or a theoretical one?","acceptedAnswer":{"@type":"Answer","text":"Current as of 2026. GitHub's own Actions security roadmap names this exact gap and describes a planned workflow lockfile that would pin every direct and transitive action dependency by commit SHA, the way a go.sum pins a Go module graph — which means it is not solved by SHA pinning alone today. Existing pinning checkers, including this portfolio's own pinned-actions-check, are explicit that they check only the uses: lines in the workflow file you scan, not what a pinned reusable workflow or composite action loads underneath it."}},{"@type":"Question","name":"Does this tool fetch things from GitHub on my behalf?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the transitive check only, and only the exact files your pasted workflow's pinned references point to. The CLI fetches over plain HTTPS from raw.githubusercontent.com, unauthenticated, no token, no login. The browser page does the same fetch directly from your browser to raw.githubusercontent.com — nothing passes through any server of ours. If a fetch fails or the file cannot be found, that reference is reported as unresolved, never as clean."}},{"@type":"Question","name":"What if the nested reference is a JavaScript or Docker action, not a composite action?","acceptedAnswer":{"@type":"Answer","text":"Those have no action.yml with further uses: lines to check, so there is nothing underneath them for this tool to find either way. A fetch that comes back empty for that reason is reported as unresolved, the same as a genuine fetch failure — this tool cannot tell the two apart from outside, so it never claims one when it might be the other."}},{"@type":"Question","name":"Does a clean result mean my CI is safe from supply-chain attacks?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific, narrow thing: whether a reference you have already pinned to a commit SHA loads something else by a mutable tag one hop underneath it. It is not a security audit and makes no claim about your repository's overall security posture."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    label.checkbox { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: .92rem; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.risk { background: #fde8e8; color: #9a3412; }
+    .pill.clean { background: #dcefe4; color: #14532d; }
+    .pill.unresolved { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Does your pinned workflow load something unpinned underneath it?","item":"https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Does your pinned workflow load something unpinned underneath it? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Does your pinned workflow load something unpinned underneath it?</span></span></nav>
+  <header>
+    <p class="note">ACTIONS TRANSITIVE PIN CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Your workflow is pinned to a SHA. Is what it loads?</h1>
+    <p>Pinning a reusable workflow or composite action to a commit SHA proves <em>that reference</em> cannot be silently repointed. It proves nothing about what the file at that commit itself calls — if it references a third-party action by a mutable tag, your SHA pin never sees it. Paste a workflow below and this checks the one hop underneath every pinned reference.</p>
+    <p class="note">For the transitive step, this page fetches the exact public file each pinned reference points to, straight from <code>raw.githubusercontent.com</code> — no server of ours sees the request. See "Privacy" below before using it on a workflow you'd rather not do that for.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste a workflow file</h2>
+    <p class="note">Copy the contents of a file from <code>.github/workflows/</code>.</p>
+    <textarea id="workflow" spellcheck="false" placeholder="Paste your workflow YAML here"></textarea>
+    <label class="checkbox"><input type="checkbox" id="fetch-nested" checked> Fetch and check what each pinned reference itself loads (recommended — without this, only the top-level lines are classified)</label>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Top-level reference</th><th>Kind</th><th>Result</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="unresolved-note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies:</p>
+    <pre class="cmd"><code>node check.mjs                    # scan .github/workflows under the current directory
+node check.mjs /path/to/repo      # scan a specific checkout
+node check.mjs --format json      # machine-readable
+node check.mjs --fail-on-risk     # exit 2 if a pinned reference loads an unpinned one
+node check.mjs --no-network       # top-level classification only, no fetch (offline)</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/actions-transitive-pin-check" rel="noopener">check.mjs, analyze.mjs, and classify.mjs from the repo</a> — stdlib only (Node's built-in <code>fetch</code>), nothing to install.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>If my <code>uses:</code> line is pinned to a commit SHA, isn't that already safe?</h3>
+    <p>It proves that exact reference cannot be silently repointed. It does not prove anything about what the reusable workflow or composite action at that commit itself does. If that file has its own <code>uses:</code> line pointing at a third-party action by a mutable tag, your workflow still runs whatever code that tag currently resolves to — your SHA pin never sees it, because it only pins the one hop you wrote.</p>
+    <h3>Is this a real, current gap, or a theoretical one?</h3>
+    <p>Current as of 2026. GitHub's own Actions security roadmap names this exact gap and describes a planned workflow lockfile that would pin every direct and transitive action dependency by commit SHA, the way a <code>go.sum</code> pins a Go module graph — which means it is not solved by SHA pinning alone today. Existing pinning checkers, including this portfolio's own <a href="../pinned-actions-check/">pinned-actions-check</a>, are explicit that they check only the <code>uses:</code> lines in the workflow file you scan, not what a pinned reusable workflow or composite action loads underneath it.</p>
+    <h3>Does this tool fetch things from GitHub on my behalf?</h3>
+    <p>Yes, for the transitive check only, and only the exact files your pasted workflow's pinned references point to. The CLI fetches over plain HTTPS from <code>raw.githubusercontent.com</code>, unauthenticated, no token, no login. The browser page does the same fetch directly from your browser to <code>raw.githubusercontent.com</code> — nothing passes through any server of ours. If a fetch fails or the file cannot be found, that reference is reported as <strong>unresolved</strong>, never as clean.</p>
+    <h3>What if the nested reference is a JavaScript or Docker action, not a composite action?</h3>
+    <p>Those have no <code>action.yml</code> with further <code>uses:</code> lines to check, so there is nothing underneath them for this tool to find either way. A fetch that comes back empty for that reason is reported as unresolved, the same as a genuine fetch failure — this tool cannot tell the two apart from outside, so it never claims one when it might be the other.</p>
+    <h3>Does a clean result mean my CI is safe from supply-chain attacks?</h3>
+    <p>No. This checks one specific, narrow thing: whether a reference you have already pinned to a commit SHA loads something else by a mutable tag one hop underneath it. It is not a security audit and makes no claim about your repository's overall security posture.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p><strong>Privacy.</strong> The workflow YAML you paste is read in this browser and never uploaded anywhere. If the fetch option above is checked, this page makes a direct browser request to <code>raw.githubusercontent.com</code> for each pinned reference's own definition file — a public GitHub CDN, unauthenticated, no cookies attached and no token of yours involved — and reads nothing else. Uncheck it to skip that step entirely and see only the top-level classification. There are no accounts, tracking cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More: <a href="what-is-a-transitive-github-actions-dependency.html">what is a transitive GitHub Actions dependency?</a> &middot; <a href="vs-manually-checking-nested-references.html">this checker vs. manually checking nested references</a></p>
+    <p>This checks one hop underneath a reference you already pinned. Pinning it in the first place is the sibling check: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags any third-party action in your own workflow file that is <em>not</em> pinned to a commit SHA at all, the more common and more urgent gap. A pinned, fully-resolved reference graph still leaves other risks in a workflow: <a href="../actions-injection-check/">Actions Injection Check</a> flags pwn-request checkouts and script injection from untrusted <code>${{ github.event }}</code> expressions, and <a href="../actions-permissions-check/">Actions Permissions Check</a> flags a workflow or job with no explicit <code>permissions:</code> grant.</p>
+    <p class="support">Free and open source. If this saved you from a supply-chain gap a top-level pin doesn't cover, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeWorkflow, summaryLine } from "./analyze.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      workflow: $("#workflow"), fetchNested: $("#fetch-nested"), status: $("#status"),
+      reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"),
+      unresolvedNote: $("#unresolved-note"),
+    };
+
+    const EXAMPLE = `name: ci
+on: push
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@8f152de45cc393bb48ce5d89d36b731f54556e65
+      - uses: octo-org/shared-workflows/.github/workflows/build.yml@2c4d34e6cff37bafe66eba7a6c1c8a5c9d9c1a6e
+`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    async function fetchRaw({ owner, repo, ref, path }) {
+      const url = `https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${path}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.text();
+    }
+
+    function rowFor(finding, entry) {
+      const action = `<code>${escapeHtml(finding.action)}@${escapeHtml(finding.ref ?? "")}</code>`;
+      if (!entry) {
+        return `<tr><td>${action}</td><td>—</td><td><span class="note">not checked (top-level classification only)</span></td></tr>`;
+      }
+      if (entry.status === "unresolved" || entry.status === "skipped-limit") {
+        return `<tr><td>${action}</td><td>${escapeHtml(entry.kind)}</td><td><span class="pill unresolved">unresolved</span> could not fetch — not confirmed clean</td></tr>`;
+      }
+      if (entry.transitivelyUnpinned.length) {
+        const list = entry.transitivelyUnpinned.map((c) => `<code>${escapeHtml(c.action)}@${escapeHtml(c.ref)}</code>`).join(", ");
+        return `<tr><td>${action}</td><td>${escapeHtml(entry.kind)}</td><td><span class="pill risk">unpinned underneath</span> loads ${list} by a mutable ref</td></tr>`;
+      }
+      return `<tr><td>${action}</td><td>${escapeHtml(entry.kind)}</td><td><span class="pill clean">checked</span> everything underneath is pinned</td></tr>`;
+    }
+
+    async function runCheck(text, withFetch) {
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a workflow file first.</span>`;
+        return;
+      }
+      els.status.textContent = withFetch ? "Checking (fetching pinned references' own definitions)…" : "Checking…";
+      let report;
+      try {
+        report = await analyzeWorkflow(text, {
+          filename: "<pasted workflow>",
+          fetchRef: withFetch ? fetchRaw : null,
+        });
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+
+      const pinned = report.findings.filter((f) => f.classification === "pinned");
+      const entryFor = (f) => report.nested.find((n) => n.parent === f);
+
+      const summary = summaryLine(report);
+      els.verdict.className = `verdict ${report.transitiveRiskCount > 0 ? "risk" : ""}`;
+      els.verdict.textContent = summary;
+      els.rows.innerHTML = pinned.length
+        ? pinned.map((f) => rowFor(f, entryFor(f))).join("")
+        : `<tr><td colspan="3" class="note">No pinned remote reference found to check — nothing here can hide something underneath it.</td></tr>`;
+      els.unresolvedNote.textContent = report.unresolvedCount
+        ? `${report.unresolvedCount} reference(s) could not be fetched — that could mean the ref is a JavaScript/Docker action with nothing underneath to check, or it could mean the fetch failed. Either way, treat those as unconfirmed, not clean.`
+        : "";
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => runCheck(els.workflow.value, els.fetchNested.checked));
+
+    $("#load-example").addEventListener("click", () => {
+      els.workflow.value = EXAMPLE;
+      runCheck(EXAMPLE, els.fetchNested.checked);
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.workflow.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to raw.githubusercontent.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-transitive-pin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/?pfEmbed=1&quot; title=&quot;Does your pinned workflow load something unpinned underneath it? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="actions-transitive-pin-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/" data-pf-embed-title="Does your pinned workflow load something unpinned underneath it?" data-pf-embed-slug="actions-transitive-pin-check"></script>
+</body>
+</html>

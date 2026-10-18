@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. VendSoft's route accounting software | Vending Machine Route Profit Calculator</title>
+<meta name="description" content="How this free, one-time vending-route profit calculator differs from VendSoft's paid per-machine vending management software: no signup, no monthly fee…">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/vs-vendsoft.html">
+<meta property="og:title" content="This calculator vs. VendSoft's route accounting software | Vending Machine Route Profit Calculator">
+<meta property="og:description" content="VendSoft is an ongoing per-machine subscription with route optimization and DEX telemetry. This calculator is a free, one-time page that answers one question…">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or sign up for VendSoft?","acceptedAnswer":{"@type":"Answer","text":"They fit different stages. VendSoft (vendsoft.com/pricing/) is an ongoing subscription — its published pricing lists a Basic plan at $1 per machine per month with a $19/month minimum, and a Premium plan at $2 per machine per month with a $49/month minimum — built around route optimization, DEX telemetry pulled from machines, inventory across warehouse/truck/machine, and automated commission and sales-tax calculation across a whole route. This calculator has none of that: no account, no telemetry, no ongoing cost. It exists for the question before or alongside a subscription decision — given the numbers for one location, or a list of locations, is this route actually profitable and does it clear your income goal? Many operators use a calculator like this to decide whether a location or a whole route is worth running at all, before or instead of paying an ongoing per-machine fee to manage it."}},{"@type":"Question","name":"Does VendSoft do what this calculator does?","acceptedAnswer":{"@type":"Answer","text":"VendSoft's published features page describes machine-level and location-level profit-and-loss reporting and automated commission calculation once your machines and sales data are connected to it — so once you are a subscriber and your machines are reporting through it, it can show you similar numbers from live data. This calculator does the same category of arithmetic — commission, card fees, shrink, drive time, machine cost — from numbers you type in by hand, with no machine connection, no account, and no ongoing fee, which is the trade a smaller or newer route usually wants before committing to per-machine software."}},{"@type":"Question","name":"Why would I use a free calculator instead of a 14-day trial?","acceptedAnswer":{"@type":"Answer","text":"A trial is the right call once you already have enough machines that route optimization and automatic DEX data pulls save real time. Before that point — sizing up a single new location, deciding whether to keep a marginal stop, or checking whether five or six locations clear a monthly income goal — this calculator answers it in the time it takes to type the numbers in, with nothing to cancel afterward and nothing uploaded anywhere."}},{"@type":"Question","name":"Is this page affiliated with VendSoft?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by VendSoft. VendSoft is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:720px;margin:auto;padding:32px 18px 64px}a{color:#8a3d1f;overflow-wrap:anywhere}h1{font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:-.04em;line-height:1.1}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e7c9a3;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#8a5a20}.cta{display:inline-block;margin:8px 0 20px;padding:10px 14px;border-radius:8px;background:#8a3d1f;color:#fdf3e7;text-decoration:none;font-weight:650}.note{font-size:.85rem;color:#6b563f}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/vs-vendsoft.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. VendSoft's route accounting software | Vending Machine Route Profit Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vending-machine-route-margin/">Vending Machine Route Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. VendSoft's route accounting software | Vending Machine Route Profit Calculator</span></span></nav>
+<p><a href="./">← Vending machine route profit calculator</a></p>
+<h1>This calculator vs. VendSoft's route accounting software</h1>
+<p>
+  <a href="https://www.vendsoft.com/" rel="nofollow noopener">VendSoft</a> is
+  vending management software: once your machines and sales data are
+  connected, it optimizes driver routes, pulls DEX telemetry from the
+  machines themselves, tracks inventory across warehouse, truck, and
+  machine, and automates commission and sales-tax calculation across a
+  whole operation. Per its own
+  <a href="https://www.vendsoft.com/pricing/" rel="nofollow noopener">published pricing page</a>,
+  that is an ongoing subscription — a Basic plan at $1 per machine per
+  month with a $19/month minimum, and a Premium plan at $2 per machine per
+  month with a $49/month minimum, scaling with how many machines you run.
+  (Pricing is VendSoft's own and can change — check their current page for
+  your own numbers.)
+</p>
+<p>
+  This calculator does none of that. It has no account, connects to no
+  machine, costs nothing this month or any month, and answers a narrower
+  question by hand: given the numbers for <strong>one</strong> location —
+  units sold, commission, card fees, shrink, drive time, and machine
+  cost — what does this visit actually profit, and does a whole list of
+  locations clear a monthly income goal?
+</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Question</th><th>Where to look</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Is this one location, priced from my own numbers, actually profitable?</td>
+      <td>This calculator's <a href="./#price">per-visit result</a>.</td>
+    </tr>
+    <tr>
+      <td>Does my current list of locations clear my monthly income goal?</td>
+      <td>This calculator's <a href="./#routeRevenue">route section</a>.</td>
+    </tr>
+    <tr>
+      <td>I run enough machines that manual entry is the bottleneck — I want DEX telemetry pulled automatically.</td>
+      <td>VendSoft's published <a href="https://www.vendsoft.com/features/" rel="nofollow noopener">features page</a>.</td>
+    </tr>
+    <tr>
+      <td>I want driver routes optimized across many stops, not priced one at a time.</td>
+      <td>VendSoft's route-optimization feature.</td>
+    </tr>
+    <tr>
+      <td>I want machine-level profit-and-loss reporting once machines report through software.</td>
+      <td>VendSoft, once connected and subscribed.</td>
+    </tr>
+    <tr>
+      <td>I don't want an account, a monthly per-machine fee, or anything uploaded, for a route this size.</td>
+      <td>This calculator.</td>
+    </tr>
+  </tbody>
+</table></div>
+<a class="cta" href="./">Price a location or a route now</a>
+<p>
+  This tool needs no account and no machine connection: it is a static
+  page, the arithmetic runs in your browser, and your location list and
+  sales figures stay on your device — nothing is uploaded anywhere, and
+  refreshing the page clears the route table on purpose.
+</p>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or sign up for VendSoft?</h3>
+<p>They fit different stages. VendSoft (<a href="https://www.vendsoft.com/pricing/" rel="nofollow noopener">vendsoft.com/pricing/</a>) is an ongoing subscription &mdash; its published pricing lists a Basic plan at $1 per machine per month with a $19/month minimum, and a Premium plan at $2 per machine per month with a $49/month minimum &mdash; built around route optimization, DEX telemetry pulled from machines, inventory across warehouse/truck/machine, and automated commission and sales-tax calculation across a whole route. This calculator has none of that: no account, no telemetry, no ongoing cost. It exists for the question before or alongside a subscription decision &mdash; given the numbers for one location, or a list of locations, is this route actually profitable and does it clear your income goal? Many operators use a calculator like this to decide whether a location or a whole route is worth running at all, before or instead of paying an ongoing per-machine fee to manage it.</p>
+<h3>Does VendSoft do what this calculator does?</h3>
+<p>VendSoft's published <a href="https://www.vendsoft.com/features/" rel="nofollow noopener">features page</a> describes machine-level and location-level profit-and-loss reporting and automated commission calculation once your machines and sales data are connected to it &mdash; so once you are a subscriber and your machines are reporting through it, it can show you similar numbers from live data. This calculator does the same category of arithmetic &mdash; commission, card fees, shrink, drive time, machine cost &mdash; from numbers you type in by hand, with no machine connection, no account, and no ongoing fee, which is the trade a smaller or newer route usually wants before committing to per-machine software.</p>
+<h3>Why would I use a free calculator instead of a 14-day trial?</h3>
+<p>A trial is the right call once you already have enough machines that route optimization and automatic DEX data pulls save real time. Before that point &mdash; sizing up a single new location, deciding whether to keep a marginal stop, or checking whether five or six locations clear a monthly income goal &mdash; this calculator answers it in the time it takes to type the numbers in, with nothing to cancel afterward and nothing uploaded anywhere.</p>
+<h3>Is this page affiliated with VendSoft?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by VendSoft. VendSoft is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p class="note">MIT licensed. <a href="LICENSE">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../cnc-machining-quote-calculator/" data-pf-to="cnc-machining-quote-calculator">CNC Machining Quote Calculator — cost per part, setup &amp; lot size</a></li>
+      <li><a href="../coffee-roaster-margin-calculator/" data-pf-to="coffee-roaster-margin-calculator">Coffee Roaster Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../collision-shop-drp-profit-calculator/" data-pf-to="collision-shop-drp-profit-calculator">Is an insurer DRP worth it for my body shop? Free calculator</a></li>
+      <li><a href="../commercial-photo-license-calculator/" data-pf-to="commercial-photo-license-calculator">Commercial Photography Licensing Quote Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vending-machine-route-margin">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vending-machine-route-margin"></script>
+</body></html>

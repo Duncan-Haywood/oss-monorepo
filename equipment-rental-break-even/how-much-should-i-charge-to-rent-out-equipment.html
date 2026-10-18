@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Should I Charge to Rent Out Equipment?</title>
+  <meta name="description" content="A day rate that only covers the purchase price loses money. Price a rental booking from utilization, delivery, cleaning…">
+  <meta property="og:title" content="How Much Should I Charge to Rent Out Equipment?">
+  <meta property="og:description" content="The machine is idle most of the month. Utilization — not the purchase price — is what sets a day rate you can defend.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/how-much-should-i-charge-to-rent-out-equipment.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to rent out equipment?","acceptedAnswer":{"@type":"Answer","text":"Start from what the asset costs you to own for a month — finance or depreciation, insurance, storage, licensing, scheduled maintenance — then divide that by the number of billable days you actually expect, not by 30. Add the variable cost of the individual booking: delivery and collection, cleaning and turnaround, fuel or consumables, and a damage reserve. The day rate has to cover both, plus the margin you intend to keep."}},{"@type":"Question","name":"Why does utilization matter more than the purchase price?","acceptedAnswer":{"@type":"Answer","text":"Ownership cost accrues every day of the month whether the asset is out or sitting in the yard. If a machine bills 8 days a month, those 8 days carry all 30 days of ownership cost. The same machine at 16 billable days carries half as much per day. Two operators with an identical purchase price and identical financing can have day rates that differ by a factor of two purely because of utilization, which is why copying a competitor's published rate is not a pricing method."}},{"@type":"Question","name":"Is a break-even rate the same as the price I should quote?","acceptedAnswer":{"@type":"Answer","text":"No. Break-even is the floor — the number below which the booking loses money once ownership recovery and the booking's own variable costs are counted. The quoted price is a commercial decision above that floor. The value of knowing the floor is that you can discount deliberately, and stop, rather than discovering after the season that a busy year did not pay for the asset."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17212b; background: #f4f0e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.06; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #9a3412; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #17212b; color: #f7f3ec; text-decoration: none; font-weight: 650; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1em; font-size: .94rem; }
+    th, td { border-bottom: 1px solid #d5cec2; padding: 6px 8px; text-align: left; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d5cec2; padding-top: 16px; font-size: .85rem; color: #596773; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/how-much-should-i-charge-to-rent-out-equipment.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Much Should I Charge to Rent Out Equipment? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../equipment-rental-break-even/">Equipment Rental Break-Even Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How Much Should I Charge to Rent Out Equipment?</span></span></nav>
+  <p><a href="./">← Equipment rental break-even calculator</a></p>
+  <h1>How much should I charge to rent out equipment?</h1>
+  <p>The common answer is to look up what the branch down the road charges for the same machine and shade it. That sets your price from someone else's cost base, someone else's finance deal, and — the part nobody publishes — someone else's utilization. A rate that works for a depot renting the same excavator 18 days a month can be underwater for an owner renting it 7.</p>
+  <p><a class="cta" href="./">Open the free rental break-even calculator</a></p>
+
+  <h2>The number that actually sets the rate</h2>
+  <p><strong>Utilization.</strong> Ownership cost does not pause when the asset is in the yard. Finance or depreciation, insurance, storage, licensing and scheduled servicing accrue for the whole month, and only the billable days can carry them. Divide monthly ownership cost by expected billable days — not by 30 — and you have the ownership recovery each day has to earn.</p>
+  <p>That single division is why a purchase-price rule of thumb misleads. Two operators can pay the same for the same machine and need genuinely different rates.</p>
+
+  <h2>What the day rate has to cover</h2>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Cost</th><th>Behaves like</th></tr>
+    <tr><td>Finance or depreciation, insurance, storage, licensing, scheduled servicing</td><td>Monthly, whether or not it goes out — recovered across billable days only</td></tr>
+    <tr><td>Delivery and collection</td><td>Per booking, and often per booking regardless of hire length</td></tr>
+    <tr><td>Cleaning and turnaround</td><td>Per booking, and it consumes a day you cannot rebill</td></tr>
+    <tr><td>Fuel, consumables, wear parts</td><td>Per day or per hour of use</td></tr>
+    <tr><td>Damage and loss reserve</td><td>A percentage you set — cheaper than discovering the average the hard way</td></tr>
+  </table></div>
+  <p>Delivery and cleaning are the two most often left out, because they feel like overhead rather than part of the hire. On short bookings they frequently exceed the ownership recovery for the same booking.</p>
+
+  <h2>A rate you can defend</h2>
+  <ol>
+    <li>Total the asset's monthly ownership cost.</li>
+    <li>Divide by the billable days you honestly expect in a month — last season's number, not the optimistic one.</li>
+    <li>Add this booking's delivery, collection, cleaning, consumables and damage reserve.</li>
+    <li>That sum is the break-even day rate. Below it the booking loses money.</li>
+    <li>Add the margin you intend to keep, and quote from there.</li>
+  </ol>
+  <p>The calculator runs that arithmetic in your browser and shows the contribution a proposed price leaves after variable costs, plus the monthly utilization the asset needs to recover its ownership cost at that price. You can download a plain-text snapshot of the quote for your own records.</p>
+
+  <h2>Worked example</h2>
+  <p>An asset costing $1,800 a month to own, rented at 8 billable days a month, carries $225 a day of ownership recovery before anything else happens. Add $90 of delivery and collection, half a day of cleaning, and a damage reserve, and a "competitive" $200 day rate is losing money on every booking — while the same machine at 16 billable days carries $112.50 of ownership recovery and the same $200 looks entirely different. Nothing about the machine changed. Only the utilization did.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge to rent out equipment?</h3>
+  <p>Start from what the asset costs you to own for a month — finance or depreciation, insurance, storage, licensing, scheduled maintenance — then divide that by the number of billable days you actually expect, not by 30. Add the variable cost of the individual booking: delivery and collection, cleaning and turnaround, fuel or consumables, and a damage reserve. The day rate has to cover both, plus the margin you intend to keep.</p>
+  <h3>Why does utilization matter more than the purchase price?</h3>
+  <p>Ownership cost accrues every day of the month whether the asset is out or sitting in the yard. If a machine bills 8 days a month, those 8 days carry all 30 days of ownership cost. The same machine at 16 billable days carries half as much per day. Two operators with an identical purchase price and identical financing can have day rates that differ by a factor of two purely because of utilization, which is why copying a competitor's published rate is not a pricing method.</p>
+  <h3>Is a break-even rate the same as the price I should quote?</h3>
+  <p>No. Break-even is the floor — the number below which the booking loses money once ownership recovery and the booking's own variable costs are counted. The quoted price is a commercial decision above that floor. The value of knowing the floor is that you can discount deliberately, and stop, rather than discovering after the season that a busy year did not pay for the asset.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not financial, tax, legal, insurance, or engineering advice, and it does not tell you what to charge or whether an asset is worth owning. Utilization, residual value, and damage frequency are assumptions you supply, and a wrong assumption produces a wrong rate. Verify every figure against your own accounts and a qualified professional before relying on it or quoting a customer. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p><a href="./">Use the calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../quickbooks-chart-of-accounts-csv-check/" data-pf-to="quickbooks-chart-of-accounts-csv-check">QuickBooks Chart of Accounts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+      <li><a href="../rd-tax-credit-calculator/" data-pf-to="rd-tax-credit-calculator">R&amp;D Tax Credit Calculator — free, private</a></li>
+      <li><a href="../renewal-rent-optimizer/" data-pf-to="renewal-rent-optimizer">Renewal Rent Optimizer — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=equipment-rental-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="equipment-rental-break-even"></script>
+</body>
+</html>

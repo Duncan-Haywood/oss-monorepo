@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. Socket | Slopsquatting Check</title>
+  <meta name="description" content="Socket is a paid, ongoing supply-chain security platform that monitors your dependency graph against live registry data for 70+ risk types…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/vs-socket.html">
+  <meta property="og:title" content="This checker vs. Socket">
+  <meta property="og:description" content="Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for dozens of risk types.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Socket already catch a hallucinated or freshly squatted package name?","acceptedAnswer":{"@type":"Answer","text":"Socket's own site describes deep package inspection and real-time monitoring across more than 70 risk categories, typosquatting among them, by watching your dependency graph against live registry data through a GitHub app, CLI, or browser extension. That is ongoing, registry-aware monitoring across many risk types at once. This tool does one narrower, on-demand thing: for each dependency in a package.json you hand it, it makes one read-only request to the public npm registry and reports whether the name exists at all, and if it does, whether it was published suspiciously recently with almost no version history."}},{"@type":"Question","name":"Should I use this tool or Socket?","acceptedAnswer":{"@type":"Answer","text":"They work at different layers, and a team can reasonably run both. Socket runs on an ongoing basis against your dependency graph and the public registries, watching for a live attack across dozens of package-behavior signals, as a service that is free for public open-source use and offers paid plans for private and organization use, per Socket's own site; connecting it needs a GitHub app, CLI, or browser extension. This tool answers one narrower question, on demand, with nothing to connect: does this exact name exist, and does it look freshly squatted? Free, no account, one read-only request per dependency."}},{"@type":"Question","name":"Is this page affiliated with Socket?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #4c1d95; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/vs-socket.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Socket — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../slopsquatting-check/">Did an AI assistant just suggest a package that doesn't exist?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Socket</span></span></nav>
+  <p class="note"><a href="./">&larr; Slopsquatting Check</a></p>
+  <h1>This checker vs. Socket</h1>
+  <p class="note">Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for 70+ risk types, typosquatting among them. This tool makes one on-demand, read-only registry request per dependency to answer one narrow question &mdash; does this exact name exist, and does it look freshly squatted &mdash; no account, no ongoing service.</p>
+
+  <section class="card">
+    <h2>What each product is for</h2>
+    <p>
+      <strong>Socket</strong> is a supply-chain security platform. Its own
+      site describes deep package inspection that characterizes what a
+      dependency actually does, rather than relying only on
+      known-vulnerability databases, connected through a GitHub app, a CLI,
+      and a browser extension. It flags more than 70 categories of risk
+      across npm, PyPI, and other ecosystems &mdash; typosquatting, malware,
+      hidden or obfuscated code, and permission creep among them &mdash; and
+      monitors changes to a project's dependency manifest on an ongoing
+      basis. It is free for public, open-source use, and Socket's own site
+      lists paid Team, Business, and Enterprise tiers for private-repository
+      and organization use; today's specific prices and contract terms are
+      not repeated here, since this session cannot verify them live against
+      Socket's own site &mdash; only its well-documented product shape is
+      described.
+    </p>
+    <p>
+      This tool does one narrower thing, on demand rather than continuously:
+      given a <code>package.json</code>, it makes one read-only GET request
+      per dependency to <code>registry.npmjs.org</code> and reports whether
+      the name resolves at all, and if it does, whether it was published
+      very recently with almost no version history &mdash; the specific
+      fingerprint of a name freshly registered after being hallucinated by
+      an AI assistant or guessed by a typosquatter. It has no account, no
+      ongoing service, and no GitHub app, and it does not attempt any of
+      Socket's other 69-plus risk categories.
+    </p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want continuous, registry-aware scanning of my whole dependency graph for malware, typosquats, permission creep, and dozens of other supply-chain risks.</td><td>Socket &mdash; that is the ongoing, cross-ecosystem job it is built for.</td></tr>
+          <tr><td>I want to know right now, for free, whether a specific dependency name actually exists and whether it looks freshly squatted.</td><td>This tool &mdash; one command, one read-only request per dependency, no account.</td></tr>
+          <tr><td>I want a GitHub app or browser extension that watches every future pull request for newly introduced risky dependencies.</td><td>Socket &mdash; this tool has no memory between runs and no ongoing monitoring.</td></tr>
+          <tr><td>I want a fully offline check with zero network calls of any kind, even at the cost of not knowing whether a name actually exists.</td><td>This tool's browser page &mdash; it flags near-misses of well-known names locally and never touches the network; the live check is CLI-only.</td></tr>
+          <tr><td>I want to know whether a specific package has ever shown malicious behavior at runtime.</td><td>Socket &mdash; this tool only checks a name's existence and registration recency, never behavior.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p>
+      A team can reasonably run both: Socket for continuous, registry-aware
+      defense across many risk types, and this tool as a fast, zero-account
+      gate specifically for the AI-hallucination pattern &mdash; in CI, at
+      release time, or by hand. This page does not evaluate Socket's
+      detection accuracy and makes no claim about it either way &mdash; it
+      only describes Socket's documented product shape and states what this
+      tool does differently. Socket catching a live malicious package and
+      this tool flagging a freshly squatted name are two different signals;
+      neither replaces the other, and a clean result from either one is not
+      a supply-chain security guarantee.
+    </p>
+    <p class="note">This tool needs no account and no sign-in. The browser page is a static page with no network call of any kind; the CLI is a single stdlib-only script that makes one read-only registry request per dependency.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does Socket already catch a hallucinated or freshly squatted package name?</h3>
+    <p>Socket's own site describes deep package inspection and real-time monitoring across more than 70 risk categories, typosquatting among them, by watching your dependency graph against live registry data through a GitHub app, CLI, or browser extension. That is ongoing, registry-aware monitoring across many risk types at once. This tool does one narrower, on-demand thing: for each dependency in a package.json you hand it, it makes one read-only request to the public npm registry and reports whether the name exists at all, and if it does, whether it was published suspiciously recently with almost no version history.</p>
+    <h3>Should I use this tool or Socket?</h3>
+    <p>They work at different layers, and a team can reasonably run both. Socket runs on an ongoing basis against your dependency graph and the public registries, watching for a live attack across dozens of package-behavior signals, as a service that is free for public open-source use and offers paid plans for private and organization use, per Socket's own site; connecting it needs a GitHub app, CLI, or browser extension. This tool answers one narrower question, on demand, with nothing to connect: does this exact name exist, and does it look freshly squatted? Free, no account, one read-only request per dependency.</p>
+    <h3>Is this page affiliated with Socket?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product.</p>
+    <p class="note">Open <a href="./">Slopsquatting Check</a> to scan your own package.json, or read <a href="./what-is-slopsquatting.html">what slopsquatting is and why a lockfile doesn't already protect you</a> for the full mechanism.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It flags npm dependency names that resemble a hallucinated or typosquatted variant of a well-known package, or that fail a live registry existence/freshness check &mdash; it is not a malware scanner, not a security audit, and not a guarantee that an unflagged name is safe or a flagged one is malicious. It does not replace verifying a package yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p class="muted">Local-only privacy: the browser page makes no network calls of its own and nothing you paste is ever uploaded. The CLI sends only each dependency's name, one read-only request at a time, to the public npm registry. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>
+    <p>Free and open source. If this saved you from a bad install, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../s3-storage-class-advisor/" data-pf-to="s3-storage-class-advisor">Is your S3 bucket in the wrong storage class?</a></li>
+      <li><a href="../s3-storage-class-savings/" data-pf-to="s3-storage-class-savings">Will an S3 lifecycle rule actually save money?</a></li>
+      <li><a href="../sbom-diff-check/" data-pf-to="sbom-diff-check">What changed between two SBOMs?</a></li>
+      <li><a href="../search-api-pricing-calculator/" data-pf-to="search-api-pricing-calculator">What will hosted search cost for your records and monthly searches, and who is cheapest?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=slopsquatting-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="slopsquatting-check"></script>
+</body>
+</html>

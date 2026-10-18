@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet | Invoice Payment Terms Calculator</title>
+  <meta name="description" content="A payment-terms spreadsheet usually adds the terms to the invoice date and stops there. It rarely models which weekday the payment lands on…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/vs-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can add payment terms to an invoice date. It rarely models the client's actual pay-run schedule…">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet work out when an invoice is due?","acceptedAnswer":{"@type":"Answer","text":"Yes — =invoice_date+terms_days is one formula and most freelancers already have it somewhere. What that formula gives you is the due date the invoice states, not the date the money actually arrives. Accounts-payable departments run payments in batches: weekdays only, twice a month, once a month on a set day, or once a week — and a due date that lands between two runs waits for the next one. A plain date-add formula has no way to know which schedule a given client uses, so it is silently wrong on any client that does not pay same-day."}},{"@type":"Question","name":"Where does a hand-built invoice-terms sheet usually go wrong?","acceptedAnswer":{"@type":"Answer","text":"Two places. First, treating the due date as the pay date — a Net 30 invoice due on a Saturday, or due the 16th at a client who only runs payments on the 1st and 15th, does not get paid on the due date; it waits for the next run, and that drift is real carrying cost at whatever rate the freelancer's own cash is worth. Second, re-deriving the early-pay or factoring break-even by hand every time terms or a client's discount offer changes, which is exactly the kind of repeated formula work a copied cell silently gets wrong on one row."}},{"@type":"Question","name":"What does a spreadsheet not check for you?","acceptedAnswer":{"@type":"Answer","text":"Whether the due date actually falls on a day the client's accounts-payable system pays, and by how many days it drifts if not; whether a 2/10 Net 30 discount or a factoring fee still beats waiting once that drift and your own carrying-cost rate are priced in; and whether dating the invoice a few days earlier would catch an earlier payment run and get you paid sooner for no cost. None of those are hard formulas individually, but stacking all of them correctly, for every client's schedule, on every invoice, is where a hand-built sheet drifts."}},{"@type":"Question","name":"Does either one know whether my client will actually pay on time?","acceptedAnswer":{"@type":"Answer","text":"No. Both this calculator and a spreadsheet model the schedule you tell them about — the stated payment terms and the client's stated pay-run cadence. Neither predicts whether a specific client pays on time, disputes the invoice, or pays late anyway."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you type is uploaded."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #176b53; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; max-width: 22ch; }
+    .scroller { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; min-width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #cbd8d3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5568; }
+    .fine, .note { font-size: .88rem; color: #4a5568; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #344640; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/vs-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../invoice-payment-terms-calculator/">Invoice Payment Terms Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a spreadsheet</span></span></nav>
+  <p><a href="./">&larr; Invoice payment terms calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A freelancer who sets payment terms more than once usually ends up
+    with a spreadsheet: an invoice date, a terms column, and a formula
+    that adds the two. That formula gives you the invoice's <em>due</em>
+    date. It does not, on its own, tell you when the cash actually
+    <em>lands</em> &mdash; and for a client that only runs payments on
+    certain days, those are often different dates. This page names no
+    specific product; it compares against the generic method of tracking
+    terms in a spreadsheet or by hand.
+  </p>
+  <p>
+    <strong>A spreadsheet</strong> can add an invoice date to a terms
+    count in one formula, and many freelancers already have one. What it
+    does not do on its own is model which weekday, or which day of the
+    month, a specific client's accounts-payable system actually pays on
+    &mdash; so a due date that falls between two payment runs silently
+    waits for the next one, and nothing in a plain date-add formula flags
+    that drift or prices what it costs.
+  </p>
+  <p>
+    <strong>This calculator</strong> takes the invoice date, the terms,
+    and the client's stated pay-run schedule (weekdays only, twice a
+    month, once a month on a set day, or once a week), and works out the
+    date cash actually lands, how many days that drifts past the stated
+    due date, what that drift costs at your own carrying-cost rate, and
+    whether dating the invoice a few days earlier would catch an earlier
+    run and get you paid sooner for free. It also carries the early-pay
+    and factoring break-even math through the same pay-run projection,
+    so a 2/10 Net 30 offer or a factoring fee is compared against when
+    the money would actually arrive, not just the due date on the
+    invoice.
+  </p>
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>When is this invoice due, by its stated terms?</td><td>Either one &mdash; invoice date plus terms is the same formula both use.</td></tr>
+      <tr><td>When does the cash actually land, given this client's pay-run schedule?</td><td>This calculator's <a href="./">pay-run projection</a> &mdash; a plain date-add formula has no way to know a client only pays on the 1st and 15th.</td></tr>
+      <tr><td>What does that drift cost at my own carrying-cost rate?</td><td>This calculator, priced automatically once you set a rate.</td></tr>
+      <tr><td>Would dating the invoice a few days earlier catch an earlier payment run?</td><td>This calculator flags it when the earlier run buys more days than it costs; a spreadsheet only tells you this if you build and maintain that comparison yourself.</td></tr>
+      <tr><td>Does a 2/10 Net 30 discount or a factoring fee still beat waiting for the actual landing date?</td><td>This calculator's <a href="should-i-offer-2-10-net-30.html">early-pay</a> and <a href="should-i-factor-this-invoice.html">factoring</a> comparisons, run against the same pay-run projection.</td></tr>
+      <tr><td>I already have a working terms sheet and don't want to change tools.</td><td>Keep it &mdash; this calculator is a free second check, not a replacement for a system you maintain.</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2>What this page is not</h2>
+  <p>
+    This calculator is not a bookkeeping system and does not track
+    multiple clients or invoices over time; a spreadsheet or an
+    invoicing platform still does that job better. What it replaces is
+    the one-off arithmetic of projecting a specific client's actual pay
+    date from their stated schedule and pricing the drift &mdash; the
+    part of a terms sheet most likely to be approximated as "due date
+    equals paid date" because modeling weekday-only, semimonthly, or
+    monthly pay runs by hand, correctly, for every invoice, is tedious
+    enough that most spreadsheets skip it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet work out when an invoice is due?</h3>
+  <p>Yes &mdash; <code>=invoice_date+terms_days</code> is one formula and most freelancers already have it somewhere. What that formula gives you is the due date the invoice states, not the date the money actually arrives. Accounts-payable departments run payments in batches: weekdays only, twice a month, once a month on a set day, or once a week &mdash; and a due date that lands between two runs waits for the next one. A plain date-add formula has no way to know which schedule a given client uses, so it is silently wrong on any client that does not pay same-day.</p>
+  <h3>Where does a hand-built invoice-terms sheet usually go wrong?</h3>
+  <p>Two places. First, treating the due date as the pay date &mdash; a Net 30 invoice due on a Saturday, or due the 16th at a client who only runs payments on the 1st and 15th, does not get paid on the due date; it waits for the next run, and that drift is real carrying cost at whatever rate the freelancer's own cash is worth. Second, re-deriving the early-pay or factoring break-even by hand every time terms or a client's discount offer changes, which is exactly the kind of repeated formula work a copied cell silently gets wrong on one row.</p>
+  <h3>What does a spreadsheet not check for you?</h3>
+  <p>Whether the due date actually falls on a day the client's accounts-payable system pays, and by how many days it drifts if not; whether a 2/10 Net 30 discount or a factoring fee still beats waiting once that drift and your own carrying-cost rate are priced in; and whether dating the invoice a few days earlier would catch an earlier payment run and get you paid sooner for no cost. None of those are hard formulas individually, but stacking all of them correctly, for every client's schedule, on every invoice, is where a hand-built sheet drifts.</p>
+  <h3>Does either one know whether my client will actually pay on time?</h3>
+  <p>No. Both this calculator and a spreadsheet model the schedule you tell them about &mdash; the stated payment terms and the client's stated pay-run cadence. Neither predicts whether a specific client pays on time, disputes the invoice, or pays late anyway.</p>
+  <h3>Is anything I enter uploaded anywhere?</h3>
+  <p>No. The calculator this page links to runs entirely in your browser; nothing you type is uploaded.</p>
+  <p class="note">
+    Open the <a href="./">invoice payment terms calculator</a> to project your own invoice's actual landing date.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. Verify the output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no comparison against any named product &mdash; it describes the generic method of tracking terms in a spreadsheet.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../rsu-withholding-gap-calculator/" data-pf-to="rsu-withholding-gap-calculator">RSU Tax Withholding Calculator 2026 — is 22% enough?</a></li>
+      <li><a href="../rule-72t-sepp-calculator/" data-pf-to="rule-72t-sepp-calculator">Rule 72(t) SEPP Calculator — free, private, in your browser</a></li>
+      <li><a href="../s-corp-reasonable-compensation-calculator/" data-pf-to="s-corp-reasonable-compensation-calculator">S-Corp Reasonable Compensation Calculator</a></li>
+      <li><a href="../saas-annual-plan-discount-calculator/" data-pf-to="saas-annual-plan-discount-calculator">SaaS Annual Plan Discount Calculator — break-even prepay discount, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=invoice-payment-terms-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="invoice-payment-terms-calculator"></script>
+</body>
+</html>

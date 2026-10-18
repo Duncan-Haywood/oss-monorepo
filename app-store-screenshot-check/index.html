@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload</title>
+  <meta name="description" content="Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload…">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="App Store Screenshot &amp; Icon Checker">
+  <meta property="og:description" content="Check App Store Connect and Google Play listing images for icon transparency, wrong dimensions, the wrong file format…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"App Store Screenshot & Icon Checker","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks Apple App Store Connect and Google Play store-listing images before upload: app icon alpha channel and transparency, exact icon and feature-graphic dimensions, accepted file formats detected from the file's own bytes rather than its extension, screenshot counts, Google Play's size and aspect-ratio bounds, and whether a screenshot set is internally consistent. Reads image headers only — no pixels are decoded, nothing is uploaded, and a zero-dependency CLI runs the same checks in CI.","featureList":["Flags an app icon that declares an alpha channel or a tRNS transparency chunk — the classic App Store Connect upload rejection","Flags an icon or feature graphic that is not the exact required size","Detects the real file format from magic bytes, so a HEIC or WebP renamed to .png is caught","Flags a screenshot set whose members disagree about their pixel dimensions or orientation","Checks Google Play's minimum and maximum side lengths and its 2:1 aspect-ratio limit","Checks screenshot counts against each store's per-set minimum and maximum","Zero-dependency Node CLI for CI use; the browser page reads files locally with no upload"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does App Store Connect reject an app icon for transparency?","acceptedAnswer":{"@type":"Answer","text":"Apple requires the App Store icon to be fully opaque, and the check happens at upload time — after the build and the archive, at the most expensive point in a release to discover it. A PNG declares transparency in two ways: its IHDR colour type can include an alpha channel (types 4 and 6), or a tRNS chunk can make specific colours transparent in an image that has no alpha channel at all. Both count. The fix is to flatten the icon onto an opaque background and re-export; exporting as JPEG also works, since JPEG has no alpha channel. Do not draw the rounded corners yourself — the store masks them for you, and a pre-masked icon is what usually leaves transparent corners behind."}},{"@type":"Question","name":"Why does this read the file's bytes instead of its extension?","acceptedAnswer":{"@type":"Answer","text":"Because the extension is usually the thing that lied. Renaming a HEIC screenshot from an iPhone, or a WebP from an Android device, to .png does not convert it — the bytes stay HEIC or WebP, and the store reads the bytes. A checker that trusts the filename passes exactly the file that is about to be rejected. This tool identifies each file from its magic bytes, so a misnamed file is reported as what it actually is."}},{"@type":"Question","name":"What does it mean that a screenshot set is inconsistent?","acceptedAnswer":{"@type":"Answer","text":"A set of screenshots uploaded for one display class has to agree with itself about its pixel dimensions. The ordinary way a set breaks is that some of it was regenerated on a newer simulator or a different device and the rest was kept — the files look fine individually and the mismatch is invisible in a file listing. This check needs no specification at all: it compares the files with each other, so it cannot go out of date when a store changes its size tables."}},{"@type":"Question","name":"Are the size tables in this tool authoritative?","acceptedAnswer":{"@type":"Answer","text":"No, and it is built to say so. The checks split in two. Structural checks — is this really a PNG, does this icon declare transparency, do these screenshots agree with each other — are answered from the files themselves and cannot go stale. Table checks compare against a transcription of each store's published sizes, and Apple and Google add and retire device classes, so a size this tool does not recognise is reported as a notice that names the table as the thing that might be wrong, never as a failure. Each store's own current documentation is authoritative."}},{"@type":"Question","name":"Is anything uploaded when I drop images on this page?","acceptedAnswer":{"@type":"Answer","text":"No. The files are read in your browser with the File API and only the first few dozen header bytes of each are examined — no pixels are decoded, no image is transmitted, and no filename, dimension or result is recorded anywhere. Your unreleased app's artwork stays on your machine. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; margin-bottom: 8px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .drop { border: 2px dashed #a8b3c1; border-radius: 12px; padding: 26px 18px; text-align: center; background: #f7f9fb; margin: 10px 0; }
+    .drop.over { border-color: #1a4560; background: #eef4f8; }
+    .drop p { margin: 6px 0; }
+    input[type="file"] { font: 14px system-ui, sans-serif; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"App Store Screenshot \u0026 Icon Checker","item":"https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="App Store Screenshot &amp; Icon Checker — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">App Store Screenshot &amp; Icon Checker</span></span></nav>
+  <header>
+    <p class="note">APP STORE &amp; GOOGLE PLAY ASSET CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Catch the icon the store is about to reject — before you upload</h1>
+    <p>
+      Drop your store-listing images in and check them against the store's requirements:
+      an <strong>app icon that declares transparency</strong> (the classic
+      "can't contain an alpha channel" rejection, which arrives at upload time, after the build),
+      an icon or feature graphic at the <strong>wrong pixel size</strong>, a
+      <strong>HEIC or WebP renamed to <code>.png</code></strong>, and a
+      <strong>screenshot set whose members disagree</strong> about their own dimensions.
+    </p>
+    <p class="note">Nothing is uploaded. Your files are read in this browser — only each file's first few dozen header bytes are examined, no pixels are decoded, and no filename, size or result is transmitted or stored anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check your listing images</h2>
+    <label for="store">Store</label>
+    <select id="store">
+      <option value="ios">Apple App Store (App Store Connect)</option>
+      <option value="play">Google Play Console</option>
+    </select>
+
+    <div class="drop" id="drop">
+      <p><strong>Drop your screenshots and icon here</strong></p>
+      <p class="note">or</p>
+      <p><label for="files" class="note" style="display:inline">Choose image files</label>
+         <input type="file" id="files" accept="image/*,.png,.jpg,.jpeg,.heic,.webp" multiple></p>
+      <p class="note">Files named like <code>AppIcon.png</code>, <code>ic_launcher-playstore.png</code> or <code>feature-graphic.png</code> are recognised as an icon or feature graphic; everything else is treated as a screenshot.</p>
+    </div>
+
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Files read</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table id="assets-table" hidden>
+        <thead><tr><th>File</th><th>Treated as</th><th>Format</th><th>Size</th></tr></thead>
+        <tbody id="assets-rows"></tbody>
+      </table></div>
+    </div>
+    <p class="note" id="no-assets-note" hidden></p>
+
+    <div id="findings-section" hidden>
+      <h3>Findings</h3>
+      <div id="findings"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a release gate?</h2>
+    <p>The CLI runs the same checks over a directory of assets and exits non-zero when something would block the upload — so a wrong-size screenshot fails the build instead of the release:</p>
+    <pre class="cmd" tabindex="0">node check.mjs ./fastlane/screenshots/en-US
+node check.mjs --store play ./play/listing
+node check.mjs ./screenshots --json
+node check.mjs ./screenshots --strict   # notices fail too</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/app-store-screenshot-check" rel="noopener">check.mjs, engine.mjs, image.mjs and spec.mjs from the repo</a> — plain Node 18+, nothing to install. It opens no sockets and writes nothing: it reads the header bytes of the files you name and prints a report. Exit code 1 when a danger-severity finding is produced, 2 when the arguments or paths could not be used.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <div class="table-wrap" tabindex="0">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Check</th><th>What it flags</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>Icon transparency</td><td>An App Store icon with an alpha channel or a tRNS chunk</td><td>Danger</td></tr>
+          <tr><td>Icon dimensions</td><td>An icon that is not exactly the size the store requires</td><td>Danger</td></tr>
+          <tr><td>File format</td><td>A file whose real bytes are HEIC, WebP, GIF or similar — whatever it is named</td><td>Danger</td></tr>
+          <tr><td>Set consistency</td><td>Screenshots in one set that disagree about their pixel dimensions</td><td>Danger</td></tr>
+          <tr><td>Screenshot count</td><td>More screenshots than the store accepts per set</td><td>Danger</td></tr>
+          <tr><td>Play bounds</td><td>A side outside 320–3840px, or an aspect ratio past 2:1</td><td>Danger</td></tr>
+          <tr><td>Feature graphic</td><td>A Play feature graphic that is not exactly 1024×500, or is transparent</td><td>Danger</td></tr>
+          <tr><td>Mixed orientation</td><td>Portrait and landscape images in the same set</td><td>Notice</td></tr>
+          <tr><td>Unrecognised size</td><td>A screenshot matching no display class in this tool's table</td><td>Notice</td></tr>
+          <tr><td>Icon encoding</td><td>An interlaced PNG, or one deeper than 8 bits per channel</td><td>Notice</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <p class="note">More: <a href="why-store-uploads-get-rejected.html">why store uploads get rejected, and the four mistakes that cause most of it</a>. See also: <a href="vs-manual-checking.html">how this differs from checking the spec sheet by hand</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does App Store Connect reject an app icon for transparency?</h3>
+    <p>Apple requires the App Store icon to be fully opaque, and the check happens at upload time — after the build and the archive, at the most expensive point in a release to discover it. A PNG declares transparency in two ways: its IHDR colour type can include an alpha channel (types 4 and 6), or a <code>tRNS</code> chunk can make specific colours transparent in an image that has no alpha channel at all. Both count. The fix is to flatten the icon onto an opaque background and re-export; exporting as JPEG also works, since JPEG has no alpha channel. Do not draw the rounded corners yourself — the store masks them for you, and a pre-masked icon is what usually leaves transparent corners behind.</p>
+    <h3>Why does this read the file's bytes instead of its extension?</h3>
+    <p>Because the extension is usually the thing that lied. Renaming a HEIC screenshot from an iPhone, or a WebP from an Android device, to <code>.png</code> does not convert it — the bytes stay HEIC or WebP, and the store reads the bytes. A checker that trusts the filename passes exactly the file that is about to be rejected. This tool identifies each file from its magic bytes, so a misnamed file is reported as what it actually is.</p>
+    <h3>What does it mean that a screenshot set is inconsistent?</h3>
+    <p>A set of screenshots uploaded for one display class has to agree with itself about its pixel dimensions. The ordinary way a set breaks is that some of it was regenerated on a newer simulator or a different device and the rest was kept — the files look fine individually and the mismatch is invisible in a file listing. This check needs no specification at all: it compares the files with each other, so it cannot go out of date when a store changes its size tables.</p>
+    <h3>Are the size tables in this tool authoritative?</h3>
+    <p>No, and it is built to say so. The checks split in two. Structural checks — is this really a PNG, does this icon declare transparency, do these screenshots agree with each other — are answered from the files themselves and cannot go stale. Table checks compare against a transcription of each store's published sizes, and Apple and Google add and retire device classes, so a size this tool does not recognise is reported as a notice that names the table as the thing that might be wrong, never as a failure. Each store's own current documentation is authoritative.</p>
+    <h3>Is anything uploaded when I drop images on this page?</h3>
+    <p>No. The files are read in your browser with the File API and only the first few dozen header bytes of each are examined — no pixels are decoded, no image is transmitted, and no filename, dimension or result is recorded anywhere. Your unreleased app's artwork stays on your machine. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, business, or app-review advice, and it does not replace reading each store's own current documentation. It reports whether the image files you provided satisfy specific, mechanically checkable rules — nothing more. It is not a guarantee that a submission will be accepted, and passing every check here does not mean an app will pass review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Apple or Google.</strong> "App Store", "App Store Connect", "Google Play" and "Google Play Console" are the trademarks of their respective owners, used here only to say which store's published requirements a check refers to. The size tables in this tool were last reviewed on 2026-09-11 and may be out of date; each store's own documentation is authoritative.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Every file you drop here is read in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a pass before you ship: <a href="../app-listing-metadata-check/">App Listing Metadata Check</a> lints your listing text and keyword field, and <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Check</a> catches a missing required-reason API declaration before App Review does. <a href="../social-preview-check/">Social Preview Check</a> checks the card your links produce when shared. <a href="../pwa-installability-check/">PWA Installability Check</a> checks a web app manifest's own install requirements.</p>
+    <p class="support">Free and open source. If this caught a rejected icon before your release did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { classifyAssets, roleFromName } from './engine.mjs';
+    import { readImageInfo } from './image.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      store: $('#store'), files: $('#files'), drop: $('#drop'), status: $('#status'),
+      reportCard: $('#report-card'),
+      assetsTable: $('#assets-table'), assetsRows: $('#assets-rows'), noAssetsNote: $('#no-assets-note'),
+      findingsSection: $('#findings-section'), findings: $('#findings'),
+    };
+
+    // Assets currently loaded. Kept as measured descriptions, never as bytes:
+    // once the header is read there is no reason to hold an unreleased app's
+    // artwork in memory, and holding it would be the first step toward
+    // accidentally sending it somewhere.
+    let assets = [];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    async function measure(file) {
+      // Only the head of the file is needed, and slicing means a 12 MB
+      // screenshot never lands in memory in full.
+      const head = new Uint8Array(await file.slice(0, 65536).arrayBuffer());
+      return { name: file.name, role: roleFromName(file.name), info: readImageInfo(head) };
+    }
+
+    async function loadFiles(fileList) {
+      const picked = [...fileList];
+      if (picked.length === 0) return;
+      els.status.textContent = `Reading ${picked.length} file${picked.length === 1 ? '' : 's'}…`;
+      assets = await Promise.all(picked.map(measure));
+      els.status.textContent = `${assets.length} file${assets.length === 1 ? '' : 's'} read. Click Check.`;
+      render();
+    }
+
+    function render() {
+      if (assets.length === 0) {
+        els.assetsTable.hidden = true;
+        els.noAssetsNote.hidden = false;
+        els.noAssetsNote.textContent = 'No files loaded yet. Drop your screenshots and icon above.';
+        els.findingsSection.hidden = true;
+        els.reportCard.hidden = false;
+        return;
+      }
+
+      let report;
+      try {
+        report = classifyAssets(assets, { store: els.store.value });
+      } catch (e) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+
+      els.assetsTable.hidden = false;
+      els.noAssetsNote.hidden = true;
+      els.assetsRows.innerHTML = assets.map((a) => {
+        const readable = !a.info.error;
+        return `
+        <tr>
+          <td><code>${escapeHtml(a.name)}</code></td>
+          <td>${escapeHtml(a.role)}</td>
+          <td>${escapeHtml(a.info.format.toUpperCase())}</td>
+          <td>${readable ? `${a.info.width}×${a.info.height}` : '<span class="error">unreadable</span>'}</td>
+        </tr>`;
+      }).join('');
+
+      els.findingsSection.hidden = false;
+      els.findings.innerHTML = report.findings.length === 0
+        ? '<p class="ok">None of the checked problems were found in these files.</p>'
+        : report.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+
+      els.reportCard.hidden = false;
+    }
+
+    els.files.addEventListener('change', (e) => loadFiles(e.target.files));
+
+    els.drop.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      els.drop.classList.add('over');
+    });
+    els.drop.addEventListener('dragleave', () => els.drop.classList.remove('over'));
+    els.drop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      els.drop.classList.remove('over');
+      loadFiles(e.dataTransfer.files);
+    });
+
+    els.store.addEventListener('change', () => {
+      // Switching store re-runs against the same files rather than making the
+      // reader re-drop them: comparing the two stores' verdicts on one set is
+      // the ordinary thing to want here.
+      if (assets.length > 0) render();
+    });
+
+    $('#check').addEventListener('click', () => {
+      if (assets.length === 0) {
+        els.status.innerHTML = '<span class="error">Load at least one image first (or load the worked example).</span>';
+        return;
+      }
+      els.status.textContent = '';
+      render();
+      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'check_run');
+    });
+
+    // A worked example that needs no files: three screenshots where one was
+    // regenerated at a different size, plus an icon with an alpha channel.
+    // These are measured descriptions of the kind `image.mjs` produces, which
+    // is all the engine ever sees.
+    const EXAMPLE = [
+      { name: 'AppIcon.png', role: 'icon', info: { format: 'png', width: 1024, height: 1024, bitDepth: 8, colorType: 6, hasAlphaChannel: true, hasTransparencyChunk: false, hasTransparency: true, interlaced: false } },
+      { name: '01-home.png', role: 'screenshot', info: { format: 'png', width: 1290, height: 2796, bitDepth: 8, colorType: 2, hasAlphaChannel: false, hasTransparencyChunk: false, hasTransparency: false, interlaced: false } },
+      { name: '02-search.png', role: 'screenshot', info: { format: 'png', width: 1290, height: 2796, bitDepth: 8, colorType: 2, hasAlphaChannel: false, hasTransparencyChunk: false, hasTransparency: false, interlaced: false } },
+      { name: '03-profile.png', role: 'screenshot', info: { format: 'png', width: 1284, height: 2778, bitDepth: 8, colorType: 2, hasAlphaChannel: false, hasTransparencyChunk: false, hasTransparency: false, interlaced: false } },
+      { name: '04-settings.png', role: 'screenshot', info: { format: 'heic', error: 'HEIC dimensions are not readable without decoding; this tool measures PNG and JPEG' } },
+    ];
+
+    $('#load-example').addEventListener('click', () => {
+      assets = EXAMPLE.map((a) => ({ ...a }));
+      els.store.value = 'ios';
+      render();
+      els.status.textContent = 'Worked example: an icon with an alpha channel, one screenshot regenerated at a different size, and a HEIC that was renamed to .png.';
+      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+
+    $('#clear').addEventListener('click', () => {
+      assets = [];
+      els.files.value = '';
+      els.reportCard.hidden = true;
+      els.status.textContent = 'Drop your listing images above and click Check.';
+    });
+
+    $('#usageOptOut').addEventListener('change', () => {});
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../docker-base-image-eol-check/" data-pf-to="docker-base-image-eol-check">Is your Dockerfile's base image still supported?</a></li>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=app-store-screenshot-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/?pfEmbed=1&quot; title=&quot;App Store Screenshot &amp; Icon Checker — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="app-store-screenshot-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/" data-pf-embed-title="App Store Screenshot &amp; Icon Checker" data-pf-embed-slug="app-store-screenshot-check"></script>
+</body>
+</html>

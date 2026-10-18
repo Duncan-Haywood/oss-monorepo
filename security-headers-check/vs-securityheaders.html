@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. Security Headers (securityheaders.com) | Security Headers Checker</title>
+<meta name="description" content="Security Headers (securityheaders.com), run by Scott Helme, fetches a URL from its own server and grades the response's header hygiene A+ to F.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/vs-securityheaders.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Security Headers (securityheaders.com)">
+<meta property="og:description" content="Two different shapes: Security Headers is a hosted scanner that fetches your URL from its own server and hands back a letter grade.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Security Headers (securityheaders.com)?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They can both be useful, and for a quick outside read on a public site, Security Headers is a reasonable first stop. It is a free, well-known web scanner: you give it a URL, its own server fetches the response, and it returns a single letter grade (A+ down to F) based on which security headers are present. This checker does something narrower and more specific: a local Node CLI you run yourself sends one request to a URL you name, from your own machine, and classifies the frame-protection and CSP headers into named patterns -- including the ALLOW-FROM trap and the frame-ancestors/default-src fallback distinction -- rather than a single overall grade. Reach for Security Headers for a fast outside opinion on a public site; reach for this when you want a plain-English reason for a clickjacking or CSP-strength finding, or a check you can run unattended against a private staging URL." }
+    },
+    {
+      "@type": "Question",
+      "name": "Security Headers is free too -- what does this add?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Being free is not the difference. The differences are who makes the request and what the output actually explains. Security Headers' own server fetches your URL, which is fine for a public production site but means a private, password-protected, or staging URL either can't be scanned or has to be reachable from the public internet for a third party to reach it. This checker's CLI runs on your own machine (or your own CI runner) and sends the request itself -- it can point at localhost, a VPN-only staging host, or anything else your machine can reach, and nothing about the target URL or the response ever goes through this site or any other third party. And where a grade tells you a header is missing, this checker's report names the exact header and the specific rule it fails -- for example that an X-Frame-Options: ALLOW-FROM value is present but silently ignored by every current browser, or that a CSP's unsafe-inline is a real gap because no nonce or hash overrides it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of one paste-a-URL box like Security Headers?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because a browser page that could fetch any URL you typed into it would itself be a server-side request forgery risk, and it would rule out exactly the private and staging URLs a developer most wants to check before a site goes public. Security Headers solves that by making the request from its own server, which is the right tradeoff for a public site you're happy for a third party to fetch. This checker makes the opposite tradeoff: the request comes from a small local CLI you run yourself, and the browser page here only renders the JSON you already have -- nothing typed into it is fetched by this site." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Security Headers or Scott Helme?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Scott Helme or Security Headers (securityheaders.com), named here only to describe what this checker is and is not. What Security Headers currently checks and how it grades are described on its own site -- check there for what it covers today." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { overflow-wrap: anywhere; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/vs-securityheaders.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/security-headers-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. Security Headers (securityheaders.com) — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../security-headers-check/">Security Headers Checker</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. Security Headers (securityheaders.com)</span></span></nav>
+<p><a href="index.html">&larr; Security Headers Checker</a></p>
+
+<h1>This checker vs. Security Headers (securityheaders.com)</h1>
+
+<p>
+  <strong>Security Headers</strong>, at
+  <a href="https://securityheaders.com/" rel="nofollow noopener">securityheaders.com</a> and run by
+  security researcher Scott Helme, is one of the best-known free tools in this space. You give it a
+  URL, its own server fetches the live response, and it hands back a single letter grade -- A+ down
+  to F -- summarising the site's overall header hygiene. It needs nothing installed and no account,
+  and for a quick outside read on a public site it is a genuinely useful first stop.
+</p>
+
+<p>
+  This checker does a narrower, differently-shaped job. It is a single zero-dependency Node CLI:
+  <code>node check.mjs &lt;url&gt;</code> sends <strong>one request from your own machine</strong>
+  (not from a third party's server) and classifies the response's frame-protection and
+  Content-Security-Policy headers into named misconfiguration patterns -- missing clickjacking
+  protection, an <code>X-Frame-Options: ALLOW-FROM</code> value every current major browser silently
+  ignores, a CSP <code>script-src</code> allowing <code>'unsafe-inline'</code> with nothing overriding
+  it, a wildcard script source, CSP shipped only as report-only, and a missing
+  <code>Strict-Transport-Security</code> header -- rather than folding everything into one grade. It
+  has no server-side component of its own: the browser page here only renders a report from JSON you
+  already have.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<div class="pf-table-scroll"><table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Get a quick, single-grade outside read on a public site's overall header hygiene.</td>
+      <td>Security Headers -- one paste, one grade, no install.</td>
+    </tr>
+    <tr>
+      <td>Check a private, password-protected, or staging URL your machine can reach but a public third-party server cannot.</td>
+      <td>This checker -- the CLI makes the request from wherever you run it.</td>
+    </tr>
+    <tr>
+      <td>Know exactly why a finding is a finding -- for example that <code>ALLOW-FROM</code> looks like frame protection but no current browser honours it, or that <code>frame-ancestors</code> does not inherit from <code>default-src</code> the way <code>script-src</code> does.</td>
+      <td>This checker -- named patterns and the exact header behind each one, not a single grade.</td>
+    </tr>
+    <tr>
+      <td>Make sure the URL and response headers you're checking never pass through any third party at all.</td>
+      <td>This checker -- the request goes straight from your machine to the target; the browser page only parses JSON you paste into it locally.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in your own CI on a specific clickjacking/CSP/HSTS regression with an exit code.</td>
+      <td>This checker -- <code>node check.mjs &lt;url&gt;</code> exits non-zero on a danger finding.</td>
+    </tr>
+    <tr>
+      <td>See how the full, broader set of modern security headers (Referrer-Policy, Permissions-Policy, and others this checker doesn't cover) reads on a public site, in one view.</td>
+      <td>Security Headers -- this checker only covers frame protection, CSP strength, and HSTS.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>
+  These compose rather than compete. A reasonable habit is Security Headers for a fast outside
+  sanity check on a site that's already public, and this checker wired into your own CI against your
+  own staging environment, where a regression in the specific patterns it covers turns a build red
+  the day it lands rather than being caught later by a public scan. Neither one replaces the other.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Should I use this checker or Security Headers (securityheaders.com)?</h3>
+<p>They can both be useful, and for a quick outside read on a public site, Security Headers is a reasonable first stop. It is a free, well-known web scanner: you give it a URL, its own server fetches the response, and it returns a single letter grade (A+ down to F) based on which security headers are present. This checker does something narrower and more specific: a local Node CLI you run yourself sends one request to a URL you name, from your own machine, and classifies the frame-protection and CSP headers into named patterns -- including the ALLOW-FROM trap and the frame-ancestors/default-src fallback distinction -- rather than a single overall grade. Reach for Security Headers for a fast outside opinion on a public site; reach for this when you want a plain-English reason for a clickjacking or CSP-strength finding, or a check you can run unattended against a private staging URL.</p>
+
+<h3>Security Headers is free too -- what does this add?</h3>
+<p>Being free is not the difference. The differences are who makes the request and what the output actually explains. Security Headers' own server fetches your URL, which is fine for a public production site but means a private, password-protected, or staging URL either can't be scanned or has to be reachable from the public internet for a third party to reach it. This checker's CLI runs on your own machine (or your own CI runner) and sends the request itself -- it can point at localhost, a VPN-only staging host, or anything else your machine can reach, and nothing about the target URL or the response ever goes through this site or any other third party. And where a grade tells you a header is missing, this checker's report names the exact header and the specific rule it fails -- for example that an X-Frame-Options: ALLOW-FROM value is present but silently ignored by every current browser, or that a CSP's unsafe-inline is a real gap because no nonce or hash overrides it.</p>
+
+<h3>Why does this need a CLI instead of one paste-a-URL box like Security Headers?</h3>
+<p>Because a browser page that could fetch any URL you typed into it would itself be a server-side request forgery risk, and it would rule out exactly the private and staging URLs a developer most wants to check before a site goes public. Security Headers solves that by making the request from its own server, which is the right tradeoff for a public site you're happy for a third party to fetch. This checker makes the opposite tradeoff: the request comes from a small local CLI you run yourself, and the browser page here only renders the JSON you already have -- nothing typed into it is fetched by this site.</p>
+
+<h3>Is this page affiliated with Security Headers or Scott Helme?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Scott Helme or Security Headers (securityheaders.com), named here only to describe what this checker is and is not. What Security Headers currently checks and how it grades are described on its own site -- check there for what it covers today.</p>
+
+<p>
+  <strong>Only point either tool at a system you own or are authorised to test.</strong> That rule
+  is unchanged by which one you pick.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at a specific,
+  well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response. It is
+  not a full security assessment, does not crawl other pages on the site, and cannot see a pattern
+  its checks don't happen to cover. A clean report describes what this one request found, not a
+  guarantee the site has no security-header issues.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page only parses JSON you paste into it
+  locally -- nothing typed here is uploaded or fetched by this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../json-to-types-generator/" data-pf-to="json-to-types-generator">JSON to TypeScript, Zod, JSON Schema and Go, in your browser</a></li>
+      <li><a href="../jwt-verification-misuse-check/" data-pf-to="jwt-verification-misuse-check">Is your code verifying JWTs, or only reading them?</a></li>
+      <li><a href="../k8s-deprecated-api-check/" data-pf-to="k8s-deprecated-api-check">Will this manifest survive your next Kubernetes upgrade?</a></li>
+      <li><a href="../k8s-pod-security-check/" data-pf-to="k8s-pod-security-check">What are your Kubernetes manifests handing to the node?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=security-headers-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="security-headers-check"></script>
+</body>
+</html>

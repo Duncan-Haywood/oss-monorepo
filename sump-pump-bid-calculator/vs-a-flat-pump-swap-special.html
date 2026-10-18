@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat pump-swap special | Sump Pump Bid Calculator</title>
+<meta name="description" content="A flat 'pump swap' special is priced for an existing pit and the primary pump alone. This free, private browser calculator prices the pit, the extra discharge…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat pump-swap special">
+<meta property="og:description" content="An existing-pit 1/3 HP swap and a new pit cut through a slab with a 1/2 HP pump, 40 ft of discharge…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat pump-swap special get a new-pit job wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the special was priced for an existing pit and the primary pump alone, and the cost drivers for a new-pit, battery-backup job are not in that price at all. Using this calculator's own suggested figures, an existing-pit 1/3 HP swap costs $517.23 to run, and a new pit cut through a slab with a 1/2 HP pump, 40 ft of discharge, and a battery backup costs $2,418.52 to run -- 4.68 times as much, on the same trip and the same crew wage."}},{"@type":"Question","name":"What does a flat pump-swap special usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The pit and the backup. A pump-swap special has no line for cutting a new basin through a slab or dirt floor, no line for discharge past the first included feet, and no line for a battery or water-powered backup, which this calculator's own suggested kit prices at more than the primary pump itself. It also has no line for a high-water alarm or freeze protection, which are commonly sold alongside a backup."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own suggested figures: the existing-pit swap prices at $738.90, on a job that costs $517.23 to run, holding a 30% target margin. The new pit, 1/2 HP pump, 40 ft of discharge, and battery backup costs $2,418.52 to run, and this calculator prices it at $3,455.03, still the same 30% margin. Quoting that job at the swap special's $738.90 price leaves it $1,679.62 below its own break-even cost -- before counting the $2,716.13 shortfall against what this calculator prices the same job at."}},{"@type":"Question","name":"Is a flat pump-swap special ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of jobs -- an existing pit, the primary pump only, no backup, and discharge within the included footage -- a flat swap special can land close, because that is probably the job the price was set on. The risk is quoting a new pit, a battery or water-powered backup, or extra discharge sight unseen, because the special does not know what is under the floor until someone opens it up, and by then the flat number has often already been quoted over the phone."}},{"@type":"Question","name":"Does this calculator know my local labor rates or parts costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local labor market, your supplier's parts pricing, or what other plumbers in your area charge. It takes pump size, pit type, discharge footage past the included first fifteen feet, backup type, alarm, freeze protection, and your own wage, burden, travel, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat swap special skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2834;background:#dce4ee}body{max-width:900px;margin:0 auto;padding:32px 18px 48px}a{color:#1a5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5a68}section{background:#fff;border:1px solid #b7c4d4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1a2a4a0d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #b7c4d4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5a68}.fine,.note{font-size:.88rem;color:#4a5a68}footer{color:#4a5a68;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sump-pump-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat pump-swap special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sump-pump-bid-calculator/">Sump Pump Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat pump-swap special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Sump Pump Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat pump-swap special</h1>
+<p class="lede">&ldquo;$X, any sump pump, done&rdquo; is not a price for a sump-pump job &mdash; it is a price for an existing pit and the primary pump alone, quietly applied to a new basin cut through a slab with a battery backup too.</p>
+</header>
+<section>
+<h2>What a flat pump-swap special is</h2>
+<p>
+A flat swap special is the fastest way to quote a sump-pump call over the
+phone: name a number and go. Customers like it because it is easy to
+compare against a competitor's coupon, and it is the number a homeowner
+holding one will ask you to match.
+</p>
+<p>
+The number behind it was usually set for the simplest version of the job
+&mdash; a pump that has already failed in a pit that already exists,
+swapped for a like-for-like replacement &mdash; and then reused for every
+call afterward, whether or not the next one needs a new pit cut through a
+slab, forty feet of discharge, or a battery backup the homeowner asks for
+once the tech is already there.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You pick a pump
+size, a pit type &mdash; existing pit, new pit in dirt, or a new pit cut
+through a slab &mdash; discharge footage past the included first fifteen
+feet, a backup (none, battery, or water-powered), whether to add an alarm
+or freeze protection, and your own wage, payroll burden, travel, overhead,
+and target margin. It prices the pit, the extra discharge, and the backup
+as their own lines, on top of the swap itself, and returns the price, the
+crew-hour split, the effective hourly rate, and the walk-away price
+&mdash; for this job, not a flat number for every sump pump.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat swap special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same price whether the pit already exists or has to be cut through a concrete slab, even though the slab cut alone adds crew-hours and a disposal cost the swap never needed.</td>
+<td>Prices pit work by type &mdash; existing pit, new pit in dirt, or new pit through a slab &mdash; with its own hours and basin/slab-cut cost for each.</td>
+</tr>
+<tr>
+<td>Has no line for a battery or water-powered backup, which this calculator's own suggested kit prices in parts alone at more than the primary pump.</td>
+<td>Prices backup as its own package &mdash; hours and kit cost &mdash; separate from the primary pump swap.</td>
+</tr>
+<tr>
+<td>Bills the same for fifteen feet of discharge and forty, even though every foot past the included distance adds pipe and labor.</td>
+<td>Prices extra discharge footage past the included distance at its own per-foot hours and material rate.</td>
+</tr>
+<tr>
+<td>Has no per-line breakdown &mdash; a slab cut, a backup, and an alarm sold together disappear into one flat number.</td>
+<td>Reports labor cost, material cost, overhead, and price as separate lines, so a shop can see exactly what a slab-and-battery job costs to run.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the price, the profit, and the effective hourly rate, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>The same swap special, two different jobs</h2>
+<p>
+Using this calculator's own suggested figures for each preset, at a 30%
+target margin, a $42 hourly wage, 34% payroll burden, and $85 in travel
+and equipment:
+</p>
+<p>
+An existing-pit swap &mdash; a 1/3 HP pump, no backup, and discharge
+within the included fifteen feet &mdash; costs <strong>$517.23</strong>
+to run and this calculator prices it at <strong>$738.90</strong>.
+The same trip, but the pit has to be cut through a concrete slab, the
+homeowner wants a 1/2 HP pump, the discharge run is forty feet, and they
+add a battery backup: that job costs <strong>$2,418.52</strong> to run
+&mdash; 4.68 times the swap's cost, on the same trip and the same crew
+wage &mdash; and this calculator prices it at <strong>$3,455.03</strong>,
+still the target 30% margin. Quote the slab-and-battery job at the swap
+special's flat <strong>$738.90</strong> price instead, and it prices
+<strong>$1,679.62 below its own break-even cost</strong> &mdash; before
+counting the <strong>$2,716.13</strong> it falls short of this
+calculator's own price. Same swap special, one job that pays and one
+that loses money the moment the slab saw and the battery kit show up.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat pump-swap special get a new-pit job wrong?</h3>
+<p>Because the special was priced for an existing pit and the primary pump alone, and the cost drivers for a new-pit, battery-backup job are not in that price at all. Using this calculator's own suggested figures, an existing-pit 1/3 HP swap costs $517.23 to run, and a new pit cut through a slab with a 1/2 HP pump, 40 ft of discharge, and a battery backup costs $2,418.52 to run -- 4.68 times as much, on the same trip and the same crew wage.</p>
+<h3>What does a flat pump-swap special usually leave out entirely?</h3>
+<p>The pit and the backup. A pump-swap special has no line for cutting a new basin through a slab or dirt floor, no line for discharge past the first included feet, and no line for a battery or water-powered backup, which this calculator's own suggested kit prices at more than the primary pump itself. It also has no line for a high-water alarm or freeze protection, which are commonly sold alongside a backup.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own suggested figures: the existing-pit swap prices at $738.90, on a job that costs $517.23 to run, holding a 30% target margin. The new pit, 1/2 HP pump, 40 ft of discharge, and battery backup costs $2,418.52 to run, and this calculator prices it at $3,455.03, still the same 30% margin. Quoting that job at the swap special's $738.90 price leaves it $1,679.62 below its own break-even cost -- before counting the $2,716.13 shortfall against what this calculator prices the same job at.</p>
+<h3>Is a flat pump-swap special ever the right way to quote?</h3>
+<p>For a narrow band of jobs -- an existing pit, the primary pump only, no backup, and discharge within the included footage -- a flat swap special can land close, because that is probably the job the price was set on. The risk is quoting a new pit, a battery or water-powered backup, or extra discharge sight unseen, because the special does not know what is under the floor until someone opens it up, and by then the flat number has often already been quoted over the phone.</p>
+<h3>Does this calculator know my local labor rates or parts costs?</h3>
+<p>No. It has no data on your local labor market, your supplier's parts pricing, or what other plumbers in your area charge. It takes pump size, pit type, discharge footage past the included first fifteen feet, backup type, alarm, freeze protection, and your own wage, burden, travel, overhead, and target margin, and turns that into a price for this job -- the arithmetic a flat swap special skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Sump Pump Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-to-install-a-sump-pump.html">how much to charge to install a sump pump</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no comparison against a named product or company &mdash; it describes a common flat-rate quoting habit and this calculator's own suggested figures.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../boiler-replacement-bid-calculator/" data-pf-to="boiler-replacement-bid-calculator">Boiler Replacement Bid Calculator</a></li>
+      <li><a href="../commercial-solar-ppa-lease-buy-calculator/" data-pf-to="commercial-solar-ppa-lease-buy-calculator">Commercial solar: buy vs PPA vs lease</a></li>
+      <li><a href="../electrical-panel-upgrade-bid-calculator/" data-pf-to="electrical-panel-upgrade-bid-calculator">Electrical Panel Upgrade Bid Calculator</a></li>
+      <li><a href="../ev-charger-bid-calculator/" data-pf-to="ev-charger-bid-calculator">EV Charger Installation Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sump-pump-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sump-pump-bid-calculator"></script>
+</body></html>

@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staffing Markup Calculator | What a 45% Markup Actually Earns</title>
+  <meta name="description" content="Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup…">
+  <meta property="og:title" content="Staffing Markup Calculator">
+  <meta property="og:description" content="A 45% markup is not a 45% margin, and on a heavy comp code it may not be a profit. Enter the pay rate, your SUTA and comp rate, and your payment terms…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Staffing Markup Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Employer burden per hour itemised by FICA, FUTA, SUTA, workers' compensation, PTO accrual, benefits, onboarding and admin; capped unemployment taxes charged against the wage base so a short assignment shows its true per-hour cost; loaded cost per hour; bill rate from a markup on the pay rate; real gross margin and gross profit per hour beside the margin the markup implies; break-even markup; the markup a target gross margin requires; overtime priced at separate pay and bill multipliers with the workers' comp premium exclusion; cost of funding payroll across the client's payment terms; bad-debt reserve; and a markup ladder pricing the discount a client is asking for, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out and, once a few are decided, what your won bids on this tool have averaged against the ones you lost, including how far over the winning price you were on the lost jobs whose final price you know, and — for the won jobs you enter a delivered cost against — what those jobs actually kept once they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved bid also pins the figure it was quoted at, so any change you then make is priced against the number the customer already has, in money and in percent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a 45% markup a 45% gross margin?","acceptedAnswer":{"@type":"Answer","text":"No, and the gap is larger than the usual correction. Converting markup to margin the textbook way gives 45/145 = 31%, and that conversion is only right when the number you marked up is the whole cost. In staffing you mark up the pay rate, and every dollar of FICA, unemployment tax, workers’ compensation, PTO and benefits sits outside it. On the worked example — $22 an hour, a 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, collected on net-45 — a 45% markup returns a 15.8% gross margin, not 31%. Hitting 20% would take a 52.6% markup."}},{"@type":"Question","name":"Why is a short assignment more expensive per hour?","acceptedAnswer":{"@type":"Answer","text":"Because FUTA and SUTA are charged on a wage base, not on every dollar. FUTA applies to the first $7,000 a worker earns in the year and your state’s unemployment tax to the first (commonly) $7,000 to $60,000. A worker who bills 420 hours pays almost the entire annual charge inside those 420 hours; the same worker on a 2,000-hour assignment spreads it over five times as many. This calculator charges the capped amount rather than a flat percentage, so the effect appears on its own and a 12-week placement prices differently from a year-long one without you doing anything."}},{"@type":"Question","name":"What is the break-even markup?","acceptedAnswer":{"@type":"Answer","text":"The markup at which the placement finishes exactly level: burden covered, payroll funded, bad debt reserved, and nothing left. On the worked example it is 21.9%. It is worth knowing because it is the floor a negotiation can reach and not the number to quote — the distance between it and your markup is the entire profit on the placement, which is why shaving five points off a quote is a large fraction of the margin rather than a small fraction of the price."}},{"@type":"Question","name":"Why does it charge me for the client’s payment terms?","acceptedAnswer":{"@type":"Answer","text":"Because you pay the worker weekly and the client pays you on net-30, net-45 or later. That money is out the door in the meantime, whether it is financed, factored, or simply your own cash not doing something else. The calculator applies your cost of capital to the loaded cost — the money actually spent, not the invoice — across the days you wait. On the worked example, net-45 at 12% costs $202 of a $2,626 profit. It is the line most markup quotes leave out entirely, and it is the one that turns a thin placement into a losing one."}},{"@type":"Question","name":"How should I bill overtime?","acceptedAnswer":{"@type":"Answer","text":"You pay overtime at 1.5 times the pay rate, so a bill rate that does not also rise by 1.5 earns less margin on every overtime hour and can earn none. Set the two multipliers separately here and see it. One nuance the calculator handles: most states rate workers’ compensation on straight-time-equivalent payroll, so the half-time premium on an overtime hour is excluded from the comp payroll. Leave that box ticked unless your state does not allow the exclusion — it is a real saving on an assignment running heavy overtime, and over-reserving for it prices you out of work you could win."}},{"@type":"Question","name":"Where do I find my SUTA rate and workers’ comp rate?","acceptedAnswer":{"@type":"Answer","text":"Your SUTA rate and wage base are on the annual rate notice your state unemployment agency sends you; the rate is experience-rated, so it is yours and not a national figure. Your workers’ compensation rate is on your policy declarations, quoted per $100 of payroll and set by the class code the work falls under — which is why a clerical placement and a light-industrial placement in the same office are different businesses. The defaults here are illustrative starting points, not advice about which class code applies to a job."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your pay rates, markups, comp rate and the margins it works out are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about worker classification, which workers’ compensation class code applies, co-employment, overtime exemption, or your obligations under any state or federal law, and the rates and wage bases it starts with are illustrative and change every year. Check every figure against your own rate notices, policy declarations and payroll records, and against a qualified professional, before you quote a client from it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #edeff5; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 780px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: .99; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #33427a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .74fr); gap: 18px; align-items: start; }
+    section { background: #f9fafc; border: 1px solid #ccd3e1; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4b566a; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; font-size: .85rem; grid-column: 1 / -1; }
+    label.check input { width: auto; margin-top: 2px; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a6b1c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a6b1c6; background: #eef1f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e1e7f3; }
+    .primary { background: #33427a; border-color: #33427a; color: #f4f6fb; }
+    .primary:hover { background: #29356444; background: #293564; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    .result { position: sticky; top: 15px; background: #171f37; color: #eef1f8; border-color: #171f37; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    .ladder-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid #d3dae6; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #4b566a; }
+    tr.entered td { background: #e6ebf7; font-weight: 700; }
+    tr.loss td { color: #8a2617; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4b566a; }
+    footer a { color: #33427a; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #33427a; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Staffing Markup Calculator","item":"https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Staffing Markup Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Staffing Markup Calculator</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+  </p>
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to. Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT STAFFING AGENCIES AND RECRUITERS</p>
+    <h1>A 45% markup is not a 45% margin. It is not a 31% one either.</h1>
+    <p>You mark up the pay rate, so the markup has to carry the whole employer burden before a cent of it is profit &mdash; FICA, federal and state unemployment, the comp code the work falls under, PTO, benefits, screening, and the six weeks you fund payroll before the client pays. Put a real placement in below and see the bill rate, the burden an hour, the margin the markup actually earns, and the markup your target margin needs.</p>
+    <p class="seo-link"><a href="./markup-vs-margin.html">Markup vs. margin in staffing &mdash; why the usual conversion is wrong here</a></p>
+    <p class="seo-link"><a href="./vs-tempworks.html">This calculator vs. TempWorks &mdash; what each tool is actually for</a></p>
+    <p class="seo-link"><a href="./vs-a-spreadsheet.html">This calculator vs. a spreadsheet &mdash; why markup / (1 + markup) overstates the real margin</a></p>
+    <p class="seo-link"><a href="../employee-cost-calculator/">Employee vs. contractor cost calculator</a> &mdash; the same employer-burden math, for a business staffing a role itself rather than billing a client for a placement</p>
+  </header>
+
+  <main class="layout">
+    <form id="placementForm">
+      <section>
+        <h2>The placement</h2>
+        <p class="hint">The pay rate and the markup you would quote. Everything below prices this one assignment.</p>
+        <div class="fields">
+          <label>Pay rate ($/h) <input id="payRate" type="number" min="0.01" step="0.01" value="22" inputmode="decimal"></label>
+          <label>Markup on pay rate (%) <input id="markupPercent" type="number" min="0" max="500" step="0.5" value="45" inputmode="decimal"></label>
+          <label>Straight-time hours a week <input id="hoursPerWeek" type="number" min="0" max="168" step="0.5" value="40" inputmode="decimal"></label>
+          <label>Overtime hours a week <input id="otHoursPerWeek" type="number" min="0" max="168" step="0.5" value="0" inputmode="decimal"></label>
+          <!-- step="any": min="0.1" is not on a 0.5 grid, so a stepped input
+               would reject every whole number a recruiter actually types. -->
+          <label>Weeks on assignment <input id="weeksOnAssignment" type="number" min="0.1" max="260" step="any" value="13" inputmode="decimal"></label>
+          <label>Target gross margin (%) <input id="targetMarginPercent" type="number" min="0" max="95" step="0.5" value="20" inputmode="decimal"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Employer burden</h2>
+        <p class="hint">These are your own figures. SUTA comes off your state rate notice, the comp rate off your policy declarations for the class code this job falls under. The defaults are a plausible light-industrial placement, not a recommendation.</p>
+        <div class="fields">
+          <label>FICA (%) <input id="ficaPercent" type="number" min="0" max="30" step="0.01" value="7.65" inputmode="decimal"></label>
+          <label>Workers&rsquo; comp ($ per $100 payroll) <input id="workersCompRate" type="number" min="0" max="100" step="0.01" value="6.20" inputmode="decimal"></label>
+          <label>SUTA rate (%) <input id="sutaPercent" type="number" min="0" max="30" step="0.01" value="3" inputmode="decimal"></label>
+          <label>SUTA wage base ($) <input id="sutaWageBase" type="number" min="0" step="100" value="12000" inputmode="numeric"></label>
+          <label>FUTA rate (%) <input id="futaPercent" type="number" min="0" max="20" step="0.01" value="0.6" inputmode="decimal"></label>
+          <label>FUTA wage base ($) <input id="futaWageBase" type="number" min="0" step="100" value="7000" inputmode="numeric"></label>
+          <label>PTO and holiday accrual (%) <input id="ptoPercent" type="number" min="0" max="50" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Health and other benefits ($/h) <input id="benefitsPerHour" type="number" min="0" step="0.05" value="0" inputmode="decimal"></label>
+          <label>Onboarding and screening ($, once) <input id="onboardingCost" type="number" min="0" step="1" value="85" inputmode="numeric"></label>
+          <label>Payroll, ATS and admin ($/h) <input id="otherPerHour" type="number" min="0" step="0.01" value="0.35" inputmode="decimal"></label>
+          <label class="check"><input id="compExcludesOtPremium" type="checkbox" checked> My state lets me exclude the overtime <em>premium</em> from workers&rsquo; comp payroll (most do)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Getting paid</h2>
+        <p class="hint">You fund payroll weekly and collect later. This is what that gap costs, and what you hold back for invoices that never land.</p>
+        <div class="fields">
+          <label>Days to get paid <input id="daysToGetPaid" type="number" min="0" max="365" step="1" value="45" inputmode="numeric"></label>
+          <label>Cost of capital (% a year) <input id="costOfCapitalPercent" type="number" min="0" max="100" step="0.1" value="12" inputmode="decimal"></label>
+          <label>Bad debt and unbilled (% of billings) <input id="badDebtPercent" type="number" min="0" max="50" step="0.1" value="0.5" inputmode="decimal"></label>
+          <label>Overtime pay multiplier <input id="otPayMultiplier" type="number" min="1" max="3" step="0.05" value="1.5" inputmode="decimal"></label>
+          <label>Overtime bill multiplier <input id="otBillMultiplier" type="number" min="1" max="3" step="0.05" value="1.5" inputmode="decimal"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Price this placement</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
+          <button type="button" id="clearSaved">Start a fresh placement</button>
+        </div>
+        <p class="hint" id="linkStatus" role="status"></p>
+        <p class="hint" id="restoreNote" hidden></p>
+        <p class="hint">A shareable link carries your own pay rate, markup, burden rates and payment terms &mdash; treat one like your rate sheet. It is built in your browser and never sent to a server; send it to a partner reviewing the same placement, not to the client. Your last placement is also saved in this browser so it is here next time you open the page; &ldquo;Start a fresh placement&rdquo; clears it.</p>
+      </section>
+
+      <section>
+        <h2>What the same placement earns at other markups</h2>
+        <p class="hint">The row in bold is what you entered. This is the table to have open when a client asks for five points off.</p>
+        <div class="ladder-wrap">
+          <div class="pf-table-scroll"><table id="ladder">
+            <thead>
+              <tr><th scope="col">Markup</th><th scope="col">Bill rate</th><th scope="col">Gross margin</th><th scope="col">Gross profit</th></tr>
+            </thead>
+            <tbody id="ladderBody"></tbody>
+          </table></div>
+        </div>
+        <p class="hint" id="ladderEmpty" hidden>Fix the errors above and the table will fill in.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Gross margin on this placement</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="empty" id="emptyState">Press &ldquo;Price this placement&rdquo; to see what it earns.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What the markup implies, and what it earns</h3>
+          <p class="gap" id="beliefGap">&mdash;</p>
+          <p id="beliefText"></p>
+        </div>
+        <dl>
+          <dt class="group">The rates</dt>
+          <dt>Bill rate</dt><dd id="outBillRate">&mdash;</dd>
+          <dt>Loaded cost an hour</dt><dd id="outLoadedCost">&mdash;</dd>
+          <dt>Employer burden an hour</dt><dd id="outBurdenPerHour">&mdash;</dd>
+          <dt>Burden as a share of wages</dt><dd id="outBurdenPercent">&mdash;</dd>
+          <dt>Gross profit an hour</dt><dd id="outProfitPerHour">&mdash;</dd>
+
+          <dt class="group">The markup you need</dt>
+          <dt>Break-even markup</dt><dd id="outBreakEven">&mdash;</dd>
+          <dt id="outTargetLabel">Markup for your target margin</dt><dd id="outTarget">&mdash;</dd>
+
+          <dt class="group">The whole assignment</dt>
+          <dt>Billable hours</dt><dd id="outHours">&mdash;</dd>
+          <dt>Wages paid</dt><dd id="outWages">&mdash;</dd>
+          <dt>Employer burden</dt><dd id="outBurdenTotal">&mdash;</dd>
+          <dt>Cost of funding payroll</dt><dd id="outCarry">&mdash;</dd>
+          <dt>Bad-debt reserve</dt><dd id="outBadDebt">&mdash;</dd>
+          <dt>Billed to the client</dt><dd id="outRevenue">&mdash;</dd>
+          <dt>Gross profit</dt><dd id="outProfit">&mdash;</dd>
+
+          <dt class="group">Where the burden goes</dt>
+        </dl>
+        <dl id="burdenList"></dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Is a 45% markup a 45% gross margin?</h3>
+    <p>No, and the gap is larger than the usual correction. Converting markup to margin the textbook way gives 45/145 = 31%, and that conversion is only right when the number you marked up is the whole cost. In staffing you mark up the pay rate, and every dollar of FICA, unemployment tax, workers&rsquo; compensation, PTO and benefits sits outside it. On the worked example — $22 an hour, a 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, collected on net-45 — a 45% markup returns a 15.8% gross margin, not 31%. Hitting 20% would take a 52.6% markup.</p>
+
+    <h3>Why is a short assignment more expensive per hour?</h3>
+    <p>Because FUTA and SUTA are charged on a wage base, not on every dollar. FUTA applies to the first $7,000 a worker earns in the year and your state&rsquo;s unemployment tax to the first (commonly) $7,000 to $60,000. A worker who bills 420 hours pays almost the entire annual charge inside those 420 hours; the same worker on a 2,000-hour assignment spreads it over five times as many. This calculator charges the capped amount rather than a flat percentage, so the effect appears on its own and a 12-week placement prices differently from a year-long one without you doing anything.</p>
+
+    <h3>What is the break-even markup?</h3>
+    <p>The markup at which the placement finishes exactly level: burden covered, payroll funded, bad debt reserved, and nothing left. On the worked example it is 21.9%. It is worth knowing because it is the floor a negotiation can reach and not the number to quote — the distance between it and your markup is the entire profit on the placement, which is why shaving five points off a quote is a large fraction of the margin rather than a small fraction of the price.</p>
+
+    <h3>Why does it charge me for the client&rsquo;s payment terms?</h3>
+    <p>Because you pay the worker weekly and the client pays you on net-30, net-45 or later. That money is out the door in the meantime, whether it is financed, factored, or simply your own cash not doing something else. The calculator applies your cost of capital to the loaded cost — the money actually spent, not the invoice — across the days you wait. On the worked example, net-45 at 12% costs $202 of a $2,626 profit. It is the line most markup quotes leave out entirely, and it is the one that turns a thin placement into a losing one.</p>
+
+    <h3>How should I bill overtime?</h3>
+    <p>You pay overtime at 1.5 times the pay rate, so a bill rate that does not also rise by 1.5 earns less margin on every overtime hour and can earn none. Set the two multipliers separately here and see it. One nuance the calculator handles: most states rate workers&rsquo; compensation on straight-time-equivalent payroll, so the half-time premium on an overtime hour is excluded from the comp payroll. Leave that box ticked unless your state does not allow the exclusion — it is a real saving on an assignment running heavy overtime, and over-reserving for it prices you out of work you could win.</p>
+
+    <h3>Where do I find my SUTA rate and workers&rsquo; comp rate?</h3>
+    <p>Your SUTA rate and wage base are on the annual rate notice your state unemployment agency sends you; the rate is experience-rated, so it is yours and not a national figure. Your workers&rsquo; compensation rate is on your policy declarations, quoted per $100 of payroll and set by the class code the work falls under — which is why a clerical placement and a light-industrial placement in the same office are different businesses. The defaults here are illustrative starting points, not advice about which class code applies to a job.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests — it runs entirely in your browser. Your pay rates, markups, comp rate and the margins it works out are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Is this legal, tax, or insurance advice?</h3>
+    <p>No. It is arithmetic on the figures you type. It makes no determination about worker classification, which workers&rsquo; compensation class code applies, co-employment, overtime exemption, or your obligations under any state or federal law, and the rates and wage bases it starts with are illustrative and change every year. Check every figure against your own rate notices, policy declarations and payroll records, and against a qualified professional, before you quote a client from it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or employment advice, and it does not tell you what to charge, which workers&rsquo; compensation class code applies to a job, whether anyone is an employee or a contractor, or what any state or federal law requires of you. It is arithmetic on the numbers you type, and the rates and wage bases it starts with are illustrative and change every year. Verify every figure against your own state rate notice, policy declarations, and payroll records, and against a qualified professional, before quoting a client from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your pay rates, markups, comp rate and the margins worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. &ldquo;Copy shareable link&rdquo; puts the same numbers in the page&rsquo;s URL fragment instead of a server, and your last placement is saved to this browser&rsquo;s own local storage so it is here on your next visit &mdash; nothing about it leaves your device either way, but whoever holds a link you send can read it.</p>
+    <p>Working out what an hour costs your own shop rather than a placement&rsquo;s? The <a href="../shop-rate-calculator/">shop rate calculator</a> does the same job for trade crews, and the <a href="../certified-payroll-calculator/">certified payroll calculator</a> covers prevailing-wage fringe. Paying yourself instead of a worker? Try the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>.</p>
+    <p class="support">Free and open source. If it changes what you quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculatePlacement, markupToMargin, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money2 = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = (value) => `${value.toFixed(1)}%`;
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    function readInput() {
+      const raw = { compExcludesOtPremium: el('compExcludesOtPremium').checked };
+      for (const id of ALL_INPUT_IDS) raw[id] = el(id).value;
+      return raw;
+    }
+
+    // Derived from ALL_INPUT_IDS itself, so a field added to calc.mjs's own
+    // list is saved and shareable without a second, hand-kept copy here going
+    // stale — the exact drift that has silently dropped fields from a shared
+    // link on other calculators in this fleet.
+    const FLAG_IDS = ['compExcludesOtPremium'];
+    const SHARE_SPEC = { key: 'staffing-markup-placement', numbers: ALL_INPUT_IDS, flags: FLAG_IDS };
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, SHARE_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-placement is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(SHARE_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('linkStatus').textContent = 'Shareable link copied — it reopens this placement with your rates.';
+      setTimeout(() => { el('linkStatus').textContent = ''; }, 2500);
+    }
+
+    function clearInvalid() {
+      for (const id of ALL_INPUT_IDS) el(id).removeAttribute('aria-invalid');
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before this can be priced.';
+      el('heroNumber').textContent = '—';
+      el('heroNumber').classList.remove('negative');
+      el('errors').innerHTML = '';
+      el('ladderBody').innerHTML = '';
+      el('ladderEmpty').hidden = false;
+      for (const error of errors) {
+        const field = el(error.field);
+        if (field) field.setAttribute('aria-invalid', 'true');
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        el('errors').append(li);
+      }
+      const first = errors.length > 0 ? el(errors[0].field) : null;
+      if (first) first.focus();
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').innerHTML = '';
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+      el('ladderEmpty').hidden = true;
+
+      el('heroNumber').textContent = pct(result.grossMarginPercent);
+      el('heroNumber').classList.toggle('negative', result.grossProfit < 0);
+
+      const entered = Number.parseFloat(el('markupPercent').value);
+      const implied = markupToMargin(entered);
+      el('beliefGap').textContent = `${pct(implied)} believed → ${pct(result.grossMarginPercent)} earned`;
+      el('beliefText').textContent =
+        `A ${pct(entered)} markup converts to ${pct(implied)} the way the trade quotes it, because that ` +
+        `conversion treats the pay rate as the whole cost. It is not: employer burden adds ` +
+        `${money2(result.burdenPerHour)} an hour on top of it. The difference between those two numbers is ` +
+        `${money(Math.abs((implied - result.grossMarginPercent) / 100 * result.revenue))} on this assignment alone.`;
+
+      el('outBillRate').textContent = `${money2(result.billRate)}/h`;
+      el('outLoadedCost').textContent = `${money2(result.loadedCostPerHour)}/h`;
+      el('outBurdenPerHour').textContent = `${money2(result.burdenPerHour)}/h`;
+      el('outBurdenPercent').textContent = pct(result.burdenPercentOfWages);
+      el('outProfitPerHour').textContent = `${money2(result.grossProfitPerHour)}/h`;
+
+      el('outBreakEven').textContent =
+        result.breakEvenMarkupPercent === null ? 'no markup reaches it' : pct(result.breakEvenMarkupPercent);
+      el('outTargetLabel').textContent = `Markup for a ${pct(result.targetMarginPercent)} margin`;
+      el('outTarget').textContent =
+        result.targetMarkupPercent === null
+          ? 'unreachable on these terms'
+          : pct(result.targetMarkupPercent);
+
+      el('outHours').textContent = result.hours.totalHours.toLocaleString('en-US');
+      el('outWages').textContent = money(result.wages.totalWages);
+      el('outBurdenTotal').textContent = money(result.burden.total);
+      el('outCarry').textContent = money(result.carryCost);
+      el('outBadDebt').textContent = money(result.badDebt);
+      el('outRevenue').textContent = money(result.revenue);
+      el('outProfit').textContent = money(result.grossProfit);
+
+      const burdenList = el('burdenList');
+      burdenList.innerHTML = '';
+      for (const item of result.burden.items) {
+        if (item.amount === 0) continue;
+        const dt = document.createElement('dt');
+        dt.textContent = item.label;
+        const dd = document.createElement('dd');
+        dd.textContent = money(item.amount);
+        burdenList.append(dt, dd);
+      }
+
+      const notes = el('notes');
+      notes.innerHTML = '';
+      for (const note of result.notes) {
+        const li = document.createElement('li');
+        li.textContent = note;
+        notes.append(li);
+      }
+
+      const body = el('ladderBody');
+      body.innerHTML = '';
+      for (const rung of result.ladder) {
+        const tr = document.createElement('tr');
+        if (rung.isEntered) tr.className = 'entered';
+        if (rung.grossProfit < 0) tr.classList.add('loss');
+        for (const text of [
+          pct(rung.markupPercent),
+          `${money2(rung.billRate)}/h`,
+          pct(rung.grossMarginPercent),
+          money(rung.grossProfit),
+        ]) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        body.append(tr);
+      }
+    }
+
+    // Shared by the submit handler and the live-update listener below, so the
+    // two can never compute a different answer for the same inputs.
+    function priceIt() {
+      const result = calculatePlacement(readInput());
+      if (result.ok) render(result);
+      return result;
+    }
+
+    el('placementForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = priceIt();
+      if (!result.ok) {
+        renderErrors(result.errors);
+        return;
+      }
+      count('placement_priced');
+    });
+
+    const restored = restoreBid(SHARE_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+    if (restored.source !== 'none') {
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a shared link — these are the sender’s rates, not yours.'
+        : 'Picked up your last placement from this browser. “Start a fresh placement” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('linkStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, SHARE_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+    // Every keystroke re-prices the placement, silently and without stealing
+    // focus: `priceIt()` only ever repaints the result panel on a currently
+    // valid form and otherwise leaves whatever is already on screen alone, so
+    // a mid-edit invalid value (a field cleared to retype it) does not flash
+    // an error under the visitor's cursor. Validation errors — and the
+    // `placement_priced` count — stay tied to the explicit submit above.
+    //
+    // This also keeps the headline honest for the "Copy shareable link"
+    // button below: before this, editing a field only saved it — the number
+    // on screen stayed the last-priced one until "Price this placement" was
+    // clicked, so a setter who copied a link straight after editing sent a
+    // bid whose numbers matched what they typed but whose own screen still
+    // showed a stale answer, invisible to them (found by
+    // `platform/pages/roundtrip.mjs`, which re-prices the *other* page after
+    // opening the link and compares headlines — mismatched because only one
+    // side had actually recomputed).
+    document.addEventListener('input', () => { persist(); priceIt(); });
+    document.addEventListener('change', () => { persist(); priceIt(); });
+    persist();
+
+    // Open on the restored placement if one exists, or the worked example
+    // otherwise — the eighteen defaults *are* an example placement, and the
+    // page's whole claim — that 45% earns 15.8% and not the 31% the trade
+    // quotes — is invisible until something is on screen. No
+    // `placement_priced` count is recorded here: a page load is not a
+    // pricing, and that event is the denominator of this venture's own usage
+    // question.
+    priceIt();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../ev-charging-site-roi-calculator/" data-pf-to="ev-charging-site-roi-calculator">EV charging station ROI calculator</a></li>
+      <li><a href="../event-rental-inventory-payback-calculator/" data-pf-to="event-rental-inventory-payback-calculator">Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</a></li>
+      <li><a href="../event-seating-chart-optimizer/" data-pf-to="event-seating-chart-optimizer">Event Seating Chart Optimizer — free, private, in your browser</a></li>
+      <li><a href="../exemption-certificate-audit-check/" data-pf-to="exemption-certificate-audit-check">Which of your tax-exempt sales have no certificate? Find out before the auditor does</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=staffing-markup-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/?pfEmbed=1&quot; title=&quot;Staffing Markup Calculator — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="staffing-markup-calculator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/" data-pf-embed-title="Staffing Markup Calculator" data-pf-embed-slug="staffing-markup-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="staffing-markup-calculator" data-pf-jobs-amount="#heroNumber"></script>
+</body>
+</html>

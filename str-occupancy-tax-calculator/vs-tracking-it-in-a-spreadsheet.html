@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. tracking occupancy tax in a spreadsheet | STR Occupancy Tax Calculator</title>
+<meta name="description" content="Occupancy tax on a short-term rental stay is arithmetic, and a spreadsheet can do arithmetic — but the mistake it does not catch on its own is the one that…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. tracking occupancy tax in a spreadsheet">
+<meta property="og:description" content="A hand-built spreadsheet tracks the total tax rate fine. What it rarely tracks, layer by layer, is which of those layers a platform's collection agreement…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't occupancy tax just a total rate I can put in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"The arithmetic is simple — a percentage of a taxable base — and a spreadsheet handles that fine. What it does not do on its own is track each tax layer's remittance status separately: a state sales tax a platform collects automatically sitting next to a county tourist tax it does not. A single blended rate cell answers \"what is owed\" and stays silent on \"who already paid it\", which is the question that actually determines whether a host has a filing to do."}},{"@type":"Question","name":"What does missing that distinction actually cost?","acceptedAnswer":{"@type":"Answer","text":"On the worked example this calculator opens with — a $1,150.00 taxable base, a 6% state layer the platform fully collects, and a 5% county layer it does not — the total tax is $126.50. A spreadsheet tracking only the blended 11% rate shows that figure and nothing else. The host still owes $57.50 in county tax with no reminder that it was never withheld, because the sheet never modeled the platform's collection agreement as a separate fact from the tax rate itself."}},{"@type":"Question","name":"Why not just add a column for what the platform collects?","acceptedAnswer":{"@type":"Answer","text":"You can, and a correctly built sheet gets the same split this calculator does — it is the same arithmetic either way. What a spreadsheet will not do unprompted is flag the case worth flagging: a layer entered at a rate but never marked as either fully covered or fully uncovered, which looks in a cell exactly like a layer already handled. This calculator raises that flag on every stay; a spreadsheet only raises it if someone remembered to build the check."}}]}</script>
+<style>
+  :root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}
+  body{max-width:900px;margin:0 auto;padding:1.5rem}
+  a{color:#143a5e;overflow-wrap:anywhere}
+  .eyebrow{font-weight:700}
+  header{margin:1rem 0}
+  h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.04em}
+  .lede{font-size:1.05rem;max-width:66ch;color:#47535e}
+  section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}
+  h2{margin-top:0}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d5dce1;vertical-align:top}
+  th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#47535e}
+  .fine,.note{font-size:.88rem;color:#47535e}
+  footer{color:#47535e;font-size:.86rem}
+  footer p{margin:.6rem 0}
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. tracking occupancy tax in a spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../str-occupancy-tax-calculator/">STR Occupancy Tax Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. tracking occupancy tax in a spreadsheet</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; STR Occupancy Tax Calculator</a></p>
+<header>
+<h1>This calculator vs. tracking occupancy tax in a spreadsheet</h1>
+<p class="lede">Occupancy tax is arithmetic, and a spreadsheet can do arithmetic. What a hand-built sheet usually misses is not the rate math but which layer of it a platform's collection agreement actually covers.</p>
+</header>
+<section>
+<h2>Where a hand-built spreadsheet usually goes wrong</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Common spreadsheet shortcut</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Tax owed</td><td>One blended rate cell, or one row per authority with only a rate column.</td><td>Up to four named layers, each with its own rate, plus a flat per-night fee some jurisdictions charge separately.</td></tr>
+<tr><td>Who already remitted it</td><td>Usually not modeled at all — a layer entered at a rate looks the same whether or not the platform withholds it.</td><td>A per-layer "platform collects" percentage, splitting every layer into what is already covered and what is left for the host.</td></tr>
+<tr><td>The taxable base</td><td>Often just the nightly total, with the cleaning fee tracked separately and left out of the tax math.</td><td>Nightly rate times nights plus the cleaning fee, since most jurisdictions tax both.</td></tr>
+<tr><td>Does anything I type get uploaded anywhere?</td><td>N/A</td><td>No. The calculation runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table></div>
+</div>
+<h2>What the missing distinction costs, on the calculator's own worked example</h2>
+<p>
+  The stay this calculator opens with is $250 a night for four nights plus a $150 cleaning fee, for a
+  <strong>$1,150.00</strong> taxable base. A 6% state sales tax layer and a 5% county tourist-development tax
+  layer together owe <strong>$126.50</strong>. A spreadsheet tracking only that blended 11% total shows the same
+  figure and stops there.
+</p>
+<p>
+  The platform's collection agreement covers the state layer in full &mdash; <strong>$69.00</strong> &mdash; and
+  none of the county layer. That leaves <strong>$57.50</strong> that never appears on a payout statement and is
+  not withheld anywhere. A host reading only the blended total has no way to see that gap; a host reading a
+  per-layer split sees exactly which $57.50 is theirs to file, on every stay, all year.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+<p class="note">
+  Open the <a href="./">STR Occupancy Tax Calculator</a> to work your own stay, or compare payout fees across
+  platforms with the <a href="../str-host-payout-calculator/">STR host payout calculator</a>.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't occupancy tax just a total rate I can put in a spreadsheet?</h3>
+<p>The arithmetic is simple — a percentage of a taxable base — and a spreadsheet handles that fine. What it does not do on its own is track each tax layer's remittance status separately: a state sales tax a platform collects automatically sitting next to a county tourist tax it does not. A single blended rate cell answers "what is owed" and stays silent on "who already paid it", which is the question that actually determines whether a host has a filing to do.</p>
+<h3>What does missing that distinction actually cost?</h3>
+<p>On the worked example this calculator opens with — a $1,150.00 taxable base, a 6% state layer the platform fully collects, and a 5% county layer it does not — the total tax is $126.50. A spreadsheet tracking only the blended 11% rate shows that figure and nothing else. The host still owes $57.50 in county tax with no reminder that it was never withheld, because the sheet never modeled the platform's collection agreement as a separate fact from the tax rate itself.</p>
+<h3>Why not just add a column for what the platform collects?</h3>
+<p>You can, and a correctly built sheet gets the same split this calculator does — it is the same arithmetic either way. What a spreadsheet will not do unprompted is flag the case worth flagging: a layer entered at a rate but never marked as either fully covered or fully uncovered, which looks in a cell exactly like a layer already handled. This calculator raises that flag on every stay; a spreadsheet only raises it if someone remembered to build the check.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about which taxing authorities apply to a specific listing, what a platform's current collection agreements cover, or what you owe — and the figures on this page are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against each taxing authority's own guidance, the platform's tax pages for that specific address, and a qualified tax professional before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your nightly rate, fees, tax layers and the figures worked out here are never uploaded and never appear in a usage count.</p>
+<p class="support">Free and open source. If it saves you from a surprise county tax bill, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../facebook-marketplace-fee-calculator/" data-pf-to="facebook-marketplace-fee-calculator">Facebook Marketplace Fee Calculator</a></li>
+      <li><a href="../faire-wholesale-calculator/" data-pf-to="faire-wholesale-calculator">Faire Seller Fee Calculator</a></li>
+      <li><a href="../fba-aged-inventory-fee-analyzer/" data-pf-to="fba-aged-inventory-fee-analyzer">FBA Aged Inventory &amp; Storage Fee Analyzer — free, private, in your browser</a></li>
+      <li><a href="../fba-reimbursement-claim-finder/" data-pf-to="fba-reimbursement-claim-finder">FBA Reimbursement Claim Finder — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=str-occupancy-tax-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="str-occupancy-tax-calculator"></script>
+</body></html>

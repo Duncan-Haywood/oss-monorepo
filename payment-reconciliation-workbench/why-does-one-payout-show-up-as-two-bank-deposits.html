@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Does One Payout Show Up as Two (or More) Bank Deposits?</title>
+<meta name="description" content="See the arithmetic: a $100.00 payout landing as a $60.00 and a $40.00 bank deposit two days apart, matched as a group because they sum to the payout exactly…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/payment-reconciliation-workbench/why-does-one-payout-show-up-as-two-bank-deposits.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why does one payout show up as two bank deposits?">
+<meta property="og:description" content="A worked example: one $100.00 payout, two bank deposits that sum to it exactly, matched as a group — plus what happens when a split deposit does not add up.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/payment-reconciliation-workbench/why-does-one-payout-show-up-as-two-bank-deposits.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does one payout show up as two or more bank deposits?","acceptedAnswer":{"@type":"Answer","text":"A processor sometimes releases a single payout as more than one bank transfer, or the bank posts it in pieces. A $100.00 payout landing as a $60.00 deposit one day and a $40.00 deposit the next is matched as a single group because the deposits fall inside the date tolerance and sum to the payout exactly. The workbench searches up to the first 18 eligible deposits near a payout, groups up to 8 of them largest-first, and only accepts a group whose total equals the payout to the cent."}},{"@type":"Question","name":"What if the split deposits do not add up exactly, for example a fee was taken from one of them?","acceptedAnswer":{"@type":"Answer","text":"Group matching only accepts an exact sum, so a fee deducted from one leg of a split deposit breaks the total and the group is not formed. The payout is reported as an exception instead, and the workbench pairs it with the nearest unmatched deposit as a lead: for a $100.00 payout against a $96.80 deposit it reads deposit is 3.20 (3.20%) short — consistent with a processor fee deducted from the transfer. That is a hint to verify against the statement, not a match."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#b0451c}.eyebrow{font-weight:700;letter-spacing:.04em;color:#b0451c;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#17324d}.lede{font-size:1.05rem;max-width:64ch;color:#4d5963}section{background:#fff;border:1px solid #d8d2c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324d12;margin:1rem 0}h2{margin-top:0;color:#17324d}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4d5963;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #d8d2c8;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}.fine{font-size:.88rem;color:#4d5963}footer{color:#4d5963;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/payment-reconciliation-workbench/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Why does one payout show up as two bank deposits? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../payment-reconciliation-workbench/">Payment Reconciliation Workbench</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Why does one payout show up as two bank deposits?</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Payment Reconciliation Workbench</a></p>
+<header>
+<h1>Why does one payout show up as two (or more) bank deposits?</h1>
+<p class="lede">A processor sometimes releases a single payout as more than one bank transfer, or the bank simply posts it in pieces. The table below is the exact fixture the workbench's own test suite uses to confirm a split deposit is matched as one group, not left as two unexplained rows.</p>
+</header>
+<section>
+<h2>One payout, two deposits, three days</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<caption>A $100.00 payout on 2026-08-20 lands as a $60.00 deposit on 2026-08-21 and a $40.00 deposit on 2026-08-22 — both inside a 3-day tolerance, and $60.00 + $40.00 = $100.00 exactly.</caption>
+<thead>
+<tr><th scope="col">Row</th><th scope="col">Date</th><th scope="col">Amount</th></tr>
+</thead>
+<tbody>
+<tr><td>Payout</td><td>2026-08-20</td><td>$100.00</td></tr>
+<tr><td>Deposit 1</td><td>2026-08-21</td><td>$60.00</td></tr>
+<tr><td>Deposit 2</td><td>2026-08-22</td><td>$40.00</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Group total: $60.00 + $40.00 = $100.00, matching the payout to the cent. Both deposits are inside the 3-day date tolerance, so the workbench marks all three rows <strong>matched</strong> instead of leaving two unexplained deposits and one unexplained payout.</p>
+<p>The search is bounded so a large export cannot freeze the browser: it looks at the first 18 eligible deposits near a payout (sorted largest amount first), and only accepts a group of up to 8 of them. A group is accepted only when its total equals the payout exactly — the workbench never guesses that a near-enough sum is close enough, because a genuine discrepancy would then hide inside a false match.</p>
+<p><a href="./">Open the workbench</a> and upload your own payout and deposit CSVs to see this grouping run on your own data. Nothing you upload is sent anywhere.</p>
+<p class="fine">This page is arithmetic, not accounting or financial advice. It does not tell you whether a discrepancy is acceptable and does not replace review by a qualified professional.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does one payout show up as two or more bank deposits?</h3>
+<p>A processor sometimes releases a single payout as more than one bank transfer, or the bank posts it in pieces. A $100.00 payout landing as a $60.00 deposit one day and a $40.00 deposit the next is matched as a single group because the deposits fall inside the date tolerance and sum to the payout exactly. The workbench searches up to the first 18 eligible deposits near a payout, groups up to 8 of them largest-first, and only accepts a group whose total equals the payout to the cent.</p>
+<h3>What if the split deposits do not add up exactly, for example a fee was taken from one of them?</h3>
+<p>Group matching only accepts an exact sum, so a fee deducted from one leg of a split deposit breaks the total and the group is not formed. The payout is reported as an exception instead, and the workbench pairs it with the nearest unmatched deposit as a lead: for a $100.00 payout against a $96.80 deposit it reads <em>deposit is 3.20 (3.20%) short — consistent with a processor fee deducted from the transfer.</em> That is a hint to verify against the statement, not a match.</p>
+<h3>Can the same bank deposit end up explaining two different payouts?</h3>
+<p>No. Once a deposit is used in a matched group, or offered as the explanation for one exception, the workbench marks it used and will not offer it again. That keeps the review queue from double-counting a single deposit toward two different payouts.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your CSV files and financial data are never uploaded. We count only anonymous feature events in local storage, never people, content, or financial data, with an opt-out on the workbench page.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the workbench.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../nacha-file-validator/" data-pf-to="nacha-file-validator">NACHA File Validator — free, private, in your browser</a></li>
+      <li><a href="../nl-zzp-tax-set-aside-calculator/" data-pf-to="nl-zzp-tax-set-aside-calculator">Netherlands ZZP Tax Set-Aside Calculator. Free, private</a></li>
+      <li><a href="../no-tax-on-tips-overtime-calculator/" data-pf-to="no-tax-on-tips-overtime-calculator">No Tax on Tips &amp; Overtime Calculator — free 2026 deduction estimator</a></li>
+      <li><a href="../nsa-idr-offer-calculator/" data-pf-to="nsa-idr-offer-calculator">No Surprises Act IDR Offer Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=payment-reconciliation-workbench">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="payment-reconciliation-workbench"></script>
+</body></html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Should I Buy Out My Equipment Lease? | Buyout vs. Return Guide</title>
+<meta name="description" content="How to decide whether to pay an equipment lease buyout or return the gear and replace it: why the payoff price alone answers nothing…">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Should I buy out my equipment lease?">
+<meta property="og:description" content="A payoff letter quotes a price, not a decision. Here is what to compare it against — and why a buyout above fair market value can still be the cheaper option.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/should-i-buy-out-my-equipment-lease.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I buy out my equipment lease or return it?","acceptedAnswer":{"@type":"Answer","text":"Compare the two paths on cost per month of use, not on their headline prices. Divide the buyout price by the months of use you expect to get from the equipment, then divide the all-in replacement cost by the months of use you would get from the replacement. Whichever is lower per month is the cheaper path. A payoff letter gives you one of those four numbers, which is why the price on it cannot answer the question on its own."}},{"@type":"Question","name":"Can a buyout above fair market value still be worth paying?","acceptedAnswer":{"@type":"Answer","text":"Yes, and this is the case people most often get wrong. Fair market value tells you what the equipment is worth to sell; it does not tell you what replacing it would cost you. In the worked example on this page the buyout is 3,500 dollars above fair market value, a 32% premium that looks like an overcharge, and buying out is still cheaper by about 4,300 dollars over the equipment's remaining life, because a replacement plus removal plus downtime comes to 37,600 dollars. Being overcharged relative to resale value and being overcharged relative to your alternative are two different things."}},{"@type":"Question","name":"What is the break-even buyout price?","acceptedAnswer":{"@type":"Answer","text":"It is the buyout price at which paying and walking away cost exactly the same per month of use. Below it, buying out is cheaper; above it, replacing is. It is the number worth negotiating against, because it is derived from your alternative rather than from the lessor's schedule. In the worked example the quoted buyout is 14,500 dollars and break-even is 18,800 dollars, so there is 4,300 dollars of room before walking away becomes the better move."}},{"@type":"Question","name":"What costs belong on the return-and-replace side?","acceptedAnswer":{"@type":"Answer","text":"The replacement's purchase price or total new lease cost, plus removal and return costs, plus downtime. Removal covers rigging, drayage, freight, and any end-of-term inspection or reconditioning charge your lease allows the lessor to bill. Downtime is the days of lost production between the old unit leaving and the new one running, priced at what a day is worth to you. Leaving these two out is the most common way this comparison undercounts the cost of walking away, and in the worked example they add 5,600 dollars to a 32,000 dollar replacement."}},{"@type":"Question","name":"Where do I get the fair market value and useful life numbers?","acceptedAnswer":{"@type":"Answer","text":"Both are your own estimates rather than a lookup. For fair market value, a comparable dealer listing, auction result, or classified ad for the same make, model, and age is usually close enough, and a written appraisal is worth it when the number is large. For remaining useful life, your maintenance history and how hard the unit has been run matter more than its age on paper. Both drive the verdict directly, so a rough guess in either one should be treated as producing a rough verdict, not a precise one."}},{"@type":"Question","name":"Does a lease that settles at fair market value have to match an appraisal?","acceptedAnswer":{"@type":"Answer","text":"That depends on what your lease actually says, and the distinction is worth reading before you pay. Some leases set the end-of-term option at true fair market value; others set it on a fixed schedule agreed at signing, which can drift well above what the equipment is worth by the time you exercise it, especially on fast-depreciating gear. If your contract specifies fair market value and the lessor's figure sits well above comparable listings, that is a question to raise before paying rather than after."}}]}</script>
+<style>
+:root{color-scheme:light;--ink:#16232b;--muted:#4d5b63;--paper:#f4f1ea;--accent:#1a4f60;--line:#d6cfc2;font:16px/1.55 system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font:800 clamp(1.9rem,6vw,3rem)/1.04 Georgia,serif;letter-spacing:-.02em;margin:.2em 0;color:var(--accent)}
+h2{color:var(--accent);font-size:1.15rem;margin-top:1.7em}
+h3{font-size:1rem;margin-top:1.4em}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--line)}
+th{color:var(--accent)}
+a{color:var(--accent)}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700}
+.key{border-left:4px solid var(--accent);background:#eaf2f5;padding:12px 15px;margin:1.2em 0}
+footer{border-top:1px solid var(--line);padding-top:18px;margin-top:2em;font-size:.85rem;color:var(--muted)}
+</style><link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/should-i-buy-out-my-equipment-lease.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Should I buy out my equipment lease? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../equipment-lease-buyout-calculator/">Equipment lease buyout calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Should I buy out my equipment lease?</span></span></nav>
+<p><a href="./">&larr; Equipment lease buyout calculator</a></p>
+<h1>Should I buy out my equipment lease?</h1>
+<p>A lease-end payoff letter quotes one number: what the lessor wants to hand you the title. It does not say whether that number is good. The same $14,500 buyout is expensive on a machine worth $9,000 with a year left in it, and cheap on one that would cost $32,000 and four days of downtime to replace. The price is only half a comparison, and the letter never contains the other half.</p>
+<p><a class="cta" href="./">Open the free buyout calculator</a></p>
+
+<h2>Compare cost per month of use, not prices</h2>
+<p>The two options buy different things for different lengths of time, so their headline prices are not comparable. Putting them on a common footing takes four numbers:</p>
+<ul>
+<li><strong>The buyout price</strong>, from the payoff letter.</li>
+<li><strong>The months of use you expect to get</strong> if you pay it and keep running the equipment.</li>
+<li><strong>The all-in cost of replacing it</strong> &mdash; purchase or new lease, plus removal, plus downtime.</li>
+<li><strong>The months of use the replacement would give you</strong>, which is usually longer, and that difference matters.</li>
+</ul>
+<p>Divide each price by its own months and you get two figures that mean the same thing: dollars per month of use. That is the comparison the payoff letter is missing.</p>
+
+<h2>Worked example: a 32% premium that is still the better deal</h2>
+<p>A bakery's five-year lease on a rack oven is ending. The lessor quotes $14,500. A comparable used oven of the same age lists around $11,000, so the buyout is $3,500 over fair market value &mdash; a 32% premium, and it reads like an overcharge. The owner expects another 60 months out of the oven. A new equivalent runs $32,000 and would last 120 months; pulling the old one and setting the new one costs $1,800 in rigging and freight, and the swap means 4 days closed at $950 a day.</p>
+<div class="pf-table-scroll"><table>
+<thead><tr><th>Figure</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Buyout price</td><td>$14,500.00</td></tr>
+<tr><td>Remaining useful life if kept</td><td>60 months</td></tr>
+<tr><td><strong>Cost per month &mdash; buy out</strong></td><td><strong>$241.67</strong></td></tr>
+<tr><td>Replacement price</td><td>$32,000.00</td></tr>
+<tr><td>Removal and freight</td><td>$1,800.00</td></tr>
+<tr><td>Downtime (4 days &times; $950)</td><td>$3,800.00</td></tr>
+<tr><td>Total cost to replace</td><td>$37,600.00</td></tr>
+<tr><td>Replacement useful life</td><td>120 months</td></tr>
+<tr><td><strong>Cost per month &mdash; replace</strong></td><td><strong>$313.33</strong></td></tr>
+<tr><td>Break-even buyout price</td><td>$18,800.00</td></tr>
+<tr><td>Premium over fair market value</td><td>$3,500.00 (32%)</td></tr>
+<tr><td>Saving from buying out</td><td>$4,300.00 over 60 months ($71.67/mo)</td></tr>
+</tbody>
+</table></div>
+<div class="key"><p><strong>The premium is real and the buyout is still cheaper.</strong> Both things are true at once. Fair market value measures what the oven is worth to <em>sell</em>; it says nothing about what not having an oven would cost. The buyout would have to reach $18,800 &mdash; $4,300 above the quote, and 71% above fair market value &mdash; before returning it became the better move.</p></div>
+<p>That gap is also the negotiating room. If the lessor will not move off $14,500, the answer is still yes. Knowing break-even sits at $18,800 tells you how hard it is worth pushing, which a payoff letter and a resale listing cannot tell you on their own.</p>
+
+<h2>The two costs people leave out</h2>
+<p><strong>Removal and end-of-term charges.</strong> Rigging, drayage, and freight are obvious once you have paid them and invisible before. Less obvious is the return-condition clause: many leases let the lessor bill inspection or reconditioning at the end of term, so returning equipment is rarely free even when the lease is fully paid. Read that clause before you assume the return side starts at zero.</p>
+<p><strong>Downtime.</strong> The days between the old unit going out and the new one running are a real cost, and one the replacement quote never mentions. In the example above, four days at $950 adds $3,800 &mdash; more than the freight. If the replacement could ship late or need commissioning time, treat that figure as a floor.</p>
+
+<h2>What the arithmetic cannot weigh</h2>
+<p>Cost per month is a starting point for the decision, not the decision. Cashflow timing does not appear in it: a business that cannot free up $14,500 this quarter may rationally take the more expensive path. Neither does availability &mdash; a replacement that is cheaper on paper and twelve weeks out may not be an option at all. Nor does the value of a machine your crew already knows, with a maintenance history you can read. Run the numbers first, then weigh those against them.</p>
+
+<h2>Common questions</h2>
+<h3>Should I buy out my equipment lease or return it?</h3>
+<p>Compare the two paths on cost per month of use, not on their headline prices. Divide the buyout price by the months of use you expect to get from the equipment, then divide the all-in replacement cost by the months of use you would get from the replacement. Whichever is lower per month is the cheaper path. A payoff letter gives you one of those four numbers, which is why the price on it cannot answer the question on its own.</p>
+<h3>Can a buyout above fair market value still be worth paying?</h3>
+<p>Yes, and this is the case people most often get wrong. Fair market value tells you what the equipment is worth to sell; it does not tell you what replacing it would cost you. In the worked example on this page the buyout is 3,500 dollars above fair market value, a 32% premium that looks like an overcharge, and buying out is still cheaper by about 4,300 dollars over the equipment's remaining life, because a replacement plus removal plus downtime comes to 37,600 dollars. Being overcharged relative to resale value and being overcharged relative to your alternative are two different things.</p>
+<h3>What is the break-even buyout price?</h3>
+<p>It is the buyout price at which paying and walking away cost exactly the same per month of use. Below it, buying out is cheaper; above it, replacing is. It is the number worth negotiating against, because it is derived from your alternative rather than from the lessor's schedule. In the worked example the quoted buyout is 14,500 dollars and break-even is 18,800 dollars, so there is 4,300 dollars of room before walking away becomes the better move.</p>
+<h3>What costs belong on the return-and-replace side?</h3>
+<p>The replacement's purchase price or total new lease cost, plus removal and return costs, plus downtime. Removal covers rigging, drayage, freight, and any end-of-term inspection or reconditioning charge your lease allows the lessor to bill. Downtime is the days of lost production between the old unit leaving and the new one running, priced at what a day is worth to you. Leaving these two out is the most common way this comparison undercounts the cost of walking away, and in the worked example they add 5,600 dollars to a 32,000 dollar replacement.</p>
+<h3>Where do I get the fair market value and useful life numbers?</h3>
+<p>Both are your own estimates rather than a lookup. For fair market value, a comparable dealer listing, auction result, or classified ad for the same make, model, and age is usually close enough, and a written appraisal is worth it when the number is large. For remaining useful life, your maintenance history and how hard the unit has been run matter more than its age on paper. Both drive the verdict directly, so a rough guess in either one should be treated as producing a rough verdict, not a precise one.</p>
+<h3>Does a lease that settles at fair market value have to match an appraisal?</h3>
+<p>That depends on what your lease actually says, and the distinction is worth reading before you pay. Some leases set the end-of-term option at true fair market value; others set it on a fixed schedule agreed at signing, which can drift well above what the equipment is worth by the time you exercise it, especially on fast-depreciating gear. If your contract specifies fair market value and the lessor's figure sits well above comparable listings, that is a question to raise before paying rather than after.</p>
+
+<h2>Run it on your own payoff letter</h2>
+<p>The calculator takes the same inputs used above and reports cost per month on both paths, the break-even buyout price, and the premium over fair market value. It runs entirely in your browser.</p>
+<p><a class="cta" href="./">Open the free buyout calculator</a></p>
+<p>Comparing before you sign a lease instead? See how this tool compares to <a href="vs-lendzero.html">Lendzero's lease calculator</a> and <a href="vs-crest-capital.html">Crest Capital's lease calculator</a>.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This guide and the calculator it describes are provided free and as-is, without warranty of any kind, express or implied. Nothing here is financial, accounting, tax, or legal advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Fair market value and useful-life figures are your own estimates, not a lookup this tool performs; the worked example uses illustrative numbers, not market rates. Reviewing your own lease, and any end-of-term condition or purchase-option clause in it, remains yours to do. Everything runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../qsbs-exclusion-calculator/" data-pf-to="qsbs-exclusion-calculator">QSBS Exclusion Calculator — free, Section 1202</a></li>
+      <li><a href="../quarterly-estimated-tax-calendar/" data-pf-to="quarterly-estimated-tax-calendar">Quarterly Estimated Tax Calendar — free, no sign-up</a></li>
+      <li><a href="../quickbooks-chart-of-accounts-csv-check/" data-pf-to="quickbooks-chart-of-accounts-csv-check">QuickBooks Chart of Accounts CSV Check — free, private, in your browser</a></li>
+      <li><a href="../quickbooks-import-csv-check/" data-pf-to="quickbooks-import-csv-check">QuickBooks Import CSV Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=equipment-lease-buyout-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="equipment-lease-buyout-calculator"></script>
+</body>
+</html>

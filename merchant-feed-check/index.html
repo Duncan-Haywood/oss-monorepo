@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Merchant Feed Check — Catch Google/Meta Shopping Feed Errors Before They Disapprove Products</title>
+  <meta name="description" content="Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields…">
+  <meta property="og:title" content="Will this product feed get items disapproved?">
+  <meta property="og:description" content="Check a Google Merchant Center or Meta Catalog product feed for required-field, GTIN, price-format, and promotional-text problems -- deterministic, no account…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Merchant Feed Check","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) against the published product-data specification: required fields, GTIN/MPN identifier rules, price and availability formatting, and known promotional-text disapproval triggers. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this guarantee my products will be approved?","acceptedAnswer":{"@type":"Answer","text":"No. It checks feed data-specification conformance — required fields, formats, GTIN checksums, enum values — which is one documented category of disapproval reason. It cannot see your Merchant Center or Commerce Manager account, your website's trust signals, or Shopping policy review, so it cannot detect misrepresentation, prohibited-product, or landing-page-mismatch disapprovals. Read the full scope on the docs page before relying on a clean report."}},{"@type":"Question","name":"Is my product feed uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever."}},{"@type":"Question","name":"What feed formats does it accept?","acceptedAnswer":{"@type":"Answer","text":"CSV or TSV with a header row (Google's text feed format, or an export from Shopify, WooCommerce, or BigCommerce), or a JSON array of item objects (or {items:[...]}), the shape Meta's Catalog API and many feed tools already use. Column names are matched by common aliases (id/sku/item_id, image_link/image_url, and so on)."}},{"@type":"Question","name":"How is the GTIN checked?","acceptedAnswer":{"@type":"Answer","text":"With the real GS1 check-digit algorithm used for UPC-A, EAN-13, and GTIN-8/12/14 — the same arithmetic barcode scanners use to reject a mistyped code. A GTIN that is the right length but fails the checksum is very likely a typo, not a real product identifier."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 180px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="number"] { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 90px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warning { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .stack > * + * { margin-top: 8px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Will this product feed get items disapproved?","item":"https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Will this product feed get items disapproved? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Will this product feed get items disapproved?</span></span></nav>
+  <header>
+    <p class="note">MERCHANT FEED CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will this product feed get items disapproved?</h1>
+    <p>Paste, load, or drop a Google Merchant Center or Meta Catalog product feed and get a deterministic, item-by-item report against the published product-data specification: missing required fields, invalid GTIN/MPN identifiers, malformed prices, and known promotional-text disapproval triggers.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your feed</h2>
+    <p>
+      <label for="file-input">From a file (CSV, TSV, or JSON — read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".csv,.tsv,.json,.txt">
+    </p>
+    <label for="feed-input">…or paste it directly</label>
+    <textarea id="feed-input" spellcheck="false" placeholder="id,title,description,link,image_link,availability,price,brand,gtin&#10;sku-1,Blue Cotton T-Shirt,A soft breathable blue cotton t-shirt.,https://shop.example.com/blue-tee,https://shop.example.com/blue-tee.jpg,in stock,19.99 USD,Examplewear,4006381333931"></textarea>
+    <label for="max-warnings">Fail the check on warnings too, once there are more than</label>
+    <input type="number" id="max-warnings" min="0" placeholder="never (default)" inputmode="decimal">
+    <p>
+      <button type="button" id="check">Check feed</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What this feed would fail on</h2>
+    <p id="summary"></p>
+    <div id="feed-level-block" hidden>
+      <h3>Feed-level</h3>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Severity</th><th>Code</th><th>Message</th></tr></thead>
+        <tbody id="feed-level-rows"></tbody>
+      </table></div>
+    </div>
+    <div id="items-block" hidden>
+      <h3>Per item</h3>
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Item</th><th>Severity</th><th>Code</th><th>Message</th></tr></thead>
+        <tbody id="item-rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate before you sync the feed?</h2>
+    <p>Same logic, zero dependencies, one file — run it right before your feed generator uploads to Merchant Center or Commerce Manager, or on a schedule against the file your CMS/Shopify/WooCommerce export produces:</p>
+    <pre class="cmd">node cli.mjs check feed.csv                    # human-readable, exit 1 if any error is found
+node cli.mjs check feed.csv --json
+node cli.mjs check feed.csv --max-warnings 0   # also fail the build on warnings</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local file you name: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checks — and what it cannot</h2>
+    <div class="pf-table-scroll"><table>
+      <thead><tr><th>Documented disapproval reason</th><th>Checked here as</th></tr></thead>
+      <tbody id="reasons-rows"></tbody>
+    </table></div>
+    <p class="note">Sources and the exact spec limits used: <a href="why-products-get-disapproved-in-google-merchant-center.html">why products get disapproved in Google Merchant Center, and what a feed checker can and can't see</a>. Also worth a pass: <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, which catches your product pages' own JSON-LD drifting from what Google's Merchant Center feed rules expect it to match. Building or routing feeds to many channels day to day? See <a href="./vs-datafeedwatch.html">this checker vs. DataFeedWatch</a>. Wondering whether scanning the feed yourself is enough? See <a href="./vs-eyeballing-the-feed-in-a-spreadsheet.html">this checker vs. eyeballing the feed in a spreadsheet</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this guarantee my products will be approved?</h3>
+    <p>No. It checks feed data-specification conformance — required fields, formats, GTIN checksums, enum values — which is one documented category of disapproval reason. It cannot see your Merchant Center or Commerce Manager account, your website's trust signals, or Shopping policy review, so it cannot detect misrepresentation, prohibited-product, or landing-page-mismatch disapprovals. Read the full scope on the docs page before relying on a clean report.</p>
+    <h3>Is my product feed uploaded anywhere?</h3>
+    <p>No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever.</p>
+    <h3>What feed formats does it accept?</h3>
+    <p>CSV or TSV with a header row (Google's text feed format, or an export from Shopify, WooCommerce, or BigCommerce), or a JSON array of item objects (or <code>{items:[...]}</code>), the shape Meta's Catalog API and many feed tools already use. Column names are matched by common aliases (<code>id</code>/<code>sku</code>/<code>item_id</code>, <code>image_link</code>/<code>image_url</code>, and so on).</p>
+    <h3>How is the GTIN checked?</h3>
+    <p>With the real GS1 check-digit algorithm used for UPC-A, EAN-13, and GTIN-8/12/14 — the same arithmetic barcode scanners use to reject a mistyped code. A GTIN that is the right length but fails the checksum is very likely a typo, not a real product identifier.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not advice about Shopping Ads policy, account-level compliance, or whether Google or Meta will approve any specific listing — it reports whether the feed data you supplied conforms to the published product-data specification, nothing more. It does not fetch your landing pages and cannot confirm price, availability, or content there matches your feed. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including a disapproved listing, a suspended account, or lost ad spend.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The feed you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Only the barcode column in doubt? The <a href="../gtin-list-check/">GTIN List Check</a> validates check digits and restores zeros Excel dropped, for any product list. It runs in your browser and the file is never uploaded.</p>
+    <p>Running Google Ads too? Drop your search terms report into the <a href="../google-ads-wasted-spend-analyzer/">Google Ads wasted spend analyzer</a> to see how much went to searches that never converted and which negative keywords are safe to add. It runs in your browser and the file is never uploaded.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseFeed, checkFeed, KNOWN_DISAPPROVAL_REASONS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), feed: $("#feed-input"), maxWarnings: $("#max-warnings"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      feedLevelBlock: $("#feed-level-block"), feedLevelRows: $("#feed-level-rows"),
+      itemsBlock: $("#items-block"), itemRows: $("#item-rows"),
+      reasonsRows: $("#reasons-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.reasonsRows.innerHTML = KNOWN_DISAPPROVAL_REASONS.map((r) => `<tr>
+      <td>${escapeHtml(r.reason)}</td>
+      <td><code>${escapeHtml(r.checkedBy)}</code></td>
+    </tr>`).join("");
+
+    function pill(sev) {
+      return `<span class="pill ${sev}">${sev}</span>`;
+    }
+
+    function renderReport() {
+      let items;
+      try {
+        items = parseFeed(els.feed.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!items.length) {
+        els.status.innerHTML = `<span class="bad">Load or paste a feed first (or load the worked example).</span>`;
+        return;
+      }
+      const result = checkFeed(items);
+      els.status.textContent = "";
+
+      const maxWarnings = els.maxWarnings.value === "" ? null : Number(els.maxWarnings.value);
+      const failedOnWarnings = maxWarnings !== null && !Number.isNaN(maxWarnings) && result.totalWarnings > maxWarnings;
+      const wouldFail = result.totalErrors > 0 || failedOnWarnings;
+
+      els.summary.innerHTML = wouldFail
+        ? `<span class="bad">${result.totalItems} item(s) checked: ${result.itemsWithErrors} with errors, ${result.totalErrors} error(s), ${result.totalWarnings} warning(s). This feed would fail a CI gate.</span>`
+        : `<span class="ok">${result.totalItems} item(s) checked: no data-specification errors found (${result.totalWarnings} warning(s)).</span>`;
+
+      const feedLevel = [...result.feedErrors.map((e) => ({ ...e, sev: "error" })), ...result.feedWarnings.map((w) => ({ ...w, sev: "warning" }))];
+      els.feedLevelBlock.hidden = feedLevel.length === 0;
+      els.feedLevelRows.innerHTML = feedLevel.map((r) => `<tr><td>${pill(r.sev)}</td><td><code>${escapeHtml(r.code)}</code></td><td>${escapeHtml(r.message)}</td></tr>`).join("");
+
+      const itemRows = [];
+      for (const { item, errors, warnings } of result.items) {
+        const label = escapeHtml(item.id || "(no id)") + (item.title ? ` — ${escapeHtml(item.title)}` : "");
+        for (const e of errors) itemRows.push(`<tr><td>${label}</td><td>${pill("error")}</td><td><code>${escapeHtml(e.code)}</code></td><td>${escapeHtml(e.message)}</td></tr>`);
+        for (const w of warnings) itemRows.push(`<tr><td>${label}</td><td>${pill("warning")}</td><td><code>${escapeHtml(w.code)}</code></td><td>${escapeHtml(w.message)}</td></tr>`);
+      }
+      els.itemsBlock.hidden = itemRows.length === 0;
+      els.itemRows.innerHTML = itemRows.join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.feed.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_FEED = `id,title,description,link,image_link,availability,price,brand,gtin,google_product_category
+sku-1,Blue Cotton T-Shirt,A soft breathable blue cotton t-shirt in unisex sizing.,https://shop.example.com/blue-tee,https://shop.example.com/blue-tee.jpg,in stock,19.99 USD,Examplewear,4006381333931,Apparel & Accessories > Clothing
+sku-2,GREAT DEAL Red Hoodie 50% off Free Shipping,short,not-a-url,not-a-url,maybe,cheap,,123,
+sku-2,GREAT DEAL Red Hoodie 50% off Free Shipping,short,not-a-url,not-a-url,maybe,cheap,,123,`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.feed.value = EXAMPLE_FEED;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.feed.value = "";
+      els.fileInput.value = "";
+      els.maxWarnings.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../slo-burn-rate-alerts/" data-pf-to="slo-burn-rate-alerts">SLO burn-rate alerts, generated</a></li>
+      <li><a href="../slopsquatting-check/" data-pf-to="slopsquatting-check">Did an AI assistant just suggest a package that doesn't exist?</a></li>
+      <li><a href="../sms-segment-cost-calculator/" data-pf-to="sms-segment-cost-calculator">Why does this text bill as 3 segments?</a></li>
+      <li><a href="../snowflake-warehouse-cost-advisor/" data-pf-to="snowflake-warehouse-cost-advisor">Why is your Snowflake bill so high?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=merchant-feed-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/?pfEmbed=1&quot; title=&quot;Will this product feed get items disapproved? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="merchant-feed-check"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/" data-pf-embed-title="Will this product feed get items disapproved?" data-pf-embed-slug="merchant-feed-check"></script>
+</body>
+</html>

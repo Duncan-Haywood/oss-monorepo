@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRI Checker &amp; Hash Generator vs. checking tags by hand</title>
+<meta name="description" content="Reading a page's view-source for missing integrity attributes finds the obvious gap but not the two that matter more…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sri-check/vs-checking-tags-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SRI Checker &amp; Hash Generator vs. checking tags by hand">
+<meta property="og:description" content="A manual read of a page's source can only catch a missing integrity attribute. It cannot tell whether crossorigin is actually paired with it…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sri-check/vs-checking-tags-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just reading a page's view-source for SRI protection?","acceptedAnswer":{"@type":"Answer","text":"View-source finds the one failure that is visible in the markup itself -- a cross-origin script or stylesheet tag with no integrity attribute at all. It cannot find the other two failures this portfolio's own testing turned up as more common: an integrity attribute paired with no crossorigin attribute, and a declared hash that no longer matches what the CDN currently serves. Both require information the source alone does not contain."}},{"@type":"Question","name":"Can I tell whether a crossorigin attribute is actually enforced just by looking at it?","acceptedAnswer":{"@type":"Answer","text":"No -- the attribute being present in the markup and the browser actually enforcing the pairing are two different facts, and reading the tag only confirms the first. Per the Fetch spec, integrity checking on a cross-origin request requires CORS mode, which the crossorigin attribute opts into; without it, most browsers silently skip the check rather than blocking the resource, so a tag with integrity alone looks identical in source to one that is actually protected. There is no visual difference to eyeball."}},{"@type":"Question","name":"How would I know if a declared hash has gone stale, just by reading the tag?","acceptedAnswer":{"@type":"Answer","text":"You wouldn't -- the tag's integrity value is whatever was written when someone added it, and reading it tells you only what the page's author believed the file's hash was at that time. Whether that value still matches what the CDN serves today requires re-fetching the asset and re-hashing it, which is a network request a manual read of the HTML cannot perform. A hash that has drifted looks exactly like a correct one in the source."}},{"@type":"Question","name":"Is this page making a live comparison against reading source code?","acceptedAnswer":{"@type":"Answer","text":"No. This is a static page describing a manual method every developer already has access to -- opening view-source or devtools and reading the tags by eye. It names no competing product or company. The checker's own CLI requests go straight from your machine to the page URL you name and the assets it references, never through this site."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .eyebrow { font-size: 0.85rem; }
+  .cta { display: inline-block; margin: 1rem 0; padding: 0.6rem 1rem; border-radius: 8px; background: #0a7c42; color: #fff; text-decoration: none; font-weight: 650; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(127,127,127,0.12); }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sri-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SRI Checker &amp; Hash Generator vs. checking tags by hand — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../sri-check/">Subresource Integrity (SRI) Checker &amp; Hash Generator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SRI Checker &amp; Hash Generator vs. checking tags by hand</span></span></nav>
+<main>
+  <p class="eyebrow"><a href="./">&larr; SRI Checker &amp; Hash Generator</a></p>
+  <h1>SRI Checker &amp; Hash Generator vs. checking tags by hand</h1>
+  <p>Reading a page's source for SRI protection is a habit every developer already has -- open view-source or devtools, scan for <code>integrity=</code>. It reliably finds one failure and reliably misses the two that turn out to matter more: a crossorigin pairing gap, and a hash that has quietly gone stale. Both require a real fetch, not a read.</p>
+
+  <p><a class="cta" href="./">Check a page or generate a hash &rarr;</a></p>
+
+  <section>
+    <div class="table-wrap">
+    <div class="pf-table-scroll"><table>
+      <caption>Where a manual read of the tags stops being enough.</caption>
+      <thead>
+        <tr><th scope="col">What you're trying to find</th><th scope="col">Reading the source by hand</th><th scope="col">This checker's CLI</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A cross-origin tag with no <code>integrity</code> attribute at all.</td>
+          <td>Works. This is the one gap that is visible directly in the markup.</td>
+          <td>Also finds it, plus the two below in the same pass.</td>
+        </tr>
+        <tr>
+          <td>An <code>integrity</code> attribute with no matching <code>crossorigin</code> attribute -- which most browsers silently stop enforcing.</td>
+          <td>Only catches it if you already know to check for the second attribute specifically and don't mistake its presence for enforcement.</td>
+          <td>Flags it explicitly, every time, with an explanation of why the pairing matters.</td>
+        </tr>
+        <tr>
+          <td>A declared hash that no longer matches what the CDN currently serves.</td>
+          <td>Cannot be determined from the source alone -- the tag looks identical whether the hash is current or stale. Requires re-fetching the asset.</td>
+          <td>Re-fetches every asset that declares a hash and compares it against what the CDN serves right now.</td>
+        </tr>
+        <tr>
+          <td>Auditing a page you did not write, with dozens of third-party tags.</td>
+          <td>Slow and easy to miss one, especially on a page you did not author yourself.</td>
+          <td>One command covers every cross-origin script and stylesheet tag on the page.</td>
+        </tr>
+        <tr>
+          <td>Running the same check automatically, before every deploy.</td>
+          <td>Not practical to repeat by hand on every change.</td>
+          <td>Exit-code gateable, so it can run in your own CI on every push.</td>
+        </tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>
+      A manual read is still worth doing for a quick sanity check on one tag
+      you just wrote. It stops being reliable the moment the question is
+      "does this whole page's protection still hold" -- which is exactly the
+      question the crossorigin pairing and the hash-drift check exist to
+      answer, and neither is answerable from the HTML alone.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>What's wrong with just reading a page's view-source for SRI protection?</h3>
+    <p>View-source finds the one failure that is visible in the markup itself -- a cross-origin script or stylesheet tag with no integrity attribute at all. It cannot find the other two failures this portfolio's own testing turned up as more common: an integrity attribute paired with no crossorigin attribute, and a declared hash that no longer matches what the CDN currently serves. Both require information the source alone does not contain.</p>
+    <h3>Can I tell whether a crossorigin attribute is actually enforced just by looking at it?</h3>
+    <p>No -- the attribute being present in the markup and the browser actually enforcing the pairing are two different facts, and reading the tag only confirms the first. Per the Fetch spec, integrity checking on a cross-origin request requires CORS mode, which the crossorigin attribute opts into; without it, most browsers silently skip the check rather than blocking the resource, so a tag with integrity alone looks identical in source to one that is actually protected. There is no visual difference to eyeball.</p>
+    <h3>How would I know if a declared hash has gone stale, just by reading the tag?</h3>
+    <p>You wouldn't -- the tag's integrity value is whatever was written when someone added it, and reading it tells you only what the page's author believed the file's hash was at that time. Whether that value still matches what the CDN serves today requires re-fetching the asset and re-hashing it, which is a network request a manual read of the HTML cannot perform. A hash that has drifted looks exactly like a correct one in the source.</p>
+    <h3>Is this page making a live comparison against reading source code?</h3>
+    <p>No. This is a static page describing a manual method every developer already has access to -- opening view-source or devtools and reading the tags by eye. It names no competing product or company. The checker's own CLI requests go straight from your machine to the page URL you name and the assets it references, never through this site.</p>
+    <p><a href="./">Open the SRI Checker &amp; Hash Generator</a>, read <a href="./why-does-sri-need-the-crossorigin-attribute.html">why an integrity attribute with no crossorigin attribute leaves a page unprotected</a>, or see <a href="./vs-srihash.html">how this compares to srihash.org's hash generator</a>.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, documented protection --
+  integrity hashes on cross-origin script and stylesheet tags -- from one page fetch. It is not a full
+  security assessment and does not evaluate inline scripts, iframes, images, fonts, or same-origin code.
+  A clean report describes what this one fetch found, not a guarantee the page has no supply-chain risk.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express
+  or implied. It is not security advice, and it does not replace a qualified security review. <strong>You
+  are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum
+  extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against anything and
+  no network request of any kind -- it is a static page describing a manual method. The checker's own CLI
+  requests go straight from your machine to the page URL you name and the assets it references, never
+  through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>, and optional
+  support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a>
+  never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../webhook-signature-debugger/" data-pf-to="webhook-signature-debugger">Why is my webhook signature failing?</a></li>
+      <li><a href="../wordpress-plugin-review-check/" data-pf-to="wordpress-plugin-review-check">WordPress Plugin Review Checker</a></li>
+      <li><a href="../workflow-audit/" data-pf-to="workflow-audit">One GitHub Action, twelve workflow risks checked</a></li>
+      <li><a href="../actions-artifact-poisoning-check/" data-pf-to="actions-artifact-poisoning-check">Can a fork PR's artifact get executed by your privileged workflow?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sri-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="sri-check"></script>
+</body>
+</html>

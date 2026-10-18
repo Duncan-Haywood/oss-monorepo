@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. tracking Etsy orders in a spreadsheet | Etsy Profit Calculator</title>
+  <meta name="description" content="A seller's own spreadsheet usually hand-types one blended 'Etsy fee %' column and has no field for Offsite Ads…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. tracking Etsy orders in a spreadsheet | Etsy Profit Calculator">
+  <meta property="og:description" content="A spreadsheet's one hand-typed 'Etsy fee %' column has no place for Offsite Ads, the fee that applies per order and never shows up until the statement.">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #a44a1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ded5c8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c554d; }
+    .note { font-size: .85rem; color: #5c554d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or keep tracking orders in my own spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Most sellers get more use out of both. A spreadsheet is where you already track price, cost, and quantity, and it stays the record you own. What it usually does not have is a column for Offsite Ads, because that fee applies per order rather than per listing and Etsy does not flag which sale it hit until the monthly statement arrives -- so most spreadsheets either ignore it or use last month's blended rate, and both read as profit that was never actually kept. This calculator prices every fee an order can carry, including Offsite Ads at organic, 12%, and 15% side by side, so the gap is visible before the statement lands, not after."}},{"@type":"Question","name":"Why does a spreadsheet usually miss the Offsite Ads fee specifically?","acceptedAnswer":{"@type":"Answer","text":"Because nothing on the order itself says it was an Offsite Ads sale. A seller typing a blended fee percentage into a spreadsheet column has one number for every row, set from a past statement or a remembered rate -- typically the listing, transaction, and payment-processing fees a seller checks often. Offsite Ads is a separate, per-order fee (12% or 15% of the order, depending on trailing shop sales) that Etsy applies only when it attributes a sale to that channel, and the attribution is not visible on the order until the statement totals it up weeks later."}},{"@type":"Question","name":"Is this page affiliated with Etsy?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Etsy, Inc. Etsy and Offsite Ads are trademarks of Etsy, Inc. or its affiliates, named here only to describe what this calculator is for."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. tracking Etsy orders in a spreadsheet | Etsy Profit Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../etsy-profit-calculator/">Etsy Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. tracking Etsy orders in a spreadsheet | Etsy Profit Calculator</span></span></nav>
+  <p><a href="./">← Etsy profit calculator</a></p>
+  <h1>This calculator vs. tracking Etsy orders in a spreadsheet</h1>
+  <p>
+    A spreadsheet is where most sellers already track price, materials, and
+    quantity, and it stays the record you own -- this page is not an argument
+    against keeping one. What a spreadsheet usually does not have is a column
+    for <strong>Offsite Ads</strong>: a fee that applies per order, not per
+    listing, and that Etsy does not flag on the order itself. A seller typing
+    a single blended "Etsy fee %" into a spreadsheet column -- set once from
+    a past statement, covering the listing, transaction, and payment-processing
+    fees that are the same on every order -- has no row for the order Etsy
+    attributes to an Offsite Ads click, because that attribution is not
+    visible until the statement totals it up weeks later.
+  </p>
+  <p>
+    A worked example, computed from this calculator's own arithmetic: a $45
+    item with $6.50 shipping charged, $5.00 shipping cost, and $12.00 in
+    materials. A spreadsheet using the blended 9.5% rate (6.5% transaction +
+    3% payment) plus the $0.20 listing fee and $0.25 payment fixed fee
+    computes a profit of <strong>$29.16</strong>. If Etsy attributes this
+    particular sale to an Offsite Ads click at the published 15% rate, the
+    order actually keeps <strong>$21.43</strong> -- the spreadsheet's number
+    was <strong>$7.73 higher than what actually landed</strong>, a 36%
+    overstatement on this one order, and the spreadsheet has no column that
+    would have caught it.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">What a spreadsheet usually does</th><th scope="col">What this calculator does</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>One hand-typed "Etsy fee %" column, covering the fees that are the same on every order.</td>
+        <td>Every fee an order can carry computed from the current rates you enter -- listing, transaction, payment processing, and Offsite Ads.</td>
+      </tr>
+      <tr>
+        <td>No field for Offsite Ads, because the order itself does not say whether Etsy attributed the sale to that channel.</td>
+        <td>Offsite Ads priced at organic, 12%, and 15% side by side, so the gap between "if this order is organic" and "if it isn't" is visible before the statement lands.</td>
+      </tr>
+      <tr>
+        <td>A new formula to write, copy down, and re-check for each follow-on question -- Etsy Plus, Star Seller, a shop sale, a production partner.</td>
+        <td>Nine follow-on decisions already built in, each on the same shop numbers -- see <a href="./#faq">the FAQ</a> on the main page.</td>
+      </tr>
+      <tr>
+        <td>Stays private if you keep it that way, but has to be rebuilt or copied to share a scenario with anyone else.</td>
+        <td>A <strong>shareable link</strong> that carries your inputs after the <code>#</code> in the URL -- never uploaded anywhere, reproduced only in whoever's browser opens that link.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    This tool needs no Etsy account, no shop sign-in, and no spreadsheet
+    software: it is a static page, the arithmetic runs in your browser, and
+    once it has loaded it keeps working with the connection off. Nothing you
+    type is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or keep tracking orders in my own spreadsheet?</h3>
+  <p>Most sellers get more use out of both. A spreadsheet is where you already track price, cost, and quantity, and it stays the record you own. What it usually does not have is a column for Offsite Ads, because that fee applies per order rather than per listing and Etsy does not flag which sale it hit until the monthly statement arrives -- so most spreadsheets either ignore it or use last month's blended rate, and both read as profit that was never actually kept. This calculator prices every fee an order can carry, including Offsite Ads at organic, 12%, and 15% side by side, so the gap is visible before the statement lands, not after.</p>
+  <h3>Why does a spreadsheet usually miss the Offsite Ads fee specifically?</h3>
+  <p>Because nothing on the order itself says it was an Offsite Ads sale. A seller typing a blended fee percentage into a spreadsheet column has one number for every row, set from a past statement or a remembered rate -- typically the listing, transaction, and payment-processing fees a seller checks often. Offsite Ads is a separate, per-order fee (12% or 15% of the order, depending on trailing shop sales) that Etsy applies only when it attributes a sale to that channel, and the attribution is not visible on the order until the statement totals it up weeks later.</p>
+  <h3>Is this page affiliated with Etsy?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Etsy, Inc. Etsy and Offsite Ads are trademarks of Etsy, Inc. or its affiliates, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Open the <a href="./">Etsy profit calculator</a> to run the comparison on
+    your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against your current Etsy statements before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ebay-file-exchange-check/" data-pf-to="ebay-file-exchange-check">eBay File Exchange Check — free, private, in your browser</a></li>
+      <li><a href="../ebay-payout-to-journal/" data-pf-to="ebay-payout-to-journal">eBay payout report to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../ebay-promoted-listings-roi-analyzer/" data-pf-to="ebay-promoted-listings-roi-analyzer">eBay Promoted Listings ROI Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../ebay-transaction-report-analyzer/" data-pf-to="ebay-transaction-report-analyzer">eBay Transaction Report Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=etsy-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="etsy-profit-calculator"></script>
+</body>
+</html>

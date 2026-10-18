@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Funeral Price List Checker — What Is Required, What Is Your Choice</title>
+  <meta name="description" content="Paste a funeral home's price list or quote and see which charges you cannot decline, which are your choice, which are paid to others…">
+  <meta property="og:title" content="Funeral price list checker: what is required, what is your choice">
+  <meta property="og:description" content="Sort every line of a funeral quote, spot charges to question and compare two funeral homes. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Funeral Price List Checker", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the lines of a funeral home's General Price List or quote. The checker sorts each priced line into the fee you cannot decline, what is usually needed, what is your choice and what is paid to someone else, flags charges the FTC Funeral Rule speaks to, and compares two homes. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the FTC Funeral Rule?", "acceptedAnswer": {"@type": "Answer", "text": "A US federal rule (16 CFR 453) that requires funeral homes to give you an itemized General Price List to keep, quote prices by phone, let you buy only the items you want, accept a casket or urn you bought elsewhere without a fee, and not tell you a service is required by law when it is not. It does not cap prices."}}, {"@type": "Question", "name": "Is embalming required by law?", "acceptedAnswer": {"@type": "Answer", "text": "Not by federal law. A few states require it in narrow cases, such as certain kinds of transport or a long delay before burial or viewing. A funeral home may not say it is required unless a law says so, and needs your permission before charging for it. Ask which law applies and whether refrigeration would do."}}, {"@type": "Question", "name": "Do I have to buy a casket for cremation?", "acceptedAnswer": {"@type": "Answer", "text": "No. No casket is required for cremation. A home that offers direct cremation must offer an alternative container, such as unfinished wood or heavy cardboard."}}, {"@type": "Question", "name": "Can a funeral home charge a fee because I bought the casket elsewhere?", "acceptedAnswer": {"@type": "Answer", "text": "Under the FTC Funeral Rule, no. A home must accept a casket or urn you bought elsewhere and may not charge a handling or inspection fee for it. The checker flags any line that looks like one."}}, {"@type": "Question", "name": "Which fee can I not decline?", "acceptedAnswer": {"@type": "Answer", "text": "The basic services fee. It is the one charge the Rule lets a funeral home require, and what it covers differs by home, so compare it across homes."}}, {"@type": "Question", "name": "Does the checker tell me what a fair price is?", "acceptedAnswer": {"@type": "Answer", "text": "No. It sorts each priced line into what it is, adds up each group and compares two homes line by line, so you can see which items are your choice. Prices differ by region and home, and the tool is not legal advice."}}, {"@type": "Question", "name": "Is my price list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page and the page makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #1f4e79; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #1f4e79; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #1f4e79; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #1f4e79; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    
+    
+    .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+    .cal div { padding: 6px 2px; text-align: center; border-radius: 6px; font-size: .8rem; background: #f7f9fb; min-height: 2.6em; }
+    .cal .h { font-weight: 700; color: #55606f; background: none; min-height: 0; }
+    .cal .D { background: #fde9a8; color: #5a3d00; font-weight: 700; }
+    .cal .N { background: #c8d7f5; color: #12285a; font-weight: 700; }
+    .cal .pad { background: none; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .stat { background: #f7f9fb; border-radius: 8px; padding: 10px; } .stat b { display: block; font-size: 1.25rem; color: #17324a; }
+      .pill.fixed { background:#e3e9ef; color:#17324a; } .pill.needed { background:#dcf3e3; color:#14532d; } .pill.optional { background:#fdf1d8; color:#7a4a05; } .pill.third { background:#e6e0f5; color:#3b2a73; } .pill.package { background:#dbeafe; color:#1e3a8a; } .pill.flag { background:#fde8e8; color:#9a3412; } .pill.unknown { background:#eee; color:#444; }
+    td.amt { text-align:right; white-space:nowrap; } .row-note { font-size:.82rem; color:#55606f; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Funeral price list checker: what is required, what is your choice","item":"https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Funeral price list checker: what is required, what is your choice — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Funeral price list checker: what is required, what is your choice</span></span></nav>
+  <header>
+    <p class="note">FUNERAL PRICE LIST CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Which funeral charges are required, and which are your choice?</h1>
+    <p>Paste the lines from a funeral home's <strong>General Price List or quote</strong>. Each priced line is sorted into <strong>the fee you cannot decline</strong>, what is usually needed, <strong>what is your choice</strong> and what is paid to someone else, with charges the <strong>FTC Funeral Rule</strong> speaks to flagged. Paste a second home to compare line by line.</p>
+    <p class="note">Nothing is uploaded. The page makes no network calls. It is a reading aid and not legal advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Home A: paste a price list or quote</h2>
+    <label class="block" for="quoteA">One item per line, price at the end (for example <code>Embalming ..... $795</code>)</label>
+    <textarea id="quoteA" spellcheck="false" placeholder="Basic services of funeral director and staff  $2,195&#10;Embalming  $895&#10;Casket  $2,890"></textarea>
+    <details>
+      <summary>Compare with a second home (optional)</summary>
+      <label class="block" for="quoteB">Home B</label>
+      <textarea id="quoteB" spellcheck="false"></textarea>
+    </details>
+    <p>
+      <button type="button" id="check">Check the list</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <button type="button" class="secondary" id="copy-questions">Copy questions to ask</button>
+    </p>
+    <p class="note" id="status">Paste a list and click Check the list.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2 id="result-title">Result</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="stats" id="stats"></div>
+    <div id="claims"></div>
+    <div class="tableWrap"><div class="pf-table-scroll"><table id="items"><thead><tr><th>Line</th><th>Type</th><th>Price</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" id="unpriced"></p>
+    <p><strong>Questions to ask the funeral home</strong></p>
+    <ul id="questions"></ul>
+  </section>
+
+  <section class="card" id="compare-card" hidden>
+    <h2>Home A against Home B</h2>
+    <p class="verdict" id="compare-verdict"></p>
+    <div class="tableWrap"><div class="pf-table-scroll"><table id="compare"><thead><tr><th>Kind of charge</th><th>Type</th><th>Home A</th><th>Home B</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note">A kind of charge only one home lists is the usual reason two totals differ: check whether the other home folds it into another line or does not offer it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs quote.txt
+node cli.mjs --compare home-a.txt home-b.txt
+node cli.mjs --example</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="funeral.mjs" rel="noopener">funeral.mjs</a> from the repo. Node 18+, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the FTC Funeral Rule?</h3>
+    <p>A US federal rule (16 CFR 453) that requires funeral homes to give you an itemized General Price List to keep, quote prices by phone, let you buy only the items you want, accept a casket or urn you bought elsewhere without a fee, and not tell you a service is required by law when it is not. It does not cap prices.</p>
+    <h3>Is embalming required by law?</h3>
+    <p>Not by federal law. A few states require it in narrow cases, such as certain kinds of transport or a long delay before burial or viewing. A funeral home may not say it is required unless a law says so, and needs your permission before charging for it. Ask which law applies and whether refrigeration would do.</p>
+    <h3>Do I have to buy a casket for cremation?</h3>
+    <p>No. No casket is required for cremation. A home that offers direct cremation must offer an alternative container, such as unfinished wood or heavy cardboard.</p>
+    <h3>Can a funeral home charge a fee because I bought the casket elsewhere?</h3>
+    <p>Under the FTC Funeral Rule, no. A home must accept a casket or urn you bought elsewhere and may not charge a handling or inspection fee for it. The checker flags any line that looks like one.</p>
+    <h3>Which fee can I not decline?</h3>
+    <p>The basic services fee. It is the one charge the Rule lets a funeral home require, and what it covers differs by home, so compare it across homes.</p>
+    <h3>Does the checker tell me what a fair price is?</h3>
+    <p>No. It sorts each priced line into what it is, adds up each group and compares two homes line by line, so you can see which items are your choice. Prices differ by region and home, and the tool is not legal advice.</p>
+    <h3>Is my price list uploaded anywhere?</h3>
+    <p>No. Everything runs in this page and the page makes no network calls.</p>
+    <p>More: <a href="what-is-the-ftc-funeral-rule.html">What the FTC Funeral Rule gives you, and what it does not</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It sorts text by keywords and can misread a line; the funeral home's own price list is authoritative. This is not legal, financial or funeral-planning advice, and state rules differ. <strong>You are responsible for confirming each charge with the funeral home, and with your state regulator if a charge looks wrong, before you rely on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The prices you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>list_checked</code>, <code>homes_compared</code>, <code>questions_copied</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../estate-sale-net-proceeds-calculator/">Estate Sale Net Proceeds Calculator</a> and <a href="../estate-tax-exemption-calculator/">Estate Tax Exemption Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved a family some money, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { STATUS, parseQuote, summarise, compareQuotes, range, EXAMPLE } from "./funeral.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const label = (c) => c.replace(/-/g, " ");
+    let lastQuestions = [];
+
+    function check() {
+      const a = parseQuote($("#quoteA").value);
+      if (!a.items.length) {
+        $("#status").textContent = "No priced lines found. Put each item on its own line with the price at the end.";
+        $("#status").className = "note error";
+        $("#result-card").hidden = true; $("#compare-card").hidden = true;
+        return;
+      }
+      $("#status").className = "note"; $("#status").textContent = "";
+      const s = summarise(a);
+      lastQuestions = s.questions;
+      $("#result-title").textContent = `Home A · ${s.count} priced lines`;
+      const choice = s.byStatus.optional;
+      $("#verdict").textContent = `Total ${range(s.total)} · ${range(choice)} of it is your choice`;
+      $("#stats").innerHTML = ["fixed", "needed", "optional", "third", "package", "flag", "unknown"].filter((k) => s.byStatus[k].count)
+        .map((k) => `<div class="stat"><b>${range(s.byStatus[k])}</b>${escapeHtml(STATUS[k])} (${s.byStatus[k].count})</div>`).join("");
+      $("#claims").innerHTML = s.claims.map((c) => `<div class="finding error"><span class="pill error">Question this</span> ${escapeHtml(c)}</div>`).join("");
+      $("#items tbody").innerHTML = a.items.map((i) => `<tr><td>${escapeHtml(i.label)}<div class="row-note">${escapeHtml(i.note)}</div></td><td><span class="pill ${i.status}">${escapeHtml(STATUS[i.status])}</span></td><td class="amt">${range(i)}</td></tr>`).join("");
+      $("#unpriced").textContent = s.unpriced.length ? `Not counted, no price found: ${s.unpriced.slice(0, 6).join(" · ")}${s.unpriced.length > 6 ? " …" : ""}` : "";
+      $("#questions").innerHTML = s.questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
+      $("#result-card").hidden = false;
+      record("list_checked");
+
+      const bText = $("#quoteB").value;
+      if (bText.trim()) {
+        const b = parseQuote(bText);
+        if (!b.items.length) { $("#compare-card").hidden = true; return; }
+        const c = compareQuotes(a, b);
+        const cheaper = c.diffLow === 0 ? "The two lists total the same (low ends)." : `Home ${c.diffLow > 0 ? "B" : "A"} totals ${range({ low: Math.abs(c.diffLow), high: Math.abs(c.diffLow) })} less (low ends).`;
+        $("#compare-verdict").textContent = `A ${range(c.totalA)} · B ${range(c.totalB)} · ${cheaper}`;
+        $("#compare tbody").innerHTML = c.rows.map((r) => `<tr><td>${escapeHtml(label(r.category))}</td><td><span class="pill ${r.status}">${escapeHtml(STATUS[r.status])}</span></td><td class="amt">${r.a ? range(r.a) : "not listed"}</td><td class="amt">${r.b ? range(r.b) : "not listed"}</td></tr>`).join("");
+        $("#compare-card").hidden = false;
+        record("homes_compared");
+      } else $("#compare-card").hidden = true;
+    }
+
+    $("#check").addEventListener("click", check);
+    $("#load-example").addEventListener("click", () => { $("#quoteA").value = EXAMPLE; check(); record("example_loaded"); });
+    $("#copy-questions").addEventListener("click", async () => {
+      if (!lastQuestions.length) check();
+      if (!lastQuestions.length) return;
+      const text = lastQuestions.map((q) => "- " + q).join("\n");
+      try { await navigator.clipboard.writeText(text); $("#status").textContent = "Questions copied."; }
+      catch { $("#status").textContent = "Copy is blocked here; select the questions in the result and copy them."; }
+      record("questions_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freelance-writer-rate-calculator/" data-pf-to="freelance-writer-rate-calculator">Freelance Writer Rate Calculator — per-word vs. flat fee, free</a></li>
+      <li><a href="../freelancer-tax-pack/" data-pf-to="freelancer-tax-pack">Freelancer Tax Pack — free, private, 2026</a></li>
+      <li><a href="../garmin-world-traveler-watchface/" data-pf-to="garmin-world-traveler-watchface">World Traveler | A world-time Garmin watch face</a></li>
+      <li><a href="../gig-driver-net-pay-calculator/" data-pf-to="gig-driver-net-pay-calculator">Gig Driver Net Pay Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=funeral-price-list-checker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/?pfEmbed=1&quot; title=&quot;Funeral price list checker: what is required, what is your choice — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="funeral-price-list-checker"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/" data-pf-embed-title="Funeral price list checker: what is required, what is your choice" data-pf-embed-slug="funeral-price-list-checker"></script>
+</body>
+</html>

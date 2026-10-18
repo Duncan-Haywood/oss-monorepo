@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Flexport | Import Landed Cost Calculator</title>
+  <meta name="description" content="Flexport is a freight forwarder and customs brokerage you sign up for as an ongoing account. This is a free, private, no-account browser tool for one question…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/vs-flexport.html">
+  <meta property="og:title" content="This calculator vs. Flexport">
+  <meta property="og:description" content="Flexport books and moves the shipment and files the customs entry, as a service you sign up for. This free page answers one narrower question first…">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Flexport?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs and a small importer who ships through a forwarder will likely use both. Flexport is a freight forwarder and customs brokerage: it books the shipment, moves the freight, files the customs entry, and is sold as an ongoing account relationship with its own onboarding, rather than a self-service arithmetic tool. This calculator does one narrower thing, before or alongside that: starting from an item cost, a freight quote, and a duty or supplemental tariff rate you already have from your own HTS lookup or broker, it works out total landed cost, cost per unit, and the tariff burden as a percent of the invoice price, applying the Merchandise Processing Fee's floor and ceiling and the Harbor Maintenance Fee's ocean-only condition automatically. It runs free in any browser, keeps no account, and does not book or move anything. An importer who wants a forwarder to handle booking, customs filing, and compliance end to end is better served by Flexport or a comparable freight forwarder; someone who already has a quote and a duty rate and wants an instant, private answer to what a shipment lands at per unit is in the right place here."}},{"@type":"Question","name":"Does Flexport already show me landed cost?","acceptedAnswer":{"@type":"Answer","text":"Flexport's own platform is built around managing shipments booked through it, with visibility into the freight and duty it is handling for your account. This calculator is not a replacement for that: it is a quick, private worksheet for pricing a shipment before you book it, or for checking a quote or a self-filed entry's arithmetic against the Merchandise Processing Fee and Harbor Maintenance Fee rules by hand, with no account and nothing sent anywhere."}},{"@type":"Question","name":"Is this page affiliated with Flexport?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Flexport, Inc. Flexport is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2028; background: #f2f0f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    a { color: #4c2f9e; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; background: #fdfcff; } th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d6d0e6; vertical-align: top; }
+    .note { font-size: .9rem; color: #5b566c; } footer { margin-top: 28px; font-size: .82rem; color: #5b566c; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/vs-flexport.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. Flexport — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../import-landed-cost-calculator/">Import Landed Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. Flexport</span></span></nav>
+  <p><a href="./">&larr; Import landed cost calculator</a></p>
+  <h1>This calculator vs. Flexport</h1>
+  <p>
+    Two different shapes: <strong>Flexport</strong> is a freight forwarder
+    and customs brokerage you sign up for as an ongoing account &mdash; it
+    books the shipment, moves the freight, and files the customs entry.
+    This page is a free, private worksheet for one narrower question:
+    given the item cost, freight quote, and duty or supplemental tariff
+    rate you already have, what does this shipment land at, per unit, and
+    what share of the invoice price is tariff.
+  </p>
+  <p>
+    Flexport's own pricing and account terms are not reachable from this
+    session to confirm today's figures, so no dollar amount for Flexport
+    appears anywhere on this page &mdash; only its well-documented identity
+    and category (a freight forwarder and customs brokerage sold as an
+    ongoing account relationship) are stated.
+  </p>
+  <p>
+    This calculator does not book freight, does not file a customs entry,
+    and stores nothing on a server. It takes an item cost, freight cost,
+    duty rate, Section 301/supplemental tariff rate, an ocean-freight
+    toggle for the Harbor Maintenance Fee, and a formal/informal-entry
+    toggle for the Merchandise Processing Fee, and turns that into total
+    landed cost, cost per unit, and tariff burden as a percent of invoice
+    price. It runs free in any browser, keeps no account, and uploads
+    nothing you type.
+  </p>
+  <div class="scroller">
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>I need a forwarder to book this shipment, move the freight, and file the customs entry.</td><td>Flexport, or a comparable freight forwarder &mdash; that is not something this calculator does.</td></tr>
+      <tr><td>Given the item cost, freight quote, and duty rate I already have, what does this shipment land at per unit?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+      <tr><td>Did I apply the MPF floor/ceiling and the ocean-only HMF condition correctly?</td><td>This calculator applies both automatically on every calculation.</td></tr>
+      <tr><td>Does the de minimis exemption still apply to this shipment?</td><td>This calculator's <a href="does-the-de-minimis-exemption-still-apply.html">de minimis check</a>.</td></tr>
+      <tr><td>What is my actual HTS classification and duty rate?</td><td>Flexport, a licensed customs broker, or your own HTS lookup &mdash; this calculator prices a rate you already have, it does not classify goods.</td></tr>
+      <tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. Flexport is used through an ongoing account relationship.</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <h2>What this page is not</h2>
+  <p>
+    This calculator is not a replacement for Flexport, or for a freight
+    forwarder or customs broker generally. It does not book freight, does
+    not file a customs entry, and does not determine an HTS classification
+    or a duty rate. Most importers who ship through a forwarder get
+    different value from each: Flexport (or a comparable forwarder) for
+    booking, moving, and filing the shipment as an ongoing service, and a
+    private calculator like this one for an instant, no-login check of
+    what a shipment lands at per unit before you commit to it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Flexport?</h3>
+  <p>They do different jobs and a small importer who ships through a forwarder will likely use both. Flexport is a freight forwarder and customs brokerage: it books the shipment, moves the freight, files the customs entry, and is sold as an ongoing account relationship with its own onboarding, rather than a self-service arithmetic tool. This calculator does one narrower thing, before or alongside that: starting from an item cost, a freight quote, and a duty or supplemental tariff rate you already have from your own HTS lookup or broker, it works out total landed cost, cost per unit, and the tariff burden as a percent of the invoice price, applying the Merchandise Processing Fee's floor and ceiling and the Harbor Maintenance Fee's ocean-only condition automatically. It runs free in any browser, keeps no account, and does not book or move anything. An importer who wants a forwarder to handle booking, customs filing, and compliance end to end is better served by Flexport or a comparable freight forwarder; someone who already has a quote and a duty rate and wants an instant, private answer to what a shipment lands at per unit is in the right place here.</p>
+  <h3>Does Flexport already show me landed cost?</h3>
+  <p>Flexport's own platform is built around managing shipments booked through it, with visibility into the freight and duty it is handling for your account. This calculator is not a replacement for that: it is a quick, private worksheet for pricing a shipment before you book it, or for checking a quote or a self-filed entry's arithmetic against the Merchandise Processing Fee and Harbor Maintenance Fee rules by hand, with no account and nothing sent anywhere.</p>
+  <h3>Is this page affiliated with Flexport?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Flexport, Inc. Flexport is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+  <p class="note">
+    Open the <a href="./">import landed cost calculator</a> to price your own shipment.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not customs, legal, tax, or financial advice, and it does not replace a licensed customs broker or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against Flexport &mdash; it is a static page describing publicly documented facts.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../self-storage-unit-mix-optimizer/" data-pf-to="self-storage-unit-mix-optimizer">Self-storage unit mix optimizer</a></li>
+      <li><a href="../shipping-box-size-optimizer/" data-pf-to="shipping-box-size-optimizer">Shipping Box Size Optimizer — free, private, in your browser</a></li>
+      <li><a href="../tow-motor-club-call-calculator/" data-pf-to="tow-motor-club-call-calculator">Tow Motor Club Call Calculator — free, private, in your browser</a></li>
+      <li><a href="../tow-truck-rate-calculator/" data-pf-to="tow-truck-rate-calculator">Tow truck rate calculator, free</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=import-landed-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="import-landed-cost-calculator"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does an e-bike rental business make: a worked example</title>
+  <meta name="description" content="How to work out what an e-bike rental shop earns: busy and quiet days, half-day and full-day slots, staff, rent, batteries and the replacement reserve…">
+  <meta property="og:title" content="How much does an e-bike rental business make: a worked example">
+  <meta property="og:description" content="How to work out what an e-bike rental shop earns, with a worked twenty-bike example, its payback and the break-even utilization.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/how-much-does-an-ebike-rental-business-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many days a year does an e-bike rental shop need to be busy?","acceptedAnswer":{"@type":"Answer","text":"The calculator does not assume a number: enter your busy and quiet days and their utilization, and it solves the overall utilization at which the season breaks even. Staff and rent are paid on every open day, so a long quiet shoulder season can cost more than it earns."}},{"@type":"Question","name":"Is it better to rent by the half day or the full day?","acceptedAnswer":{"@type":"Answer","text":"A full day uses two half-day slots, so a full-day price below twice the half-day price discounts the bike's time. The calculator blends both using the share of full days you expect, and keeps your price ratio when it solves the lowest prices."}},{"@type":"Question","name":"When does buying more e-bikes stop paying?","acceptedAnswer":{"@type":"Answer","text":"When the extra bikes are rented on fewer days than the first ones. Enter the bigger fleet and the lower utilization you honestly expect in scenario B and compare total profit, profit per bike and payback."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f3f7ef; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #28661f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a1a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a1a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475546; }
+    .card { background: #fff; border: 1px solid #d3dfcc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a1a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5d6f5a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type=file] { display: none; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #28661f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ecdd; color: #1f4a1a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e3ecdd; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #475546; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e8f1e3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1f4a1a; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfcc; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/how-much-does-an-ebike-rental-business-make.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How much does an e-bike rental business make: a worked example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/services/">Service business pricing &amp; quotes</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebike-rental-fleet-profit-calculator/">E-Bike Rental Fleet Profit Calculator — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How much does an e-bike rental business make: a worked example</span></span></nav>
+  <header>
+    <p class="note"><a href="./index.html">← E-Bike Rental Fleet Profit Calculator</a></p>
+    <h1>How much does an e-bike rental business make?</h1>
+    <p>Twenty bikes open 180 days a season rent about 3600 half-day slots. At that level the shop keeps about a fifth of its revenue and the start-up money comes back in under two years. Here is the arithmetic, line by line.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A shop with 20 bikes has 40 half-day slots a day. It is open 100 busy days at 70% utilization and 80 quiet days at 25%, so it rents <strong>3600</strong> of 7200 slots, 50.0% of capacity. Half days sell at $40 and full days at $65, and 45% of rented slots are full days, a blended <strong>$36.63</strong> per slot. The 2790 rentals add $6 each in add-ons, <strong>$16,740</strong>, for <strong>$148,590</strong> of revenue.</p>
+    <p>Staff is 2 people for 9 hours on each of 180 days at $17 an hour plus 12% extras, <strong>$61,690</strong>. Rent, insurance, marketing and other fixed costs are <strong>$28,500</strong>. Damage and theft (3%) and card fees (3%) take $8,915, tires, brakes and charging $6,480 and batteries $2,591.</p>
+    <p>The fleet must be replaced eventually, so the calculator sets aside <strong>$9,533</strong> a season: 20 bikes at $2,200, less 35% resale, over 3 seasons. Total costs are <strong>$117,709</strong> and the season profit is <strong>$30,881</strong>, a margin of 20.8%, or $1,544 per bike.</p>
+    <p>Start-up cost is <strong>$56,000</strong> (the bikes plus $12,000 of racks, locks and chargers), a payback of <strong>1.8</strong> years. The shop breaks even at 38.2% utilization, and a 20% margin needs prices of $39.52 for a half day and $64.23 for a full day.</p>
+  </section>
+  <section class="card">
+    <h2>What if bookings fall short</h2>
+    <p>With 10% fewer bookings the season profit falls to $17,821, and with 20% fewer it is $4,760. Staff and rent do not move, so a bad summer removes profit much faster than it removes revenue.</p>
+  </section>
+  <section class="card">
+    <h2>What a bigger fleet changes</h2>
+    <p>Growing to 30 bikes while utilization slips to 62% on busy days and 22% on quiet days lifts the season profit to <strong>$68,778</strong> and shortens the payback to <strong>1.1</strong> years, but profit per bike falls to $2,293. Each added bike earns less than the first ones, which is why the utilization you enter for the bigger fleet matters more than the number of bikes.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many days a year does an e-bike rental shop need to be busy?</h3>
+    <p>The calculator does not assume a number: enter your busy and quiet days and their utilization, and it solves the overall utilization at which the season breaks even. Staff and rent are paid on every open day, so a long quiet shoulder season can cost more than it earns.</p>
+    <h3>Is it better to rent by the half day or the full day?</h3>
+    <p>A full day uses two half-day slots, so a full-day price below twice the half-day price discounts the bike's time. The calculator blends both using the share of full days you expect, and keeps your price ratio when it solves the lowest prices.</p>
+    <h3>When does buying more e-bikes stop paying?</h3>
+    <p>When the extra bikes are rented on fewer days than the first ones. Enter the bigger fleet and the lower utilization you honestly expect in scenario B and compare total profit, profit per bike and payback.</p>
+    <p><a href="./index.html">Run your own numbers in the calculator.</a></p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice, and it does not model insurance claims, permits, licences or taxes. Prices, costs and local rules change; confirm them with your insurer, your city and your advisors before you commit money.</p>
+    <p><strong>Independent.</strong> Not affiliated with any e-bike maker, rental software or insurer, and none is named or ranked here. The example shop is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that any result is fit for a particular purpose.</p>
+    <p>Everything runs in your browser. Nothing you enter is uploaded; there are no accounts or cookies.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../ppf-ceramic-coating-price-calculator/" data-pf-to="ppf-ceramic-coating-price-calculator">PPF and Ceramic Coating Bid Calculator — free, private</a></li>
+      <li><a href="../private-chef-service-price-calculator/" data-pf-to="private-chef-service-price-calculator">Private Chef Service Price Calculator — free, private</a></li>
+      <li><a href="../private-pilot-training-cost-calculator/" data-pf-to="private-pilot-training-cost-calculator">Private pilot training cost calculator: what will your license really cost? Free, private</a></li>
+      <li><a href="../private-school-tuition-discount-calculator/" data-pf-to="private-school-tuition-discount-calculator">Private School Tuition Discount Calculator — discount rate and net tuition revenue</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebike-rental-fleet-profit-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebike-rental-fleet-profit-calculator"></script>
+</body>
+</html>

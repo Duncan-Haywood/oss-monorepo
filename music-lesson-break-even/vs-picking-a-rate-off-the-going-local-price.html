@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. picking a rate off the going local price | Music Lesson Pricing Calculator</title>
+<meta name="description" content="Copying the going local per-lesson rate tells you what other teachers charge, not what your own week actually needs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. picking a rate off the going local price">
+<meta property="og:description" content="A $50 rate that matches every other teacher's website can still pay $25.55 an hour once travel and cancellations are counted…">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does picking a rate off the going local price actually tell you?","acceptedAnswer":{"@type":"Answer","text":"It tells you what nearby teachers or studios post, which is a starting point for staying competitive -- not a statement about whether that number covers your own cancellations, prep and travel time, studio costs, or income target. Two teachers charging the same $50 can be in very different positions: one drives nowhere and rarely gets cancelled on, the other spends 25 minutes traveling to every lesson and loses 15% of bookings to no-shows. The going rate cannot see either difference."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own figures: a teacher charging the going local rate of $50 a lesson, teaching 16 lessons a week for 44 weeks with 15% cancellations, 10 minutes of prep and 25 minutes of travel per lesson, and $120 a month in costs, nets $28,480 a year for 1,114.7 real hours of work -- an effective hourly of $25.55, and $16,520 short of a $45,000 target. The price that actually reaches that target is $77.61, not $50 -- a $27.61 gap the going rate never surfaces because it was never asked to."}},{"@type":"Question","name":"Is charging the going local rate ever fine?","acceptedAnswer":{"@type":"Answer","text":"For a teacher whose cancellations, prep, travel, and costs happen to sit near what the going rate assumes -- often a studio teacher with no drive time and a stable roster -- the going rate can land close to a sustainable number, because it was probably set by teachers in a similar position. The risk is copying that number into a different week: adding travel, a higher no-show rate, or a specific income target changes the math the going rate never accounted for, and by the time a teacher notices the shortfall a year of lessons has already been taught at it."}},{"@type":"Question","name":"Does this calculator know what other teachers in my area charge?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your local market, competing studios, or what a going rate is in your city. It takes your own lesson price, schedule, cancellation rate, prep and travel time, monthly costs, and target pay, and returns the price, break-even, and effective hourly your own week produces -- the arithmetic a rate copied from someone else's listing skips, not a market survey."}}]}</script>
+<style>:root{font:16px/1.5 system-ui,sans-serif;color:#18212b;background:#f5f1e8;--ink:#18212b;--muted:#5c6870;--line:#c9c2b5;--accent:#5b4fae;--panel:#fffdf8}*{box-sizing:border-box}body{margin:0;color:var(--ink)}main{max-width:850px;margin:auto;padding:36px 18px 60px}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font:clamp(1.8rem,5vw,2.8rem)/1.08 Georgia,serif;max-width:26ch;margin:.3rem 0 1rem}.lede{font-size:1.08rem;max-width:68ch;color:var(--muted)}section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;box-shadow:0 5px 0 #e6dfd2}h2{margin-top:0;font:1.25rem Georgia,serif}a{color:var(--accent);overflow-wrap:anywhere}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.fine,.note{font-size:.88rem;color:var(--muted)}footer{color:var(--muted);font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. picking a rate off the going local price — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../music-lesson-break-even/">Music Lesson Pricing Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. picking a rate off the going local price</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Music Lesson Pricing Calculator</a></p>
+<header>
+<h1>This calculator vs. picking a rate off the going local price</h1>
+<p class="lede">Matching what other teachers post nearby tells you the number is competitive. It says nothing about whether it covers your own cancellations, prep and travel time, studio costs, or the income you actually need &mdash; the arithmetic this calculator does instead.</p>
+</header>
+<section>
+<h2>What picking the going local rate is</h2>
+<p>
+Checking what nearby teachers or studios charge and matching it &mdash;
+or pricing a little under it &mdash; is the fastest way to set a rate.
+It needs no arithmetic, and it keeps a new teacher's price from looking
+out of line with the market they are entering.
+</p>
+<p>
+What it cannot do is see the week behind that number. The going rate is
+an average (or a guess at one) across teachers with different
+cancellation rates, different amounts of drive time, different prep
+habits, and different income needs. Copying it assumes your week looks
+like theirs.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter
+your lesson price, scheduled lessons per week, teaching weeks per year,
+cancellation rate, prep and travel minutes per lesson, monthly costs,
+and target annual pay. It returns the break-even price, the price that
+reaches your target, your current annual revenue, and the effective
+hourly rate once prep, travel, and cancelled slots are counted &mdash;
+for your own week, not the going rate for lessons in general.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What the going local rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Reflects what other teachers charge, which may or may not include their own travel time, cancellation rate, or costs.</td>
+<td>Takes your own travel minutes, cancellation rate, and monthly costs, and prices your week specifically.</td>
+</tr>
+<tr>
+<td>Has no line for an income target, so it cannot say whether the number supports the pay you actually need.</td>
+<td>Compares your current price against the price that reaches your stated target annual pay.</td>
+</tr>
+<tr>
+<td>Quotes a per-lesson price, not a per-hour one, so it hides how much of a scheduled slot is unpaid prep and travel time.</td>
+<td>Reports the effective hourly rate once prep and travel minutes are added to every scheduled lesson.</td>
+</tr>
+<tr>
+<td>Does not account for lessons you are scheduled to teach but do not get paid for.</td>
+<td>Applies your cancellation rate to scheduled lessons before pricing, so the target and break-even figures are built on paid lessons, not scheduled ones.</td>
+</tr>
+<tr>
+<td>Gives a single number to charge, not a number to check that price against.</td>
+<td>Reports break-even, target price, and effective hourly side by side, so a going rate can be scored against your own numbers before you adopt it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>One going rate, two very different weeks</h2>
+<p>
+Using this calculator's own figures: a teacher who checks nearby
+listings and settles on the going local rate of <strong>$50</strong> a
+lesson, teaching 16 lessons a week for 44 weeks a year with a
+<strong>15%</strong> cancellation rate, 10 minutes of prep and
+<strong>25 minutes of travel</strong> per lesson (a house-call teacher),
+$120 a month in costs, and a <strong>$45,000</strong> annual pay target,
+nets <strong>$28,480</strong> a year across <strong>1,114.7</strong>
+real hours of scheduled, unpaid, and travel time &mdash; an effective
+hourly of just <strong>$25.55</strong>, and <strong>$16,520</strong>
+short of the stated target. The price that actually reaches
+<strong>$45,000</strong> under this same week is
+<strong>$77.61</strong>, not <strong>$50</strong> &mdash; a
+<strong>$27.61</strong>-per-lesson gap the going rate never surfaces,
+because it was set by teachers whose weeks may carry none of this
+teacher's travel time or cancellation rate.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What does picking a rate off the going local price actually tell you?</h3>
+<p>It tells you what nearby teachers or studios post, which is a starting point for staying competitive -- not a statement about whether that number covers your own cancellations, prep and travel time, studio costs, or income target. Two teachers charging the same $50 can be in very different positions: one drives nowhere and rarely gets cancelled on, the other spends 25 minutes traveling to every lesson and loses 15% of bookings to no-shows. The going rate cannot see either difference.</p>
+<h3>How big is the gap in practice?</h3>
+<p>Using this calculator's own figures: a teacher charging the going local rate of $50 a lesson, teaching 16 lessons a week for 44 weeks with 15% cancellations, 10 minutes of prep and 25 minutes of travel per lesson, and $120 a month in costs, nets $28,480 a year for 1,114.7 real hours of work -- an effective hourly of $25.55, and $16,520 short of a $45,000 target. The price that actually reaches that target is $77.61, not $50 -- a $27.61 gap the going rate never surfaces because it was never asked to.</p>
+<h3>Is charging the going local rate ever fine?</h3>
+<p>For a teacher whose cancellations, prep, travel, and costs happen to sit near what the going rate assumes -- often a studio teacher with no drive time and a stable roster -- the going rate can land close to a sustainable number, because it was probably set by teachers in a similar position. The risk is copying that number into a different week: adding travel, a higher no-show rate, or a specific income target changes the math the going rate never accounted for, and by the time a teacher notices the shortfall a year of lessons has already been taught at it.</p>
+<h3>Does this calculator know what other teachers in my area charge?</h3>
+<p>No. It has no data on your local market, competing studios, or what a going rate is in your city. It takes your own lesson price, schedule, cancellation rate, prep and travel time, monthly costs, and target pay, and returns the price, break-even, and effective hourly your own week produces -- the arithmetic a rate copied from someone else's listing skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Music Lesson Pricing Calculator</a> to price your own lessons, see the <a href="./how-to-price-music-lessons.html">full pricing guide</a>, or read how this compares to a studio-management platform like <a href="./vs-mymusicstaff.html">My Music Staff</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or professional teaching advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against any local market data or other teacher's rate &mdash; it is a static page working through this calculator's own figures.</p>
+<p>Free and local-first. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../edi-x12-order-checker/" data-pf-to="edi-x12-order-checker">EDI X12 Order Checker — free, private, in your browser</a></li>
+      <li><a href="../eitc-calculator/" data-pf-to="eitc-calculator">EITC Calculator — free 2025/2026 Earned Income Tax Credit estimator</a></li>
+      <li><a href="../email-list-csv-check/" data-pf-to="email-list-csv-check">Email List CSV Check — free, private, in your browser</a></li>
+      <li><a href="../employee-cost-calculator/" data-pf-to="employee-cost-calculator">Employee vs. Contractor Cost Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=music-lesson-break-even">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="music-lesson-break-even"></script>
+</body></html>

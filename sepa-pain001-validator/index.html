@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SEPA pain.001 Validator — Check a SEPA XML Payment File Before You Upload It</title>
+  <meta name="description" content="Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR…">
+  <meta property="og:title" content="SEPA pain.001 Validator — free, private, in your browser">
+  <meta property="og:description" content="Catch what makes a bank reject a SEPA XML file, with the line, cause and fix, before you upload it. Nothing leaves your device.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SEPA pain.001 Validator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Checks a SEPA credit transfer (pain.001) or direct debit (pain.008) XML file for well-formedness, control sums, IBANs, BICs, dates, field lengths and the SEPA character set before it goes to the bank, and repairs the control totals and disallowed characters. Runs entirely in your browser; the file is never uploaded.", "featureList": "SEPA pain.001 validator, pain.008 direct debit check, NbOfTxs and CtrlSum recomputation, IBAN mod-97 check, BIC format, TARGET2 holiday execution date, SEPA character set transliteration, duplicate EndToEndId"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I check a SEPA pain.001 file before I upload it to my bank?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the XML or drop the file onto this page. It checks well-formedness, the namespace and version, the required elements, the number of transactions and control sum against the real amounts, every IBAN and BIC, the currency, the execution date against weekends and TARGET2 holidays, field lengths and the SEPA character set, then lists each problem with its line, path, cause and fix."}}, {"@type": "Question", "name": "What does the NbOfTxs and CtrlSum error mean?", "acceptedAnswer": {"@type": "Answer", "text": "NbOfTxs is the number of transactions and CtrlSum is the total of all amounts, stated in the group header and optionally in each payment information block. A bank recomputes both and rejects the file if they differ, which happens after an amount is edited or a transaction is added or deleted by hand. This tool adds the amounts as exact decimals, so 0.10 + 0.20 is 0.30 and not a floating point near-miss."}}, {"@type": "Question", "name": "Which characters are allowed in a SEPA XML file?", "acceptedAnswer": {"@type": "Answer", "text": "Names, references and remittance text may use a-z, A-Z, 0-9 and the characters / - ? : ( ) . , ' + and the space. Accented letters, umlauts, ampersands, at signs, underscores and the euro sign are outside the set and make many banks reject the file. The repair step transliterates them, for example ü to ue, ß to ss and & to +."}}, {"@type": "Question", "name": "Which execution dates does a bank refuse?", "acceptedAnswer": {"@type": "Answer", "text": "A SEPA payment settles on a TARGET2 day, so a requested date on a Saturday, Sunday, New Year's Day, Good Friday, Easter Monday, 1 May, 25 December or 26 December is moved or rejected. A date in the past is rejected by many banks. The report names the reason and gives the next TARGET day."}}, {"@type": "Question", "name": "Can this tool fix my SEPA file?", "acceptedAnswer": {"@type": "Answer", "text": "It can recompute NbOfTxs and CtrlSum from the amounts in the file and transliterate disallowed characters in names and references. It never touches an IBAN, an amount, a currency, a date or an identifier: a wrong IBAN or amount is a payment decision, so it is reported and left to you."}}, {"@type": "Question", "name": "Is it safe to put a payment file with IBANs into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. IBANs are masked in the report and the downloaded findings list. Names and references are shown as they appear in your file. Your own policies still decide whether you may open a payment file in a browser."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Full XSD validation and element order, your bank's own rules and limits, whether an IBAN exists or belongs to the named person, the creditor identifier check digits, mandate status, cut-off times, instant payments (pain.001 with SCT Inst), and message versions other than pain.001.001.03, pain.001.001.09, pain.008.001.02 and pain.008.001.08. A clean result is not a promise of acceptance."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .path { font: 12px ui-monospace, monospace; color: #4c5a68; word-break: break-all; }
+    .fix { color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"SEPA pain.001 Validator — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SEPA pain.001 Validator — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">SEPA pain.001 Validator — free, private, in your browser</span></span></nav>
+  <header>
+    <p class="note">SEPA PAIN.001 VALIDATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your bank accept this SEPA XML file?</h1>
+    <p>Paste or drop a <strong>SEPA credit transfer (pain.001)</strong> or <strong>direct debit (pain.008)</strong> file and get every problem with its <strong>line, path, cause and fix</strong>: well-formedness, required elements, <strong>NbOfTxs and CtrlSum recomputed</strong> from the amounts, IBAN and BIC checks, EUR, execution dates on a weekend or TARGET2 holiday, field lengths, the SEPA character set and duplicate references. Then <strong>repair the totals and the characters</strong> in one click.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. IBANs are masked in the report. Independent of the EPC and of every bank. Reference data (IBAN lengths, SEPA countries, TARGET2 closing days, the character set) is read from memory of public sources; no bank's own validator was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your SEPA file</h2>
+    <p class="note">Usually a <code>.xml</code> file exported from accounting, payroll or your banking software, starting with <code>&lt;Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"&gt;</code>.</p>
+    <label for="file">Choose an XML file</label>
+    <input type="file" id="file" accept=".xml,text/xml,application/xml,text/plain">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;Document xmlns=&quot;urn:iso:std:iso:20022:tech:xsd:pain.001.001.03&quot;&gt; ..."></textarea>
+    <label for="prior">MsgIds you have already sent (optional, one per line or comma-separated)</label>
+    <textarea id="prior" class="small" spellcheck="false" placeholder="MSG-2026-0001"></textarea>
+    <p>
+      <button type="button" id="validate">Validate</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="load-dd">Load a direct debit example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Validate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Payment blocks</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">PmtInfId</th><th scope="col">Date</th><th class="n" scope="col">Transactions</th><th class="n" scope="col">NbOfTxs says</th><th class="n" scope="col">Sum of amounts</th><th class="n" scope="col">CtrlSum says</th></tr></thead><tbody id="groups"></tbody></table></div></div>
+    <h3>Transactions (IBANs masked)</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">EndToEndId</th><th scope="col">Name</th><th scope="col">IBAN</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="txs"></tbody></table></div></div>
+    <p class="note" id="tx-more"></p>
+    <div id="fix-box" hidden>
+      <h3>Repair the totals and characters</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download repaired file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Versions:</strong> pain.001.001.03 and .09 (credit transfer) and pain.008.001.02 and .08 (direct debit), detected from the namespace. Element names that differ between versions (BIC and BICFI, a bare date and a Dt wrapper) are checked against the declared version.</li>
+      <li><strong>Totals:</strong> every amount is read as an exact decimal and summed as integers, then compared with NbOfTxs and CtrlSum in the group header and in each payment block. No floating point is used.</li>
+      <li><strong>IBAN:</strong> structure, the length for its country and the mod-97 check digits. <strong>BIC:</strong> 8 or 11 characters of the right shape. A well-formed IBAN is not proof the account exists.</li>
+      <li><strong>Dates:</strong> a requested date in the past, on a Saturday or Sunday, or on a TARGET2 closing day (1 January, Good Friday, Easter Monday, 1 May, 25 and 26 December) is flagged with the next TARGET day.</li>
+      <li><strong>Text:</strong> Max35Text, Max70Text and Max140Text limits, and the SEPA character set with a suggested replacement for each character outside it.</li>
+      <li><strong>Repair</strong> recomputes NbOfTxs and CtrlSum where they already exist and transliterates disallowed characters in names and references. It never edits an IBAN, an amount, a currency, a date or an identifier, does not add or delete elements, and does not shorten text.</li>
+      <li><strong>Not checked:</strong> full XSD validation and element order, your bank's own rules and limits, whether an account exists or belongs to the named person, creditor identifier check digits, mandate status, cut-off times, SCT Inst, and other message versions.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I check a SEPA pain.001 file before I upload it to my bank?</h3>
+    <p>Paste the XML or drop the file onto this page. It checks well-formedness, the namespace and version, the required elements, the number of transactions and control sum against the real amounts, every IBAN and BIC, the currency, the execution date against weekends and TARGET2 holidays, field lengths and the SEPA character set, then lists each problem with its line, path, cause and fix.</p>
+    <h3>What does the NbOfTxs and CtrlSum error mean?</h3>
+    <p>NbOfTxs is the number of transactions and CtrlSum is the total of all amounts, stated in the group header and optionally in each payment information block. A bank recomputes both and rejects the file if they differ, which happens after an amount is edited or a transaction is added or deleted by hand. This tool adds the amounts as exact decimals, so 0.10 + 0.20 is 0.30 and not a floating point near-miss.</p>
+    <h3>Which characters are allowed in a SEPA XML file?</h3>
+    <p>Names, references and remittance text may use a-z, A-Z, 0-9 and the characters / - ? : ( ) . , ' + and the space. Accented letters, umlauts, ampersands, at signs, underscores and the euro sign are outside the set and make many banks reject the file. The repair step transliterates them, for example ü to ue, ß to ss and & to +.</p>
+    <h3>Which execution dates does a bank refuse?</h3>
+    <p>A SEPA payment settles on a TARGET2 day, so a requested date on a Saturday, Sunday, New Year's Day, Good Friday, Easter Monday, 1 May, 25 December or 26 December is moved or rejected. A date in the past is rejected by many banks. The report names the reason and gives the next TARGET day.</p>
+    <h3>Can this tool fix my SEPA file?</h3>
+    <p>It can recompute NbOfTxs and CtrlSum from the amounts in the file and transliterate disallowed characters in names and references. It never touches an IBAN, an amount, a currency, a date or an identifier: a wrong IBAN or amount is a payment decision, so it is reported and left to you.</p>
+    <h3>Is it safe to put a payment file with IBANs into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. IBANs are masked in the report and the downloaded findings list. Names and references are shown as they appear in your file. Your own policies still decide whether you may open a payment file in a browser.</p>
+    <h3>What does this not check?</h3>
+    <p>Full XSD validation and element order, your bank's own rules and limits, whether an IBAN exists or belongs to the named person, the creditor identifier check digits, mandate status, cut-off times, instant payments (pain.001 with SCT Inst), and message versions other than pain.001.001.03, pain.001.001.09, pain.008.001.02 and pain.008.001.08. A clean result is not a promise of acceptance.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, payments, compliance, or financial advice, and it does not replace a qualified professional or your bank's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including with your bank before you send a payment file, and a clean result is not a promise that a bank will accept the file.</p>
+    <p><strong>Not affiliated with the EPC or any bank.</strong> SEPA, ISO 20022 and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to the European Payments Council, the ECB, ISO, or any bank or payment processor. The reference data is read from memory of public documents and may not match every bank's variant.</p>
+    <p><strong>Payment data.</strong> SEPA files contain IBANs and the names of the people or companies you pay. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open a payment file in a browser tool is a question for your own security policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>file_repaired</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../nacha-file-validator/">NACHA file validator</a> does the same for US ACH payment files, and the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a> prices a late deposit. Got the bank's answer back? The <a href="../sepa-pain002-status-reader/">SEPA pain.002 status reader</a> explains each rejection code and lists the payments to fix.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, sampleDirectDebit, findingsCsv, decodeBufferInfo, formatScaled } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+      const prior = $("#prior").value.split(/[\n,;]+/).map((s) => s.trim()).filter(Boolean);
+      const r = validate(text, { today, previousMsgIds: prior });
+      lastResult = r;
+      const s = r.summary;
+      const errs = s.errors, warns = s.warnings;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.version ? esc(s.version) : "unrecognised message"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"} in ${s.groups.length} block${s.groups.length === 1 ? "" : "s"}${s.total === null ? "" : ` · total ${formatScaled(s.total)} EUR`}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4>${f.path ? `<p class="path">${esc(f.path)}</p>` : ""}${f.cause ? `<p><strong>Cause:</strong> ${esc(f.cause)}</p>` : ""}${f.fix ? `<p class="fix"><strong>Fix:</strong> ${esc(f.fix)}</p>` : ""}</div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#groups").innerHTML = s.groups.map((g) => `<tr><td>${g.line}</td><td>${esc(g.id)}</td><td>${esc(g.date || "")}</td><td class="n">${g.txs}</td><td class="n">${esc(g.declaredNb ?? "-")}</td><td class="n">${formatScaled(g.sum)}</td><td class="n">${esc(g.declaredSum ?? "-")}</td></tr>`).join("") || `<tr><td colspan="7">No payment block found.</td></tr>`;
+      const shown = s.txList.slice(0, 200);
+      $("#txs").innerHTML = shown.map((t) => `<tr><td>${t.line}</td><td>${esc(t.e2e)}</td><td>${esc(t.name)}</td><td>${esc(t.iban)}</td><td class="n">${esc(t.amount ?? "")} ${esc(t.ccy)}</td></tr>`).join("") || `<tr><td colspan="5">No transactions found.</td></tr>`;
+      $("#tx-more").textContent = s.txList.length > shown.length ? `Showing the first ${shown.length} of ${s.txList.length} transactions.` : "";
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? "Only the lines below change. Every IBAN, amount, currency, date and identifier is left exactly as it is, so check those yourself."
+        : "The control totals and characters already match; nothing to repair." + (fix.skipped.length ? " " + fix.skipped.join(" ") : "");
+      $("#fix-list").innerHTML = fix.changes.map((c) => `<li>Line ${c.line}: ${esc(c.what)}</li>`).join("") + fix.skipped.map((c) => `<li>Not rebuilt: ${esc(c)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s).` : `No errors found.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      let text;
+      if (f) { const d = decodeBufferInfo(await f.arrayBuffer()); text = d.text; } else text = $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_validated");
+    });
+    const example = (fn, note) => () => {
+      $("#paste").value = fn(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = note; }
+    };
+    $("#load-example").addEventListener("click", example(() => sampleFile(), "Worked example: a synthetic file for a made-up company, using public test IBANs."));
+    $("#load-broken").addEventListener("click", example(() => sampleBrokenFile(), "Worked example: the same file after a hand edit, with typical faults."));
+    $("#load-dd").addEventListener("click", example(() => sampleDirectDebit(), "Worked example: a synthetic direct debit file (pain.008.001.02)."));
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#prior").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Validate."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("file_repaired"); download("repaired-sepa.xml", fixedText, "application/xml"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("sepa-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../market-event-picker/" data-pf-to="market-event-picker">Which markets and festivals should you work?</a></li>
+      <li><a href="../market-garden-bed-planner/" data-pf-to="market-garden-bed-planner">Market Garden Bed Planner — free, private, in your browser</a></li>
+      <li><a href="../med-spa-treatment-profit-calculator/" data-pf-to="med-spa-treatment-profit-calculator">Med Spa Treatment Profit Calculator — free</a></li>
+      <li><a href="../medical-bill-error-checker/" data-pf-to="medical-bill-error-checker">Medical Bill Error Checker — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=sepa-pain001-validator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/?pfEmbed=1&quot; title=&quot;SEPA pain.001 Validator — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="sepa-pain001-validator"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/" data-pf-embed-title="SEPA pain.001 Validator — free, private, in your browser" data-pf-embed-slug="sepa-pain001-validator"></script>
+</body>
+</html>

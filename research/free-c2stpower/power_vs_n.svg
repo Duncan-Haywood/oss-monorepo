@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" role="img" aria-label="Power to reject a wrong pendulum twin against number of trajectories, C2ST solid and paired error dashed">
+<rect width="700" height="400" fill="#fff"/>
+<text x="350.0" y="20" text-anchor="middle" font-family="sans-serif" font-size="14">Power to reject a wrong twin (solid: C2ST, dashed: paired error)</text>
+<line x1="60" x2="684" y1="350.0" y2="350.0" stroke="#ddd"/><text x="54" y="354.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="60" x2="684" y1="280.0" y2="280.0" stroke="#ddd"/><text x="54" y="284.0" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<line x1="60" x2="684" y1="210.0" y2="210.0" stroke="#ddd"/><text x="54" y="214.0" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="60" x2="684" y1="140.0" y2="140.0" stroke="#ddd"/><text x="54" y="144.0" text-anchor="end" font-family="sans-serif" font-size="11">0.75</text>
+<line x1="60" x2="684" y1="70.0" y2="70.0" stroke="#ddd"/><text x="54" y="74.0" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="60.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="216.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="372.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="528.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="684.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">800</text>
+<text x="372.0" y="390" text-anchor="middle" font-family="sans-serif" font-size="12">real trajectories n (equal number of twin trajectories)</text>
+<text x="14" y="210.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 210.0)">power at 5% null quantile</text>
+<line x1="60" x2="684" y1="336.0" y2="336.0" stroke="#555" stroke-dasharray="2 3"/>
+<polyline points="60.0,350.0 216.0,327.6 372.0,176.4 528.0,70.0 684.0,70.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="60.0" cy="350.0" r="3" fill="#c0392b"/>
+<circle cx="216.0" cy="327.6" r="3" fill="#c0392b"/>
+<circle cx="372.0" cy="176.4" r="3" fill="#c0392b"/>
+<circle cx="528.0" cy="70.0" r="3" fill="#c0392b"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#c0392b"/>
+<polyline points="60.0,324.8 216.0,308.0 372.0,302.4 528.0,302.4 684.0,294.0" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="60.0" cy="324.8" r="3" fill="#c0392b"/>
+<circle cx="216.0" cy="308.0" r="3" fill="#c0392b"/>
+<circle cx="372.0" cy="302.4" r="3" fill="#c0392b"/>
+<circle cx="528.0" cy="302.4" r="3" fill="#c0392b"/>
+<circle cx="684.0" cy="294.0" r="3" fill="#c0392b"/>
+<rect x="60" y="34" width="14" height="10" fill="#c0392b"/><text x="80" y="43" font-family="sans-serif" font-size="11">coulomb -10%</text>
+<polyline points="60.0,338.8 216.0,280.0 372.0,70.0 528.0,70.0 684.0,70.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="60.0" cy="338.8" r="3" fill="#1f6fb2"/>
+<circle cx="216.0" cy="280.0" r="3" fill="#1f6fb2"/>
+<circle cx="372.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="528.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<polyline points="60.0,137.2 216.0,75.6 372.0,70.0 528.0,70.0 684.0,70.0" fill="none" stroke="#1f6fb2" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="60.0" cy="137.2" r="3" fill="#1f6fb2"/>
+<circle cx="216.0" cy="75.6" r="3" fill="#1f6fb2"/>
+<circle cx="372.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="528.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<rect x="275" y="34" width="14" height="10" fill="#1f6fb2"/><text x="295" y="43" font-family="sans-serif" font-size="11">coulomb -20%</text>
+<polyline points="60.0,92.4 216.0,70.0 372.0,70.0 528.0,70.0 684.0,70.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="60.0" cy="92.4" r="3" fill="#2e8b57"/>
+<circle cx="216.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="372.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="528.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#2e8b57"/>
+<polyline points="60.0,330.4 216.0,330.4 372.0,330.4 528.0,333.2 684.0,338.8" fill="none" stroke="#2e8b57" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="60.0" cy="330.4" r="3" fill="#2e8b57"/>
+<circle cx="216.0" cy="330.4" r="3" fill="#2e8b57"/>
+<circle cx="372.0" cy="330.4" r="3" fill="#2e8b57"/>
+<circle cx="528.0" cy="333.2" r="3" fill="#2e8b57"/>
+<circle cx="684.0" cy="338.8" r="3" fill="#2e8b57"/>
+<rect x="490" y="34" width="14" height="10" fill="#2e8b57"/><text x="510" y="43" font-family="sans-serif" font-size="11">gauss noise, same sd</text>
+</svg>

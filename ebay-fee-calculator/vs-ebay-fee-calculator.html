@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. eBay's own Fee Calculator and Fee Illustrator | eBay Fee &amp; Profit Calculator</title>
+  <meta name="description" content="How this free eBay profit calculator differs from eBay's own official Fee Calculator and Fee Illustrator in Seller Center, and when to use each one.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/vs-ebay-fee-calculator.html">
+  <meta property="og:title" content="This calculator vs. eBay's own Fee Calculator">
+  <meta property="og:description" content="Two different jobs: eBay's own tools, in Seller Center, estimate one listing's fees or recommend a store tier.">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #3569cb; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+    .note { font-size: .85rem; color: #4a5666; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or eBay's own Fee Calculator?","acceptedAnswer":{"@type":"Answer","text":"Most sellers get more use out of both. eBay's own Fee Calculator, in Seller Center, is the fastest place to get a fee estimate for one listing, free to any seller. This page does not try to replace that. What it adds is everything a fee estimate is not built around: cost of goods, net profit, margin and return on invested cash, a break-even and target-margin repricer, expected profit after a typed return rate, and more than twenty-five follow-on decisions on the same sale, from whether Promoted Listings Advanced still pays after a click bill charged either way to whether a store subscription still beats the no-store rate — none of which a single-listing fee estimate covers."}},{"@type":"Question","name":"What about eBay's Fee Illustrator?","acceptedAnswer":{"@type":"Answer","text":"Fee Illustrator answers a narrower, related question: which eBay Store package — Starter, Basic, Premium, Anchor, or Enterprise — is worth it for a seller's own listing volume and format mix. This calculator's own store-tier section asks the same question from the numbers you type into an order, as one of many follow-on decisions rather than a separate tool."}},{"@type":"Question","name":"Is this page affiliated with eBay?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by eBay Inc. eBay, Seller Center, Fee Calculator, Fee Illustrator, Promoted Listings, Managed Returns, Authenticity Guarantee, Global Shipping Program, and Top Rated Plus are trademarks of eBay Inc. or its affiliates, named here only to describe what this calculator is for."}}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/vs-ebay-fee-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. eBay's own Fee Calculator — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../ebay-fee-calculator/">eBay Fee &amp; Profit Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. eBay's own Fee Calculator</span></span></nav>
+  <p><a href="./">← eBay fee &amp; profit calculator</a></p>
+  <h1>This calculator vs. eBay's own Fee Calculator</h1>
+  <p>
+    eBay publishes two free tools for sellers inside
+    <a href="https://www.ebay.com/sellercenter/selling/start-selling-on-ebay/seller-fees" rel="nofollow noopener">Seller Center</a>:
+    a <strong>Fee Calculator</strong> that estimates the fees on one listing,
+    and a <strong>Fee Illustrator</strong> that recommends which Store
+    package fits a seller's volume. Both are free to any seller and both are
+    aimed at eBay's own fee schedule — what a listing or a Store subscription
+    costs, not what a sale leaves after everything else that happens to it.
+  </p>
+  <p>
+    That makes eBay's own tools the right choice for <strong>a quick fee
+    estimate on one listing, or picking a Store tier</strong>, without
+    leaving Seller Center. This calculator does not try to replace either
+    one, and does not attempt to reproduce eBay's live rate card — every
+    fee rate here is a box you type, so it never drifts out of date with a
+    category or promotion change the way a stored table would.
+  </p>
+  <div class="pf-table-scroll"><table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What will eBay charge in fees on this one listing?</td>
+        <td>eBay's own Fee Calculator — Seller Center.</td>
+      </tr>
+      <tr>
+        <td>Which Store package is worth it for my volume?</td>
+        <td>eBay's own Fee Illustrator — Seller Center, or this calculator's <a href="./#storeTiers">store-tier section</a> using your own rate mix.</td>
+      </tr>
+      <tr>
+        <td>What does this sale actually leave after cost of goods, the label, and packaging?</td>
+        <td>This calculator — net profit, margin, and return on invested cash on one screen.</td>
+      </tr>
+      <tr>
+        <td>What does a realistic return rate still leave?</td>
+        <td>This calculator's <a href="./#returns">expected-profit-after-returns</a> section — neither eBay tool estimates returns.</td>
+      </tr>
+      <tr>
+        <td>What price hits a target margin, dollar profit, or ROI?</td>
+        <td>This calculator's repricer, next to the order result.</td>
+      </tr>
+      <tr>
+        <td>Do Promoted Listings, Managed Returns, Authenticity Guarantee, Global Shipping Program, or Top Rated Plus still pay on this same sale?</td>
+        <td>This calculator's linked sections — see the <a href="./">main page</a>.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>
+    Beyond the comparison, this tool keeps your numbers saved in your own
+    browser between visits, and a <strong>shareable link</strong> that
+    carries your inputs after the <code>#</code> in the URL — never
+    uploaded anywhere, and reproduced only in whoever's browser opens that
+    link.
+  </p>
+  <p>
+    This tool needs no eBay account and no listing to exist yet: it is a
+    static page, the arithmetic runs in your browser, and once it has
+    loaded it keeps working with the connection off. Nothing you type is
+    uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or eBay's own Fee Calculator?</h3>
+  <p>Most sellers get more use out of both. eBay's own Fee Calculator, in Seller Center, is the fastest place to get a fee estimate for one listing, free to any seller. This page does not try to replace that. What it adds is everything a fee estimate is not built around: cost of goods, net profit, margin and return on invested cash, a break-even and target-margin repricer, expected profit after a typed return rate, and more than twenty-five follow-on decisions on the same sale, from whether Promoted Listings Advanced still pays after a click bill charged either way to whether a store subscription still beats the no-store rate — none of which a single-listing fee estimate covers.</p>
+  <h3>What about eBay's Fee Illustrator?</h3>
+  <p>Fee Illustrator answers a narrower, related question: which eBay Store package — Starter, Basic, Premium, Anchor, or Enterprise — is worth it for a seller's own listing volume and format mix. This calculator's own store-tier section asks the same question from the numbers you type into an order, as one of many follow-on decisions rather than a separate tool.</p>
+  <h3>Is this page affiliated with eBay?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by eBay Inc. eBay, Seller Center, Fee Calculator, Fee Illustrator, Promoted Listings, Managed Returns, Authenticity Guarantee, Global Shipping Program, and Top Rated Plus are trademarks of eBay Inc. or its affiliates, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Open the <a href="./">eBay fee &amp; profit calculator</a> to run the comparison on your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against eBay's own Fee Calculator in Seller Center and your current eBay invoices before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../twitch-payout-calculator/" data-pf-to="twitch-payout-calculator">Twitch Payout Calculator</a></li>
+      <li><a href="../upwork-connects-roi-calculator/" data-pf-to="upwork-connects-roi-calculator">Are your Upwork Connects paying for themselves?</a></li>
+      <li><a href="../used-car-lot-aging-planner/" data-pf-to="used-car-lot-aging-planner">Which aged units should an independent dealer wholesale today?</a></li>
+      <li><a href="../vendor-contract-clause-reader/" data-pf-to="vendor-contract-clause-reader">Find the cancel-by date and bad clauses in a SaaS contract. Free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=ebay-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="ebay-fee-calculator"></script>
+</body>
+</html>

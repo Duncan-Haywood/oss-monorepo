@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat $2,495 furnace special | Furnace / Heat Pump Bid Calculator</title>
+<meta name="description" content="A flat '$2,495 installed' furnace special cannot see extra duct, attic vs. basement, a matching coil, a gas upsize, or haul-away.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/furnace-bid-calculator/vs-a-flat-2495-furnace-special.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat $2,495 furnace special">
+<meta property="og:description" content="A 60k basement swap with 15 ft of included duct and a 100k attic changeout with a matching coil and a gas upsize are not the same job.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/furnace-bid-calculator/vs-a-flat-2495-furnace-special.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat $2,495 furnace special get a changeout wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is capacity, location, and extras, not \"a furnace\" alone. A 60,000 BTU 80% AFUE basement swap with its first 15 ft of duct included needs a fraction of the labor and material that a 100,000 BTU 96% condensing changeout in an attic needs, with a matching coil, a gas upsize, 40 ft of duct, haul-away of the old unit, and a new thermostat -- none of which scale with a flat installed price. A $2,495 special charges both the same."}},{"@type":"Question","name":"What job is the $2,495 number actually built around?","acceptedAnswer":{"@type":"Answer","text":"One specific job: a smaller 60,000 BTU 80% AFUE furnace, swapped in an accessible basement or open utility space, with no more than the first 15 ft of duct, no matching coil, no gas upsize, no haul-away, and no new thermostat. It is a marketing price meant to get the phone to ring, not a number derived from any particular home's capacity, location, or extras."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped presets, at its own shipped shop rates ($52/hr crew wage, 34% burden, $155 travel and equipment, 18% overhead, a 35% target margin): even the 60k basement swap the $2,495 number is named for has a walk-away cost of $2,608.58 and a bid price of $4,013.20 -- the flat special already sits $113.58 below that job's own break-even cost, before a dollar of profit, and $1,518.20 below the calculator's own bid price. Applied to a 100k 96% condensing changeout in an attic with a matching coil, a gas upsize, 40 ft of duct, haul-away, and a thermostat, the same $2,495 special is $4,616.30 below that job's own $7,111.30 walk-away cost, and $8,445.47 below the calculator's own bid price."}},{"@type":"Question","name":"Is a flat furnace special ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of jobs close to the one the special was built around -- similar capacity, basement or open-utility access, no coil, no gas upsize, no haul-away -- a flat number can land close, though on this calculator's own worked example even that job already runs slightly under cost. The risk is applying it outside that band without noticing, because the postcard price does not know which band a given job is in and neither does the crew until capacity, location, and extras are actually spelled out."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local labor or equipment rates. It takes the capacity, equipment type, location, duct footage, coil, gas upsize, haul-away, thermostat, and your own crew wage, burden, and overhead, and turns that into a price for this job -- the arithmetic a flat special skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1f2430;background:#f4efe8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a4b1a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#5c5348}section{background:#fff;border:1px solid #ddd0bd;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1420330d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ddd0bd;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5c5348}.fine,.note{font-size:.88rem;color:#5c5348}footer{color:#5c5348;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/furnace-bid-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This calculator vs. a flat $2,495 furnace special — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/trades/">Trade &amp; contractor bids</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../furnace-bid-calculator/">Furnace Bid Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This calculator vs. a flat $2,495 furnace special</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Furnace / Heat Pump Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat $2,495 furnace special</h1>
+<p class="lede">&ldquo;$2,495 installed&rdquo; is not a price for a furnace changeout &mdash; it is a price for one specific 60k basement swap, quietly applied to every furnace call that comes in.</p>
+</header>
+<section>
+<h2>What a flat $2,495 furnace special is</h2>
+<p>
+A flat installed price is the fastest number a shop can put on a postcard,
+a search ad, or a truck wrap: one price, no takeoff, easy for a homeowner
+to compare between bids. It works as a lead magnet, and it works for the
+homeowner as a round number to shop other companies against. Nothing
+about the number says which furnace, which location, or which extras it
+was built for.
+</p>
+<p>
+The number was set for one job &mdash; commonly a smaller 60,000 BTU 80%
+AFUE furnace, swapped in an accessible basement with no more than the
+first 15 ft of duct, no matching coil, no gas upsize, no haul-away, and no
+new thermostat &mdash; and then quoted to every caller afterward, whether
+or not the next furnace looks anything like the one the special was
+priced on.
+</p>
+</section>
+<section>
+<h2>What this calculator does instead</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter
+capacity, equipment type (80% AFUE, 96% condensing, or heat pump), and
+location (basement, closet, or attic), with duct footage past the
+included run, a matching coil, a gas upsize, haul-away of the old unit,
+and a thermostat as their own line items, plus your crew's loaded wage,
+travel and equipment, overhead, and target margin. It turns that into the
+price, the effective hourly rate, and a walk-away price below which the
+job loses money &mdash; for this furnace, not the furnace the special was
+built on.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">What a flat $2,495 special does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same price whether the job is a 60,000 BTU basement swap with 15 ft of duct or a 100,000 BTU attic changeout with 40 ft of duct, a matching coil, and a gas upsize.</td>
+<td>Prices extra duct footage, capacity, and location as their own hour and material lines, so a bigger, harder job returns a bigger number instead of the same one.</td>
+</tr>
+<tr>
+<td>Has no line for a matching coil, a gas upsize, haul-away of the old unit, or a new thermostat &mdash; a fully-loaded attic changeout prices the same as a bare basement swap.</td>
+<td>Adds coil hours and material, gas-upsize hours and fittings, haul-away hours and fee, and thermostat hours and cost only when that scope is turned on, so a loaded job shows up in the price instead of being absorbed into it.</td>
+</tr>
+<tr>
+<td>Was priced once, on one furnace, and never re-derived from capacity, location, or extras &mdash; it is a marketing number, not a cost-basis number.</td>
+<td>Recomputes crew hours and materials from the exact capacity, location, and extras entered every time, so the price tracks the job rather than a memory of the postcard rate.</td>
+</tr>
+<tr>
+<td>On this calculator's own 60k basement-swap preset &mdash; the exact job the $2,495 number is named for &mdash; the flat special already sits $113.58 below that job's own walk-away cost, before a dollar of profit.</td>
+<td>Returns a walk-away price of $2,608.58 and a bid price of $4,013.20 for that same basement swap, at this tool's own shop-rate defaults and a 35% target margin.</td>
+</tr>
+<tr>
+<td>Gives the crew a number to quote, not a number to check a quote against.</td>
+<td>Reports the walk-away price, the price per extra duct foot, and the effective hourly rate, so a shopped price can be scored against real cost before the crew commits to it.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</section>
+<section>
+<h2>Two changeouts, the same capacity-blind rate</h2>
+<p>
+Using this calculator's own shipped presets, at its own shipped shop
+rates ($52/hr crew wage, 34% burden, $155 travel and equipment, 18%
+overhead, a 35% target margin):
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead>
+<tr><th scope="col">Job</th><th scope="col">This calculator's price</th><th scope="col">A flat $2,495 special</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>60k 80% AFUE basement swap, first 15 ft of duct included &mdash; the job the flat number is named for</td><td>$4,013.20 bid price; $2,608.58 break-even cost</td><td>$2,495.00</td><td>The flat special runs $113.58 <strong>under</strong> this job's own break-even cost, before a dollar of profit, and $1,518.20 under the calculator's own bid price &mdash; even on the exact job it claims to price.</td></tr>
+<tr><td>100k 96% condensing, attic, matching coil, gas upsize, 40 ft duct, haul-away, thermostat</td><td>$10,940.47 bid price; $7,111.30 break-even cost</td><td>$2,495.00</td><td>The same $2,495 special quotes $4,616.30 <strong>below</strong> this job's own break-even cost, and $8,445.47 below the calculator's bid price.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Both flat-rate rows use the literal $2,495 figure named in the calculator's own worked preset, applied to each job as a flat installed price regardless of capacity, location, or extras. Even the smallest, cheapest job the number is named for already loses money before profit is counted; a bigger changeout turns the same number into a five-figure loss. Run your own job's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat special is not wrong because it is simple &mdash; it is wrong when it
+is applied outside the one furnace it was built on, and nothing about a
+postcard rate tells a shop or a homeowner when that has happened. This
+calculator does not replace judgment about your market; it replaces the
+arithmetic a flat special skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat $2,495 furnace special get a changeout wrong?</h3>
+<p>Because the cost driver is capacity, location, and extras, not "a furnace" alone. A 60,000 BTU 80% AFUE basement swap with its first 15 ft of duct included needs a fraction of the labor and material that a 100,000 BTU 96% condensing changeout in an attic needs, with a matching coil, a gas upsize, 40 ft of duct, haul-away of the old unit, and a new thermostat -- none of which scale with a flat installed price. A $2,495 special charges both the same.</p>
+<h3>What job is the $2,495 number actually built around?</h3>
+<p>One specific job: a smaller 60,000 BTU 80% AFUE furnace, swapped in an accessible basement or open utility space, with no more than the first 15 ft of duct, no matching coil, no gas upsize, no haul-away, and no new thermostat. It is a marketing price meant to get the phone to ring, not a number derived from any particular home's capacity, location, or extras.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped presets, at its own shipped shop rates ($52/hr crew wage, 34% burden, $155 travel and equipment, 18% overhead, a 35% target margin): even the 60k basement swap the $2,495 number is named for has a walk-away cost of $2,608.58 and a bid price of $4,013.20 -- the flat special already sits $113.58 below that job's own break-even cost, before a dollar of profit, and $1,518.20 below the calculator's own bid price. Applied to a 100k 96% condensing changeout in an attic with a matching coil, a gas upsize, 40 ft of duct, haul-away, and a thermostat, the same $2,495 special is $4,616.30 below that job's own $7,111.30 walk-away cost, and $8,445.47 below the calculator's own bid price.</p>
+<h3>Is a flat furnace special ever the right way to quote?</h3>
+<p>For a narrow band of jobs close to the one the special was built around -- similar capacity, basement or open-utility access, no coil, no gas upsize, no haul-away -- a flat number can land close, though on this calculator's own worked example even that job already runs slightly under cost. The risk is applying it outside that band without noticing, because the postcard price does not know which band a given job is in and neither does the crew until capacity, location, and extras are actually spelled out.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local labor or equipment rates. It takes the capacity, equipment type, location, duct footage, coil, gas upsize, haul-away, thermostat, and your own crew wage, burden, and overhead, and turns that into a price for this job -- the arithmetic a flat special skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Furnace / Heat Pump Bid Calculator</a> to price your own job, or read the <a href="how-much-to-charge-to-replace-a-furnace.html">pricing walkthrough</a> for how the math behind it works.
+</p>
+</section>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not HVAC, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a furnace.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../septic-pumping-bid-calculator/" data-pf-to="septic-pumping-bid-calculator">Septic Pumping Bid Calculator</a></li>
+      <li><a href="../sewer-hydrojet-bid-calculator/" data-pf-to="sewer-hydrojet-bid-calculator">Hydro-Jet and Sewer Camera Bid Calculator</a></li>
+      <li><a href="../sewer-line-replace-bid-calculator/" data-pf-to="sewer-line-replace-bid-calculator">Sewer Line Replacement Bid Calculator</a></li>
+      <li><a href="../solar-pv-bid-calculator/" data-pf-to="solar-pv-bid-calculator">Solar PV Install Bid Calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=furnace-bid-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="furnace-bid-calculator"></script>
+</body></html>

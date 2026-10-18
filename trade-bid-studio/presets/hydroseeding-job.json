@@ -1,0 +1,40 @@
+{
+  "slug": "hydroseeding-job-bid-calculator",
+  "name": "Hydroseeding",
+  "group": "Landscaping & outdoor",
+  "summary": "Hydroseeding jobs priced from area, seed and mulch rates, tank loads, spray rate, crew and travel.",
+  "fit": "partial",
+  "crewSize": 2,
+  "setupHours": 1.5,
+  "hourlyWage": 22,
+  "burdenRate": 15,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Spray hydroseed slurry",
+      "unit": "sq ft",
+      "qty": 20000,
+      "hoursPerUnit": 5e-05,
+      "materialPerUnit": 0.03584,
+      "source": "Spray 20,000 sq ft per hour (index.html); per 1,000 sq ft: 4 lb seed x $2.50, 70 lb mulch at $17 per 50-lb bale, $1.50 fertilizer/tackifier, 90 gal water at $6 per 1,000 gal"
+    },
+    {
+      "label": "Refill and mix extra tank load",
+      "unit": "load",
+      "qty": 1,
+      "hoursPerUnit": 0.3333,
+      "materialPerUnit": 0,
+      "source": "20 min per refill (index.html); 1,800 gal / 1,500-gal tank = 2 loads, first load included"
+    },
+    {
+      "label": "Truck travel, round trip",
+      "unit": "mile",
+      "qty": 40,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1.1,
+      "source": "40 round-trip miles x $1.10 per mile (index.html)"
+    }
+  ],
+  "specialistModels": "Rounds slurry to whole tank loads, prices at a per-1,000-sq-ft rate with a $450 minimum and slope premium, and spreads the hydroseeder and fixed cost over the season."
+}

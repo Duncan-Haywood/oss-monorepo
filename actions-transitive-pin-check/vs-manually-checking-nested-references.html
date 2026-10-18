@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. manually checking nested references | Actions Transitive Pin Check</title>
+<meta name="description" content="Clicking through to a pinned reusable workflow or composite action to read its own uses: lines catches one reference at a time…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/vs-manually-checking-nested-references.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. manually checking nested references">
+<meta property="og:description" content="Opening each pinned reusable workflow or composite action on GitHub to read its own uses: lines works for one reference.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can't I just click through to the pinned commit and read its uses: lines myself?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For one reference, yes — open the reusable workflow or composite action at the pinned commit on GitHub, read its action.yml or workflow file, and see whether its own uses: lines are pinned to a SHA or a mutable tag. This tool does exactly that fetch and that read, for every pinned reference in the workflow you paste, in one pass, and reports which ones load something unpinned underneath — rather than you repeating the click-and-read for each line by hand." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does checking by hand actually miss?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not correctness — a careful read of one reference by hand is as accurate as the tool's read of that same reference. What it misses is coverage: a workflow with a dozen pinned steps means a dozen separate page loads and reads, and a repository with many workflow files multiplies that by every file, every time a dependency is bumped. The check that gets skipped because it takes ten minutes is the check that misses the one reference that changed." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: auto; padding: 28px; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.1rem; margin: 22px 0 8px; color: #17324a; }
+  p, li { line-height: 1.55; }
+  .note { font-size: .86rem; color: #55606f; }
+  table { width: 100%; border-collapse: collapse; background: #fff; margin: 10px 0; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+  footer { margin-top: 28px; font-size: .86rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  a { color: #175f8a; }
+</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/vs-manually-checking-nested-references.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="This checker vs. manually checking nested references — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../actions-transitive-pin-check/">Does your pinned workflow load something unpinned underneath it?</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">This checker vs. manually checking nested references</span></span></nav>
+<p><a href="./index.html">&larr; Actions transitive pin check</a></p>
+<h1>This checker vs. manually checking nested references</h1>
+<p>Names no specific product or company &mdash; this compares the free tool against the generic method
+   every maintainer already has: clicking through to each pinned reusable workflow or composite action
+   on GitHub and reading its own <code>uses:</code> lines by eye.</p>
+<div class="pf-table-scroll"><table>
+  <thead><tr><th>Question</th><th>Checking by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Reading one pinned reference's own file</td><td>Open the commit on GitHub, find <code>action.yml</code> or the workflow file, read its <code>uses:</code> lines</td><td>Fetches the same public file from <code>raw.githubusercontent.com</code> and classifies each reference automatically</td></tr>
+    <tr><td>A workflow with a dozen pinned steps</td><td>A dozen separate page loads and reads, one at a time</td><td>One paste, one pass over every pinned reference in the file</td></tr>
+    <tr><td>Re-checking after a dependency bump</td><td>Easy to skip because it is slow, which is exactly when a reference most needs re-checking</td><td>Costs nothing extra to run again; the CLI can also run unattended in CI with <code>--fail-on-risk</code></td></tr>
+    <tr><td>Telling "unpinned underneath" from "couldn't tell"</td><td>A failed or slow page load looks the same as one you didn't get to yet</td><td>A fetch that fails is reported as <strong>unresolved</strong>, never folded into a clean result</td></tr>
+    <tr><td>Judgment about whether your CI is safe overall</td><td>A careful human reading brings context this tool has none of</td><td>Checks one narrow thing and says so &mdash; not a security audit</td></tr>
+  </tbody>
+</table></div>
+<p>Neither method tells you whether a mutable tag it finds is itself trustworthy &mdash; both only establish
+   whether a reference is pinned to a fixed commit or not.</p>
+<h2>Common questions</h2>
+<h3>Can't I just click through to the pinned commit and read its <code>uses:</code> lines myself?</h3>
+<p>For one reference, yes &mdash; open the reusable workflow or composite action at the pinned commit on
+   GitHub, read its <code>action.yml</code> or workflow file, and see whether its own <code>uses:</code>
+   lines are pinned to a SHA or a mutable tag. This tool does exactly that fetch and that read, for every
+   pinned reference in the workflow you paste, in one pass, and reports which ones load something unpinned
+   underneath &mdash; rather than you repeating the click-and-read for each line by hand.</p>
+<h3>What does checking by hand actually miss?</h3>
+<p>Not correctness &mdash; a careful read of one reference by hand is as accurate as the tool's read of
+   that same reference. What it misses is coverage: a workflow with a dozen pinned steps means a dozen
+   separate page loads and reads, and a repository with many workflow files multiplies that by every file,
+   every time a dependency is bumped. The check that gets skipped because it takes ten minutes is the check
+   that misses the one reference that changed.</p>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to raw.githubusercontent.com, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <ul>
+      <li><a href="../bigquery-query-cost-advisor/" data-pf-to="bigquery-query-cost-advisor">Why is your BigQuery bill so high?</a></li>
+      <li><a href="../branch-protection-drift-check/" data-pf-to="branch-protection-drift-check">Has your branch protection drifted from policy?</a></li>
+      <li><a href="../caa-record-check/" data-pf-to="caa-record-check">CAA Record Checker</a></li>
+      <li><a href="../cache-control-check/" data-pf-to="cache-control-check">Cache-Control Checker</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=actions-transitive-pin-check">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="actions-transitive-pin-check"></script>
+</body>
+</html>

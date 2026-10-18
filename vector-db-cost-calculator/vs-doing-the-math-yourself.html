@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vector Database Cost Calculator vs. doing the math yourself</title>
+<meta name="description" content="Comparing vector database providers by hand means reading each vendor's own pricing page, estimating your index's storage footprint yourself…">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/vs-doing-the-math-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vector Database Cost Calculator vs. doing the math yourself">
+<meta property="og:description" content="Reading vendor pricing pages gets you the rates. It doesn't size your index or do the free-tier arithmetic across every provider for you -- and a hand-rolled…">
+<meta property="og:url" content="./vs-doing-the-math-yourself.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read each provider's pricing page and do the arithmetic myself?","acceptedAnswer":{"@type":"Answer","text":"You still have to -- this calculator does not fetch or assert any vendor's price, so the rates always come from you reading the vendor's own current pricing page. What doing it by hand also requires is sizing your index in gigabytes first, then for every provider you are comparing: subtracting its free storage and query allowance, multiplying the remainder by its rate, and adding storage cost to query cost. That is a few minutes of careful arithmetic per provider, repeated for each one, with no check on whether a subtraction or a decimal point slipped."}},{"@type":"Question","name":"What does a hand-rolled storage estimate usually get wrong?","acceptedAnswer":{"@type":"Answer","text":"The shortcut most people reach for is vectorCount times dimension times 4 bytes, then convert to gigabytes and stop there. That is the raw embedding size only. A deployed index adds structure on top of it -- an HNSW graph, quantization bookkeeping, replication -- plus whatever metadata payload rides along with each vector, and both are easy to leave out of a back-of-envelope number because they are not part of the obvious formula. See the worked example above for how much that omission understates the real footprint."}},{"@type":"Question","name":"Is comparing three providers by hand really that error-prone?","acceptedAnswer":{"@type":"Answer","text":"Each provider adds its own free-storage allowance, free-query allowance, storage rate, and query rate -- four numbers to keep straight, repeated for every provider in the comparison, with a subtraction and two multiplications each. Getting one provider's arithmetic right by hand is easy. Keeping all of them consistent across three providers, and re-doing all of it the next time a rate or your workload changes, is where a hand count and a mechanical one start to diverge."}},{"@type":"Question","name":"Does this calculator upload anything I enter?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser, the same as doing the arithmetic on paper -- there is no account, no server call, and no analytics vendor. The only difference is the calculator does not mis-add the columns."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4e9f0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#e7ebf0;padding:.1em .3em;border-radius:4px;font-size:.9em}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Vector Database Cost Calculator vs. doing the math yourself — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/logistics/">Logistics, freight &amp; cloud cost</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../vector-db-cost-calculator/">Vector Database Cost Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Vector Database Cost Calculator vs. doing the math yourself</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vector Database Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. doing the math yourself</h1>
+<p class="lede">Reading each provider's pricing page for its current rates is still on you either way -- this tool never fetches or asserts a vendor's price. What it takes off your plate is sizing the index correctly and running the free-tier-and-rate arithmetic across every provider without a slip.</p>
+</header>
+<section>
+<h2>What each approach actually involves</h2>
+<p>
+  <strong>Doing it yourself</strong> means opening each provider's pricing
+  page, noting its storage rate, its query rate, and any free allowance, then
+  estimating how big your index actually is. The estimate most people reach
+  for by hand is <code>vectorCount &times; dimension &times; 4 bytes</code>,
+  converted to gigabytes -- the raw embedding size. Then, for every provider:
+  subtract its free storage and query allowance from your totals, multiply
+  each remainder by that provider's rate, add storage cost to query cost, and
+  repeat for the next provider.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same rates a pricing-page lookup
+  gives you and the same vector count, dimension, and metadata size you would
+  estimate from by hand -- plus an index-overhead multiplier you set yourself,
+  the piece a raw-bytes shortcut leaves out -- and runs the storage sizing and
+  the per-provider free-tier-and-rate arithmetic for up to three providers at
+  once, ranked cheapest first.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Worked example</th><th scope="col">Doing it yourself (raw vectors only)</th><th scope="col">This calculator</th></tr></thead>
+<tbody>
+<tr><td>1,000,000 vectors &times; 1536 dimensions, 200 B metadata/vector, 1.3&times; index overhead</td><td><strong>5.72 GB</strong> &mdash; <code>vectorCount &times; dimension &times; 4</code>, metadata and overhead left out</td><td><strong>7.68 GB</strong> &mdash; raw vectors + metadata, &times;1.3 overhead</td></tr>
+<tr><td>Provider A: $0.33/GB storage, $8/million queries, no free tier &mdash; at 5 million queries/month</td><td>$41.89/month total</td><td>$42.53/month total</td></tr>
+<tr><td>Provider B: $0.25/GB storage, $5/million queries, 1 GB + 1 million queries free &mdash; at 5 million queries/month</td><td>$21.18/month total</td><td>$21.67/month total</td></tr>
+</tbody>
+</table></div>
+</div>
+<p>
+  The two totals are the calculator's own default inputs, so you can load
+  them on the <a href="./">calculator page</a> and check the arithmetic
+  yourself. The raw-vectors-only shortcut understates this index's storage by
+  about 26% (5.72 GB against the real 7.68 GB) because it counts float32
+  embeddings only and leaves out both the metadata payload and the index
+  structure a deployed database actually builds on top of them -- the exact
+  gap this calculator's own <a href="what-is-vector-index-overhead.html">index
+  overhead</a> field exists to let you account for instead of guessing away.
+  Query cost happens to dominate both totals here, so the ranking does not
+  flip in this example -- but the dollar gap between the two storage
+  estimates scales with index size, and on a storage-heavy workload with a
+  provider's free tier sized close to your real footprint, an understated
+  estimate is exactly the kind of error that puts you on the wrong side of a
+  free-tier boundary without knowing it.
+</p>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want a provider's current storage and query rates, or its free-tier terms.</td><td>The provider's own pricing page &mdash; this calculator never fetches or asserts that for you.</td></tr>
+<tr><td>I want to know how many gigabytes my specific index (vector count, dimension, metadata) actually occupies once the index structure is built, not just the raw vectors.</td><td>This calculator's storage estimator, with the overhead multiplier you set.</td></tr>
+<tr><td>I'm comparing two or three providers and want the free-tier-and-rate arithmetic run consistently across all of them, the same way, every time my workload changes.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>I only have one provider in mind and just want its documented plan details.</td><td>That provider's own pricing page.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just read each provider's pricing page and do the arithmetic myself?</h3>
+<p>You still have to -- this calculator does not fetch or assert any vendor's price, so the rates always come from you reading the vendor's own current pricing page. What doing it by hand also requires is sizing your index in gigabytes first, then for every provider you are comparing: subtracting its free storage and query allowance, multiplying the remainder by its rate, and adding storage cost to query cost. That is a few minutes of careful arithmetic per provider, repeated for each one, with no check on whether a subtraction or a decimal point slipped.</p>
+<h3>What does a hand-rolled storage estimate usually get wrong?</h3>
+<p>The shortcut most people reach for is vectorCount times dimension times 4 bytes, then convert to gigabytes and stop there. That is the raw embedding size only. A deployed index adds structure on top of it -- an HNSW graph, quantization bookkeeping, replication -- plus whatever metadata payload rides along with each vector, and both are easy to leave out of a back-of-envelope number because they are not part of the obvious formula. See the worked example above for how much that omission understates the real footprint.</p>
+<h3>Is comparing three providers by hand really that error-prone?</h3>
+<p>Each provider adds its own free-storage allowance, free-query allowance, storage rate, and query rate -- four numbers to keep straight, repeated for every provider in the comparison, with a subtraction and two multiplications each. Getting one provider's arithmetic right by hand is easy. Keeping all of them consistent across three providers, and re-doing all of it the next time a rate or your workload changes, is where a hand count and a mechanical one start to diverge.</p>
+<h3>Does this calculator upload anything I enter?</h3>
+<p>No. Every field runs in your browser, the same as doing the arithmetic on paper -- there is no account, no server call, and no analytics vendor. The only difference is the calculator does not mis-add the columns.</p>
+<p class="note">
+  Open the <a href="./">Vector Database Cost Calculator</a> to size your own index, read <a href="what-is-vector-index-overhead.html">what is index overhead</a>, or see <a href="vs-pinecone.html">this calculator vs. Pinecone's own pricing page</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or engineering advice, and it does not replace a qualified professional or a vendor's own documented pricing. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../freight-accessorial-auditor/" data-pf-to="freight-accessorial-auditor">Freight Accessorial Invoice Auditor</a></li>
+      <li><a href="../freight-broker-load-margin-calculator/" data-pf-to="freight-broker-load-margin-calculator">Freight Broker Load Margin Calculator — free, private, in your browser</a></li>
+      <li><a href="../fuel-surcharge-schedule-calculator/" data-pf-to="fuel-surcharge-schedule-calculator">Fuel Surcharge Calculator — free, private</a></li>
+      <li><a href="../hos-trip-planner/" data-pf-to="hos-trip-planner">HOS Trip Planner — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=vector-db-cost-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="vector-db-cost-calculator"></script>
+</body></html>

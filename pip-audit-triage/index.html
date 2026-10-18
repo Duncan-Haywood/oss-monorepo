@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pip-audit Triage — Which Python Vulnerabilities Does Your Code Actually Import?</title>
+  <meta name="description" content="Paste pip-audit -f json and your Python source: see which vulnerable packages your code actually imports and which are test-only or unreferenced noise.">
+  <meta property="og:title" content="Which pip-audit findings actually matter?">
+  <meta property="og:description" content="Rank pip-audit vulnerabilities by whether your code imports the package. Free, offline, with a CI gate CLI.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"pip-audit Triage","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies; reads Python source as text","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Ranks pip-audit -f json findings by whether your Python code actually imports the vulnerable package, imports it only from test or tooling files, or never references it. Runs in the browser or as a zero-dependency CLI that can fail CI on imported vulnerable packages; nothing is uploaded and it makes no network calls."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does pip-audit report vulnerabilities in packages I barely use?","acceptedAnswer":{"@type":"Answer","text":"pip-audit matches every installed or pinned distribution against an advisory database such as PyPI and OSV. It does not look at your code, so it cannot tell a package your service imports on every request from a transitive dependency of a linter. pip-audit also reports no severity, so a long list has no obvious order. This tool adds one signal, whether your Python source imports the package, so you read the reachable findings first."}},{"@type":"Question","name":"How does the triage decide a package is reachable?","acceptedAnswer":{"@type":"Answer","text":"It scans .py source as text for import, from-import, importlib.import_module and __import__ statements, maps each distribution name to the module name it installs (PyYAML is imported as yaml, Pillow as PIL, scikit-learn as sklearn) and compares them to the audit. A vulnerable package imported from runtime code ranks first, one imported only from tests, docs or tooling ranks next, and one never referenced ranks last. It is a static text scan and cannot see imports built from variables."}},{"@type":"Question","name":"Does this mean the low-ranked vulnerabilities are safe to ignore?","acceptedAnswer":{"@type":"Answer","text":"No. Not imported is not the same as not exploitable: a package can be loaded by a plugin entry point, a framework that imports by string, or another package you do import, and it can be a transitive dependency of something you do use. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule."}},{"@type":"Question","name":"Does this tool upload my audit output or source code?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else."}},{"@type":"Question","name":"Is this security advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.imported { background: #fde8e8; color: #9a3412; }
+    .pill.test-only { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Which pip-audit findings actually matter?","item":"https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which pip-audit findings actually matter? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Which pip-audit findings actually matter?</span></span></nav>
+  <header>
+    <p class="note">PIP-AUDIT TRIAGE · RUNS IN YOUR BROWSER</p>
+    <h1>Which pip-audit findings does your code actually import?</h1>
+    <p><code>pip-audit</code> prints a flat list of vulnerable packages with no severity and no way to tell the one your service imports from the one a linter dragged in. Paste the <code>pip-audit -f json</code> output and your Python source: findings are ranked by whether the vulnerable package is <strong>imported by your runtime code</strong>, <strong>test/tooling only</strong>, or <strong>not referenced</strong>. Paid platforms (Snyk, Endor Labs) sell reachability analysis; this is the free, offline first pass.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a static text scan and a heuristic ranking, not a security audit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste <code>pip-audit -f json</code></h2>
+    <textarea id="audit" spellcheck="false" placeholder='{"dependencies":[ ... ]}'></textarea>
+    <h2 style="margin-top:14px">2. Paste your source (optional but it is the point)</h2>
+    <p class="note">Concatenate files, or put a line <code># file: app/main.py</code> before each so test files are recognised. In the CLI the directory is scanned for you.</p>
+    <textarea id="src" spellcheck="false" placeholder="# file: app/main.py&#10;import flask"></textarea>
+    <p>
+      <button type="button" id="check">Triage</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste the audit output above and click Triage.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Ranked findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <div class="pf-table-scroll"><table>
+        <thead><tr><th>Package</th><th>Advisories</th><th>Reachability</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Want it as a CI gate?</h2>
+    <p>Same logic, zero dependencies. It reads the audit file and walks your source directory, nothing else:</p>
+    <pre class="cmd"><code>pip-audit -f json | node pip-audit-triage.mjs - src          # triage, print ranked list
+pip-audit -f json | node pip-audit-triage.mjs - src --fail-on-imported   # exit 1 if a runtime-imported package is vulnerable
+node pip-audit-triage.mjs audit.json src lib --json         # machine-readable</code></pre>
+    <p class="note">Get <a href="pip-audit-triage.mjs" rel="noopener">pip-audit-triage.mjs</a> and <a href="triage.mjs" rel="noopener">triage.mjs</a> from the repo. Run <code>pip-audit</code> yourself first; this tool only reads its output. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does pip-audit report vulnerabilities in packages I barely use?</h3>
+    <p>pip-audit matches every installed or pinned distribution against an advisory database such as PyPI and OSV. It does not look at your code, so it cannot tell a package your service imports on every request from a transitive dependency of a linter. pip-audit also reports no severity, so a long list has no obvious order. This tool adds one signal, whether your Python source imports the package, so you read the reachable findings first.</p>
+    <h3>How does the triage decide a package is reachable?</h3>
+    <p>It scans .py source as text for import, from-import, importlib.import_module and __import__ statements, maps each distribution name to the module name it installs (PyYAML is imported as yaml, Pillow as PIL, scikit-learn as sklearn) and compares them to the audit. A vulnerable package imported from runtime code ranks first, one imported only from tests, docs or tooling ranks next, and one never referenced ranks last. It is a static text scan and cannot see imports built from variables.</p>
+    <h3>Does this mean the low-ranked vulnerabilities are safe to ignore?</h3>
+    <p>No. Not imported is not the same as not exploitable: a package can be loaded by a plugin entry point, a framework that imports by string, or another package you do import, and it can be a transitive dependency of something you do use. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule.</p>
+    <h3>Does this tool upload my audit output or source code?</h3>
+    <p>No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else.</p>
+    <h3>Is this security advice?</h3>
+    <p>No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities.</p>
+    <p>More: <a href="how-to-triage-pip-audit-findings.html">how to triage pip-audit findings without ignoring real risk</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice or a security audit, and its heuristic reading of your imports can miss reachable vulnerabilities. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="pip-audit-triage.mjs" rel="noopener">pip-audit-triage.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The audit output and source you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../npm-audit-triage/">npm Audit Triage</a>, <a href="../cargo-audit-triage/">cargo audit Triage</a>, <a href="../pypi-provenance-check/">PyPI Provenance Check</a> and <a href="../requirements-pin-check/">Requirements Pin Check</a>.</p>
+    <p class="support">Free and open source. If this told you where to look first, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { triage, summaryLine } from "./triage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { audit: $("#audit"), src: $("#src"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    // Synthetic audit output and source, fictional-looking versions of real package names.
+    const EXAMPLE_AUDIT = JSON.stringify({ dependencies: [
+      { name: "PyYAML", version: "5.3", vulns: [{ id: "PYSEC-2020-96", aliases: ["CVE-2020-14343"], fix_versions: ["5.4"], description: "Arbitrary code execution when loading untrusted YAML" }] },
+      { name: "Pillow", version: "8.0.0", vulns: [{ id: "PYSEC-2021-1", aliases: [], fix_versions: ["8.1.1"], description: "Out-of-bounds read" }, { id: "PYSEC-2021-2", aliases: [], fix_versions: ["9.0.0"], description: "Decompression bomb" }] },
+      { name: "pytest-mock", version: "1.0", vulns: [{ id: "PYSEC-2022-3", aliases: [], fix_versions: ["1.1"], description: "Test helper issue" }] },
+      { name: "sphinx-rtd-theme", version: "0.4", vulns: [{ id: "PYSEC-2022-4", aliases: [], fix_versions: ["0.5"], description: "XSS in generated docs" }] }
+    ] }, null, 1);
+    const EXAMPLE_SRC = `# file: app/main.py
+import yaml
+from PIL import Image
+# file: tests/test_main.py
+import pytest_mock`;
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const LABEL = { imported: "imported by your code", "test-only": "test / tooling only", "not-referenced": "not referenced" };
+
+    function splitFiles(text) {
+      const files = []; let path = "(pasted)"; let buf = [];
+      const flush = () => { if (buf.length) files.push({ path, text: buf.join("\n") }); buf = []; };
+      for (const line of text.split("\n")) {
+        const m = line.match(/^\s*#\s*file:\s*(\S+)/i);
+        if (m) { flush(); path = m[1]; } else buf.push(line);
+      }
+      flush();
+      return files;
+    }
+
+    function run(auditText, srcText) {
+      if (!auditText.trim()) { els.status.innerHTML = `<span class="error">Paste the pip-audit -f json output first.</span>`; return false; }
+      const result = triage(auditText, splitFiles(srcText));
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.className = `verdict ${result.urgent.length ? "risk" : ""}`;
+      els.verdict.textContent = result.urgent.length ? `${result.urgent.length} vulnerable package(s) your code imports. ` + summaryLine(result) : summaryLine(result);
+      els.rows.innerHTML = result.items.map((i) => `
+        <tr><td><code>${escapeHtml(i.name)}==${escapeHtml(i.version)}</code><div class="note">${escapeHtml(i.vulns[0] ? i.vulns[0].description : "")}</div></td>
+        <td>${i.vulns.length}<div class="note">${escapeHtml(i.vulns.map((v) => v.id).join(", "))}</div></td>
+        <td><span class="pill ${i.bucket}">${LABEL[i.bucket]}</span>${i.evidence[0] ? `<div class="note">${escapeHtml(i.evidence[0])}</div>` : ""}</td>
+        <td>${escapeHtml(i.fix)}</td></tr>`).join("")
+        || `<tr><td colspan="4" class="note">pip-audit reported no vulnerabilities.</td></tr>`;
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.audit.value, els.src.value));
+    $("#load-example").addEventListener("click", () => {
+      els.audit.value = EXAMPLE_AUDIT;
+      els.src.value = EXAMPLE_SRC;
+      if (run(EXAMPLE_AUDIT, EXAMPLE_SRC)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: PyYAML and Pillow are imported by app code and rank first; the test helper and docs theme rank lower because no runtime code loads them.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.audit.value = ""; els.src.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste the audit output above and click Triage.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../llm-call-cost-scan/" data-pf-to="llm-call-cost-scan">Which LLM calls in your code are quietly costing you money?</a></li>
+      <li><a href="../llm-output-regression-diff/" data-pf-to="llm-output-regression-diff">Did the new model break your prompts?</a></li>
+      <li><a href="../llm-spend-guard/" data-pf-to="llm-spend-guard">Would a spend cap have stopped your runaway LLM bill?</a></li>
+      <li><a href="../llm-usage-log-analyzer/" data-pf-to="llm-usage-log-analyzer">LLM Usage Log Analyzer</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1279 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=pip-audit-triage">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/?pfEmbed=1&quot; title=&quot;Which pip-audit findings actually matter? — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="pip-audit-triage"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/" data-pf-embed-title="Which pip-audit findings actually matter?" data-pf-embed-slug="pip-audit-triage"></script>
+</body>
+</html>
